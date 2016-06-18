@@ -17,7 +17,7 @@ PROG=           anici
 CC=             @echo CC $<; cc -pipe
 LIBS=           -framework Foundation
 
-COPT?=          -DNDEBUG -Ofast
+COPT?=          -DNDEBUG -Ofast -Oz
 ifdef RELEASE
 COPT+=          -flto
 endif
