@@ -38,8 +38,8 @@ struct ici_float
  * having our hash table go bad.
  */
 #ifndef __GNUC__
-#define DBL_BIT_CMP(a, b)     (((long *)(a))[0] == ((long *)(b))[0] \
-                            && ((long *)(a))[1] == ((long *)(b))[1])
+#define DBL_BIT_CMP(a, b)     (((int32_t *)(a))[0] == ((int32_t *)(b))[0] \
+                            && ((int32_t *)(a))[1] == ((int32_t *)(b))[1])
 #else
 #define DBL_BIT_CMP(a, b) (memcmp(a, b, sizeof (double)) == 0)
 #endif

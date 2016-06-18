@@ -44,7 +44,14 @@ ici_init(void)
      * represent a significant inefficiency if they were padded.
      */
     assert(sizeof(ici_obj_t) == 4);
+
+    /*
+     * The following assertion is only valid on some architectures.
+     * In particular it is wrong for systems that use 64-bit aligned
+     * pointers.
+     *
     assert(offsetof(ici_objwsup_t, o_super) == 4);
+     */
 
 #   ifndef NDEBUG
     {

@@ -53,7 +53,7 @@ mark_float(ici_obj_t *o)
 static int
 cmp_float(ici_obj_t *o1, ici_obj_t *o2)
 {
-    assert(sizeof(double) == 2 * sizeof(long));
+    assert(sizeof(double) == 2 * sizeof(int32_t));
     return !DBL_BIT_CMP(&ici_floatof(o1)->f_value, &ici_floatof(o2)->f_value);
 }
 
