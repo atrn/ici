@@ -37,7 +37,7 @@ INSTALL = install -c
 #
 OBJS    =                                                       \
 	alloc.o aplfuncs.o archive.o arith.o array.o            \
-	call.o catch.o cfunc.o cfunco.o clib.o                  \
+	call.o catch.o cfunc.o cfunco.o                         \
 	compile.o conf.o control.o crc.o events.o exec.o        \
 	error.o exerror.o file.o findpath.o                     \
 	float.o forall.o                                        \
@@ -52,7 +52,7 @@ OBJS    =                                                       \
         set.o sfile.o                  		                \
 	save.o signals.o smash.o src.o string.o sstring.o       \
 	struct.o syserr.o                                       \
-	thread.o trace.o unary.o uninit.o                       \
+	thread.o unary.o uninit.o                               \
 	buf.o strtol.o                                          \
 	idb.o idb2.o profile.o
 

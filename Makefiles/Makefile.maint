@@ -70,11 +70,11 @@ FILES   = \
 	alloc.h array.h binop.h buf.h catch.h cfunc.h error.h exec.h file.h\
 	float.h forall.h func.h fwd.h handle.h int.h mark.h mem.h method.h \
 	null.h object.h op.h parse.h pc.h profile.h primes.h ptr.h re.h\
-	set.h src.h sstring.h str.h struct.h trace.h wrap.h\
+	set.h src.h sstring.h str.h struct.h wrap.h\
 	\
 	alloc.c aplfuncs.c arith.c array.c\
 	buf.c\
-	call.c catch.c cfunc.c cfunco.c clib.c clib2.c\
+	call.c catch.c cfunc.c cfunco.c clib2.c\
 	    compile.c conf.c control.c crc.c\
 	error.c events.c exec.c exerror.c\
 	file.c findpath.c float.c forall.c func.c\
@@ -87,7 +87,7 @@ FILES   = \
 	refuncs.c regexp.c\
 	set.c sfhash.c sfile.c signals.c smash.c src.c sstring.c string.c\
 	    strtol.c struct.c syserr.c\
-	thread.c trace.c\
+	thread.c \
 	unary.c uninit.c\
 	win32err.c winmain.c\
 	\

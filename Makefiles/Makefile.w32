@@ -43,7 +43,7 @@ LIBS    = user32.lib wsock32.lib advapi32.lib winmm.lib
 
 OBJS    = \
     alloc.obj aplfuncs.obj arith.obj array.obj call.obj \
-    catch.obj cfunc.obj cfunco.obj clib.obj clib2.obj \
+    catch.obj cfunc.obj cfunco.obj \
     compile.obj conf.obj control.obj crc.obj events.obj exec.obj \
     error.obj exerror.obj file.obj findpath.obj float.obj forall.obj \
     func.obj handle.obj icimain.obj init.obj int.obj \
@@ -54,7 +54,7 @@ OBJS    = \
     signals.obj smash.obj src.obj \
     sstring.obj string.obj \
     struct.obj syserr.obj thread.obj \
-    trace.obj unary.obj uninit.obj win32err.obj \
+    unary.obj uninit.obj win32err.obj \
     win32timezone.obj \
     buf.obj strtol.obj \
     idb.obj idb2.obj
@@ -111,7 +111,7 @@ clean:
 ici.h : conf/w32.h fwd.h object.h alloc.h buf.h catch.h \
     cfunc.h array.h int.h float.h exec.h file.h forall.h func.h \
     handle.h mark.h mem.h method.h null.h op.h parse.h pc.h \
-    ptr.h re.h set.h src.h str.h struct.h trace.h wrap.h
+    ptr.h re.h set.h src.h str.h struct.h wrap.h
 
 alloc.obj: fwd.h conf/w32.h
 alloc.obj:  alloc.h
@@ -138,10 +138,6 @@ cfunc.obj: null.h parse.h mem.h
 cfunco.obj: cfunc.h exec.h array.h object.h fwd.h conf/w32.h
 cfunco.obj:  alloc.h int.h float.h ptr.h struct.h op.h
 cfunco.obj: pc.h str.h sstring.h catch.h buf.h mark.h null.h primes.h
-clib.obj: file.h exec.h array.h object.h fwd.h conf/w32.h
-clib.obj:  alloc.h int.h float.h func.h cfunc.h op.h str.h
-clib.obj: sstring.h buf.h null.h re.h pcre/pcre.h 
-clib2.obj: str.h sstring.h func.h cfunc.h
 compile.obj: parse.h array.h object.h fwd.h conf/w32.h
 compile.obj:  alloc.h op.h str.h sstring.h
 conf.obj: fwd.h conf/w32.h
@@ -252,9 +248,6 @@ syserr.obj:  alloc.h
 thread.obj: fwd.h conf/w32.h
 thread.obj:  alloc.h exec.h array.h object.h fwd.h int.h
 thread.obj: float.h cfunc.h op.h catch.h
-trace.obj: func.h cfunc.h object.h fwd.h conf/w32.h
-trace.obj:  alloc.h trace.h file.h set.h struct.h array.h
-trace.obj: re.h pcre/pcre.h str.h sstring.h int.h float.h exec.h op.h
 unary.obj: exec.h array.h object.h fwd.h conf/w32.h
 unary.obj:  alloc.h int.h float.h op.h parse.h buf.h
 unary.obj: null.h

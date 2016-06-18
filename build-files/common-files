@@ -8,7 +8,6 @@ call.c
 catch.c
 cfunc.c
 cfunco.c
-clib.c
 compile.c
 conf.c
 control.c
@@ -63,6 +62,5 @@ struct.c
 pcre/study.c
 syserr.c
 thread.c
-trace.c
 unary.c
 uninit.c

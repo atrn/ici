@@ -43,7 +43,7 @@ INSTALL = install -c
 #
 OBJS    = \
 	alloc.o aplfuncs.o arith.o array.o call.o \
-	catch.o cfunc.o cfunco.o clib.o clib2.o \
+	catch.o cfunc.o cfunco.o \
 	compile.o conf.o control.o crc.o events.o exec.o \
 	error.o exerror.o file.o findpath.o \
 	float.o forall.o \
@@ -55,7 +55,7 @@ OBJS    = \
 	ptr.o refuncs.o regexp.o set.o sfile.o \
 	signals.o  smash.o src.o string.o sstring.o \
 	struct.o syserr.o \
-	thread.o trace.o unary.o uninit.o \
+	thread.o unary.o uninit.o \
 	buf.o strtol.o \
 	idb.o idb2.o profile.o
 
@@ -100,7 +100,7 @@ ICIHDRS=\
 	file.h float.h forall.h func.h fwd.h ici.h int.h mark.h mem.h\
 	method.h null.h object.h op.h\
 	parse.h pc.h primes.h ptr.h re.h set.h src.h str.h struct.h\
-	trace.h wrap.h
+	wrap.h
 
 PCREHDRS=\
 	pcre/internal.h\
@@ -166,18 +166,15 @@ clean:
 #
 # No mention of fwd.h or alloc.h, but everything depends on it.
 #
-alloc.o        : trace.h
 arith.o        : exec.h float.h int.h op.h parse.h ptr.h str.h struct.h buf.h binop.h
 array.o        : ptr.h exec.h op.h int.h buf.h
 call.o         : buf.h exec.h func.h int.h float.h str.h null.h op.h
 catch.o        : exec.h catch.h op.h func.h
 cfunc.o        : exec.h func.h str.h int.h float.h struct.h set.h op.h ptr.h buf.h file.h re.h null.h parse.h mem.h
-clib.o         : file.h func.h op.h int.h float.h str.h buf.h exec.h
-clib2.o        : buf.h func.h
 compile.o      : parse.h array.h op.h str.h
 conf.o         : func.h
 control.o      : exec.h op.h int.h buf.h pc.h struct.h null.h forall.h catch.h
-exec.o         : exec.h op.h catch.h ptr.h func.h str.h buf.h pc.h int.h struct.h set.h parse.h float.h re.h src.h null.h forall.h trace.h binop.h
+exec.o         : exec.h op.h catch.h ptr.h func.h str.h buf.h pc.h int.h struct.h set.h parse.h float.h re.h src.h null.h forall.h binop.h
 exerror.o      : str.h buf.h
 file.o         : file.h
 float.o        : float.h
@@ -186,7 +183,7 @@ func.o         : func.h exec.h ptr.h struct.h op.h pc.h str.h catch.h buf.h mark
 icimain.o      : ptr.h exec.h file.h str.h struct.h buf.h wrap.h func.h
 init.o         : func.h buf.h struct.h
 int.o          : int.h
-lex.o          : parse.h file.h buf.h src.h array.h trace.h
+lex.o          : parse.h file.h buf.h src.h array.h
 mark.o         : mark.h
 mem.o          : mem.h int.h buf.h
 mkvar.o        : exec.h struct.h
@@ -204,6 +201,5 @@ src.o          : exec.h src.h
 string.o       : str.h struct.h exec.h int.h
 struct.o       : struct.h ptr.h exec.h func.h op.h int.h buf.h str.h pc.h
 syserr.o       :
-trace.o        : func.h object.h trace.h file.h set.h struct.h array.h re.h str.h int.h float.h exec.h op.h
 unary.o        : exec.h float.h int.h op.h parse.h buf.h null.h
 wrap.o         : wrap.h
