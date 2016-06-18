@@ -44,7 +44,6 @@ FILES   = \
 	\
 	Makfiles/Makefile.bsd Makfiles/Makefile.hp Makfiles/Makefile.irix Makfiles/Makefile.linux\
 	Makfiles/Makefile.maint Makfiles/Makefile.next Makfiles/Makefile.sco Makfiles/Makefile.sol2\
-	Makfiles/Makefile.sun Makfiles/Makefile.ultrix Makfiles/Makefile.beos\
 	Makfiles/Makefile.w32 Makfiles/ici.mak ici.def\
 	\
 	win32/ici.dsw\

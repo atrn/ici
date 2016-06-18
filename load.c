@@ -17,8 +17,6 @@ static                  int push_path_elements(ici_array_t *a, const char *path)
 # if defined(_WIN32)
 #  include "load-w32.h"
 #  include <io.h>
-# elif defined(__BEOS__)
-#  include "load-beos.h"
 # else /* Unix */
 #  include <sys/types.h>
 #  include <unistd.h>
@@ -27,7 +25,7 @@ static                  int push_path_elements(ici_array_t *a, const char *path)
 typedef void    *dll_t;
 #define valid_dll(dll)  ((dll) != NULL)
 
-# endif /* _WIN32, __BEOS__ */
+# endif /* _WIN32 */
 
 #ifndef NODLOAD
 # ifndef RTLD_NOW
@@ -260,36 +258,7 @@ fail:
     return 1;
 }
 
-#if defined(__BEOS__)
-/*
- * Get library path. Needed even without dynamic loading of binaries, to
- * load ICI files dynamically
- */
-#include <FindDirectory.h>
-
-/*
- * Push path elements specific to BeOS onto the array a (which is the ICI
- * path array used for finding dynamically loaded modules and stuff). These
- * are in addition to the ANICIPATH environment variable.
- */
-static int
-push_os_path_elements(ici_array_t *a)
-{
-    char                path[FILENAME_MAX];
-
-    if (find_directory(B_USER_ADDONS_DIRECTORY, 0, false, path, sizeof(path) - 6) == 0)
-    {
-        strcat(path, "/ici");
-        PUSH(a, path);
-    }
-    if (find_directory(B_USER_LIB_DIRECTORY, 0, false, path, sizeof(path) - 6) == 0)
-    {
-        strcat(path, "/ici");
-        PUSH(a, path);
-    }
-    return 0;
-}
-#elif defined(_WIN32)
+#if defined(_WIN32)
 /*
  * Push path elements specific to Windows onto the array a (which is the ICI
  * path array used for finding dynamically loaded modules and stuff). These
