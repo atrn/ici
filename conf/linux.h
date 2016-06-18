@@ -7,7 +7,6 @@
  * The following portion of this file exports to ici.h. --ici.h-start--
  */
 
-#define NOTRACE         /* For debugging. */
 #undef  NOSTARTUPFILE   /* Parse a standard file of ICI code at init time. */
 #undef  NODEBUGGING     /* Debugger interface and functions */
 #define NOEVENTS        /* Event loop and associated processing. */

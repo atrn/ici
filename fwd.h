@@ -386,11 +386,6 @@ extern void                     ici_signals_init(void);
 extern int                      ici_signals_invoke_handlers(void);
 extern int                      ici_signals_blocking_syscall(int);
 
-
-#ifndef NOTRACE
-extern void                     ici_trace_pcall(ici_obj_t *);
-#endif
-
 /*
  * End of ici.h export. --ici.h-end--
  */

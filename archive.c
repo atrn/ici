@@ -226,7 +226,7 @@ void ici_archive_byteswap(void *ptr, int sz)
     }
 }
 
-ici_cfunc_t ici_save_restore_cfuncs[] =
+ICI_DEFINE_CFUNCS(save_restore)
 {
     {ICI_CF_OBJ, "save",        ici_archive_f_save,     0, 0},
     {ICI_CF_OBJ, "restore",     ici_archive_f_restore,  0, 0},

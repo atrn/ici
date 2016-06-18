@@ -17,9 +17,6 @@
 #include "null.h"
 #include "forall.h"
 #include "primes.h"
-#ifndef NOTRACE
-#include "trace.h"
-#endif
 #include <signal.h>
 
 /*

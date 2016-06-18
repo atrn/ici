@@ -24,6 +24,8 @@
 #include "parse.h"
 #include "mem.h"
 #include "handle.h"
+#include "pcre/pcre.h"
+
 #include <stdio.h>
 #include <limits.h>
 #include <math.h>
@@ -43,9 +45,12 @@
 #include <sys/types.h>
 
 #if defined(__linux__) || defined(BSD) || defined(__sun)
+#include <sys/param.h>
 #include <unistd.h>
+#include <sys/stat.h>
 #include <sys/time.h>
 #include <sys/resource.h>
+#include <dirent.h>
 #endif
 
 extern int stdio_getc(void *);
@@ -3267,99 +3272,1054 @@ x_floor(double arg)
 	return floor(arg);
 }
 
-ici_cfunc_t ici_std_cfuncs[] =
+
+int stdio_getc(void *file)
 {
-    {ICI_CF_OBJ,    (char *)SS(array),        f_array},
-    {ICI_CF_OBJ,    (char *)SS(copy),         f_copy},
-    {ICI_CF_OBJ,    (char *)SS(exit),         f_exit},
-    {ICI_CF_OBJ,    (char *)SS(fail),         f_fail},
-    {ICI_CF_OBJ,    (char *)SS(float),        f_float},
-    {ICI_CF_OBJ,    (char *)SS(int),          f_int},
-    {ICI_CF_OBJ,    (char *)SS(eq),           f_eq},
-    {ICI_CF_OBJ,    (char *)SS(parse),        f_parse},
-    {ICI_CF_OBJ,    (char *)SS(string),       f_string},
-    {ICI_CF_OBJ,    (char *)SS(struct),       f_struct},
-    {ICI_CF_OBJ,    (char *)SS(set),          f_set},
-    {ICI_CF_OBJ,    (char *)SS(typeof),       f_typeof},
-    {ICI_CF_OBJ,    (char *)SS(push),         f_push},
-    {ICI_CF_OBJ,    (char *)SS(pop),          f_pop},
-    {ICI_CF_OBJ,    (char *)SS(rpush),        f_rpush},
-    {ICI_CF_OBJ,    (char *)SS(rpop),         f_rpop},
-    {ICI_CF_OBJ,    (char *)SS(call),         f_call},
-    {ICI_CF_OBJ,    (char *)SS(keys),         f_keys},
-    {ICI_CF_OBJ,    (char *)SS(vstack),       f_vstack},
-    {ICI_CF_OBJ,    (char *)SS(tochar),       f_tochar},
-    {ICI_CF_OBJ,    (char *)SS(toint),        f_toint},
-    {ICI_CF_OBJ,    (char *)SS(rand),         f_rand},
-    {ICI_CF_OBJ,    (char *)SS(interval),     f_interval},
-    {ICI_CF_OBJ,    (char *)SS(explode),      f_explode},
-    {ICI_CF_OBJ,    (char *)SS(implode),      f_implode},
-    {ICI_CF_OBJ,    (char *)SS(sopen),        f_sopen},
-    {ICI_CF_OBJ,    (char *)SS(mopen),        f_mopen},
-    {ICI_CF_OBJ,    (char *)SS(sprintf),      ici_f_sprintf},
-    {ICI_CF_OBJ,    (char *)SS(currentfile),  f_currentfile},
-    {ICI_CF_OBJ,    (char *)SS(del),          f_del},
-    {ICI_CF_OBJ,    (char *)SS(alloc),        f_alloc},
-    {ICI_CF_OBJ,    (char *)SS(mem),          f_mem},
-    {ICI_CF_OBJ,    (char *)SS(len),          f_nels},
-    {ICI_CF_OBJ,    (char *)SS(super),        f_super},
-    {ICI_CF_OBJ,    (char *)SS(scope),        f_scope},
-    {ICI_CF_OBJ,    (char *)SS(isatom),       f_isatom},
-    {ICI_CF_OBJ,    (char *)SS(gettoken),     f_gettoken},
-    {ICI_CF_OBJ,    (char *)SS(gettokens),    f_gettokens},
-    {ICI_CF_OBJ,    (char *)SS(num),          f_num},
-    {ICI_CF_OBJ,    (char *)SS(assign),       f_assign},
-    {ICI_CF_OBJ,    (char *)SS(fetch),        f_fetch},
-    {ICI_CF_OBJ,    (char *)SS(abs),          f_abs},
-    {ICI_CF_OBJ,    (char *)SS(sin),          f_math, (void *)sin,    ICI_CF_ARG("f=n")},
-    {ICI_CF_OBJ,    (char *)SS(cos),          f_math, (void *)cos,    ICI_CF_ARG("f=n")},
-    {ICI_CF_OBJ,    (char *)SS(tan),          f_math, (void *)tan,    ICI_CF_ARG("f=n")},
-    {ICI_CF_OBJ,    (char *)SS(asin),         f_math, (void *)asin,   ICI_CF_ARG("f=n")},
-    {ICI_CF_OBJ,    (char *)SS(acos),         f_math, (void *)acos,   ICI_CF_ARG("f=n")},
-    {ICI_CF_OBJ,    (char *)SS(atan),         f_math, (void *)atan,   ICI_CF_ARG("f=n")},
-    {ICI_CF_OBJ,    (char *)SS(atan2),        f_math, (void *)atan2,  ICI_CF_ARG("f=nn")},
-    {ICI_CF_OBJ,    (char *)SS(exp),          f_math, (void *)exp,    ICI_CF_ARG("f=n")},
-    {ICI_CF_OBJ,    (char *)SS(log),          f_math, (void *)log,    ICI_CF_ARG("f=n")},
-    {ICI_CF_OBJ,    (char *)SS(log10),        f_math, (void *)log10,  ICI_CF_ARG("f=n")},
-    {ICI_CF_OBJ,    (char *)SS(pow),          f_math, (void *)pow,    ICI_CF_ARG("f=nn")},
-    {ICI_CF_OBJ,    (char *)SS(sqrt),         f_math, (void *)sqrt,   ICI_CF_ARG("f=n")},
-    {ICI_CF_OBJ,    (char *)SS(floor),        f_math, (void *)x_floor,  ICI_CF_ARG("f=n")},
-    {ICI_CF_OBJ,    (char *)SS(ceil),         f_math, (void *)ceil,   ICI_CF_ARG("f=n")},
-    {ICI_CF_OBJ,    (char *)SS(fmod),         f_math, (void *)fmod,   ICI_CF_ARG("f=nn")},
-    {ICI_CF_OBJ,    (char *)SS(waitfor),      f_waitfor},
-    {ICI_CF_OBJ,    (char *)SS(top),          f_top},
-#ifdef ICI_F_INCLUDE
-    {ICI_CF_OBJ,    (char *)SS(include),      f_include},
+    return fgetc((FILE *)file);
+}
+
+static int stdio_ungetc(int c, void *file)
+{
+    return ungetc(c, (FILE *)file);
+}
+
+static int stdio_flush(void *file)
+{
+    return fflush((FILE *)file);
+}
+
+static int stdio_close(void *file)
+{
+    return fclose((FILE *)file);
+}
+
+static int stdio_pclose(void *file)
+{
+    return pclose((FILE *)file);
+}
+
+static long     stdio_seek(void *file, long offset, int whence)
+{
+    if (fseek((FILE *)file, offset, whence) == -1)
+    {
+        ici_set_error("seek failed");
+        return -1;
+    }
+    return ftell((FILE *)file);
+}
+
+static int      stdio_eof(void *file)
+{
+    return feof((FILE *)file);
+}
+
+static int      stdio_write(const void *buf, long n, void *file)
+{
+    return fwrite(buf, 1, (size_t)n, (FILE *)file);
+}
+
+ici_ftype_t ici_stdio_ftype =
+{
+    FT_NOMUTEX,
+    stdio_getc,
+    stdio_ungetc,
+    stdio_flush,
+    stdio_close,
+    stdio_seek,
+    stdio_eof,
+    stdio_write
+};
+
+ici_ftype_t  ici_popen_ftype =
+{
+    FT_NOMUTEX,
+    stdio_getc,
+    stdio_ungetc,
+    stdio_flush,
+    stdio_pclose,
+    stdio_seek,
+    stdio_eof,
+    stdio_write
+};
+
+static int
+f_getchar()
+{
+    ici_file_t          *f;
+    int                 c;
+    ici_exec_t          *x = NULL;
+
+    if (ICI_NARGS() != 0)
+    {
+        if (ici_typecheck("u", &f))
+	{
+            return 1;
+	}
+    }
+    else
+    {
+        if ((f = ici_need_stdin()) == NULL)
+	{
+            return 1;
+	}
+    }
+    ici_signals_blocking_syscall(1);
+    if (f->f_type->ft_flags & FT_NOMUTEX)
+    {
+        x = ici_leave();
+    }
+    c = (*f->f_type->ft_getch)(f->f_file);
+    if (f->f_type->ft_flags & FT_NOMUTEX)
+    {
+        ici_enter(x);
+    }
+    ici_signals_blocking_syscall(0);
+    if (c == EOF)
+    {
+        if ((FILE *)f->f_file == stdin)
+	{
+            clearerr(stdin);
+	}
+        return ici_null_ret();
+    }
+    buf[0] = c;
+    return ici_ret_with_decref(ici_objof(ici_str_new(buf, 1)));
+}
+
+static int
+f_ungetchar()
+{
+    ici_file_t  *f;
+    char        *ch;
+
+    if (ICI_NARGS() != 1)
+    {
+        if (ici_typecheck("su", &ch, &f))
+            return 1;
+    }
+    else
+    {
+        if ((f = ici_need_stdin()) == NULL)
+	{
+            return 1;
+	}
+        if (ici_typecheck("s", &ch))
+	{
+            return 1;
+	}
+    }
+    if ((*f->f_type->ft_ungetch)(*ch, f->f_file) == EOF)
+    {
+        return ici_set_error("unable to unget character");
+    }
+    return ici_str_ret(ch);
+}
+
+static int
+f_getline()
+{
+    int        i;
+    int        c;
+    void       *file;
+    ici_file_t          *f;
+    int                 (*get)(void *);
+    ici_exec_t          *x = NULL;
+    char                *b;
+    int                 buf_size;
+    ici_str_t           *str;
+
+    x = NULL;
+    if (ICI_NARGS() != 0)
+    {
+        if (ici_typecheck("u", &f))
+            return 1;
+    }
+    else
+    {
+        if ((f = ici_need_stdin()) == NULL)
+            return 1;
+    }
+    get = f->f_type->ft_getch;
+    file = f->f_file;
+    if ((b = (char *)malloc(buf_size = 128)) == NULL)
+        goto nomem;
+    if (f->f_type->ft_flags & FT_NOMUTEX)
+    {
+        ici_signals_blocking_syscall(1);
+        x = ici_leave();
+    }
+    for (i = 0; (c = (*get)(file)) != '\n' && c != EOF; ++i)
+    {
+        if (i == buf_size && (b = (char *)realloc(b, buf_size *= 2)) == NULL)
+            break;
+        b[i] = c;
+    }
+    if (f->f_type->ft_flags & FT_NOMUTEX)
+    {
+        ici_enter(x);
+        ici_signals_blocking_syscall(0);
+    }
+    if (b == NULL)
+        goto nomem;
+    if (i == 0 && c == EOF)
+    {
+        free(b);
+        if ((FILE *)f->f_file == stdin)
+            clearerr(stdin);
+        return ici_null_ret();
+    }
+    str = ici_str_new(b, i);
+    free(b);
+    if (str == NULL)
+        return 1;
+    return ici_ret_with_decref(ici_objof(str));
+
+nomem:
+    return ici_set_error("ran out of memory");
+}
+
+static int
+f_getfile()
+{
+    int                 i;
+    int                 c;
+    ici_file_t          *f;
+    int                 (*get)(void *);
+    void                *file;
+    ici_exec_t          *x = NULL;
+    char                *b;
+    int                 buf_size;
+    ici_str_t           *str;
+    int                 must_close;
+    
+    must_close = 0;
+    str = NULL; /* Pessimistic. */
+    if (ICI_NARGS() != 0)
+    {
+        if (ici_isstring(ICI_ARG(0)))
+        {
+            if (ici_call(SS(fopen), "o=o", &f, ICI_ARG(0)))
+                goto finish;
+            must_close = 1;
+        }
+        else
+            f = ici_fileof(ICI_ARG(0));
+        if (!ici_isfile(f))
+        {
+            char    n1[ICI_OBJNAMEZ];
+            ici_set_error("getfile() given %s instead of a file",
+                ici_objname(n1, ici_objof(f)));
+            goto finish;
+        }
+    }
+    else
+    {
+        if ((f = ici_need_stdin()) == NULL)
+            goto finish;
+    }
+    get = f->f_type->ft_getch;
+    file = f->f_file;
+    if ((b = (char *)malloc(buf_size = 128)) == NULL)
+        goto nomem;
+    if (f->f_type->ft_flags & FT_NOMUTEX)
+    {
+        ici_signals_blocking_syscall(1);
+        x = ici_leave();
+    }
+    for (i = 0; (c = (*get)(file)) != EOF; ++i)
+    {
+        if (i == buf_size && (b = (char *)realloc(b, buf_size *= 2)) == NULL)
+            break;
+        b[i] = c;
+    }
+    if (f->f_type->ft_flags & FT_NOMUTEX)
+    {
+        ici_enter(x);
+        ici_signals_blocking_syscall(0);
+    }
+    if (b == NULL)
+        goto nomem;
+    str = ici_str_new(b, i);
+    free(b);
+    goto finish;
+
+nomem:
+    ici_set_error("ran out of memory");
+
+finish:
+    if (must_close)
+    {
+        ici_call(SS(close), "o", f);
+        ici_decref(f);
+    }
+    return ici_ret_with_decref(ici_objof(str));
+}
+
+static int
+f_tmpname()
+{
+    char nametemplate[] = "/tmp/ici.XXXXXX";
+    int fd = mkstemp(nametemplate);
+    if (fd == -1)
+    {
+	return ici_get_last_errno("mkstemp", NULL);
+    }
+    close(fd);
+    return ici_str_ret(nametemplate);
+}
+
+static int
+f_put()
+{
+    ici_str_t  *s;
+    ici_file_t *f;
+    ici_exec_t *x = NULL;
+
+    if (ICI_NARGS() > 1)
+    {
+        if (ici_typecheck("ou", &s, &f))
+            return 1;
+    }
+    else
+    {
+        if (ici_typecheck("o", &s))
+            return 1;
+        if ((f = ici_need_stdout()) == NULL)
+            return 1;
+    }
+    if (!ici_isstring(ici_objof(s)))
+        return ici_argerror(0);
+    if (f->f_type->ft_flags & FT_NOMUTEX)
+        x = ici_leave();
+    if
+    (
+        (*f->f_type->ft_write)(s->s_chars, s->s_nchars, f->f_file)
+        !=
+        s->s_nchars
+    )
+    {
+        if (f->f_type->ft_flags & FT_NOMUTEX)
+            ici_enter(x);
+        return ici_set_error("write failed");
+    }
+    if (f->f_type->ft_flags & FT_NOMUTEX)
+        ici_enter(x);
+    return ici_null_ret();
+}
+
+static int
+f_fflush()
+{
+    ici_file_t          *f;
+    ici_exec_t          *x = NULL;
+
+    if (ICI_NARGS() > 0)
+    {
+        if (ici_typecheck("u", &f))
+            return 1;
+    }
+    else
+    {
+        if ((f = ici_need_stdout()) == NULL)
+            return 1;
+    }
+    if (f->f_type->ft_flags & FT_NOMUTEX)
+        x = ici_leave();
+    if ((*f->f_type->ft_flush)(f->f_file) == -1)
+    {
+        if (f->f_type->ft_flags & FT_NOMUTEX)
+            ici_enter(x);
+        return ici_set_error("flush failed");
+    }
+    if (f->f_type->ft_flags & FT_NOMUTEX)
+        ici_enter(x);
+    return ici_null_ret();
+}
+
+static int
+f_fopen()
+{
+    const char  *name;
+    const char  *mode;
+    ici_file_t  *f;
+    FILE        *stream;
+    ici_exec_t  *x = NULL;
+    int         i;
+
+    mode = "r";
+    if (ici_typecheck(ICI_NARGS() > 1 ? "ss" : "s", &name, &mode))
+        return 1;
+    x = ici_leave();
+    ici_signals_blocking_syscall(1);
+    stream = fopen(name, mode);
+    ici_signals_blocking_syscall(0);
+    if (stream == NULL)
+    {
+        i = errno;
+        ici_enter(x);
+        errno = i;
+        return ici_get_last_errno("open", name);
+    }
+    ici_enter(x);
+    if ((f = ici_file_new((char *)stream, &ici_stdio_ftype, ici_stringof(ICI_ARG(0)), NULL)) == NULL)
+    {
+        fclose(stream);
+        return 1;
+    }
+    return ici_ret_with_decref(ici_objof(f));
+}
+
+static int
+f_fseek()
+{
+    ici_file_t  *f;
+    long        offset;
+    long        whence;
+
+    if (ici_typecheck("uii", &f, &offset, &whence))
+    {
+	if (ici_typecheck("ui", &f, &offset))
+        {
+	    return 1;
+        }
+	whence = 0;
+    }
+    switch (whence)
+    {
+    case 0:
+    case 1:
+    case 2:
+        break;
+    default:
+        return ici_set_error("invalid whence value in seek()");
+    }
+    if ((offset = (*f->f_type->ft_seek)(f->f_file, offset, (int)whence)) == -1)
+        return 1;
+    return ici_int_ret(offset);
+}
+
+static int
+f_popen()
+{
+    const char  *name;
+    const char  *mode;
+    ici_file_t  *f;
+    FILE        *stream;
+    ici_exec_t  *x = NULL;
+    int         i;
+
+    mode = "r";
+    if (ici_typecheck(ICI_NARGS() > 1 ? "ss" : "s", &name, &mode))
+        return 1;
+    x = ici_leave();
+    if ((stream = popen(name, mode)) == NULL)
+    {
+        i = errno;
+        ici_enter(x);
+        errno = i;
+        return ici_get_last_errno("popen", name);
+    }
+    ici_enter(x);
+    if ((f = ici_file_new((char *)stream, &ici_popen_ftype, ici_stringof(ICI_ARG(0)), NULL)) == NULL)
+    {
+        pclose(stream);
+        return 1;
+    }
+    return ici_ret_with_decref(ici_objof(f));
+}
+
+static int
+f_system()
+{
+    char        *cmd;
+    long        result;
+    ici_exec_t  *x = NULL;
+
+    if (ici_typecheck("s", &cmd))
+        return 1;
+    x = ici_leave();
+    result = system(cmd);
+    ici_enter(x);
+    return ici_int_ret(result);
+}
+
+static int
+f_fclose()
+{
+    ici_file_t  *f;
+
+    if (ici_typecheck("u", &f))
+        return 1;
+    if (ici_file_close(f))
+        return 1;
+    return ici_null_ret();
+}
+
+static int
+f_eof()
+{
+    ici_file_t          *f;
+    ici_exec_t          *x = NULL;
+    int                 r;
+
+    if (ICI_NARGS() != 0)
+    {
+        if (ici_typecheck("u", &f))
+            return 1;
+    }
+    else
+    {
+        if ((f = ici_need_stdin()) == NULL)
+            return 1;
+    }
+    if (f->f_type->ft_flags & FT_NOMUTEX)
+        x = ici_leave();
+    r = (*f->f_type->ft_eof)(f->f_file);
+    if (f->f_type->ft_flags & FT_NOMUTEX)
+        ici_enter(x);
+    return ici_int_ret((long)r);
+}
+
+static int
+f_remove(void)
+{
+    char        *s;
+
+    if (ici_typecheck("s", &s))
+        return 1;
+    if (remove(s) != 0)
+        return ici_get_last_errno("remove", s);
+    return ici_null_ret();
+}
+
+#ifdef _WIN32
+/*
+ * Emulate opendir/readdir/et al under WIN32 environments via findfirst/
+ * findnext. Only what f_dir() needs has been emulated (which is to say,
+ * not much).
+ */
+
+#define MAXPATHLEN      _MAX_PATH
+
+struct dirent
+{
+    char        *d_name;
+};
+
+typedef struct DIR
+{
+    long                handle;
+    struct _finddata_t  finddata;
+    int                 needfindnext;
+    struct dirent       dirent;
+}
+DIR;
+
+static DIR *
+opendir(const char *path)
+{
+    DIR         *dir;
+    char        fspec[_MAX_PATH+1];
+
+    if (strlen(path) > (_MAX_PATH - 4))
+        return NULL;
+    sprintf(fspec, "%s/*.*", path);
+    if ((dir = ici_talloc(DIR)) != NULL)
+    {
+        if ((dir->handle = _findfirst(fspec, &dir->finddata)) == -1)
+        {
+            ici_tfree(dir, DIR);
+            return NULL;
+        }
+        dir->needfindnext = 0;
+    }
+    return dir;
+}
+
+static struct dirent *
+readdir(DIR *dir)
+{
+    if (dir->needfindnext && _findnext(dir->handle, &dir->finddata) != 0)
+            return NULL;
+    dir->dirent.d_name = dir->finddata.name;
+    dir->needfindnext = 1;
+    return &dir->dirent;
+}
+
+static void
+closedir(DIR *dir)
+{
+    _findclose(dir->handle);
+    ici_tfree(dir, DIR);
+}
+
+#define S_ISREG(m)      (((m) & _S_IFMT) == _S_IFREG)
+#define S_ISDIR(m)      (((m) & _S_IFMT) == _S_IFDIR)
+
+#endif // WIN32
+
+/*
+ * array = dir([path] [, regexp] [, format])
+ *
+ * Read directory named in path (a string, defaulting to ".", the current
+ * working directory) and return the entries that match the pattern (or
+ * all names if no pattern passed). The format string identifies what
+ * sort of entries should be returned. If the format string is passed
+ * then a path MUST be passed (to avoid any ambiguity) but path may be
+ * NULL meaning the current working directory (same as "."). The format
+ * string uses the following characters,
+ *
+ *      f       return file names
+ *      d       return directory names
+ *      a       return all names (which includes things other than
+ *              files and directories, e.g., hidden or special files
+ *
+ * The default format specifier is "f".
+ */
+static int
+f_dir(void)
+{
+    const char          *path   = ".";
+    const char          *format = "f";
+    ici_regexp_t        *regexp = NULL;
+    ici_obj_t           *o;
+    ici_array_t         *a;
+    DIR                 *dir;
+    struct dirent       *dirent;
+    int                 fmt;
+    ici_str_t           *s;
+
+    switch (ICI_NARGS())
+    {
+    case 0:
+        break;
+
+    case 1:
+        o = ICI_ARG(0);
+        if (ici_isstring(o))
+            path = ici_stringof(o)->s_chars;
+        else if (ici_isnull(o))
+            ;   /* leave path as is */
+        else if (ici_isregexp(o))
+            regexp = ici_regexpof(o);
+        else
+            return ici_argerror(0);
+        break;
+
+    case 2:
+        o = ICI_ARG(0);
+        if (ici_isstring(o))
+            path = ici_stringof(o)->s_chars;
+        else if (ici_isnull(o))
+            ;   /* leave path as is */
+        else if (ici_isregexp(o))
+            regexp = ici_regexpof(o);
+        else
+            return ici_argerror(0);
+        o = ICI_ARG(1);
+        if (ici_isregexp(o))
+        {
+            if (regexp != NULL)
+                return ici_argerror(1);
+            regexp = ici_regexpof(o);
+        }
+        else if (ici_isstring(o))
+            format = ici_stringof(o)->s_chars;
+        else
+            return ici_argerror(1);
+        break;
+
+    case 3:
+        o = ICI_ARG(0);
+        if (ici_isstring(o))
+            path = ici_stringof(o)->s_chars;
+        else if (ici_isnull(o))
+            ;   /* leave path as is */
+        else
+            return ici_argerror(0);
+        o = ICI_ARG(1);
+        if (!ici_isregexp(o))
+            return ici_argerror(1);
+        regexp = ici_regexpof(o);
+        o = ICI_ARG(2);
+        if (!ici_isstring(o))
+            return ici_argerror(2);
+        format = ici_stringof(o)->s_chars;
+        break;
+
+    default:
+        return ici_argcount(3);
+    }
+
+    if (*path == '\0')
+        path = ".";
+
+#define FILES   1
+#define DIRS    2
+#define OTHERS  4
+
+    for (fmt = 0; *format != '\0'; ++format)
+    {
+        switch (*format)
+        {
+        case 'f':
+            fmt |= FILES;
+            break;
+
+        case 'd':
+            fmt |= DIRS;
+            break;
+
+        case 'a':
+            fmt |= OTHERS | DIRS | FILES;
+            break;
+
+        default:
+            return ici_set_error("bad directory format specifier");
+        }
+    }
+    if ((a = ici_array_new(0)) == NULL)
+        return 1;
+    if ((dir = opendir(path)) == NULL)
+    {
+        ici_get_last_errno("open directory", path);
+        goto fail;
+    }
+    while ((dirent = readdir(dir)) != NULL)
+    {
+        struct stat     statbuf;
+        char            abspath[MAXPATHLEN+1];
+
+        if
+        (
+            regexp != NULL
+            &&
+            pcre_exec
+            (
+                regexp->r_re,
+                regexp->r_rex,
+                dirent->d_name,
+                strlen(dirent->d_name),
+                0,
+                0,
+                ici_re_bra,
+                nels(ici_re_bra)
+            )
+            < 0
+        )
+            continue;
+        sprintf(abspath, "%s/%s", path, dirent->d_name);
+#ifndef _WIN32
+        if (lstat(abspath, &statbuf) == -1)
+        {
+            ici_get_last_errno("get stats on", abspath);
+            closedir(dir);
+            goto fail;
+        }
+        if (S_ISLNK(statbuf.st_mode) && stat(abspath, &statbuf) == -1)
+            continue;
+#else
+        if (stat(abspath, &statbuf) == -1)
+            continue;
 #endif
-    {ICI_CF_OBJ,    (char *)SS(sort),         f_sort},
-    {ICI_CF_OBJ,    (char *)SS(reclaim),      f_reclaim},
-    {ICI_CF_OBJ,    (char *)SS(now),          f_now},
-    {ICI_CF_OBJ,    (char *)SS(calendar),     f_calendar},
-    {ICI_CF_OBJ,    (char *)SS(cputime),      f_cputime},
-    {ICI_CF_OBJ,    (char *)SS(version),      f_version},
-    {ICI_CF_OBJ,    (char *)SS(sleep),        f_sleep},
-    {ICI_CF_OBJ,    (char *)SS(strbuf),       f_strbuf},
-    {ICI_CF_OBJ,    (char *)SS(strcat),       f_strcat},
-    {ICI_CF_OBJ,    (char *)SS(which),        f_which},
-    {ICI_CF_OBJ,    (char *)SS(ncollects),    f_ncollects},
-    {ICI_CF_OBJ,    (char *)SS(cmp),          f_coreici, ICI_CF_ARG(SS(cmp)),       ICI_CF_ARG(SS(core1))},
-    {ICI_CF_OBJ,    (char *)SS(pathjoin),     f_coreici, ICI_CF_ARG(SS(pathjoin)),  ICI_CF_ARG(SS(core2))},
-    {ICI_CF_OBJ,    (char *)SS(basename),     f_coreici, ICI_CF_ARG(SS(basename)),  ICI_CF_ARG(SS(core2))},
-    {ICI_CF_OBJ,    (char *)SS(dirname),      f_coreici, ICI_CF_ARG(SS(dirname)),   ICI_CF_ARG(SS(core2))},
-    {ICI_CF_OBJ,    (char *)SS(pfopen),       f_coreici, ICI_CF_ARG(SS(pfopen)),    ICI_CF_ARG(SS(core2))},
-    {ICI_CF_OBJ,    (char *)SS(use),          f_coreici, ICI_CF_ARG(SS(use)),       ICI_CF_ARG(SS(core2))},
-    {ICI_CF_OBJ,    (char *)SS(walk),         f_coreici, ICI_CF_ARG(SS(walk)),      ICI_CF_ARG(SS(core2))},
-    {ICI_CF_OBJ,    (char *)SS(min),          f_coreici, ICI_CF_ARG(SS(min)),       ICI_CF_ARG(SS(core3))},
-    {ICI_CF_OBJ,    (char *)SS(max),          f_coreici, ICI_CF_ARG(SS(max)),       ICI_CF_ARG(SS(core3))},
-    {ICI_CF_OBJ,    (char *)SS(argerror),     f_coreici, ICI_CF_ARG(SS(argerror)),  ICI_CF_ARG(SS(core3))},
-    {ICI_CF_OBJ,    (char *)SS(argcount),     f_coreici, ICI_CF_ARG(SS(argcount)),  ICI_CF_ARG(SS(core3))},
-    {ICI_CF_OBJ,    (char *)SS(typecheck),    f_coreici, ICI_CF_ARG(SS(typecheck)), ICI_CF_ARG(SS(core3))},
-    {ICI_CF_OBJ,    (char *)SS(apply),        f_coreici, ICI_CF_ARG(SS(apply)),     ICI_CF_ARG(SS(core4))},
-    {ICI_CF_OBJ,    (char *)SS(map),          f_coreici, ICI_CF_ARG(SS(map)),       ICI_CF_ARG(SS(core4))},
-    {ICI_CF_OBJ,    (char *)SS(deepatom),     f_coreici, ICI_CF_ARG(SS(deepatom)),  ICI_CF_ARG(SS(core5))},
-    {ICI_CF_OBJ,    (char *)SS(deepcopy),     f_coreici, ICI_CF_ARG(SS(deepcopy)),  ICI_CF_ARG(SS(core5))},
-    {ICI_CF_OBJ,    (char *)SS(memoize),      f_coreici, ICI_CF_ARG(SS(memoize)),   ICI_CF_ARG(SS(core6))},
-    {ICI_CF_OBJ,    (char *)SS(memoized),     f_coreici, ICI_CF_ARG(SS(memoized)),  ICI_CF_ARG(SS(core6))},
-    {ICI_CF_OBJ,    (char *)SS(print),        f_coreici, ICI_CF_ARG(SS(print)),     ICI_CF_ARG(SS(core7))},
+        if
+        (
+            (S_ISREG(statbuf.st_mode) && fmt & FILES)
+            ||
+            (S_ISDIR(statbuf.st_mode) && fmt & DIRS)
+            ||
+            fmt & OTHERS
+        )
+        {
+            if
+            (
+                (s = ici_str_new_nul_term(dirent->d_name)) == NULL
+                ||
+                ici_stk_push_chk(a, 1)
+            )
+            {
+                if (s != NULL)
+                    ici_decref(s);
+                closedir(dir);
+                goto fail;
+            }
+            *a->a_top++ = ici_objof(s);
+            ici_decref(s);
+        }
+    }
+    closedir(dir);
+    return ici_ret_with_decref(ici_objof(a));
+
+#undef  FILES
+#undef  DIRS
+#undef  OTHERS
+
+fail:
+    ici_decref(a);
+    return 1;
+}
+
+/*
+ * Used as a common error return for system calls that fail. Sets the
+ * global error string if the call fails otherwise returns the integer
+ * result of the system call.
+ */
+static int
+sys_ret(int ret)
+{
+    if (ret < 0)
+        return ici_get_last_errno(NULL, NULL);
+    return ici_int_ret((long)ret);
+}
+
+/*
+ * rename(oldpath, newpath)
+ */
+static int
+f_rename()
+{
+    char                *o;
+    char                *n;
+
+    if (ici_typecheck("ss", &o, &n))
+        return 1;
+    return sys_ret(rename(o, n));
+}
+
+/*
+ * chdir(newdir)
+ */
+static int
+f_chdir()
+{
+    char                *n;
+
+    if (ici_typecheck("s", &n))
+        return 1;
+    return sys_ret(chdir(n));
+}
+
+/*
+ * string = getcwd()
+ */
+static int
+f_getcwd(void)
+{
+    char        buf[MAXPATHLEN+1];
+
+    if (getcwd(buf, sizeof buf) == NULL)
+        return sys_ret(-1);
+    return ici_str_ret(buf);
+}
+
+#ifndef environ
+    /*
+     * environ is sometimes mapped to be a function, so only extern it
+     * if it is not already defined.
+     */
+    extern char         **environ;
+#endif
+
+/*
+ * Return the value of an environment variable.
+ */
+static int
+f_getenv(void)
+{
+    ici_str_t           *n;
+    char                **p;
+
+    if (ICI_NARGS() != 1)
+        return ici_argcount(1);
+    if (!ici_isstring(ICI_ARG(0)))
+        return ici_argerror(0);
+    n = ici_stringof(ICI_ARG(0));
+
+    for (p = environ; *p != NULL; ++p)
+    {
+        if
+        (
+#           if _WIN32
+                /*
+                 * Some versions of Windows (NT and 2000 at least)
+                 * gratuitously change to case of some environment variables
+                 * on boot.  So on Windows we do a case-insensitive
+                 * compations. strnicmp is non-ANSI, but exists on Windows.
+                 */
+                strnicmp(*p, n->s_chars, n->s_nchars) == 0
+#           else
+                strncmp(*p, n->s_chars, n->s_nchars) == 0
+#           endif
+            &&
+            (*p)[n->s_nchars] == '='
+        )
+        {
+            return ici_str_ret(&(*p)[n->s_nchars + 1]);
+        }
+    }
+    return ici_null_ret();
+}
+
+/*
+ * Set an environment variable.
+ */
+static int
+f_putenv(void)
+{
+    char        *s;
+    char        *t;
+    char        *e;
+    char        *f;
+    int         i;
+
+    if (ici_typecheck("s", &s))
+        return 1;
+    if ((e = strchr(s, '=')) == NULL)
+    {
+        return ici_set_error("putenv argument not in form \"name=value\"");
+    }
+    i = strlen(s) + 1;
+    /*
+     * Some implementations of putenv retain a pointer to the supplied string.
+     * To avoid the environment becoming corrupted when ICI collects the
+     * string passed, we allocate a bit of memory to copy it into.  We then
+     * forget about this memory.  It leaks.  To try to mitigate this a bit, we
+     * check to see if the value is already in the environment, and free the
+     * memory if it is.
+     */
+    if ((t = (char *)malloc(i)) == NULL)
+    {
+        return ici_set_error("ran out of memmory");
+    }
+    strcpy(t, s);
+    t[e - s] = '\0';
+    f = getenv(t);
+    if (f != NULL && strcmp(f, e + 1) == 0)
+    {
+        free(t);
+    }
+    else
+    {
+        strcpy(t, s);
+        putenv(t);
+    }
+    return ici_null_ret();
+}
+
+ICI_DEFINE_CFUNCS(std)
+{
+    ICI_DEFINE_CFUNC(array,        f_array),
+    ICI_DEFINE_CFUNC(copy,         f_copy),
+    ICI_DEFINE_CFUNC(exit,         f_exit),
+    ICI_DEFINE_CFUNC(fail,         f_fail),
+    ICI_DEFINE_CFUNC(float,        f_float),
+    ICI_DEFINE_CFUNC(int,          f_int),
+    ICI_DEFINE_CFUNC(eq,           f_eq),
+    ICI_DEFINE_CFUNC(parse,        f_parse),
+    ICI_DEFINE_CFUNC(string,       f_string),
+    ICI_DEFINE_CFUNC(struct,       f_struct),
+    ICI_DEFINE_CFUNC(set,          f_set),
+    ICI_DEFINE_CFUNC(typeof,       f_typeof),
+    ICI_DEFINE_CFUNC(push,         f_push),
+    ICI_DEFINE_CFUNC(pop,          f_pop),
+    ICI_DEFINE_CFUNC(rpush,        f_rpush),
+    ICI_DEFINE_CFUNC(rpop,         f_rpop),
+    ICI_DEFINE_CFUNC(call,         f_call),
+    ICI_DEFINE_CFUNC(keys,         f_keys),
+    ICI_DEFINE_CFUNC(vstack,       f_vstack),
+    ICI_DEFINE_CFUNC(tochar,       f_tochar),
+    ICI_DEFINE_CFUNC(toint,        f_toint),
+    ICI_DEFINE_CFUNC(rand,         f_rand),
+    ICI_DEFINE_CFUNC(interval,     f_interval),
+    ICI_DEFINE_CFUNC(explode,      f_explode),
+    ICI_DEFINE_CFUNC(implode,      f_implode),
+    ICI_DEFINE_CFUNC(sopen,        f_sopen),
+    ICI_DEFINE_CFUNC(mopen,        f_mopen),
+    ICI_DEFINE_CFUNC(sprintf,      ici_f_sprintf),
+    ICI_DEFINE_CFUNC(currentfile,  f_currentfile),
+    ICI_DEFINE_CFUNC(del,          f_del),
+    ICI_DEFINE_CFUNC(alloc,        f_alloc),
+    ICI_DEFINE_CFUNC(mem,          f_mem),
+    ICI_DEFINE_CFUNC(len,          f_nels),
+    ICI_DEFINE_CFUNC(super,        f_super),
+    ICI_DEFINE_CFUNC(scope,        f_scope),
+    ICI_DEFINE_CFUNC(isatom,       f_isatom),
+    ICI_DEFINE_CFUNC(gettoken,     f_gettoken),
+    ICI_DEFINE_CFUNC(gettokens,    f_gettokens),
+    ICI_DEFINE_CFUNC(num,          f_num),
+    ICI_DEFINE_CFUNC(assign,       f_assign),
+    ICI_DEFINE_CFUNC(fetch,        f_fetch),
+    ICI_DEFINE_CFUNC(abs,          f_abs),
+    ICI_DEFINE_CFUNC2(sin,         f_math, sin,     "f=n"),
+    ICI_DEFINE_CFUNC2(cos,         f_math, cos,     "f=n"),
+    ICI_DEFINE_CFUNC2(tan,         f_math, tan,     "f=n"),
+    ICI_DEFINE_CFUNC2(asin,        f_math, asin,    "f=n"),
+    ICI_DEFINE_CFUNC2(acos,        f_math, acos,    "f=n"),
+    ICI_DEFINE_CFUNC2(atan,        f_math, atan,    "f=n"),
+    ICI_DEFINE_CFUNC2(atan2,       f_math, atan2,   "f=nn"),
+    ICI_DEFINE_CFUNC2(exp,         f_math, exp,     "f=n"),
+    ICI_DEFINE_CFUNC2(log,         f_math, log,     "f=n"),
+    ICI_DEFINE_CFUNC2(log10,       f_math, log10,   "f=n"),
+    ICI_DEFINE_CFUNC2(pow,         f_math, pow,     "f=nn"),
+    ICI_DEFINE_CFUNC2(sqrt,        f_math, sqrt,    "f=n"),
+    ICI_DEFINE_CFUNC2(floor,       f_math, x_floor, "f=n"),
+    ICI_DEFINE_CFUNC2(ceil,        f_math, ceil,    "f=n"),
+    ICI_DEFINE_CFUNC2(fmod,        f_math, fmod,    "f=nn"),
+    ICI_DEFINE_CFUNC(waitfor,      f_waitfor),
+    ICI_DEFINE_CFUNC(top,          f_top),
+#ifdef ICI_F_INCLUDE
+    ICI_DEFINE_CFUNC(include,      f_include),
+#endif
+    ICI_DEFINE_CFUNC(sort,         f_sort),
+    ICI_DEFINE_CFUNC(reclaim,      f_reclaim),
+    ICI_DEFINE_CFUNC(now,          f_now),
+    ICI_DEFINE_CFUNC(calendar,     f_calendar),
+    ICI_DEFINE_CFUNC(cputime,      f_cputime),
+    ICI_DEFINE_CFUNC(version,      f_version),
+    ICI_DEFINE_CFUNC(sleep,        f_sleep),
+    ICI_DEFINE_CFUNC(strbuf,       f_strbuf),
+    ICI_DEFINE_CFUNC(strcat,       f_strcat),
+    ICI_DEFINE_CFUNC(which,        f_which),
+    ICI_DEFINE_CFUNC(ncollects,    f_ncollects),
+    ICI_DEFINE_CFUNC2(cmp,         f_coreici, SS(cmp),       SS(core1)),
+    ICI_DEFINE_CFUNC2(pathjoin,    f_coreici, SS(pathjoin),  SS(core2)),
+    ICI_DEFINE_CFUNC2(basename,    f_coreici, SS(basename),  SS(core2)),
+    ICI_DEFINE_CFUNC2(dirname,     f_coreici, SS(dirname),   SS(core2)),
+    ICI_DEFINE_CFUNC2(pfopen,      f_coreici, SS(pfopen),    SS(core2)),
+    ICI_DEFINE_CFUNC2(use,         f_coreici, SS(use),       SS(core2)),
+    ICI_DEFINE_CFUNC2(walk,        f_coreici, SS(walk),      SS(core2)),
+    ICI_DEFINE_CFUNC2(min,         f_coreici, SS(min),       SS(core3)),
+    ICI_DEFINE_CFUNC2(max,         f_coreici, SS(max),       SS(core3)),
+    ICI_DEFINE_CFUNC2(argerror,    f_coreici, SS(argerror),  SS(core3)),
+    ICI_DEFINE_CFUNC2(argcount,    f_coreici, SS(argcount),  SS(core3)),
+    ICI_DEFINE_CFUNC2(typecheck,   f_coreici, SS(typecheck), SS(core3)),
+    ICI_DEFINE_CFUNC2(apply,       f_coreici, SS(apply),     SS(core4)),
+    ICI_DEFINE_CFUNC2(map,         f_coreici, SS(map),       SS(core4)),
+    ICI_DEFINE_CFUNC2(deepatom,    f_coreici, SS(deepatom),  SS(core5)),
+    ICI_DEFINE_CFUNC2(deepcopy,    f_coreici, SS(deepcopy),  SS(core5)),
+    ICI_DEFINE_CFUNC2(memoize,     f_coreici, SS(memoize),   SS(core6)),
+    ICI_DEFINE_CFUNC2(memoized,    f_coreici, SS(memoized),  SS(core6)),
+    ICI_DEFINE_CFUNC2(print,       f_coreici, SS(print),     SS(core7)),
+    ICI_DEFINE_CFUNC1(printf,   ici_f_sprintf, 1),
+    ICI_DEFINE_CFUNC(getchar,   f_getchar),
+    ICI_DEFINE_CFUNC(ungetchar, f_ungetchar),
+    ICI_DEFINE_CFUNC(getfile,   f_getfile),
+    ICI_DEFINE_CFUNC(getline,   f_getline),
+    ICI_DEFINE_CFUNC(fopen,     f_fopen),
+    ICI_DEFINE_CFUNC(_popen,    f_popen),
+    ICI_DEFINE_CFUNC(tmpname,   f_tmpname),
+    ICI_DEFINE_CFUNC(put,       f_put),
+    ICI_DEFINE_CFUNC(flush,     f_fflush),
+    ICI_DEFINE_CFUNC(close,     f_fclose),
+    ICI_DEFINE_CFUNC(seek,      f_fseek),
+    ICI_DEFINE_CFUNC(system,    f_system),
+    ICI_DEFINE_CFUNC(eof,       f_eof),
+    ICI_DEFINE_CFUNC(remove,    f_remove),
+    ICI_DEFINE_CFUNC(dir,       f_dir),
+    ICI_DEFINE_CFUNC(getcwd,    f_getcwd),
+    ICI_DEFINE_CFUNC(chdir,     f_chdir),
+    ICI_DEFINE_CFUNC(rename,    f_rename),
+    ICI_DEFINE_CFUNC(getenv,    f_getenv),
+    ICI_DEFINE_CFUNC(putenv,    f_putenv),
     {ICI_CF_OBJ}
 };

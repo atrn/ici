@@ -1,5 +1,5 @@
-cflags = -DCONFIG_FILE='"conf/osx.h"' -I. -Imacosx -Ofast -Os -DNDEBUG -fno-common -dynamic -Wall -Wextra -Wno-missing-field-initializers -Wno-unused-parameter
-ldflags = -g -Ofast -Os -fno-common -dynamic
+cflags = -g -DCONFIG_FILE='"conf/osx.h"' -I. -Imacosx -Ofast -DNDEBUG
+ldflags = -g -Ofast
 libs = -framework Foundation
 rule cc
   command = cc $cflags -c $in -o $out
@@ -15,7 +15,6 @@ build call.o: cc call.c
 build catch.o: cc catch.c
 build cfunc.o: cc cfunc.c
 build cfunco.o: cc cfunco.c
-build clib.o: cc clib.c
 build compile.o: cc compile.c
 build conf.o: cc conf.c
 build control.o: cc control.c
@@ -70,9 +69,8 @@ build struct.o: cc struct.c
 build pcre/study.o: cc pcre/study.c
 build syserr.o: cc syserr.c
 build thread.o: cc thread.c
-build trace.o: cc trace.c
 build unary.o: cc unary.c
 build uninit.o: cc uninit.c
 build macosx/semaphore.o: cc macosx/semaphore.c
-build anici: ld alloc.o aplfuncs.o archive.o arith.o array.o buf.o call.o catch.o cfunc.o cfunco.o clib.o compile.o conf.o control.o crc.o crc32c.o error.o events.o exec.o exerror.o file.o findpath.o float.o forall.o func.o handle.o hash.o icimain.o idb.o idb2.o init.o int.o lex.o load.o main.o pcre/maketables.o mark.o mem.o method.o mkvar.o null.o object.o oofuncs.o op.o parse.o pc.o pcre/pcre.o profile.o ptr.o refuncs.o regexp.o restore.o save.o set.o sfile.o signals.o smash.o src.o sstring.o string.o strtol.o struct.o pcre/study.o syserr.o thread.o trace.o unary.o uninit.o macosx/semaphore.o
+build anici: ld alloc.o aplfuncs.o archive.o arith.o array.o buf.o call.o catch.o cfunc.o cfunco.o compile.o conf.o control.o crc.o crc32c.o error.o events.o exec.o exerror.o file.o findpath.o float.o forall.o func.o handle.o hash.o icimain.o idb.o idb2.o init.o int.o lex.o load.o main.o pcre/maketables.o mark.o mem.o method.o mkvar.o null.o object.o oofuncs.o op.o parse.o pc.o pcre/pcre.o profile.o ptr.o refuncs.o regexp.o restore.o save.o set.o sfile.o signals.o smash.o src.o sstring.o string.o strtol.o struct.o pcre/study.o syserr.o thread.o unary.o uninit.o macosx/semaphore.o
 default anici

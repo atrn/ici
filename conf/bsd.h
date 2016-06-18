@@ -4,7 +4,6 @@
 #include <unistd.h>
 #include <math.h>
 
-#define NOTRACE         /* For debugging. */
 #undef  NODEBUGGING     /* Debugger interface and functions */
 #define NOEVENTS        /* Event loop and associated processing. */
 #undef  NOPROFILE       /* Profiler, see profile.c. */

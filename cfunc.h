@@ -124,7 +124,8 @@ struct ici_cfunc
 #define ICI_CF_ARG(X)       ((void *)(X))
 
 #define ICI_DEFINE_CFUNCS(NAME) ici_cfunc_t ici_ ## NAME ## _cfuncs[] =
-#define ICI_DEFINE_CFUNC(NAME, FUNC) {ICI_CF_OBJ, (char *)SS(NAME), (FUNC)}
+#define ICI_DEFINE_CFUNC(NAME, FUNC) {ICI_CF_OBJ, (char *)SS(NAME), (FUNC), 0, 0}
 #define ICI_DEFINE_CFUNC1(NAME, FUNC, ARG) {ICI_CF_OBJ, (char *)SS(NAME), (FUNC), (void *)(ARG), 0}
+#define ICI_DEFINE_CFUNC2(NAME, FUNC, ARG1, ARG2) {ICI_CF_OBJ, (char *)SS(NAME), (FUNC), (void *)(ARG1), (void *)(ARG2)}
 
 #endif /* ICI_CFUNC_H */

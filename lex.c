@@ -6,14 +6,6 @@
 #include "src.h"
 #include "str.h"
 #include "array.h"
-#ifndef NOTRACE
-#include "trace.h"
-#endif
-
-#ifndef NOTRACE
-static int ungotten = 0;
-#endif
-
 
 /*
  * Set this to non-zero to stop the recording of file and line number
@@ -92,24 +84,6 @@ get(ici_parse_t *p, ici_array_t *a)
         }
     }
 
-#ifndef NOTRACE
-    if (ungotten)
-    {
-        ungotten = 0;
-    }
-    else
-    {
-        if (ici_trace_yes && (ici_trace_flags & TRACE_LEXER) && c != EOF)
-        {
-            fprintf(stderr, "%c", c);
-            if (c == '\n')
-            {
-                fprintf(stderr,"trace: ");
-            }
-        }
-    }
-#endif
-
     return c;
 }
 
@@ -125,9 +99,6 @@ unget(int c, ici_parse_t *p)
     {
         --p->p_lineno;
     }
-#ifndef NOTRACE
-    ungotten = 1;
-#endif
 }
 
 /*

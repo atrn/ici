@@ -33,7 +33,6 @@ incs := [array
     "src.h",
     "str.h",
     "struct.h",
-    "trace.h",
     "wrap.h",
 ];
 

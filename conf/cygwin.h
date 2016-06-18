@@ -6,7 +6,6 @@
  */
 
 #undef  NOMATH          /* Trig and etc. */
-#undef  NOTRACE         /* For debugging. */
 #undef  NOPASSWD        /* UNIX password file access. */
 #undef  NOSTARTUPFILE   /* Parse a standard file of ICI code at init time. */
 #undef  NODEBUGGING     /* Debugger interface and functions */

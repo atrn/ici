@@ -7,13 +7,9 @@ extern ici_cfunc_t  ici_save_restore_cfuncs[];
 extern ici_cfunc_t  ici_re_funcs[];
 extern ici_cfunc_t  ici_oo_funcs[];
 extern ici_cfunc_t  ici_apl_cfuncs[];
-extern ici_cfunc_t  ici_clib_cfuncs[];
 extern ici_cfunc_t  ici_load_cfuncs[];
 extern ici_cfunc_t  ici_parse_cfuncs[];
 
-#ifndef NOTRACE
-extern ici_cfunc_t  ici_trace_cfuncs[];
-#endif
 #ifndef NOEVENTS
 extern ici_cfunc_t  ici_event_cfuncs[];
 #endif
@@ -33,12 +29,8 @@ ici_cfunc_t *ici_funcs[] =
     ici_re_funcs,
     ici_oo_funcs,
     ici_apl_cfuncs,
-    ici_clib_cfuncs,
     ici_load_cfuncs,
     ici_parse_cfuncs,
-#ifndef NOTRACE
-    ici_trace_cfuncs,
-#endif
 #ifndef NODEBUGGING
     ici_debug_cfuncs,
 #endif
@@ -79,9 +71,6 @@ char ici_version_string[] =
     "DEBUG-BUILD "
 #endif
     "math "
-#ifndef NOTRACE
-    "trace "
-#endif
     "waitfor "
     "system "
     "pipes "

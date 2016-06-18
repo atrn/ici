@@ -6,7 +6,6 @@
 
 #define NOEVENTS        /* Event loop and associated processing. */
 #define NOPROFILE       /* Profiler, see profile.c. */
-#define NOTRACE         /* Execution tracing. */
 #define NODEBUGGING     /* Debugger interface. */
 
 #undef  NOSTARTUPFILE   /* Parse a standard file of ICI code at init time. */
