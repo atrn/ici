@@ -14,8 +14,6 @@
 
 #define ICI_USE_POSIX_THREADS
 
-#define ICI_USE_MURMUR_HASH
-
-#define CONFIG_STR      "OpenSolaris configuration"
+#define CONFIG_STR      "OpenSolaris"
 
 #endif /*ICI_CONF_H*/

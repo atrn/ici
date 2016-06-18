@@ -13,7 +13,6 @@
  * possibly even work) for the particular port of ICI.
  */
 #undef  NOMATH          /* Trig and etc. */
-#define NOTRACE         /* For debugging. */
 #define NOWAITFOR       /* Requires select() or similar system primitive. */
 #define NOPIPES         /* Requires popen(). */
 #undef  NODIR           /* Directory reading function, dir(). */
@@ -55,7 +54,7 @@ int ici_get_last_win32_error(void);
 /*
  * Mentioned in the version string.
  */
-#define CONFIG_STR      "Microsoft Win32 platforms"
+#define CONFIG_STR      "Windows"
 
 /*
  * Visual C++ doesn't have va_copy().  This works.

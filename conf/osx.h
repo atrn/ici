@@ -8,9 +8,7 @@
 #define NOPROFILE       /* Profiler, see profile.c. */
 #define NODEBUGGING     /* Debugger interface. */
 
-#undef  NOSTARTUPFILE   /* Parse a standard file of ICI code at init time. */
-
-#define CONFIG_STR "Mac OS X"
+#define CONFIG_STR "MacOS"
 
 #ifndef PREFIX
 #define PREFIX          "/opt/anici/"
