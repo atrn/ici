@@ -403,7 +403,7 @@ ici_evaluate(ici_obj_t *code, int n_operands)
      */
     for (;;)
     {
-        if (--ici_exec_count == 0)
+        if (UNLIKELY(--ici_exec_count == 0))
         {
             if (UNLIKELY(ici_aborted))
             {
@@ -501,7 +501,7 @@ ici_evaluate(ici_obj_t *code, int n_operands)
 
         case ICI_TC_PARSE:
             *ici_xs.a_top++ = o; /* Restore formal state. */
-            if (UNLIKELY(ici_parse_exec()))
+            if (ici_parse_exec())
 	    {
                 goto fail;
 	    }
