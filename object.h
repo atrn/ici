@@ -575,7 +575,9 @@ struct ici_objwsup
    serialization protocol to indicate a reference to previously
    transmitted object. */
 #define ICI_TC_REF          26
-#define ICI_TC_MAX_CORE     26
+#define ICI_TC_RESTORER     27
+#define ICI_TC_SAVER        28
+#define ICI_TC_MAX_CORE     28
 
 #define ICI_TRI(a,b,t)      (((((a) << 4) + b) << 6) + t_subtype(t))
 

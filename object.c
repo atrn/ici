@@ -61,7 +61,8 @@ extern ici_type_t       ici_ostemp_type;
 extern ici_type_t       ici_handle_type;
 extern ici_type_t       ici_profilecall_type;
 extern ici_type_t       ici_mem_type;
-extern ici_type_t       ici_code_type;
+extern ici_type_t       ici_restorer_type;
+extern ici_type_t       ici_saver_type;
 
 ici_type_t      *ici_types[ICI_MAX_TYPES] =
 {
@@ -95,7 +96,9 @@ ici_type_t      *ici_types[ICI_MAX_TYPES] =
     NULL,
 #endif
     &ici_archive_type,
-    NULL // ICI_TC_REF
+    NULL, // ICI_TC_REF
+    &ici_restorer_type,
+    &ici_saver_type
 };
 
 static int              ici_ntypes = ICI_TC_MAX_CORE + 1;

@@ -12,6 +12,8 @@
 #endif
 
 int ici_archive_init(void);
+int ici_init_restorer_map(void);
+int ici_init_saver_map(void);
 int ici_archive_f_save(void);
 int ici_archive_f_restore(void);
 int ici_archive_op_func_code(int (*fn)());

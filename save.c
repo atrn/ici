@@ -318,8 +318,8 @@ free_saver(ici_obj_t *o)
     ici_tfree(o, saver_t);
 }
 
-static ici_type_t
-saver_type =
+ici_type_t
+ici_saver_type =
 {
     mark_saver,
     free_saver,
@@ -335,19 +335,10 @@ static ici_obj_t *
 new_saver(int (*fn)(ici_archive_t *, ici_obj_t *))
 {
     saver_t *saver;
-    static int saver_tcode = 0;
-
-    if (saver_tcode == 0)
-    {
-        if ((saver_tcode = ici_register_type(&saver_type)) == 0)
-        {
-            return NULL;
-        }
-    }
 
     if ((saver = ici_talloc(saver_t)) != NULL)
     {
-        ICI_OBJ_SET_TFNZ(saver, saver_tcode, 0, 1, sizeof (saver_t));
+        ICI_OBJ_SET_TFNZ(saver, ICI_TC_SAVER, 0, 1, sizeof (saver_t));
         saver->s_fn = fn;
         ici_rego(saver);
     }
@@ -355,61 +346,58 @@ new_saver(int (*fn)(ici_archive_t *, ici_obj_t *))
     return ici_objof(saver);
 }
 
-static ici_struct_t *
-get_archive_map(void)
+static ici_struct_t *archive_map = NULL;
+
+int
+ici_init_saver_map(void)
 {
-    static ici_struct_t *archive_map = NULL;
-
-    if (archive_map == NULL)
+    size_t i;
+    struct
     {
-        size_t i;
-        struct
-        {
-            ici_obj_t *name;
-            int (*fn)(ici_archive_t *, ici_obj_t *);
-        }
-        fns[] =
-        {
-            {SSO(_NULL_), save_null},
-            {SSO(mark), save_null},
-            {SSO(int), save_int},
-            {SSO(float), save_float},
-            {SSO(string), save_string},
-            {SSO(regexp), save_regexp},
-            {SSO(array), save_array},
-            {SSO(set), save_set},
-            {SSO(struct), save_struct},
-            {SSO(mem), save_mem},
-            {SSO(ptr), save_ptr},
-            {SSO(func), save_func},
-            {SSO(src), save_src},
-            {SSO(op), save_op},
-        };
-
-        if ((archive_map = ici_struct_new()) == NULL)
-        {
-            return NULL;
-        }
-        for (i = 0; i < nels(fns); ++i)
-        {
-            ici_obj_t *saver;
-
-            if ((saver = new_saver(fns[i].fn)) == NULL)
-                goto fail;
-            if (ici_assign(archive_map, fns[i].name, saver))
-            {
-                ici_decref(saver);
-                goto fail;
-            }
-            ici_decref(saver);
-        }
+        ici_obj_t *name;
+        int (*fn)(ici_archive_t *, ici_obj_t *);
     }
-    return archive_map;
+    fns[] =
+    {
+        {SSO(_NULL_),   save_null},
+        {SSO(mark),     save_null},
+        {SSO(int),      save_int},
+        {SSO(float),    save_float},
+        {SSO(string), save_string},
+        {SSO(regexp), save_regexp},
+        {SSO(array), save_array},
+        {SSO(set), save_set},
+        {SSO(struct), save_struct},
+        {SSO(mem), save_mem},
+        {SSO(ptr), save_ptr},
+        {SSO(func), save_func},
+        {SSO(src), save_src},
+        {SSO(op), save_op},
+    };
+
+    if ((archive_map = ici_struct_new()) == NULL)
+    {
+        return 1;
+    }
+    for (i = 0; i < nels(fns); ++i)
+    {
+        ici_obj_t *saver;
+
+        if ((saver = new_saver(fns[i].fn)) == NULL)
+            goto fail;
+        if (ici_assign(archive_map, fns[i].name, saver))
+        {
+            ici_decref(saver);
+            goto fail;
+        }
+        ici_decref(saver);
+    }
+    return 0;
 
 fail:
     ici_decref(archive_map);
     archive_map = NULL;
-    return NULL;
+    return 1;
 }
 
 static ici_str_t *
@@ -449,7 +437,7 @@ save(ici_archive_t *ar, ici_obj_t *obj)
     {
         return save_object_ref(ar, obj);
     }
-    saver = ici_fetch(ici_objof(get_archive_map()), ici_objof(tname(obj)));
+    saver = ici_fetch(ici_objof(archive_map), ici_objof(tname(obj)));
     fn = saver == ici_null ? save_error : saverof(saver)->s_fn;
     return save_obj(ar, obj) || (*fn)(ar, obj);
 }

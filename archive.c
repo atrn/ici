@@ -98,7 +98,11 @@ int ici_archive_init(void)
     op_funcs[4] = ici_o_mkptr.op_func;
     op_funcs[5] = ici_o_openptr.op_func;
     op_funcs[6] = ici_o_fetch.op_func;
-    return 0;
+    if (ici_init_saver_map())
+    {
+        return 1;
+    }
+    return ici_init_restorer_map();
 }
 
 static ici_archive_t *

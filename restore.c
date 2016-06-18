@@ -685,7 +685,7 @@ free_restorer(ici_obj_t *o)
     ici_tfree(o, restorer_t);
 }
 
-static ici_type_t restorer_type =
+ici_type_t ici_restorer_type =
 {
     mark_restorer,
     free_restorer,
@@ -700,27 +700,21 @@ static ici_type_t restorer_type =
 static restorer_t *
 restorer_new(ici_obj_t *(*fn)(ici_archive_t *))
 {
-    static int restorer_tcode = 0;
     restorer_t *r;
 
-    if (restorer_tcode == 0)
-    {
-        if ((restorer_tcode = ici_register_type(&restorer_type)) == 0)
-        {
-            return NULL;
-        }
-    }
     if ((r = ici_talloc(restorer_t)) != NULL)
     {
-        ICI_OBJ_SET_TFNZ(r, restorer_tcode, 0, 1, sizeof (restorer_t));
+        ICI_OBJ_SET_TFNZ(r, ICI_TC_RESTORER, 0, 1, sizeof (restorer_t));
         r->r_fn = fn;
         ici_rego(r);
     }
     return r;
 }
 
+static ici_struct_t *restorer_map = 0;
+
 static int
-add(ici_struct_t *map, int tcode, ici_obj_t *(*fn)(ici_archive_t *))
+add_restorer(int tcode, ici_obj_t *(*fn)(ici_archive_t *))
 {
     restorer_t *r;
     ici_int_t *t = 0;
@@ -733,7 +727,7 @@ add(ici_struct_t *map, int tcode, ici_obj_t *(*fn)(ici_archive_t *))
     {
         goto fail;
     }
-    if (ici_assign(ici_objof(map), ici_objof(t), ici_objof(r)))
+    if (ici_assign(ici_objof(restorer_map), ici_objof(t), ici_objof(r)))
     {
         ici_decref(t);
         goto fail;
@@ -747,84 +741,81 @@ fail:
     return 1;
 }
 
-static ici_obj_t *
-fetch_by_int(ici_struct_t *s, int key)
+static restorer_t *
+fetch_restorer(int key)
 {
     ici_obj_t   *k;
     ici_obj_t   *v = NULL;
 
     if ((k = ici_objof(ici_int_new(key))) != NULL)
     {
-        v = ici_fetch(ici_objof(s), k);
+        v = ici_fetch(ici_objof(restorer_map), k);
         ici_decref(k);
     }
-    return v;
+    return (restorer_t *)v;
+}
+
+int
+ici_init_restorer_map(void)
+{
+    size_t i;
+
+    static struct
+    {
+        int tcode;
+        ici_obj_t *(*fn)(ici_archive_t *);
+    }
+    fns[] =
+    {
+        {-1,            restore_error},
+        {ICI_TC_NULL,   restore_null},
+        {ICI_TC_INT,    restore_int},
+        {ICI_TC_FLOAT,  restore_float},
+        {ICI_TC_STRING, restore_string},
+        {ICI_TC_REGEXP, restore_regexp},
+        {ICI_TC_MEM,    restore_mem},
+        {ICI_TC_ARRAY,  restore_array},
+        {ICI_TC_SET,    restore_set},
+        {ICI_TC_STRUCT, restore_struct},
+        {ICI_TC_PTR,    restore_ptr},
+        {ICI_TC_FUNC,   restore_func},
+        {ICI_TC_OP,     restore_op},
+        {ICI_TC_SRC,    restore_src},
+        {ICI_TC_CFUNC,  restore_cfunc},
+        {ICI_TC_MARK,   restore_mark},
+        {ICI_TC_REF,    restore_ref}
+    };
+
+    if ((restorer_map = ici_struct_new()) == NULL)
+    {
+        return 1;
+    }
+    for (i = 0; i < nels(fns); ++i)
+    {
+        if (add_restorer(fns[i].tcode, fns[i].fn))
+        {
+            ici_decref(restorer_map);
+            restorer_map = NULL;
+            return 1;
+        }
+    }
+    return 0;
 }
 
 static restorer_t *
 get_restorer(int tcode)
 {
-    static ici_struct_t *map = 0;
-    restorer_t          *r;
-
-    if (!map)
-    {
-        struct
-        {
-            int tcode;
-            ici_obj_t *(*fn)(ici_archive_t *);
-        }
-        fns[] =
-        {
-            {-1, restore_error},
-            {ICI_TC_NULL, restore_null},
-            {ICI_TC_INT, restore_int},
-            {ICI_TC_FLOAT, restore_float},
-            {ICI_TC_STRING, restore_string},
-            {ICI_TC_REGEXP, restore_regexp},
-            {ICI_TC_MEM, restore_mem},
-            {ICI_TC_ARRAY, restore_array},
-            {ICI_TC_SET, restore_set},
-            {ICI_TC_STRUCT, restore_struct},
-            {ICI_TC_PTR, restore_ptr},
-            {ICI_TC_FUNC, restore_func},
-            {ICI_TC_OP, restore_op},
-            {ICI_TC_SRC, restore_src},
-            {ICI_TC_CFUNC, restore_cfunc},
-            {ICI_TC_MARK, restore_mark},
-            {ICI_TC_REF, restore_ref}
-        };
-        size_t i;
-
-        if ((map = ici_struct_new()) == NULL)
-        {
-            return NULL;
-        }
-
-        for (i = 0; i < nels(fns); ++i)
-        {
-            if (add(map, fns[i].tcode, fns[i].fn))
-            {
-                goto fail;
-            }
-        }
-    }
-
-    r = (restorer_t *)fetch_by_int(map, tcode);
+    restorer_t  *r = fetch_restorer(tcode);
     if (ici_objof(r) == ici_null)
     {
-        r = (restorer_t *)fetch_by_int(map, -1);
+        r = fetch_restorer(-1);
         if (ici_objof(r) == ici_null)
         {
-            ici_error = "archive module internal error";
+            ici_set_error("archive module internal error");
             r = NULL;
         }
     }
     return r;
-
-fail:
-    ici_decref(map);
-    return NULL;
 }
 
 static ici_obj_t *
