@@ -66,13 +66,15 @@ OBJS=                                                                           
         handle.o hash.o                                                                 \
         icimain.o idb.o idb2.o init.o int.o                                             \
 	lex.o load.o                                                                    \
-	maketables.o mark.o mem.o method.o mkvar.o                                      \
+        macosx/semaphore.o                                                              \
+        mark.o mem.o method.o mkvar.o                                                   \
         null.o                                                                          \
 	object.o oofuncs.o op.o                                                         \
-        parse.o pc.o pcre.o profile.o ptr.o                                             \
+        parse.o pc.o profile.o ptr.o                                                    \
+	pcre/maketables.o pcre/pcre.o pcre/study.o                                      \
         refuncs.o regexp.o restore.o                                                    \
-        save.o semaphore.o set.o sfile.o signals.o smash.o src.o sstring.o strtol.o     \
-                struct.o study.o syserr.o string.o                                      \
+        save.o set.o sfile.o signals.o smash.o src.o sstring.o strtol.o                 \
+                struct.o syserr.o string.o                                              \
 	thread.o                                                                        \
         unary.o uninit.o
 
@@ -115,21 +117,6 @@ pch	: $(GCH)
 
 $(GCH) : $(PCH) conf/osx.h alloc.h
 	$(CC) $(CFLAGS) $(PCH)
-
-
-################################################################
-#
-# PCRE
-#
-study.o : pcre/study.c;                 $(CC) -c -o $@ $(CFLAGS) pcre/study.c
-maketables.o    : pcre/maketables.c;    $(CC) -c -o $@ $(CFLAGS) pcre/maketables.c
-pcre.o  : pcre/pcre.c;                  $(CC) -c -o $@ $(CFLAGS) pcre/pcre.c
-
-################################################################
-#
-# OSX
-#
-semaphore.o : macosx/semaphore.c;       $(CC) -c -o $@ $(CFLAGS) macosx/semaphore.c
 
 
 ################################################################
