@@ -1,4 +1,5 @@
 /*.o
+/**/*.o
 /fwd.h.gch
 /.depend
 /anici
