@@ -1,0 +1,5 @@
+local
+static_func_of_amodule()
+{
+	return "amodule return";
+}

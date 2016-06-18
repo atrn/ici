@@ -1,0 +1,122 @@
+static	number_lines	= false;
+
+static
+detab(s)
+{
+    auto	r;
+    auto	pos;
+    auto	c;
+
+    r = array();
+    pos = 0;
+    forall (c in s)
+    {
+	if (c != "\t")
+	{
+	    push(r, c);
+	    if (c != "\b")
+		++pos;
+	    else if (pos > 0)
+		--pos;
+	}
+	else
+	{
+	    do
+		push(r, " ");
+	    while (++pos % 8);
+	}
+    }
+    return implode(r);
+}
+
+static
+page_heading(filename)
+{
+    ps.gsave();
+    ps.moveto(5, 5);
+    ps.font("Helvetica-Bold", 10);
+    ps.show(filename);
+    ps.grestore();
+}
+
+static
+output(file, filename)
+{
+    auto	font_name = "Courier";
+    auto	font_size = 12;
+    auto	lines_per_page = 66;
+    auto	left_margin = 14;
+    auto	top_margin = 17;
+    auto	page_height = int(72 * 297 / 25.4);
+    auto	page_width = int(72 * 210 / 25.4);
+    auto	inpage;
+    auto	numlines;
+    auto	y;
+    auto	line;
+    auto	lineno;
+
+    ps.startjob(path.basename(argv[0]), "a4");
+    ps.font(font_name, font_size);
+    inpage = false;
+    lineno = 0;
+    while (line = getline(file))
+    {
+	line = detab(line);
+	if (number_lines)
+	    line = sprintf("%-6s%s", sprintf("%d:", ++lineno), line);
+	if (inpage)
+	{
+	    if (++numlines > lines_per_page)
+	    {
+		ps.showpage();
+		ps.endpage();
+		inpage = false;
+	    }
+	    else
+		y -= font_size;
+	}
+	if (!inpage)
+	{
+	    numlines = 1;
+	    y = page_height - top_margin - font_size;
+	    ps.startpage();
+	    inpage = true;
+	    page_heading(filename);
+	}
+	if (line != "")
+	{
+	    ps.moveto(left_margin, y);
+	    ps.show(line);
+	}
+    }
+    if (inpage)
+    {
+	ps.showpage();
+	ps.endpage();
+    }
+    ps.endjob();
+}
+
+static
+main()
+{
+    auto	i, f;
+
+    if (argc < 2)
+	output(stdin, "<stdin>");
+    else
+    {
+	for (i = 1; i < argc; ++i)
+	{
+	    if (argv[i] == "-")
+		output(stdin, "<stdin>");
+	    else
+	    {
+		output(f = fopen(argv[i]), argv[i]);
+		close(f);
+	    }
+	}
+    }
+}
+
+exit(main());

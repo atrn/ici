@@ -1,0 +1,14 @@
+var empty = [struct];
+
+var not_empty = [struct
+    field_1 = "value one",
+    field_2 = 2
+];
+
+forall (v, k in empty) {
+    printf("!empty: %s -> %s\n", string(k), string(v));
+}
+
+forall (v, k in not_empty) {
+    printf("%s -> %s\n", string(k), string(v));
+}

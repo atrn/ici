@@ -1,0 +1,5 @@
+<mydoc>
+<foo x_attr="1" y_attr="Hello">
+This is some character data.
+</foo>
+</mydoc>

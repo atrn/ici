@@ -1,0 +1,129 @@
+/*
+ * textwidget is a new type of UI object. A TextWidget stores some
+ * text from a file and displays it. It has a scroll bar on the right
+ * hand that allows users to control what part of the text is visible.
+ */
+extern textwidget = [struct : frame,
+
+    /*
+     * Create a new TextWindow. The parameter is the name of the file
+     * to be loaded into the TextWindow and is also used as the window's
+     * title.
+     */
+    new = [func (self, parent)
+    {
+	self@super().new(self, parent);
+	self.sbar = object.new(app.scrollbar, "vertical", self);
+	self.text = object.new(app.text, self);
+	self.text@attachscrollbar(self.sbar);
+	self.text@setwidth(80);
+	self.text@setheight(40);
+	self.text@setrelief("flat");
+	app.pack(self.sbar, "-side right -anchor e -fill y");
+	app.pack(self.text, "-side left -expand 1 -fill both -padx 5 -pady 5");
+    }],
+
+    clear = [func (self)
+    {
+	return self.text@clear();
+    }],
+
+    insert = [func (self, what)
+    {
+	self.text@insert(what);
+    }],
+
+    loadfile = [func (self, name)
+    {
+	return self.text@loadfile(name);
+    }],
+
+    append = [func (self, what)
+    {
+	self.text@append(what);
+    }],
+
+    setheight = [func (self, n)
+    {
+	return self.text@setheight(n);
+    }],
+
+    setfont = [func (self, fnt)
+    {
+	return self.text@setfont(fnt);
+    }],
+
+    setbackground = [func (self, color)
+    {
+	return self.text@setbackground(color);
+    }],
+
+    allowmodifications = [func (self, allow)
+    {
+	auto allow = true;
+	return self.text@allowmodifications(allow);
+    }],
+
+    bind = [func (self, event, action)
+    {
+	return self.text@bind(event, action);
+    }],
+
+    seeline = [func (self, lineno)
+    {
+	return self.text@seeline(lineno);
+    }],
+
+    highlightline = [func (self, lineno)
+    {
+	return self.text@highlightline(lineno);
+    }],
+
+    get = [func (self, what)
+    {
+	return self.text@get(what);
+    }],
+
+    tagbind = [func (self, tag, event, code)
+    {
+	return self.text@tagbind(tag, event, code);
+    }],
+
+    get = [func (self, first, last)
+    {
+	auto first = "1.0";
+	auto last = "end";
+	return self.text@get(first, last);
+    }],
+
+    setinsertionpoint = [func (self, point)
+    {
+	self.text@setinsertionpoint(point);
+    }],
+
+    cut = [func (self)
+    {
+	self.text@cut();
+    }],
+
+    copy = [func (self)
+    {
+	self.text@copy();
+    }],
+
+    paste = [func (self)
+    {
+	self.text@paste();
+    }],
+
+    delete = [func (self)
+    {
+	self.text@delete();
+    }],
+
+    setrelief = [func (self, relief)
+    {
+	self.text@setrelief(relief);
+    }],
+
+];

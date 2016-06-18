@@ -1,0 +1,74 @@
+/*
+ * $Id: icitcp.ici,v 1.1.1.1 1999/09/08 01:27:24 andy Exp $
+ *
+ * Various utility routines
+ */
+
+/**
+ * tcp.server - general purpose, multi-client TCP server function
+ *
+ * Parameters:
+ *	port		The TCP port number we on which we listen.
+ *	hello		Function called upon client connection.
+ *	request		Function called when client sends a request.
+ *	bye		Function called when client disconnects.
+ */
+extern
+server(port, hello, request, bye)
+{
+    auto	port	= 0;
+    auto	hello	= [func () {}];
+    auto	request = [func () {}];
+    auto	bye	= [func () {}];
+
+    auto	skt;	/* Our "well-known" port */
+    auto	skts;	/* Set of sockets for select() */
+    auto	client;	/* Struct mapping socket to client struct */
+    auto	s;	/* General purpose variable */
+    auto	c;	/* Current client when processing client requests */
+    auto	todel;
+
+    skt = net.listen(net.bind(net.socket("tcp/ip"), port));
+    skts = set(skt);
+    client = struct();
+    for (;;)
+    {
+	todel = array();
+	forall (s in net.select(skts).read)
+	{
+	    if (s == skt)
+	    {
+		s = net.accept(skt);
+		c = struct();
+		c.to = net.sktopen(s, "w");
+		c.from = net.sktopen(s);
+		c.skt = s;
+		client[s] = c;
+		skts[s] = true;
+		hello(c);
+	    }
+	    else
+	    {
+		c = client[s];
+		if ((s = getline(c.from)) != NULL)
+		{
+		    s = sub(s, $regexp("\r$"), "");
+		    request(c, s);
+		}
+		else
+		{
+		    push(todel, c);
+		}
+	    }
+	}
+	forall (c in todel)
+	{
+	    close(c.to);
+	    close(c.from);
+	    net.close(c.skt);
+	    bye(c);
+	    del(client, c.skt);
+	    skts[c.skt] = false;
+	}
+    }
+}

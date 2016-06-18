@@ -1,0 +1,4 @@
+auto l = object.new(app.label);
+l@settext("Hello, World!");
+app.pack(l);
+app.run();

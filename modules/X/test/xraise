@@ -1,0 +1,31 @@
+#!/usr/local/bin/ici
+
+static	xwininfo = "/usr/X11R6/bin/xwininfo";
+
+if (argc != 2)
+{
+    printf(stderr, "usage: %s name\n", basename(argv[0]));
+    exit(1);
+}
+
+auto re, f, s, v, ids;
+
+re = regexp(argv[1]);
+ids = array();
+f = popen(sprintf("%s -root -children", xwininfo));
+while (s = getline(f))
+{
+    if (s !~ #^[ 	]+0x#)
+	continue;
+    v = s ~~~ #^ +(0x[0-9a-f]+) [("](.*)[")]:(.*)$#;
+#    printf("%s\t%s\n", v[0], v[1]);
+    if (v[1] ~ re)
+	push(ids, int(v[0]));
+}
+close(f);
+
+auto display, id;
+
+display = X.OpenDisplay();
+forall (id in ids)
+    X.RaiseWindow(display, X.Window(display, id));

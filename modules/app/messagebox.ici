@@ -1,0 +1,18 @@
+/*
+ * messagebox.ici
+ */
+
+extern messagebox = [struct : object.object,
+
+    new = [func (self, type, title, text)
+    {
+	return tcl.tk
+	(
+	    "tk_messageBox "
+	    "-title {" + title + "} "
+	    "-type", type,
+	    "-message {" + text + "}"
+	);
+    }],
+
+];

@@ -1,0 +1,36 @@
+a := [array "abc", "123"];
+
+if (str.join(a) != "abc 123")
+    fail("join");
+if (str.join(a, "-") != "abc-123")
+    fail("join");
+
+u := "ABC";
+l := "abc";
+
+if (str.toupper(l) != u)
+    fail("toupper");
+if (str.toupper(u) != u)
+    fail("toupper");
+if (str.tolower(u) != l)
+   fail("tolower");
+if (str.tolower(l) != l)
+   fail("tolower");
+
+if ([str hello  world] != "hello  world")
+    fail("failed to parse str");
+if ((s := [str
+    hello
+     world
+    ]) != "hello\nworld")
+    fail("failed to parse str" + s);
+if ([str(raw)
+  \]hello
+   world
+ ] != "\n  ]hello\n   world\n ")
+    fail("failed to parse str");
+if ((s := [str(squeeze)
+  hello
+   world
+ ]) != "hello world")
+    fail("failed to parse str " + s);

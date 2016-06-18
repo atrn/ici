@@ -1,0 +1,96 @@
+.r icifoo.1
+.TH "icioo" "1"
+.SH NAME
+icioo \- ICI object-oriented programming
+.SH DESCRIPTION
+<I>This page is out of date. A whole new OO mechanism has been
+available since ICI 3.0.</I>
+.PP
+Ici's support for object-oriented programming is very simple.
+Inheritance is already provided through the ability to extend
+one structure's scope by defining a super structure for it.
+This can be done either with the notation:
+
+    \fCstatic  my_instance = [struct:my_parent x, y ];\fR
+
+or with the functional notation
+
+    \fCstatic  my_instance = super(my_parent, x, y);\fR
+
+although it's probably better to set up an atomic (`class') variable
+for the super structure, and use that:
+
+    \fC@my_parent\fR
+
+to refer to an atomic (unchanging) version of your `class' struct.
+
+.PP
+The method call is achieved by an extension of the normal function call
+operator "()".
+When the "()" operand is a function identifier,
+the function is called in the usual way with the supplied parameter list.
+But if the "()" operand is a pointer object keyed
+by a function identifier,
+the function is called with
+the object pointed-to passed as \fIan implicit first parameter\fP.
+.PP
+The binary operator `@' forms such a pointer from an aggregate object
+(usually a struct) and an identifier (i.e. a member of the struct).
+This is the same basic technique used for dynamic dispatch in languages
+like Smalltalk and Objective-C.
+
+.PP
+Here is a little example showing a few ways this can be used.
+Note the occasional use of literal functions.
+
+.nf
+\fCstatic
+showtype(any, label)
+{
+    printf("%s is a %s\en", label, typeof(any));
+}
+
+/*
+ * Class definition.
+ */
+static Point =
+[struct
+    p_x     = 0.0,
+    p_y     = 0.0,
+    p_swap  = [func (self) { self.p_x <=> self.p_y; } ],
+    p_print = [func (s) { printf("Pt <%g %g>\en", s.p_x, s.p_y);} ],
+    p_what  = showtype,
+];
+
+static p1 = struct(@Point);  /* Set super struct to be atomic Point */
+
+    p1.p_x = 1.2;
+    p1.p_y = 3.4;
+
+    p1@p_what("p1");
+    p1@p_print();
+    p1@p_swap();
+    p1@p_print();
+\fR
+
+Which produces this output when run:
+
+\fCp1 is a struct
+Pt <1.2 3.4>
+Pt <3.4 1.2>\fR
+.fi
+
+.PP
+In summary,
+method calls depend on:
+.IP \(bu 2c
+Ici's \fIsuper\fP linkage to provide the
+normal OO inheritance name search mechanism.
+.IP \(bu 2c
+The `@' binary operator to form a keyed pointer that will
+select the named member of the struct.
+.IP \(bu 2c
+The "()" (call) operator's special treatment of a function-keyed pointer.
+.PP
+The syntax is the natural result of using ici's normal language
+facilities.

@@ -1,0 +1,192 @@
+#
+# For compiling a standard version under Linux.
+#
+# Tested on Ubuntu 9
+#
+
+VERSION = $(shell awk '{print $$1}' VERSION)
+PREFIX  = /usr/local
+
+TARGET  = ici
+LIB     = libici4.so.$(VERSION)
+CONFIG  = conf/linux.h
+
+CC      = gcc -pipe -D_THREAD_SAFE
+LIBS    = -lm -ldl -lpthread
+
+# For debugging...
+#OPTIM   =
+
+# For releases
+OPTIM  = -DNDEBUG -O3 -fomit-frame-pointer -march=native -msse
+
+# On 64-bit machines we need to use "large model" for objects
+# so the linker can link us.
+# OPTIM   += -mcmodel=large
+
+#
+# Other optimizations that may be useful but modern CPUs
+# make them less important or even pessimizations (e.g large
+# code via inlining and -O3 is often slower)
+#
+# -O3
+# -finline-functions
+# -fexpensive-optimizations
+# -malign-double
+#
+
+PCH     = fwd.h
+GCH     = $(PCH).gch
+
+CFLAGS_MAIN  = -g -Wall $(OPTIM) -I.
+CFLAGS  = $(CFLAGS_MAIN) -fPIC
+LDFLAGS = -export-dynamic -Wl,-rpath -Wl,$(PREFIX)/lib
+RM      = rm -f
+
+SRCS    = $(shell ls *.c | grep -v '^win32')
+OBJS    = $(SRCS:.c=.o)
+PCREOBJS= study.o maketables.o pcre.o
+ALLOBJS = main.o $(OBJS) $(PCREOBJS)
+
+all:    $(TARGET) ici.h
+
+$(TARGET): main.o $(LIB)
+	$(CC) $(LDFLAGS) -o $@ main.o $(LIB) $(LIBS)
+
+main.o  : main.c $(GCH)
+	$(CC) $(CFLAGS_MAIN) -o $@ -c main.c
+
+lib	: $(LIB)
+
+$(LIB)  : $(OBJS) $(PCREOBJS) $(GCH)
+	$(CC) -shared -o $@ $(CFLAGS) $(OBJS) $(PCREOBJS)
+
+gch pch	: $(GCH)
+
+$(GCH)  : $(PCH)
+	$(CC) $(CFLAGS) -o $@ $(PCH)
+
+study.o : pcre/study.c
+	$(CC) -c -o $@ $(CFLAGS) pcre/study.c
+
+maketables.o    : pcre/maketables.c
+	$(CC) -c -o $@ $(CFLAGS) pcre/maketables.c
+
+pcre.o  : pcre/pcre.c
+	$(CC) -c -o $@ $(CFLAGS) pcre/pcre.c
+
+ici.h	: $(TARGET)
+	LD_LIBRARY_PATH=. ANICIPATH=. ./$(TARGET) mk-ici-h.ici $(CONFIG)
+
+clean   :
+	$(RM) $(TARGET) $(LIB) $(ALLOBJS) ici.h
+
+clobber : clean
+	$(RM) $(GCH) .depend
+
+#
+# The following only works if you have the BSD mkdep program
+# installed. On Ubuntu its part of the pmake package.
+depend	:
+	mkdep $(CFLAGS) $(SRCS)
+
+-include .depend
+
+
+# Core modules
+COREMODS=\
+	ici4core.ici\
+	ici4core1.ici\
+	ici4core2.ici\
+	ici4core3.ici
+
+MAN1S=\
+	doc/man1/ici.1\
+	doc/man1/icifuncs.1\
+	doc/man1/icioo.1\
+	doc/man1/iciops.1\
+	doc/man1/icire.1\
+	doc/man1/icistmt.1\
+	doc/man1/icitypes.1
+
+# Install the init file, headers and docs.
+INSTALL		= install -c
+INSTALL_PROG	= $(INSTALL) -m 555
+INSTALL_DATA	= $(INSTALL) -m 444
+
+install: $(TARGET) $(LIB) $(COREMODS) ici.h icistr-setup.h $(MAN1S) doc/ici.pdf
+	@echo '=========================================='
+	@echo 'Creating installation directories'
+	@echo '=========================================='
+	-mkdir -p $(PREFIX)/bin
+	-mkdir -p $(PREFIX)/lib/ici4
+	-mkdir -p $(PREFIX)/include
+	-mkdir -p $(PREFIX)/man/man1
+	-mkdir -p $(PREFIX)/share/doc/ici4
+	@echo '=========================================='
+	@echo 'Installing ici interpreter and manual page'
+	@echo '=========================================='
+	$(INSTALL_PROG) $(TARGET) $(PREFIX)/bin/ici
+	$(INSTALL_DATA) $(COREMODS) $(PREFIX)/lib/ici4
+	$(INSTALL_DATA) $(MAN1S) $(PREFIX)/man/man1
+	@echo '=========================================='
+	@echo 'Installing ici library'
+	@echo '=========================================='
+	$(INSTALL_DATA) $(LIB) $(PREFIX)/lib/$(LIB)
+	@echo '=========================================='
+	@echo 'Headers'
+	@echo '=========================================='
+	$(INSTALL_DATA) ici.h  $(PREFIX)/include
+	$(INSTALL_DATA) icistr-setup.h $(PREFIX)/include
+	@echo '=========================================='
+	@echo 'Documentation'
+	@echo '=========================================='
+	$(INSTALL_DATA) doc/ici.pdf $(PREFIX)/share/doc/ici4
+	@echo '=========================================='
+	@echo 'Install done'
+	@echo '=========================================='
+
+#
+# No mention of fwd.h or alloc.h, but everything depends on it.
+#
+alloc.o        : trace.h
+arith.o        : exec.h float.h int.h op.h parse.h ptr.h str.h struct.h buf.h binop.h
+array.o        : ptr.h exec.h op.h int.h buf.h
+call.o         : buf.h exec.h func.h int.h float.h str.h null.h op.h
+catch.o        : exec.h catch.h op.h func.h
+cfunc.o        : exec.h func.h str.h int.h float.h struct.h set.h op.h ptr.h buf.h file.h re.h null.h parse.h mem.h
+clib.o         : file.h func.h op.h int.h float.h str.h buf.h exec.h
+clib2.o        : buf.h func.h
+compile.o      : parse.h array.h op.h str.h
+conf.o         : func.h
+control.o      : exec.h op.h int.h buf.h pc.h struct.h null.h forall.h catch.h
+exec.o         : exec.h op.h catch.h ptr.h func.h str.h buf.h pc.h int.h struct.h set.h parse.h float.h re.h src.h null.h forall.h trace.h binop.h
+exerror.o      : str.h buf.h
+file.o         : file.h
+float.o        : float.h
+forall.o       : exec.h struct.h set.h forall.h str.h buf.h
+func.o         : func.h exec.h ptr.h struct.h op.h pc.h str.h catch.h buf.h mark.h null.h
+icimain.o      : ptr.h exec.h file.h str.h struct.h buf.h wrap.h func.h
+init.o         : func.h buf.h struct.h
+int.o          : int.h
+lex.o          : parse.h file.h buf.h src.h array.h trace.h
+mark.o         : mark.h
+mem.o          : mem.h int.h buf.h
+mkvar.o        : exec.h struct.h
+null.o         : null.h
+object.o       : exec.h buf.h int.h str.h float.h func.h 
+op.o           : op.h exec.h
+parse.o        : parse.h func.h str.h struct.h buf.h file.h op.h exec.h
+pc.o           : exec.h pc.h
+ptr.o          : exec.h ptr.h struct.h int.h op.h buf.h
+regexp.o       : str.h re.h exec.h op.h buf.h
+set.o          : object.h set.h op.h int.h buf.h null.h
+sfile.o        : file.h
+smash.o        :
+src.o          : exec.h src.h
+string.o       : str.h struct.h exec.h int.h
+struct.o       : struct.h ptr.h exec.h func.h op.h int.h buf.h str.h pc.h
+syserr.o       :
+trace.o        : func.h object.h trace.h file.h set.h struct.h array.h re.h str.h int.h float.h exec.h op.h
+unary.o        : exec.h float.h int.h op.h parse.h buf.h null.h
+wrap.o         : wrap.h

@@ -1,0 +1,13 @@
+Owner-draw source code so that we get a non-proportional font and can show
+breakpoints and current position without using the selection mechanism.
+
+
+Implement and remember breakpoints.  Must be very fast to determine whether
+a line has a breakpoint
+ 
+ - From ICI variables because we'll have to do it FOR EVERY LINE EXECUTED.
+ - From line numbers for when we're owner-drawing the source code.
+
+
+Remember window size, position and min/max/normal state.
+

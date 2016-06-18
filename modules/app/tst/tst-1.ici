@@ -1,0 +1,4 @@
+auto b = object.new(app.button, "Quit");
+b@setaction("exit();");
+app.pack(b);
+app.run();

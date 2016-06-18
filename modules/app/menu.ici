@@ -1,0 +1,114 @@
+/*
+ * menu.ici - menu widget
+ */
+extern menu = [struct : widget,
+
+    type = "menu",
+    
+    new = [func (self, parent, name)
+    {
+	auto	vargs = [array];
+	
+	self.name = self@makename(parent);
+	self.button = tcl.tk
+	(
+	    "menubutton",
+	    self.name,
+	    "-text {" + name +"} "
+	    "-menu", self.name + ".menu "
+	    "-font {-adobe-helvetica-bold-r-normal--14-*-*-*-*-*-*-*}"
+	);
+
+	self.menu = tcl.tk
+	(
+	    "menu",
+	    self.name + ".menu "
+	    "-tearoff no "
+	    "-font {-adobe-helvetica-bold-r-normal--14-*-*-*-*-*-*-*}"
+	);
+
+	auto i, n;
+	for (i = 0, n = nels(vargs); i < n; i += 2)
+	{
+	    if (vargs[i] == "")
+	    {
+		tcl.tk
+		(
+		    self.name + ".menu "
+		    "add separator"
+		);
+		--i; /* To account for the += 2, we only want to go up one */
+	    }
+	    else
+	    {
+		tcl.tk
+		(
+		    self.name + ".menu "
+		    "add command -label {" + vargs[i] + "}",
+		    "-command { ici {" + vargs[i+1] + "}}"
+		);
+	    }
+	}
+    }],
+
+    appenditem = [func (self, label, cmd)
+    {
+	if (typeof(cmd) == "func")
+	    cmd = sprintf("%s();", cmd.name);
+	tcl.tk
+	(
+	    self.name + ".menu "
+	    "add command -label {" + label + "}",
+	    "-command { ici {" + cmd + "}}"
+	);
+    }],
+
+    appendcheckbutton = [func (self, label)
+    {
+    }],
+
+    setitemfont = [func (self, item, font)
+    {
+	tcl.tk
+	(
+	    self.name + ".menu "
+	    "entryconfigure " + string(item) + " "
+	    "-font " + font
+	);
+    }],
+
+    numitems = [func (self)
+    {
+	return int(tcl.tk(self.name + ".menu", "index end")) + 1;
+    }],
+
+    entryconfigure = [func (self)
+    {
+	auto	vargs = [array];
+
+	call(tcl.tk, array(self.name + ".menu", "entryconfigure") + vargs);
+    }],
+
+];
+
+/**
+ * makemenus - read a menu description and create the menus described
+ */
+extern
+makemenus(menus, parent)
+{
+    auto item, m, menu, side, a;
+
+    a = array();
+    forall (menu in menus)
+    {
+	m = object.new(app.menu, parent, menu.title);
+	forall (item in menu.items)
+	    m@appenditem(item.label, item.cmd);
+	if (!(side = menu.side))
+	    side = "left";
+	app.pack(m, "-pady 5 -padx 5 -side " + side);
+	push(a, m);
+    }
+    return a;
+}

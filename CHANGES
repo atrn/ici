@@ -1,0 +1,1523 @@
+Major Changes in Version 5
+
+*    the forall statement implementation now uses a per-type
+     'step' function which opens the way for iteration over
+     used-defined types.
+     
+*    include() removed
+
+*    many default sizes increased by factors of four or more
+     to account for substantially more memory available on
+     most modern systems.
+
+*    various modules incorporated as standard "things",
+
+        sys     POSIX system calls
+        net     BSD sockets
+        str     string functions
+        path    path manipulation
+
+*    reclaim function enabled by default (forces a GC)
+
+*    dynamic module loading no longer looks for ici3 prefixed modules
+
+*    the ICIPATH environment variable is renamed as ANICIPATH
+
+*    object serailization module integrated into core
+     adding the save/restore functions and the archive
+     type to the basic interpreter.
+
+*    ft_putch removed from ici_ftype
+
+*    Version 5 is essenitally a new language with the same structure
+     as the previous versions of ICI.  Version 5 changes keywords
+     purposefully breaking programs written for previous versions
+     of the language.
+
+     Keyword Changes
+
+     	extern	 ->	export
+     	static	 ->	local
+     	auto	 ->	var
+
+     Standard Function Changes
+
+     	thread() ->	go()
+	nels()	 ->	len()
+
+    Configuaration Changes
+
+    Support for many older UNIX systems has been removed. These days
+    UNIX means Mac OS, Linux, BSD, and Solaris.
+
+    Bug fixes
+
+Changes in version 4.2
+
+*    The struct returned by calendar() now includes an additional
+     two members that provide timezone information.  The key
+     "zone" references a string that is the timezone abbreviation
+     and the member "gmtoff" references an integer that is the
+     number of seconds offset from UTC.
+
+*    Introduced config-related macro ICI_HAS_BSD_STRUCT_TM which
+     indicates if the platform has the BSD-additions to struct tm
+     that define the timezone name and offset from UTC.  If this
+     is not set a function, ici_set_timezone_vals(), is used to
+     add the members "zone" and "gmtoff" to the struct returned
+     by calendar (see above).
+
+*    seek()'s `whence' parameter is now optional.  If not specified
+     it defaults to 0 aka SEEK_SET.  This leads to fairly natural
+     looking code of the form, seek(file, position).
+
+*    The result of the respondsto() standard method has been changed
+     to return either the method resulting from the lookup or NULL
+     if the lookup failed.   Code that used respondsto() in a "simple'
+     fashion will still work as expected, since NULL compares as false.
+     Code that relied on the zero or one result will need to be changed.
+
+     This change permits the following code to work...
+
+	if (method := instance:respondsto(method_name))
+	    call(method, arguments);
+
+*    ici_new_src() renamed to ici_src_new() and exposed in the API.
+
+*    Makefile.osx64 provided which builds a 64-bit enabled ICI for OS X
+
+*    ungetchar() function added that mimics the C library ungetc
+
+*    A working XCode project may be found in the macosx
+     directory.  This project builds two targets - the dynamic
+     library and the executable that uses the library. The
+     project also uses a "run script" build phase to generate
+     the ici.h file in a similar manner to the makefiles.
+
+     Note that the project was created with XCode 2 on
+     Mac OS X.4 (aka Tiger).
+
+     The build creates "universal" binaries for PowerPC
+     and Intel Macs.
+
+*    It is now possible to trap calls of unknown methods.  If
+     a method call is attempted and the target function is not
+     found a call is made to the method "unknown_method"
+     passing the name of the unfound function as the first
+     argument and an array containing the actual arguments.
+     Classes may provide an implementation of this function and
+     do whatever they wish to do to handle the situation.
+     A default "unknown_method" method is also provided
+     which simply raises an error rather than the previous
+     error about attempting to a call a NULL.
+
+     The motivation for the unknown_method method is
+     simplfied handling of RPC protocols such XML/RPC
+     who's methods can be handled generically.
+
+*    Extended variables automatically created within an error
+     catcher.  In addition to the error string, error, there
+     is now the line number and filename of the location,
+     these are made avaiable in the variables errorline and
+     errorfile respectively.
+
+*    Fetching a file's name, by indexing a file with the key
+     "name", no longer fails if the file has no assigned name.
+     Instead of raising an error NULL is returned.
+
+*    The keys() function may be applied to a set and returns
+     an array containing the elements in the set.
+
+*    Source code structure changes.  Makefiles moved to the
+     new "Makefiles" directory, configuration headers moved
+     to the new "conf" directory and the leading "conf-"
+     prefix removed so their names are now of the form
+     "conf/xyz.h".
+
+*    New internal ici_set_error() function that formats a
+     message into the global buffer and points ici_error
+     to it.  This reduces the amount of repetitive code
+     with a slight loss in performance for simple error
+     strings and the introduction of a maximum length for
+     error strings.
+
+*    Added new function for generating incorrect argument count
+     errors messages for intrinsic functions with a variable
+     number of arguments. The new function, ici_argcount2().
+     is similar to the existing ici_argcount() function but is
+     generates a message specifying the minimim and maximum
+     number of arguments.
+
+*    Correct error handling for POSIX threads based threading.
+
+*    Fixed a long standing bug that did not diagnose assignments
+     to things that weren't lvalues.
+
+*    "true" and "false" make a re-appearance.  This time. however,
+     they are not pre-defined variables but keywords that evaluate
+     to integers one and zero respectively.
+
+*    Objects may be inserted into a set using the "+=" operator
+     and removed from sets using the "-=" operator.
+
+     The expression "set += any" inserts (assigns) `any' into the
+     set and returns the set.
+
+     Note that it is not possible to insert or remove sets from
+     sets as the expressions "set += set" means set union and
+     "set -= set" means difference.
+
+*    The behavior of the two argument form of the assign() function
+     when applied to a set has been radically changed and is now
+     the opposite of its previous definition.
+
+     When calling assign() with a set as the aggregate and only a
+     key specified then the default is now to use 1 as the key and
+     therefore insert the value of the key into the set.  Previously
+     such a call would be equivalent to assign(set, key, NULL) and
+     remove the key from the set.
+
+     The nicer user interface afforded by the syntax "assign(a_set, any)"
+     is seen to far outweigh the irregularity.
+
+*   All symbols, regardless of type, start with either a "ici_" or
+    "ICI_" prefix (uppercase used for macros). In addition a number
+    of extra symbols are now exported from the interpreter's core
+    to assist in writing modules that need deeper access into the
+    interpreter, e.g. the object archiving module.
+
+*   BSD and Solaris builds now use a shared library for the interpreter
+    core similar to the Windows and Mac OS X builds.  A new makefile,
+    Makefile.bsd-static, builds a statically linked interpreter.
+
+*   New parseopen() function that takes a file and returns a "parseable
+    file" that may be used with the parsing related functions parsetoken(),
+    rejecttoken(), et al.  This is an alternative to defining parser
+    functions within classes.
+
+*   New core functions (implemented in ICI and automatically loaded
+    via the icicore mechanism)
+
+	apply       Apply a function to the elements contained within
+		    an aggregate.
+	map         Transform an aggregate by calling a function upon
+                    its elements, adding the result of that call to
+		    an aggreate of the same type which is then returned.
+	walk        Traverse a directory hierarchy calling functions for
+		    the files and/or directories within the hierarchy.
+	memoize	    A call() variant that remembers previous results
+		    and returns them when arguments are identical.
+	memoized    Takes a function and returns a new function that
+		    memoize's the result of that function.
+	deepatom    As per atom() but applied "deeply"
+	deepcopy    As per copy() but applied "deeply"
+	print	    Writes a textual representation of an arbitrary
+		    object to a file.
+
+*   Added support for truncate() on Win32. (richard)
+
+*   Mac OS X build uses pre-compiled header file built from fwd.h.
+    This is removed upon a "make clobber". (andy)
+
+*   Mac OS X version now builds as a dynamic library with the main
+    interpreter program linked against that library. (andy)
+
+*   Parser now detects when a 'break' or 'continue' statement is
+    used outside of a context in which they are permitted. (andy)
+
+*   Fixed several accesses to ici_buf and ici_error while the mutex
+    is released, that occur when closing files and pipes. (richard)
+
+*   Registered mutable string buffers with the garbage collector.
+    Previously they were never freed.  Also fixed the calculation of
+    memory consumption by mutable string buffers. (richard)
+
+*   Added flags controlling I/O behaviour to ici_ftype_t. Currently
+    the only flag defined is FT_NOMUTEX, which causes ICI to release
+    the mutex during I/O on the file. Previously this was always the
+    case, but I/O on mutable string buffers accesses ICI data so the
+    mutex must NOT be released. (richard)
+
+*   Allowed modes "r+" and "r+b" to be passed to sopen() and mopen(),
+    giving stream-based read/write access to mutable strings and mem
+    objects. Added the new function ici_open_charbuf() to support this.
+    ici_sopen() is now a macro that uses ici_open_charbuf(). Being able
+    to write formatted output to a mutable string could remove the need
+    for temp files in many situations. (richard)
+
+*   Corrected error in parser that caused a crash if a default
+    or case label was at the very end of the switch block and
+    had no statement after it. This fix also corrects the mis-reporting
+    of line numbers on the first statement after a case or default
+    label. (timl)
+
+*   Added initialisation of two double values in f_math which in
+    some circumstances (calls to single argument math functions)
+    were not initilised, but then were moved. This was seen to
+    cause (rare) floating point exceptions under Win95. (timl)
+
+Changes in version 4.1.0 (a beta release)
+
+*   Mac OS X ICI now supports threading using a minimal
+    implementation of pthreads semaphores to avoid problems
+    with the native Mac OS X pthreads. (andy)
+
+*   Small fix for MacOSX from Albert Chang at Canon incoporated
+    to allow building without the dlcompat library. (andy)
+
+*   Unix systems now look in the current directory for modules
+    to be more like the Win32 ici. (andy)
+
+*   Added indexing of file object by 'name' to obtain the diagnostic
+    name associated with the file object when it was created.
+    Also, for the special files associated with an ICI parse stream
+    (as returned by currentfile()), the index 'line' returns the
+    current line number parseing has reached. This allows proper
+    diagnostics in user-parsed literals. (timl)
+
+*   Added new function 'which()', which returns which object in
+    a super chain a given name is first found in (default the
+    current scope.) (timl)
+
+*   Corrected pointer calls so NULL@xxx() won't crash. (timl)
+
+*   Made the semicolon that terminates an expression statement
+    optional when followed by either } or EOF. This is mainly so
+    short expressions that are evaluated in strings don't need
+    a semicolon. Like:
+    
+        ici -e dbg.cmd=1 ...
+
+    (timl)
+
+*   Removed the Windows ICI debugger from the Windows build. It
+    is now in ici-modules. (timl)
+
+*   Stacked source markers on the execution stack during function
+    calls. This stops them being wrong between function return, and
+    the next source line. (timl)
+
+*   Changed the path[] initialisation on UNIX-like systems to
+    always include the lib/ici4 directory(s) under /usr/local,
+    /opt and /sw if they exist, plus one optional place that
+    can be specified in the conf file for any particular system.
+    This was done to satisfy the reasons for Andy's change (see
+    below), and also allow uniform binary distributions. (timl)
+
+*   Changed icistr-setup.h and related macros in str.h (exported
+    to ici.h) to avoid duplicate symbols in modules.  The
+    init_ici_str() function is now made static to limit its
+    scope to the file(s) that includes it. The ICIS et al
+    macros in str.h (and exported to ici.h) now include
+    the value of an ICI_MODULE_NAME macro within the symbol
+    names.  This allows correct module loading on Mac OS X
+    where the dynamic linker disallows duplicate symbols in
+    loaded modules (bundles). The only impact for other platforms
+    should be the potential for not sharing static string objects
+    between modules that define the same strings. (andy)
+
+*   Mac OS X module loading now uses bundles instead of the
+    incorrect dynamic library usage.  The file extension for
+    modules has changed to match this change, it was ".dylib"
+    but is now ".bundle". (andy)
+
+*   Upgraded the usage message and added -h/-? help. (timl)
+
+*   Allowed '/' to introduced arguments as well as '-' on Windows.
+    (timl)
+
+*   Added ici_fetch_super() and ici_assign_super() macros to the
+    public interface. (timl)
+
+*   Added support for an optional 'base' argument to int() and
+    num(). (timl)
+
+*   Corrected some problems in float hashing, in particular when
+    0.0 and -0.0 hash to different values but (until now) appeared
+    to be equal. Also addressed some more subtle C issues. (timl)
+
+*   Corrected a problem in interval() with a 0 start and no length
+    argument. (timl)
+
+*   Added support in handles to allow fetch, assign and method
+    invocation. This has two interfaces, one cooked where the key
+    is first converted to an integer ID, the other raw. One, or the
+    other, or both may be used.
+    
+    There is a new function, ici_make_handle_method_map, and
+    in a handle there are three new pointers: h_member_map, and
+    the function pointers h_member_intf and h_generic_intf.
+    See documentation. (timl)
+
+*   Added 'ici_parse_fname' function to the API to parse a named
+    file directly (because it's such a common case). (timl)
+
+*   Added user-parsed literals and support functions. User-parsed
+    literals allow things like:
+
+        [ident stuff...]
+
+    to be defined for things other than the built-in ones. The
+    stuff... can be any syntax, built variously from low level
+    character data, from standard ICI tokens, or from full ICI
+    expressions. For example, the bignum extension now allows:
+
+        x = [bignum 1000000000000];
+    
+    The mechanism works by getting a parser function by evaluating
+    the ident (if it is callable, it is the function, else ident.parser
+    is used). It then calls that function with the current parse stream
+    file (as returned by currentfile()).
+    
+    There are new functions: parsetoken() and parsevalue() to read ICI
+    tokens or expressions, as well as tokenobj(), rejecttoken(),
+    and rejectchar() to assist. See new documentation.
+
+*   Corrected objname functions of func and handle. Both had
+    bugs that could cause crashes. (timl)
+
+*   Added the default location to the initialisation of path[]
+    for UNIX-like systems. This is to cope with the case where
+    the interpreter is being run from a directory that is not
+    in PATH which is often the case when ici programs are run
+    as CGI scripts under a web server, e.g. Apache.  The default
+    location is based on the value of PREFIX as specified in the
+    Unix makefiles and passed as a macro when building, i.e. the
+    directory PREFIX/lib/ici4 is added to path[]. (andy)
+
+*   Got everything building and working under Cygwin. (timl)
+
+*   Added ici_eval() to evaluate a variable name as the main
+    interpreter does it (with auto-loading). (timl)
+
+*   Added -e and -i options to ici34check.ici that make it
+    automatically apply all the safe changes to the source files.
+    (timl)
+
+*   Makefile.osx updated for ici4 and a ProjectBuilder project,
+    macosx/ici.pbproj, added to build a static library and
+    executable.  Threads are not enabled due to lack of a
+    functional sem_init() in the OS X pthreads. (andy)
+
+*   Makefile.bsd updated for ici4 and now installs required
+    headers and builds ici.h.  doc/ici.pdf is now installed as
+    the documentation. (andy)
+
+Changes in version 4.0.5
+
+*   Added *lots* more API comments, which get extracted into
+    the manual. The API documentation in the PDF manul
+    is now complete, although not fully proofed. (timl)
+
+*   A number of minor corrections to faults discovered in the
+    previous release. Mostly make issues. (timl)
+
+Changes in version 4.0.4 (first normal release of ICI 4)
+
+*   Changed the default path[] initilialisation for UNIX-like
+    systems. In addition to ICIPATH, it now adds any accessable
+    directories called <wahtever>/lib/ici4 that parallel PATH
+    elements that end in <whatever>/bin. This, at last, means that
+    UNIX-like systems should reliably find extension modules without
+    setting environment variables. (timl)
+
+*   Started adding a lot more API documentation. Much of it will
+    now be extracted from the source comments. (timl)
+
+*   Changed types names to have ici_ prefixes. But added macros to
+    allow back-ward compatibility. (timl)
+
+*   After much deliberation I decided *not* to have the new 'proto'
+    mechanism in the global new(). (timl)
+
+*   Changed (any1 && any2) and (any1 || any2) so that if any1
+    caused an early return, its value forms the result of the
+    expression. Under the old behaviour it was resolved to 0 or 1.
+    This is a semantic change to the language. I think it is unlikely
+    to cause problems for old programs as it was not a useful
+    feature (remember, is any2 got evaluated, it was returned,
+    so the expression could not be expect to produce a numeric
+    result in general). It might cause problems for new programs
+    that end up getting run on old interpreters. (timl)
+
+Changes in version 4.0.3 (first beta release of ICI 4)
+
+*   Introduced a new "status" field to thread objects - values
+    are "active", "finished", and "failed". (timl)
+
+*   Updated Makefile.maint.
+
+*   Added ici_ prefixes to yet more functions and reviewed what
+    what is in the formal API and what wasn't. ici.h has been
+    trimmed so seperately compiled modules can't see stuff they
+    shouldn't. Some things that are done as macros in the core,
+    are now done with functions for external modules to stop them
+    being fragile with respect to internal implemenation. This
+    all caused the backwards compatibale version to be set to 4.0.3
+    (timl)
+
+*   Allowed literal regular expressions (#...#) to be broken up as
+    strings are. That is, multiple literal regular expressions seperated
+    only by white space are concatenated before compilation. But also,
+    you can mix in literal strings after the first #...#, and they
+    are also concatenated and form part of the regular expression.
+    This allows you to get # chars in more easily, and use string
+    escape chars when you need to.
+
+*   Allowed mutable (non-atomic) strings. Strings can now be either
+    single-allocation (as they have been till now) or two-allocation.
+    Single allocation strings are not growable and are always atomic
+    and are the normal case. Seperate allocation is used when making
+    a mutable string with the new strbuf() function. Also added
+    strcat(). (timl)
+
+*   Ifdefed out the hash stored in each string. Testing revealed it
+    was faster without it. This is probably because there are a lot
+    fewer calls to hash functions in general now due to efficiency
+    gains in the atom pool handling. The extras memory bandwidth and
+    cache misses were enough to make it a net penalty. (timl)
+
+Changes in version 4.0.2 (an alpha release - binary interface not final)
+
+*   Added printf to stderr in the case of an uncaught error in a
+    sub-thread. This is a bit of a hack, but it is a bit of a pain
+    working with threaded apps without it. (timl)
+
+*   Introduced some version #defines and a function ici_interface_check()
+    that external modules can call to check that they are not being
+    invoked by a newer interpreter that they are not compatible with. (timl)
+
+*   Removed include of <assert.h> from ici.h. (timl)
+
+*   Changed atom_probe() to take an extra arg where it stores the location
+    of the empty slot the object should go in it it wasn't found. This saves
+    re-hashing and looking up where to put the newly allocated object.
+    But there are some rules to its usage. Applied it to various objects
+    including ints, floats and strings. (timl)
+
+*   Changed file objects from being instrinsicly atomic. This didn't
+    really make any sense. As it was, the cmp() function took the
+    closed flag into account, but the closed flag changed even for
+    atomic files (which is bad). (timl)
+
+*   Added __TIME__ to the version string.
+
+*   Changed a few compiled-form operators to have things in-line in
+    the code array rather than having them pushed on the operand
+    stack first. This saves a few main loop iterations. (timl)
+
+*   Added macro ICI_OBJ_SET_TFNZ() to initialise the header of new
+    objects, and phased out rego() (becomes ici_rego()) from setting
+    o_leafz to zero.
+
+*   Added auto-increment and indirect content types to build().
+    This allows quick creation of sequential integer vectors, and
+    more complex initialisations and data transposes. See documentation.
+    (timl)
+
+*   Woops. That string hash was no good. Had a good look at hashing
+    in general and decided to go (back) to a CRC32 derived method.
+    In theory the cache misses on the 4Kb table would be bad, but
+    in practice the improvement in the hash result more than
+    compensates. Added crc.c. Also made pointer hashes for struct
+    lookup use the table. (timl)
+
+Changes in version 4.0.1 (an alpha release)
+
+*   Yet again changed various hash functions. In particular string,
+    float and pointer hashing for structs. (timl)
+
+*   Added a new function pointer, t_fetch_method, to the object
+    type structure. This is a bit of a hack. If it is non-NULL, it
+    is used in preference to the normal fetch when doing a fetch during
+    method creation. It is to help Windows COM support. It is not
+    used by any core types.
+
+*   Added Micrsoft Visual Studio build stuff in a new "win32"
+    directory. It contains a workspace and a bunch of projects to
+    build the ICI DLL, wappers, the Windows ICI debugger, and an
+    SDK installer (using NSIS - Nullsoft's free installer system).
+    (timl)
+
+*   Changed source line tracking. Now has a "most recently executed"
+    source tag in the exec structure. Bit quicker, and probaly
+    more reliable. (timl)
+
+*   Added many test cases. These were added by examining code
+    coverage, and adding test cases until all code that could
+    be reached by a script was reached. Some of the fixes to
+    problems revealed by this are detailed below. However there
+    were others not mentioned in detail here. (timl)
+
+*   Added test/tst-misc.ici, test/tst-prof.ici and test/tst-types.ici
+    as part of test coverage upgrade. (timl)
+
+*   Corrected failure to return NULL on empty gettokens in simple
+    2 arg string, string case. (timl)
+
+*   Corrected buffer overun when using large widths in printfs
+    (such as %1000d). (timl)
+
+*   Added ptr - int support. (timl)
+
+*   Corrected failure to detect modification of an atomic array
+    (in some circumstances). (timl)
+
+*   Added special new printf format %a - 'any'. This accepts any
+    object and produces a short (up to 30 chars) human readable
+    interpretation of it. (timl)
+
+*   Disabled popen in Win32 until a working Win32 popen is written.
+    (Primitive popen() only works in console apps in Windows it
+    seems.) (timl)
+
+*   Allowed getfile() to be given a file name as argument. It is
+    opened, read, and closed. (timl)
+
+*   Added tmpname() function (ala the C lib tmpnam() function). (timl)
+
+*   Changed getenv/putenv handling (again) to overcome problems
+    when programs ici_uninit(), then exec something else, and
+    some bugs in Windows case matching. (timl)
+
+*   Added protection against execessive recursive core engine
+    invocation (limit of 50 currently). (timl)
+
+*   Fixed a rare but long standing bug relating to an inopportune
+    collect while adding an atom to the atom pool. The symptom of
+    this was failure to find an atom to be removed from the atom
+    pool during collection (an assert in debug builds). (timl)
+
+*   Huge number of fixes in parse.c relating to refernce count
+    fixes in error cases. (timl)
+
+Changes in version 4.0.0 (an alpha release)
+
+*   Added stuff to build a Windows installer with a script based
+    on NullSoft's free installer system. (timl)
+
+*   Expanded the handle_t to support an optional private struct
+    for storing local values. This makes it much easier to make
+    C objects that act as first class ICI instances, including the
+    ability to sub-class them and define new instance variables. (timl)
+
+*   Added ici_module_new and ici_class_new functions to make it
+    easier to make extensions and stuff. (timl)
+
+*   Added more ici_ prefixes to more functions. (timl)
+
+*   Added support for handle_t objects to ici_typecheck. They check
+    that the handle is one of the correct type by a supplied name. (timl)
+
+*   Changed the interface to ici_call[v] and ici_func[v] functions
+    to be more consistent with other functions and take string_t *
+    args instead of char * (now that string_t types are easier to
+    get). Also added ici_method for making method calls from C. (timl)
+
+*   Removed the socket functions from the core. They are now
+    only accessable through the net module (also upgraded the
+    net module to ici4, but that's in the ici-modules checkout).
+    (timl)
+
+*   Added support for [module:xxx and [module=xxx which actually
+    never made it into ICI 3. Imroved the error reporting in that
+    area. (timl)
+
+*   Changed the extension module search path to go through a 'path'
+    ICI variable (in the current scope), which is an array of dirs
+    to search. This variable is set on startup from ICIPATH and well
+    known locations (which vary with platform). It is program modifiable,
+    and used on libray loads. (timl)
+
+*   Changed the name of many functions. Mostly added ici_ prefixes.
+    This is part of the documentation of the C API (I figure if
+    there was ever a time they should get fixed, it is when they
+    get documented.) (timl)
+
+*   Made currentfile() layer on top of the parse context so that
+    line numbers don't get out of sync. Also added an optional
+    "raw" argument to produce the old behaviour. (timl)
+
+*   Restored the ici4 prefix on auto-loading ici modules.
+    It turns out not to be practical to leave off the version
+    number. But I plan to add searching for the previous version
+    number to solve the problem instead. (timl)
+
+*   Corrected long standing ? : bug where the : was confused
+    for a method operator in some circumstances. (timl)
+
+*   Added an ici_pcre() function to avoid exposing internals
+    of PCRE in the ici.h include file. (timl)
+
+*   Changed the definition of the struct lookup look-aside cache
+    stored in strings. It used to apply only to variables. But
+    now it applies to all struct lookups. That meant it could be
+    cleaned up and the number of times it is invalidated (by
+    incrementing ici_vsver) greatly reduced. This makes a good
+    improvement in execution speed. (timl)
+
+*   Generalised the super mechanism. Objects that want to support
+    a super (still only structs in the core language) use the
+    new type objwsup_t (object-with-super) instead of object_t
+    as their header. This includes the super poiner. They must
+    then also set the O_SUPER flag in their header. They must also
+    support some extra fetch/assign functions.
+
+    There are quiet a few place where struct_t types became
+    objwsup_t types as a consequence of this. (timl)
+
+*   Removed the version number from the naming of auto-loading
+    ICI modules (but not native code modules). Thus, for example,
+    the version 3 startup file was called:
+
+       ici3core.ici
+
+    but it will now be called
+
+       icicore.ici
+
+    I think the ICI language (as opposed to its internal APIs)
+    is sufficiently stable that it is not really required.
+    I found it an unnecessary inconvenience. (timl)
+
+*   Changed chkbuf() to ici_chkbuf(). (timl)
+
+*   Added a new basic type "handle". This not accessible from the
+    core language, but C code can use it to return generic references
+    to C data objects. It supports a super pointer, so C code
+    can associate a class (i.e. a struct full of intrinsic methods)
+    with it to allow it to be used as an OO object (which can also
+    identify it as an object of the expected type when passed back
+    from ICI code). It also allows a type name to be associated
+    with the handle which will appear in diagnostics. (timl)
+
+*   Changed 'error' to 'ici_error'. (timl)
+
+*   Changed ici_evaluate() to use a catch object on its C stack
+    as its frame marker on its ICI execution stack. This avoids
+    an object allocation on each ici_evaluate call. The arguments
+    to ici_evaluate have changed slightly as a consequence. (timl)
+
+*   Removed syscall functions from the core. They will only
+    be accessible through the sys module in future. (timl)
+
+*   Changed the allocation routines to allocate small objects
+    densly (no boundary words) out of larger chunks. The
+    technique for eliminating boundary words, and keeping the
+    fast  free lists, is to have alloc/free routines where
+    the caller is required to tell the free how much memory
+    it asked for on the  alloc. Thus we have:
+
+        x = ici_talloc(type);
+        ...
+        ici_tfree(x, type);
+
+    and
+
+        x = ici_nalloc(size);
+        ...
+        ici_nfree(x, size);
+
+    98% of the time this is really easy because the place you
+    free the data knows exectly how big it is. For the occasions
+    where this is not convenient, you can use the completely
+    malloc/free equivalent:
+
+        x = ici_alloc(size);
+        ...
+        ici_free(x);
+
+    (timl)
+
+*   Added a small array (32) of pre-generated small ints to allow
+    a quick check and use of these very common numbers. (timl)
+
+*   Changed the internal ICI calling convention. The call operator
+    object used to store the number of actual parameters to a
+    function. Now a seperate int is pushed onto the operand
+    stack. There is now just a single static call operator.
+    Because ints are now heavily optimised, a call from C to ICI
+    now, typically, does no allocation until its in the main
+    execution engine. (timl)
+
+*   Moved the lib curses based text window feature out of the core.
+    Will put it in an extension module soon. (timl)
+
+*   Changed new_array() to take an int argument being the initial
+    number of slots for the array to have. The caller can assume
+    that that many items can be pushed on. Use 0 for the default
+    value. (timl)
+
+*   Changed arrays so that they can be efficiently push()ed and
+    pop()ed at *both* ends. Thus they can be used to form efficent
+    queues. Although apparently a small feature, queues are something
+    that I've always felt were important and missing from ICI.
+    However this was a *big* change (much harder than the
+    object header change). The parser and execution engine rely
+    heavily on arrays for their efficiency. To prevent an impact
+    on them we distinguish arrays that have neve been used as a
+    queue (never had the new functions rpush() or rpop() done on
+    them) from the general case. Virgin arrays are refered to as
+    stacks and have all the old semantics. But in the general case
+    arrays are now growable circular buffers. Were you don't know
+    the origin or history of an array, you must assume the general
+    case and use some new knowledge, functions and macros to access it.
+    (timl)
+
+*   Removed the feature of binary << that allowed "array << int".
+    This has been flagged for removal in the documentation for a
+    long time, and became difficult to support. (timl)
+
+*   Changed the universal object header(!) From 2 x 32 bit
+    words to 1 x 32 bit word. Theoretically this is a huge
+    change, but it was actually pretty easy. It requires
+    recompilation of external modules, and some changes to their
+    source. Basically the type is now completely indicated by
+    the small int o_tcode field of the header. To find a pointer
+    to the type structure you must index an array of pointers to
+    them. Use ici_typeof(o) for this. Types must now register their
+    type_t structure to obtain their small int type code, which
+    they should remember and use when making new objects. After this
+    change, the next release will move to version 4 to keep extension
+    modules with the new smaller objects seperate.
+
+    The overall effect on CPU time seems to be neutral or a
+    slight improvement. (timl)
+
+*   Added multi-threading. This is based on native machine threads,
+    but the whole mass of ICI objects and static data is gated
+    through a single mutex. So it works fine except threads competing
+    for the ICI execution engine will not take advantage of multiple
+    processors (but they will if they spend their time in functions
+    that release the mutex while running).
+
+    It was a little difficult to achieve this without slowing things
+    down. Introducing a single extra indirection in top-of-stack
+    accesses (the obvious way) adds up to 20% to the execution time
+    of some programs. But I managed it.
+
+    New language contructs "waitfor (expr; obj) stmt" and
+    "critsetc stmt" have been added. As well as the "wakeup(obj)"
+    and "sleep(num)" functions. All I/O routines in the core
+    release the mutex around the low level I/O - except the parser.
+    (See new documentation.)
+
+    In the process, o_top, x_top and v_top macros got removed.
+    Use ici_os.a_top instead. (timl)
+
+*   The ICI Technical Description has been updated to
+    FrameMaker 6 format and split into seperate chapters;
+    each in a seperate source file. (timl)
+
+*   Removed the obsolete function ici_op_offsq() and operator
+    o_offsq from from array.c, ici.def, and fwd.h. (timl)
+
+Changes in version 3.0.1
+
+*   Made struct() accept a NULL super to be consistent with
+    super() and to simplify calling of struct() in some circumstances.
+
+*   Changed the auto-loading mechanism to call the function
+    load() in the current scope rather than just do the work
+    in-line. This allows programs to sandbox untrusted
+    code by controlling the scope the untrusted code has
+    access to. By modifying or removing load() the program
+    can filter or deny module loading to untrsted code. (timl)
+
+*   ICI level signal handling introduced via signals.c and
+    new conditional NOSIGNALS. Two functions are added for
+    ICI code - signal() and signam() (returns the name of
+    a signal given its number, could be an array). See the
+    signals.c file for further information. (andy)
+
+*   BSD makefile changed to use ici3 as the program name,
+    manpage name, library, etc... ici3 co-exists with ici (v2)
+    $ICIPATH defaults to /usr/local/lib/ici3 to allow ici3
+    to be completely independent of v2 to make clean ups
+    easier. You can of course add the old lib/ici to ICIPATH
+    to pick up ici modules but native code libraries are
+    not compatible (internal name changes for one).
+    Other Unix makefiles should change as well. (andy)
+
+*   f_include() now searches ICIPATH for the file if it can't
+    be directly opened. get_dll_path in load.c now exported
+    as ici_get_dll_path (andy)
+
+*   startup file stuff removed as icicore.ici removes the
+    need for it (trace junk should be next) (andy)
+
+*   added in the code for proto structs in classes but it
+    isn't activated (new NOCLASSPROTO macro is defined by
+    default). (andy)
+
+*   Added a respondsto() method to query if class instances
+    have a method with a particular name. (andy)
+
+*   Changed the ICI main programs to use the name 'ici3' rather
+    than just 'ici'. Also updated the required name format
+    for extension modules to be 'ici3xxx.zzz'.
+    This is to allow complete simultaneuos co-existence of old
+    (version 2) ICI and new (to be version 3) ICI. (timl)
+
+*   Changed the Windows ICI debugger to be a dynamically
+    loading extension module 'widb'. It contains the functions
+    widb.break() and widb.view(obj). It installs itself as the
+    debugger and enables debugging on first load. (timl)
+
+*   For Windows (only) changed the search path for extension
+        modules to be similar to that used by LoadLibrary(). This
+        makes it less suprising to Windows users. (timl)
+
+*   Introduced some macros to assist extension modules in getting
+    their ICI strings defined. See str.h. (timl)
+
+*   Introduced ici.h for non-core compilations to use. It is
+    built with the script mk-ici-h.ici using cut-marks that have
+    been added around the exportable sections of many include
+    files. (timl)
+
+*   Added built-in new() and isa() methods and made copy()
+    operate both as a function and a method. (timl)
+
+*   Added the function build(). This can recursively build
+    multi-dimensional arrays and structs and populate leaf
+    fields with data in a manner similar to the APL rho
+    operator. (timl)
+
+*   Added the new operator := which acts like assignment
+    except if the assinment is going into a struct (either
+    explicitly, or implicitly with assignment to a variable)
+    it ignores super-structs. Thus := with a variable on the
+    left always assigns to an auto (making it if necessary),
+    and s.k := v is equivalent to assign(s, k, v). (timl)
+
+*   Added ici_ prefixes to some global identifiers:
+    ex => ici_ex
+    func_type => ici_func_type
+    cfunc_type => ici_cfunc_type
+
+*   Modified the call() function to allow:
+
+            call(func, arg1, arg2... array);
+
+        because call(func, array(arg1, arg2...) + array); seems to
+        be very common (and inefficient). The last arg must be an
+        array or NULL. (timl)
+
+*   Introduced a standard extension module 'icicore.ici' that is
+    loaded automatically on startup. This module contains core
+    language features that are implemented in ICI, not C. It
+    is a bit magic, because on load it exports its externs into
+    the global interpreter scope. It is kept small for efficiency.
+    Many functions are defined as stubs that will parse and replace
+    themselves with more code on first call. The extra code is
+    in sub modules called icicore1.ici, icicore2.ici, etc. (timl)
+
+*   Expanded the assign() function to work on any type (not just
+    structs). Just does a plain assignment for non-structs. Also
+    made the 3rd argument optional; NULL assumed if absent. (timl)
+
+*   Expanded the del() function to work on sets and arrays (not
+    just structs). Del from a set is just like a struct. Del from
+    an array removes the first occurence of the given object from
+    the array and shuffles the other elements down - shortening
+    it in the process. del() returns 1 if it removed an element
+    from an array. In all other cases it returns NULL. (timl)
+
+*   Allowed "abbreviated function definitions" in [struct...]
+    literals (as well as [class...] literals) and made the
+    '= expr' optional (meaning '= NULL'). Thus one may say:
+
+    x = [struct
+        a = 10,
+        f(z){return z + 1;},
+        b,
+        c
+    ]
+
+    printf("%d, %d\n", x.a, x.f(2));
+
+    See updated documentation for details. (timl)
+
+*   Introduced the ability to parse sub-modules in-line
+    with [module...] syntax (as well as extend modules in
+    the same manner). Thus one may say:
+
+    sub_module = [module
+        static x = 5;
+        extern fred(a, b){return a + b + x};
+        printf("Hello world.\n");
+    ];
+
+    c = fred(1, 2);
+
+    See updated documentation for details. (timl)
+
+*   Allowed C++ style // comments.
+
+*   Moved definition of stdin, stdout, stderr from icimain
+    to init. (timl)
+
+*   Introduced a size measure into a previously unused byte
+    in the object header. This may be set to the memory cost
+    of strictly leaf (ie, no sub-object pointers) objects after
+    calling rego() on the object to allow the mark() macro to
+    avoid a function call. (Real performance gain yet to be
+    evaluated.) (timl)
+
+*   Introduced implicit definition of undefined variables used
+    in assignments as auto variables. This goes along with a
+    style rule that such implicit variables should have short
+    (one or two character) names. (timl)
+
+*   Introduced a new method of achieving object-oriented
+    programming. This is a set of changes that includes
+    the [class...] syntax for making structs that are
+    suitable as objects, a method object that is a binding
+    of a function and a subject object, and : and :^
+    operators that generate methods for calls to base
+    class and super class methods.
+
+    See updated documentation for details. (timl)
+
+*   Expanded the type_t structure to include (a) a cached
+    string_t version of the type name to speed up typeof(),
+    (b) an objname() function to allow better debug naming from
+    non-core objects, and (c) a per-type function call
+    implementation method. This means that any object type can
+    now expand its nature by defining function calls on it (as
+    well as indexing). NOTE: this change means that extension
+    modules will need re-compilation. No source changes should
+    be necessary.
+
+    Associated with the change is the splitting of 'user' level
+    ICI functions, from C implemented functions, from method
+    calls, from ptr calls. (timl)
+
+*   Made implode() more efficient. (timl)
+
+*   Introduced the C type sstring_t which is a string_t with
+    room for a short string built in. This allows the core
+    language to have statically declared strings (provided
+    they are atomised at init time). This means that string
+    references in core language source can now just look like, say:
+
+        *a->a_top++ = SSO(fred);
+
+    instead of, say:
+
+        if ((*a->a_top = objof(get_cname("fred"))) == NULL)
+            goto fail;
+        ++a->a_top;
+
+    lots of code was simplified with this. See sstring.h in
+    which each desired string must be mentioned. Note that
+    this is *only* available in core language files. It can
+    not be used from extension modules. (timl)
+
+*   Changed Makefile.w32 to make the ICI dll called ici3.dll.
+    Including the version number should allow for co-existence
+    of old and new versions and smoother upgrades. (timl)
+
+*   Split regular expression functions sub() and gsub() out of
+    cfunc.c into a new file refuncs.c and added new expanded
+    smash() function based on regular expressions (backwards
+    compatible with the old deprecated smash() function for
+    now). gsub() is also more efficient now. It used to be
+    slow on many substitutions on multi-megabyte strings. (timl)
+
+*   Improved overall execution speed by introducing a shadow
+    stack to the execution stack that holds program counters (an
+    internal object never seen by user code). Previously program
+    counters were allocated whenever a code fragement started
+    execution (although avoided for most loops). Now they are
+    reused from a store kept in parallel with the execution stack.
+    This greatly reduces small object churn through the garbage
+    collector. (timl)
+
+*   Improved integer and float calculation performance by
+    introducing a shadow stack of the operand stack that
+    holds strictly temporary mutable ints and floats. These
+    temporaries are not resolved to their atomic forms
+    and are not suitable for general use within the interpreter.
+    The compiler generates binary operators that are flagged
+    as allowed to result in one of these temporary objects, as
+    the compiler has determined that the result is used strictly
+    by value in a single subsequent operation. The net result of
+    this is that expressions like:
+
+        x = a + 1.2 * c - 10;
+
+    only perform a single resolution to atomic form when the
+    final result is produced (as opposed to the three the above
+    example would previously have done). This can result in
+    less churn of small objects and so less garbage collections.
+    It certainly results in less atom pool look-ups. (timl)
+
+*   Added a define of ICI_CORE to each of the core language
+    files prior to any includes. This allows the include files
+    to know if they are being included in a build of the core
+    engine as opposed to an extension module. Currently this
+    is only required to adjust some Windows specific declarations.
+    It means that builds of extensions modules under Windows no
+    longer need to define ICI_DLL in their makefile. (timl)
+
+*   Expanded tabs to spaces in most files. Four space indents
+    implemented with spaces rather than tabs is now the preferred
+    ICI C source fomatting convention. Mostly because it is
+    a hassle to convince Windows tools that tabs are 8 columns
+    apart. (timl)
+
+*   Changed the parser so that code arrays are no longer reduced
+    to atoms. This has been a waste of time ever since source
+    markers went in. This speeds up parseing. (timl)
+
+Changes in version 2.1.4 of ICI
+
+*   Various minor bug fixes and performance enhancements.
+
+*   Added doc/building.html to record issues associated with
+    building ICI. This document is hand-crafted HTML to
+    support simultaneous updates and revision control.
+
+*   Changed Makefile.w32 to build ici as a DLL (not an EXE)
+    under Windows. Two main programs are also built - ici.exe
+    and wici.exe. The first is a console ici, the second is
+    a windows ici (ie, no console window - only windows you
+    make exist). This DLL executable structure is prefered
+    under windows because dynamically loaded ICI extensions
+    refer to the main ici module by *name*, so ICI extensions can
+    only be used from ici.exe. Not from any other program
+    that includes ICI as a component. But if they refer to
+    ici.dll, there are less problems. It also allows both
+    a console app and a windows app from the same compiled
+    code.
+
+Changes in version 2.1.3 of ICI
+
+*   More complete list of exported symbols for Windows.  (andy)
+
+*   BeOS port courtesy of Tim Vernum <tpv@acay.com.au>.
+
+*   Introduced a file, PLATFORM, to document platform-specifics
+    for ici.  There's not much in there yet, i.e, nothing, but
+    that's where things should go.  (andy)
+
+*   Fix to the skt_getch() function to stop it returning
+    an incorrect value on EOF.  This could cause input
+    functions (e.g., getline) to keep reading until they
+    ran out of memory.  (andy)
+
+*   PCRE updated to version 2.08.  This fixes a few problems in
+    PCRE and has slight performance improvements (see pcre for
+    details).  (andy)
+
+*   String hash function exported so others can rehash strings
+    allocated via new_string().  (andy)
+
+*   FreeBSD configuration should work for 2.x or 3.x systems with
+    various changes to the Makefile to make it a better citizen.
+    (andy)
+
+*   There is a new command line option, -v, which outputs a
+    message to stderr describing the version of ici (as defined
+    by ici_version_string in conf.c) and then exits.  (andy)
+
+*   ici_call and ici_funcv now support C functions calling ICI
+    object member functions using '@'. ici_call("foo", "o@", obj)
+    fetches the member foo from obj and executes it, passing obj
+    as the first parameter (in the same manner as obj@foo() in ICI).
+    '@' comes before '=' in the parameter list, so
+    ici_call("foo", "o@f=oi", obj, &fval, obj2, ival) is valid.
+
+*   The exit() function, when passed a string actual parameter that
+    contains a colon (':') will NOT prefix that string with "exit".
+    This allows nicer looking error messages to be produced easily,
+    e.g., if (argc < 2) exit("usage: myname argument...");  (andy)
+
+*   WIDB will now show function arguments and auto variables.
+
+*   Small fix to f_call() so it doesn't crash when the second
+    argument is of an incorrect type (i.e., not an array).  (andy)
+
+*   Made BUGHUNT code compile and work again.  I reckon BUGHUNT
+    should always be defined for debug build of ICI (oliverb).
+
+Changes in version 2.1.2 of ICI
+
+*   string(#regular expression#) now returns the string that
+    the regular expression was compiled from.
+
+*   WIDB: You can now see how much memory an ICI object (and those
+    it points to) occupy.  Just press 'M' when the object is
+    selected.  Objects above this object in the tree view are
+    avoid in order to ignore _parent-style back links.
+    'T' displays total memory occupied by ICI objects.
+
+*   The long deprecated ``sizeof'' has been removed. Use nels().
+
+*       Fixed an obscure problem with sprintf("%c", 0x84) and
+        setlocale(LC_ALL, "") under VC++.
+
+*       The profiler view shown with WIDB now shows
+         - the call graph,
+         - the time spent in each function including functions
+           it calls, and
+         - the time spent in each function not including time
+           spent in functions it calls.
+
+*       The WIDB object view dialog now sorts sets and struct
+        keys.  This makes it easier to find and compare objects.
+
+*       An embarassing bug in the profiler has been fixed; it
+        now also counts the number of times a function is called;
+        and Win32 now uses the multimedia timers, giving millisecond
+        accuracy.
+
+*       WIDB can now load resources from a separate module to that
+        which it's compiled into.  See WIDB_set_resources().
+
+*       Fixed bug in regexp.c, it was hashing its string when being
+        garbage collected (via unatom()), but the string had been
+        collected first (they go together).  Now we just hash the
+        pointer to the string, which is OK (and faster) because the
+        string is of course atomic.
+
+*   There is now a load() function to explicitly load modules. Load()
+    is a manual way of autoloading and allows finer control over
+    naming of modules.
+
+*   The sort() function now allows the callback to be passed an
+    optional "user" argument. This is any object. The callback
+    is now called with three arguments, the two objects to compare
+    and the user object which defaults to NULL. The sort()
+    function can now be called with one, two or three parameters.
+    The user parameter may only be passed if a user defined
+    callback is given. The default callback makes no use of
+    a user parameter.
+
+*       The Windows ICI debugger (widb) now runs in a separate
+        thread, the calling application is completely blocked
+        while debugging.  Now also show whether an aggregate is
+        atomic in the object viewer.
+
+Changes in version 2.1.1 of ICI
+
+*   getenv() and putenv() have been replaced with a version
+    that copes with putenv() implementation differences. Putenv()
+    is now enabled in all interpreters.
+
+*   A Windows ici debugger is provided as an example debugger
+    in the widb directory. A command line debugger, icid, is
+    available separately.
+
+*   An event processing mechansim has been added. Currently only
+    for Win32 but other versions will appear. This is experimental
+    and may change in future releases.
+
+*   A simple millisecond timing profiler has been added, #undef
+        NOPROFILE to activate it and use the profile(outfile)
+        function in your ICI to start profiling.  Profiling continues
+        until the initial function ends and then
+
+         - writes output to 'outfile' in ICI format, and
+
+         - calls any function specified by calling
+           ici_profile_set_done_callback() (for example,
+           the Windows ICI debugger uses this function to register
+           an ICI object viewer).
+
+*       The objname() function has been fixed so that it correctly
+        outputs the names of functions.
+
+*   An ``uninit'' function has been added to the interpreter. This
+    function frees up all resources allocated by the interpreter
+    allowing easier use in some situations.
+
+*   Expression parsing optimisations.
+
+*   abs() is now a builtin. It returns the absolute value of its
+    argument, either an int or float.
+
+*   The sort() function has been modified to provide a default
+    compare function that uses the relational operators to
+    determine the result. In addition sort() now returns the now
+    sorted array. This makes sort easier to use, e.g., this code
+    works as many would expect,
+
+        forall (file in sort(dir()))
+            printf("%s\n", file);
+
+    The sort() wrapper in the startup file has been removed.
+
+*   The dir() function now uses the correct file name length whichs
+    allows the regexp matching to operate correctly.
+
+*   Documentation updates.
+
+*   The name associated with auto-loaded ICI module files now
+    includes the "ici" prefix and ".ici" extension. This allows
+    a debugger to trace through auto-loaded ICI modules.
+
+*   Makefile.maint updated to reflect new PCRE file names.
+
+*   The version #s in conf.c were wrong and have been updated.
+
+*   The configuration string previously defined in the configuration
+    headers is now generated in conf.c (by looking at the various
+    defines). The CONFIG_STR macro defined in the configuration headers
+    is now defined to be some descriptive text that is put in the ICI
+    version string compiled into the executable.
+
+*   The debug functions have been renamed so they all start with
+    "ici_debug". The interface has also been refined following the
+    writing of an actual debugger. The ici_main() function now has
+    a debugging counterpart, ici_maind, that enables debugging
+    following parsing the startup file. Debuggers use ici_maind
+    to run the program being debugged rather than ici_main.
+
+*   Updated PCRE to version 2.04. No changes required to ICI
+    itself and only a few changes to PCRE.
+
+*   Fixed a few Makefile problems on various platforms.
+
+*   Socket hashing synchronised to ensure atoms are found. It
+    got broken in the merging that's been going on.
+
+Changes in version 2.1 of ICI
+
+*   Dynamic loading of ICI and native machine code modules has
+    been added and documented. The files load.c and findpath.c
+    were added in the process.
+
+*   ICI now supports a debugger interface. The debug() function is
+    used to enable debugging or test the state of debugging. The
+    standard interpreter has a null debugger which may be replaced
+    simply by linking the debugger front-end against the normal
+    ICI library (which is, on Unix systems, now installed). The
+    files idb.c and idb2.c were added and exec.c modified.
+
+*   Stack manipulation in the execution loop has been optimised.
+
+*   The sockets code has had many fixes and a few speed ups. The
+    send and receive style functions are now useful.
+
+*   Unix ICI parses a file of ICI code every time it runs. This
+    is used to write some standard functions in ICI. There is a
+    switch, -s, to not load this file. See ici_init.ici for
+    details of what is provided.
+
+*   PCRE - Perl Compatible Regular Expressions - has been adopted
+    as the ICI regexp package. This package not only provides Perl 5
+    compatible regular expressions it has fewer bugs and is far
+    faster than the previous code. The new code has been measured
+    on real data as more than twice as fast as the old code on
+    complex patterns and never slower on simple patterns. PCRE
+    is also license compatible with ICI.
+
+*   Unix makefiles now have a "fancy" install target that
+    installs the binary, man page, library, headers, documentation
+    and some startup code. Primarially of benefit to module
+    writers who can point the compiler at the standard ICI headers
+    directory. Also defines a standard place to install ICI modules.
+
+*   More functions have been exported for the benefit of some
+    modules (Andy Newman's object serialisation).
+
+*   The ICI Technical Description (doc/ici.fm4) has been expanded
+    and general reproduction rights granted. It has also changed
+    to FrameMaker 5 format and is now called doc/ici.fm.
+
+*   Many ici_ prefixes have been introduced on functions and data
+    objects. Some obscure or historical function names have changed
+    to more rational ones. The changes likely to effect existing
+    code are:
+
+    got => incref
+    loose => decref
+    zalloc => ici_alloc
+    zfree => ici_free
+    typecheck => ici_typecheck
+    retcheck => ici_retcheck
+    argici_error => ici_argerror
+    argcount => ici_argcount
+    obj_ret => ici_ret_with_decref
+    loose_ret => ici_ret_no_decref
+
+*   Many bug fixes contributed by Alexander Demenshin have been
+    incorporated into the base code. Major changes include;
+
+    o   More efficient select() in the sockets code.
+    o   Strings now store their hash values and only compute
+        them once, when the string is created. This improves
+        performance considerably. The new regular expression
+        code also benefits from this.
+    o   rand() function may be C library rand() (see cfunc.c).
+    o   special case code for gettokens() to speed up a common,
+        simple case.
+    o   More leak fixes to sub()/gsub().
+
+*   The first argument of type functions (mark, hash, cmp, copy,
+    assign, fetch, free), which used to be specified in each
+    actual function as the specific type in question, are now
+    declared object_t *. This means that the types of the functions
+    in the type struct can be correctly prototyped. But it does mean
+    there are more explicit conversions in the actual function
+    implementations.
+
+*   A function declared with the abbreviated syntax (i.e. the
+    normal way) now has the function name assigned to the
+    implicitly created auto variable _funcname_. This allows
+    stack traces based on the contents of the scope stack
+    (aka vstack) to include function names.
+
+*   Makefile install targets now pass -c to install.
+
+Changes in version 2.0.3 of ICI
+
+*   Makefile.maint is useful again. This is used for packaging
+    source distribution and similar maintainance tasks.
+
+*   The old Linux Makefile and configuration files, Makefile.lgx
+    and conf-lgx.h, have been removed. Use the '.linux' files
+    instead. Also the mkstruct.c file has been removed because
+    it wasn't used in the interpreter. If you need it for some-
+    thing it is still in the earlier versions.
+
+*   Gary Gendel's IRIX port is now incorporated. This adds
+    Makefile.irix and a conf-irix.h and adds some more #ifdefs
+    to syscall.c (see TODO).
+
+*   The MS VC++ generated makefiles have been removed. They're
+    huge and don't work well with version control. They can be
+    easily generated if required. The default Win32 build uses
+    Makefile.w32 and nmake.exe. In addition the conf_w95.h file
+    has been removed as it is no longer used. The conf-w32.h
+    file defines the Win32 configuration (which is almost as
+    complete as the Unix versions of ICI).
+
+*   The socket type now has its own prime used when hashing.
+    This should make some code a little faster (although it
+    may even slow things down) although it isn't expected to
+    be noticeable.
+
+*   The Makefiles have been added to. There are now "install" and
+    "clean" targets in these files (Makefile.w32 has no install
+    target).
+
+*   The exec() function is now complemented by the execp() function
+    which searches along the user's $PATH to find the executable.
+
+*   Various documentation updates and all documents have been moved
+    into a `doc' subdirectory.
+
+*   ICI now has a man page - ici.1 - look in the doc directory.
+
+*   The domainname() function has been removed from the sockets
+    code. This is an NIS thing that isn't too useful.
+
+*   Linux and Win32 versions now in better shape. Linux version
+    has sockets, directory reading and password file access
+    enabled (as do the Solaris, SunOS and BSD versions).
+
+*   put() now detects write errors and raises an error if writes
+    are failing.
+
+Changes in version 2.0.2 of ICI
+
+*   Directory used with '-l' option changed to /usr/local/etc/ici
+    as CISRA's /usr/local/include is architecture dependent.
+
+*   Various fixes and usability mods to sockets interface,
+
+    -   gethostbyaddr works
+    -   bind accepts a string or integer as the port and also
+        allows having the system pick a free port number.
+    -   a shutdown function exists
+
+*   Configuration files (conf-XXX.h) updated. New conf-sample.h file
+    showing potential configuration options.
+
+*   Fixed del() to update VSVER which caused cached lookups of string
+    objects to be incorrect and crash the interpreter.
+
+*   eof() now defaults to testing stdin like other input functions.
+
+*   Numerous documentation fixes.
+
+*   Hash functions for sets and structs fixed (had a `;' in the
+    wrong place). Atomic sets and structs now far faster.
+
+*   Now supports Win32 environments (i.e., Windows 95 and Windows NT)
+    with many of the "Unix system calls" available.
+
+*   A getcwd() function was added.
+
+*   Unix password file access routine, passwd() (see docs).
+
+*   Solaris 2.x configuration builds without reference to UCB libraries.
+
+*   Excessive memory allocation in array objects tamed.
+
+*   Now supports BSD 4.4 (tested under FreeBSD 2.x)
+
+*   Numerous bug fixes with special attention paid to memory leaks.
+
+*   New regexp test program (see test directory).
+
+*   New "method call" operator allows support for object-orientated
+    programming. See documentation for details.
+
+*   New intrinsic functions,
+
+        dir Reads names from a directory and perform optional
+            pattern matching (regexp) to return an array of
+            strings. E.g.,
+
+                forall (srcfile in dir("../ici", #\.[ch]$#))
+                printf("ICI source file %s\n", srcfile);
+
+        remove  Delete a file. More portable than unlink().
+
+        getcwd  Returns name of the current directory.
+
+*   Error handling in seek() now operational.
+
+*   Sockets code has own file type implemenation making it more
+    usuable and portable to WIN32 (old code used fdopen() to turn
+    a socket descriptor into a FILE * which meant the socket got
+    closed when the file was closed, now it doesn't get closed
+    when the file object is closed).
+
+*   Implementation of select() modified to make it portable to
+    WIN32 and more efficient.
+
+*   gsub() and sub() properly implement \n replacements.
+
+*   Off by one allocation error in do_sub() fixed.
+
+Changes in version 2.0.1 of ICI.
+
+*   New builtin function regexpi() which produces a case-
+    insensitive compiled regular expression from a string.
+    Note there is no literal form of case-insensitive regexps.
+
+*   Port to Solaris 2 (aka SunOS 5). See the files conf-sol2.h
+    and Makefile.sol2.
+
+*   Document reclaim() builtin.
+
+*   Code cleaned up a little to minimise warnings from various
+    compilers (mainly gcc under SunOS as that is what I use - AN).
+
+*   Fixes to some memory leak and reference counting bugs. Most
+    sinister was one in parse.c relating to struct literals and
+    their super structs.
+
+*   Fixes to (very) broken reference counting in skt.c
+
+*   Introduced new internal function, null_ret(), for ICI intrinsic
+    functions that return the NULL object (less typing than the
+    "obj_ret(objof(&o_null))" that was being used everywhere).
+
+*   Better memory debugging support (see alloc.c/alloc.h).

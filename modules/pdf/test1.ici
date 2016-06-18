@@ -1,0 +1,43 @@
+static
+pt(v)
+{
+   return v / 25.4 * 72;
+}
+
+static
+grid(p, w, h, xs, ys)
+{
+    pdf.setlinewidth(p, 0.5);
+    pdf.setrgbcolor(p, 0, .2, 1);
+    for (y := 0.0; y < w; y += ys)
+    {
+	pdf.moveto(p, 0, pt(y));
+	pdf.lineto(p, pt(w), pt(y));
+	pdf.stroke(p);
+    }
+    for (x := 0.0; x < h; x += xs)
+    {
+	pdf.moveto(p, pt(x), 0);
+	pdf.lineto(p, pt(x), pt(h));
+	pdf.stroke(p);
+    }
+}
+
+npages := 1;
+if (argc > 1)
+    npages = int(num(argv[1]));
+if (npages < 1)
+    npages = 1;
+p := pdf.new();
+pdf.open_file(p, "test1.pdf");
+font := pdf.findfont(p, "Helvetica-Bold", "host", 0);
+for (i := 0; i < npages; ++i)
+{
+    pdf.begin_page(p, pt(210), pt(297));
+    grid(p, pt(210), pt(297), 4, 4);
+    pdf.setrgbcolor(p, 1, 0, 0);
+    pdf.setfont(p, font, 36);
+    pdf.show_xy(p, sprintf("Page %d", i + 1), 30, 155);
+    pdf.end_page(p);
+}
+pdf.close(p);

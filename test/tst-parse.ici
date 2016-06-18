@@ -1,0 +1,585 @@
+/*
+ * Test some basic parser features.
+ */
+ 
+switch("world")
+{
+case "hello":
+    len("Hello!\n");
+default:
+}
+
+local
+func1()
+{
+    return _func_;
+}
+
+if (func1() != func1)
+    fail("_func_ not set correctly");
+if (func1.vars._func_ != func1)
+    fail("func.vars incorrect");
+if (func1.name != "func1")
+    fail("func.name incorrect");
+
+
+local x = [array #abc#];
+if (x[0] != #abc#)
+    fail("const regexp incorrectly parsed");
+    
+    
+local
+method(this, arg1)
+{
+    return this.value + arg1;
+}
+
+local c = struct();
+
+c.method :=
+[func(this, arg1)
+    {
+        return this.value + arg1;
+    }
+];
+
+local o = struct(c, "value", 2);
+
+if (o@method(3) != 5)
+    fail("object@method() returned incorrect value");
+
+error := NULL;
+try
+    parse("a syntax error");
+onerror
+    ;
+if (error == NULL)
+    fail("didn't propogate parse error correctly");
+    
+local
+bad(s)
+{
+    var bs = [struct a = 1, b = 2, c = 3];
+
+    error := NULL;
+    try
+        parse(s, bs);
+    onerror
+        ;
+    if (error == NULL)
+        fail(sprintf("failed to fail on parse of \"%s\"", s));
+}
+
+/*
+ * We use (1?2) and suchlike for known bad expression compilations
+ * to exercise error paths in compile.c
+ */
+bad("(1?2);");
+bad("1,(1?2);");
+bad("(1?2),1;");
+bad("(1?2)?3:4;");
+bad("3?(1?2):4;");
+bad("3?4:(1?2);");
+
+bad("(a?b)<=>c;");
+bad("c<=>a?b);");
+
+bad("(a?b):=c;");
+bad("c:=(a?b);");
+
+bad("(a?b)=c;");
+bad("c=(a?b);");
+bad("c[1]=(a?b);");
+
+bad("(a?b)+=c;");
+bad("c+=(a?b);");
+bad("c[1]+=(a?b);");
+
+bad("(1+2)=c;");
+
+bad("(1?2)||c;");
+bad("c||(1?2);");
+a:=1;
+1&&a++;
+if (a != 2)
+    fail("failed to do && for effect");
+
+bad("(1?2)+3;");
+bad("3+(1?2);");
+a:= 1;
+1+a++;
+if (a != 2)
+    fail("failed to do + for effect");
+
+1+2+$(3+2)+4+5;
+bad("$(1?2);");
+bad("$(fail(\"x\"));");
+if (+1 != 1)
+    fail("unary plus failed");
+bad("+(1?2);");
+
+bad("(a?b)++;");
+bad("++(a?b);");
+
+-a;
+bad("c=-(1?2);");
+
+if (~0 != -1)
+    fail("~ failed");
+-a=2;
+~a=2;
+bad("c=~(1?2);");
+!a=2;
+bad("c=!(1?2);");
+~a;
+
+bad("@(1?2);");
+@1;
+
+bad("&(1?2);");
+&a;
+
+bad("*(1?2);");
+*a;
+
+a := 2;
+*(&a) = 1;
+if (a != 1)
+    fail("unary * for lvalue didn't work");
+
+bad("(1?2)[3];");
+bad("1[1?2];");
+a = array(2);
+a[0];
+
+a:b;
+
+bad("a:b=1;");
+
+
+bad("(1?2)->a;");
+a := [struct a = 1, b = 2];
+(&a)->a;
+if ((&a)->a != 1)
+    fail("-> failed");
+bad("(1?2).a;");
+bad("a.(1?2);");
+
+bad("(1?2)@a;");
+bad("a@(1?2);");
+a@a;
+bad("a@a=1;");
+
+bad("f(1,(1?2),3);");
+bad("(1?2)(1, 2);");
+bad("(1?2):a(1, 2);");
+bad("a:(1?2)(1, 2);");
+
+bad("a:=#ab\n#;");
+
+a := 1 + $1;
+
+c := 0;
+forall (a in [set 1, 2, 3])
+    c += a;
+if (c != 6)
+    fail("failed to forall over a set");
+c := 0;
+forall (a, b in [set 1, 2, 3])
+{
+    if (a != 1)
+        fail("forall over set, index wrong");
+    c += b;
+}
+if (c != 6)
+    fail("failed to forall over a set");
+
+c := 0;
+forall (a in [array 1, 2, 3])
+    c += a;
+if (c != 6)
+    fail("failed to forall over a array");
+c := 0;
+forall (a, b in [array 1, 2, 3])
+{
+    if (b != a - 1)
+        fail("forall over array, index wrong");
+    c += a;
+}
+if (c != 6)
+    fail("failed to forall over a set");
+
+
+c := "";
+forall (a in "abc")
+    c += a;
+if (c != "abc")
+    fail("failed to forall over a string");
+c := "";
+forall (a, b in "abc")
+{
+    if (b != toint(a) - 'a')
+        fail("forall over string, index wrong");
+    c += a;
+}
+if (c != "abc")
+    fail("failed to forall over a string");
+
+try
+    parse(sopen("123;\r\nfail(\"bad\");\r\n456;\r\n", "rb"));
+onerror
+    ;
+if (error !~ #\b2:#)
+    fail("bad line number counting");
+
+try
+    parse(sopen("123;\r\n\r\nfail(\"bad\");\r\n456;\r\n", "rb"));
+onerror
+    ;
+if (error !~ #\b3:#)
+    fail("bad line number counting 2");
+
+if (.123 != 0.123)
+    fail("bad float lex");
+
+a := "\
+\n\t\v\b\r\f\a\e\\\'\"\?\cA\ca\x41\112\112\7\07";
+
+b := "\012\011\013\010\015\014\007\033\134\047\042\077\001\001\101\x4a\x4A\a\a";
+
+if (a != b)
+    fail("failed to lex escape chars correctly");
+
+bad("\"\\z\"");
+
+bad("'ab';");
+
+bad("'\n';");
+
+bad("\"ab\ncb\";");
+
+a = struct(".10e_", 2);
+if (a..10e_ != 2)
+    fail("float, name lex mixup");
+
+if (eof(currentfile()))
+    fail("currentfile indicated eof");
+
+{
+    if ((a := getline(currentfile())) != "xyz")
+        fail("bad getline on currentfile");
+}xyz
+
+a := [class];
+m := a:new;
+if (sprintf("%a", m) !~ #new#)
+    fail("failed to get reasonable name from method");
+b := @m;
+if (m.callable != new)
+    fail("failed to index method to get callable");
+if (m.subject != a)
+    fail("failed to index method to get subject");
+if (m.not_a_key != NULL)
+    fail("failed to index method to get NULL");
+m := NULL;
+
+if (len(sprintf("%a", "a long string that is more than 30 chars")) > 40)
+    fail("%a made too long a string");
+
+error = NULL; try new(); onerror;
+if (error == NULL)
+    fail("failed to fail on new() as function call");
+
+m := [class
+
+    func()
+    {
+    }
+];
+
+mm := [class:m,
+
+    func()
+    {
+    }
+];
+
+if (!mm:isa(m))
+    fail("isa failed");
+
+if (mm:isa([class]))
+    fail("isa failed 2");
+
+if (!mm:respondsto("func"))
+    fail("respondsto failed");
+
+if (mm:respondsto("notadefinedname"))
+    fail("respondtsto failed 2");
+
+bad("for (i");
+bad("[func");
+bad("[func(a");
+bad("[func(a,b)");
+bad("local a;");
+bad("export a;");
+bad("var ##");
+bad("var a =;");
+bad("var f(){");
+bad("var a");
+bad("{ if }");
+bad("case 1:");
+bad("switch (1) {case 1");
+bad("if (");
+bad("(");
+bad("(1");
+if ("this " "string" != "this string")
+    fail("failed to concat strings");
+bad("[");
+bad("[array ");
+bad("[array +");
+bad("[module= +");
+bad("[module= ]");
+bad("[module=1 ]");
+a:=struct();
+if ([module=a] != a)
+    fail("module= failed");
+bad("[module=[struct]");
+bad("[module:[struct]");
+bad("[module fail(\"xx\");]");
+bad("[class (");
+bad("[class (1");
+a := 1;
+{a := 2}
+if (a != 2)
+    fail("failed to handle no semicolon expression");
+parse("a = 3", scope());
+if (a != 3)
+    fail("failed to handle no semicolon on eof");
+
+bad("[class func(+)]");
+bad("[class name");
+bad("[class name=");
+bad("[class name=1 x");
+[class f(){} a = 1];
+bad("[set +");
+bad("[set 1");
+bad("[func(){}");
+bad("[fred");
+bad("1[");
+bad("1[2");
+bad("a.(");
+bad("a.");
+bad("a:");
+bad("a->");
+bad("a@");
+bad("a:^");
+bad("f(");
+bad("f(+");
+bad("f(){}");
+bad("[set (1?2)];");
+bad("[set fail(\"xx\")];");
+bad("if((1?2));");
+bad("if(1");
+bad("switch(1){case:");
+bad("default:");
+bad("switch(1){default");
+bad("if(1)");
+bad("if(1)2;else");
+bad("while");
+bad("while(0)");
+a := 0;
+do
+    a += 1;
+while (a < 10);
+if (a != 10)
+    fail("do-while failed");
+bad("do");
+bad("do 1;");
+bad("do 1; while");
+bad("do 1; while (");
+bad("do 1; while (0");
+bad("do 1; while (0)");
+bad("forall");
+bad("forall(");
+bad("forall(+");
+bad("forall(a");
+bad("forall(a,");
+bad("forall(a,+");
+bad("forall(a,b");
+bad("forall(a,b xx");
+bad("forall(a in");
+bad("forall(a in +");
+bad("forall(a in 3");
+bad("forall(a in 3)");
+bad("for");
+bad("for(");
+bad("for(+");
+bad("for(1");
+bad("for(1;");
+bad("for(1;+");
+bad("for(1;2");
+bad("for(1;2;");
+bad("for(1;2;+");
+bad("for(1;2;3");
+bad("for(1;2;3)");
+bad("for(1;(1?2);3)2;");
+bad("switch");
+bad("switch(1)");
+bad("switch(1){break");
+bad("switch(1){continue");
+bad("return +");
+bad("return 1");
+bad("try");
+bad("try ;");
+bad("try ; onerror");
+bad("critsect");
+bad("waitfor");
+bad("waitfor(");
+bad("waitfor(1");
+bad("waitfor(1;");
+bad("waitfor(1;1");
+bad("waitfor(1;1)");
+bad("[module ;");
+
+if ("hello" !~ #[o# #]#)
+    fail("failed to concat regexps");
+    
+if ("xx#xx" !~ ## "#")
+    fail("failed to combine regexp and string");
+
+{
+    cf := currentfile();
+    if (parsetoken(cf) != "int")
+        fail("parse_get didn't get int");
+    if (tokenobj(cf) != 1234)
+        fail("parse_obj didn't get correct int");
+    if (parsetoken(cf) != "name")
+        fail("parse_get didn't get name");
+    if (tokenobj(cf) != "hello")
+        fail("parse_obj didn't get correct name");
+}
+1234 hello
+
+if (typeof(currentfile().line) != "int")
+    fail("currentfile().line is not an int");
+if (currentfile().name !~ #tst-parse.ici#)
+    fail("failed to get name of file");
+
+local complex = [class
+
+    parser(f)
+    {
+        c := struct();
+        parsetoken(f);
+        c.r := tokenobj(f);
+        parsetoken(f);
+        c.i := tokenobj(f);
+        return c;
+    }
+];
+
+x = [complex 1.2 3.4];
+if (x.r != 1.2 || x.i != 3.4)
+    fail("failed to get user-parsed object");
+
+local zzz = [struct
+
+    parser(f)
+    {
+        c := struct();
+        c.r := parsevalue(f);
+        if (parsetoken(f) != ",")
+            fail("expected ,");
+        c.i := parsevalue(f);
+        return c;
+    }
+];
+
+x = [zzz 1.2 + 1, 3.4 - 1];
+if (x.r != 2.2 || x.i != 2.4)
+    fail("failed to get user-parsed object");
+    
+local
+data(f)
+{
+    s = strbuf();
+    while ((c = getchar(f)) != "]")
+        strcat(s, c);
+    rejectchar(f, c);
+    return s;
+}
+
+z := [data this is data];
+if (z != " this is data")
+    fail("failed to parse data");
+
+/*
+z := parse_expr(cf); x + y;
+if (typeof(z) != "codefrag")
+    fail("failed to get codefrag");
+x := 12;
+y := 21;
+if (z() != 33)
+    fail("failed to execute code fragment");
+
+z := parse_stmt(cf); {x += y;}
+if (typeof(z) != "codefrag")
+    fail("failed to get codefrag");
+x := 33;
+y := 11;
+z();
+if (x != 44)
+    fail("failed to execute code fragment");
+    
+z := [parse_expr x * y];
+x = 2;
+y = 3;
+if (z() != 6)
+    fail("failed to get code frag with direct func");
+*/
+
+ts := [array
+
+    "name",     "regexp",     "string",     "int",
+    "int",      "float",
+
+    "*",      "/",      "%",      "+",      "-",      ">>",
+    "<<",     "<",      ">",      "<=",     ">=",     "==",
+    "!=",     "~",      "!~",     "~~",     "~~~",    "&",
+    "^",      "|",      "&&",     "||",     ":",      "?",
+    "=",      ":=",     "+=",     "-=",     "*=",     "/=",
+    "%=",     ">>=",    "<<=",    "&=",     "^=",     "|=",
+    "~~=",    "<=>",    ",",
+
+    "(",      ")",      "{",      "}",      "[",
+    "]",      ".",      "->",     "!",      "++",     "--",
+    ":",      "$",      ":^",     "@",      ";",
+    NULL,
+
+];
+
+forall (t in ts)
+{
+    if ((x := parsetoken(cf)) != t)
+        fail(sprintf("failed to read %s, got %s", t, x));
+}
+
+a_name      #a_regexp#      "a string"  'a'
+123         456.789e-2
+/* Comments don't matter. */
+*       /       %       +       -       >> 
+<<      <       >       <=      >=      == 
+!=      ~       !~      ~~      ~~~     &
+^       |       &&      ||      :       ?
+=       :=      +=      -=      *=      /=
+%=      >>=     <<=     &=      ^=      |=
+~~=     <=>     ,
+// Comments don't matter.
+# Neither do lines starting in hash
+(       )       {       }       [
+]       .       ->      !       ++      --
+:       $       :^      @       ;
+
+/*
+ * This test must be last in this file because it checks EOF behaviour.
+ */

@@ -1,0 +1,5 @@
+a = [array "one", "two", "three"];
+b = join(a);
+printf("%s\n", b);
+b = join(a, "|");
+printf("%s\n", b);

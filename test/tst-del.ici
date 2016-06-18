@@ -1,0 +1,49 @@
+/*
+ * Work the del() function with random data.
+ */
+var victim = [struct];
+var state  = [struct];
+var i;
+var e;
+var v;
+
+for (i = 0; i < 100; ++i)
+{
+    switch (int(rand() * 2) % 2)
+    {
+    case 0:
+        /*
+         * Add a random element, give it a distinct value, and record
+         * that it should be present.
+         */
+        e = int(rand() * 100);
+        victim.(e) = e * 10;
+        state.(e) = 1;
+        break;
+
+    case 1:
+        /*
+         * Delete a random element, and record that it should be absent.
+         */
+        e = int(rand() * 100);
+        del(victim, e);
+        state.(e) = 0;
+        break;
+    }
+    /*
+     * Check the state of the victim against the recorded state.
+     */
+    forall (v, e in state)
+    {
+        if (v)
+        {
+            if (victim.(e) != e * 10)
+                fail(sprintf("wrong value at pass %d of del() test", i));
+        }
+        else
+        {
+            if (victim.(e) != NULL)
+                fail(sprintf("value not NULL at pass %d of del() test", i));
+        }
+    }
+}

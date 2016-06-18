@@ -1,0 +1,547 @@
+/*
+ * A module for performing HTTP requests.
+ *
+ *
+ *
+ * This --intro-- forms part of the --ici-HTTP-- documentation.
+ */
+
+
+/*
+ * HTTP response codes
+ */
+extern	OK				= 200;
+extern	Okay				= OK;
+extern	Created				= 201;
+extern	Accepted			= 202;
+extern	Provisional_Information		= 203;
+extern	No_Content			= 204;
+extern	Multiple_Choices		= 300;
+extern	Moved_Permanently		= 301;
+extern	Moved_Temporaily		= 302;
+extern	Method				= 303;
+extern	Not_Modified			= 304;
+extern	Bad_Request			= 400;
+extern	Unauthorised			= 401;
+extern	Unauthorized			= Unauthorised;
+extern	Payment_Required		= 402;
+extern	Forbidden			= 403;
+extern	Not_Found			= 404;
+extern	Method_Not_Allowed		= 405;
+extern	None_Acceptable			= 406;
+extern	Proxy_Authentication_Required	= 407;
+extern	Request_Timeout			= 408;
+extern	Conflict			= 409;
+extern	Gone				= 410;
+extern	Internal_Server_Error		= 500;
+extern	Not_Implemented			= 501;
+extern	Bad_Gateway			= 502;
+extern	Service_Unavailable		= 503;
+extern	Gateway_Timeout			= 504;
+
+
+/*
+ * HTTP.Request
+ *
+ * Class representing an HTTP request.
+ *
+ *
+ *
+ * This --topic-- is part of the --ici-HTTP-- api.
+ */
+extern
+Request = [class
+
+    /*
+     * Default proxy settings.
+     */
+    default_proxyhost	= NULL,
+    default_proxyport	= NULL,
+
+
+    /*
+     * HTTP.Request:set_default_proxy(host, port)
+     *
+     * Class method to set the proxy host and port
+     * used by default by all new request instances.
+     *
+     * This --topic-- is part of the --ici-HTTP-- api.
+     */
+    set_default_proxy(host, port)
+    {
+	auto	port = 80;
+	default_proxyhost = host;
+	default_proxyport = port;
+	return this;
+    }
+
+
+    /*
+     * request = HTTP.Request:new([url, [method]])
+     *
+     * Create a new request.
+     */
+    new(url, method)
+    {
+        auto method = "GET";
+
+	this = this:^new();
+	this.method		:= method;
+	this.url		:= url;
+	this.uri		:= NULL;
+	this.desthost		:= NULL;
+	this.skt		:= NULL;
+	this.follow_redirects_p	:= true;
+	this.to_stream		:= NULL;
+	this.from_stream	:= NULL;
+	this.proxyhost		:= default_proxyhost;
+	this.proxyport		:= default_proxyport;
+	this.authuser		:= NULL;
+	this.authdata		:= NULL;
+	this.reqhdrs		:= array();
+	this.resphdr		:= struct();
+	this.respmsg		:= NULL;
+	this.respcode		:= -1;
+	this.content		:= NULL;
+	this.content_type	:= "text/plain";
+	return this;
+    }
+
+    set_url(aurl)
+    {
+	url = aurl;
+	return this;
+    }
+
+    follow_redirects(flag)
+    {
+	auto flag = true;
+	follow_redirects_p = flag;
+	return this;
+    }
+
+    add_request_header(name, value)
+    {
+	push(reqhdrs, sprintf("%s: %s", name, value));
+	return this;
+    }
+
+    set_auth_data(user, data)
+    {
+	authuser = user;
+	authdata = data;
+	return this;
+    }
+
+    /*
+     * Accessors...
+     */
+    get_proxy_host()
+    {
+	return this:proxyhost;
+    }
+
+    get_proxy_port()
+    {
+	return this:proxyport;
+    }
+
+    get_method()
+    {
+	return method;
+    }
+
+    get_url()
+    {
+	return url;
+    }
+
+    get_authuser()
+    {
+	return authuser;
+    }
+
+    get_authdata()
+    {
+	return authdata;
+    }
+
+    get_request_headers()
+    {
+	return copy(reqhdrs);
+    }
+
+    get_response_headers()
+    {
+	return copy(resphdr);
+    }
+
+    get_socket()
+    {
+	return skt;
+    }
+
+    get_from_stream()
+    {
+	return from_stream;
+    }
+
+    get_to_stream()
+    {
+	return to_stream;
+    }
+
+    get_content()
+    {
+	return content;
+    }
+
+    /**
+     * connect - initiate a connection to the server named in a request
+     *
+     * Given the parameters established in the request object this initiates
+     * the TCP connection, sends the request and reads the response status and
+     * header. The connection to the server is left open awaiting the user
+     * to read the content.
+     */
+    connect()
+    {
+	auto	addr;
+	auto	fto;
+	auto	line;
+	auto	v;
+
+	if (skt)
+	    fail("already connected");
+
+	/*
+	 * Determine actual host/port to connect to (proxy or server) and the
+	 * URI we send in the request.
+	 */
+	if (proxyhost)
+	{
+	    addr = sprintf("%s@%s", string(proxyport), proxyhost);
+	    uri := url;
+	    v = url ~~~ #^http://([^/]+)(.*)#;
+	    if (v[0] !~ #:\d+$#)
+		desthost = v[0];
+	    else
+	    {
+		v = v ~~~ #(.*):(\d+)#;
+		desthost = v[0];
+	    }
+	}
+	else
+	{
+	    v = url ~~~ #^http://([^/]+)(.*)#;
+	    addr = v[0];
+	    uri  = v[1];
+	    if (addr !~ #:\d+$#)
+	    {
+		desthost = addr;
+	        addr = sprintf("http@%s", addr);
+	    }
+	    else
+	    {
+		addr = addr ~~~ #(.*):(\d+)#;
+		desthost = addr[0];
+		addr = sprintf("%s@%s", addr[1], addr[0]);
+	    }
+	}
+
+	/*
+	 * Connect and obtain stream versions of the socket.
+	 */
+	skt = net.socket("tcp/ip");
+	net.setsockopt(skt, "nodelay");
+	net.connect(skt , addr);
+	from_stream = net.sktopen(skt, "rb");
+	to_stream   = net.sktopen(skt, "wb");
+
+    }
+ 
+    process()
+    {
+	do
+	{
+	    redo := false;
+
+	    this:connect();
+	    this:send_request();
+	    this:finish_request();
+	    this:recv_response();
+	    rc := this:response_code();
+	    if (rc == HTTP.Unauthorized)
+	    {
+		if (!(authuser && authdata))
+		    fail(HTTP.response_message(rc));
+	        this:disconnect();
+		token := str.base64_encode(sprintf("%s:%s", authuser, authdata));
+	        this:add_request_header("Authorization", sprintf("Basic %s", token));
+		redo := true;
+	    }
+	    else if (rc == HTTP.Moved_Permanently || rc == HTTP.Moved_Temporaily)
+	    {
+		if (!follow_redirects_p)
+		    fail(HTTP.response_message(rc));
+
+		if (!(newloc = resphdr.Location))
+		    fail("redirection response with no Location header");
+
+		this:disconnect();
+		this:set_url(newloc);
+		redo := true;
+	    }
+	}
+	while (redo);
+	this:recv_content();
+	return this;
+    }
+
+    recv_content()
+    {
+	content = getfile(from_stream);
+	return this;
+    }
+
+    send_request()
+    {
+	if (debug())
+	    printf(stderr, ">: %s %s HTTP/1.0\n", string(method), string(url));
+	request_string := sprintf("%s %s HTTP/1.0\r\n", method, url);
+
+	if (debug())
+	    printf(stderr, ">: Host: %s\n", desthost);
+	request_string := sprintf("%sHost: %s\r\n", request_string, desthost);
+
+	forall (hdr in reqhdrs)
+	{
+	    if (debug())
+		printf(stderr, ">: %s\n", hdr);
+	    request_string := sprintf("%s%s\r\n", request_string, hdr);
+	}
+
+	if (content)
+	{
+	    c := sprintf("Content-Length: %d", nels(content));
+	    if (debug())
+		printf(stderr, ">: %s\n", c);
+	    request_string := sprintf("%s%s\r\n", request_string, c);
+	    c := sprintf("Content-Type: %s", content_type);
+	    if (debug())
+		printf(stderr, ">: %s\n", c);
+	    request_string := sprintf("%s%s\r\n", request_string, c);
+	}
+
+	if (debug())
+	    printf(stderr, ">\n");
+	request_string := sprintf("%s\r\n", request_string);
+
+	net.send(skt, request_string);
+
+	if (content != NULL)
+	{
+	    net.send(skt, content);
+	}
+
+    }
+
+    finish_request()
+    {
+	close(to_stream);
+	to_stream = NULL;
+    }
+
+    recv_response()
+    {
+	stripcr = [func (str)
+	{
+	    auto len;
+	    if (str && (len = nels(str)) > 0)
+	    {
+		len = len - 1;
+		if (str[len] == "\r")
+		    str = interval(str, 0, len);
+	    }
+	    return str;
+	}];
+
+	resphdr   = struct();
+	respmsg = stripcr(getline(from_stream));
+	if (debug())
+	    printf(stderr, "<: %s\n", respmsg);
+	respcode = int(gettokens(respmsg)[1]);
+	while ((line = stripcr(getline(from_stream))) && line != "")
+	{
+	    if (debug())
+		printf(stderr, "<: %s\n", line);
+	    if (v = line ~~~ #^([^:]*): *(.*)#)
+		resphdr[v[0]] = v[1];
+	}
+	if (debug())
+	    printf(stderr, "\n");
+	return this;
+    }
+
+    /**
+     * status - return the HTTP response code for the request
+     */
+    response_code()
+    {
+	if (respcode != -1)
+	    return respcode;
+	fail("not connected");
+    }
+
+    /**
+     * disconnect - teardown the connection to the HTTP server
+     */
+    disconnect()
+    {
+	if (!skt)
+	    fail("not connected");
+	if (from_stream)
+	    close(from_stream);
+	if (to_stream)
+	    close(to_stream);
+	net.shutdown(skt, 0);
+	net.close(skt);
+	skt = NULL;
+	to_stream = NULL;
+	from_stream = NULL;
+    }
+
+];
+
+
+/**
+ * HTTP.status_message - map an HTTP response code to a textual message
+ */
+extern
+response_message(code)
+{
+    auto	msg = [struct
+	(200) = "OK",
+	(201) = "Created",
+	(202) = "Accepted",
+	(203) = "Provisional Information",
+	(204) = "No Content",
+	(300) = "Multiple Choices",
+	(301) = "Moved Permanently",
+	(302) = "Moved Temporaily",
+	(303) = "Method",
+	(304) = "Not Modified",
+	(400) = "Bad Request",
+	(401) = "Unauthorised",
+	(402) = "Payment Required",
+	(403) = "Forbidden",
+	(404) = "Not Found",
+	(405) = "Method Not Allowed",
+	(406) = "None Acceptable",
+	(407) = "Proxy Authentication Required",
+	(408) = "Request Timeout",
+	(409) = "Conflict",
+	(410) = "Gone",
+	(500) = "Internal Server Error",
+	(501) = "Not Implemented",
+	(502) = "Bad Gateway",
+	(503) = "Service Unavailable",
+	(504) = "Gateway Timeout"
+    ];
+
+    if (msg[code])
+	return msg[code];
+
+    return "Unknown HTTP response code";
+}
+
+
+extern
+Get_Request = [class:Request,
+
+    new(url)
+    {
+	return this:^new(url, "GET");
+    }
+
+];
+
+extern Head_Request = [class:Request,
+
+    new(url)
+    {
+	return this:^new(url, "HEAD");
+    }
+
+];
+
+extern
+Put_Request = [class:Request,
+
+    new(url, content_type, content)
+    {
+	auto content = "";
+	auto content_type = "text/plain";
+	this = this:^new(url, "PUT");
+	this.content := content;
+	this.content_type := content_type;
+	return this;
+    }
+
+];
+
+extern
+Post_Request = [class:Request,
+
+    new(url, content_type, content)
+    {
+	auto content = "";
+	auto content_type = "text/plain";
+	this = this:^new(url, "POST");
+	this.content := content;
+	this.content_type := content_type;
+	return this;
+    }
+
+];
+
+static process_response(request)
+{
+    switch (request:response_code())
+    {
+    case Okay:
+    case Created:
+    case Accepted:
+    case Provisional_Information:
+	return request:get_content();
+    }
+    fail(response_message(request:response_code()));
+}
+
+extern get(url)
+{
+    request := HTTP.Get_Request:new(url);
+    request:process();
+    return process_response(request);
+}
+
+extern head(url)
+{
+    request := HTTP.Head_Request:new(url);
+    request:process();
+    return process_response(request);
+}
+
+extern put(url, type, data)
+{
+    request := HTTP.Post_Request:new(url, type, data);
+    request:process();
+    return process_response(request);
+}
+
+extern post(url, type, data)
+{
+    request := HTTP.Post_Request:new(url, type, data);
+    request:process();
+    return process_response(request);
+}

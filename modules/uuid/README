@@ -1,0 +1,8 @@
+ICI libuuid interface. This is an interface to the GPL'd
+libuuid included in the ``e2fsprogs'' distribution. This
+lets ICI play with UUIDs as used by DCE and COM et al.
+
+To use this requires you have libuuid and its header file.
+It's a relatively simple job to extract it from the e2fsprogs
+distribution. If you're on a Linux system you probably
+already have it (but I don't use Linux so haven't tested it).

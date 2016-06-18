@@ -1,0 +1,110 @@
+tm_els = [struct
+    sec  = "%d",
+    min  = "%d",
+    hour = "%d",
+    mday = "%d",
+    mon  = "%d",
+    year = "%d",
+    wday = "%d",
+];
+
+fmts = [array
+
+    "%+",
+    "%c",
+
+    "%a %d %b %Y %T %z",
+    "%a, %d %b %Y %T %z",
+    "%a %d %b %Y %T %z (%Z)",
+    "%a, %d %b %Y %T %z (%Z)",
+    "%a %d %b %Y %T %Z",
+    "%a, %d %b %Y %T %Z",
+    "%a %d %b %y %T %z",
+    "%a, %d %b %y %T %z",
+    "%a %d %b %y %T %z (%Z)",
+    "%a, %d %b %y %T %z (%Z)",
+    "%a %d %b %y %T %Z",
+    "%a, %d %b %y %T %Z",
+
+    "%a %b %d %Y %T %z",
+    "%a, %b %d %Y %T %z",
+    "%a %b %d %Y %T %z (%Z)",
+    "%a, %b %d %Y %T %z (%Z)",
+    "%a %b %d %Y %T %Z",
+    "%a, %b %d %Y %T %Z",
+    "%a %b %d %y %T %z",
+    "%a, %b %d %y %T %z",
+    "%a %b %d %y %T %z (%Z)",
+    "%a, %b %d %y %T %z (%Z)",
+    "%a %b %d %y %T %Z",
+    "%a, %b %d %y %T %Z",
+
+    "%d %b %Y %T %z",
+    "%d %b %Y %T %z",
+    "%d %b %Y %T %z (%Z)",
+    "%d %b %Y %T %z (%Z)",
+    "%d %b %Y %T %Z",
+    "%d %b %Y %T %Z",
+    "%d %b %y %T %z",
+    "%d %b %y %T %z",
+    "%d %b %y %T %z (%Z)",
+    "%d %b %y %T %z (%Z)",
+    "%d %b %y %T %Z",
+    "%d %b %y %T %Z",
+
+    "%b %d %Y %T %z",
+    "%b %d %Y %T %z",
+    "%b %d %Y %T %z (%Z)",
+    "%b %d %Y %T %z (%Z)",
+    "%b %d %Y %T %Z",
+    "%b %d %Y %T %Z",
+    "%b %d %y %T %z",
+    "%b %d %y %T %z",
+    "%b %d %y %T %z (%Z)",
+    "%b %d %y %T %z (%Z)",
+    "%b %d %y %T %Z",
+    "%b %d %y %T %Z",
+
+    "%d/%m/%y %k:%M",
+    "%m/%d/%y %k:%M",
+    "%d/%m/%y %l:%M",
+    "%m/%d/%y %l:%M",
+
+    "%D %R",
+    "%x %R",
+
+];
+
+while (line = getline())
+{
+    if (line ~ #^\s*$#)
+	continue;
+    if (line ~ #^Date: #)
+	line = interval(line, 6);
+    for (i = 0; i < nels(fmts); ++i)
+    {
+	fmt = fmts[i];
+	try
+	{
+	    d = str.ptime(line, fmt);
+	    break;
+	}
+	onerror
+	{
+	    d = NULL;
+	    continue;
+	}
+    }
+    if (d == NULL)
+	printf("All formats failed to convert \"%s\"\n", line);
+    else
+    {
+	printf("\nFormat %d\n\"%s\" matches \"%s\"\n", i, fmts[i], line);
+	forall (el in sort(keys(tm_els)))
+	{
+	    fmt = tm_els[el];
+	    printf(sprintf("%s = %s ", el, fmt), d[el]);
+	}
+	printf("\n");
+    }
+}

@@ -1,0 +1,21 @@
+#!/usr/local/bin/path
+
+rpush(path, ".");
+
+db := sqlite.db:new(tstdb.NAME, "c");
+tstdb.create(db);
+
+for (v1 := 0; v1 < tstdb.V1; ++v1)
+{
+    for (v2 := 0; v2 < tstdb.V2; ++v2)
+    {
+	db:exec("begin; ");
+	for (v3 := 0; v3 < tstdb.V3; ++v3)
+	{
+	    sql := sprintf("insert into t1 values (%d, %d, %d, %d, '%s', '%s', '%s'); ", tstdb.id(v1, v2, v3), v1, v2, v3, string(v1), string(v2), string(v3));
+	    sqlite.exec(db, sql);
+	}
+	db:exec("commit");
+	printf("."); flush();
+    }
+}

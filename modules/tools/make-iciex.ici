@@ -1,0 +1,42 @@
+if (argc <= 1)
+{
+    printf("usage: %s module-dirs...\n", argv[0]);
+    exit(1);
+}
+
+static text(f) {return gettoken(f, "]");}
+
+static man_head = [text
+.TH iciex 1 "The ICI Programming Language" "" "The ICI Programming Language"
+.SH "NAME"
+iciex - Summary of ICI extension module man pages
+.SH "DESCRIPTION"
+.P
+The following man pages describing ICI extension modules were
+included in the package of base extension modules installed on
+this system. Others may have also been installed.
+];
+
+static man_tail = [text
+.SH "SEE ALSO"
+ici(1)
+.PP
+See the ICI website, http://ici.sf.net
+.PP
+ICI source code is maintained at SourceForge, http://sf.net.
+Distributions are also available there.
+];
+
+rpop(argv);
+
+man = strbuf(man_head);
+
+forall (d in argv)
+{
+    forall (f in dir(d, #.man.frag#))
+        strcat(man, getfile(d + "/" + f));
+}
+
+strcat(man, man_tail);
+
+put(man, fopen("iciex.1", "w"));

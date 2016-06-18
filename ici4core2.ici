@@ -1,0 +1,186 @@
+/*
+ * $Id: ici4core2.ici,v 1.5 2003/02/16 02:53:23 timl Exp $
+ *
+ * Standard ICI startup file. This is parsed when the ICI interpreter is
+ * initialised and allows simple functions to be written in ICI.
+ */
+
+/*
+ * string = pathjoin(string...)
+ *
+ * Join two or more file system pathname elements and return the resultant path.
+ */
+export
+pathjoin(head)
+{
+    var        vargs = [array];
+    var        el;
+
+    forall (el in vargs)
+        head = sprintf("%s/%s", head, el);
+    return head;
+}
+
+/*
+ * dirname - return the directory portion of a pathname
+ */
+export
+dirname(path)
+{
+    var        s;
+
+    if (path !~ #/|\\# || !(s = path ~~ #(.*)(/|\\)([^/\\]*)$#))
+        s = ".";
+    return s;
+}
+
+/*
+ * basename - return the base portion of a pathname, minus an optional extension
+ */
+export
+basename(path, ext)
+{
+    var        s;
+    var        ext = NULL;
+
+    if (!(s := path ~~ #([^/\\]*)$#))
+        s = path;
+    if (ext)
+    {
+        var    n;
+        n = len(ext);
+        if (n <= len(s) && interval(s, len(s) - n) == ext)
+            s = interval(s, 0, len(s) - n);
+    }
+    return s;
+}
+
+/*
+ * Traverse a directory hierarchy, calling a function for every file or directory encountered.
+ *
+ * The functions to be called and other aspects of the traversal are controlled by
+ * a struct parameter that contains the following key/value pairs:
+ *
+ *      directory       The function to be called for each directory found
+ *                      during the traversal.  If not specified or NULL then
+ *                      no function is called for directories found during
+ *                      the traversal.
+ *
+ *	error		The function called when a call to dir() raises an error.
+ *
+ *      file            The function to be called for each file found during
+ *                      the traversal.  If not specified or NULL then no function
+ *                      is called for files found during the traversal.
+ *
+ *      dirpattern      An optional regular expression that filters the names
+ *                      of directories.
+ *
+ *      filepattern     An option regular expression that filters the names
+ *                      of files.
+ */
+export
+walk(directory, w)
+{
+    var vargs = [array];
+
+    if (!(dirpattern := w.dirpattern))
+	dirpattern = #.*#;
+    if (!(filepattern := w.filepattern))
+	filepattern = #.*#;
+
+    names := name := NULL;
+    try
+	names := dir(directory, dirpattern, "d");
+    onerror
+    {
+	if (w.error)
+	    w.error(directory, error, dirpattern, "d");
+	return;
+    }
+    forall (name in names)
+    {
+	if (![set ".", ".."][name])
+	{
+	    fullname := pathjoin(directory, name);
+	    if (w.directory)
+		call(w.directory, array(fullname) + vargs);
+	    call(walk, array(fullname, w) + vargs);
+	}
+    }
+    if (w.file)
+    {
+	try
+	    names := dir(directory, filepattern, "f");
+	onerror
+	{
+	    if (w.error)
+		w.error(directory, error, filepattern, "f");
+	    return;
+	}
+        forall (name in names)
+        {
+            fullname := pathjoin(directory, name);
+            call(w.file, array(fullname) + vargs);
+        }
+    }
+}
+
+/*
+ * Open a file by searching along a path. Path may be an array of
+ * directory names or a string in usual path notation.
+ */
+export
+pfopen(path, name, mode)
+{
+    var mode = "r", p;
+
+    if (typeof(path) == "string")
+        path = gettokens(path, ":");
+    forall (p in path)
+    {
+        try
+            return fopen(sprintf("%s/%s", p, name), mode);
+        onerror
+            /* printf(stderr, "%s\n", error) */ ;
+    }
+    fail("could not open " + name);
+}
+
+/*
+ * Load a non=varload ICI module
+ */
+export
+use()
+{
+    var        vargs = [array];
+    var        f, s;
+    var        path;
+    var        err = NULL;
+
+    if ((path = getenv("ANICIPATH")) == NULL)
+        path = ".:/usr/local/lib/ici4";
+    scp = super(top(vstack(), -1));
+    forall (fn in vargs)
+    {
+        try
+        {
+            f = pfopen(path, fn + ".ici");
+            try
+                parse(f, scp);
+            onerror
+                err = error;
+            close(f);
+        }
+        onerror
+        {
+            f = fopen(fn + ".ici");
+            try
+                parse(f, scp);
+            onerror
+                err = error;
+            close(f);
+        }
+        if (err)
+            fail(err);
+    }
+}

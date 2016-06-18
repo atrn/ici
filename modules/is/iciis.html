@@ -1,0 +1,51 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+            <HTML>
+            <HEAD>
+                <TITLE>The ICI is module</TITLE>
+                <STYLE TYPE="text/css">
+                    BODY {color: black}
+                    P {font-size: 12pt; width: 450pt}
+                    H1 {font-size: 12pt; font-family: Arial;
+                        font-weight: bold}
+                    H2 {font-size: 10pt; font-family: Arial;
+                        font-style: italic; font-weight: bold}
+                    PRE {background: aliceblue}
+                    DT {font-style: Italic}
+                    DD.DefnIn4cm {width: 337pt; margin-left: 113pt}   
+                    DD.DefnIn2cm {width: 396pt; margin-left: 56pt}
+                </STYLE>
+                <META NAME="Generator" CONTENT="extract-doc-from-src.ici">
+                <META NAME="Keywords" CONTENT="ICI">
+                <META NAME="Description" CONTENT="ICI extension module documentation">
+            </HEAD>
+            <BODY BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#FF0000" VLINK="#800000" ALINK="#FF00FF" BACKGROUND="?">
+            <H1>The ICI is module</H1>
+<P ALIGN="left">The is module exports various sets that help in testing
+characters against particular classes. The sets have
+names that mimic C's ctype.h definitions when used
+with autoloading, e.g, is.alpha, is.digit, etc...</P>
+<P ALIGN="left">The sets contain both string and integer versions of
+the characters allowing use with both strings and character
+codes. When testing strings it must be remembered the
+sets are being accessed directly and only the specific
+character wanted to be tested be used to index the
+set.</P>
+<P ALIGN="left">The exported sets should be treated as read-only. Modifying
+their values will result in undefined behaviour. The
+module makes use of ICI's initialiser semantics and
+literal functions to call a function at parse time
+to initialise the sets.</P>
+<P ALIGN="left">is.alpha[int|string] - set containing all upper and
+lower case characters as strings and character codes.</P>
+<P ALIGN="left">is.alnum[int|string] - set containg all upper and lower
+case characters and decimal digits as both character
+codes and strings.</P>
+<P ALIGN="left">is.cntrl</P>
+<P ALIGN="left">is.digit</P>
+<P ALIGN="left">is.lower</P>
+<P ALIGN="left">is.print</P>
+<P ALIGN="left">is.space</P>
+<P ALIGN="left">is.punct</P>
+<P ALIGN="left">is.upper</P>
+</BODY>
+</HTML>

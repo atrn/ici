@@ -1,0 +1,7 @@
+/*
+ * The null process stage. The output should be the same as the input - in
+ * XML terms. Textually it may differ as the order of attributes does not,
+ * and will not, be maintained.
+ */
+
+xml.write(xml.process(xml.read(), [struct]));

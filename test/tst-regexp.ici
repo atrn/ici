@@ -1,0 +1,244 @@
+/*
+ * More complete test of regexp code in ICI. Uses tst-regexp.dat file to
+ * specify tests and runs through them all.
+ */
+
+/*
+ * Functions for trying various regexp operations. All have the following
+ * parameters in common,
+ *
+ *      fn              The function to use to turn a string into a regexp.
+ *                      This is either regexp() or regexpi(), the latter
+ *                      forming case-insensitive regexps. In test_sub()
+ *                      this is the second parameter and is called fn2.
+ *
+ *      str             The string to be matched against.
+ *
+ *      pat             A string representation of a regexp to match
+ *                      against the string `str'. Turned into a real
+ *                      regexp object using `fn'.
+ *
+ *      result          The expected result of the operation/function.
+ *
+ *                      For test_match() this is an int, 0 or 1 - the result
+ *                      of the `~' operator.
+ *
+ *                      For test_extract() it is a string or NULL (if the
+ *                      sub-string extraction is expected to fail).
+ *
+ *                      For test_extractv() it is either an array of strings
+ *                      or NULL (again if the extraction is to fail).
+ *
+ *                      For test_sub() it is a string.
+ *
+ * The test_sub() function takes additional parameters. The first parameter,
+ * called fn1, is the substitution function, either sub() or gsub(). There
+ * is also a string parameter, repl, which is the text used to replace the
+ * matching sub-string.
+ *
+ * Each function attempts the operation and raises an error if it does not
+ * produce the expected result. The error string contains a description of
+ * what went wrong and what was expected.
+ */
+
+local
+test_match(fn, str, pat, result)
+{
+    if ((str ~ fn(pat)) != result)
+        fail(sprintf("\"%s\" ~ \"%s\" failed", pat, str));
+}
+
+local
+test_extract(fn, str, pat, result)
+{
+    var        rc;
+
+    if ((rc = str ~~ fn(pat)) != result)
+    {
+        fail
+        (
+            sprintf
+            (
+                "\"%s\" ~~ \"%s\" produced \"%s\", expected \"%s\"",
+                pat,
+                str,
+                typeof(rc) == "NULL" ? "NULL" : rc,
+                typeof(result) == "NULL" ? "NULL" : result
+            )
+        );
+    }
+}
+
+local
+test_extractv(fn, str, pat, result)
+{
+    var        rc, t, i, n;
+
+    rc = str ~~~ fn(pat);
+    t = typeof(rc);
+    if (t != typeof(result))
+    {
+        fail
+        (
+            sprintf
+            (
+                "\"%s\" ~~~ \"%s\" produced %s, expected %s",
+                str,
+                pat,
+                rc == NULL ? "NULL" : "an array",
+                result == NULL ? "NULL" : "an array"
+            )
+        );
+    }
+    if (t == "array")
+    {
+        if ((n = len(rc)) != len(result))
+        {
+            fail
+            (
+                sprintf
+                (
+                    "\"%s\" ~~~ \"%s\" returned %d string%s, expected %d",
+                    str,
+                    pat,
+                    n,
+                    n == 1 ? "" : "s",
+                    len(result)
+                )
+            );
+        }
+        for (i = 0; i < n; ++i)
+        {
+            if (rc[i] != result[i])
+            {
+                fail
+                (
+                    sprintf
+                    (
+                        "\"%s\" ~~~ \"%s\" match %d, got \"%s\" expected \"%s\"",
+                        str,
+                        pat,
+                        i + 1,
+                        rc[i],
+                        result[i]
+                    )
+                );
+            }
+        }
+    }
+}
+
+local
+test_sub(fn1, fn2, str, pat, repl, result)
+{
+    var        rc;
+
+    if ((rc = fn1(str, fn2(pat), repl)) != result)
+        fail
+        (
+            sprintf
+            (
+                "sub(\"%s\", \"%s\", \"%s\") produced \"%s\", expected \"%s\"",
+                str,
+                pat,
+                repl,
+                rc,
+                result
+            )
+        );
+}
+
+/*
+ * These are the functions visible to the code in the test "data" file.
+ * This struct forms the scope within which the test "data" file is run.
+ */
+local  test_funcs = [struct
+
+    match =     [func (str, pat, result)
+    {
+        test_match(regexp, str, pat, result);
+    }],
+
+    matchi =    [func (str, pat, result)
+    {
+        test_match(regexpi, str, pat, result);
+    }],
+
+    extract =   [func (str, pat, result)
+    {
+        test_extract(regexp, str, pat, result);
+    }],
+
+    extracti =  [func (str, pat, result)
+    {
+        test_extract(regexpi, str, pat, result);
+    }],
+
+    extractv =  [func (str, pat, result)
+    {
+        test_extractv(regexp, str, pat, result);
+    }],
+
+    extractvi = [func (str, pat, result)
+    {
+        test_extractv(regexpi, str, pat, result);
+    }],
+
+    sub =       [func (str, pat, repl, result)
+    {
+        test_sub(sub, regexp, str, pat, repl, result);
+    }],
+
+    subi =      [func (str, pat, repl, result)
+    {
+        test_sub(sub, regexpi, str, pat, repl, result);
+    }],
+
+    gsub =      [func (str, pat, repl, result)
+    {
+        test_sub(gsub, regexp, str, pat, repl, result);
+    }],
+
+    gsubi =     [func (str, pat, repl, result)
+    {
+        test_sub(gsub, regexpi, str, pat, repl, result);
+    }],
+
+];
+
+/*
+ */
+local
+test_regexpi()
+{
+    re1 := regexp("a");
+    re2 := regexpi("A");
+    if (re1 == re2)
+	fail("== broken");
+    if (eq(re1, re2))
+	fail("eq broken");
+    if ("A" ~ re1)
+	fail("mis-matched cases match");
+    if (!("A" ~ re2))
+	fail("should have matched");
+    if (!("a" ~ re2))
+	fail("should have matched");
+}
+
+/*
+ * Run the test cases...
+ */
+
+var    e, f;
+
+e = NULL;
+f = fopen("tst-regexp.dat");
+try
+    parse(f, test_funcs);
+onerror
+    e = error;
+close(f);
+if (e)
+    fail(e);
+
+test_regexpi();

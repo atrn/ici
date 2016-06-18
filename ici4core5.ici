@@ -1,0 +1,68 @@
+/*
+ * any = deepatom(any)
+ */
+export
+deepatom(o)
+{
+    t := typeof(o);
+    r := v := k := NULL;
+    switch (t)
+    {
+    case "array":
+	r := array();
+	forall (v in o)
+	    push(r, deepatom(v));
+	return @r;
+
+    case "set":
+	r := set();
+	forall (v in o)
+	    r[deepatom(v)] = 1;
+	return @r;
+
+    case "struct":
+	r := struct();
+	forall (v, k in o)
+	    r[deepatom(k)] = deepatom(v);
+	return @r;
+
+    default:
+	return @o;
+    }
+}
+
+/*
+ * any = deepcopy(any)
+ */
+export
+deepcopy(o)
+{
+    t := typeof(o);
+    r := o;
+    v := k := NULL;
+    switch (t)
+    {
+    case "array":
+        r = array();
+        forall (v in o)
+            push(r, copy(v));
+        break;
+
+    case "set":
+        r = set();
+        forall (v in o)
+            r[v] = 1;
+        break;
+
+    case "struct":
+        r = struct();
+        forall (v, k in o)
+            r[deepcopy(k)] = deepcopy(v);
+        break;
+
+    default:
+        r := o;
+        break;
+    }
+    return r;
+}

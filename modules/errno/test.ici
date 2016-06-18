@@ -1,0 +1,9 @@
+v := array();
+forall (value, name in errno)
+{
+    push(v, struct("name", name, "value", value));
+}
+forall (e in sort(v, [func (a, b) { return cmp(a.value, b.value); }]))
+{
+    printf("%d -> %s\n", e.value, e.name);
+}

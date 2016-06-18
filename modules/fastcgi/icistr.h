@@ -1,0 +1,6 @@
+ICI_STR(in, "in")
+ICI_STR(out, "out")
+ICI_STR(err, "err")
+ICI_STR(env, "env")
+ICI_STR(stream, "stream")
+ICI_STR(FCGX_Request, "FCGX_Request")

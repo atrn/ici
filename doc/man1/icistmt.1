@@ -1,0 +1,431 @@
+.r icistmt.1
+.TH "icistmt" "1"
+.SH NAME
+icistmt \- ICI statements syntax and semantics
+.SH DESCRIPTION
+
+.SS "The if statement"
+
+.PP
+The if statement has two forms:
+
+.nf
+        if ( expression ) statement
+        if ( expression ) statement else statement
+.fi
+
+.PP
+The parser converts both to an internal form.  Upon execution, the
+expression is evaluated.  If the expression evaluates to anything
+other than \fB0\fP (integer zero) or \fBNULL\fP, the following statement is
+executed; otherwise it is not.  In the first form this is all that
+happens, in the second form, if the expression evaluated to \fB0\fP or \fBNULL\fP
+the statement following the else is executed; otherwise it is not.
+
+.PP
+The interpretation of both \fB0\fP and \fBNULL\fP as false, and anything else as
+true, is common to all logical operations in ici.  There is no special
+boolean type.
+
+.PP
+The ambiguity introduced by multiple \fBif\fP statements with a lesser
+number of \fBelse\fP clauses is resolved by binding \fBelse\fP clauses
+with their closest possible \fBif\fP.  Thus:
+
+.PP
+\fCif (a) if (b) do_x(); else do_y();\fR
+
+.PP
+is equivalent to:
+
+.PP
+.nf
+\fCif (a)
+{
+    if (b)
+        do_x();
+    else
+        do_y();
+}\fR
+.fi
+
+.PP
+\fBThe while statement\fP
+
+.PP
+The while statement has the form:
+
+.PP
+        \fBwhile  (\fP expression \fB)\fP statement
+
+.PP
+The parser converts it to an internal form.  Upon execution a loop is
+established.  Within the loop the expression is evaluated, and if it
+is false (\fB0\fP or \fBNULL\fP) the loop is terminated and flow of control
+continues after the while statement.  But if the expression evaluates
+to true (not 0 and not NULL) the statement is executed and then flow
+of control moves back to the start of the loop where the test is
+performed again (although other statements, as seen below, can be used
+to modify this natural flow of control).
+
+.PP
+\fBThe do-while statement\fP
+
+.PP
+The do-while statement has the following form:
+
+.PP
+        \fCdo statement while ( expression ) ;\fR
+
+.PP
+The parser converts it to an internal form.  Upon execution a loop is
+established.  Within the loop the statement is executed.  Then the
+expression is evaluated and if it evaluates to true, flow of control
+resumes at the start of the loop.  Otherwise the loop is terminated
+and flow of control resumes after the do-while statement.
+
+.PP
+\fBThe for statement\fP
+
+.PP
+The for statement has the form:
+
+.PP
+        \fBfor (\fP [ expression ]\fB;\fP [ expression ]\fB;\fP [ expression ] \fB)\fP statement
+
+.PP
+The parser converts it to an internal form.  Upon execution the first
+expression is evaluated (if present).  Then, a loop is established.
+Within the loop: If the second expression is present, it is evaluated
+and if it is false the loop is terminated.  Next the statement is
+executed.  Finally, the third expression is evaluated (if present)
+and flow of control resumes at the start of the loop.
+
+.PP
+.SS "The forall statement"
+
+.PP
+The forall statement has the form:
+
+.PP
+        \fBforall (\fP expression [ \fB,\fPexpression ] \fBin\fP expression \fB)\fP statement
+
+.PP
+The parser converts it to an internal form.  In doing so the first and
+second expressions are required to be lvalues (that is, capable of
+being assigned to).  Upon execution the first expression is
+evaluated and that storage location is noted.  If the second
+expression is present the same is done for it.  The third expression
+is then evaluated and the result noted; it must evaluate to an array,
+a set, a struct, a string, or NULL; we will call this the aggregate.
+If this is NULL, the forall statement is finished and flow of control
+continues after the statement; otherwise, a loop is established.
+
+.PP
+Within the loop, an element is selected from the noted aggregate.  The
+value of that element is assigned to the location given by the first
+expression.  If the second expression was present, it is assigned the
+key used to access that element.  Then the statement is executed.
+Finally, flow of control resumes at the start of the loop.
+
+.PP
+Each arrival at the start of the loop will select a different element
+from the aggregate.  If no as yet unselected elements are left, the
+loop terminates.  The order of selection is predictable for arrays
+and strings, namely first to last.  But for structs and sets it is
+unpredictable.  Also, while changing the values of the structure
+members is acceptable, adding or deleting keys, or adding or deleting
+set elements during the loop will have an unpredictable effect on
+the progress of the loop.
+
+.PP
+Note in particular the interpretation of the value and key for a set.
+For consistency with the access method and the behavior of structs and
+arrays, the values are all 1 and the elements are regarded as the
+keys. As a special case, when the second expression is omitted, the
+first is set to each "key" in turn, that is, the elements of the set.
+
+.PP
+When a forall loop is applied to a string (which is not a true
+aggregate), the "sub-elements" will be successive one character
+sub-strings.
+
+.PP
+Note that although the sequence of choice of elements from a set or
+struct is at first examination unpredictable, it will be the same in
+a second forall loop applied without the structure or set being
+modified in the interim.
+
+.PP
+.SS "The switch, case, and default statements"
+
+.PP
+These statements have the form:
+
+.nf
+        \fBswitch (\fP expression \fB)\fP compound-statement
+        \fBcase\fP expression \fB:\fP
+        \fBdefault :\fP
+.fi
+
+.PP
+The parser converts the switch statement to an internal form.  As it
+is parsing the compound statement, it notes any case and default
+statements it finds at the top level of the compound statement.  When
+a case statement is parsed the expression is evaluated immediately
+by the parser.  As noted previously for parser evaluated expressions,
+it may perform arbitrary actions, but it is important to be aware
+that it is resolved to a particular value just once by the parser.  As
+the case and default statements are seen their position and the
+associated expressions are noted in a table.
+
+.PP
+Upon execution, the switch statement's expression is evaluated.
+This value is looked up in the table created by the parser.  If a
+matching case statement is found, flow of control immediately moves to
+immediately after that case statement. 
+On no match,
+if there is a default statement
+flow of control immediately moves to just after that.  If there is no
+matching case and no default statement, flow of control continues just
+after the entire switch statement.
+
+.PP
+.SS "The break and continue statements"
+
+.PP
+The break and continue statements have the form:
+
+.nf
+        \fBbreak ;
+        continue ;\fP
+.fi
+
+.PP
+The parser converts these to an internal form.  Upon execution of a
+break statement the execution engine will cause the nearest enclosing
+loop (a while, do, for or forall) or switch statement within the same
+scope to terminate.  Flow of control will resume immediately after the
+affected statement.  Note that a break statement without a surrounding
+loop or switch in the same function or module is illegal.
+
+.PP
+Upon execution of a continue statement the execution engine will cause
+the nearest enclosing loop to move to the next iteration.  For while
+and do loops this means the test.  For for loops it means the step,
+then the test.  For forall loops it means the next element of the
+aggregate.
+
+.PP
+.SS "The return statement"
+
+.PP
+The return statement has the form:
+
+.PP
+        \fBreturn\fP [ expression ] \fB;\fP
+
+.PP
+The parser converts this to an internal form.  Upon execution, the
+execution engine evaluates the expression if it is present.  If it
+is not, the value NULL is substituted.  Then the current function
+terminates with that value as its apparent value in any expression it
+is embedded in.  It is an error for there to be no enclosing
+function.
+
+.PP
+.SS "The try statement"
+
+.PP
+The try statement has the form:
+
+.PP
+        \fBtry\fP  statement \fBonerror\fP statement
+
+.PP
+The parser converts this to an internal form.  Upon execution, the
+first statement is executed. If this statement executes normally
+flow continues after the try statement; the second statement is
+ignored.  But if an error occurs during the execution of the first
+statement control is passed immediately to the second statement.
+
+.PP
+Note that "during the execution" applies to any depth of function
+calls, even to other modules or the parsing of sub-modules.  When an
+error occurs both the parser and execution engine unwind as necessary
+until an error catcher (that is, a try statement) is found.
+
+.PP
+Errors can occur almost anywhere and for a variety of reasons.  They
+can be explicitly generated with the fail function (described below),
+they can be generated as a side-effect of execution (such as division
+by zero), and they can be generated by the parser due to syntax or
+semantic errors in the parsed source.  For whatever reason an error is
+generated, a message (a string) is always associated with it.
+
+.PP
+When any otherwise uncaught error occurs during the execution of the
+first statement, two things are done:
+
+.PP
+Firstly, the string associated with the failure is assigned to the
+variable error.  The assignment is made as if by a simple assignment
+statement within the scope of the try statement.
+
+.PP
+Secondly, flow of control is passed to the statement following the
+onerror keyword.
+
+.PP
+Once the second statement finishes execution, flow of control
+continues as if the whole try statement had executed normally.
+
+.PP
+The handling of errors which are not caught by any try statement is
+implementation dependent.  A typical action is to prepend the file
+and line number on which the error occurred to the error string,
+print this, and exit.
+
+.PP
+.SS "The critsect statement"
+
+.PP
+The critsect, or "critical section" statement has the form:
+
+.PP
+        \fBcritsect\fP statement
+.PP
+The parser converts this to an internal form.  Upon execution,
+the  statement is executed indivisibly with respect to other threads. Thus:
+.nf
+        critsect x = x + 1;
+.fi
+will increment x by 1, even if another thread is doing similar increments.
+Without the use of the critsect statement we could encounter a
+situation where both threads read the current value of x (say 2)
+at the same time, then both added 1 and stored the result 3, rather
+than one thread incrementing the value to 3, then the other to 4.
+.PP
+The indivisibility bestowed by a critsect statement applies
+as long as the code it dominates is executing, including all
+functions that code calls. Even operations that block (such
+as the waitfor statement) will be affected. The indivisibility
+will be revoked once the critsect statement completes, either
+through completing normally, or through an error being thrown by
+the code it is dominating.
+.PP
+.SS "The waitfor statement"
+.PP
+The waitfor statement has the form:
+.PP
+        \fBwaitfor (\fP expression \fB;\fP expression \fB)\fP statement
+.PP
+The parser converts this to an internal form.  Upon execution, a
+critical section is established that extends for the entire scope
+of the waitfor statement (except for the special exception explained below).
+Within the scope of this critical section, the waitfor statement
+repeatedly evaluates the first expression until it is true (that is,
+neither 0 nor NULL). Once the first expression evaluates to true,
+control passes to the statement (still within the scope of the
+critical section). After executing statement the critical section
+is released and the waitfor statement is finished.
+.PP
+However, each time the first expression evalutes to a false value,
+the second expression is evaluated and the object that it evaluates
+to is noted. Then, indivisibly, the current thread sleeps waiting
+for that object to be signaled (by a call to the wakeup() function),
+and the critical section is suppressed (thus allowing other thread
+to run). The thread will remain asleep until it is woken up by a call
+to wakeup() with the given object as an argument. Each time this
+occurs, the critical section is again enforced and the process
+repeats with the evaluation and testing of the first expression.
+While the thread is asleep it consumes no significant CPU time.
+.PP
+.SS "The null statement"
+
+.PP
+The null statement has the form:
+.PP
+
+        \fB;\fP
+.PP
+
+.PP
+The parser may convert this to an internal form. Upon execution it
+will do nothing.
+
+.PP
+.SS "Declaration statements"
+
+.PP
+There are two types of declaration statements:
+
+.PP
+.nf
+declaration
+        storage-class declaration-list \fB;\fP
+        storage-class identifier function-body
+
+.PP
+storage-class
+        \fBextern\fP
+        \fBstatic\fP
+        \fBauto\fP
+
+.PP
+declaration-list        identifier [ \fB=\fP expression ]
+        declaration-list \fB,\fP identifier [ \fB=\fP expression ]
+.fi
+
+.PP
+That is, a comma separated list of identifiers, each with an optional
+initialisation, terminated by a semicolon.
+
+.PP
+The storage class keyword establishes which scope the variables in the
+list are established in. Note that declaring the same identifier at
+different scope levels is permissible and that they are different
+variables.
+
+.PP
+A declaration with no initialisation first checks if the variable
+already exists at the given scope.  If it does, it is left unmodified.
+In particular, any value it currently has is undisturbed.  If it
+does not exist it is established and is given the value NULL.
+
+.PP
+A declaration with an initialisation establishes the variable in the
+given scope and gives it the given value even if it already exists and
+even if it has some other value.
+
+.PP
+Note that initial values are parser evaluated expressions.  That is
+they are evaluated immediately by the parser, but may take arbitrary
+actions apart from that.
+
+.PP
+.SS "Abbreviated function declarations"
+
+.PP
+As seen above there are two forms of declaration.  The second:
+
+.PP
+        storage-class identifier function-body
+
+.PP
+is the normal way to declare simple functions,
+and is a shorthand for:
+
+.PP
+        storage-class identifier \fB= [ func\fP function-body \fB] ;\fP
+
+E.g.:
+.ti 1i
+\fCstatic sum(a, b) { return a + b; }\fR
+
+is a shorthand for:
+
+.ti 1i
+\fCstatic sum = [func (a, b) { return a + b; }];\fR
+.SH "SEE ALSO"
+ici(1), icinet(1), icioo(1), iciops(1), icisyn(1), icitypes(1), iciex(1)

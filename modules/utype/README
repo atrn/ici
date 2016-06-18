@@ -1,0 +1,33 @@
+This is the utype extension for ICI.
+
+The utype extension adds the ability for users (programmers) to create
+new data types in ICI. These "data types" are struct objects that
+programmers get to control. Functions are called when the
+objects are indexed using so-called dot-notation (fred.xyz) or bracket
+notation (fred[20.3]). Programmers can enforce the use of particular field
+names or types or perform any actions in response to an access, e.g.,
+write the field's value to a file for a persistent store.
+
+The extension provides two functions, utype.def() and utype.new().
+The def() function is used to define new types and the new() function
+to create new instances of those types.
+
+Utype.def() defines a new object type and returns a "utype" object
+to represent the new type. Utype.def() is passed a string name for
+the new type and functions to initialise objects of the type and to
+perform the ici fetch and assign operations for this type. The name
+must be passed. If no other parameters are given then the type behaves
+much like a struct object with a different typeof() name (forall doesn't
+work for utypes).
+
+and to
+control access to the data in the data type. User defined types is
+probably a bad name for what utype provides. It really adds the
+ability to control access to the contents of a struct object. The user 
+supplies functions that are called when an attempt is made to fetch or 
+assign to a member of this struct. Another aspect of the utype
+extension is that it gives each new type its own name. The typeof()
+function returns this name so code can make decisions based on the
+type of object, error checking at a minimum. Used in its simplist form 
+the utype extension allows you to give type names to struct objects
+you create so you can distinguish them via typeof().

@@ -1,0 +1,233 @@
+/*
+ * widget.ici - base class for all widget objects
+ */
+
+extern widget = [struct : object.object,
+
+    /*
+     * Widgets have counterpart objects in Tk/TCL. These objects
+     * require unique names. This method creates a name for an
+     * object. This uses a global variable to generate a stream
+     * of numbers for each 'name'.
+     */
+    makename = [func (self, p)
+    {
+	auto p = NULL;
+	auto s;
+	auto d;
+	static counter = 0;
+	d = counter++;
+	s = self.type;
+        return sprintf("%s.%s%d", p ? p.name : "", s, d);
+    }],
+
+    /*
+     * The "action" to be performed when something happens to the
+     * widget. The action is a string containing ICI code to be
+     * executed when the widget needs to raise an "action".
+     */
+    setaction = [func (self, action)
+    {
+	tcl.tk(self.name, "configure -command {ici {", action, "}}");
+	return self;
+    }],
+
+    /*
+     * Set the action but use TCL code.
+     */
+    settclaction = [func (self, action)
+    {
+	tcl.tk(self.name, "configure -command {", action, "}");
+	return self;
+    }],
+
+    /*
+     * Many widgets have some text associated with them. This
+     * method sets the contents of that text.
+     */
+    settext = [func (self, text)
+    {
+	tcl.tk(self.name, sprintf("configure -text {%s}", text));
+	return self;
+    }],
+
+    /*
+     * Set the default font for the text in the widget.
+     */
+    setfont = [func (self, font)
+    {
+	tcl.tk(self.name, "configure -font", font);
+	return self;
+    }],
+
+    setgeometry = [func (self, g)
+    {
+	tcl.tk("wm geometry", self.name, g);
+    }],
+
+    setwidth = [func (self, w)
+    {
+	tcl.tk(self.name, "configure -width", w);
+	return self;
+    }],
+
+    setheight = [func (self, h)
+    {
+	tcl.tk(self.name, "configure -height", h);
+	return self;
+    }],
+
+    /*
+     * Enable a widget.
+     */
+    enable = [func (self)
+    {
+	tcl.tk(self.name, "configure -state normal");
+	return self;
+    }],
+
+    /*
+     * Disable a widget.
+     */
+    disable = [func (self)
+    {
+	tcl.tk(self.name, "configure -state disabled");
+	return self;
+    }],
+
+    /*
+     * Set's the border or relief style for the widget.
+     * Strings are as for Tk's relief option.
+     */	
+    setrelief = [func (self, relief)
+    {
+	tcl.tk(self.name, "configure -relief", relief);
+	return self;
+    }],
+
+    /*
+     * Set the foreground colour for this widget when it
+     * is active.
+     */
+    setactiveforeground = [func (self, color)
+    {
+	tcl.tk(self.name, "configure -activeforeground", color);
+	return self;
+    }],
+
+    /*
+     * Set the background colour for this widget when it
+     * is active.
+     */
+    setactivebackground = [func (self, color)
+    {
+	tcl.tk(self.name, "configure -activebackground", color);
+	return self;
+    }],
+
+    /*
+     * Set the foreground colour for this widget
+     */
+    setforeground = [func (self, color)
+    {
+	tcl.tk(self.name, "configure -foreground", color);
+	return self;
+    }],
+
+    /*
+     * Set the background colour for this widget
+     */
+    setbackground = [func (self, color)
+    {
+	tcl.tk(self.name, "configure -background", color);
+	return self;
+    }],
+
+    /*
+     * Set the widget width.
+     */
+    setborderwidth = [func (self, width)
+    {
+	tcl.tk(self.name, "configure -borderwidth", width);
+	return self;
+    }],
+
+    /*
+     */
+    bind = [func (self, event, action)
+    {
+	tcl.tk("bind", self.name, event, sprintf("{ici {%s} ; break}", action));
+	return self;
+    }],
+
+    /*
+     */
+    bindtcl = [func (self, event, action)
+    {
+	tcl.tk("bind", self.name, event, action);
+	return self;
+    }],
+
+    x = [func (self)
+    {
+	return int(tcl.tk("winfo x", self.name));
+    }],
+
+    y = [func (self)
+    {
+	return int(tcl.tk("winfo y", self.name));
+    }],
+
+    focus = [func (self)
+    {
+	tcl.tk("focus", self.name);
+	return self;
+    }],
+
+    justify = [func (self, how)
+    {
+	tcl.tk(self.name, "configure -justify", how);
+	return self;
+    }],
+
+    anchor = [func (self, arg)
+    {
+	switch (arg)
+	{
+	case "left":
+	    arg = "w";
+	    break;
+
+	case "right":
+	    arg = "e";
+	    break;
+	}
+	tcl.tk(self.name, "configure -anchor", arg);
+	return self;
+    }],
+
+    setimage = [func (self, name)
+    {
+	name = tcl.tk("image create photo -file " + name);
+	tcl.tk(self.name, "configure -image " + name);
+    }],
+
+    setcursor = [func (self, name)
+    {
+	tcl.tk(self.name, "configure -cursor", name);
+    }],
+
+];
+
+extern
+destroy(name)
+{
+    switch (typeof(name))
+    {
+    case "struct":
+	name = name.name;
+
+    case "string":
+	tcl.tk("destroy", name);
+    }
+}

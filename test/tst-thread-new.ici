@@ -1,0 +1,106 @@
+/*
+ * We use Ackerman's function to do work.
+ */
+local
+ack(x, y)
+{
+    return x > 0
+        ? ack(x - 1, y > 0 ? ack(x, y - 1) : 1)
+        : y + 1;
+}
+
+x := go(ack, 2, 3);
+waitfor (x.result != NULL; x)
+    ;
+if (x.result != 9)
+    fail("incorrect result from func in other thread");
+
+local count;
+local LIM = 5000000;
+var x, i, did_crit = 0;
+go([func(){for (count = 0; count < LIM; ++count);}]);
+while ((x = count) == NULL)
+    ;
+printf("count != NULL @ %s\n", string(x));
+while (count < LIM)
+{
+    critsect
+    {
+        x = count;
+	printf("got in @ %s\n", string(x));
+        for (i = 0; i < LIM/10; ++i)
+            ;
+        if (x != count)
+            fail("critsect was divisible");
+        did_crit = 1;
+    }
+    for (i = 0; i < LIM/10; ++i)
+        ;
+}
+if (!did_crit)
+    printf("didn't execute critsect");
+
+
+local state = "ping";
+
+local
+t1()
+{
+    var    i;
+
+    for (i = 0; i < 10; ++i)
+    {
+        waitfor (state == "ping"; "ping")
+        {
+            state = "pong";
+            wakeup("pong");
+        }
+    }
+    state = i;
+    wakeup("done");
+    wakeup("pong");
+}
+
+local
+t2()
+{
+    for (;;)
+    {
+        waitfor (state == "pong" && typeof(state) != "int"; "pong")
+        {
+            state = "ping";
+            wakeup("ping");
+        }
+    }
+}
+
+t1x := go(t1);
+if (t1x.status != "active")
+    fail("thread status was not active");
+go(t2);
+
+waitfor (typeof(state) == "int"; "done")
+    ;
+if (state != 10)
+    fail("failed to waitfor/wakeup correctly");
+if (t1x.status != "finished")
+    fail("thread status was not finished");
+
+error := NULL;
+x := go(fail, "deliberate sub-thread failure");
+
+if (x.junk != NULL)
+    fail("non-existent thread key not NULL");
+
+try
+{
+    waitfor(x.result != NULL; x)
+        ;
+}
+onerror
+    ;
+if (error !~ #deliberate#)
+    fail("failed to propogate error from thread");
+    
+if (x.status != "failed")
+    fail("thread status was not failed");

@@ -1,0 +1,35 @@
+/*
+ * Apply certain cleanups to all the FrameMaker produced HTML files in a
+ * given directory.
+ */
+if ((base = argv[1]) == NULL)
+    base = "../../../web-site/book";
+fnames = dir(base, #.html?#);
+html = struct();
+used_pgfIds = set();
+/*
+ * Make a set of all the anchors that are references by HREFs.
+ */
+forall (fname in fnames)
+{
+    html[fname] = getfile(pathjoin(base, fname));
+    html[fname] = gsub(html[fname], #HREF="ici.css"#, "HREF=\"ici-book.css\"");
+    forall (p in smash(html[fname], #HREF="# ".*#(pgfId-[0-9]+)", "\\1")) /*"*/
+        used_pgfIds["<A NAME=\"" + p + "\"></A>"] = 1;   
+}
+/*
+ * Patch out all other paragraph anchors.
+ */
+forall (h, fname in html)
+{
+    pat = #<A NAME="pgfId-[0-9]+"></A>#;
+    h = smash(h, pat, "\\0", "\\&", 1);
+    forall (p, i in h)
+    {
+        if (p ~ pat && !used_pgfIds[p])
+            h[i] = "";
+    }
+    h = implode(h);
+    put(h, f = fopen(pathjoin(base, fname), "w"));
+    close(f);
+}

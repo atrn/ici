@@ -1,0 +1,14 @@
+##########################
+## Caste Module for ICI ##
+##    BEOS  MAKEFILE    ##
+##########################
+
+CFLAGS  = -I../.. -DCONFIG_FILE=\"ici/conf-beos_x86.h\"
+
+OBJS    = caste.o
+LIBS    = ../../_APP_ 
+
+icicaste.im   : $(OBJS) 
+	gcc -o $@ $(OBJS) $(LIBS)
+	               
+caste.o : caste.c caste_strings.h 

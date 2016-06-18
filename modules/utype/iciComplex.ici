@@ -1,0 +1,109 @@
+/*
+ * iciComplex.ici - an example of user-defined "types" in ICI.
+ */
+
+/*
+ * This function is called when the user creates a new instance of the
+ * "Complex" type. The parameters other than self are the extra parameters
+ * passed in the user's call to `new' (i.e., those other than the utype
+ * object representing the user's type). We use ICI's ability to provide
+ * default parameter values to ensure our fields get initialised to zero.
+ */
+static	new_method(self, re, im)
+{
+    auto re = 0.0;
+    auto im = 0.0;
+    self["re"] = re;
+    self["im"] = im;
+}
+
+/*
+ * We use this to report an invalid type of value being assigned to one
+ * of our fields.
+ */
+static	badvalue(k, t, self)
+{
+    return sprintf("\"%s\" is a bad type for key \"%s\" in Complex", t, k);
+}
+
+/*
+ * And this to report an unrecognised key.
+ */
+static	badkey(k)
+{
+    return sprintf("\"%s\" is a bad key for a Complex object", string(k));
+}
+
+/*
+ * This is called when the user attempts to assign a value to a member of
+ * our type. We check the key used and only allow the strings "re" and "im".
+ * Then we check the value and only allow integers and floating point
+ * numbers to be assigned to these keys. If the value is an integer it
+ * is converted to floating point before storing it in the object.
+ */
+static	assign_method(self, key, value)
+{
+    auto t;
+    switch (key)
+    {
+    case "re":
+    case "im":
+	if ((t = typeof(value)) == "int")
+	    value = float(value);
+	else if (t != "float")
+	    fail(badvalue(key, t, self));
+	self[key] = value;
+	break;
+    default:
+	fail(badkey(key));
+    }
+}
+
+/*
+ * This function is called when the user attempts to retrieve the value
+ * of a member. We check if they've got the correct key.
+ */
+static	fetch_method(self, key)
+{
+    switch (key)
+    {
+    case "re":
+    case "im":
+	return self[key];
+
+    case "asum":
+	return
+	    parse
+	    (
+		"auto asum()"
+		"{"
+		"    return " + string(self.re + self.im) + ";"
+		"}",
+		struct(struct(super(super(scope()))))
+	    ).asum;
+
+    default:
+	fail(badkey(key));
+    }
+}
+
+/*
+ * Complex.number - type for complex numbers (naturally enough)
+ */
+extern	type = utype.def
+(
+    "complex",
+    new_method,
+    assign_method,
+    fetch_method
+);
+
+/*
+ * Define a constructor like function that's easier to use than utype.new()
+ */
+extern
+number(re, im)
+{
+    auto re = 0.0, im = 0.0;
+    return call(utype.new, array(type, re, im));
+}

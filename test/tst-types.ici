@@ -1,0 +1,4 @@
+if (len.name != "len")
+	fail("failed to fetch name of cfunc");
+if (len.blahblah != NULL)
+	fail("non-existent fetch of cfunc didn't give NULL");

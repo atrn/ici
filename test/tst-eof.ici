@@ -1,0 +1,23 @@
+local doit(a)
+{
+    printf("\n");
+    printf("%d\n", eof(a));
+    printf("%s\n", string(getchar(a))); /*x*/
+    printf("%d\n", eof(a));
+    printf("%s\n", string(getchar(a))); /*y*/
+    printf("%d\n", eof(a));
+    printf("%s\n", string(getchar(a))); /*z*/
+    printf("%d\n", eof(a));
+    printf("%s\n", string(getchar(a))); /*NULL*/
+    printf("%d\n", eof(a));
+    close(a);
+}
+
+var a;
+a = fopen("/tmp/icitest", "w");
+printf(a, "xyz");
+close(a);
+/*doit(fopen("/tmp/icitest", "r"));
+doit(sopen("xyz", "r"));*/
+doit(popen("cat /tmp/icitest > /tmp/z", "r"));
+

@@ -1,0 +1,6 @@
+#!/usr/local/bin/ici
+debug(1);
+url := argv[1] || "http://localhost/";
+content := argv[2] ? getfile(argv[2]) : getfile();
+data := HTTP.post(url, "text/plain", content);
+put(data);

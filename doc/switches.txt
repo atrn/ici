@@ -1,0 +1,39 @@
+If ICI is invoked without switches, i.e., the first command line argument
+does not start with a '-', then all the command line arguments are made
+available to the user's program via an extern variable called argv, an
+array of strings. The first element is the name of the ICI program with
+subsequent elements being the arguments.
+
+If ICI is invoked with switches, the first command line argument starts
+with a '-', then the arguments are interpretered by the ICI interpreter.
+The following switches are recognised,
+
+--		End of switches, all remaining arguments are placed in
+		the ICI program's argv array.
+
+-v		Outputs a message to stderr describing the version
+		of the ici interpreter and exits.
+
+-m name		Use name as the name of the module being parsed. The
+		ICI program's argv[0] is set to name. This is done prior
+		to any files being parsed.
+
+-f pathname	Parse the named file.
+
+-l pathname	Parse the named library file. Library files are stored
+		in a central directory, /usr/local/etc/ici by default and
+		a '.ici' extension is automatically added to the name.
+
+-e expression	Parse the expression. Multiple -e's may be given and
+		may also be mixed with other switches.
+
+-#		# is a decimal digit. Parse a module from a specific
+		file descriptor.
+
+-s		If ICI has been built with the startup file enabled
+		(true on Unix using the default configurations) then
+		this tells it not to load the startup file.
+
+Any arguments not starting with a '-' are placed in the ICI programs argv
+array. Such arguments DO NOT constitute the end of switch processing. The
+'--' switch must be used if that behaviour is required.

@@ -1,0 +1,38 @@
+/*
+ * popupmenu.ici
+ */
+
+extern popupmenu = [struct : widget,
+
+    type = "popupmenu",
+
+    new = [func (self)
+    {
+	auto vargs = [array];
+	auto i, n;
+
+	self.name = self@makename();
+	tcl.tk("menu", self.name, "-tearoff 0");
+	if ((n = nels(vargs)) & 1)
+	    fail("bad number of parameters");
+	for (i = 0; i < n; i += 2)
+	{
+	    tcl.tk
+	    (
+		self.name,
+		sprintf
+		(
+		    "add command -label {%s} -command {%s}",
+		    vargs[i],
+		    vargs[i+1]
+		)
+	    );
+	}
+    }],
+
+    popup = [func (self, x, y)
+    {
+	tcl.tk("tk_popup", self.name, x, y);
+    }],
+
+];

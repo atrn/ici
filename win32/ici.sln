@@ -1,0 +1,47 @@
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual C++ Express 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ici4", "ici4.vcproj", "{5AB5814D-5A81-4CEB-965F-7FFAD3570559}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ici", "ici.vcproj", "{11E73388-BF34-4A10-80EC-D169EB5986B4}"
+	ProjectSection(ProjectDependencies) = postProject
+		{5AB5814D-5A81-4CEB-965F-7FFAD3570559} = {5AB5814D-5A81-4CEB-965F-7FFAD3570559}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "iciw", "iciw.vcproj", "{BA3F36EA-3F78-47DF-AE25-E66A99149675}"
+	ProjectSection(ProjectDependencies) = postProject
+		{5AB5814D-5A81-4CEB-965F-7FFAD3570559} = {5AB5814D-5A81-4CEB-965F-7FFAD3570559}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5AB5814D-5A81-4CEB-965F-7FFAD3570559}.Debug|Win32.ActiveCfg = Debug|Win32
+		{5AB5814D-5A81-4CEB-965F-7FFAD3570559}.Debug|Win32.Build.0 = Debug|Win32
+		{5AB5814D-5A81-4CEB-965F-7FFAD3570559}.Release|Win32.ActiveCfg = Release|Win32
+		{5AB5814D-5A81-4CEB-965F-7FFAD3570559}.Release|Win32.Build.0 = Release|Win32
+		{11E73388-BF34-4A10-80EC-D169EB5986B4}.Debug|Win32.ActiveCfg = Debug|Win32
+		{11E73388-BF34-4A10-80EC-D169EB5986B4}.Debug|Win32.Build.0 = Debug|Win32
+		{11E73388-BF34-4A10-80EC-D169EB5986B4}.Release|Win32.ActiveCfg = Release|Win32
+		{11E73388-BF34-4A10-80EC-D169EB5986B4}.Release|Win32.Build.0 = Release|Win32
+		{BA3F36EA-3F78-47DF-AE25-E66A99149675}.Debug|Win32.ActiveCfg = Debug|Win32
+		{BA3F36EA-3F78-47DF-AE25-E66A99149675}.Debug|Win32.Build.0 = Debug|Win32
+		{BA3F36EA-3F78-47DF-AE25-E66A99149675}.Release|Win32.ActiveCfg = Release|Win32
+		{BA3F36EA-3F78-47DF-AE25-E66A99149675}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(DevPartner Solution Properties) = postSolution
+	EndGlobalSection
+	GlobalSection(DevPartner) = postSolution
+	EndGlobalSection
+	GlobalSection(DevPartner) = postSolution
+	EndGlobalSection
+	GlobalSection(DevPartner) = postSolution
+	EndGlobalSection
+	GlobalSection(DevPartner) = postSolution
+	EndGlobalSection
+EndGlobal

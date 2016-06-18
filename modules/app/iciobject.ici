@@ -1,0 +1,177 @@
+/*
+ * object.ici - a base class for all objects.
+ *
+ * Every type of object inherits from the Object class. Object defines
+ * the base capabilities for all classes. This is primarially the slot
+ * and signal communications mechanism used by widgets and other classes
+ * instead of callbacks.
+ */
+
+extern object = [struct
+
+    /*
+     * Initialise a new object. This involves creating the base
+     * data structures used for signals and slots. See the post()
+     * slot() and connect() methods below for more information.
+     */
+
+    new = [func (self)
+    {
+	self.slots = struct();
+	self.signals = struct();
+    }],
+
+    class = [func (self)
+    {
+	return super(self);
+    }],
+
+    isa = [func (self, what)
+    {
+	if (typeof(what) == "struct")
+	    what = what.type;
+	return self.type == what;
+    }],
+
+    /*
+     * Return the super class of an object. This is the super of the super
+     * of the struct that is self. The super of that struct is our class
+     * object (meta-class object) and its super is the class it inherits
+     * from or NULL.
+     */
+    super = [func (self)
+    {
+	return super(super(self));
+    }],
+
+    superclass = [func (self)
+    {
+	return super(super(self));
+    }],
+
+    /*
+     * Signal/Slot mechanism for binding events to actions.
+     *
+     *	connect	Connect one object's signal to another's slot.
+     *
+     *	emit	Emit a signal from an object causing any slots
+     *		connected to that signal to be invoked.
+     *
+     *	slot	Define or retrieve a slot. A slot is a name and
+     *		a function associated with that name. The function
+     *		is called when the slot is invoked which is usually
+     *		by emitting a signal connected to that slot.
+     *
+     *	invoke	Cause to slot to be signalled by calling its function.
+     */
+
+    connect = [func (self, name, slot)
+    {
+	if (!self.signals[name])
+	    self.signals[name] = array();
+	push(self.signals[name], slot);
+    }],
+
+    emit = [func (self, name)
+    {
+	auto slot, vargs = [array];
+
+	forall (slot in self.signals[name])
+	    if (typeof(slot) == "struct")
+		call(slot.fn, array(slot.self, name, self) + vargs);
+	    else
+		call(slot, array(name, self) + vargs);
+    }],
+
+    slot = [func (self, name, defn)
+    {
+	if (typeof(name) == "func" && defn == NULL)
+	{
+	    defn = name;
+	    name = defn._funcname_;
+	}
+	if (defn)
+	    self.slots[name] = defn;
+	else if (self.slots[name])
+	    return struct("self", self, "fn", self.slots[name]);
+    }],
+
+    invoke = [func (self, name)
+    {
+	auto slot, vargs = [array];
+
+	slot = self.slot[name];
+	if (typeof(slot) == "struct")
+	    call(slot.fn, array(slot.self, name, self) + vargs);
+	else
+	    call(slot, array(name, self) + vargs);
+    }],
+
+];
+
+/*
+ * struct = new(struct)
+ *
+ * Create a new instance of a class. Given a class definition (a struct)
+ * this creates a new object (another struct), calls the class "new"
+ * function to initialise the object, passing any other arguments, sets
+ * the new object struct's "super" to the class struct and returns the
+ * new object.
+ */
+extern
+new(class)
+{
+    auto vargs = [array];
+    auto self;
+    auto fn;
+    auto fns;
+
+    /*
+     * Create a struct to hold the object.
+     */
+    self = struct(@class);
+
+    /*
+     * Create instance variables in self as required by class hierarchy.
+     */
+    auto c;
+    for (fns = array(), c = class; c != NULL; c = super(c))
+    {
+	if (typeof(c.instance_vars) == "struct")
+	{
+	    auto v, k;
+	    forall (v, k in c.instance_vars)
+		assign(self, k, v);
+	}
+	/*
+	 * Record this class's new function so we can call it later.
+	 */
+	if (typeof(c.new) == "func")
+	    push(fns, c.new);
+    }
+
+    /*
+     * Call the new functions in opposite order to class
+     * inheritence, i.e., most deeply inherited function
+     * gets called first.
+     */
+    while (fn = pop(fns))
+	call(fn, array(self) + vargs);
+
+    /*
+     * And return the new object.
+     */
+    return self;
+}
+
+extern
+loadclass(name, superclass)
+{
+    auto	class, v, k;
+
+    class = struct();
+    forall (v, k in load(name))
+        class[k] = v;
+    super(class, superclass);
+    return class;
+}

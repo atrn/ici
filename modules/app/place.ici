@@ -1,0 +1,26 @@
+/*
+ * place.ici
+ */
+
+extern
+place(widget, x, y, w, h)
+{
+    auto vargs = [array];
+
+    call
+    (
+	tcl.tk,
+	array
+	(
+	    "place",
+	    widget.name,
+	    "-x", x,
+	    "-y", y,
+	    "-width", w,
+	    "-height", h
+	)
+	+
+	vargs
+    );
+    return widget;
+}

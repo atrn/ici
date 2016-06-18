@@ -1,0 +1,222 @@
+#!/usr/local/bin/ici3
+
+/*
+ * $Id: mk-cfuncs.ici,v 1.4 2003/01/06 12:45:08 timl Exp $
+ *
+ * Create the cfuncs file for a module.
+ */
+
+static	myname	= argv[0];
+static	efuncs	= array(); /* ici module externs */
+static	cfuncs	= array(); /* ici cfuncs table */
+static	crefs	= set();   /* non-ici C function refs */
+static	prefix;		   /* module prefix with "ici_" */
+
+static
+main()
+{
+    auto	cf, line, s, re, name;
+    auto	hasvars;
+    auto	module;
+
+    if (argc != 2)
+	exit(sprintf("usage: %s module-name", myname));
+
+    hasvars = 0;
+    cfuncs = array();
+    crefs = set();
+    module = argv[1];
+    prefix = sprintf("ici_%s", module);
+
+    /*
+     * Build our regexps
+     */
+    re = struct();
+    re.ident = "[A-Za-z_][[A-Za-z_0-9]*";
+    re.ws = "[ \t]*";
+    re.param = sprintf("%s(%s)%s", re.ws, re.ident, re.ws);
+    re.afunc = regexp(sprintf("^FUNC\\(%s\\)", re.param));
+    re.funcdef = regexp(sprintf("^FUNCDEF\\(%s\\)", re.param));
+    re.cfunc = regexp(sprintf("^CFUNC\\(%s,%s\\)", re.param, re.param));
+    re.cfunc1 = regexp(sprintf("^CFUNC1\\(%s,%s,%s\\)",	re.param,
+							 re.param, re.param));
+    re.cfunc2 = regexp(sprintf("^CFUNC2\\(%s,%s,%s\\)",	re.param,
+							 re.param, re.param));
+    re.cfunc3 = regexp(sprintf("^CFUNC3\\(%s,%s,%s,(.*)\\)", re.param,
+							re.param, re.param));
+    re.varsfunc = regexp(sprintf("^ici_%s_vars_init\\(", re.ident));
+
+    /*
+     * Scan the source looking for FUNC lines.
+     */
+    while (line = getline())
+    {
+	if (line ~ re.afunc)
+	{
+	    name = line ~~ re.afunc;
+	    addcfunc(name, name);
+	}
+	else if (line ~ re.funcdef)
+	{
+	    name = line ~~ re.funcdef;
+	    addefunc(name);
+	}
+	else if (line ~ re.cfunc)
+	{
+	    line = line ~~~ re.cfunc;
+	    addcfunc(line[0], line[1]);
+	}
+	else if (line ~ re.cfunc1)
+	{
+	    line = line ~~~ re.cfunc1;
+	    addcfunc(line[0], line[1], line[2]);
+	    addcref(line[2]);
+	}
+	else if (line ~ re.cfunc2)
+	{
+	    line = line ~~~ re.cfunc2;
+	    addcfunc(line[0], line[1], NULL, line[2]);
+	}
+	else if (line ~ re.cfunc3)
+	{
+	    line = line ~~~ re.cfunc3;
+	    addcfunc(line[0], line[1], line[2], line[3]);
+	    addcref(line[2]);
+	}
+	else if (!hasvars && line ~ re.varsfunc)
+	{
+	    hasvars = 1;
+	}
+    }
+
+    sort
+    (
+	cfuncs,
+	[func (a, b) { return (a.name < b.name) ? -1 : (a.name > b.name); }]
+    );
+    sort(efuncs);
+
+    /*
+     * Output the cfuncs.c file
+     */
+    auto ostdout;
+    ostdout = stdout;
+    try
+	stdout = fopen("cfuncs.c", "w");
+    onerror
+    {
+	stdout = ostdout;
+	fail(error);
+    }
+    printf("/* Auto-generated. Don't edit. */\n\n", );
+    printf("#include \"ici.h\"\n\n");
+    if (hasvars)
+    {
+	ext(prefix + "_vars_init", "struct_t *");
+	printf("\n");
+    }
+    s = set();
+    forall (cf in efuncs)
+    {
+	if (!s[cf])
+	{
+	    ext(sprintf("%s_f_%s", prefix, cf), "void");
+	    s[cf] = 1;
+	}
+    }
+    if (nels(cfuncs))
+	printf("\n");
+    s = crefs;
+    crefs = array();
+    forall (cf in s)
+	push(crefs, cf);
+    sort(crefs);
+    forall (cf in crefs)
+        ext(cf);
+    if (nels(crefs))
+	printf("\n");
+    printf("cfunc_t\t%s_cfuncs[] =\n{\n", prefix);
+    forall (cf in cfuncs)
+    {
+	printf("    {CF_OBJ, \"%s\", %s_f_%s", cf.name, prefix, cf.cfunc);
+	if (cf.arg1)
+	{
+	    printf(", (int (*)())%s", cf.arg1);
+	    if (cf.arg2)
+		printf(", %s", cf.arg2);
+	}
+	else if (cf.arg2)
+	{
+	    printf(", NULL, %s", cf.arg2);
+	}
+	printf("},\n");
+    }
+    printf("    {CF_OBJ}\n};\n\n");
+    printf
+    (
+	"object_t *\n"
+	"%s_library_init(void)\n"
+	"{\n"
+	"    struct_t *s = new_struct();\n"
+	"\n"
+	"    if (s != NULL && ici_assign_cfuncs(s, %s_cfuncs))\n"
+	"    {\n"
+	"        decref(s);\n"
+	"        return NULL;\n"
+	"    }\n",
+
+	prefix, prefix
+    );
+    if (hasvars)
+	printf
+	(
+	    "    if (%s_vars_init(s))\n"
+	    "    {\n"
+	    "        decref(s);\n"
+	    "        return NULL;\n"
+	    "    }\n",
+	    prefix
+	);
+    printf
+    (
+	"    return objof(s);\n"
+	"}\n"
+    );
+    stdout = ostdout;
+}
+
+static
+addefunc(name)
+{
+    push(efuncs, name);
+}
+
+static
+addcfunc(name, cfunc, arg1, arg2)
+{
+    auto	cf;
+
+    cf = struct();
+    cf.name = name;
+    cf.cfunc = cfunc;
+    cf.arg1 = arg1;
+    cf.arg2 = arg2;
+    push(cfuncs, cf);
+    addefunc(cfunc);
+}
+
+static
+addcref(name)
+{
+    crefs[name] = 1;
+}
+
+static
+ext(name, proto)
+{
+    auto	proto = "";
+    printf("extern int\t%s(%s);\n", name, proto);
+}
+
+exit(main());
+

@@ -1,0 +1,73 @@
+local x;
+
+try
+    x = 1;
+onerror
+    fail("failed when should not have");
+
+x = 0;
+try
+{
+    x = 1;
+    fail("should happen");
+    x = 2;
+}
+onerror
+{
+    if (error != "should happen")
+    fail("wrong error string");
+    if (x != 1)
+    fail("wrong flow of control for error (no. 1)");
+    x = 3;
+}
+if (x != 3)
+    fail("wrong flow of control for error (no. 2)");
+
+local
+func1(a)
+{
+    try
+    {
+    try
+        return 1 / a;
+    onerror
+        fail(error);
+    }
+    onerror
+    return 0;
+    return 2;
+}
+
+if (func1(1) != 1)
+    fail("nested onerror in function failed");
+
+if (func1(0) != 0)
+    fail("failure in nested onerror failed");
+
+local
+func2()
+{
+    var    error;
+
+    try
+    fail("failure");
+    onerror
+    return error;
+    return "no failure";
+}
+
+error = "should not be effected";
+if (func2() != "failure")
+    fail("fail returned wrong string");
+if (error != "should not be effected")
+{
+    printf("error = %s\n", error);
+    fail("wrong scope in setting error");
+}
+
+try
+    printf("cputime() = %f\n", cputime());
+onerror
+    ;
+
+fail("deliberate failure");

@@ -1,0 +1,551 @@
+/*
+ * Simple command line debugger
+ *
+ * 'dbg' is a simple text-based ICI debugger that works on all
+ * systems. It is implemented as an ICI extension module.
+ *
+ * 'dbg' supports tracing, and interactive debugging with stepping,
+ * breakpoints and examination of stacks and values.
+ * It requires that standard input and output can be used for
+ * interaction (although there is a fairly simple mechanism of
+ * overcomming this limitation describd below).
+ *
+ * The 'dbg' module self-registers with ICI's debugger interface
+ * on first load.
+ * Initially it is in non-interactive trace mode. Thus merely
+ * evaluating 'dbg' on the command line will provide program tracing,
+ * as in:
+ *
+ *  ici -e dbg -f myprog.ici args...
+ *
+ * A number of flags in the 'dbg' module control its mode. For example,
+ * it can be forced into its interactive command mode by setting
+ * 'dbg.cmd' to true. Thus one can start an interactive debugging
+ * sessions with:
+ *
+ *  ici -e dbg.cmd=1 -f myprog.ici args...
+ *
+ * Of course these commands will also be effective if built into your
+ * program source. As in:
+ *
+ *  dbg.cmd = 1;
+ *
+ * The debugger works completely synchronously in the same thread as
+ * the code it is monitoring. It is coded in ICI, and every source line
+ * and function call and return causes a call to the debugger whenever
+ * debugging is enabled. So it will effect performance.
+ *
+ * The following sections describe both interactive commands, and
+ * parameters that can be set programmatically.
+ *
+ * This --intro-- and --synopsis-- forms part of --ici-dbg-- documentation.
+ */
+ 
+/*
+ * 1.5 Direct programmatic interface and control
+ *
+ * The following functions and variables can be used to control the 'dbg'
+ * module programmatically. They are often used from the command line
+ * to pre-condition debugger (using the '-e' option). They can equally
+ * well be placed in a seperate source file that is parsed before the
+ * main program, or directly in the program being debugged.
+ *
+ * Note that the core language function 'debug()' can
+ * be used to enable and disable all debugger activity. Calling 'debug(0)'
+ * stops all callbacks from the interpreter to the debugger.
+ *
+ * This --topic-- forms part of the --ici-dbg-- doc.
+ */
+
+/*
+ * 2. dbg.cmd = int
+ *
+ * The state of 'dbg.cmd' indicates and controls whether the debugger
+ * will stop and prompt for a command at the start of the next source
+ * line. It can be set or cleared exernally, and can be cleared with the 'c'
+ * (continue) command. Breakpoints will cause it to be set. Upon first load
+ * 'dbg.cmd' is 0.
+ *
+ * This --topic-- forms part of the --ici-dbg-- doc.
+ */
+extern cmd = 0;
+extern stop = 0;    /* Stop on next line. */
+extern bp = NULL;
+
+/*
+ * 2. dbg.trace = int
+ *
+ * When 'dbg.trace' is true, each source line, function call, or
+ * function return executed will trigger a single line printout summarising
+ * the source file name, line number, source text, and stack traceback at
+ * that point. Upon first load, 'dbg.trace' is 1.
+ *
+ * This --topic-- forms part of the --ici-dbg-- doc.
+ */
+extern trace = 0;
+
+/*
+ * 2. dbg.trace_back = int
+ *
+ * When 'dbg.trace_back' is a positive integer, that many trace
+ * output lines are buffered internally in a circular buffer instead of
+ * being printed as they occur. Any event that causes the debugger to enter
+ * its command mode (such as an error or a breakpoint) will cause the
+ * buffered lines to be flushed. Upon first load, 'dbg.trace_back' is 0,
+ * causing immediate output of all trace lines.
+ *
+ * For example:
+ *
+ *  ici -e dbg.trace_back=25 -f myprog.ici ...
+ *
+ * will cause myprog.ici to run normally (well, slowly), but if it errors,
+ * the 25 lines leading up to the error will be printed.
+ *
+ * This --topic-- forms part of the --ici-dbg-- doc.
+ */
+extern trace_back = 0;
+
+/*
+ * Depth the scope stack must return to in order for us to have
+ * finished the 'next' command.
+ */
+extern next = 0;
+
+/*
+ * 3. Changing interaction from the default stidn and stdout
+ *
+ * The 'dbg' module uses just three functions for interaction: 'put(string)'
+ * and 'flush()' for output and 'getline()' for input. Further, it does not
+ * use these functions for any other purpose. Thus, by assigning alternate
+ * versions of these functions into 'dbg', it is possible to take control
+ * of the interaction and handle it in some other way. However you cannot
+ * change the fundamental text-based nature of the interface.
+ *
+ * Also note that even the standard implementations of the 'put()', 'flush()'
+ * and 'getline()' functions use the current value of 'stdout' and 'stdin'
+ * in the scope of the caller for their target. Thus by assigning alternate
+ * values of these into 'dbg', the target files can be changed. For example,
+ * to have trace output go to 'stderr' instead of 'stdout', use:
+ *
+ *  ici -e dbg.stdout:=stderr -f myprog.ici ...
+ *
+ * Note the use of ':=' to force assignment into the 'dbg' module itself.
+ * Otherwise we would have overwritten the global 'stdout'.
+ *
+ * This --topic-- forms part of the --ici-dbg-- doc.
+ */
+
+static files = struct();
+
+static traced = array();
+
+/*
+ * breaks is an array of brakpoints, each element is a struct with
+ * 'file' and 'line' fields. The 'file' is a regexp fragment. The 'line'
+ * is a range of line numbers.
+ */
+static breaks = array();
+
+/*
+ * break_triggers is a struct indexed by line number, giving a regular
+ * expression that will match files that have breaks on that line.
+ */
+static break_triggers = struct();
+
+/*
+ * Given the breakpoints in 'breaks', rebuild 'break_triggers'.
+ * The old one is disgarded.
+ */
+static
+build_break_triggers()
+{
+    auto    b, files, line, file;
+
+    bt = struct();
+    forall (b in breaks)
+    {
+        if (bt[b.line] == NULL)
+            bt[b.line] = set();
+        bt[b.line][b.file] = 1;
+    }
+    break_triggers = struct();
+    forall (files, line in bt)
+    {
+        re := strbuf();
+        sep := "";
+        forall (file in files)
+        {
+            strcat(re, sep, file);
+            sep = "|";
+        }
+        break_triggers[line] = regexp(re);
+    }
+}
+
+extern
+dbg_error(e, fname, lineno)
+{
+    put(sprintf("FAIL: %s, %d: %s\n", fname, lineno, e));
+    vs := vstack();
+    pop(vs);
+    put(sprintf("Stack unwound to: %s\n", backtrace(vs)));
+    prompt(vs);
+}
+
+static
+backtrace(vs)
+{
+    bt := strbuf();
+    sep := "";
+    cvs := copy(vs);
+    while (v := pop(cvs))
+    {
+        if (v._func_ != NULL)
+        s := sprintf("%a", v._func_);
+        else if (v._file_ != NULL)
+        s := sprintf("%a", v._file_);
+        else
+            s := ".";
+        strcat(bt, sep, s);
+        sep := " ";
+    }
+    return bt;
+}
+
+static
+summary_line(fname, lineno, vs)
+{
+    /*
+     * Generate the stack traceback string.
+     */
+    bt := backtrace(vs);
+    /*
+     * Generate the source location string.
+     */
+    sl := sprintf("%s, %d", fname, lineno);
+    /*
+     * Generate the actual source text string.
+     */
+    if (files[fname] == NULL)
+    {
+    try
+            files[fname] = gettokens(getfile(fname), '\n');
+        onerror
+            files[fname] = array();
+    }
+    lines := files[fname];
+    if ((st := lines[lineno - 1]) == NULL)
+        st := "?";
+    st = gsub(st, #\s+#, " ");
+
+    /*
+     * -sl:15-|-st:39-|-bt:23-
+     * ----------79-----------
+     */
+    if (nels(sl) > 15)
+        sl = interval(sl, -15);
+    st = interval(st, 0, 39);
+    bt = interval(bt, 0, 23);
+    return sprintf("%15s|%-39s|%-23s", sl, st, bt);
+}
+
+static
+emit_trace_line(str)
+{
+    if (trace_back > 0)
+    {
+        push(traced, str);
+        if (nels(traced) > trace_back)
+            rpop(traced);
+    }
+    else
+    {
+        put(str);
+    }
+}
+
+static
+flush_trace()
+{
+    while (nels(traced) > 0)
+        put(rpop(traced));
+}
+
+extern
+dbg_src(fname, lineno)
+{
+    auto    vs;
+
+    if ((re := break_triggers[lineno]) && fname ~ re)
+    {
+        stop = 1;
+        cmd = 1;
+        put("Breakpoint triggered\n");
+    }
+    if (next > 0)
+    {
+        vs := vstack();
+        pop(vs);
+        if (nels(vs) <= next)
+        {
+            next = 0;
+            stop = 1;
+            cmd = 1;
+        }
+    }
+    if (!stop && !trace)
+        return;
+    if (vs == NULL)
+    {
+        vs := vstack();
+        pop(vs);
+    }
+    emit_trace_line(sprintf("%s\n", summary_line(fname, lineno, vs)));
+    if (cmd)
+        prompt(vs);
+}
+
+extern
+dbg_fncall(func, args)
+{
+    auto    a, i;
+
+    if (typeof(func) == "func")
+        n := func.name;
+    else
+        n := sprintf("%a", func);
+    if (!stop && !trace)
+        return;
+    s := strbuf(sprintf("%15s> %s(", "", n));
+    forall (a, i in args)
+        strcat(s, sprintf("%a%s", a, i < nels(args) - 1 ? ", " : ""));
+    strcat(s, ")\n");
+    emit_trace_line(s);
+}
+
+extern
+dbg_fnresult(result)
+{
+    if (!stop && !trace)
+        return;
+    emit_trace_line(sprintf("%15s< %a\n", "", result));
+}
+
+static text(f) {return gettoken(f, "]");}
+
+static help = [text
+s       Step - execute till new source line.
+n       Next - execute till new source line at this (or outer) call depth.
+u       Until - execute till subsequent line at this call depth.
+c       Continue execution.
+
+b # f   Set a breakpoint at line # and file f. File is a regexp and optional.
+d #     Delete breakpoint #.
+
+v       Print local variables.
+vv      Print next outer scope variables.
+uv      Up one call-stack level, and print locals.
+uuv     Up two call-stack levels, and print locals.
+u..v..  Etc. Any number of u and v.
+e expr  Evaluate expr and print result.
+
+t       Toggle printing of tace summary lines.
+q       Quit your whole program.
+!cmd    Execute cmd in a sub-shell.
+
+];
+
+extern
+prompt(vs)
+{
+    flush_trace();
+    for (;;)
+    {
+        try
+        {
+            printf("DBG> ");
+            flush(stdout);
+            l := getline();
+            if (l ~ #^!#)
+            {
+                system(interval(l, 1));
+                continue;
+            }
+            if (l ~ #^e #)
+            {
+                l = interval(l, 2);
+                l = sprintf("x := (%s);", l);
+                s := parse(l, struct(top(vs)));
+                printf("%a\n", s.x);
+                continue;
+            }
+            if (l ~ #^u*v+$#)
+            {
+                d := nels(l ~~ #(v+)#) - 1;
+                nu := nels(l ~~ #(u*)#);
+                ss := top(vs, -nu);
+                while (d-- > 0 && ss != NULL)
+                    ss = super(ss);
+                forall (k in sort(keys(ss)))
+                {
+                    if (!typeof(k) == "string")
+                        continue;
+                    printf("%15s: %a\n", k, ss[k]);
+                }
+                continue;
+            }
+            l = smash(l, #\S+#, "\\&");
+            if (l == NULL)
+            {
+                printf("? for help\n");
+                continue;
+            }
+            switch (l[0])
+            {
+            case "?":
+            case "help":
+            case "h":
+                /*
+                 * 1. ? - Print a brief usage summary
+                 *
+                 * Also 'h' and 'help'.
+                 * 
+                 * This --topic-- forms part of --ici-dbg-- doc.
+                 */
+                printf("%s", help);
+                continue;
+
+            case "c":
+                /*
+                 * 1. c - Continue excution
+                 *
+                 * The 'c' command allows the program to continue from its
+                 * current position. It will only stop again if some trigger
+                 * such as a breakpoint has been set.
+                 * 
+                 * This --topic-- forms part of --ici-dbg-- doc.
+                 */
+                stop = 0;
+                cmd = 0;
+                return;
+
+            case "s":
+                /*
+                 * 1. s - Step one source line
+                 *
+                 * Allows the program to run until a new source line is
+                 * reached - whether it is in a called function or another
+                 * module, or anything.
+                 * 
+                 * This --topic-- forms part of --ici-dbg-- doc.
+                 */
+                stop = 1;
+                return;
+
+            case "n":
+                /*
+                 * 1. n - Step, but not into a function
+                 *
+                 * Allows the program to run until a new source line is
+                 * reached that is at the current or lesser stack depth.
+                 * That is, it will step, but not into calls to functions
+                 * or methods.
+                 * 
+                 * This --topic-- forms part of --ici-dbg-- doc.
+                 */
+                next = nels(vs);
+                stop = 0;
+                cmd = 0;
+                return;
+
+            case "b":
+                /*
+                 * 1. b [line [file]] - Set and report breakpoints
+                 *
+                 * Without arguments, prints a summary of current breakpoints.
+                 * With arguments, sets a breakpoint (and also prints a
+                 * summary).
+                 *
+                 * The 'line' must be a decimal integer line number.
+                 * Unfortunately at the moment it must be an exact match.
+                 * If no actual code was generated by that line, the
+                 * breakpoint could be passed unnoticed.
+                 *
+                 * The 'file' is a regular expression fragment, so it can
+                 * just be a part of the file name. The dafault value is ".".
+                 * 
+                 * This --topic-- forms part of --ici-dbg-- doc.
+                 */
+                if (l[1] != NULL)
+                {
+                    bp := struct("file", ".", "line", 0);
+                    try bp.line = int(l[1], 10); onerror ;
+                    if (l[2] != NULL)
+                        bp.file = l[2];
+                    push(breaks, bp);
+                    build_break_triggers();
+                }
+                forall (bp, i in breaks)
+                    put(sprintf("Break %d at #%s#, %d.\n", i, bp.file, bp.line));
+                continue;
+                
+            case "d":
+                /*
+                 * 1. d [num] - Delete a breakpoint
+                 *
+                 * Deletes the breakpoint numbered 'num' (as reported by
+                 * the last 'b' or 'd' command). If 'num' is missing,
+                 * breakpoint 0 is deleted. After deletion, the remaining
+                 * (renumbered) breapoints are listed.
+                 * 
+                 * This --topic-- forms part of --ici-dbg-- doc.
+                 */
+                 i = 0;
+                try i := int(l[1], 10); onerror ;
+                if (i >= 0 && i < nels(breaks))
+                    del(breaks, breaks[i]);
+                forall (bp, i in breaks)
+                    put(sprintf("Break %d at #%s#, %d.\n", i, bp.file, bp.line));
+                break;
+
+            case "q":
+                /*
+                 * 1. q - Quit
+                 *
+                 * Quits your whole program.
+                 * 
+                 * This --topic-- forms part of --ici-dbg-- doc.
+                 */
+                 exit(0);
+
+                /*
+                 * 1. t - Toggle tracing
+                 *
+                 * Toggles the state of the trace flag.
+                 * When tracing is on, each source line, function call,
+                 * or function return executed will trigger a single line
+                 * printout summarising the source file name, line number,
+                 * source text, and stack traceback at that point. Upon first
+                 * load, tracing is enabled.
+                 * 
+                 * This --topic-- forms part of --ici-dbg-- doc.
+                 */
+            case "t":
+                trace = !trace;
+                printf("trace now %s\n", trace ? "on" : "off");
+                continue;
+
+            default:
+                printf("? for help\n");
+                continue;
+            }
+        }
+        onerror
+        {
+            printf("DBG error: %s\n", error);
+        }
+    }
+}
+
+trace = 1;
+debug(1);

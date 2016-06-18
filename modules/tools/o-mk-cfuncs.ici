@@ -1,0 +1,256 @@
+auto vars;
+if (argc == 3 && argv[1] == "-vars")
+{
+    vars = 1;
+    --argc;
+    argv = array(argv[0], argv[2]);
+}
+if (argc != 2)
+    exit("usage: " + basename(argv[0]) + " <module-name>");
+stdout = fopen("cfuncs.c", "w");
+printf
+(
+    "/* Auto-generated. Don't edit */\n\n"
+    "#include \"ici.h\"\n"
+    "\n"
+);
+if (vars)
+    printf("extern int ici_%s_vars_init(struct_t *);\n\n", argv[1]);
+static index_of(o, a)
+{
+    auto e, i;
+    i = 0;
+    forall (e in a)
+    {
+        if (e == o)
+	    return i;
+	++i;
+    }
+    return -1;
+}
+auto s, a, aa, f, extra;
+a = array();
+aa = array();
+extra = array();
+while (s = getline())
+{
+    if (s !~ #^FUNC#)
+	continue;
+    f = s ~~ regexpi("^((FUNC|FUNCDEF)([_12]*))\\(");
+#printf(stderr, "db: %s\n", f);
+    switch (f)
+    {
+    case "FUNC":
+    case "FUNCDEF":
+	s = s ~~ regexp(f + "\\((.*)\\)");
+	if (f == "FUNC")
+	    push(a, s);
+	break;
+
+    case "FUNC_1":
+	printf(stderr, "s = \"%s\"\n", string(s));
+	auto	comma_with_optional_spaces = "\\s*,\\s*";
+	s = s ~~~ $regexp
+	(
+	        "^FUNC_1\\(\\s*"
+	    "([^\\s,]+)"
+	        + comma_with_optional_spaces +
+	    "(\\(.+\\)|[^\\s,]+)"
+	        + comma_with_optional_spaces +
+	    "(.*)"
+	        "\\)"
+	        ".*$"
+	);
+	printf(stderr, "s[0] = \"%s\"\n", string(s[0]));
+	printf(stderr, "s[1] = \"%s\"\n", string(s[1]));
+	printf(stderr, "s[2] = \"%s\"\n", string(s[2]));
+	if (s[1] ~ #^\(.*\)$#)
+	{
+	    s[1] = gettokens(s[1] ~~ #^\((.*)\)$#, ", ");
+	    s[2] = gettokens(s[2] ~~ #^\((.*)\)$#, ", ");
+	    auto v;
+#	    forall (v in s[1])
+#	        printf(stderr, "s[1][] = \"%s\"\n", v);
+	    forall (v in s[2])
+	    {
+		push(extra, v);
+#	        printf(stderr, "s[2][] = \"%s\"\n", v);
+	    }
+	}
+	else
+	{
+	    push(extra, s[1]);
+	}
+	if (typeof(s[1]) == "string")
+	{
+	    push(a, struct("name", s[0], "arg1", s[1]));
+	    s = s[0];
+	}
+	else
+	{
+	    printf("extern int ici_%s_f_%s(void);\n", argv[1], s[0]);
+	    auto e;
+	    for (e = 0; e < nels(s[1]); ++e)
+	    {
+		push(a, struct("fname", s[1][e], "name", s[1][0], "arg1", s[2][e]));
+#		if (index_of(s[0][e], aa) < 0)
+#		{
+#		    printf("extern int ici_%s_f_%s(void);\n", argv[1], s[1][e]);
+#		    push(aa, s);
+#		}
+	    }
+	    continue;
+	}
+	break;
+
+    case "FUNC_2":
+	s = s ~~~ #^FUNC_2\(\s*([^,]*)\s*,\s*(.*)\)#;
+	push(a, struct("name", s[0], "arg2", s[1]));
+	s = s[0];
+	break;
+
+    case "FUNC_1_2":
+	s = s ~~~ #^FUNC_1_2\(\s*([^,]*)\s*,\s*([^)]+)\s*,\s*([^)]+)#;
+	push(a, struct("name", s[0], "arg1", s[1], "arg2", s[2]));
+	push(extra, s[1]);
+	s = s[0];
+	break;
+	
+    default:
+	fail("unrecognised function directive: " + f);
+    }
+    if (index_of(s, aa) < 0)
+    {
+	printf("extern int ici_%s_f_%s(void);\n", argv[1], s);
+	push(aa, s);
+    }
+}
+printf("\n");
+forall (v in extra)
+    printf("int\t%s();\n", v);
+printf
+(
+    "\n"
+    "cfunc_t ici_%s_cfuncs[] =\n"
+    "{\n",
+    argv[1]
+);
+sort
+(
+    a,
+    [func (aa, bb)
+    {
+	if (typeof(aa) == "struct")
+	{
+	    if (typeof(aa.arg1) == "string")
+		aa = aa.arg1;
+	    else
+		aa = aa.name;
+	}
+	if (typeof(bb) == "struct")
+	{
+	    if (typeof(bb.arg1) == "string")
+		bb = bb.arg1;
+	    else
+		bb = bb.name;
+	}
+	if (aa < bb)
+#	{
+#	    printf(stderr, "%s < %s\n", aa, bb);
+	    return -1;
+#	}
+#	if (aa > bb)
+#	    printf(stderr, "%s > %s\n", aa, bb);
+#	else
+#	    printf(stderr, "%s == %s\n", aa, bb);
+	return aa > bb;
+    }]
+);
+forall (s in a)
+{
+    if (typeof(s) == "string")
+	printf("    {CF_OBJ, \"%s\", ici_%s_f_%s},\n", s, argv[1], s);
+    else if (typeof(s) == "struct")
+    {
+	static pcfunc = [func (s, name)
+	{
+#if (name == "exec")
+#{
+#printf(stderr, "pcfunc(\"exec\")\n");
+#auto v, k;
+#forall (v, k in s)
+#    printf(stderr, " s[\"%s\"] = \"%s\"\n", string(k), string(v));
+#}
+	    printf
+	    (
+		"    {CF_OBJ, \"%s\", ici_%s_f_%s, (int (*)())%s},\n",
+		name, argv[1], s.name, s.arg1
+	    );
+	}];
+	if (!s.arg2)
+        {
+	    auto v, ss;
+	    if (typeof(s.arg1) == "string")
+	    {
+		if (s.fname)
+		    pcfunc(s, s.fname);
+		else
+		    pcfunc(s, s.name);
+	    }
+	    else
+		forall (v in s.name)
+		{
+		    ss = copy(s);
+		    ss.arg1 = s.arg1;
+		    pcfunc(ss, ss.fname);
+		}
+	}
+	else if (s.arg1)
+	{
+	    printf
+	    (
+		"    {CF_OBJ, \"%s\", ici_%s_f_%s, (int (*)())%s, %s},\n",
+		s.arg1, argv[1], s.name, s.arg1, s.arg2
+	    );
+	}
+	else
+	{
+	    printf
+	    (
+		"    {CF_OBJ, \"%s\", ici_%s_f_%s, 0, %s},\n",
+		s.arg1, argv[1], s.name, s.arg2
+	    );
+	}
+    }
+    else
+	fail("unexpected object type in function array");
+}
+printf
+(
+    "    {CF_OBJ}\n"
+    "};\n"
+    "\n"
+    "object_t *\n"
+    "ici_%s_library_init(void)\n"
+    "{\n"
+    "    struct_t *s = new_struct();\n"
+    "\n"
+    "    if (s != NULL && ici_assign_cfuncs(s, ici_%s_cfuncs))\n"
+    "    {\n"
+    "        decref(s);\n"
+    "        return NULL;\n"
+    "    }\n"
+    "%s"
+    "    return objof(s);\n"
+    "}\n",
+    argv[1],
+    argv[1],
+    vars ?
+	sprintf
+	(
+	    "    if (ici_%s_vars_init(s))\n"
+	    "        return NULL;\n",
+	    argv[1]
+	)
+    : ""
+);

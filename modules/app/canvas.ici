@@ -1,0 +1,120 @@
+/*
+ * $Id: canvas.ici,v 1.1 1999/09/15 02:35:46 andy Exp $
+ */
+
+extern	canvas = [struct : widget,
+
+    type = "canvas",
+
+    /*
+     */
+    new = [func (self, parent)
+    {
+	self.name = self@makename(parent);
+	tcl.tk("canvas", self.name);
+    }],
+
+    addtag = [func (self, tag)
+    {
+	auto vargs = [array ""];
+	tcl.tk(self.name, "addtag", tag, call(sprintf, vargs));
+    }],
+
+    bbox = [func (self, tagorid)
+    {
+	auto	bb;
+	bb = gettokens(tcl.tk(self.name, "bbox", tagorid));
+	if (nels(bb) != 4)
+	    fail("unexpected result from Tk");
+	bb[0] = int(bb[0]);
+	bb[1] = int(bb[1]);
+	bb[2] = int(bb[2]);
+	bb[3] = int(bb[3]);
+	return bb;
+    }],
+
+    bind = [func (self, tagorid)
+    {
+	auto vargs = [array ""];
+	return tcl.tk(self.name, "bind", tagorid, call(sprintf, vargs));
+    }],
+
+    canvasx = [func (self, screenx, gridspacing)
+    {
+	auto gridspacing = "";
+	return int(tcl.tk(self.name, "canvasx", screenx, gridspacing));
+    } ],
+
+    canvasy = [func (self, screeny, gridspacing)
+    {
+	auto gridspacing = "";
+	return int(tcl.tk(self.name, "canvasy", screeny, gridspacing));
+    } ],
+
+    cget = [func (self, option)
+    {
+	return tcl.tk(self.name, "cget", option);
+    }],
+
+    configure = [func (self)
+    {
+	auto	vargs = [array];
+	auto	i, n;
+
+	if ((n = nels(vargs)) & 1)
+	    fail("uneven # of args to configure");
+	for (i = 0; i < n; i += 2)
+	    vargs[i] = "-" + vargs[i];
+	return call(tcl.tk, array(self.name, "configure") + vargs);
+    }],
+
+    delete = [func (self, tagorid)
+    {
+	tcl.tk(self.name, "delete", tagorid);
+    }],
+
+    move = [func (self, tagorid, dx, dy)
+    {
+	tcl.tk(self.name, "move", tagorid, dx, dy);
+    }],
+
+    lower = [func (self, tagorid, belowthis)
+    {
+	auto belowthis = "";
+	if (typeof(belowthis) == "struct")
+	    belowthis = belowthis.name;
+	tcl.tk(self.name, "lower", tagorid, belowthis);
+    }],
+
+    raise = [func (self, tagorid, abovethis)
+    {
+	auto abovethis = "";
+	if (typeof(abovethis) == "struct")
+	    abovethis = abovethis.name;
+	tcl.tk(self.name, "lower", tagorid, abovethis);
+    }],
+
+    scale = [func (self, tagorid, xorigin, yorigin, xscale, yscale)
+    {
+	tcl.tk(self.name, "scale", tagorid, xorigin, yorigin, xscale, yscale);
+    }],
+
+    arc = [func (self, x1, y1, x2, y2)
+    {
+	auto vargs = [array ""];
+	return int(tcl.tk(self.name, "create arc", x1, y1, x2, y2, call(sprintf, vargs)));
+    }],
+
+    bitmap = [func (self, x, y)
+    {
+	auto vargs = [array ""];
+	return int(tcl.tk(self.name, "create bitmap", x, y, call(sprintf, vargs)));
+    }],
+
+    image = [func (self, x, y)
+    {
+	auto vargs = [array ""];
+	return int(tcl.tk(self.name, "create image", x, y, call(sprintf, vargs)));
+    }],
+
+];

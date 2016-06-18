@@ -1,0 +1,117 @@
+/* Generate ici.h for a particular module (in one expression - read it !) */
+(
+    argc != 2
+    &&
+    exit("usage: " + basename(argv[0]) + " <module-name>")
+)
+||
+(stdout = fopen("ici.h", "w")) == NULL /* fopen never returns NULL */
+||
+printf
+(
+    "/* Auto-generated. Don't edit */\n\n"
+    "#ifndef ICI_%s_H\n"
+    "#define ICI_%s_H\n"
+    "\n"
+    "/*\n"
+    " * ici.h specially created for %s module by %s\n"
+    " */\n"
+    "\n"
+    "/*\n"
+    " * Pull in ICI headers\n"
+    " */\n"
+    "#include <int.h>\n"
+    "#include <float.h>\n"
+    "#include <re.h>\n"
+    "#include <str.h>\n"
+    "#include <array.h>\n"
+    "#include <file.h>\n"
+    "#include <struct.h>\n"
+    "#include <set.h>\n"
+    "#include <mem.h>\n"
+    "#include <exec.h>\n"
+    "#include <func.h>\n"
+    "#include <op.h>\n"
+    "#include <buf.h>\n"
+    "#include <primes.h>\n"
+    "\n"
+    "/*\n"
+    " * For defining strings.\n"
+    " *\n"
+    " *	NEED_STRING is used in source files to state that they expect\n"
+    " *	a certain string object to exist.\n"
+    " *\n"
+    " *	STRING is used to refer to such strings in expressions.\n"
+    " *\n"
+    " *	NEED_STRINGS ensures string objects exist and can be called\n"
+    " *	at any time.\n"
+    " *\n"
+    " *	DEF_STRING is used to define the string objects in a source\n"
+    " *	file (automatically generated).\n"
+    " *\n"
+    " *	MAKE_STRING is used to create a string object.\n"
+    " */\n"
+    "#define	NEED_STRING(X)\\\n"
+    "    extern string_t *ici_%s_string_ ## X\n"
+    "\n"
+    "#define	STRING(X)\\\n"
+    "    (ici_%s_string_ ## X)\n"
+    "\n"
+    "#define	NEED_STRINGS(rc)\\\n"
+    "    if (ici_%s_need_strings && ici_%s_get_strings()) return (rc)\n"
+    "\n"
+    "#define DEF_STRING(X)\\\n"
+    "    string_t *ici_%s_string_ ## X\n"
+    "\n"
+    "#define REF_STRING(X)\\\n"
+    "    extern string_t *ici_%s_string_ ## X\n"
+    "\n"
+    "#define	MAKE_STRING(X)\\\n"
+    "    if ((ici_%s_string_ ## X = new_cname(#X)) == NULL) return 1\n"
+    "\n"
+    "extern int	ici_%s_need_strings;\n"
+    "int		ici_%s_get_strings(void);\n"
+    "\n"
+    "#include \"strs.h\"\n"
+    "\n"
+    "/*\n"
+    " * For defining functions.\n"
+    " *\n"
+    " *	FUNC is used instead of the usual C code. It cuts down typing.\n"
+    " *\n"
+    " *	FN is used to initialise the cfuncs table for the module.\n"
+    " */\n"
+    "#define	FUNC(x)	int ici_%s_f_ ## x (void)\n"
+    "#define	FUNCDEF(x) int ici_%s_f_ ## x (void)\n"
+    "#define	FUNC_1(x,y,z) FUNC(x)\n"
+    "#define	FUNC_2(x,y) FUNC(x)\n"
+    "#define	FUNC_1_2(x,y,z) FUNC(x)\n"
+    "#define	FN(x)	{CF_OBJ, #x, ici_f_%s_ ## x}\n"
+    "#define    FN1(x,y) {CF_OBJ, #x, ici_f_%s_ ## x, y}\n"
+    "#define    FN2(x,y) {CF_OBJ, #x, ici_f_%s_ ## x, 0, y}\n"
+    "#define    FN12(x,y,z) {CF_OBJ, #x, ici_f_%s_ ## x, y, z}\n"
+    "\n"
+    "#endif /* #ifndef ICI_%s_H */\n",
+
+    argv[1],
+    argv[1],
+    argv[1],
+    basename(argv[0]),
+    argv[1],
+    argv[1],
+    argv[1],
+    argv[1],
+    argv[1],
+    argv[1],
+    argv[1],
+    argv[1],
+    argv[1],
+    argv[1],
+    argv[1],
+    argv[1],
+    argv[1],
+    argv[1],
+    argv[1],
+    argv[1],
+    argv[1]
+);

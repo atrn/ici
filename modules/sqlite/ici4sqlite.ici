@@ -1,0 +1,34 @@
+/*
+ * any = sqlite.exec(database, string [, error_func])
+ *
+ * Run the SQL statements in string on the given database calling
+ * error_func if a database error is reported.
+ *
+ * The error_func() is called with three arguments, the database,
+ * the SQL string and the ICI error string.  If the error function
+ * returns NULL (or zero) the SQL statement is retried otherwise
+ * the result of error_func() forms the result of the exec()
+ * function.
+ *
+ * This --topic-- is part of --ici-sqlite-- documentation.
+ */
+extern
+exec(db, sql, error_handler)
+{
+    auto error_handler = [func (db, stmt, error) { fail(error); }];
+
+    for (;;)
+    {
+	try
+	{
+	    return db:exec(sql);
+	}
+	onerror
+	{
+	    if (debug())
+		printf(stderr, "sqlite: %s\n", error); flush(stderr);
+	    if (rc := call(error_handler, array(db, sql, error)))
+		return rc;
+	}
+    }
+}

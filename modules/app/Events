@@ -1,0 +1,140 @@
+This note attempts to describe how ICI can implement an
+event system using Tk/Tcl. The ICI application interface
+uses ICI to provide an object-based interface to the Tk
+widgets. ICI's dynamic nature and powerful primitive
+data types provide a easy to environment for creating
+portable programs.
+
+Events.
+
+The ICI programmer wants an easy to use event system that
+uses ICI types to represent events and simple function calls
+to get events and otherwise manipulate them. In ICI we'll
+typically represent events as struct objects with well-
+known keys such as "type" - the event's type, "time" - when
+the event occurred, etc... A full list of keys appears later.
+
+The natural way to do event based programming in ICI is,
+
+	while (event = getevent())
+	{
+		...  do something
+	}
+	
+We can implement this by using simple string I/O. When an event
+is bound we assign it a name and we evaluate some Tcl that binds
+that event that a Tcl procedure that sets a variable to the event
+name. In ICI we simply call a routine, getevent, that waits for
+Tk to set the variable then uses information saved in Tcl to construct
+an event record to return to the caller. It is straightforward to
+implement event masking (use a set of masked or allowed events and
+discard those in or not in the set).
+
+
+Callbacks
+
+When a widget is created it is often necessary to associate
+a "callback" function with the object. The callback is called
+when the widget is used in some way. From ICI we want to be
+write our callbacks in ICI, even if the interface is Tk-based
+we don't want to know about Tcl. When an interface requires
+a callback it should be in the form of an ICI func object.
+
+To do this is another matter. The Tk/Tcl used with ICI has the
+ICI command. We can use this to call an ICI function as long
+as we have its name. However we don't always have it (XXX Or
+do we? ANICI requires the ability to do <func>.name XXX)
+
+
+Signals and Slots
+
+The ICI application framework could adopt the singals and slots
+metaphor as used in Qt, NeXTSTEP, GTK, etc... Objects define "slots",
+places where "signals" may be sent. Signals and slots are named by
+simple strings and convention used to given meaning to specific names.
+The "post" primitive operation posts a signal from a widget, invoking
+the callback function for each slot connected to the signal.
+
+For example, the Button widget may post a "Pressed" signal when the
+user presses the button. Objects wanting to know about button presses
+on a particular button connect its "Pressed" signal to a slot
+(callback function). When the button is pressed the function is called
+and the object may do what it wants.
+
+
+
+
+
+Emitting Signals
+
+    NAME
+	emit
+
+    SYNOPSIS
+	object@emit(signal)
+
+    PARAMETERS
+	signal		The name of the signal to emit, a string.
+	vargs		Any extra arguments are passed to the
+			slot functions connected to the signal.
+
+    DESCRIPTION
+	The emit method is used to send a "signal" to any slots
+	connected to the object for that signal. Emitting a signal
+	invokes all the slot functions connected to the signal.
+
+    RETURNS
+	NULL
+
+
+Invoking Slots
+
+    NAME
+	invoke
+
+    SYNOPSIS
+	object@invoke(signal)
+
+    PARAMETERS
+	signal		The name of the signal to invoke on the object.
+
+    DESCRIPTION
+	The invoke method calls the function for a particular slot in
+	an object. Unlike emit it operates on the object used in the
+	method call and not the connected objects.
+
+    RETURNS
+	The result of the slot function.
+
+
+Connecting Signals to Slots
+
+    NAME
+	connect
+
+    SYNOPSIS
+	object@connect(slot, other_object, signal)
+
+    PARAMETERS
+	slot		The name of the slot to be connected to the
+			other object's signal. This is a string.
+	other_object	The object whose signal we want to connect to
+			out slot.
+	signal		The name of the signal to connect, a string.
+
+    DESCRIPTION
+	The connect method calls the 
+
+Finding and Defining Slots
+
+    NAME
+	slot
+
+    SYNOPSIS
+	object@slot(name, func)
+
+    PARAMETERS
+	name		The name of the slot.
+	func		The function to associate with the slot.
+
+    DESCRIPTION

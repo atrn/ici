@@ -1,0 +1,202 @@
+#!/usr/local/bin/ici3
+
+static
+field(n)
+{
+	s := string(n);
+	return HTML.TableCell:new():add
+	(
+		HTML.Table:new():width("100%"):border(1):cellspacing(0):cellpadding(2):add
+		(
+			HTML.TableRow:new():add
+			(
+				HTML.TableCell:new():align("right"):width("30%"):add
+				(
+					HTML.Bold:new("Name")
+				),
+				HTML.TableCell:new():add
+				(
+					HTML.TextField:new("t" + s, "Field #" + s, 12)
+				),
+				HTML.TableCell:new():align("right"):width("30%"):add
+				(
+					HTML.Bold:new("Atomic")
+				),
+				HTML.TableCell:new():width("1%"):add
+				(
+					HTML.Checkbox:new("c" + s, n & 1)
+				)
+			),
+			HTML.TableRow:new():add
+			(
+				HTML.TableCell:new():align("right"):add
+				(
+					HTML.Bold:new("Value")
+				),
+				HTML.TableCell:new():align("left"):colspan(3):add
+				(
+					HTML.TextField:new("u" + s, "", 22)
+				)
+			)
+		)
+	);
+}
+
+static
+fields(n)
+{
+	n *= 3;
+	return HTML.TableRow:new():add(field(n + 1), field(n + 2), field(n + 3));
+}
+
+static
+header(title)
+{
+	return HTML.TableRow:new():add
+	(
+		HTML.TableCell:new():colspan(3):align("center"):add
+		(
+			HTML.Font:new():face("Comic Sans MS"):size("+3"):color("black"):add
+			(
+				HTML.Bold:new(title)
+			)
+		)
+	);
+}
+
+static
+buttons()
+{
+	return HTML.TableRow:new():add
+	(
+		HTML.TableCell:new():colspan(3):add
+		(
+			HTML.Table:new():align("center"):cellspacing(10):add
+			(
+				HTML.TableRow:new():add
+				(
+					HTML.TableCell:new():align("center"):add(HTML.SubmitButton:new()),
+					HTML.TableCell:new():align("center"):add(HTML.ResetButton:new())
+				)
+			)
+		)
+	);
+}
+
+static
+radio_buttons()
+{
+	types := [array
+		"bool", "int", "int32", "long", "real", "aggr", "adt"
+	];
+    
+	buttons := HTML.TableRow:new();
+
+	auto typ;
+	forall (typ in types)
+    	buttons:add
+	(
+		HTML.TableCell:new(typ):align("center"),
+		HTML.TableCell:new():align("center"):add(HTML.Radio:new("fred"))
+	);
+
+	return HTML.TableRow:new():add
+	(
+		HTML.TableCell:new():colspan(3):add
+		(
+			HTML.Table:new():align("center"):cellspacing(10):add
+			(
+				HTML.TableRow:new():add
+				(
+					HTML.TableCell:new():align("center"):colspan(nels(types)):add
+					(
+						HTML.Big:new():add(HTML.Strong:new("Radio Buttons"))
+					)
+				),
+				buttons
+			)
+		)
+	);
+}
+
+static
+select_list()
+{
+	s := HTML.SelectList:new("s", 1);
+	c := HTML.TableCell:new():align("center"):valign("top"):colspan(3):add(s);
+	r := HTML.TableRow:new():add(c);
+
+	names := sort(sys.dir("/tmp", "a"));
+	auto name;
+	forall (name in names)
+		s:add(HTML.SelectOption:new(name, name));
+
+	s = HTML.SelectList:new("s2", 10);
+	names := sort(sys.dir("/var/tmp", "a"));
+	forall (name in names)
+		s:add(HTML.SelectOption:new(name, name));
+	c:add(s);
+	return r;
+}
+
+
+fourspaces := [array HTML.NonBreakingSpace, HTML.NonBreakingSpace,
+	HTML.NonBreakingSpace, HTML.NonBreakingSpace];
+
+page := HTML.Page:new("Page Title"):colors("green", "white", "white", "white"):add
+(
+	HTML.H1:new("Header At Level 1"),
+	HTML.Hr:new(),
+
+	HTML.H3:new("Anchors"),
+	fourspaces,
+	HTML.Anchor:new("some-url1.cgi", "Anchor 1"),
+	fourspaces,
+	fourspaces,
+	HTML.Anchor:new("some-url2.cgi", "Anchor 2"),
+	fourspaces,
+	fourspaces,
+	HTML.Anchor:new("some-url3.cgi", "Anchor 3"),
+	HTML.P:new(),
+
+	HTML.Hr:new(),
+	HTML.H3:new("UList"),
+	HTML.UList:new():add
+	(
+		HTML.ListItem:new("bbbb asdlkasdlkjas"),
+		HTML.ListItem:new("aaaa paaarrraaaa"),
+		HTML.ListItem:new("foo")
+	),
+
+	HTML.Hr:new(),
+	HTML.H3:new("OList"),
+	HTML.OList:new():add
+	(
+		HTML.ListItem:new("bbbb asdlkasdlkjas"),
+		HTML.ListItem:new("aaaa paaarrraaaa"),
+		HTML.ListItem:new("foo")
+	),
+
+	HTML.Hr:new(),
+	HTML.Form:new("foobar.cgi"):add
+	(
+		HTML.Table:new():border(1):bgcolor("#a0a0a0"):align("center"):cellspacing(0):cellpadding(10):width("90%")
+		:add
+		(
+			header("Form & Table"),
+			fields(0),
+			select_list(),
+			radio_buttons(),
+			buttons
+		)
+	)
+);
+
+page:output();
+
+
+/*
+ * Local Variables:
+ * c-basic-offset:8
+ * End:
+ */

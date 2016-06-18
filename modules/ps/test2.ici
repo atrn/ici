@@ -1,0 +1,9 @@
+ps.startjob();
+ps.startpage(1);
+ps.moveto(10, 10);
+ps.font("Helvetica", 72);
+ps.setrgbcolor("red");	/* ICI extension - named colors from X11 (showrgb) or user */
+ps.show("Hello (World)");
+ps.showpage();
+ps.endpage();
+ps.endjob();

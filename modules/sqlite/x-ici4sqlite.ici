@@ -1,0 +1,90 @@
+extern
+FieldSpec = [class
+    new(name, type)
+    {
+	this = this:^new();
+	this.name := name;
+	this.type := type;
+	return this;
+    }
+];
+
+extern
+Schema = [class
+
+    new(name)
+    {
+	this = this:^new();
+	this.m_field := array();
+	this.m_name := name;
+	return this;
+    }
+
+    add(name, type)
+    {
+	push(m_field(FieldSpec:new(name, type)));
+    }
+
+    nfields()
+    {
+	return nels(m_field);
+    }
+
+    field(i)
+    {
+	return m_field[i];
+    }
+
+    foreach_field(callable, args)
+    {
+	auto args = [array];
+	for (i := 0, nf := nels(m_field); i < nf; ++i)
+	    call(callable, field + args);
+    }
+
+    create(db)
+    {
+	sql := sprintf("insert into %s values (", m_name);
+	this:foreach_field
+	(
+	    [func (name, sql)
+	    {
+	       sql += sprintf("'%s',", string(name));
+	    }],
+	    array(sql)
+	);
+	sql = interval(sql, 0, nels(sql) - 1);
+	for (nf := nels(m_field) - 1, i := 0; i < nf; ++i)
+	{
+	   sql += sprintf("'%s',", string(m_field[i].name)); 
+	}
+	sql += sprintf("'%s');", string(m_field[i].name));
+	db:exec(sql);
+    }
+
+    put(db, rec)
+    {
+	sprintf("insert into %s value s(%s);", m_name, this:fields_cs())
+    }
+
+];
+
+extern
+put(db, table, rec)
+{
+    sql = "insert into %s values (";
+
+    kays := keys(rec);
+    nkeys := nels(kays);
+    for (i = 0; i < nkeys; ++i)
+    {
+	key = kays[i];
+	sql += sprintf("'%s'", string());
+	if (i < nkeys - 1)
+	    sql += ",";
+    }
+    forall (k in keys(rec))
+	sql += 
+    sql += ");";
+    db:exec(sql);
+}

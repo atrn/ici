@@ -1,0 +1,13 @@
+Documentation needed:
+- cgi needs more
+- str needs more
+Most modules need more examples.
+
+---
+
+dll module needs expansion, especially more return types.
+
+---
+
+dbg module, the 'e' command shouldn't just say 'a struct',
+it should print at least some of the contents.

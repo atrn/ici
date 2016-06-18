@@ -1,0 +1,21 @@
+export
+memoize(fn, args)
+{
+    local cache = struct();
+    key := array(deepatom(fn), deepatom(args));
+    if ((result := cache[key]) == NULL)
+    {
+	result := cache[key] = call(fn, args);
+    }
+    return result;
+}
+
+export
+memoized(f)
+{
+    return [func ()
+    {
+	auto vargs = [array];
+	return memoize(f, vargs);
+    }];
+}

@@ -1,0 +1,13 @@
+npages := 1;
+if (argc > 1)
+    npages = int(num(argv[1]));
+if (npages < 1)
+    npages = 1;
+
+p := PDF.Document:new("test3.pdf");
+for (i := 0; i < npages; ++i)
+{
+    p:begin_page(PDF.mm_to_pts(210), PDF.mm_to_pts(297));
+    p:end_page();
+}
+p:close();

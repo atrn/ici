@@ -1,0 +1,48 @@
+/*
+ * openfilepanel.ici
+ */
+
+extern openfilepanel = [struct : object.object,
+
+    /*
+     *
+     */
+    new = [func (self, type)
+    {
+	auto type = "open";
+	self.type = type;
+    }],
+
+    /*
+     */
+    setinitialdir = [func (self, dir)
+    {
+	self.idir = dir;
+    }],
+
+    /*
+     *
+     */
+    run = [func (self)
+    {
+	auto cmd;
+
+	switch (self.type)
+	{
+	case "open":
+	    cmd = "tk_getOpenFile";
+	    break;
+
+	case "save":
+	    cmd = "tk_getSaveFile";
+	    break;
+
+	default:
+	    fail("bad type for an OpenFilePanel");
+	}
+	if (self.idir)
+	    cmd += " -initialdir {" + self.idir + "}";
+	return tcl.tk(cmd);
+    }],
+
+];

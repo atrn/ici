@@ -1,0 +1,36 @@
+#!/usr/local/bin/path
+rpush(path, ".");
+
+try remove("db-002"); onerror ;
+db = sqlite.db:new("db-002", "c");
+
+try
+    db:exec("create table passwd(name, passwd, uid, gid, homedir, shell)");
+onerror
+    if (error !~ #table passwd already exists#)
+	fail(error);
+
+bin_passwd = fopen("/etc/passwd");
+while (toks = gettokens(bin_passwd, ":", "\n"))
+{
+    if (toks[0] ~ $regexp("^#"))
+	continue;
+    sql = sprintf("select * from passwd where name = '%s'", toks[0]);
+    r = db:exec(sql);
+    if (nels(r) == 0)
+    {
+	sql = sprintf("insert into passwd values ('%s', '%s', '%d', '%d', '%s', '%s')", toks[0], toks[1], int(toks[2]), int(toks[3]), toks[5], toks[6]);
+	db:exec(sql);
+    }
+}
+
+passwd = db:exec("select * from passwd");
+forall (pwd in passwd)
+{
+    if (typeof(pwd.name) != "string")
+    {
+	printf("no name field in record\n");
+	continue;
+    }
+    // printf("%s\n", pwd.name);
+}

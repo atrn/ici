@@ -1,0 +1,39 @@
+static out = strbuf();
+
+static
+pfout()
+{
+    auto    vargs;
+
+    strcat(out, call(sprintf, vargs))
+}
+
+dbg.printf := pfout;
+
+static
+yet_another_func(a)
+{
+    return nels(a);
+}
+
+static
+other_func(a)
+{
+    yet_another_func(a);
+    return a;
+}
+
+static
+t(a, b)
+{
+    other_func(a);
+    a = 1 + 2;
+    return a;
+}
+
+i = 1;
+i = i + 1;
+i = i + 2;
+t(3, "hi");
+debug(0);
+put(out);

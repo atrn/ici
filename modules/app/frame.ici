@@ -1,0 +1,18 @@
+/*
+ * frame.ici
+ */
+
+extern frame = [struct : widget,
+
+    type = "frame",
+
+    /*
+     */
+    new = [func (self, parent)
+    {
+	auto parent = NULL;
+	self.name = self@makename(parent);
+	tcl.tk(sprintf("frame %s", self.name));
+    }],
+
+];

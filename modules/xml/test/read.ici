@@ -1,0 +1,171 @@
+/*
+ * Code to read an XML stream into an ICI data structure.
+ *
+ * The stream is returned as an ordered collection of objects. Each
+ * is either an entity of some character data. Entities are themselves
+ * ordered collections of objects, entities and character data. There
+ * is no limit to nesting of entities. Entities also contain a number of
+ * attributes which are stored as key/value pairs with both keys and
+ * values being strings.
+ *
+ * Each entity is represented as an ICI struct object. The struct stores
+ * the entities attributes and the ordered collection of entities. The key
+ * 0 (integer zero) is used to store the ordered collection for an entity.
+ * The use of a non-string key means there is no possibility of collision
+ * with an entity attribute name.
+ */
+
+static	ENTITIES = 0;
+static	TAG = 1;
+
+static
+start(u, tag, attr)
+{
+    auto entity, v, k;
+
+    entity = struct(u.cursor, TAG, tag, ENTITIES, array());
+    push(u.cursor[ENTITIES], entity);
+    forall (v, k in attr)
+	assign(entity, k, v);
+    u.cursor = entity;
+}
+
+static
+end(u, tag)
+{
+    u.cursor = super(u.cursor);
+}
+
+static
+char(u, s)
+{
+    auto e;
+
+    /*
+     * If the previous entity is also a string (character
+     * data) then just append this one to the existing element.
+     * Expat tends to call this function multiple times in
+     * some contexts such as expanding character names and the like.
+     * This puts the strings back together.
+     *
+     * Otherwise we just add this entity on the end of the list (array)
+     * of entities for the current level.
+     */
+    e = top(u.cursor[ENTITIES]);
+    if (typeof(e) == "string")
+    {
+	s = e + s;
+	pop(u.cursor[ENTITIES]);
+    }
+    push(u.cursor[ENTITIES], s);
+}
+
+extern
+read_xml(file)
+{
+    auto root, p, u, s;
+
+    root = struct(ENTITIES, array());
+    p = xml.ParserCreate();
+    xml.SetUserData(p, u = struct("cursor", root));
+    xml.SetElementHandler(p, start, end);
+    xml.SetCharacterDataHandler(p, char);
+    while (s = getline(file))
+	xml.Parse(p, s + "\n", 0);
+    xml.Parse(p, "");
+    return root;
+}
+
+
+
+/*
+ * Test Code
+ */
+if (1)
+{
+
+static
+clean(s)
+{
+    auto	a, c, n;
+    auto	map = [struct
+	("\n") = "\\n",
+	("\r") = "\\r",
+	("\b") = "\\b",
+	("\f") = "\\f", 
+	("\a") = "\\a",
+	("\t") = "\\t",
+    ];
+
+    a = array();
+    forall (c in s)
+    {
+	if (c >= " " && c <= "~")
+	    push(a, c);
+	else if (n = map[c])
+	    push(a, n);
+	else
+	    push(a, sprintf("\\%03o", toint(c)));
+    }
+    return implode(a);
+}
+
+static
+print(f, o, ind, w)
+{
+    auto v, k, ind = 0, w = 1;
+    auto	p = [struct
+	NULL	= "NULL",
+	int	= "%d",
+	float	= "%g",
+	string	= [func (f, o, ind) {
+	    printf(f, "%*s\"%s\"", ind, "", clean(o));
+	}],
+	regexp	= [func (f, o, ind) {
+	    printf(f, "%*s#%s#", ind, "", o.pattern);
+	}],
+	array	= [func (f, o, ind) {
+	    printf(f, "%*s[array\n", ind, "");
+	    forall (o in o) {
+		print(f, o, ind+1);
+		printf(f, ",\n");
+	    }
+	    printf(f, "%*s]", ind, "");
+	}],
+	set	= [func (f, o, ind) {
+	    printf(f, "%*s[set\n", ind, "");
+	    forall (o in o) {
+		print(f, o, ind+1);
+		printf(f, ",\n");
+	    }
+	    printf(f, "%*s]", ind, "");
+	}],
+	struct	= [func (f, o, ind, w) {
+	    auto v, k;
+	    printf(f, "%*s[struct\n", ind, "");
+	    forall (v, k in o)
+	    {
+		print(f, k, ind+1);
+		printf(f, " = ");
+		print(f, v, ind+1);
+		printf(f, ",\n");
+	    }
+	    printf(f, "%*s]", ind, "");
+	}],
+    ];
+    switch (typeof(v = p[typeof(o)]))
+    {
+    case "string":
+	printf(f, "%*s" + v, ind * w, "", o);
+	break;
+    case "func":
+	v(f, o, ind, w);
+	break;
+    default:
+	printf(f, "%*s[%s]", ind * w, "", typeof(v));
+    }
+}
+
+print(fopen(argv[2], "w"), read_xml(fopen(argv[1])));
+
+}

@@ -1,0 +1,431 @@
+/*
+ * $Id: ici4xml.ici,v 1.3 2003/03/02 20:56:19 timl Exp $
+ */
+
+/*
+ * The alternative method of loading the whole XML stream into an ICI
+ * data structure is provided by the 'xml.read' function. 
+ *
+ * The 'xml.read()' function reads an XML stream and returns an in-memory
+ * representation as a single ICI object.  The 'xml.process()' function
+ * traverses the in-memory representation, calling user-defined functions for
+ * elements with particular tags.  Finally, the 'xml.write()' function outputs
+ * the in-memory version as an XML stream.  When combined these three
+ * operations provide a minimal set of functions for processing XML-encoded
+ * data.  Other methods are of course possible.  This was enough for my
+ * purposes and seems relatively general and flexible.  And it is small enough
+ * to make it easy to modify.
+ *
+ * The stream is returned as an ordered collection of objects.  Each is either
+ * an element of some kind or character data.  Elements themselves contain an
+ * ordered collections of nested elements.  There is no limit to nesting.
+ * Elements also contain a number of attributes which are stored as key/value
+ * pairs with both keys and values being strings.
+ *
+ * Each element is represented as a struct object with a number of key/value
+ * pairs.  Element attributes appear as string keys that map to strings
+ * storing the value of the attribute as presented in the stream.  Element
+ * meta-data is stored using special integer keys to avoid clashes with the
+ * data stream's choice of names.  The integer values are available as:
+ *
+ * xml.ELEMENTS         Maps to an array of nested elements.  Each is a
+ *                      struct.
+ *
+ * xml.TAG              Maps to the string XML tag for this element.
+ *
+ * xml.ID               Maps to a parser assigned identifier number for this
+ *                      element.  Each element is assigned a number, unique
+ *                      for the XML stream being parsed.  This is not used in
+ *                      any way by this module but may be of use by users (it
+ *                      was added during debugging and never removed).
+ *
+ * Additionally the "super" of a nested element struct is set to the parent
+ * element allowing programs to traverse upwards as well as downwards.
+ * Programs need to be careful when setting element attributes that they do
+ * not follow the super-struct chain, the 'assign()' function may be used in
+ * this case.
+ *
+ * This --intro-- formas part of the --ici-xml-- documentation.
+ */
+
+/*
+ * The xml_parser class was created in the C code. Extend it with bits
+ * more easily done in ICI.
+ */
+[class = parser_class,
+
+    /*
+     * Default implementations of the callback methods.
+     */
+    start_element(){}
+    end_element(){}
+    character_data(){}
+    default_handler(){}
+    processing_instruction(){}
+];
+
+extern  ELEMENTS = 0;
+extern  TAG      = 1;
+extern  ID       = 2;
+
+/*
+ * Define an xml_loader class which is a subclass of xml_parser. This
+ * class supports reading of an xml file into an in-memory data structure.
+ */
+static loader_class = [class: parser_class,
+
+    /*
+     * Class constants.
+     */
+    PROCESSING_INSTRUCTION  = 0,
+    OTHER_DATA = 1,
+
+    /*
+     * Override new so that we can add our private instance vars.
+     */
+    new()
+    {
+        o := this:^new();
+        o.counter := 0;
+        o.root := struct(ELEMENTS, array());
+        o.cursor := o.root;
+        return o;
+    }
+
+    /*
+     * start - start element callback, called via xml.Parse()
+     *
+     * This is called for each element. We are passed our "user-data"
+     * object, the element's tag and a struct containing any attribute/
+     * value pairs. We create a new struct to represent the element.
+     * This struct has its super set to the current element being parsed.
+     * Attributes are assigned into the struct (using the assign()
+     * function to avoid modifying attributes in parent elements)
+     * and finally the element is pushed onto the end of the current
+     * element's array of nested elements. The new element is then made
+     * the current element.
+     */
+    start_element(tag, attr)
+    {
+        auto        e, v, k;
+
+        e = struct(cursor, TAG, tag, ELEMENTS, array(), ID, counter++);
+        forall (v, k in attr)
+            e[k] := v;
+        push(cursor[ELEMENTS], e);
+        cursor = e;
+    }
+
+    /*
+     * end - end element callback, called via XML.Parse()
+     *
+     * This is called at the end of each element. We have little
+     * to do but simply set the current element back to the parent
+     * of the current value.
+     */
+    end_element(tag)
+    {
+        cursor = super(cursor);
+    }
+
+    /*
+     * char - character data callback, called via XML.Parse()
+     *
+     * This is called for any character data found between elements
+     * in the stream. Character data is stored as ici strings in
+     * the element's nested element array. All we do is append
+     * the character data to the end of that array. The only
+     * complication is the concatenation of adjacent character data
+     * elements.
+     */
+    character_data(s)
+    {
+        auto e;
+
+        e = top(cursor[ELEMENTS]);
+        if (typeof(e) == "string")
+        {
+            s = e + s;
+            pop(cursor[ELEMENTS]);
+        }
+        push(cursor[ELEMENTS], s);
+    }
+
+    /*
+     * proc - processing instruction callback, called via XML.Parse()
+     *
+     * This is called for processing instruction elements found in
+     * the stream. The instruction is formed into an array that is
+     * appended to the current element's element array.
+     */
+    processing_instruction(s, t)
+    {
+        auto e, t = PROCESSING_INSTRUCTION;
+
+        e = top(cursor[ELEMENTS]);
+        if (typeof(e) == "array" && e[0] == t)
+        {
+            s = e[1] + s;
+            pop(cursor[ELEMENTS]);
+        }
+        push(cursor[ELEMENTS], array(t, s));
+    }
+
+    /*
+     * other - other data callback, called via XML.Parse()
+     *
+     * Like proc() this handles any remaining data in the stream.
+     * This is implemented exactly as proc() and in fact uses it.
+     */
+    default_handler(s)
+    {
+        return this:processing_instruction(s, OTHER_DATA);
+    }
+];
+
+/*
+ * els = xml.read(file)
+ *
+ * Reads an XML data stream from a file and return an in-memory
+ * representation of that stream as an ICI object. The data
+ * structure retains enough information to be able to output
+ * the stream in a compatible manner. See the introduction for
+ * details on how this stream is structured.
+ *
+ * This --topic-- forms part of the --ici-xml-- documentation.
+ */
+extern
+read(file)
+{
+    if (!file)
+        file = stdin;
+    loader := loader_class:new();
+    while (s = getline(file))
+        loader:Parse(s + "\n", 0);
+    loader:Parse("");
+    return loader.root[loader.ELEMENTS];
+}
+
+/*
+ * els = xml.process(els, map, uarg)
+ *
+ * This function traverses the in-memory data structure 'els' as returned by
+ * 'xml.read()' applying user defined functions to particular elements.
+ * Functions are specified using a struct object that maps element tag names
+ * to functions that are to process those elements.  Each function is called
+ * with two parameters, the element and a user-defined parameter 'uarg'.
+ * Returns the given 'els'.
+ *
+ * This --topic-- forms part of the --ici-xml-- documentation.
+ */
+extern
+process(els, map, uarg)
+{
+    auto        fn;
+    auto        e;
+
+    forall (e in els)
+    {
+        if (typeof(e) == "struct")
+        {
+            if ((fn = map[e[TAG]]) != NULL)
+                fn(e, uarg);
+            process(e[ELEMENTS], map, uarg);
+        }
+    }
+    return els;
+}
+
+/*
+ * xml.write(els [, file])
+ *
+ * Output the in-memory representation of an XML data object 'els' as returned
+ * by 'xml.read()' to a stream, by default stdout.  The document is output
+ * using indentation to show the structure of the data.  Spacing is preserved.
+ *
+ * This --topic-- forms part of the --ici-xml-- documentation.
+ */
+extern
+write(els, f_out, ind)
+{
+    auto        f_out, el, v, k, tag, ind = 0;
+
+    if (!f_out)
+        f_out = stdout;
+    forall (el in els)
+    {
+        switch (typeof(el))
+        {
+        case "struct":
+            printf(f_out, "%*s<%s", max(ind, 0), "", el[TAG]);
+            forall (v, k in el)
+                if (typeof(k) == "string")
+                    printf(f_out, " %s=\"%s\"", k, v);
+            if (nels(el[ELEMENTS]) == 0)
+                printf(f_out, "/>\n");
+            else
+            {
+                printf(f_out, ">\n");
+                write(el[ELEMENTS], f_out, ind + 2);
+                printf(f_out, "%*s</%s>\n", max(ind, 0), "", el[TAG]);
+            }
+            break;
+
+        case "array":
+            printf(f_out, "%*s%s", max(ind, 0), "", el[1]);
+            break;
+
+        case "string":
+            if (el !~ #^\s*$#)
+                printf(f_out, "%*s%s", max(ind, 0), "", el);
+            break;
+        }
+    }
+}
+
+/*
+ * xml.traverse(els, func, uarg)
+ *
+ * This function traverses the in-memory data structure 'els' as returned by
+ * 'xml.read()' calling the given function 'func' on each elements. The function
+ * is called with the element and 'uarg'.
+ *
+ * This --topic-- forms part of the --ici-xml-- documentation.
+ */
+extern
+traverse(els, fn, uarg)
+{
+    auto        fn;
+    auto        e;
+
+    forall (e in els)
+    {
+        if (typeof(e) == "struct")
+        {
+            fn(e, uarg);
+            traverse(e[ELEMENTS], fn, uarg);
+        }
+    }
+}
+
+/* ### Things below here still need to be documented. ### */
+
+extern
+tag_of(element)
+{
+    return element[TAG];
+}
+
+extern
+id_of(element)
+{
+    return element[ID];
+}
+
+extern
+elements_of(element)
+{
+    return element[ELEMENTS];
+}
+
+extern
+attributes_of(element)
+{
+    rc = copy(element);
+    forall (k in keys(rc))
+        if (typeof(k) != "string")
+            del(rc, k);
+    return rc;
+}
+
+extern
+parent_of(element)
+{
+    return super(element);
+}
+
+extern
+siblings_of(element)
+{
+    rc = array();
+    if ((p = super(element)) == NULL)
+        return NULL;
+    forall (el in p[ELEMENTS])
+    {
+        if (typeof(el) == "struct" && !eq(el, element))
+            push(rc, el);
+    }
+    return rc;
+}
+
+extern
+children_of(element)
+{
+    rc = array();
+    forall (el in element[ELEMENTS])
+    {
+        if (typeof(el) == "struct")
+            push(rc, el);
+    }
+    return rc;
+}
+
+extern
+text_of(element)
+{
+    rc = "";
+    forall (el in element[ELEMENTS])
+    {
+        if (typeof(el) == "string")
+            rc += el;
+    }
+    return rc;
+}
+
+extern
+empty_element(tag)
+{
+    auto tag = "";
+    return struct(TAG, tag, ELEMENTS, array(), ID, counter++);
+}
+
+extern
+set_element_tag(element, tag)
+{
+    element[TAG] = tag;
+}
+
+extern
+add_element(element, newel)
+{
+    push(element[ELEMENTS], new);
+}
+
+extern
+find_by_tag(root, tag)
+{
+    if (typeof(root) == "struct")
+        root = root[ELEMENTS];
+    forall (el in root)
+    {
+        if (typeof(el) == "struct")
+        {
+            if (el[TAG] == tag)
+                return el;
+            if (el = find_by_tag(el, tag))
+                return el;
+        }
+    }
+}
+
+extern
+is_element(e)
+{
+    return typeof(e) == "struct";
+}
+
+extern
+is_text(e)
+{
+    return typeof(e) == "string";
+}

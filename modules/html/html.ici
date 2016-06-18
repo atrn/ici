@@ -1,0 +1,468 @@
+/*
+ * $Id: html.ici,v 1.11 2003/01/27 10:51:03 atrn Exp $
+ *
+ * ICI module to output various pieces of HTML. Intended for use in CGI
+ * programs (also see CGI.ici).
+ *
+ */
+
+/*
+ * start_page - generate start of page HTML
+ *
+ * Parameters:
+ *	title
+ *	options
+ */
+extern
+start_page(title, options, header_options)
+{
+    auto	options = "";
+
+    put(sprintf("<html><head><title>%s</title>", title));
+    if (header_options)
+	put(sprintf("%s", header_options));
+    put(sprintf("</head><body %s>", options));
+}
+
+/*
+ * end_page - generate end of page HTML
+ */
+extern
+end_page()
+{
+    put(sprintf("</body></html>"));
+}
+
+/*
+ * hr - produce a horizontal rule.
+ */
+extern
+hr(opts)
+{
+    auto opts = "";
+    put(sprintf("<hr %s>", opts));
+}
+
+/*
+ * br - produce a line break
+ */
+extern
+br()
+{
+    put(sprintf("<br>"));
+}
+
+/*
+ * p - produce a paragraph break
+ */
+extern
+p()
+{
+    put(sprintf("<p>"));
+}
+
+/*
+ * h - output an HTML heading at a specific level
+ *
+ * Parameters:
+ *	l	Heading level.
+ *	s	Heading text.
+ *	opts	Element attributes
+ */
+static
+h(l, s, opts)
+{
+    if (!opts) opts = "";
+    put(sprintf("<h%d %s>%s</h%d>", l, opts, s, l));
+}
+
+/*
+ * h1, h2, ..., h6 - output an HTML heading at the indicated level
+ *
+ * Parameters:
+ *	s	Heading text.
+ */
+extern	h1(s, o) {h(1, s, o);}
+extern	h2(s, o) {h(2, s, o);}
+extern	h3(s, o) {h(3, s, o);}
+extern	h4(s, o) {h(4, s, o);}
+extern	h5(s, o) {h(5, s, o);}
+extern	h6(s, o) {h(6, s, o);}
+
+/*
+ * Anchors
+ */
+
+extern
+start_anchor(link)
+{
+    put(sprintf("<a href=\"%s\">", link));
+}
+
+extern
+start_named_anchor(name, link)
+{
+    if (link)
+	put(sprintf("<a name=\"%s\" href=\"%s\">", name, link));
+    else
+	put(sprintf("<a name=\"%s\">", name));
+}
+
+extern
+end_anchor()
+{
+    put(sprintf("</a>"));
+}
+
+/*
+ * Tables
+ */
+
+extern
+start_table(border, opt)
+{
+    auto border = 0, opt = "";
+    put(sprintf("<table border=%d %s>", border, opt));
+}
+
+extern
+end_table()
+{
+    put(sprintf("</table>"));
+}
+
+extern
+start_table_row(opt)
+{
+    auto opt = "";
+    put(sprintf("<tr %s>", opt));
+}
+
+extern
+end_table_row()
+{
+    put(sprintf("</tr>"));
+}
+
+extern
+table_header(s, opt)
+{
+    auto opt = "";
+    put(sprintf("<th %s>%s</th>", opt, s));
+}
+
+extern
+empty_cell(opt)
+{
+    put(sprintf("<td %s>&nbsp;</td>", opt ? opt : ""));
+}
+
+extern
+start_table_cell(opt)
+{
+    auto opt = "";
+
+    put(sprintf("<td %s>", opt));
+}
+
+extern
+end_table_cell()
+{
+    put(sprintf("</td>"));
+}
+
+/*
+ * Styles...
+ */
+extern
+start_pre()
+{
+    put(sprintf("<pre>"));
+}
+
+extern
+end_pre()
+{
+    put(sprintf("</pre>"));
+}
+
+extern
+start_centre()
+{
+    put(sprintf("<center>"));
+}
+
+extern
+end_centre()
+{
+    put(sprintf("</center>"));
+}
+
+extern start_center = start_centre;
+extern end_center   = end_centre;
+
+extern
+start_bold()
+{
+    put(sprintf("<b>"));
+}
+
+extern
+end_bold()
+{
+    put(sprintf("</b>"));
+}
+
+extern
+start_blockquote()
+{
+    put(sprintf("<blockquote>"));
+}
+
+extern
+end_blockquote()
+{
+    put(sprintf("</blockquote>"));
+}
+
+extern
+start_italic()
+{
+    put(sprintf("<i>"));
+}
+
+extern
+end_italic()
+{
+    put(sprintf("</i>"));
+}
+
+/*
+ * Fonts...
+ */
+extern
+start_font(name)
+{
+    auto	v, vargs = [array];
+
+    put(sprintf("<font face=\"%s\"", name));
+    forall (v in vargs)
+	put(sprintf(" %s", v));
+    put(sprintf(">"));
+}
+
+extern
+font()
+{
+    auto	v, vargs = [array];
+
+    put("<font");
+    forall (v in vargs)
+	put(sprintf(" %s", v));
+    put(sprintf(">"));
+}
+
+extern
+end_font()
+{
+    put(sprintf("</font>"));
+}
+
+/*
+ * Encode special characters in text intended to be output as HTML.
+ *
+ *	&	=>	&amp;
+ *	<	=>	&lt;
+ *	>	=>	&gt;
+ */
+extern
+encode_string(s)
+{
+    s = gsub(s, #&#, "&amp;");
+    s = gsub(s, #<#, "&lt;");
+    s = gsub(s, #>#, "&gt;");
+    return s;
+}
+
+extern
+printf()
+{
+    auto	vargs = [array];
+    auto	s;
+    auto	f = stdout;
+
+    s = call(sprintf, vargs);
+    if (typeof(vargs[0]) == "file")
+	f = vargs[0];
+    put(encode_string(s), f);
+    return nels(s);
+}
+
+extern
+nbsp(n)
+{
+    auto n = 1;
+    while (n-- > 0)
+	put("&nbsp;");
+}
+
+extern
+start_form(action, method)
+{
+    auto method = "POST";
+    put(sprintf("<form method=\"%s\" action=\"%s\">", method, action));
+}
+
+extern
+end_form()
+{
+    put("</form>");
+}
+
+extern
+submit_button(title, type)
+{
+    auto type = "submit";
+
+    if (!title)
+	put(sprintf("<input type=\"%s\">", type));
+    else
+    {
+	put
+	(
+	    sprintf
+	    (
+		"<input type=\"%s\" value=\"%s\">",
+		type,
+		title
+	    )
+	);
+    }
+}
+
+extern
+reset_button(title)
+{
+    return submit_button(title, "reset");
+}
+
+extern
+start_textarea(name, w, h)
+{
+    auto w = 40, h = 10;
+    put(sprintf("<textarea name=\"%s\" rows=%d cols=%d>", name, h, w));
+}
+
+extern
+end_textarea()
+{
+    put(sprintf("</textarea>"));
+}
+
+extern
+text_field(name, value, size, type)
+{
+    auto value = "";
+    auto type = "text";
+
+    put(sprintf("<input type=\"%s\" name=\"%s\" value=\"%s\"", type, name, value));
+    if (size != NULL)
+	put(sprintf(" size=%d", size));
+    put(">");
+}
+
+extern
+checkbox_field(name, value, state)
+{
+    put
+    (
+	sprintf
+	(
+	    "<input type=\"checkbox\" name=\"%s\" value=\"%s\"%s>",
+	    name,
+	    value,
+	    state ? " checked" : ""
+	)
+    );
+}
+
+extern
+password_field(name, size)
+{
+    return text_field(name, "", size, "password");
+}
+
+extern
+hidden_field(name, value)
+{
+    put(sprintf("<input type=\"hidden\" name=\"%s\" value=\"%s\">", name, value));
+}
+
+extern
+image(src, alt, border, width, height)
+{
+    auto alt = "An image";
+
+    put(sprintf("<img src=\"%s\" alt=\"%s\"", src, alt));
+#    put(sprintf("<img src=\"%s\"", src));
+    if (border != NULL)
+	put(sprintf("border=\"%d\"", border));
+    if (width != NULL)
+	put(sprintf("width=\"%d\"", width));
+    if (height != NULL)
+	put(sprintf("height=\"%d\"", height));
+    put(">");
+}
+
+
+extern
+start_div(opts)
+{
+    auto	opts = "";
+    put(sprintf("<div %s>", opts));
+}
+
+extern
+end_div()
+{
+    put("</div>");
+}
+
+extern
+start_olist(opts)
+{
+    auto opts = "";
+    put(sprintf("<ol %s>", opts));
+}
+
+extern
+end_olist()
+{
+    put("</ol>");
+}
+
+extern
+start_ulist(opts)
+{
+    auto opts = "";
+    put(sprintf("<ul %s>", opts));
+}
+
+extern
+end_ulist()
+{
+    put("</ul>");
+}
+
+extern
+start_list_item(opts)
+{
+    auto opts = "";
+    put(sprintf("<li %s>", opts));
+}
+
+extern
+end_list_item()
+{
+    put("</li>");
+}

@@ -1,0 +1,54 @@
+local Toggle = [class
+
+    new(start_state)
+    {
+        t := this:^new();
+        t.state := start_state;
+        return t;
+    }
+
+    activate()
+    {
+        state = !state;
+        return this;
+    }
+    
+    value()
+    {
+        return state;
+    }
+];
+
+local NthToggle = [class:Toggle,
+
+    new(start_state, count_max)
+    {
+        t := this:^new(start_state);
+        t.count_max := count_max;
+        t.counter := 0;
+        return t;
+    }
+
+    activate()
+    {
+        this:^activate();
+        if (++counter >= count_max)
+        {
+            state = !state;
+            counter = 0;
+        }
+        return this;
+    }
+];
+
+n := argv[1] ? int(argv[1]) : 1;
+
+toggle := Toggle:new(1);
+for (i = 0; i < n; ++i)
+    val = toggle:activate():value();
+// printf(val ? "// true\n" : "// false\n");
+
+ntoggle := NthToggle:new(val, 3);
+for (i = 0; i < n; ++i)
+    val = ntoggle:activate():value();
+// printf(val ? "// true\n" : "// false\n");

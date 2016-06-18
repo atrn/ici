@@ -1,0 +1,23 @@
+Andy Newman	<atrn@zeta.org.au>
+
+    Started the module collection, wrote many modules.
+
+Tim Long	<timl@research.canon.com.au>
+
+    Started the whole thing by creating ici.  Wrote the dll module
+    and original author of the sys module.
+
+Scott Newham	<snaf@zeta.org.au>
+
+    Original author of xml module although it has undergone
+    signigicant changes and enhancements.
+
+James Clark	<jjc@jclark.com>
+
+    Mr. XML.  Creator of the expat XML parser we use.
+
+Tim Vernum 	<tpv@spamcop.net>
+
+   Author of the Caste module, based on Andy's utype
+   module.
+

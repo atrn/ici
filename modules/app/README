@@ -1,0 +1,214 @@
+An ici application framework
+
+This is a TK-based application framework for ici. It uses an object-
+oriented style of ici programming to hide the use of TK as much as is
+feasible for a small framework. All user-interface controls, widgets,
+are represented as objects using ici structs to store these objects.
+Classes are defined which contain methods used to change widget
+properties and control the application.
+
+The framework provides access to most TK widgets. Those that are not
+provided may be easily integrated into the framework.
+
+
+Prerequisites
+
+The framework requires the ici Tcl/TK extension - libicitcl.so. On
+systems with TkStep the Tcl/TK extension can be built against TkStep
+giving applications a more NeXT-like appearance. This is the author's
+configuration on FreeBSD.
+
+
+Usage
+
+The framework is used as an ici autoload module, called ``app''. This
+module references the Tcl module and will load that as necessary. The
+app module provides a number of functions to let you define and run
+applications.
+
+
+Application Functions
+
+The app module defines a number of functions that let the application control
+itself and to set various application properties. Usually few of these
+functions need be used as the framework provides convenient defaults for most
+things. Many of the functions involve X11 session management and are entirely
+optional.
+
+    Session Management
+
+	app.settitle(string)
+	
+	Set the application's toplevel window title. By default the
+	title is set to the base portion of argv[0]
+
+	app.setcommand(string)
+
+	The command used to re-invoke the application, used for
+	session management.
+
+	app.setclient(string)
+
+	The name of the client machine running the command, again used
+	for session management.
+
+	app.setgeometry(string)
+
+	The geometry of the application - session management.
+
+
+    Application Control
+
+	app.iconfy()
+
+	Iconfy the application.
+
+	app.loadresources([string])
+
+	Load the user-interface from a framework resource file.
+
+
+    Application Running
+
+	app.run()
+
+	Run the main loop, processing events and performing whatever
+	actions are associated with them.
+
+	app.update()
+
+	Force the user-interface to be updated without waiting for an event.
+
+    Font Support
+
+	app.font(string [, int])
+	
+	Return the X11 name of a font from the framework name. The
+	framework adopts the OpenPage convention of having a number of 
+	fonts with names like "FixedWidth", "Serif", "SansSerifItalic",
+	etc... The int is an optional size, defaults to 14 point.
+
+	app.destroy(string)
+
+	Destroy a TK object. Not really intended for general use.
+
+    Object Creation
+
+	app.new()
+
+	Create a new object. This is NOT used to create a new
+	application object. It is a general OOP function to create a
+	new instance given a class.
+
+
+Application Classes
+
+The framework defines a number of classes to represent user-interface objects.
+To understand how these classes are used we need to take a brief digression on
+how to do OOP in ici. This isn't a full explanation but should be enough to
+understand the techniques used in the framework.
+
+
+Object-oriented programming in ici
+
+Ici doesn't provide direct support for so-called object-oriented programming.
+It doesn't embody the notions of class or method or inheritence. However ici's
+native facilities may be used to create a structure in which we can use OO
+techniques. Various ici mechanisms are ideal for providing this support.
+
+Firstly objects in our OOP system are represented as ici structs. The struct
+stores the instance variables for an object. Each class is also represented by
+a struct. The class struct stores the methods and default values for instance
+variables. To create a new instance of a class we create a new ici struct and
+make it's super-struct be a read-only version of the class (the atomic form).
+
+So given a simple class definition as in,
+
+	static myclass = [struct
+
+	    myvar = 0,
+
+	    mymethod = [func (self, arg)
+	    {
+	        return self.myvar + arg;
+	    }]
+
+	];
+
+We can create a new instance of this type of object via,
+
+	inst = struct(@myclass);
+
+And call methods using the binary-@ operator,
+
+	inst@mymethod(2);
+
+Object creation is typically more complicated. Constructor-style functions are
+supported allowing classes to initialise the new instance. In the application
+framework the app.new() function is used to create new instances and supports
+constructors.
+
+That's about all there is too it. There's a more detailed explantation
+available but here is not the place for it. It suffices to say that the
+technique works and isn't too complicated.
+
+
+Framework classes
+
+The classes defined by the app framework are,
+
+    app.object
+
+    The app.object class is the base class of all objects. It provides
+    default behaviour for all objects and is not intended to be used directly.
+
+    Methods
+
+	class		Return the class of this object (meta-class struct).
+	super		Return the super-class of an object.
+	isa		Determine if an object is a type of widget.
+
+
+    app.widget
+
+    Widget is a base class for all user-interface controls. Widget
+    objects aren't much use on their own and are intended to be
+    used by more specific classes. The widget class provides a number
+    of methods that all widgets implement,
+
+    Methods
+
+	makename	Create a TK name for this widget.
+	setaction	Set the "action" property of the widget to the ici code.
+	settclaction	Set the action property as TCL code
+	settext		Set the text associated with this widget.
+	setfont		Set the font for this widget.
+	enable		Enable the widget.
+	disable		Disable the widget.
+	setrelief	Set the relief used when rendering the widget.
+	setactiveforeground
+	setactivebackground
+	setborderwidth
+	bind
+	bindtcl
+	x
+	y
+	focus
+	justify
+	anchor
+
+
+    app.label
+
+
+    app.button
+
+    Methods
+
+	button@setimage(string)
+
+
+    app.dialog
+
+
+    app.text

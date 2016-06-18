@@ -1,0 +1,82 @@
+core_funcs = "ici.1.html";
+
+if (argc != 3)
+{
+    printf("usage: %s ici-index.txt output-html\n", argv[0]);
+    exit(1);
+}
+
+in = fopen(argv[1], "r");
+out = fopen(argv[2], "w");
+state = "html";
+while ((line = getline(in)) != NULL)
+{
+    if (state == "html")
+    {
+        printf(out, "%s\n", line);
+        if (line ~ #^<TABLE #)
+            state = "entries";
+        continue;
+    }
+
+    if (line ~ #^</TABLE#)
+    {
+        printf(out, "%s\n", line);
+        state = "html";
+        continue;
+    }
+
+
+    if (line ~ #=#)
+    {
+        lhs = line ~~ #^\s*(.*=)#;
+        rhs = line ~~ #=\s*(.*)$#;
+    }
+    else
+    {
+        lhs = "";
+        rhs = line ~~ #^\s*(.*)#;
+    }
+
+    printf
+    (
+        out,
+        "<TR>\n"
+        "    <TD ALIGN=RIGHT NOWRAP WIDTH=\"25%%\"><CODE>%s&nbsp;</CODE></TD>\n",
+        lhs
+    );
+
+    if (rhs ~ #^\w*\.#)
+    {
+        rhbits = rhs ~~~ #^(\w*)\.(\w*)(.*)$#;
+        printf
+        (
+            out,
+            "</TD><TD ALIGN=LEFT NOWRAP WIDTH=\"75%%\"><CODE>"
+                "<A HREF=\"%s.html\">%s</A>."
+                "<A HREF=\"%s.html#%s\">%s</A>%s</CODE></TD>\n</TR>\n",
+            rhbits[0],
+            rhbits[0],
+            rhbits[0],
+            rhbits[1],
+            rhbits[1],
+            rhbits[2]
+        );
+
+    }
+    else
+    {
+        rhbits = rhs ~~~ #^(\W)*(\w*)(.*)$#;
+        printf
+        (
+            out,
+            "</TD><TD ALIGN=LEFT NOWRAP WIDTH=\"75%%\"><CODE>"
+                "%s<A HREF=\"%s#%s\">%s</A>%s</CODE></TD>\n</TR>\n",
+            rhbits[0],
+            core_funcs,
+            rhbits[1],
+            rhbits[1],
+            rhbits[2]
+        );
+    }
+}

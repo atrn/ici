@@ -1,0 +1,260 @@
+/*
+ * text.ici
+ */
+
+extern	text = [struct : widget,
+
+    type = "text",
+
+    /*
+     * Create a new instance of a text object.
+     */
+    new = [func (self, parent)
+    {
+	auto parent = NULL;
+	self.name = self@makename(parent);
+	tcl.tk("text", self.name);
+	tcl.tk
+	(
+	    self.name,
+	    "configure -font -adobe-courier-medium-r-normal--14-*-*-*-*-*-*-*"
+	);
+	tcl.tk
+	(
+	    self.name,
+	    "tag configure sel -relief flat -background grey40 -foreground grey80"
+	);
+    }],
+
+    /*
+     * Append a line of text to the text object.
+     */
+    append = [func (self, text)
+    {
+	if (typeof(text) == "array")
+	{
+	    forall (text in text)
+		tcl.tk(self.name, "insert end", "\"" + tcl.escape(text + "\n") + "\"");
+	}
+	else
+	{
+	    tcl.tk(self.name, "insert end", "\"" + tcl.escape(text) + "\"");
+	}
+    }],
+
+    insert = [func (self, text)
+    {
+	if (typeof(text) == "array")
+	{
+	    forall (text in text)
+		tcl.tk
+	        (
+		    self.name,
+		    "insert",
+		    tcl.tk(self.name, "index insert"),
+		    "\"" + tcl.escape(text + "\n") + "\""
+		);
+	}
+	else
+	{
+	    tcl.tk
+	    (
+		self.name,
+		"insert",
+		tcl.tk(self.name, "index insert"),
+		"\"" + tcl.escape(text) + "\""
+	    );
+	}
+    }],
+
+    see = [func (self, what)
+    {
+	tcl.tk(self.name, "see", what);
+    }],
+    
+    /*
+     * Clear the contents of the text object.
+     */
+    clear = [func (self)
+    {
+	tcl.tk(self.name, " delete 1.0 end");
+    }],
+
+    /*
+     * Load the content of a named or already open file into a Text object.
+     */
+    loadfile = [func (self, name)
+    {
+	auto f, s;
+
+	if (typeof(name) == "file")
+	    f = name;
+	else
+	    f = fopen(name);
+	self@clear();
+	while (s = getline(f))
+	    self@append(s + "\n");
+	if (typeof(name) != "file")
+	    close(f);
+    }],
+
+    /*
+     * Set the number of lines of text displayed
+     * in the text widget.
+     */
+    setheight = [func (self, height)
+    {
+	tcl.tk(self.name, "configure -height ", height);
+    }],
+
+    setwidth = [func (self, width)
+    {
+	tcl.tk(self.name, "configure -width ", width);
+    }],
+
+    yscrollcommand = [func (self, cmd)
+    {
+	tcl.tk(self.name, "configure -yscrollcommand {" + cmd + "}");
+    }],
+
+    allowmodifications = [func (self, allow)
+    {
+	tcl.tk(self.name, "configure -state", allow ? "normal" : "disabled");
+    }],
+
+    attachscrollbar = [func (self, scrollbar)
+    {
+	self@yscrollcommand(scrollbar.name + " set");
+	scrollbar@settclaction(self.name + " yview");
+    }],
+
+    moveinsertionpoint = [func (self, where)
+    {
+	tcl.tk(self.name, "mark set insert", where);
+    }],
+
+    getinsertionpoint = [func (self)
+    {
+        auto rc;
+        rc = struct();
+        auto s;
+        s = gettokens(tcl.tk(self.name, "index insert"), ".");
+        rc.line = int(s[0]);
+        rc.col = int(s[1]);
+        return rc;
+    }],
+
+    setgrid = [func (self, state)
+    {
+	auto state = 1;
+	tcl.tk(self.name, "configure -setgrid", state);
+    }],
+
+    get = [func (self, first, last)
+    {
+	auto first = "1.0";
+	auto last = "end";
+	auto lines;
+	auto line;
+	auto s;
+	auto file;
+
+	s = tcl.tk(self.name, "get", first, last);
+	file = sopen(s);
+	lines = array();
+	while (line = getline(file))
+	    push(lines, line);
+	close(file);
+	if (last == "end")
+	    pop(lines);
+	return lines;
+    }],
+
+    setinsertionpoint = [func (self, point)
+    {
+	tcl.tk(self.name, "mark set insert", point);
+    }],
+
+    selectionrange = [func (self)
+    {
+	auto s;
+
+	if ((s = tcl.tk(self.name, "tag range sel")) == "")
+	    return NULL;
+	return gettokens(s);
+    }],
+
+    cut = [func (self)
+    {
+	auto s;
+	
+	if (s = self@selectionrange())
+	{
+	    self.cutbuffer = self@get(s[0], s[1]);
+	    tcl.tk(self.name, "delete", s[0], s[1]);
+	}
+    }],
+
+    copy = [func (self)
+    {
+	auto s;
+	
+	if (s = self@selectionrange())
+	    self.cutbuffer = self@get(s[0], s[1]);
+    }],
+
+    paste = [func (self)
+    {
+	if (self.cutbuffer)
+	{
+#	    printf(stderr, "paste: %d\n", nels(self.cutbuffer));
+	    self@insert(self.cutbuffer);
+	}
+    }],    
+
+    delete = [func (self)
+    {
+	auto s;
+	
+	if (s = self@selectionrange())
+	    tcl.tk(self.name, "delete", s[0], s[1]);
+    }],
+
+    highlightline = [func (self, lineno)
+    {
+	self@see(string(lineno) + ".0");
+	tcl.tk(self.name, "tag delete highlight");
+	tcl.tk(self.name, "tag add highlight", string(lineno) + ".0", string(lineno) + ".end");
+	tcl.tk(self.name, "tag configure highlight -foreground white");
+    }],
+
+    tagdelete = [func (self, tagname)
+    {
+	tcl.tk(self.name, "tag delete", tagname);
+    }],
+		
+    tagadd = [func (self, tagname,  index1, index2)
+    {
+	auto	index2 = "";
+	tcl.tk(self.name, "tag add", tagname, index1, index2);
+    }],
+
+    tagconfigure = [func (self)
+    {
+	auto	vargs;
+	call(tcl.tk, array(self.name, "tag configure") + vargs);
+    }],
+
+    delchars = [func (self, index1, index2)
+    {
+	auto	index2 = "";
+	tcl.tk(self.name, "delete", index1, index2);
+    }],
+
+    inschars = [func (self, index, chars)
+    {
+	auto	index2 = "";
+	tcl.tk(self.name, "insert", index, tcl.str(chars));
+    }],
+
+];

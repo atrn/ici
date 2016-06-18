@@ -1,0 +1,26 @@
+extern NAME = "db-001";
+extern TABLE = "t1";
+
+extern V1 = 32;
+extern V2 = 16;
+extern V3 = 64;
+
+extern
+create(db)
+{
+    db:exec(sprintf("create table %s (id primary key, v1 int, v2 int, v3 int, v4 int, v5 int, v6 int)", TABLE));
+}
+
+extern
+id(v1, v2, v3)
+{
+    return v3 + (v2 * V3) + (v1 * V2 * V3);
+}
+
+extern
+dump(rec)
+{
+    forall (k in sort(keys(rec)))
+	printf("%s => %s, ", k, rec[k]);
+    printf("\n");
+}

@@ -1,0 +1,49 @@
+public
+report(where)
+{
+    s := top(vstack(), -1); // caller's scope
+    printf("In %s, variable is %s\n", where, s.variable);
+}
+
+local variable = "local";
+
+local fn()
+{
+    var variable = "var";
+    report("a function");
+}
+
+export an_export = "a export";
+local a_local = "a local";
+
+local klass = [class
+
+    new()
+    {
+        this = this:^new();
+        this.variable := "member";
+        return this;
+    }
+
+    do_it()
+    {
+        report("a method");
+    }
+
+    uggh()
+    {
+        printf("%s\n", a_local);
+    }
+];
+
+local fred()
+{
+    k := klass:new();
+    k:uggh();
+}
+
+fn();
+report("top-level code");
+k := klass:new();
+k:do_it();
+fred();

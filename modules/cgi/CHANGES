@@ -1,0 +1,6 @@
+*  cgi.query_string_to_struct() has been renamed as "cgi.form_data()"
+   and its returned data structure modified to cope with multiple
+   values with the same key.  See the comment in the source for
+   details.
+
+*  Converted to ici version 4

@@ -1,0 +1,115 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+<TITLE>ICI function index</TITLE>
+<META NAME="Author" CONTENT="Tim Long">
+<META NAME="Keywords" CONTENT="ICI">
+<META NAME="Description" CONTENT="Master index of ICI functions">
+</HEAD>
+
+<BODY > <!--BGCOLOR="#FFFFFF" TEXT="#000000"
+    LINK="#FF0000" VLINK="#800000" ALINK="#FF00FF">-->
+
+<H1>Index of ICI functions and modules</H1>
+<P ALIGN="left">
+This index include all core language functions and
+extension modules for which documentation is
+available.
+<P ALIGN="left">
+<CENTER>
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%">
+float|int = abs(float|int)
+float = acos(number)
+mem = alloc(int [, int])
+array = array(any...)
+float = asin(number)
+any = assign(struct, any, any)
+float = atan(number)
+float = atan2(number, number)
+any = call(func, array)
+float = ceil(number)
+close(file)
+any = copy(any)
+float = cos(number)
+file = currentfile()
+del(struct, any)
+int = eq(any, any)
+int = eof(file)
+eventloop()
+exit([int|string|NULL])
+float = exp(number)
+array = explode(string)
+fail(string)
+any = fetch(struct, any)
+float = float(any)
+float = floor(number)
+int = flush(file)
+float = fmod(number, number)
+file = fopen(string [, string])
+flush([file])
+string = getchar([file])
+string = getfile([file])
+string = getline([file])
+string = getenv(string)
+string = gettoken([file|string [,string]])
+array = gettokens([file|string [,string [,string]]])
+string = gsub(string, regexp, string)
+string = implode(array)
+struct = include(string [, struct])
+int = int(any)
+string|array = interval(string|array, int [, int])
+int = isatom(any)
+array = keys(struct)
+float = log(number)
+float = log10(number)
+mem = mem(int, int [,int])
+file = mopen(string [, string])
+int = nels(any)
+int|float = num(string|int|float)
+struct = parse(file|string [, struct])
+any = pop(array)
+file = popen(string [, string])
+float = pow(number, number)
+printf([file,] string [, any...])
+any = push(array, any)
+put(string)
+putenv(string [, string])
+int = rand([int])
+reclaim()
+regexp = regexp(string)
+regexp = regexpi(string)
+remove(string)
+struct = scope([struct])
+int = seek(file, int, int)
+set = set(any...)
+float = sin(number)
+int = sizeof(any)
+array = smash(string, string)
+file = sopen(string [, string])
+sort(array, func)
+string = sprintf(string [, any...])
+float = sqrt(number)
+string = string(any)
+struct = struct(any, any...)
+string = sub(string, regexp, string)
+struct = super(struct [, struct])
+int = system(string)
+float = tan(number)
+string = tochar(int)
+int = toint(string)
+any = top(array [, int])
+int = trace(string)
+string = typeof(any)
+array = vstack()
+file|int|float = waitfor(file|int|float...)
+</TABLE>
+
+<HR WIDTH="75%"><!-- --------------------------------------------- -->
+
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%">
+	float|int =	core.abs(float|int)
+	float =	core.acos(number)
+	mem =	core.alloc(int [, int])
+	array =	core.array(any...)
+	float =	core.asin(number)
+</TABLE>

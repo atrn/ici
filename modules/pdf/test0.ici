@@ -1,0 +1,19 @@
+static
+pt(v)
+{
+   return v / 25.4 * 72;
+}
+
+npages := 1;
+if (argc > 1)
+    npages = int(num(argv[1]));
+if (npages < 1)
+    npages = 1;
+p := pdf.new();
+pdf.open_file(p, "test0.pdf");
+for (i := 0; i < npages; ++i)
+{
+    pdf.begin_page(p, pt(210), pt(297));
+    pdf.end_page(p);
+}
+pdf.close(p);

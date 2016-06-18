@@ -1,0 +1,186 @@
+#!/bin/env ici3
+
+auto c1 = [class:caste.CLASS,
+
+	new()
+	{
+		o = this:^new() ;
+		o.var := 6 ;
+		return o ;
+	}
+	
+	_fetch(k)
+	{
+		auto v ;
+		v = this:^_fetch(k) ;
+		if( v )
+			return v ;
+		
+		v = (k ~~ #^var([0-9]+)$# ) ;
+		if( v )
+		{
+			v = int(v) ;
+			return this.var * v ;
+		}
+	}
+	
+	_assign(k,v)
+	{
+		if( k == "var" )
+		{
+			if( typeof(v) != "int" )
+				fail( sprintf("attempt to assign %s to var", typeof(v) ) ) ;
+		}
+		if( k ~ #^var[0-9]+$# )
+		{
+			fail( sprintf( "attempt to assign to %s", k ) ) ;
+		}
+		this:^_assign(k,v) ;
+	}
+
+	_call()
+	{
+		auto vargs = [array] ;
+		printf( " ** _call()\n" ) ;
+		printf( " -- this  = %s\n", string(this) ) ;
+		printf( " -- class = %s\n", string(class) ) ;
+		
+		auto e ;
+		forall( e in vargs )
+		{
+			printf( " ++ %s\n", string(e) ) ;
+		}
+		return NULL ;
+	}
+	
+] ;
+
+auto c2 = [class : c1,
+
+	new()
+	{
+		o = this:^new() ;
+		o.foo = "string" ;
+		return o ;
+	}
+] ;
+
+auto c3 = [class:caste.CLASS,
+
+	new()
+	{
+		o = this:^new() ;
+		o.var := 6 ;
+		return o ;
+	}
+	
+] ;
+
+
+auto o, p ;
+o = c2:new() ;
+p = c3:new() ;
+
+printf( "* o.foo   = %s\n", string(o.foo) ) ;
+printf( "* o.var   = %s\n", string(o.var) ) ;
+printf( "* o.var1  = %s\n", string(o.var1) ) ;
+printf( "* o.var5  = %s\n", string(o.var5) ) ;
+printf( "* o.var20 = %s\n", string(o.var20) ) ;
+
+printf( "---------------------\n" ) ;
+
+printf( "* p.foo   = %s\n", string(p.foo) ) ;
+printf( "* p.var   = %s\n", string(p.var) ) ;
+printf( "* p.var1  = %s\n", string(p.var1) ) ;
+printf( "* p.var5  = %s\n", string(p.var5) ) ;
+printf( "* p.var20 = %s\n", string(p.var20) ) ;
+
+printf( "---------------------\n" ) ;
+printf( "Setting o.var to 11\n" ) ;
+o.var = 11 ;
+printf( "* o.var   = %s\n", string(o.var) ) ;
+printf( "* o.var10 = %s\n", string(o.var10) ) ;
+
+printf( "---------------------\n" ) ;
+printf( "Setting o.var to 1.2\n" ) ;
+try
+	o.var = 1.2 ;
+onerror
+	printf( "[ERROR: %s]\n", error ) ;
+	
+printf( "* o.var   = %s\n", string(o.var) ) ;
+printf( "* o.var10 = %s\n", string(o.var10) ) ;
+
+printf( "---------------------\n" ) ;
+printf( "Setting o.var to NULL\n" ) ;
+try
+	o.var = NULL ;
+onerror
+	printf( "[ERROR: %s]\n", error ) ;
+	
+printf( "* o.var   = %s\n", string(o.var) ) ;
+printf( "* o.var10 = %s\n", string(o.var10) ) ;
+
+printf( "---------------------\n" ) ;
+printf( "Setting o.var10 to 1\n" ) ;
+try
+	o.var10 = 1 ;
+onerror
+	printf( "[ERROR: %s]\n", error ) ;
+	
+printf( "* o.var   = %s\n", string(o.var) ) ;
+printf( "* o.var10 = %s\n", string(o.var10) ) ;
+
+printf( "---------------------\n" ) ;
+printf( "Setting o.foo to 1.5\n" ) ;
+try
+	o.foo = 1.5 ;
+onerror
+	printf( "[ERROR: %s]\n", error ) ;
+	
+printf( "* o.foo   = %s\n", string(o.foo) ) ;
+printf( "* o.var   = %s\n", string(o.var) ) ;
+printf( "* o.var10 = %s\n", string(o.var10) ) ;
+
+printf( "---------------------\n" ) ;
+printf( "Setting o.bar to \"xyzzy\"\n" ) ;
+try
+	o.bar = "xyzzy" ;
+onerror
+	printf( "[ERROR: %s]\n", error ) ;
+	
+printf( "* o.bar   = %s\n", string(o.bar) ) ;
+printf( "* o.foo   = %s\n", string(o.foo) ) ;
+printf( "* o.var   = %s\n", string(o.var) ) ;
+printf( "* o.var10 = %s\n", string(o.var10) ) ;
+
+printf( "---------------------\n" ) ;
+printf( "Calling o\n" ) ;
+o(1,NULL,"foo") ;
+
+printf( "---------------------\n" ) ;
+printf( "Calling p\n" ) ;
+try
+	p(1,NULL,"foo") ;
+onerror
+	printf( "[ERROR: %s]\n", error ) ;
+
+printf( "---------------------\n" ) ;
+printf( "o.instanceof(c1) - %d\n", o:instanceof(c1) ) ;
+printf( "o.instanceof(c2) - %d\n", o:instanceof(c2) ) ;
+printf( "o.instanceof(scope()) - %d\n", o:instanceof(scope()) ) ;
+printf( "o.instanceof(1) - %d\n", o:instanceof(1) ) ;
+
+printf( "---------------------\n" ) ;
+printf( "o.getClass() - %s\n", string(o:getClass()) ) ;
+printf( "o.getClass() -eq- c1 : %d\n", eq(o:getClass(),c1) ) ;
+printf( "o.getClass() -eq- c2 : %d\n", eq(o:getClass(),c2) ) ;
+
+printf( "---------------------\n" ) ;
+printf( "cloning o\n" ) ;
+p = o:clone() ;
+printf( "p.getClass() - %s\n", string(p:getClass()) ) ;
+printf( "p.getClass() -eq- c1 : %d\n", eq(p:getClass(),c1) ) ;
+printf( "p.getClass() -eq- c2 : %d\n", eq(p:getClass(),c2) ) ;
+printf( "p -eq- o : %d\n", eq(p,o) ) ;
+printf( "p  ==  o : %d\n", p == o ) ;

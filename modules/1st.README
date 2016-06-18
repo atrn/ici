@@ -1,0 +1,134 @@
+
+		    The ici module collection is,
+
+	    Copyright (C) 1999, 2000, 2001.  A.Newman and contributors.
+		    All Rights Reserved, except where noted.
+
+You may freely use the module collection in any program or product as
+long as the authors are credited in the documentation accompanying the
+program or product. The code is not guaranteed to operate to any degree
+of robustness and is provided "AS IS" with no support.
+
+
+
+Now that's over...
+
+
+* INTRODUCTION
+
+This is a collection of modules for ici. The modules provide access to
+common libraries, protocols, etc...  Andy Newman, <atrn@zeta.org.au>,
+was the original author of the collection, others have contributed
+code and fixes, see the file CREDITS.
+
+See the file NEWS for information on changes and the file TODO for the
+start a list of things that need to be done. The file MODULES gives a
+short list of the available modules and the MANIFEST file lists all the
+files in the collection.
+
+
+* BUILDING
+
+** ICI v3
+
+Building the modules for ICI3 requires overriding the value of the
+ICIV (ici version) variable in the makefiles. ICIV is used in a number
+of other macros to derive directory and file names.
+
+      make ICIV=ici3
+
+
+** Bootstrap issues
+
+There are a couple of bootstrapping issues. The Imlib module requires the
+X module be installed. The X module should be built and installed prior
+to any others, i.e., do to its directory and do a "make <options> install"
+and then "cd .." and "make <options> install".
+
+
+
+
+You need the latest ici (version 3, available via SourceForge)
+installed before starting. The module collection assumes ici
+gets installed in its "usual" place (/usr/local), the headers
+are in /usr/local/include/ici3 and modules get installed under
+/usr/local/lib/ici3. If that's not true then things may not work
+without changes to makefiles.
+
+To build the collection on supported platforms type "make". The
+top-level makefile configures and build the entire collection. If a
+module is not supported for a particular configuration it is not
+built. The top-level makefile has the following targets:
+
+	all		Build everything.
+	install		Install everything.
+	uninstall	Remove everything "make install" installed.
+	clean		Clean up object files, etc...
+	clobber		Remove all generated files.
+	config		Run the configure program.
+	depend		Build dependencies.
+	manifest	Build a list of all the files in the file MANIFEST.
+	tar		Build a tar file from the files named in the MANIFEST.
+	tgz		As for tar but gzip it.
+
+Each module makefile also defines the all, install, clean, and depend
+targets. If you plan to do development work its wise to build dependencies.
+I use the BSD mkdep and have an ici clone of it for systems without it.
+
+All targets will perform a "make config" if it hasn't been done. This runs
+the configure program which creates symbolic links to system specific
+Makefiles for each module. It is NOT an autoconf generated configure script
+and is quite dumb by comparison. It should be a lot smarter but does for
+the present time.
+
+
+* INSTALLING
+
+Once built the modules should be installed with "make install". This
+assumes the existence of the /usr/local/lib/ici directory and permission
+to write files there.
+
+
+* PORTING
+
+To configure the system for an unsupported platform the configure
+program will need to be extended to recognise that platform and
+Makefiles written for the platform. Then you build and fix the
+portability bugs. Nothing to it!
+
+If you do port any of the modules to some platform please send the
+changes back so others can share your efforts and not duplicate
+tedious work.
+
+
+* SUPPORT PLATFORMS
+
+FreeBSD			2.2.x and 3.x work. Users of the ici port
+			on 3.x systems need to apply a small patch
+			to the Makefile (-export-dynamic needs to be
+			added to the link flags).
+
+RedHat Linux		Both libc5 and glibc systems work.
+			See */Makefile.linux.
+
+Solaris			Works with Solaris 2.5.1 with gcc. The
+			build requires GNU make. I haven't tried
+			the tcl or wings modules as I don't have
+			them installed on my Solaris machine.
+			See */Makefile.sol2
+
+Mac Os X		Builds with the developer tools.  Most of
+			the major modules have been ported. Mac OS
+			X does rather odd things with its dynamic
+			linking which means you can't have shared
+			data, this breaks the auto-generated
+			strings.  The fix is to include the auto-
+			generated module files into the source
+			rather than compiling separately.
+
+Win32			Works on all major Windows - 9x, NT, 2K, XP.
+			Some modules have reduced functionality due
+			to limitations in the Unix-like functions
+			in MS libraries or lack of functionality
+			in Win32.
+

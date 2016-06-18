@@ -1,0 +1,41 @@
+/*
+ * dialog.ici
+ */
+
+extern dialog = [struct : widget,
+
+    type = "dialog",
+
+    new = [func (self, title, text, default_button)
+    {
+	auto vargs = [array];
+	auto default_button = -1;
+	auto n;
+
+	if (typeof(default_button) != "int")
+	{
+	    vargs = array(default_button) + vargs;
+	    default_button = -1;
+	}
+
+	self.name = self@makename();
+
+	n = tcl.tk
+	(
+	    "tk_dialog", self.name,
+	    "{" + title +"}",
+	    "{" + text + "}",
+	    "{}",
+	    default_button,
+	    vargs
+	);
+
+	self.selected = vargs[int(n)];
+    }],
+
+    selection = [func (self)
+    {
+	return self.selected;
+    }],
+
+];

@@ -1,0 +1,73 @@
+Tim Long is ICI's principle author and creator,
+
+    Tim Long <timl@research.canon.com.au>
+
+	The language designer and implementor of its
+	interpreter and most of the intrinsics. Makes
+	sure ICI works for him on Win32.
+
+
+The following people have assisted in ICI's development...
+
+    Andy Newman <andy@silverbrook.com.au> / <atrn@zeta.org.au>
+
+	Sockets interface, Unix system calls, various intrinsic
+	functions, expanded set operators, new regular expression
+	package and functions. Native code interface and debugger
+	hooks. Makes sure ICI works for him under BSD. "Owns" module
+	collection.
+
+    Chris Amies <chrisa@iname.com>
+
+	ICI specific strtol, many, many bug fixes. An
+	exhaustive tester, tireless debugger and champion
+	of robustness. Linux port.
+
+    Luke Kendall <luke@research.canon.com.au>
+
+	Smash enhancements and many useful suggestions.
+	Linux port.  Brought ancient man pages up to date.
+
+    Giordano Pezzoli <gio@crcc.it>
+
+	Memory allocation alignment fixes.
+
+    Philip Hazel <ph10@cam.ac.uk>
+
+	Author of the PCRE regexp code we now use in ICI. Must be
+	a good guy to write PCRE in the first place.
+
+    Henry Spencer <henry@zoo.toronto.edu>
+
+	The regular expression package (that half the world
+	seems to use) that ICI previously used. We don't use
+	his code anymore but we're indebted to Henry so he
+	gets a mention.
+
+    Yiorgos Adamopoulos <adamo@noc.ntua.gr>
+
+	Case-insensitive regular expressions, Solaris and
+	Ultrix ports and mSQL interface. Also provides FTP
+	access to ICI.
+
+    Gary Gendel <gary@genashor.com>
+
+	Mods to gettokens(), various suggestions and IRIX port.
+
+    Alexander Demenshin <aldem@techie.com>
+
+	Numerous bug fixes and optimisations (see CHANGES).
+
+    Oliver Bock <oliver@g7.org>
+
+	Uninit and other work. Profiling support.
+
+    Tim Vernum <tpv@acay.com.au>
+
+	BeOS port and modifications to load.c to achieve this.
+
+If you're not mentioned don't worry I either forgot or didn't
+know. Send me some mail and get credit for your work.
+
+
+			Andy Newman <atrn@zeta.org.au>

@@ -1,0 +1,6 @@
+all \
+install \
+uninstall \
+clean \
+depend \
+clobber:

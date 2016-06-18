@@ -1,0 +1,55 @@
+#
+# $Id: Makefile.generic,v 1.8 2001/09/16 04:17:50 ljk Exp $
+#
+
+INSTALL =	install
+PREFIX	=	/usr/local/
+ICIV	=	ici3
+LIBICI	=	$(PREFIX)lib/$(ICIV)
+APPDIR	=	$(LIBICI)/app
+
+SRCS	=	\
+	button.ici\
+	canvas.ici\
+	dialog.ici\
+	font.ici\
+	frame.ici\
+	iciapp.ici\
+	label.ici\
+	listbox.ici\
+	menu.ici\
+	messagebox.ici\
+	openfilepanel.ici\
+	pack.ici\
+	place.ici\
+	popupmenu.ici\
+	preferences.ici\
+	scrollbar.ici\
+	scrollinglist.ici\
+	text.ici\
+	textwidget.ici\
+	toplevelwindow.ici\
+	util.ici\
+	widget.ici
+
+all:
+
+install:
+	$(INSTALL) -c -m 444 iciapp.ici "$(LIBICI)/$(ICIV)app.ici"
+	$(INSTALL) -c -m 444 iciobject.ici "$(LIBICI)/$(ICIV)object.ici"
+	[ -d "$(APPDIR)" ] || mkdir -p "$(APPDIR)"
+	$(INSTALL) -c -m 444 $(SRCS) "$(APPDIR)"
+
+uninstall:
+	@echo "$(LIBICI)/$(ICIV)object.ici NOT removed - it may be in use by others"
+	rm -f $(LIBICI)/$(ICIV)app.ici
+	rm -rf $(APPDIR)
+
+ici.h\
+strs.h\
+strings.h\
+cfuncs.c\
+clean\
+depend\
+clobber:
+	@: no need to do anything

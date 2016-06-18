@@ -1,0 +1,4 @@
+#!/usr/local/bin/ici
+url := argv[1] || "http://localhost/";
+data := request := HTTP.get(url);
+put(data);

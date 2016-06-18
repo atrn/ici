@@ -1,0 +1,95 @@
+/*
+ * tst-2.ici - demonstrate extending an existing widget type.
+ */
+
+/*
+ * TextWindow is a new type of UI object. A TextWindow stores some
+ * text from a file and displays it. It has a scroll bar on the right
+ * hand that allows users to control what part of the text is visible.
+ */
+static textwindow = [struct : app.toplevelwindow,
+
+    /*
+     * Create a new TextWindow. The parameter is the name of the file
+     * to be loaded into the TextWindow and is also used as the window's
+     * title.
+     */
+    new = [func (self, name)
+    {
+	self@super()@new();
+	self@settitle(name);
+
+	self.sbar = object.new(app.scrollbar, "vertical", self);
+	app.pack(self.sbar, "-side right -fill y");
+	self.text = object.new(app.text, self);
+	app.pack(self.text, "-side left -expand yes -fill both");
+	self.text@clear();
+
+	self.text@attachscrollbar(self.sbar);
+
+	auto f, s;
+	f = fopen(name);
+	while (s = getline(f))
+	    self.text@append(s + "\n");
+	close(f);
+	self.text@allowmodifications(false);
+    }],
+
+];
+
+/*
+ * Callback function for the "Load" button. When the
+ * button is pressed this function is called. It pops
+ * up an "open file" dialog and if the user selects
+ * a file in the dialog it creates a new TextWindow
+ * widget to show the file.
+ */
+extern
+loadButton()
+{
+    auto filename;
+
+    filename = object.new(app.openfilepanel)@run();
+    if (filename != "")
+	object.new(textwindow, filename);
+}
+
+/*
+ * Create a couple of buttons. One of them to create new TextWindow
+ * objects and the other to quit the application.
+ */
+auto l;
+
+l = object.new(app.label);
+l@setfont("-adobe-helvetica-bold-r-*-*-14-*-*-*-*-*-*-*");
+app.pack(l, "-padx 5 -side top -expand yes");
+
+l = object.new(app.label);
+l@setfont("-adobe-helvetica-bold-r-*-*-18-*-*-*-*-*-*-*");
+l@settext("A demonstration of the ICI Application Framework");
+app.pack(l, "-padx 5 -side top -expand yes");
+
+l = object.new(app.label);
+l@setrelief("sunken");
+l@setfont("-adobe-helvetica-medium-r-*-*-16-*-*-*-*-*-*-*");
+l@settext
+(
+    "This program demonstrates extending the existing UI\n"
+    "objects in the application framework. The program defines\n"
+    "a new type of UI object, the TextWindow, that is used\n"
+    "to show users lots of text, e.g., files."
+);
+l@justify("left");
+app.pack(l, "-padx 5 -pady 15 -side top -expand yes");
+
+auto a = object.new(app.button, "Load");
+a@setaction("loadButton();");
+app.pack(a, "-side left -fill both -expand yes");
+auto b = object.new(app.button, "Quit");
+b@setaction("exit();");
+app.pack(b, "-side left -fill both -expand yes");
+
+/*
+ * And process user events...
+ */
+app.run();

@@ -1,0 +1,183 @@
+/*
+ * Various defaults.
+ */
+
+static	output_format	= "text";
+static	output_dir	= ".";
+static	module_name	= NULL;
+
+static
+output_text(a)
+{
+    auto	name;
+    auto	s;
+    auto	f;
+    
+    name = gettoken(a[0]);
+    f = fopen(path.join(output_dir, name + ".txt"), "w");
+    if (module_name)
+    {
+	printf
+	(
+	    f,
+	    "\n%-14s\t\t    ICI Programmer's Manual    \t\t%14s\n\n", module_name, module_name);
+    }
+    printf(f, "NAME\n\t%s\n\n", a[0]);
+    forall (s in interval(a, 2))
+    {
+	auto v;
+
+	v = s ~~~ #^[ 	]*@([^@]+)@[ 	]*(.*)#;
+	if (nels(v) == 2)
+	{
+	    printf(f, "%s\n", v[0]);
+	    if (v[1] != "")
+		printf(f, "\t%s\n", v[1]);
+	}
+	else
+	{
+	    printf(f, "\t%s\n", s);
+	}
+    }
+    close(f);
+}
+
+static
+output_html_before()
+{
+    static	html_files;
+
+    html_files = array();
+}
+
+static
+output_html(a)
+{
+    auto	name;
+    auto	s;
+    auto	f;
+
+    name = gettoken(a[0]) ~~ #([a-zA-Z_][a-zA-Z0-9]*)#;
+    f = fopen(path.join(output_dir, name + ".html"), "w");
+    printf(f, "<html><head><title>%s</title></head><body>\n", name);
+    printf(f, "<h2>NAME</h2>\n<blockquote>%s</blockquote>\n<h2>DESCRIPTION</h2>\n", a[0]);
+    printf(f, "<blockquote>\n");
+    forall (s in interval(a, 2))
+	printf(f, "%s\n", s);
+    printf(f, "</blockquote></body></html>\n");
+    close(f);
+    push(html_files, struct("file", name + ".html", "name", name));
+}
+
+static
+output_html_after()
+{
+    auto	f;
+    auto	fi;
+    auto	cmpfn = [func (a, b) {
+	if (a.name < b.name)
+	    return -1;
+	return a.name > b.name;
+    }];
+
+    f = fopen(path.join(output_dir, "index.html"), "w");
+    printf(f, "<html><head><title>Index</title></head><body><ul>\n");
+    forall (fi in sort(html_files, cmpfn))
+	printf(f, "<li><a href=\"%s\">%s</a></li>\n", fi.file, fi.name);
+    printf(f, "</ul></body></html>\n");
+    close(f);
+}
+
+
+static	formats = [struct
+
+    html = [struct
+	output = output_html,
+	before = output_html_before,
+	after  = output_html_after,
+    ],
+
+    text = [struct
+	output = output_text,
+    ],
+
+];
+
+static
+mkdoc(f, output)
+{
+    auto	in_comment;
+    auto	s;
+    auto	a;
+    
+    in_comment = false;
+    while (s = getline(f))
+    {
+	if (in_comment)
+	{
+	    if (s == " */")
+	    {
+		in_comment = false;
+		output(a);
+	    }
+	    else
+	    {
+		push(a, interval(s, 3));
+	    }
+	}
+	else if (s == "/**")
+	{
+	    in_comment = true;
+	    a = array();
+	}
+    }
+    close(f);
+}
+
+static
+main()
+{
+    auto	i;
+
+    for (i = 1; i < argc; ++i)
+    {
+	if (argv[i][0] != "-")
+	    break;
+	switch (argv[i])
+	{
+	case "-html":
+	    output_format = "html";
+	    break;
+
+	case "-text":
+	    output_format = "text";
+	    break;
+
+	case "-dir":
+	    if (++i == argc)
+		usage("expect a pathname to follow -dir");
+	    output_dir = argv[i];
+	    break;
+
+	case "-module":
+	    if (++i == argc)
+		usage("expect a parameter to follow -module");
+	    module_name = argv[i];
+	    break;
+
+	default:
+	    usage();
+	}
+    }
+    if (formats[output_format].before)
+	formats[output_format].before();
+    for (; i < argc; ++i)
+    {
+	auto f;
+	mkdoc(f = fopen(argv[i]), formats[output_format].output);
+    }
+    if (formats[output_format].after)
+	formats[output_format].after();
+}
+
+exit(main());

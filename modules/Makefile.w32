@@ -1,0 +1,81 @@
+VERSION=0.4
+
+SUBDIRS =\
+	tools\
+	cgi\
+	html\
+	http\
+	net\
+	path\
+	ps\
+	serialisation\
+	str\
+	sys\
+	utype\
+	xml\
+	env
+
+all :
+        @for %%t in ( $(SUBDIRS) )\
+        do $(MAKE) /nologo /f Makefile.w32  DIR=%%t real-$@
+
+clean :
+        @for %%t in ( $(SUBDIRS) )\
+        do $(MAKE) /nologo /f Makefile.w32  DIR=%%t real-$@
+
+clobber :
+        @for %%t in ( $(SUBDIRS) )\
+        do $(MAKE) /nologo /f Makefile.w32  DIR=%%t real-$@
+
+depend :
+        @for %%t in ( $(SUBDIRS) )\
+        do $(MAKE) /nologo /f Makefile.w32  DIR=%%t real-$@
+
+install :
+        @for %%t in ( $(SUBDIRS) )\
+        do $(MAKE) /nologo /f Makefile.w32  DIR=%%t real-$@
+
+uninstall :
+        @for %%t in ( $(SUBDIRS) )\
+        do $(MAKE) /nologo /f Makefile.w32  DIR=%%t real-$@
+
+real-all:
+	@cd $(DIR)
+	@$(MAKE) /nologo /f Makefile.w32  all
+
+real-clean:
+	@cd $(DIR)
+	@$(MAKE) /nologo /f Makefile.w32  clean
+
+real-clobber:
+	@cd $(DIR)
+	@$(MAKE) /nologo /f Makefile.w32  clobber
+
+real-depend:
+	@cd $(DIR)
+	@$(MAKE) /nologo /f Makefile.w32  depend
+
+real-install:
+	@cd $(DIR)
+	@$(MAKE) /nologo /f Makefile.w32  install
+
+real-ici.h:
+	@cd $(DIR)
+	@$(MAKE) /nologo /f Makefile.w32  ici.h
+
+real-strs.h:
+	@cd $(DIR)
+	@$(MAKE) /nologo /f Makefile.w32  strs.h
+
+real-strings.c:
+	@cd $(DIR)
+	@$(MAKE) /nologo /f Makefile.w32  strings.c
+
+real-cfuncs.c:
+	@cd $(DIR)
+	@$(MAKE) /nologo /f Makefile.w32  cfuncs.c
+
+real-uninstall:
+	@cd $(DIR)
+	@$(MAKE) /nologo /f Makefile.w32  uninstall
+

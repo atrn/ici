@@ -1,0 +1,12 @@
+/*
+ * Define a native code function that does nothing.
+ * Used to measure overhead.
+ */
+
+[cfunc null_ret
+{
+    return ici_null_ret();
+}];
+
+
+null_ret();

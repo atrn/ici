@@ -1,0 +1,3 @@
+* send(), sendto(), no longer raise errors if they fail to send
+  the required number of bytes and return a count of the number
+  of bytes transferred.

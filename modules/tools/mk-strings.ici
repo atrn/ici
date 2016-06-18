@@ -1,0 +1,61 @@
+static  windows = version() ~ #Win32#;
+
+if (argc != 2)
+    exit("usage: " + basename(argv[0]) + " <module-name>");
+
+auto c = fopen("strings.c.new", "w");
+auto h = fopen("strs.h.new", "w");
+
+printf(c, "/* Auto-generated. Don't edit */\n\n");
+printf(h, "/* Auto-generated. Don't edit */\n\n");
+
+printf(c, "#include \"ici-priv.h\"\n\n");
+auto s, a = array();
+while (s = getline())
+{
+    if (s !~ #^NEED_STRING#)
+    continue;
+    s = s ~~ #NEED_STRING\((.*)\)#;
+    push(a, s);
+    printf(c, "DEF_STRING(%s);\n", s);
+    printf(h, "REF_STRING(%s);\n", s);
+}
+printf(c, "\nint ici_%s_need_strings = 1;\n\n", argv[1]);
+printf(c, "int\nici_%s_get_strings(void)\n{\n", argv[1]);
+forall (s in sort(a))
+    printf(c, "    MAKE_STRING(%s);\n", s);
+printf(c, "    return ici_%s_need_strings = 0;\n}\n", argv[1]);
+close(c);
+close(h);
+
+static
+different(a, b)
+{
+    if (windows)
+    return 1;
+    auto rc;
+    rc = system(sprintf("cmp -s %s %s", a, b));
+    if (rc)
+    printf("%s and %s differ\n", a, b);
+    return rc;
+}
+
+static
+move(src, dst)
+{
+    try remove(dst); onerror ;
+    if (windows)
+    system(sprintf("ren %s %s", src, dst));
+    else
+    system(sprintf("mv %s %s", src, dst));
+}
+
+if (different("strings.c.new", "strings.c"))
+     move("strings.c.new", "strings.c");
+else
+    remove("strings.c.new");
+if (different("strs.h.new", "strs.h"))
+     move("strs.h.new", "strs.h");
+else
+    remove("strs.h.new");
+

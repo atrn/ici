@@ -1,0 +1,8 @@
+auto socket, file, line;
+socket = net.socket("tcp/ip");
+net.connect(socket, "daytime@localhost");
+file = net.sktopen(socket);
+line = getline(file);
+printf("%s\n", line);
+close(file);
+net.close(socket);

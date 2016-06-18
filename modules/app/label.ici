@@ -1,0 +1,22 @@
+/*
+ * label.ici
+ */
+
+extern label = [struct : widget,
+
+    type = "label",
+
+    new = [func (self, parent)
+    {
+	auto vargs = [array];
+	self.name = self@makename(parent);
+	tcl.tk
+	(
+	    "label",
+	    self.name,
+	    vargs,
+	    "-font {-adobe-helvetica-bold-r-normal--14-*-*-*-*-*-*-*}"
+	);
+    }],
+
+];

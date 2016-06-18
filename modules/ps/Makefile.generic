@@ -1,0 +1,24 @@
+INSTALL=	install
+PREFIX=		/usr/local/
+ICIV=		ici3
+LIBICI=		$(PREFIX)lib/$(ICIV)
+
+all:
+
+install:	$(LIBICI)/$(ICIV)ps.ici
+
+$(LIBICI)/$(ICIV)ps.ici:	icips.ici
+	$(INSTALL) -c -m 444 icips.ici $@
+
+uninstall:
+	rm -f $(LIBICI)/$(ICIV)ps.ici
+
+
+ici.h\
+strs.h\
+strings.h\
+cfuncs.c\
+clean\
+depend\
+clobber:
+	@: no need to do anything

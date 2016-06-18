@@ -1,0 +1,54 @@
+/*
+ * dialog.ici
+ */
+
+static	current_dialog;
+
+extern
+dialog_action(str)
+{
+}
+
+extern dialog = [struct : widget,
+
+    type = "dialog",
+
+    new = [func (self, title, text, default_button)
+    {
+	auto vargs = [array];
+	auto default_button = -1;
+	auto n;
+
+	if (typeof(default_button) != "int")
+	{
+	    vargs = array(default_button) + vargs;
+	    default_button = -1;
+	}
+
+	self.name = self@makename();
+
+	self.window = object.new(app.toplevelwindow);
+	self.title = object.new(app.label);
+	self.text = object.new(app.label);
+	self.buttons = object.new(app.frame);
+	forall (t in vargs)
+	{
+	    b = object.new(app.button, self.buttons);
+	    b@settext(t);
+	    b@setaction(sprintf("app.dialog_action(\"%s\");", t));
+	    app.pack(b, "-side left -padx 5");
+	}
+
+	app.pack(self.title);
+	app.pack(self.text);
+	app.pack(self.buttons);
+	app.update();
+	
+    }],
+
+    selection = [func (self)
+    {
+	return self.selected;
+    }],
+
+];

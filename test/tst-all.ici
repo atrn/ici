@@ -1,0 +1,45 @@
+printf("%s\n", version());
+
+var n;
+
+rpush(path, ".");
+
+rpush(path, "..");
+
+base := dirname(argv[0]);
+
+/*
+ * Use core extensions functions from this directory, even after we
+ * change to the test directory.
+ */
+rpush(path, base);
+
+chdir(base);
+
+tests := [array
+
+    "parse",
+	"stmt",
+	"types",
+	"bino",
+	"flow",
+	"sets",
+	"del",
+	"many",
+	"func",
+	"regexp",
+    "math",
+    "thread",
+    "misc",
+	"prof",
+//	"exit",
+    "oner",
+];
+
+printf("Should finish with \"deliberate failure\".\n");
+forall (n in tests)
+{
+    printf("%s...\n", n);
+    parse(f := fopen("tst-" + n + ".ici", "r"));
+    close(f);
+}

@@ -1,0 +1,42 @@
+if (version() ~ #Win32#)
+{
+	if (version()  ~ #DEBUG#)
+		rpush(path, "Debug");
+	else
+		rpush(path, "Release");
+}
+
+    x = NULL;
+    try
+        x = xml;
+    onerror
+        x = NULL;
+
+    y = gettokens(currentfile(), "", "!")[0];
+    <mydoc>
+        <foo x_attr="1" y_attr="Hello">
+            This is some character data.
+        </foo>
+    </mydoc>
+    !
+
+    if (x == NULL)
+    {
+        printf("not available, skipped (%s).\n", error);
+    }
+    else
+    {
+        printf("\n");
+        z = xml.read(sopen(y));
+        if (typeof(z) != "array")
+            fail("type of xml.read is not array");
+        if (z[1][xml.TAG] != "mydoc")
+            fail("incorrect top level tag in xml");
+        if (z[1][xml.ELEMENTS][1][xml.TAG] != "foo")
+            fail("incorrect mid level tag in xml");
+        if (z[1][xml.ELEMENTS][1].y_attr != "Hello")
+            fail("incorrect attribute in xml");
+        if (z[1][xml.ELEMENTS][1][xml.ELEMENTS][0] !~ #data#)
+            fail("incorrect character data in xml");
+    }
+printf("OK\n");

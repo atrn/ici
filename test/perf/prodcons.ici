@@ -1,0 +1,46 @@
+local n = argv[1] ? int(argv[1]) : 1;
+local count = 0;
+local consumed = 0;
+local produced = 0;
+local data = 0;
+
+local
+producer()
+{
+    for (i := 1; i <= n; ++i)
+    {
+        waitfor (count == 0; "access")
+        {
+            data = i;
+            count = 1;
+            wakeup("access");
+        }
+        ++produced;
+    }
+    return 1;
+}
+
+local
+consumer()
+{
+    do
+    {
+        waitfor (count != 0; "access")
+        {
+            i = data;
+            count = 0;
+            wakeup("access");
+        }
+        ++consumed;
+
+    } while (i != n);
+    return 1;
+}
+
+p := go(producer);
+c := go(consumer);
+waitfor (p.result; p)
+    ;
+waitfor (c.result; c)
+    ;
+// printf("%d %d\n", produced, consumed);

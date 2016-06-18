@@ -1,0 +1,556 @@
+#!/usr/local/bin/ici
+/*
+ * Configure ici-modules in preparation for building with make.
+ *
+ * This script generates a Makefile in each of the module directories on the
+ * list below for both UNIX-like system and Windows.  Each Makefile is
+ * tailored to build the modules on, and for, the flavour of system this
+ * script is run on.  The known flavours are listed in the table "modules" below.
+ *
+ * The Makefiles it generates are ultra-conservative and made by the following
+ * process:
+ *
+ * 1)       If the sub-dir contains a Makefile.flavour, where flavour is the
+ *          current system, that file is used as a basis.
+ *
+ *          Otherwise, if the sub-dir contains a Makefile.generic, that is
+ *          used as a basis.
+ *
+ *          Otherwise, if the sub-dir contains a Makefile.patch, patch(1)
+ *          is used to turn Makefile.generic in this top level directory into
+ *          Makefile.patched in the sub-directory, and that is used as a basis.
+ *
+ *          Otherwise, the Makefile.generic from this top level directory is
+ *          used as a basis.
+ *
+ * 2)       The makefile being used as a basis is copied to Makefile in the
+ *          module directory with certain $(...) variables textually replaced
+ *          by this script from values in the tables below.
+ *
+ * Ideally, a module will not have any Makefiles, and the generic one will be
+ * sufficient.  However, if there are special build requirements, for a
+ * particular module, a Makefile.frag or Makefile.frag.flavour can be placed
+ * in the module directory to add stuff.  If that is not enough, the
+ * Makefile.generic can be copied into the sub-dir and tailored.  If, for some
+ * systems, even this is not enough, the Makefile that this script generates
+ * can be copied to Makefile.flavour and specific arrangements made for the
+ * particular module on the particular system.
+ *
+ * This script only uses core ICI features (because, of course, you might not
+ * have any other modules built yet).
+ *
+ * Anyone adding modules or systems is invited to add to the tables below (if
+ * you think you know what you are doing).
+ *
+ * The most-generic Makefile (the one in this directory) assumes that *.c in
+ * module dir should be built into a library.
+ *
+ */
+
+/*
+ * The modules that this script will process, and the system
+ * flavours for which it will do it.
+ */
+static modules = [struct
+
+#    bdb     = [set "bsd", "linux", "osx", "sol2", "cygwin", "w32"],
+    bignum  = [set "bsd", "linux", "osx", "sol2", "cygwin", "w32"],
+    channel = [set "bsd", "linux",                "cygwin", "w32"],
+    cfunc   = [set "bsd", "linux",        "sol2", "cygwin"],
+    cgi     = [set "bsd", "linux", "osx", "sol2", "cygwin", "w32"],
+    dbg     = [set "bsd", "linux", "osx", "sol2", "cygwin", "w32"],
+    dll     = [set "bsd", "linux", "osx", "sol2", "cygwin", "w32"],
+    env     = [set "bsd", "linux", "osx", "sol2", "cygwin", "w32"],
+    errno   = [set "bsd", "linux", "osx", "sol2", "cygwin", "w32"],
+    html    = [set "bsd", "linux", "osx", "sol2", "cygwin", "w32"],
+    hmac    = [set "bsd"],
+    http    = [set "bsd", "linux", "osx", "sol2", "cygwin", "w32"],
+    is      = [set "bsd"],
+    list    = [set "bsd"],
+    long    = [set "bsd"],
+    net     = [set "bsd", "linux", "osx", "sol2", "cygwin", "w32"],
+    path    = [set "bsd", "linux", "osx", "sol2", "cygwin", "w32"],
+    PostgreSQL = [set "bsd"],
+    serialisation = [set "bsd"],
+    str     = [set "bsd", "linux", "osx", "sol2", "cygwin", "w32"],
+    sys     = [set "bsd", "linux", "osx", "sol2", "cygwin", "w32"],
+    tcl     = [set "bsd"],
+    xml     = [set "bsd", "linux", "osx", "sol2", "cygwin", "w32"],
+    uuid    = [set "bsd", "linux"                                ],
+    utype   = [set "bsd"],
+    widb    = [set                                          "w32"],
+
+//    vm      = [set "bsd"],
+];
+
+/*
+ * The substitutions that are performed in copying a Makefile.generic to a
+ * particular module for a paricular flavour.  If an entry is a function, it
+ * is called to get a string.  If an entry is a struct, it is indexed by the
+ * flavour to find a value.  If the flavour is not found, the 'default' entry
+ * is used.  If an entry is a string, it is used directly.
+ *
+ * The following defines are processed (and what it is set to in brackets).
+ *
+ * CF_MAKE_FRAG         This is a special substitution. If is replaced by
+ *                      the contents of Makefile.frag in the module dir
+ *                      if it exsits. This is done before other variable
+ *                      expansions, so expansions also happen inside the
+ *                      substituted contents.
+ *
+ * CF_MAKE_FRAG_FLAV    This is a special substitution.  If is replaced by the
+ *                      contents of Makefile.frag.flavour in the module dir if
+ *                      it exsits (where flavour is the current flavour).
+ *                      This is done before other variable expansions, so
+ *                      expansions also happen inside the substituted
+ *                      contents.
+ *
+ * CF_ICIV              ici4 or whatever version number we are up to (ici4)
+ *
+ * CF_MOD               The name of the module (Like sys, net. All the keys of
+ *                      the modules struct defined below in turn).
+ *
+ * CF_PREFIX            The install base, like /usr/local. (If the environment
+ *                      variable PREFIX is defined when configure is run, its
+ *                      value will be used, else /usr/local.)
+ *
+ * CF_LIBICI_DIR        The location of libici4.a for this system.  (Same as
+ *                      CF_PREFIX above, with /lib/ici4 appended.)
+ *
+ * CF_ICI_H_DIR         The location of ici.h for this system.  (Same as
+ *                      CF_PREFIX above, with /include appended.)
+ *
+ * CF_STAR_DOT_O        *.c in the module dir with all the .c changed to .o.
+ *
+ * CF_STAR_DOT_C        *.c in the module dir.
+ *
+ * CF_ICI_STAR_DOT_ICI  ici*.ici in the moduler dir.
+ *
+ * CF_INSTALL           The command, with options, to copy files into an
+ *                      install directory. (Varies with flavour.)
+ *
+ * CF_RM                The command to remove files, including any "force"
+ *                      option. (rm except for Windows, where is is del.)
+ *
+ * CF_SO                The suffix the shared, dynamic link, dynamic load, or
+ *                      whatever library should have to be suitable for ICI.
+ *                      (Varies with flavour.)
+ *
+ * CF_O                 The suffix of an object module ("o" except for
+ *                      Windows which is "obj".)
+ *
+ * CF_CFLAGS            C compiler options in addition to the others already
+ *                      mentioned here.  (Varies with flavour.)
+ *
+ * CF_LDFLAGS           Linker options in addition to the others already
+ *                      mentioned here.  (Varies with flavour.)
+ *
+ * CF_LIBS              Any other libs that should be linked in. (Varies
+ *                      with flavour.)
+ *
+ * CF_OTHERDEFS         Any other make defines that should be made.  (Varies
+ *                      with flavour.)
+ *
+ * CF_OTHERRULES        Any other make dependancy rules that should be made.
+ *                      (None.)
+ *
+ * CF_MAKEIN            The name of the template makefile being used.
+ *
+ * CF_MAKEOUT           The name of the actual makefile being produced.
+ *
+ * CF_FLAVOUR           The local system "flavour" name.  (Varies with
+ *                      flavour, obviously.)
+ */
+static subs = [struct
+
+    CF_ICIV = "ici4",
+    CF_MOD(){return module;}
+    CF_MAKEIN(){return makein;}
+    CF_MAKEOUT(){return makeout;}
+    CF_FLAVOUR(){return flavour;}
+
+    CF_PREFIX(){return getenv("PREFIX") || "/usr/local";}
+    CF_LIBICI_DIR(){return (getenv("PREFIX") || "/usr/local") + "/lib/ici4";}
+    CF_ICI_H_DIR(){return (getenv("PREFIX") || "/usr/local") + "/include";}
+
+    CF_STAR_DOT_O()
+    {
+        dot_o = flavour == "w32" ? ".obj" : ".o";
+        cs := dir(module, #(?i)\.c$#);
+        r := strbuf();
+        forall (c in cs)
+            strcat(r, c ~~ #(?i)^(.*)\.c$#, dot_o, " ");
+        return r;
+    }
+
+    CF_STAR_DOT_C()
+    {
+        cs := dir(module, #(?i)\.c$#);
+        r := strbuf();
+        forall (c in cs)
+            strcat(r, c, " ");
+        return r;
+    }
+
+    CF_ICI_STAR_DOT_ICI()
+    {
+        cs := dir(module, #(?i)^ici4.*\.ici$#);
+        r := strbuf();
+        forall (c in cs)
+            strcat(r, c, " ");
+        return r;
+    }
+
+    CF_O =
+    [struct
+        w32 = "obj",
+        default = "o"
+    ],
+
+    CF_INSTALL =
+    [struct
+        w32 = "ici ../tools/install-win32.ici",
+        sol2 = "/usr/ucb/install -c -m 444",
+        default = "install -c -m 444"
+    ],
+
+    CF_RM =
+    [struct
+        w32 = "del /f",
+        default = "rm -f"
+    ],
+
+    CF_SO =
+    [struct
+        osx = "bundle",
+        cygwin = "dll",
+        w32 = "dll",
+        default = "so"
+    ],
+
+    CF_CFLAGS =
+    [struct
+        osx = "-fno-common -g -Os -DNDEBUG -DICI_MODULE_NAME=$(MOD)",
+        bsd = "-DBSD_4 -g -O2 -DNDEBUG -Wall",
+        sol2 = "-DSUNOS5 -g -O2 -DNDEBUG",
+        cygwin = "-g -O2 -DNDEBUG",
+        w32 = "/MD /Z7 /O2 /DNDEBUG",
+        linux = "-fPIC -g -O2 -DNDEBUG -mcmodel=large",
+        default = "-fpic -g -O2 -DNDEBUG"
+    ],
+
+    CF_LDFLAGS =
+    [struct
+        osx = "-flat_namespace -bundle -undefined suppress",
+        sol2 = "-G",
+        cygwin = "-shared -L$(PREFIX)/lib",
+        w32 = "/MD /Z7 /link /DLL /export:ici_$(MOD)_library_init",
+        linux = "-shared -g -O2 -DNDEBUG -mcmodel=large",
+        default = "-shared",
+    ],
+
+    CF_LD_OUT_NAME_OPT =
+    [struct
+        w32 = "/Fe$@",
+        default = "-o $@"
+    ],
+
+    CF_LIBS =
+        [struct
+            cygwin = "-lici4.dll",
+            w32 = "user32.lib wsock32.lib advapi32.lib winmm.lib ici4.lib",
+            default = "",
+        ],
+
+    CF_OTHERDEFS =
+        [struct
+            sol2 = "CC\t= gcc -pipe",
+            cygwin = "CC\t= gcc",
+            w32 = "CC\t= cl /nologo",
+            default = "",
+        ],
+];
+
+/*
+ * The following struct maps the system uname to a particular ici "flavour".
+ * Entries can be either strings or functions. If they are functions it is
+ * called to return a string giving the flavour. Every system must have an
+ * entry otherwise it is declared "unsupported".
+ */
+static flavours = [struct
+
+    Darwin      = "osx",
+    FreeBSD     = "bsd",
+    NetBSD      = "bsd",
+    Linux       = "linux",
+    ("CYGWIN_NT-5.0") = "cygwin",
+    SunOS()
+    {
+        /*
+         * SunOS 1.x and 2.x have the same uname but are different beasts
+         */
+        try
+            {close(fopen("/vmunix")); return "sunos";}
+        onerror
+            return "sol2";
+    }
+    Win32       = "w32", /* Pseudo entry. */
+];
+
+/*--------------------End of tables, start of code.----------------------*/
+
+/*
+ * Determine if a module has a configuration script and if so, parse it
+ * to attempt to configure the module.  Presumably the configuration
+ * script tailors the module's build process for the particular system
+ * but it may perform any actions.
+ *
+ * The configuration script must be called "configure" and is parsed
+ * prior to creating makefiles so may generated the "Makefile.flavour"
+ * or "Makefile.frag" files used to create makefiles.
+ *
+ * The module configuration script is called with the scope of this
+ * function and has access to the variables defined within configure.
+ *
+ * If the module cannot be configured for this platform the configuration
+ * script should raise an error (i.e. invoke fail()).
+ *
+ */
+static
+configure_module(module)
+{
+    configure_script := sprintf("./%s/configure", module);
+    try
+        file := fopen(configure_script);
+    onerror
+        // No configure script, assume success.
+        return error ~ #[Nn]o such file#;
+    try
+    {
+        parse(file);
+        result := 1;
+    }
+    onerror
+    {
+        result := 0;
+    }
+    close(file);
+    return result;
+}
+
+static
+lookup_subs(s)
+{
+    s = subs[s];
+    if (typeof(s) == "string")
+        ;
+    else if (typeof(s) == "func")
+        s = s();
+    else if (s[flavour] != NULL)
+        s = s[flavour];
+    else
+        s = s.default;
+    return s;
+}
+
+
+/*
+ * Emulate configure :)
+ */
+if (argv[1] == "--help")
+{
+    printf("This is NOT an autoconf configure script!\n");
+    exit(0);
+}
+
+/*
+ * Get uname and find ICI style system flavour.
+ */
+static flavour;
+if (argv[1] != NULL)
+{
+    uname = "command line";
+    flavour = argv[1];
+}
+else if (version() ~ #\bWin32\b#)
+{
+    uname = "win32";
+    flavour = "w32";
+}
+else
+{
+    uname := getline(p := popen("uname"));
+    close(p);
+    if (!(flavour = flavours[uname]))
+        fail(sprintf("don't know what flavour of unix \"%s\" is", uname));
+
+    if (typeof(flavour) == "func")
+        flavour = flavour();
+}
+printf("Uname \"%s\", therefor flavour \"%s\".\n", uname, flavour);
+
+static module;
+static configured_modules = array();
+
+/*
+ * Build a regular expression from the keys of the subs struct. That is,
+ *
+ *  \b(CF_ICIV|CF_MOD|...)\b
+ */
+re = strbuf("\\$\\((");
+forall (v, k in subs)
+    strcat(re, k, "|");
+strcat(re, nels(re) - 1, ")\\)");
+re = regexp(re);
+
+/*
+ * Forall the modules, generate the Makefiles we can.
+ */
+static makein, makeout;
+forall (module in sort(keys(modules)))
+{
+    can_do_flavs = modules[module];
+    if (!can_do_flavs[flavour] || !configure_module(module))
+        continue;
+    push(configured_modules, module);
+    /*
+     * Find and read a Makefile to use as a basis.
+     */
+    try
+    {
+	f = fopen(makein = sprintf("%s/Makefile.%s", module, flavour));
+    }
+    onerror
+    {
+	try
+	{
+	    f = fopen(makein = sprintf("%s/Makefile.generic", module));
+	}
+	onerror
+	{
+	    try
+	    {
+		close(fopen(sprintf("%s/Makefile.patch", module)));
+		system(sprintf
+		(
+		    "patch -o %s/Makefile.patched Makefile.generic %s/Makefile.patch",
+		    module, module
+		));
+		f = fopen(makein = sprintf("%s/Makefile.patched", module));
+	    }
+	    onerror
+	    {
+		if (nels(dir(module, #(?i)\.c$#)) == 0)
+		{
+		    f = fopen(makein = "Makefile.no-c");
+		}
+		else
+		{
+		    try
+		    {
+			f = fopen(makein = sprintf("Makefile.%s", flavour));
+		    }
+		    onerror
+		    {
+			f = fopen(makein = "Makefile.generic");
+		    }
+		}
+	    }
+	}
+    }
+    f = getfile(f);
+
+    /*
+     * Substitute in any Makefile.frag includes.
+     */
+    frags_used = "";
+    try
+    {
+        ff = getfile(n := sprintf("%s/Makefile.frag.%s", module, flavour));
+        frags_used += " + " + n;
+    }
+    onerror
+        ff = "";
+    f = gsub(f, #\$\(CF_MAKE_FRAG_FLAV\)#, ff);
+
+    try
+    {
+        ff = getfile(n := sprintf("%s/Makefile.frag", module));
+        frags_used += " + " + n;
+    }
+    onerror
+        ff = "";
+    f = gsub(f, #\$\(CF_MAKE_FRAG\)#, ff);
+
+    makeout = sprintf("%s/Makefile", module);
+
+    printf("%8s: %16s <- %s%s\n", module, makeout, makein, frags_used);
+
+    /*
+     * Break it into bits to be replaced, and bits not to be replaced,
+     * using that regular expression we built.
+     */
+    f = smash(f, re, "\\0", "\\1", 1);
+    /*
+     * Perform substitutions on the odd numbered entries (i.e.  the bits to be
+     * replaced).
+     */
+    forall (s, i in f)
+    {
+        if ((i & 1) == 0)
+            continue;
+       s = lookup_subs(s);
+       f[i] = s;
+    }
+    f = implode(f);
+    f = gsub(f, #(?=\n\n\n)\n#, ""); /* Just to tidy up blank lines. */
+    put(f, (fo := fopen(makeout, "w")));
+    close(fo);
+}
+
+/*
+ * Generate the top-level Makefile.
+ */
+m = fopen("Makefile", "w");
+printf(m, "#\n# Automatically generated by configure for %s\n#\n\n", flavour);
+targs = [array "all", "doc", "clean", "clobber", "test tst", "install", "depend"];
+if (flavour == "w32")
+{
+    pop(targs);
+}
+printf("Makefile <- generated. Targets:");
+forall (target in targs)
+{
+    printf(" %s", target);
+    printf(m, "%s%s:\n", target, target == "doc" ? " docs" : "");
+    if (target == "install" && flavour == "w32")
+        printf(m, "\t-del install-bits.txt\n");
+    forall (module in sort(configured_modules))
+    {
+        if (flavour == "w32")
+            printf(m, "\tcd %s\n\tnmake /nologo %s\n\tcd ..\n", module, target == "all" ? "" : target);
+        else
+            printf(m, "\tcd %s; make %s\n", module, target == "all" ? "" : target);
+    }
+    if (target == "doc" || target == "install")
+    {
+        printf(m, "\tici tools/make-iciex.ici");
+        forall (t in sort(configured_modules))
+            printf(m, " %s", t);
+        printf(m, "\n");
+    }
+    if (target == "install" && flavour == "w32")
+    {
+        printf(m, "\tici tools/mk-nsis-installer.ici\n");
+        printf(m, "\tmakensis /v2 ici4-modules-install.nsi\n");
+        printf(m, "\t.\\ici4-modules-install.exe\n");
+    }
+    if (target == "install" && flavour != "w32")
+    {
+        printf(m, "\t%s iciex.1 %s/man/man1\n",
+            lookup_subs("CF_INSTALL"),
+            lookup_subs("CF_PREFIX"));
+    }
+    printf(m, "\n");
+}
+printf(".\n");

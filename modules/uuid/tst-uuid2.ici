@@ -1,0 +1,13 @@
+if (argc < 2)
+    n := 1000000;
+else
+    n := int(argv[1]);
+
+start := cputime();
+for (i := 0; i < n; ++i)
+     uuid.generate();
+end := cputime();
+
+printf("%d UUIDs generated in %d seconds\n", n, end - start);
+
+

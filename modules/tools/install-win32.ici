@@ -1,0 +1,67 @@
+/*
+ * This is a totally fake "install" program for Windows. It assumes
+ * UNIX-like install arguments, but re-interprets them into fragments
+ * of an NSIS install script. It accumulates these fragments by appending
+ * onto ../install-bits.txt. That file is truncated at the start of a build
+ * process, then at the end, it is read by mk-nsis-installer.ici to
+ * build the complete NSIS install script.
+ */
+static descs = [struct
+    bignum = "DEC/INRIA big integer arithmetic",
+    cgi = "Functions for CGI script",
+    env = "The environment as a data object",
+    xml = "Expat based XML parser",
+    net = "Sockets based networking",
+    sys = "System calls and related",
+    dll = "Call DLL functions directly",
+    html = "HTML element classes",
+];
+
+static
+desc(name)
+{
+    try
+    {
+        f := fopen(name + ".synopsis", "r");
+        s := getline(f);
+        close(f);
+    }
+    onerror
+    {
+        s := sprintf("The ICI %s module", name);
+    }
+    return s;   
+}
+
+cwd = getcwd();
+mod = cwd ~~ #\\([^\\]*)$#;
+f = fopen("../install-bits.txt", "a");
+myname = rpop(argv);
+dst = pop(argv);
+forall (src in argv)
+{
+    if (name = (src ~~ #^ici4(.*)\.(dll|ici)$#))
+    {
+        /*
+         * This is a loadable extension module.
+         */
+        printf(f, "I;%s;0;Section \"%s - %s\"\n", mod, name, desc(name));
+        printf(f, "I;%s;1;    SetOutPath \"$SYSDIR\\ici\"\n", mod);
+        printf(f, "I;%s;2;    File \"/oname=%s\" \"%s\\%s\"\n", mod, src, cwd, src);
+        printf(f, "I;%s;3;SectionEnd\n", mod, src);
+
+        printf(f, "U;%s;0;    Delete \"$SYSDIR\\ici\\%s\"\n", mod, src);
+    }
+    else if (name = (src ~~ #^ici(.*)\.1$#))
+    {
+        printf(f, "I;%s;3;    !insertmacro install_doc %s %s\n", mod, cwd, name);
+
+        printf(f, "U;%s;1;    Delete \"$INSTDIR\\ici%s.html\"\n", mod, name);
+        printf(f, "U;%s;2;    Delete \"$SMPROGRAMS\\ICI Programming Language\\ICI %s module doc.lnk\"\n", mod, name);
+
+    }
+    else
+    {
+        fail(sprintf("don't how to install %s", src));
+    }
+}

@@ -1,0 +1,66 @@
+ICI Posix Functions
+
+	This is a collection of auto-load native code functions for
+	ICI. The functions provide access to Posix things not provided
+	by standard ICI such as symbolic links and FIFOs. The code
+	also acts as an example of adding individual functions as
+	auto-loaded, native code extensions. This technique allows
+	arbitrary transparent extension of the language without using
+	the "dot" notation (i.e., modular programming) and may be
+	useful in some situations.
+
+Extra functions,
+
+	readlink	Read the value of a symbolic link.
+	symlink		Create a symbolic link.
+	mkfifo		Create a FIFO (named pipe).
+	fcntl		Control file descriptors.
+	read		Read a string from a file descriptor.
+	write		Write a string to a file descriptor.
+
+Detailed Descriptions
+
+	string = readlink(path)
+
+		Return the value of the symbolic link at path, a
+		string. Raises an error if path is not a symbolic
+		link or does not exist.
+
+	symlink(path1, path2)
+
+		Create a symbolic link, path2, to path1. Raises
+		errors as appropriate.
+
+	mkfifo(path, mode)
+
+		Create a FIFO called path with the given mode.
+
+	fcntl(fd, cmd, ...)
+
+		Control a descriptor. Fd is an integer file descriptor
+		as returned by open(). Cmd is a string and may be one
+		of the following;
+
+		dupfd	F_DUPFD		Duplicate descriptor.
+		getfd	F_GETFD		Get "close on exec" flag.
+		setfd	F_SETFD		Set "close on exec" flag.
+		getfl	F_GETFL		Get descriptor flags.
+		setfl	F_SETFL		Set descriptor flags.
+		getown	F_GETOWN	Get process id for SIGIO/SIGURG.
+		setown	F_SETOWN	Set process id for SIGIO/SIGURG.
+
+		"get" operations take no extra parameters and return
+		the result of the call as the result of the function.
+		"set" operations take an optional parameter, the value
+		to be set, an integer. If not given this defaults to 1.
+
+	int = write(fd, string)
+
+		Perform a write(2) system call on the integer file
+		descriptor sending the contents of the given string.
+
+	string = read(fd, len)
+
+		Perform a read(2) system call for up to len bytes
+		and return string containing the data read. Returns
+		NULL on end-of-file.

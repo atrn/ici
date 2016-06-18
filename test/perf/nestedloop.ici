@@ -1,0 +1,27 @@
+n := argv[1] ? int(argv[1]) : 1;
+x := 0;
+z := build(n, "i");
+forall (a in z)
+    forall (b in z)
+        forall (c in z)
+            forall (d in z)
+                forall (e in z)
+                    forall (f in z)
+                        ++x;
+
+/*
+ * These simple nested for loops are perhaps a more natural construct.
+ * But other languages use the above contruct in their implementations,
+ * and it is slightly faster.
+ */
+/*
+for (a = n; a--; )
+    for (b = n; b--; )
+        for (c = n; c--; )
+            for (d = n; d--; )
+                for (e = n; e--; )
+                    for (f = n; f--; )
+                        ++x;
+*/
+
+// printf("%d\n", x);

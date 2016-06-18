@@ -1,0 +1,45 @@
+.TH iciis 1 "The ICI Programming Language" "" "The ICI Programming Language"
+.SH "NAME"
+iciis - The ICI is module
+.SH "DESCRIPTION"
+.P
+The is module exports various sets that help in testing
+characters against particular classes. The sets have
+names that mimic C\'s ctype.h definitions when used
+with autoloading, e.g, is.alpha, is.digit, etc...
+.P
+The sets contain both string and integer versions of
+the characters allowing use with both strings and character
+codes. When testing strings it must be remembered the
+sets are being accessed directly and only the specific
+character wanted to be tested be used to index the
+set.
+.P
+The exported sets should be treated as read-only. Modifying
+their values will result in undefined behaviour. The
+module makes use of ICI\'s initialiser semantics and
+literal functions to call a function at parse time
+to initialise the sets.
+.P
+is.alpha[int|string] - set containing all upper and
+lower case characters as strings and character codes.
+.P
+is.alnum[int|string] - set containg all upper and lower
+case characters and decimal digits as both character
+codes and strings.
+.P
+is.cntrl
+.P
+is.digit
+.P
+is.lower
+.P
+is.print
+.P
+is.space
+.P
+is.punct
+.P
+is.upper
+.SH "SEE ALSO"
+ici(1), iciex(1)

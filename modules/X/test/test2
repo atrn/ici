@@ -1,0 +1,35 @@
+/*
+ * $Id: test2,v 1.1.1.1 1999/09/08 01:27:24 andy Exp $
+ *
+ * Smallest program that responds to the "delete window" event.
+ */
+
+auto wm_delete_window_atom, win, disp;
+
+disp = X.OpenDisplay();
+X.Synchronize(disp, true);
+win = X.CreateSimpleWindow(disp, X.DefaultRootWindow(disp));
+printf("Created window\n");
+wm_delete_window_atom = X.InternAtom(disp, "WM_DELETE_WINDOW");
+printf("Created atom\n");
+X.SetWMProtocols(disp, win, array(wm_delete_window_atom));
+printf("Set protocols\n");
+X.MapWindow(disp, win);
+printf("Mapped window\n");
+
+auto event;
+for (;;)
+{
+    printf("Waiting...");flush(stdout);
+    event = X.NextEvent(disp);
+    printf("got it\n");
+    if
+    (
+	event.type == "ClientMessage"
+	&&
+	X.Atom(disp, event.data[0]) == wm_delete_window_atom
+    )
+    {
+	exit();
+    }
+}

@@ -1,0 +1,23 @@
+local Class = [class
+
+    new()
+    {
+	return this:^new();
+    }
+
+    method1()
+    {
+    }
+
+    method2()
+    {
+    }
+];
+
+x = Class:new();
+if (!x:respondsto("method1"))
+    fail("1");
+if (!x:respondsto("method2"))
+    fail("2");
+if (x:respondsto("method3"))
+    fail("3");

@@ -1,0 +1,193 @@
+var x, y, z;
+
+if (typeof(stdin) != "file")
+    fail("stdin is not a file");
+if (typeof(stdout) != "file")
+    fail("stdout is not a file");
+if (typeof(stderr) != "file")
+    fail("stderr is not a file");
+if (typeof(path) != "array")
+    fail("path is not an array");
+if (len(path) == 0)
+    fail("path is empty");
+forall (x in path)
+{
+    if (typeof(x) != "string")
+        fail("path is not an array of strings");
+}
+if (typeof(argv) != "array")
+    fail("argv is not an array");
+if (typeof(argv[0]) != "string")
+    fail("argv[0] is not a string");
+
+/*
+ * This is actually testing growth of the internal ici_buf.
+ */
+x = "0123456789";
+for (i = 0; i < 5; ++i)
+    x += x;
+try
+    fail(x);
+onerror
+    ;
+
+
+local
+short_func(a, b)
+{
+}
+
+if (sprintf("%a", short_func) !~ #short_func#)
+    fail("failed to get name of func");
+
+if (short_func.args != [array "a", "b"])
+    fail("failed to get args of func");
+
+if (short_func.name != "short_func")
+    fail("failed to get name of func");
+
+if (short_func.not_a_valid_key != NULL)
+    fail("unexpected result from index of func");
+
+local
+a_very_long_functions_name_that_wont_fit_in_30_chars()
+{
+}
+
+if (sprintf("%a", a_very_long_functions_name_that_wont_fit_in_30_chars) !~ #a_very#)
+    fail("failed to get name of long func");
+
+error = NULL; try return; onerror;
+if (error == NULL)
+    fail("failed to fail on return not in func");
+
+a := short_func:name;
+error = NULL; try a(); onerror;
+if (error == NULL)
+    fail("failed to fail on bad method call");
+
+struct().a = 1;
+short_func(2, 3);
+
+if (typeof(debug()) != "int")
+    fail("debug() didn't return an int");
+old_debug := debug(1);
+
+try fail("deliberate"); onerror;
+
+debug(old_debug);
+
+p := &[array 1, 2, 3][0];
+++p;
+if (p[1] != 3)
+    fail("failed to deref pointer");
+p[1] = 5;
+if (p[1] != 5)
+    fail("failed to deref pointer");
+if (p[0] != 2)
+    fail("failed to deref by 0");
+p[0] = 7;
+--p;
+if (p[1] != 7)
+    fail("failed to index 0 pointer");
+p[1] = 6;
+if (p[1] != 6)
+    fail("failed to assign/index pointer");
+error = NULL; try p@(1)(); onerror;
+if (error == NULL)
+    fail("failed to fail on bad ptr call");
+
+error = NULL; try *1 = 2; onerror;
+if (error == NULL)
+    fail("failed to fail on bad ptr assigns");
+error = NULL; try a := *1; onerror;
+if (error == NULL)
+    fail("failed to fail on bad ptr assigns");
+
+if ("abc"[1] != "b")
+    fail("failed to index a string");
+if ("abc"[5] != "")
+    fail("failed to index a string");
+
+if (version() ~ #trace#)
+{
+    if (typeof(a := trace()) != "int")
+        fail("trace() didn't return in");
+
+    error = NULL; try trace("bozo"); onerror;
+    if (error !~ #unrecognised#)
+        fail("failed to fail on bad trace");
+
+    if (trace("off none") != 0)
+        fail("trace returned wrong value");
+
+    trace("lexer expr calls funcs all mem src gc");
+
+    if (trace("on all") != 1)
+        fail("trace returned wrong value");
+
+    trace("off");
+
+}
+
+a := strbuf("xy");
+a[4] = 'z';
+if (a != "xy  z")
+    fail("failed to assign to and extend mutable string");
+a[1] = 'A';
+if (a != "xA  z")
+    fail("failed to assign to middle of mutable string");
+error = NULL; try "hello"[1] = 2; onerror; if (error == NULL)
+    fail("failed to fail on write to atomic string");
+error = NULL; try a["x"] = 2; onerror; if (error == NULL)
+    fail("failed to fail on bad string write");
+error = NULL; try a[1] = "x"; onerror; if (error == NULL)
+    fail("failed to fail on bad string write");
+error = NULL; try a[-1] = 2; onerror; if (error == NULL)
+    fail("failed to fail on bad string write");
+
+a := strbuf();
+s := sopen(a, "r+");
+printf(s, "printf ");
+put("put", s);
+if (a != "printf put")
+    fail("failed to write to mutable string");
+seek(s, 0, 0);
+if (getfile(s) != "printf put")
+    fail("failed to read data written to mutable string");
+
+m := mopen(alloc(20, 1), "r+");
+printf(m, "printf ");
+put("put", m);
+seek(m, 0, 0);
+if (gettoken(m, "\0") != "printf put")
+    fail("failed to read data written to mem object");
+seek(m, 20 - 5, 0);
+put("write", m);
+seek(m, 20 - 4, 0);
+error = NULL; try put("write", m); onerror;
+if (error == NULL)
+    fail("failed to fail on write past end of mem object");
+seek(m, 0, 0);
+if (getfile(m) != "printf put\0\0\0\0\0wwrit")
+    fail("write did not truncate");
+
+/*
+ * This test causes ici 4.1.0 to print garbage.  It can also
+ * cause a crash if the buffer is extended significantly.
+ * This bug in sfile.c was fixed 8/9/2005.
+ */
+a := strbuf("A sequence of characters.\n");
+s := sopen(a, "r"); /* s keeps a pointer into the buffer */
+strcat(a, "Add some more characters.\n"); /* moves the buffer */
+for (i = 0; i < 100; i++); /* churn some objects */
+getfile(s);
+
+/*
+ * This test causes ici 4.1.0 to try to write at an address
+ * outside the process's legal address space.
+ * This bug in sfile.c was fixed 8/9/2005.
+ */
+local xyz = sopen("{seek(xyz, 1000000, 0);rejectchar(currentfile(),\" \");}");
+parse(xyz);
+

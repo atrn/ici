@@ -1,0 +1,15 @@
+/*
+ * scrollbar.ici
+ */
+
+extern scrollbar = [struct : widget,
+
+    type = "scrollbar",
+
+    new = [func (self, orientation, parent)
+    {
+	self.name = self@makename(parent);
+	tcl.tk("scrollbar", self.name, "-orient", orientation);
+    }],
+
+];

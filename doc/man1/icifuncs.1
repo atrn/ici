@@ -1,0 +1,1904 @@
+.r icifuncs.1
+.TH icifunc 1 "The ICI Programming Language" "" "The ICI Programming Language"
+.SH NAME
+icifuncs \- ICI core language function
+.SH DESCRIPTION
+
+The following list summarises the standard functions.  Following this
+is a detailed description of each of them.
+
+.ta 2iR
+.nf
+	float|int = 	\fBabs\fP(float|int)
+	float = 	\fBacos\fP(number)
+	mem = 	\fBalloc\fP(int [, int])
+	string = 	\fBargv\fP[]
+	array = 	\fBarray\fP(any...)
+	float = 	\fBasin\fP(number)
+	any = 	\fBassign\fP(struct, any, any)
+	float = 	\fBatan\fP(number)
+	float = 	\fBatan\fP2(number, number)
+	array|struct = 	\fBbuild\fP(dims... [, options, content...])
+	float|struct = 	\fBcalendar\fP(struct|float)
+	any = 	\fBcall\fP(func [, arg...], args)
+	float = 	\fBceil\fP(number)
+		\fBchdir\fP(string)
+		\fBclose\fP(file)
+	int = 	\fBcmp\fP(a, b)
+	any = 	\fBcopy\fP(any)
+	any = 	\fBany\fP:copy()
+	float = 	\fBcos\fP(number)
+	float = 	\fBcputime\fP([foat])
+	file = 	\fBcurrentfile\fP([string])
+	int = 	\fBdebug\fP([int])
+		\fBdel\fP(aggr, any)
+	array = 	\fBdir\fP([path], [, regexp] [, format])
+	int = 	\fBeof\fP(file)
+	int = 	\fBeq\fP(any, any)
+		\fBeventloop\fP()
+		\fBexit\fP([int|string|NULL])
+	float = 	\fBexp\fP(number)
+	array = 	\fBexplode\fP(string)
+		\fBfail\fP(string)
+	any = 	\fBfetch\fP(struct, any)
+	float = 	\fBfloat\fP(any)
+	float = 	\fBfloor\fP(number)
+	int = 	\fBflush\fP([file])
+	float = 	\fBfmod\fP(number, number)
+	file = 	\fBfopen\fP(string [, string])
+	string = 	\fBgetchar\fP([file])
+	string = 	\fBgetcwd\fP()
+	string = 	\fBgetenv\fP(string)
+	string = 	\fBgetfile\fP([file])
+	string = 	\fBgetline\fP([file])
+	string = 	\fBgettoken\fP([file|string [,string]])
+	array = 	\fBgettokens\fP([file|string [,string [,string]]])
+	string = 	\fBgsub\fP(string, regexp, string)
+	string = 	\fBimplode\fP(array)
+	struct = 	\fBinclude\fP(string [, struct])
+	int = 	\fBint\fP(any [, int])
+	string|array = 	\fBinterval\fP(string|array, int [, int])
+	int = 	\fBinst\fP|class:isa()
+	int = 	\fBisatom\fP(any)
+	array = 	\fBkeys\fP(struct)
+	any = 	\fBload\fP(string)
+	float = 	\fBlog\fP(number)
+	float = 	\fBlog\fP10(number)
+	mem = 	\fBmem\fP(int, int [,int])
+	file = 	\fBmopen\fP(string [, string])
+	int = 	\fBnels\fP(any)
+	inst = 	\fBclass\fP:new(...)
+	float = 	\fBnow\fP()
+	int|float = 	\fBnum\fP(string|int|float [, int])
+	struct = 	\fBparse\fP(file|string [, struct])
+	string = 	\fBparsetoken\fP(file)
+	any = 	\fBparsevalue\fP(file)
+	string = 	\fBpath\fP[]
+	any = 	\fBpop\fP(array)
+	file = 	\fBpopen\fP(string [, string])
+	float = 	\fBpow\fP(number, number)
+		\fBprintf\fP([file,] string [, any...])
+		\fBprofile\fP(filename)
+	any = 	\fBpush\fP(array, any)
+		\fBput\fP(string [, file])
+		\fBputenv\fP(string [, string])
+	int = 	\fBrand\fP([int])
+		\fBreclaim\fP()
+	regexp = 	\fBregexp\fP(string)
+	regexp = 	\fBregexpi\fP(string)
+		\fBrejectchar\fP(file)
+		\fBrejecttoken\fP(file)
+		\fBremove\fP(string)
+		\fBrename\fP(string, string)
+	int = 	\fBinst\fP|class:respondsto(string)
+	any = 	\fBrpop\fP(array)
+		\fBrpush\fP(array, any)
+	struct = 	\fBscope\fP([struct])
+	int = 	\fBseek\fP(file, int, int)
+	set = 	\fBset\fP(any...)
+	string|func = 	\fBsignal\fP(int|string [, func|string])
+	string = 	\fBsignam\fP(int)
+	float = 	\fBsin\fP(number)
+		\fBsleep\fP(number)
+	array = 	\fBsmash\fP(string [, regexp [, string...] [, int]]);
+	file = 	\fBsopen\fP(string [, string])
+	array = 	\fBsort\fP(array, func [, arg])
+	string = 	\fBsprintf\fP(string [, any...])
+	float = 	\fBsqrt\fP(number)
+	string = 	\fBstrbuf\fP([string])
+	string = 	\fBstrcat\fP(string [, int] , string...)
+	string = 	\fBstring\fP(any)
+	struct = 	\fBstruct\fP(any, any...)
+	string = 	\fBsub\fP(string, regexp, string)
+	struct = 	\fBsuper\fP(struct [, struct])
+	int = 	\fBsystem\fP(string)
+	float = 	\fBtan\fP(number)
+	exec = 	\fBthread\fP(callable [, args...])
+	string = 	\fBtochar\fP(int)
+	int = 	\fBtoint\fP(string)
+	any = 	\fBtokenobj\fP(file)
+	any = 	\fBtop\fP(array [, int])
+	int = 	\fBtrace\fP(string)
+	string = 	\fBtypeof\fP(any)
+	string = 	\fBversion\fP()
+	array = 	\fBvstack\fP([int])
+		\fBwakeup\fP(any)
+	struct = 	\fBwhich\fP(key [, struct])
+.fi
+.DT
+.SH DETAILS
+.SS "float|int = abs(float|int)"
+.P
+Returns the absolute value of its argument. The result
+is an int if the argument is an int, a float if it
+is a float.
+.SS "angle = acos(x)"
+.P
+Returns the arc cosine of \fIx\fP in the range 0 to pi.
+.SS "mem = alloc(nwords [, wordz])"
+.P
+Returns a new mem object referring to \fInwords\fP (an int)
+of newly allocated and cleared memory. Each word is
+either 1, 2, or 4 bytes as specified by \fIwordz\fP (an int,
+default 1). Indexing of mem objects performs the obvious
+operations, and thus pointers work too.
+.SS "string = argv[]"
+.P
+An array of strings containing the command line arguments
+set at interpreter start-up. The first element is the
+name of the ICI program and subsequent elements are
+the arguments passed to that program.
+.P
+On Windows platforms ICI performs wildcard expansion
+in the traditional MS-DOS fashion. Arguments containing
+wildcard meta-characters, \fB?\fP and \fB*\fP, may
+be protected by enclosing them in single or double
+quotes. On UNIX-like systems, the operating environment
+is expected to handle this.
+.SS "array = array(any...)"
+.P
+Returns an array formed from all the arguments. For
+example:
+.P
+.RS 5
+.nf
+array()
+.fi
+.RE 1
+.P
+will return a new empty array; and
+.P
+.RS 5
+.nf
+array(1, 2, "a string")
+.fi
+.RE 1
+.P
+will return a new array with three elements, 1, 2,
+and "the string".
+.P
+This is the run-time equivalent of the array literal.
+Thus the following two expressions are equivalent:
+.P
+.RS 5
+.nf
+$array(1, 2, "a string")
+.fi
+.RE 1
+.P
+.RS 5
+.nf
+[array 1, 2, "a string"]
+.fi
+.RE 1
+.SS "float = asin(x)"
+.P
+Returns the arc sine of \fIx\fP in the range -pi/2 to pi/2.
+.SS "value = assign(struct, key, value)"
+.P
+Sets the element of \fIstruct\fP identified by \fIkey\fP to \fIvalue\fP,
+ignoring any super struct. Returns \fIvalue\fP.
+.SS "angle = atan(x)"
+.P
+Returns the arc tangent of \fIx\fP in the range -pi/2 to
+pi/2.
+.SS "angle = atan2(y, x)"
+.P
+Returns the angle from the origin to the rectangular
+coordinates \fIx\fP, \fIy\fP (floats ) in the range -pi to pi.
+.SS "array|struct = build(dims... [, options, content...])"
+.P
+Build allows construction of a regular data structure
+such as a multi-dimensional array or an array of structures.
+\fIdims...\fP is a sequence of dimension specifications.
+For example:
+.P
+.RS 5
+.nf
+build(20, 10);
+.fi
+.RE 1
+.P
+returns a 20 x 10 array of NULLs (that is, an array of 20 arrays, each
+of size 10).
+.P
+Each dimension specification is either:
+.TP 16
+\fBan int\fP
+causing an array of that many elements to be made and have every element set through recursive application on subsequent dimensions, or
+.TP 16
+\fBan array\fP
+causing a struct with the elements of the array as keys to be made and each value set through recursive application on subsequent dimensions.
+.P
+So, for example:
+.P
+.RS 5
+.nf
+build(10, [array "x", "y"], 2)
+.fi
+.RE 1
+.P
+Returns an array of ten structures, each with fields
+\fIx\fP and \fIy\fP. Each field is set to an array of length 2.
+.P
+If \fIoptions\fP and \fIcontent...\fP are supplied, they may be
+used to supply initialising data to the leaf fields
+of the data structure rather than the default NULL.
+Options is a string, which may be:
+.TP 16
+\fB"c"\fP
+Cyclical. The content is used and assigned cyclically to leaf items. 
+.TP 16
+\fB"r"\fP
+Restart. The content is used and assigned cyclicly, but the content list is also restarted from the first item on the commencement of each bottom level aggregate.
+.TP 16
+\fB"l"\fP
+Last repeats. The content is used and assigned in sequence to leaf items, but once it is exhausted, the last content item is used repeatedly for subsequent leaf items.
+.TP 16
+\fB"a"\fP
+Arrays. Each of the content items must be an array. Content is taken firstly from the first element of each array in turn, then from the second element of each in turn etc. If any array is too short, NULL is used as the value.
+.TP 16
+\fB"i"\fP
+Integer increment. The content is incrementing integer values. The first content value, if given is the start value, default 0. The second content value, if given, is the step, default 1.
+.P
+So, for example, supposing names_array is an array
+of names of some sort:
+.P
+.RS 5
+.nf
+build(names_array, [array "count", "sum"], "c", 0, 0.0)
+.fi
+.RE 1
+.P
+will return a struct which, when indexed by a name
+in names_array reveals a struct with fields \fIcount\fP and
+\fIsum\fP initialised to 0 and 0.0 respectively.
+.P
+Also:
+.P
+.RS 5
+.nf
+build(50, "i", 1, 2)
+.fi
+.RE 1
+.P
+will return an array filled with the odd integers from
+1 to 99.
+.P
+Finally, if names is an array of names of some sort
+and values is a corresponding array of values:
+.P
+.RS 5
+.nf
+build(nels(names), [array "name", "value"], "a", names, values)
+.fi
+.RE 1
+.P
+will transpose them into an array of structs, each
+with a name and value field.
+.SS "float|struct = calendar(struct|float)"
+.P
+Converts between calendar time and arithmetic time.
+An arithmetic time is expressed as a signed float time
+in seconds since 0:00, 1st Jan 2000 UTC. The calendar
+time is expressed as a structure with fields revealing
+the local (including current daylight saving adjustment)
+calendar date and time. Fields in the calendar structure
+are:
+.TP 16
+\fBsecond\fP
+The float number of seconds after the minute.
+.TP 16
+\fBminute\fP
+The int number of minutes after the hour.
+.TP 16
+\fBhour\fP
+The int number of hours since midnight.
+.TP 16
+\fBday\fP
+The day of the month (1..31).
+.TP 16
+\fBmonth\fP
+The int month number, Jan is 0.
+.TP 16
+\fByear\fP
+The int year.
+.TP 16
+\fBwday\fP
+The day since Sunday (0..6)
+.TP 16
+\fByday\fP
+Days since 1st Jan.
+.P
+When converting from a local calendar time to an arithmetic
+time, the fields second, minute, hour, day, month,
+year are used. They need not be restricted to their
+nomal ranges.
+.SS "return = call(func [, any...], array|NULL)"
+.P
+Calls the function \fIfunc\fP with the arguments \fIany...\fP plus
+arguments taken from the \fIarray\fP. If array is NULL it
+is ignored, else it must be an array. Returns the return
+value of the function.
+.P
+This is often used to pass on an unknown argument list.
+For example:
+.P
+.RS 5
+.nf
+static
+db()
+{
+    auto vargs;
+    
+    if (debug)
+        return call(printf, stderr, vargs);
+}
+.fi
+.RE 1
+.SS "float = ceil(x)"
+.P
+Returns the smallest integral value greater than or equal
+to \fIx\fP as a float, where \fIx\fP is a number (int or float).
+.P
+.SS "chdir(path)"
+.P
+Change the current working directory to the specified path.
+.SS "close(file)"
+.P
+Close the given \fIfile\fP, releasing low level system resources.
+After this operation the file object is still a valid
+object, but I/O operations on it will fail. (File objects
+that are lost and collected by the garbage collector
+will be closed. But due to the indeterminate timming
+of this, it is preferable to close them explicitly.)
+.P
+On some files and systems this may block, but will
+allow thread switching while blocked.
+.SS "int = cmp(a, b)"
+.P
+Returns -1, 0 or 1 depending if \fIa\fP \fB<\fP \fIb\fP, \fIa\fP \fB==\fP \fIb\fP,
+or \fIa\fP \fB>\fP \fIb\fP. The operands may be any type for which the \fB<\fP and
+\fB>\fP operators are defined. This is the default comparison
+function for \fIsort()\fP.
+.SS "any = copy(any)"
+.P
+Returns a copy of an object. That is, an object that
+is distinct (not eq) but of equal value (==), unless
+the object is intrinsically atomic or unique (in which
+case the original object is returned).
+.SS "any = any:copy()"
+.P
+The method form of copy(). Otherwise as above.
+.SS "x = cos(angle)"
+.P
+Returns the cosine of \fIangle\fP (a float interpreted in
+radians).
+.SS "float = cputime([float])"
+.P
+Returns the accumulated CPU time of the current process in seconds.
+The precision and accuracy is system dependent.
+.P
+If \fIfloat\fP is supplied it specifies a new origin, relative
+to the value being returned, from which subsequent
+calls are measured. Mostly commonly the value 0.0 is
+used here.
+.SS "file = currentfile(["raw"])"
+.P
+Returns a file associated with the innermost parsing
+context, or NULL if there is no module being parsed.
+By default currentfile() returns a new file object
+that gives "cooked" access that layers on top of
+the parser's access to the file. This maintains line
+number tracking and normalises differing newline conventions
+to single newline characters even for binary files.
+Such a file is sutiable to calls to parsetoken(). If
+the string "raw" is given as an argument, the underlying file that
+is being parsed is returned directly, by-passing such
+operations.
+.P
+This function can be used to include data in a program
+source file which is out-of-band with respect to the
+normal parse stream. But to do this it is necessary
+to know up to what character in the file in question
+the parser has consumed.
+.P
+In general: after having parsed any simple statement
+the parser will have consumed up to and including the
+terminating semicolon, and no more. Also, after having
+parsed a compound statement the parser will have consumed
+up to and including the terminating close brace and
+no more. For example:
+.P
+.RS 5
+.nf
+static help = gettokens(currentfile(), "", "!")[0]
+
+;This is the text of the help message.
+It follows exactly after the ; because
+that is exactly up to where the parser
+will have consumed. We are using the
+gettokens() function (as described below)
+to read the text.
+!
+
+static otherVariable = "etc...";
+.fi
+.RE 1
+.P
+In the examples shown above, the default cooked mode
+is used so that line numbers are tracked and stay in
+sync for subsequence diagnostics. If the raw mode was
+used the parser would never see the data read out-of-band
+and would not realise how many lines have been skipped,
+thus giving inaccurate reports of line numbers on errors
+later in the file.
+.P
+This function can also be used to parse the rest of
+a file within an error catcher. For example:
+.P
+.RS 5
+.nf
+try
+    parse(currentfile(), scope())
+onerror
+    printf("That didn't work, but never mind.\n");
+
+static this = that;
+etc();
+.fi
+.RE 1
+.P
+The functions \fIparse\fP and \fIscope\fP are described below.
+.SS "int = debug([int])"
+.P
+Returns the current debug status, and, if an int is supplied as an argument,
+set it to that value.
+.P
+When debugging is enabled, certain events such as each
+new source line, each function call and return, and
+errors, are passed to any active debugger. Debuggers
+are typically dynamically loaded extension modules
+that register themselves with the interpreter through
+an internal API.
+.SS "del(aggr, key)"
+.P
+Deletes an element of \fIaggr\fP, which must be a struct, a set
+or an array, as identified by \fIkey\fP.  Any super structs are ignored.
+For structs and sets this is an efficient operation. For arrays it
+is O(\fIn\fP) where \fIn\fP is the length from the index key, to the nearest
+end of the array (that is, either the beginning of the end).
+If \fIkey\fP is not a current element of \fIaggr\fP there is no effect and
+no error. Returns NULL.
+.P
+For example:
+.P
+.RS 5
+.nf
+static s = [struct a = 1, b = 2, c = 3];
+static v, k;
+forall (v, k in s)
+    printf("%s=%d\n", k, v);
+del(s, "b");
+printf("\n");
+forall (v, k in s)
+    printf("%s=%d\n", k, v);
+.fi
+.RE 1
+.P
+When run would produce (possibly in some other order):
+.P
+.RS 5
+.nf
+a=1
+c=3
+b=2
+
+a=1
+c=3
+.fi
+.RE 1
+.SS "array = dir([path,] [regexp,] [format])"
+.P
+Read directory named in \fIpath\fP (a string, defaulting
+to ".", the current working directory) and return the
+entries that match the \fIregexp\fP as an array of strings
+(or all names if no regexp is passed). The \fIformat\fP string
+identifies what sort of entries should be returned.
+If the format string is passed then a path MUST be
+passed (to avoid any ambiguity) but \fIpath\fP may be NULL
+meaning the current working directory (same as ".").
+The format string uses the following characters,
+.TP 16
+\fBf\fP
+Return file names.
+.TP 16
+\fBd\fP
+Return directory names.
+.TP 16
+\fBa\fP
+Return all names (which includes things other than files and directories, e.g., hidden or special files).
+.P
+The default format specifier is "f".
+.P
+Note that when using \fIdir()\fP to traverse directory hierarchies
+that the "." and ".." names are returned when
+listing the names of sub-directories, these will need
+to be avoided when traversing.
+.SS "int = eq(obj1, obj2)"
+.P
+Returns 1 (one) if \fIobj1\fP and \fIobj2\fP are the same object,
+else 0 (zero). Note that this is more strict than the
+\fB==\fP operator, which tests whether two objects have equal
+value.
+.SS "int = eof([file])"
+.P
+Returns non-zero if end of file has been read on \fIfile\fP. If \fIfile\fP
+is not given the current value of stdin
+in the current scope is used.
+.SS "eventloop()"
+.P
+Enters an internal event loop and never returns. The
+exact nature of the event loop is system specific.
+Some dynamically loaded modules require an event loop
+for their operation. Allows thread switching while
+blocked.
+.SS "exit([string|int|NULL])"
+.P
+Causes the interpreter to finish execution and exit.
+If no parameter, the empty string or NULL is passed
+the exit status is zero. If an integer is passed that
+is the exit status. If a non-empty string is passed
+then that string is printed to the interpreter's
+standard error output and an exit status of one used.
+.SS "float = exp(x)"
+.P
+Returns the exponential function of \fIx\fP, that is, \fIe\fP raised
+to power \fIx\fP.
+.SS "array = explode(string)"
+.P
+Returns an array containing each of the integer character
+codes of the characters in \fIstring\fP.
+.SS "fail(string)"
+.P
+Causes an error to be raised with the message \fIstring\fP
+associated with it. See the section on error handling
+in the try statement above. For example:
+.P
+.RS 5
+.nf
+if (qf > 255)
+    fail(sprintf("Q factor %d is too large", qf));
+.fi
+.RE 1
+.SS "value = fetch(struct, key)"
+.P
+Returns the value from \fIstruct\fP (which actually may be
+any type of object) associated with \fIkey\fP, ignoring any
+supers. Returns NULL if key is not an element of struct.
+.SS "value = float(x)"
+.P
+Returns a floating point interpretation of \fIx\fP, or 0.0
+if no reasonable interpretation exists. \fIx\fP should be
+an int, a float, or a string, else 0.0 will be returned.
+.SS "float = floor(x)"
+.P
+Returns the largest integral value less than or equal to
+\fIx\fP as a float, where \fIx\fP is a number (int or float).
+.SS "flush([file])"
+.P
+Flush causes data that has been written to the \fIfile\fP
+(or stdout if absent), but not yet delivered to the
+low level host environment, to be deliverd immediately.
+.P
+On some files and systems this may block, but will
+allow thread switching while blocked.
+.SS "float = fmod(x, y)"
+.P
+Returns the float remainder of \fIx\fP / \fIy\fP
+where \fIx\fP and \fIy\fP are numbers (int or float). That is,
+\fIx\fP - \fIi\fP * \fIy\fP for some integer \fIi\fP such that the
+result has the same sign as \fIx\fP and magnitude less than \fIy\fP.
+.SS "file = fopen(name [, mode])"
+.P
+Opens the named file for reading or writing according
+to \fImode\fP
+and returns a file object that may be used to perform
+I/O on the file. \fImode\fP
+is the same as in C and is passed directly to the
+C library \fIfopen\fP
+function. If \fImode\fP is not specified "r"
+is assumed.
+On Windows, directory separators may be either / or \\ characters.
+.P
+On some files and systems this may block, but will
+allow thread switching while blocked.
+.P
+Note that this is one of many open functions. Different
+open functions open different types of files, like
+a standard I/O file in this case, and a string in the
+case of sopen. However, once the file is open, the
+same I/O functions and close function are used for
+all types of files.
+.SS "string = getchar([file])"
+.P
+Reads a single character from \fIfile\fP
+.P
+and returns it as a string. Returns NULL upon end
+of file. If \fIfile\fP
+is not given, the current value of \fIstdin\fP
+in the current scope is used.
+On some files and systems this may block, but will
+allow thread switching while blocked.
+.SS "string = getcwd()"
+.P
+Returns the name of the current working directory.
+.SS "string = getenv(string)"
+.P
+Returns the value of an environment variable. (Under
+Windows only, a case insensitive match is done to work
+around some bugs in Windows.)
+.SS "string = getfile([file])"
+.P
+Reads all remaining data from \fIfile\fP
+and returns it as a string. If file
+is not given, the current value of \fIstdin\fP
+in the current scope is used. If \fIfile\fP is a string,
+it is taken as a file name and opened and closed using
+the current values of \fIfopen\fP and \fIclose\fP in the current
+scope.
+.P
+On some files and systems this may block, but will
+allow thread switching while blocked.
+.SS "string = getline([file])"
+.P
+Reads a line of text from \fIfile\fP
+and returns it as a string. Any end-of-line marker
+is removed. Returns NULL
+upon end of file. If \fIfile\fP
+is not given, the current value of \fIstdin\fP
+in the current scope is used.
+.P
+On some files and systems this may block, but will
+allow thread switching while blocked.
+.SS "string = gettoken([file [, seps]])"
+.P
+Read a token (that is, a string) from \fIfile\fP (which may
+be a file or a string).
+.P
+\fIseps\fP must be a string. It is interpreted as a set of
+characters which do not from part of the token. Any
+leading sequence of these characters is first skipped.
+Then a sequence of characters not in seps is gathered
+until end of file or a character from seps is found.
+This terminating character is not consumed. The gathered
+string is returned, or NULL if end of file was encountered
+before any token was gathered.
+.P
+If \fIfile\fP is not given the current value of \fIstdin\fP in
+the current scope is used. If \fIfile\fP is a string, characters
+are read from the string.
+.P
+If \fIseps\fP is not given the string " \\t\\n" is assumed.
+.P
+Currently, even if blocked while reading a file \fIgettoken\fP
+is indivisible with repect to other threads. This may
+be corrected in future versions.
+.SS "array = gettokens([file [, seps [, terms, [delims]]]])"
+.P
+Read tokens (that is, strings) from \fIfile\fP. The tokens
+are character sequences separated by \fIseps\fP and terminated
+by \fIterms\fP. Returns an array of strings, NULL on end
+of file.
+.P
+If \fIseps\fP is a string, it is interpreted as a set of
+characters, any sequence of which will separate one
+token from the next. In this case leading and trailing
+separators in the input stream are discarded.
+.P
+If \fIseps\fP is an integer it is interpreted as a character
+code. Tokens are taken to be sequences of characters
+separated by exactly one of that character.
+.P
+\fIterms\fP must be a string. It is interpreted as a set
+of characters, any one of which will terminate the
+gathering of tokens. The character which terminated
+the gathering will be consumed.
+.P
+\fIdelims\fP must be a string. It is interpreted as a set
+of self-delimiting single character tokens that will
+be seperated out as single character strings in the
+resulting array.
+.P
+If \fIfile\fP is not given the current value of \fIstdin\fP in
+the current scope will be used.
+.P
+If \fIseps\fP is not given the string " \\t" is assumed.
+.P
+If \fIterms\fP is not given the string "\\n" is assumed.
+.P
+If \fIdelims\fP is not given the string "" is assumed.
+.P
+For example:
+.P
+.RS 5
+.nf
+forall (token in gettokens(currentfile()))
+    printf("<%s>", token)
+;This    is my line    of data.
+printf("\\n");
+.fi
+.RE 1
+.P
+when run will print:
+.P
+.RS 5
+.nf
+<This><is><my><line><of><data.>
+.fi
+.RE 1
+.P
+Whereas:
+.P
+.RS 5
+.nf
+forall (token in gettokens(currentfile(), ':', "*", "$"))
+    printf("<%s>", token)
+;:abc::def$:ghi:*printf("\\n");
+.fi
+.RE 1
+.P
+when run will print:
+.P
+.RS 5
+.nf
+<><abc><><def><$><ghi><>
+.fi
+.RE 1
+.P
+Currently, even if blocked while reading a file \fIgettokens\fP
+is indivisible with respect to other threads. This
+may be corrected in future versions.
+.SS "string = gsub(string, string|regexp, string)"
+.P
+\fIgsub\fP performs text substitution using regular expressions.
+It takes the first parameter, matches it against the
+second parameter and then replaces the matched portion
+of the string with the third parameter. If the second
+parameter is a string it is converted to a regular
+expression as if the regexp() function had been called.
+gsub does the replacement multiple times to replace
+all occurrances of the pattern. It returns the new
+string formed by the replacement. If there is no match
+this is the original string. The replacement string may
+contain the special sequence \fB\\&\fP which is replaced
+by the string that matched the regular expression.
+Parenthesized portions of the regular expression may
+be matched by using \fB\\fP\fI\n\fP where \fIn\fP
+is a decimal digit.
+.P
+For example:
+.P
+.RS 5
+.nf
+x = gsub("abc xbz xyz", #(.)b(.)#, "\\\\2b\\\\1");
+.fi
+.RE 1
+.P
+will result is x having the value:
+.P
+.RS 5
+.nf
+"cba zbx xyz"
+.fi
+.RE 1
+.P
+Notice that double backslashes were needed in the replacement
+string to get the single backslash required.
+.SS "string = implode(array)"
+.P
+Returns a string formed from the concatenation of elements
+of \fIarray\fP. Integers in the array will be interpreted
+as character codes; strings in the array will be included
+in the concatenation directly. Other types are ignored.
+.SS "struct = include(string [, scope])"
+.P
+Parses the code contained in the file named by the
+\fIstring\fP into the \fIscope\fP. If scope is not passed the current
+scope is used. \fIinclude\fP always returns the scope into
+which the code was parsed. The file is opened by calling
+the current definitions of the fopen and close in the
+current scope.
+.P
+\fIinclude\fP first attempts to open the file exactly as
+named. If that failes, it looks for the file using
+the directories named in the \fIpath\fP variable in the current
+scope (see \fIpath\fP above).
+.SS "value = int(any [, base])"
+.P
+Returns an integer interpretation of \fIany\fP, or 0 if no
+reasonable interpretation exists. \fIany\fP should be an
+int, a float, or a string, else 0 will be returned.
+If \fIany\fP is a string and \fIbase\fP is zero or absent, any
+will be converted to an int depending on its appearance;
+applying octal and hex interpretations according to
+the normal ICI source parsing conventions. (That is,
+if it starts with a 0x it will be interpreted as a
+hex number, else if it starts with a 0 it will be interpreted
+as an octal number, else it will be interpreted as
+a decimal number). If \fIbase\fP is present and non-zero,
+it must be an int in the range 2..36, and it will be
+used as the base for intepretation of the string.
+.SS "subpart = interval(str_or_array, start [, length])"
+.P
+Returns a sub-interval of \fIstr_or_array\fP, which may be
+either a string or an array.
+.P
+If \fIstart\fP (an integer) is positive the sub-interval
+starts at that offset (offset 0 is the first element).
+If \fIstart\fP is negative the sub-interval starts that many
+elements from the end of the string (offset -1 is the
+last element, -2 the second last etc).
+.P
+If \fIlength\fP is absent, all the elements from the start
+are included in the interval. Otherwise, if \fIlength\fP
+is positive that many elements are included (or till
+the end, whichever is smaller). Otherwise (i.e. \fIlength\fP
+is negative) that much less than the number of elements
+in the \fIstr_or_array\fP is used.
+.P
+For example, the last character in a string can be
+accessed with:
+.P
+.RS 5
+.nf
+last = interval(str, -1);
+.fi
+.RE 1
+.P
+And the first three elements of an array with:
+.P
+.RS 5
+.nf
+first3 = interval(ary, 0, 3);
+.fi
+.RE 1
+.P
+And all except the last three elements of an array
+with:
+.P
+.RS 5
+.nf
+first3 = interval(ary, 0, -3);
+.fi
+.RE 1
+.SS "int = inst|class:isa(any)"
+.P
+Returns 1 if \fIinst\fP or \fIclass\fP or any of their super classes
+is equal to \fIany\fP, else 0. That is, if \fIinst\fP or \fIclass\fP is a,
+or is a sub-class of, \fIany\fP.
+.SS "int = isatom(any)"
+.P
+Return 1 (one) if \fIany\fP is an atomic (read-only) object,
+else 0 (zero). Note that integers and floats are always atomic
+and strings are atomic unless made with \fIstrbuf\fP.
+.SS "array = keys(struct)"
+.P
+Returns an array of all the keys from \fIstruct\fP. The order
+is not predictable, but is repeatable if no elements
+are added or deleted from the struct between calls
+and is the same order as taken by a forall loop.
+.SS "any = load(string)"
+.P
+Attempt to load a library named by \fIstring\fP. This is
+the explicit form of the automatic library loading
+described in "Automatic library loading" in the \fIICI
+Programming Language\fP.
+The library is loaded in the same way and the resulting
+object returned. (Actually, this is the real core mechanism.
+The automatic mechanis calls the function \fIload()\fP in
+the current scope to load the module. Thus overiding
+\fIload()\fP allows control to be gained over the automatic
+mechanism.)
+.SS "float = log(x)"
+.P
+Returns the natural logarithm of \fIx\fP (a float or an int).
+.SS "float = log10(x)"
+.P
+Returns the log base 10 of \fIx\fP (a float or an int).
+.SS "mem = mem(start, nwords [, wordz])"
+.P
+Returns a memory object which refers to a particular
+area of memory in the ICI interpreter's address space.
+Note that this is a highly dangerous operation. Many
+implementations will not include this function or restrict
+its use. It is designed for diagnostics, embedded systems
+and controllers. See the \fIalloc\fP function above.
+.SS "file = mopen(mem [, mode])"
+.P
+Returns a file, which when read will fetch successive
+bytes from the given memory object. The memory object
+must have an access size of one (see \fIalloc\fP
+and \fImem\fP
+above). The file is read-only and the mode, if passed,
+must be one of "r"
+or "rb".
+.SS "int = nels(any)"
+.P
+Returns the number of elements in \fIany\fP. The exact meaning
+depends on the type of \fIany\fP. If any is an:
+.TP 16
+\fBarray\fP
+the length of the array is returned; if it is a
+.TP 16
+\fBstruct\fP
+the number of key/value pairs is returned; if it is a
+.TP 16
+\fBset\fP
+the number of elements is returned; if it is a
+.TP 16
+\fBstring\fP
+the number of characters is returned; and if it is a
+.TP 16
+\fBmem\fP
+the number of words (either 1, 2 or 4 byte quantities) is returned;
+.P
+and if it is anything else, one is returned.
+.SS "inst = class:new()"
+.P
+Creates a new instance of the given \fIclass\fP. In practice
+new is often also defined in sub-classes. This is the
+global \fInew\fP. The new \fIinst\fP will be a fresh struct with \fIclass\fP
+as its super.
+.SS "float = now()"
+.P
+Returns the current time expressed as a signed float
+time in seconds since 0:00, 1st Jan 2000 UTC.
+.SS "number = num(x [, base])"
+.P
+If \fIx\fP is an int or float, it is returned directly. If
+\fIx\fP is a string and \fIbase\fP is zero or absent, \fIx\fP will be
+converted to an int or float depending on its appearance;
+applying octal and hex interpretations according to
+the normal ICI source parsing conventions. (That is,
+if it starts with a 0x it will be interpreted as a
+hex number, else if it starts with a 0 it will be interpreted
+as an octal number, else it will be interpreted as
+a decimal number.) If \fIbase\fP is present and non-zero,
+it must be an int in the range 2..36, and it will be
+used as the base for intepretation of the string.
+.P
+If \fIx\fP can not be interpreted as a number the error \fI%s
+is not a number\fP is generated.
+.SS "scope = parse(source [, scope])"
+.P
+Parses \fIsource\fP in a new variable scope, or, if \fIscope\fP
+(a struct) is supplied, in that scope. \fIsource\fP may either
+be a file or a string, and in either case it is the
+source of text for the parse. If the parse is successful,
+the auto scope structure of the sub-module is
+returned. If an explicit scope was supplied this will
+be that structure.
+.P
+If \fIscope\fP is not supplied a new struct is created for
+the auto variables. This structure in turn is given
+a new structure as its super struct for the static
+variables. Finally, this structure's super is set to
+the current static variables. Thus the static variables
+of the current module form the externs of the sub-module.
+.P
+If \fIscope\fP is supplied it is used directly as the scope
+for the sub-module. Thus the base structure will be
+the struct for autos, its super will be the struct
+for statics etc.
+.P
+For example:
+.P
+.RS 5
+.nf
+static x = 123;
+parse("static x = 456;", scope());
+printf("x = %d\n", x);
+.fi
+.RE 1
+.P
+When run will print:
+.P
+.RS 5
+.nf
+x = 456
+.fi
+.RE 1
+.P
+Whereas:
+.P
+.RS 5
+.nf
+static x = 123;
+parse("static x = 456;");
+printf("x = %d\n", x);
+.fi
+.RE 1
+.P
+When run will print:
+.P
+.RS 5
+.nf
+x = 123
+.fi
+.RE 1
+.P
+Note that while the following will work:
+.P
+.RS 5
+.nf
+parse(fopen("my-module.ici"));
+.fi
+.RE 1
+.P
+It is preferable in a large program to use:
+.P
+.RS 5
+.nf
+parse(file = fopen("my-module.ici"));
+close(file);
+.fi
+.RE 1
+.P
+In the first case the file will eventually be closed
+by garbage collection, but exactly when this will happen
+is unpredictable. The underlying system may only allow
+a limited number of simultaneous open files. Thus if
+the program continues to open files in this fashion
+a system limit may be reached before the unused files
+are garbage collected. See also \fIinclude()\fP.
+.SS "string = parsetoken(file)"
+.P
+parsetoken uses the interpreter's internal lexical
+analyser to read the next language token (as described
+in "The lexical analyser" in \fIThe ICI Programming Language\fP)
+from the given \fIfile\fP. The file must be one of the
+special files layered on top of ICI's parser, as
+returned by \fIcurrentfile()\fP or passed to a parser function
+in a user-parsed literal factor (See "User defined
+literal factors"). \fIparsetoken\fP skips white-space; which includes comments
+and lines starting with a \fB#\fP.
+.P
+\fIparsetoken\fP returns a string, or NULL on end-of-file.
+The string is the literal text of the token for the
+following simple self-delimiting tokens:
+.P
+.RS 5
+.nf
+*      /      %      +      -      >>
+<<     <      >      <=     >=     ==
+!=     ~      !~     ~~     ~~~    &amp;
+^      |      &&     ||     :      ?
+=      :=     +=     -=     *=     /=
+%=     >>=    <<=    &=     ^=     |=
+~~=    <=>    (      )      {      }
+[      ]      .      ->     !      ++
+--     :      $      :^     @      ;
+.fi
+.RE 1
+.P
+For identifiers, regular expressions, strings, ints
+and floats, the following strings are returned:
+.P
+.RS 5
+.nf
+name   regexp   string   int   float
+.fi
+.RE 1
+.P
+however the associated value must be obtained by calling
+\fItokenobj()\fP to find the actual identifier (a string),
+regular expression, string, int or float.
+.P
+On return, the next character available to be read
+from the input stream will be the first character that
+is not part of the returned token. See also \fIrejecttoken()\fP.
+.SS "any = parsevalue(file)"
+.P
+\fIparsevalue\fP parses and evaluates an expression from
+the given \fIfile\fP. The file must be one of the special
+files layered on top of ICI's parser, as returned
+by \fIcurrentfile()\fP or passed to a parser function in
+a user-parsed literal factor (See "User defined literal
+factors"). \fIparsevalue\fP skips white-space; which includes comments
+and lines starting with a \fB#\fP.
+.P
+On return, the next token (as readable by \fIparsetoken()\fP)
+will be the first token that is not part of the expression.
+However, the next character (as readable by \fIgetchar()\fP)
+may be somewhere in advance.
+.SS "string = path[]"
+.P
+\fIpath\fP is an array or directory names (strings) that
+is set by the ICI interpreter at startup, and may be
+modified from time to time by the executing ICI program.
+The current value of the the path variable in the current
+scope is used by the automatic module loading mechanism
+and the \fIinclude()\fP function as a search path for files.
+Typically these mechanisms will end up referencing
+this \fIpath\fP variable which is defined in the outermost
+scope.
+.P
+The initial value of the \fIpath\fP array is set in a slightly
+system dependent manner:
+.TP 16
+\fBUNIX-like systems\fP
+The first elements are taken from the ICIPATH environment variable.
+Each directory name must be separated by a : (colon) in the usual
+manner. Then, where they exist, “/usr/local/lib/ici4”, “/opt/lib/ici4”,
+and “/sw/lib/ici4” are included.
+.IP "" 16
+Thereafter the PATH environment variable is considered and for each
+element that ends in "/bin", the "/bin" is replaced by "/lib/ici4"
+and if that directory is accessable, it is included. (The usual
+installation for ICI on UNIX like systems places the ici executable
+in /usr/local/bin, and externsion modules in /usr/local/lib/ici4).
+.TP 16
+\fBWindows\fP
+The first elements are taken from the ICIPATH environment variable.
+Each directory name must be separated by a ; (semicolon) in the
+usual Windows manner.
+.IP "" 16
+Thereafter the following directories are included: the directory
+of the current executing module, the "ici" subdirectory of
+that directory (if any), "." (i.e. the current directory),
+the Windows system directory, the "ici" subdirectory of the
+Windows system directory (if any), the Windows directory,
+the "ici" subdirectory of the Windows directory (if any).
+Thereafter, elements from the PATH environment variable.
+(This sequence similar to the normal Windows DLL search order.)
+.P
+In all cases, if a directory has already been added
+in an earlier position, or if the directory can not
+be accessed, it is not included.
+.SS "any = pop(array)"
+.P
+Returns the last element of \fIarray\fP and reduces the length
+of \fIarray\fP by one. If the array was empty to start with,
+NULL is returned.
+.SS "file = popen(string, [mode])"
+.P
+Executes a new process, specified as a shell command
+line as for the \fIsystem\fP
+function, and returns a file that either reads or
+writes to the standard input or output of the process
+according to \fImode\fP. If mode is "r", reading from the file
+reads from the standard output
+of the process. If mode is "w", writing to the file writes to
+the standard input of
+the process. If mode is not specified it defaults to
+"r".
+.P
+On some commands and systems this may block, but will
+allow thread switching while blocked.
+.P
+(\fIpopen\fP is not currently available on Windows.
+This may be corrected in a future version.)
+.SS "float = pow(x, y)"
+.P
+Returns \fIx\fP\fB^\fP\fIy\fP where both \fIx\fP and \fIy\fP are floats.
+.SS "printf([file,] fmt, args...)"
+.P
+Formats a string based on \fIfmt\fP and \fIargs\fP as per \fIsprintf\fP
+(below) and outputs the result to the \fIfile\fP,
+or to the current value of the \fIstdout\fP variable in
+the current scope if the first parameter is not a file.
+The current \fIstdout\fP must be a file. See \fIsprintf\fP.
+.P
+On some files and systems this may block, but will
+allow thread switching while blocked.
+.SS "profile(filename)"
+.P
+Enables profiling within the scope of the current function
+(must be called within a function). This profiler measures
+actual elapsed time so it's only very useful for quite
+coarse profiling tasks. The filename specifies a file
+to write the profiling records to once it is complete.
+The profiling completes when the function \fIprofile()\fP
+was called from returns. The file contains a re-parsable
+ICI data structue of the form:
+.P
+.RS 5
+.nf
+auto profile = [struct
+    total = <time in ms for this call>,
+    call_count = <number of call to this func>,
+    calls = [struct <nested profile structs...>],
+];
+.fi
+.RE 1
+.P
+For example, the following program:
+.P
+.RS 5
+.nf
+static
+count10000()
+{
+    j = 0;
+    for (i = 0; i < 10000; ++i)
+        j += i;
+}
+
+static
+count20000()
+{
+    count10000();
+    count10000();
+}
+
+static
+prof()
+{
+    profile("prof.txt");
+    count10000();
+    count20000();
+}
+
+prof();
+.fi
+.RE 1
+.P
+Would produce a file "prof.txt" file looking something
+like:
+.P
+.RS 5
+.nf
+auto profile = [struct
+ total = 153,
+ call_count = 0,
+ calls = [struct
+  ("count20000()") = [struct
+   total = 96,
+   call_count = 1,
+   calls = [struct
+    ("count10000()") = [struct
+     total = 96,
+     call_count = 2,
+     calls = [struct
+     ],
+    ],
+   ],
+  ],
+  ("count10000()") = [struct
+   total = 57,
+   call_count = 1,
+   calls = [struct
+   ],
+  ],
+ ],
+];
+.fi
+.RE 1
+.SS "any = push(array, any)"
+.P
+Appends \fIany\fP to \fIarray\fP, increasing its length in the
+process. Returns \fIany\fP.
+.SS "put(string [, file])"
+.P
+Outputs string to \fIfile\fP.
+If \fIfile\fP
+is not passed the current value of \fIstdout\fP
+in the current scope is used.
+.SS "putenv(string)"
+.P
+Sets an environment variable. \fIstring\fP must be of the
+forms \fIname\fP\fB=\fP\fIvalue\fP.
+.SS "int = rand([seed])"
+.P
+Returns a pseudo random integer in the range 0..0x7FFF.
+If \fIseed\fP (an int) is supplied the random number generator
+is first seeded with that number. The sequence is predictable
+based on a given seed.
+.SS "reclaim()"
+.P
+Force a garbage collection to occur.
+.SS "re = regexp(string [, int])"
+.P
+Returns a compiled regular expression derived from
+\fIstring\fP This is the method of generating regular expressions
+at run-time, as opposed to the direct lexical form.
+For example, the following three expressions are similar:
+.P
+.RS 5
+.nf
+str ~ #*\.c#
+str ~ regexp("*\\.c")
+str ~ $regexp("*\\.c")
+.fi
+.RE 1
+.P
+except that the middle form computes the regular expression
+each time it is executed. Note that when a regular
+expression includes a \fB#\fP character the \fIregexp\fP function
+can be used, as the direct lexical form has no method
+of escaping a \fB#\fP. (Although you can concatenate it with
+a string.)
+.P
+The optional second parameter is a bit-set that controls
+various aspects of the compiled regular expression's
+behaviour. This value is passed directly to the PCRE
+package's regular expression compilation function.
+Presently no symbolic names are defined for the possible
+values and interested parties are directed to the PCRE
+documention included with the ICI source code.
+.P
+Note that regular expressions are intrinsically atomic.
+Also note that non-equal strings may sometimes compile
+to the same regular expression.
+.SS "re = regexpi(string [, int])"
+.P
+Returns a compiled regular expression derived from
+string that is case-insensitive. I.e., the regexp will
+match a string regardless of the case of alphabetic
+characters. Literal regular expressions to perform
+case-insensitive matching may be constructed using
+the special PCRE notation for such purposes, see the
+chapter on regular expressions for details.
+.SS "rejectchar(file, str)"
+.P
+Where \fIfile\fP is one of the special files layered on top
+of the interpreter's internal parser (as returned
+by \fIcurrentfile()\fP or passed to a parser function in
+a user-parsed literal factor as described in "User
+defined literal factors"), and \fIstr\fP is the single character
+string read by an
+immediately proceeding call to \fIgetchar()\fP on the file,
+\fIrejectchar\fP pushes the character back on the stream
+so it is available to be read by a subsequent call
+to \fIgetchar()\fP or by the interpreter's internal parser.
+.SS "rejecttoken(file)"
+.P
+Causes the token read by a preceeding call to \fIparsetoken()\fP
+to be pushed back on the input stream and thus be available
+for re-reading by a subsequent call to \fIparsetoken()\fP
+or by the interpreters own parser. The \fIfile\fP must be
+one of the special files layered on top of the interpreter's
+internal parser, and the last operation on the file
+must have been a call to \fIparsetoken()\fP. Note that this
+operation does not effect the file read position with
+respect to direct character I/O by functions such as
+\fIgetchar()\fP.
+.P
+int = inst|class:respondsto(name)
+.P
+Returns 1 if \fIinst\fP or \fIclass\fP supports a function called
+\fIname\fP, else 0.
+.SS "remove(string)"
+.P
+Deletes the file whose name is given in \fIstring\fP.
+.SS "rename(oldname, newname)"
+.P
+Change the name of a file. The first parameter is the
+name of an existing file and the second is the new
+name that it is to be given.
+.SS "any = rpop(array)"
+.P
+Returns the first element of \fIarray\fP and removes that
+element from array, thus shortening it by one. If the
+\fIarray\fP was empty to start with, NULL is returned. After
+this the item that was at index 1 will be at index
+0. This is an efficient constant time operation (that
+is, no actual data copying is done).
+.SS "any = rpush(array, any)"
+.P
+Inserts \fIany\fP as the first element of the \fIarray\fP, increasing
+the length of array in the process. After this the
+item that was at index 0 will be at index 1. The passed
+\fIany\fP is returned unchanged. This is an efficient constant
+time operation (that is, no actual data copying is
+done).
+.SS "current = scope([replacement])"
+.P
+Returns the current scope structure. This is a struct
+whose base element holds the auto variables, the super
+of that hold the statics, the super of that holds the
+externs etc. Note that this is a real reference to
+the current scope structure. Changing, adding and deleting
+elements of these structures will affect the values
+and presence of variables in the current scope.
+.P
+If a \fIreplacement\fP is given, that struct replaces the
+current scope structure, with the obvious implications.
+This should clearly be used with caution. Replacing
+the current scope with a structure which has no reference
+to the standard functions also has the obvious effect.
+.SS "int = seek(file, int, int)"
+.P
+Set the input/output position for a \fIfile\fP and returns
+the new I/O position. The arguments are the same as
+for the C library's fseek function. The second argument
+is the offset to seek to and the third is 0, 1 or 2
+dependng if the seek should be relative to the beginning,
+current position, or end of the file. If the file object
+does not support setting the I/O position, or the \fIseek\fP
+operation fails.
+.SS "set = set(any...)"
+.P
+Returns a set formed from all the arguments. For example:
+.P
+.RS 5
+.nf
+set()
+.fi
+.RE 1
+.P
+will return a new empty set; and
+.P
+.RS 5
+.nf
+set(1, 2, "a string")
+.fi
+.RE 1
+.P
+will return a new set with three elements, 1, 2, and
+"the string".
+.P
+This is the run-time equivalent of the set literal.
+Thus the following two expressions are equivalent:
+.P
+.RS 5
+.nf
+$set(1, 2, "a string")
+.fi
+.RE 1
+.P
+.RS 5
+.nf
+[set 1, 2, "a string"]
+.fi
+.RE 1
+.SS "func = signal(string|int [, string|func])"
+.P
+Allows control of signal handling to the process running
+the ICI interpreter. The first argument is the name
+or number of a signal. Signal numbers are defined by
+the system whilst the function \fIsignam()\fP may be used
+to obtain signal names. If no second argument is given,
+the function returns the current handler for the signal.
+Handlers are either functions or one of the strings
+"default" or "ignore". If a second argument
+is given the signal handler's state is set accordingly,
+either being reset to its default state, ignored or
+calling the given function when the signal occurs.
+The previous signal handler is returned in this case.
+.SS "string = signam(int)"
+.P
+Returns the name of a signal given its number. If the
+signal number is not valid an error is raised.
+.SS "x = sin(angle)"
+.P
+Returns the sine of \fIangle\fP (a float interpreted in radians).
+.SS "sleep(num)"
+.P
+Suspends execution of the current thread for \fInum\fP seconds (a float or int).
+The resolution of num is system dependent.
+.SS "array = smash(string [, regexp [, replace...] [, include_remainder])"
+.P
+Returns an array containing expanded replacement strings that
+are the result of repeatedly applying the regular expression
+\fIregexp\fP to successive portions of \fIstring\fP. This process stops as
+soon as the regular expression fails to match or the string is
+exhausted.
+.P
+Each time the regular expression is matched against
+the string, expanded copies of all the replace strings
+are pushed onto the newly created array. The expansion
+is done by performing the following substitutions:
+.TP 16
+\fB\\0\fP
+Is substituted with any leading unmatched portion between the
+end of the last match (or the start of the string if this
+is the first match) and the first character that was matched by this match.
+.TP 16
+\fB\\&\fP
+Is substituted with the  portion of the string that
+was matched by this application of the regular expression.
+.TP 16
+\fB\\1 \\2 \\3 ...\fP
+Is substituted with the portions of the string that
+were matched by the successive bracketed sub-portions
+of the regular expression.
+.TP 16
+\fB\\\\\fP
+Is substituted with a single \\ character.
+.P
+If the final argument, \fIinclude_remainder\fP, is supplied
+and is a non-zero integer, any remaining unmatched
+portion of the string is also added as a final element
+of the array. Else any unmatched remainder is discarded.
+.P
+If regexp is not supplied, the regular expression #\\n#
+.P
+is used. If no replace arguments are supplied, the
+single string "\\0"
+.P
+is used. Thus by default smash will break the given
+string into its newline delimited portions (although
+it will discard any final undelimited line unless \fIinclude_remainder\fP
+is specified).
+.P
+For example:
+.P
+.RS 5
+.nf
+lines = smash(getfile(f), 1);
+.fi
+.RE 1
+.P
+will result in an array of all the lines of the file,
+with newlines characters discarded. While:
+.P
+.RS 5
+.nf
+smash("ab cd ef", #(.) #, "x\\\\0", 1);
+.fi
+.RE 1
+.P
+will result in an array of the form:
+.P
+.RS 5
+.nf
+ [array "xa", "xc", "ef"]
+.fi
+.RE 1
+.P
+Notice that it is generally necessary to use two backslash
+characters in literal strings to obtain the single
+backslash required here.
+.SS "file = sopen(string [, mode])"
+.P
+Returns a file, which when read will fetch successive
+characters from the given \fIstring\fP. The file is read-only
+and the \fImode\fP, if passed, must be one of "r" or "rb", which are equivalent.
+.SS "array = sort(array [, func [, arg]])"
+.P
+Sort the content of the \fIarray\fP in-place using the heap
+sort algorithm with \fIfunc\fP as the comparison function.
+The comparison function is called with two elements
+of the array as parameters, \fIa\fP and \fIb\fP,
+and the optional \fIarg\fP. If \fIa\fP is equal to \fIb\fP
+the function should return zero. If \fIa\fP
+is less than \fIb\fP, -1, and if \fIa\fP
+is greater than \fIb\fP, 1.
+.P
+For example,
+.P
+.RS 5
+.nf
+static compare(a, b, arg)
+{
+    return a < b ? -1 : a > b;
+}
+
+static a = array(1, 3, 2);
+
+sort(a, compare);
+.fi
+.RE 1
+.P
+If \fIarg\fP is not provided, NULL is passed. If \fIfunc\fP is
+not provided, the current value of \fIcmp\fP in the current
+scope is used. See \fIcmp()\fP. Returns the given array.
+.SS "string = sprintf(fmt, args...)"
+.P
+Return a formatted string based on \fIfmt\fP (a string) and
+\fIargs...\fP. Most of the usual \fB%\fP format escapes of ANSI C
+printf are supported. In particular; the integer format
+letters \fBdiouxXc\fP are supported, but if a float is provided
+it will be converted to an int. The floating point
+format letters \fBfeEgG\fP are supported, but if the argument
+is an int it will be converted to a float. The string
+format letter, \fBs\fP is supported and requires a string.
+The \fB%\fP format to get a single \fB%\fP works. In addition to
+these standard formats, a format letter of \fBa\fP (any)
+is supported. This takes any object and converts it
+to a short human readable form of less than 30 characters
+length, and thereafter behaves as an \fBs\fP specification.
+This representation of an object is suitable for diagnostics
+only.
+.P
+The flags, precision, and field width options are supported.
+The indirect field width and precision options with
+* also work and the corresponding argument must be
+an int.
+.P
+For example:
+.P
+.RS 5
+.nf
+sprintf("%08X <%4s><%-4s>", 123, "ab", "cd")
+.fi
+.RE 1
+.P
+will produce the string:
+.P
+.RS 5
+.nf
+0000007B <  ab><cd  >
+.fi
+.RE 1
+.P
+and
+.P
+.RS 5
+.nf
+sprintf("%0*X", 4, 123)
+.fi
+.RE 1
+.P
+will produce the string:
+.P
+.RS 5
+.nf
+007B
+.fi
+.RE 1
+.P
+\fIsprintf\fP does not currently handle \fInul\fP characters in
+the \fIfmt\fP string. This may be corrected in future releases.
+.SS "x = sqrt(float)"
+.P
+Returns the square root of \fIfloat\fP.
+.SS "string = strbuf([string])"
+.P
+Returns a new non-atomic string that is either zero length,
+or, if a \fIstring\fP argument is given, is initilised with characters
+copied from that string. This is the only function that produces
+non-atomic strings. All other operations that produce strings
+make atomic (immutable, read-only) strings. Note that a non-atomic
+string will not reference the same element of a struct as an atomic
+string of equal value. See also \fIstrcat()\fP.
+.SS "string = strcat(string [, int] , string...)"
+Copies string(s) onto the end of (or to some integer
+offset in) a given non-atomic string, extending the
+non-atomic string as necessary. The first argument must
+be a non-atomic string (see \fIstrbuf()\fP above). If the
+optional \fIint\fP argument is given, that offset from the
+start of the non-atomic string will be the starting
+point for the placement of the concatenated string
+data, else the end of the string is used. All the
+remaining string arguments are used as a source of
+characters to be copied into the non-atomic string.
+The (updated) non-atomic string is returned.
+.SS "string = string(any)"
+.P
+Returns a short textual representation of \fIany\fP. If any
+is an int or float it is converted as if by a \fB%d\fP or
+\fB%g\fP format. If it is a string it is returned directly.
+Any other type will returns its type name surrounded
+by angle brackets, as in \fI<struct>\fP.
+.SS "struct = struct([super,] key, value...)"
+.P
+Returns a new structure. This is the run-time equivalent
+of the struct literal. If there are an odd number of
+arguments the first is used as the super of the new
+struct; it must be a struct. The remaining pairs of
+arguments are treated as key and value pairs to initialise
+the structure with; they may be of any type. For example:
+.P
+.RS 5
+.nf
+struct()
+.fi
+.RE 1
+.P
+returns a new empty struct;
+.P
+.RS 5
+.nf
+struct(anotherStruct)
+.fi
+.RE 1
+.P
+returns a new empty struct which has \fIanotherStruct\fP
+as its super;
+.P
+.RS 5
+.nf
+struct("a", 1, "b", 2)
+.fi
+.RE 1
+.P
+returns a new struct which has two entries a and b
+with the values 1 and 2; and
+.P
+.RS 5
+.nf
+struct(anotherStruct, "a", 1, "b", 2)
+.fi
+.RE 1
+.P
+returns a new struct which has two entries a and b
+with the values 1 and 2 and a super of \fIanotherStruct\fP.
+.P
+Note that the super of the new struct is set after
+the assignments of the new elements have been made.
+Thus the initial elements given as arguments will not
+affect values in any super struct.
+.P
+The following two expressions are equivalent:
+.P
+.RS 5
+.nf
+$struct(anotherStruct, "a", 1, "b", 2)
+.fi
+.RE 1
+.P
+.RS 5
+.nf
+[struct:anotherStruct, a = 1, b = 2]
+.fi
+.RE 1
+.SS "string = sub(string, string|regexp, string)"
+.P
+Sub performs text substitution using regular expressions.
+It takes the first parameter, matches it against the
+second parameter and then replaces the matched portion
+of the string with the third parameter. If the second
+parameter is a string it is converted to a regular
+expression as if the \fIregexp\fP function had been called.
+Sub does the replacement once (unlike gsub). It returns
+the new string formed by the replacement. If there
+is no match this is the original string. The replacement
+string may contain the special sequence \fB\\&\fP which is
+replaced by the string that matched the regular expression.
+Parenthesized portions of the regular expression may
+be matched by using \fB\\\fP\fIn\fP where \fIn\fP
+is a decimal digit. (Remember to use an extra backslash
+in a literal string to get a single backslash. For
+example "\\&".
+.SS "current = super(struct [, replacement])"
+.P
+Returns the current super struct of \fIstruct\fP, and, if
+\fIreplacement\fP is supplied, sets it to a new value. If
+\fIreplacement\fP is NULL any current super struct reference
+is cleared (that is, after this struct will have no
+super).
+.SS "int = system(string)"
+.P
+Executes a new process, specified as a shell command
+line using the local system's command interpreter,
+and returns an integer result code once the process
+completes (usually zero indicates normal successful
+completion).
+.P
+This will block while the process runs, but will allow
+thread switching while blocked.
+.SS "x = tan(angle)"
+.P
+Returns the tangent of \fIangle\fP (a float interpreted in
+radians).
+.SS "exec = thread(callable, args...)"
+.P
+Creates a new ICI thread and calls \fIcallable\fP (typically
+a function or method) with \fIargs\fP in the new ICI execution
+context in that thead. Returns an execution context
+object ("exec"). When the thread terminates (by
+returning from the called function) this object is
+woken up with wakeup().
+.SS "string = tochar(int)"
+.P
+Returns a one character string made from the character
+code specified by \fIint\fP.
+.SS "int = toint(string)"
+.P
+Returns the character code of the first character of
+string.
+.SS "any = tokenobj(file)"
+.P
+\fItokenobj\fP returns the object associated with an immediately
+proceeding call to \fIparsetoken()\fP on the given \fIfile\fP
+where \fIparsetoken()\fP returned one of the values: \fIname\fP,
+\fIint\fP, \fIfloat\fP, \fIregexp\fP, or \fIstring\fP (in other cases it will
+return NULL). It can be called any number of times
+until some other I/O operation is done on the file.
+.SS "any = top(array [, int])"
+.P
+Returns the last element of \fIarray\fP (that is, the top
+of stack). Or, if \fIint\fP is supplied, objects from deeper
+in the stack found by adding int to the index of the
+last element. Thus:
+.P
+.RS 5
+.nf
+top(a, 0)
+.fi
+.RE 1
+.P
+and
+.P
+.RS 5
+.nf
+top(a)
+.fi
+.RE 1
+.P
+are equivalent, while
+.P
+.RS 5
+.nf
+top(a, -1)
+.fi
+.RE 1
+.P
+returns the second last element of the array. Returns
+NULL if the access is beyond the limits of the array.
+.SS "string = typeof(any)"
+.P
+Returns the type name (a string) of \fIany\fP. See the section
+on types above for the possible type names.
+.SS "string = version()"
+.P
+Returns a version string of the form.
+.P
+.RS 5
+.nf
+@(#)ICI 4.0.0 config-file build-date config-str (opts...)
+.fi
+.RE 1
+.P
+For example:
+.P
+.RS 5
+.nf
+@(#)ICI 4.0.0, conf-w32.h, Feb 22 2002, Microsoft Win32 platforms (math trace system pipes sockets dir dload startupfile debugging )
+.fi
+.RE 1
+.SS "array = vstack([int])"
+.P
+With no arguments, returns a copy of the call stack
+of the current program at the time of the call. This
+is an array of the successive outer scope structures.
+The last element of the array is the current innermost
+scope structure, the second last is the innermost scope
+structure of the caller, etc.
+.P
+With an integer argument, returns the scope structure
+from that many callers back. Zero is the current scope,
+one is the caller etc. This is generally more efficient,
+as it avoids the array copy of the first form.
+.P
+This can be used both for stack tracebacks, and to
+discover the value of a particular variable in the
+callers context (in the way that, say, getline() uses
+the value of stdin in the callers context).
+.SS "wakeup(any)"
+.P
+Wakes up all ICI threads that are waiting for \fIany\fP (and
+thus allow them to re-evaluate their wait expression).
+.SS "struct = which(key [, struct])"
+.P
+Finds the first struct (or other object) in a super chain that
+has the given \fIkey\fP as an element. If the argument \fIstruct\fP
+is given (which is normally a struct, but may be any object that
+supports a super), that object is used as the base of the search,
+else the current scope is used. Returns NULL if  \fIkey\fP was not
+an element of any object in the super chain.
+.SH "SEE ALSO"
+ici(1), icinet(1), icioo(1), iciops(1), icisyn(1), icitypes(1), iciex(1)

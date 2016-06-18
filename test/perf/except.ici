@@ -1,0 +1,46 @@
+N = argv[1] ? int(argv[1]) : 1;
+
+local HI = 0;
+local LO = 0;
+
+local
+blowup(n)
+{
+	fail(n & 1 ? "low" : "hi");
+}
+
+local
+lo_function (n)
+{
+	try
+		blowup(n);
+	onerror
+	{
+		if (error !~ #low#)
+			fail(error);
+		++LO;
+	}
+}
+
+local
+hi_function(n)
+{
+	try
+		lo_function(n);
+	onerror
+		++HI;
+}
+
+local
+some_function(n)
+{
+	try
+		hi_function(n);
+	onerror
+		fail(error + " -- we shouldn't get here");
+}
+
+while (N)
+	some_function(N--);
+
+// printf("Exceptions: HI=%d / LO=%d\n", HI, LO);

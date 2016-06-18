@@ -1,0 +1,34 @@
+/*
+ * Define an object that has a slot - a function to handle
+ * a particular named event.
+ */
+
+static	foo = object.new(object.object);
+
+static
+pressed_event_handler(self, signal, msg)
+{
+    printf("Handling %s", string(signal));
+    if (msg)
+	printf(" %s", msg);
+    printf("\n");
+}
+
+foo@slot("Pressed Event Handler", pressed_event_handler);
+
+
+
+static	bar = object.new(object.object);
+
+bar@connect("Pressed Event", foo@slot("Pressed Event Handler"));
+
+bar@emit("Pressed Event");
+bar@emit("Pressed Event");
+bar@emit("Pressed Event");
+
+static	froz = object.new(object.object);
+
+froz@connect("Another Press", foo@slot("Pressed Event Handler"));
+froz@emit("Another Press", "from froz");
+
+bar@emit("Pressed Event", "from bar");

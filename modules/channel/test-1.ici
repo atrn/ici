@@ -1,0 +1,32 @@
+static
+producer(chan, ntimes, end)
+{
+    for (i := 0; i < ntimes; ++i)
+        chan:put(i);
+    chan:put(end);
+}
+
+static
+consumer(chan, end)
+{
+    while ((o := chan:get()) != end)
+        printf("c: %s (%d)\n", string(o), chan:queued());
+}
+
+ntimes := 1000;
+sz := 1;
+
+if (argc > 1)
+{
+    ntimes := int(argv[1]);
+    if (argc > 2)
+        sz := int(argv[2]);
+}
+
+chan = channel:new(sz);
+end := "end";
+t1 = thread(producer, chan, ntimes, end);
+t2 = thread(consumer, chan, end);
+
+waitfor (t1.status == "finished" && t2.status == "finished"; t2 )
+    ;

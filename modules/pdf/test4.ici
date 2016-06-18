@@ -1,0 +1,39 @@
+static pt = PDF.mm_to_pts;
+
+static
+grid(p, w, h, xs, ys)
+{
+    p:setlinewidth(0.5);
+    p:setrgbcolor(0, .2, 1);
+    for (y := 0.0; y < w; y += ys)
+    {
+	p:moveto(0, pt(y));
+	p:lineto(pt(w), pt(y));
+	p:stroke();
+    }
+    for (x := 0.0; x < h; x += xs)
+    {
+	p:moveto(pt(x), 0);
+	p:lineto(pt(x), pt(h));
+	p:stroke();
+    }
+}
+
+npages := 1;
+if (argc > 1)
+    npages = int(num(argv[1]));
+if (npages < 1)
+    npages = 1;
+
+p := PDF.Document:new("test4.pdf");
+font := p:findfont("Helvetica-Bold", "host", 0);
+for (i := 0; i < npages; ++i)
+{
+    p:begin_page(PDF.mm_to_pts(210), PDF.mm_to_pts(297));
+    grid(p, PDF.mm_to_pts(210), PDF.mm_to_pts(297), 4, 4);
+    p:setrgbcolor(1, 0, 0);
+    p:setfont(font, 36);
+    p:show_xy(sprintf("Page %d", i + 1), 30, 155);
+    p:end_page();
+}
+p:close();

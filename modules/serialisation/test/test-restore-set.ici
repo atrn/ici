@@ -1,0 +1,9 @@
+file = fopen("test-save-set.ici.dat");
+o = serialisation.restore(file);
+close(file);
+if (typeof(o) != "set")
+    fail("restore failed: " + typeof(o));
+if (nels(o) != 2)
+    fail("restore failed, wrong nels");
+if (!o["."] || ! o[".."])
+    fail("restore failed, elements bad");

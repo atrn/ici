@@ -1,0 +1,485 @@
+/*
+ * This is a basic confidence test.  It tests each operator against
+ * a simple case of each of its allowed types and sometimes tests some
+ * special cases.
+ *
+ * Each test is made with the assumption that all other features of the
+ * interpreter, except the one being tested, work.
+ */
+local binops =
+[array
+    [struct op = "*",   a = 7, b = 13, r = 91],
+    [struct op = "*=",  a = 7, b = 13, r = 91],
+    [struct op = "*",   a = 7.0, b = 13.0, r = 91.0],
+    [struct op = "*=",  a = 7.0, b = 13.0, r = 91.0],
+    [struct op = "*",   a = 7, b = 13.0, r = 91.0],
+    [struct op = "*=",  a = 7, b = 13.0, r = 91.0],
+    [struct op = "*",   a = 7.0, b = 13, r = 91.0],
+    [struct op = "*=",  a = 7.0, b = 13, r = 91.0],
+    [struct op = "*",   a = [set 1, 2, 3], b = [set 2, 3, 4], r = [set 2, 3]],
+    [struct op = "*",   a = [set 1, 2, 3, 5], b = [set 2, 3, 4], r = [set 2, 3]],
+
+    [struct op = "/",   a = 13, b = 7, r = 1],
+    [struct op = "/=",  a = 13, b = 7, r = 1],
+    [struct op = "/",   a = 14.0, b = 7.0, r = 2.0],
+    [struct op = "/=",  a = 14.0, b = 7.0, r = 2.0],
+    [struct op = "/",   a = 14, b = 7.0, r = 2.0],
+    [struct op = "/=",  a = 14, b = 7.0, r = 2.0],
+    [struct op = "/",   a = 14.0, b = 7, r = 2.0],
+    [struct op = "/=",  a = 14.0, b = 7, r = 2.0],
+
+    [struct op = "%",   a = 13, b = 7, r = 6],
+    [struct op = "%=",  a = 13, b = 7, r = 6],
+
+    [struct op = "+",   a = 7, b = 13, r = 20],
+    [struct op = "+=",  a = 7, b = 13, r = 20],
+    [struct op = "+",   a = 7.0, b = 13.0, r = 20.0],
+    [struct op = "+=",  a = 7.0, b = 13.0, r = 20.0],
+    [struct op = "+",   a = 7, b = 13.0, r = 20.0],
+    [struct op = "+=",  a = 7, b = 13.0, r = 20.0],
+    [struct op = "+",   a = 7.0, b = 13, r = 20.0],
+    [struct op = "+=",  a = 7.0, b = 13, r = 20.0],
+    [struct op = "+",   a = "wx", b = "yz", r = "wxyz"],
+    [struct op = "+=",  a = "wx", b = "yz", r = "wxyz"],
+    [struct op = "+",   a = [array 1,2], b = [array 3,4], r = [array 1,2,3,4]],
+    [struct op = "+=",  a = [array 1,2], b = [array 3,4], r = [array 1,2,3,4]],
+    [struct op = "+",   a = [struct x=1,z=1], b = [struct y=2,z=3], r = [struct x=1,y=2,z=3]],
+    [struct op = "+=",  a = [struct x=1,z=1], b = [struct y=2,z=3], r = [struct x=1,y=2,z=3]],
+    [struct op = "+",   a = [set 1,"x"], b = [set 1,"y"], r = [set 1,"x","y"]],
+    [struct op = "+=",  a = [set 1,"x"], b = [set 1,"y"], r = [set 1,"x","y"]],
+    [struct op = "+=",  a = &(@[array 1, 2])[0], b = 1, r = &(@[array 1, 2])[1]],
+    [struct op = "+",   a = &(@[array 1, 2])[0], b = 1, r = &(@[array 1, 2])[1]],
+    [struct op = "+",   a = 1, b = &(@[array 1, 2])[0], r = &(@[array 1, 2])[1]],
+
+    [struct op = "-",   a = 7, b = 13, r = -6],
+    [struct op = "-=",  a = 7, b = 13, r = -6],
+    [struct op = "-",   a = 7.0, b = 13.0, r = -6.0],
+    [struct op = "-=",  a = 7.0, b = 13.0, r = -6.0],
+    [struct op = "-",   a = 7, b = 13.0, r = -6.0],
+    [struct op = "-=",  a = 7, b = 13.0, r = -6.0],
+    [struct op = "-",   a = 7.0, b = 13, r = -6.0],
+    [struct op = "-=",  a = 7.0, b = 13, r = -6.0],
+    [struct op = "-",   a = [set 1,"x"], b = [set 1,"y"], r = [set "x"]],
+    [struct op = "-=",  a = [set 1,"x"], b = [set 1,"y"], r = [set "x"]],
+    [struct op = "-",   a = &(@[array 1, 2])[1], b = &(@[array 1, 2])[0], r = 1],
+    [struct op = "-=",  a = &(@[array 1, 2])[1], b = 1, r = &(@[array 1, 2])[0]],
+    [struct op = "-",   a = &(@[array 1, 2])[1], b = 1, r = &(@[array 1, 2])[0]],
+
+    [struct op = ">>",  a = 13, b = 2, r = 3],
+    [struct op = ">>=", a = 13, b = 2, r = 3],
+
+    [struct op = "<<",  a = 13, b = 2, r = 52],
+    [struct op = "<<=", a = 13, b = 2, r = 52],
+
+    [struct op = "<",   a = 13, b = 2, r = 0],
+    [struct op = "<",   a = 13, b = 13, r = 0],
+    [struct op = "<",   a = 2, b = 13, r = 1],
+    [struct op = "<",   a = 13, b = 2.0, r = 0],
+    [struct op = "<",   a = 13, b = 13.0, r = 0],
+    [struct op = "<",   a = 2, b = 13.0, r = 1],
+    [struct op = "<",   a = 13.0, b = 2, r = 0],
+    [struct op = "<",   a = 13.0, b = 13, r = 0],
+    [struct op = "<",   a = 2.0, b = 13, r = 1],
+    [struct op = "<",   a = 13.0, b = 2.0, r = 0],
+    [struct op = "<",   a = 13.0, b = 13.0, r = 0],
+    [struct op = "<",   a = 2.0, b = 13.0, r = 1],
+    [struct op = "<",   a = "abc", b = "abz", r = 1],
+    [struct op = "<",   a = "abc", b = "abc", r = 0],
+    [struct op = "<",   a = "abz", b = "abc", r = 0],
+    [struct op = "<",   a = "ab", b = "abz", r = 1],
+    [struct op = "<",   a = "abz", b = "ab", r = 0],
+    [struct op = "<",   a = [set 1], b = [set 1], r = 0],
+    [struct op = "<",   a = [set 1], b = [set 1, 2], r = 1],
+    [struct op = "<",   a = &(@[array 1, 2])[1], b = &(@[array 1, 2])[0], r = 0],
+    [struct op = "<",   a = &(@[array 1, 2])[1], b = &(@[array 1, 2])[1], r = 0],
+    [struct op = "<",   a = &(@[array 1, 2])[0], b = &(@[array 1, 2])[1], r = 1],
+
+    [struct op = "<=",  a = 13, b = 2, r = 0],
+    [struct op = "<=",  a = 13, b = 13, r = 1],
+    [struct op = "<=",  a = 2, b = 13, r = 1],
+    [struct op = "<=",  a = 13, b = 2.0, r = 0],
+    [struct op = "<=",  a = 13, b = 13.0, r = 1],
+    [struct op = "<=",  a = 2, b = 13.0, r = 1],
+    [struct op = "<=",  a = 13.0, b = 2, r = 0],
+    [struct op = "<=",  a = 13.0, b = 13, r = 1],
+    [struct op = "<=",  a = 2.0, b = 13, r = 1],
+    [struct op = "<=",  a = 13.0, b = 2.0, r = 0],
+    [struct op = "<=",  a = 13.0, b = 13.0, r = 1],
+    [struct op = "<=",  a = 2.0, b = 13.0, r = 1],
+    [struct op = "<=",  a = "abc", b = "abz", r = 1],
+    [struct op = "<=",  a = "abc", b = "abc", r = 1],
+    [struct op = "<=",  a = "abz", b = "abc", r = 0],
+    [struct op = "<=",  a = "ab", b = "abz", r = 1],
+    [struct op = "<=",  a = "abz", b = "ab", r = 0],
+    [struct op = "<=",   a = [set 1, 2], b = [set 1], r = 0],
+    [struct op = "<=",   a = [set 1], b = [set 1], r = 1],
+    [struct op = "<=",   a = [set 1], b = [set 1, 2], r = 1],
+    [struct op = "<=",   a = &(@[array 1, 2])[1], b = &(@[array 1, 2])[0], r = 0],
+    [struct op = "<=",   a = &(@[array 1, 2])[1], b = &(@[array 1, 2])[1], r = 1],
+    [struct op = "<=",   a = &(@[array 1, 2])[0], b = &(@[array 1, 2])[1], r = 1],
+
+    [struct op = ">",   a = 13, b = 2, r = 1],
+    [struct op = ">",   a = 13, b = 13, r = 0],
+    [struct op = ">",   a = 2, b = 13, r = 0],
+    [struct op = ">",   a = 13, b = 2.0, r = 1],
+    [struct op = ">",   a = 13, b = 13.0, r = 0],
+    [struct op = ">",   a = 2, b = 13.0, r = 0],
+    [struct op = ">",   a = 13.0, b = 2, r = 1],
+    [struct op = ">",   a = 13.0, b = 13, r = 0],
+    [struct op = ">",   a = 2.0, b = 13, r = 0],
+    [struct op = ">",   a = 13.0, b = 2.0, r = 1],
+    [struct op = ">",   a = 13.0, b = 13.0, r = 0],
+    [struct op = ">",   a = 2.0, b = 13.0, r = 0],
+    [struct op = ">",   a = "abc", b = "abz", r = 0],
+    [struct op = ">",   a = "abc", b = "abc", r = 0],
+    [struct op = ">",   a = "abz", b = "abc", r = 1],
+    [struct op = ">",   a = "ab", b = "abz", r = 0],
+    [struct op = ">",   a = "abz", b = "ab", r = 1],
+    [struct op = ">",   a = [set 1, 2], b = [set 1], r = 1],
+    [struct op = ">",   a = [set 1], b = [set 1], r = 0],
+    [struct op = ">",   a = [set 1], b = [set 1, 2], r = 0],
+    [struct op = ">",   a = &(@[array 1, 2])[1], b = &(@[array 1, 2])[0], r = 1],
+    [struct op = ">",   a = &(@[array 1, 2])[1], b = &(@[array 1, 2])[1], r = 0],
+    [struct op = ">",   a = &(@[array 1, 2])[0], b = &(@[array 1, 2])[1], r = 0],
+
+    [struct op = ">=",  a = 13, b = 2, r = 1],
+    [struct op = ">=",  a = 13, b = 13, r = 1],
+    [struct op = ">=",  a = 2, b = 13, r = 0],
+    [struct op = ">=",  a = 13, b = 2.0, r = 1],
+    [struct op = ">=",  a = 13, b = 13.0, r = 1],
+    [struct op = ">=",  a = 2, b = 13.0, r = 0],
+    [struct op = ">=",  a = 13.0, b = 2, r = 1],
+    [struct op = ">=",  a = 13.0, b = 13, r = 1],
+    [struct op = ">=",  a = 2.0, b = 13, r = 0],
+    [struct op = ">=",  a = 13.0, b = 2.0, r = 1],
+    [struct op = ">=",  a = 13.0, b = 13.0, r = 1],
+    [struct op = ">=",  a = 2.0, b = 13.0, r = 0],
+    [struct op = ">=",  a = "abc", b = "abz", r = 0],
+    [struct op = ">=",  a = "abc", b = "abc", r = 1],
+    [struct op = ">=",  a = "abz", b = "abc", r = 1],
+    [struct op = ">=",  a = "ab", b = "abz", r = 0],
+    [struct op = ">=",  a = "abz", b = "ab", r = 1],
+    [struct op = ">=",   a = [set 1, 2], b = [set 1], r = 1],
+    [struct op = ">=",   a = [set 1], b = [set 1], r = 1],
+    [struct op = ">=",   a = [set 1], b = [set 1, 2], r = 0],
+    [struct op = ">=",   a = &(@[array 1, 2])[1], b = &(@[array 1, 2])[0], r = 1],
+    [struct op = ">=",   a = &(@[array 1, 2])[1], b = &(@[array 1, 2])[1], r = 1],
+    [struct op = ">=",   a = &(@[array 1, 2])[0], b = &(@[array 1, 2])[1], r = 0],
+
+    [struct op = "==",  a = 13, b = 2, r = 0],
+    [struct op = "==",  a = 13, b = 13, r = 1],
+    [struct op = "==",  a = 2, b = 13, r = 0],
+    [struct op = "==",  a = 13, b = 2.0, r = 0],
+    [struct op = "==",  a = 13, b = 13.0, r = 1],
+    [struct op = "==",  a = 2, b = 13.0, r = 0],
+    [struct op = "==",  a = 13.0, b = 2, r = 0],
+    [struct op = "==",  a = 13.0, b = 13, r = 1],
+    [struct op = "==",  a = 2.0, b = 13, r = 0],
+    [struct op = "==",  a = 13.0, b = 2.0, r = 0],
+    [struct op = "==",  a = 13.0, b = 13.0, r = 1],
+    [struct op = "==",  a = 2.0, b = 13.0, r = 0],
+    [struct op = "==",  a = "abc", b = "abz", r = 0],
+    [struct op = "==",  a = "abc", b = "abc", r = 1],
+    [struct op = "==",  a = "abz", b = "abc", r = 0],
+    [struct op = "==",  a = "ab", b = "abz", r = 0],
+    [struct op = "==",  a = "abz", b = "ab", r = 0],
+    [struct op = "==",  a = [array 1,2], b = [array 1,2], r = 1],
+    [struct op = "==",  a = [array 1,3], b = [array 1,2], r = 0],
+    [struct op = "==",  a = [array 1], b = [array 1,2], r = 0],
+    [struct op = "==",  a = [array 1,2], b = [array 1], r = 0],
+    /* File equality not tested here. */
+    /* Function equality not tested here. */
+    /* Ptr equality not tested here. */
+    [struct op = "==",  a = #a.b#, b = #a.b#, r = 1],
+    [struct op = "==",  a = #a.b#, b = #a.c#, r = 0],
+    [struct op = "==",  a = #a.#, b = #a.b#, r = 0],
+    [struct op = "==",  a = #a.b#, b = #a.#, r = 0],
+    [struct op = "==",  a =[set 1,"a"], b = [set 1,"a"], r = 1],
+    [struct op = "==",  a =[set 1,"a"], b = [set 1,"b"], r = 0],
+    [struct op = "==",  a =[set 1], b = [set 1,"a"], r = 0],
+    [struct op = "==",  a =[set 1,"a"], b = [set 1], r = 0],
+    [struct op = "==",  a = [struct a=1,b=2], b = [struct a=1,b=2], r = 1],
+    [struct op = "==",  a = [struct a=1,b=2], b = [struct a=1,b=3], r = 0],
+    [struct op = "==",  a = [struct a=1], b = [struct a=1,b=2], r = 0],
+    [struct op = "==",  a = [struct a=1,b=2], b = [struct a=1], r = 0],
+    [struct op = "==",  a = NULL, b = NULL, r = 1],
+    [struct op = "==",  a = NULL, b = 0, r = 0],
+
+    [struct op = "!=",  a = 13, b = 2, r = 1],
+    [struct op = "!=",  a = 13, b = 13, r = 0],
+    [struct op = "!=",  a = 2, b = 13, r = 1],
+    [struct op = "!=",  a = 13, b = 2.0, r = 1],
+    [struct op = "!=",  a = 13, b = 13.0, r = 0],
+    [struct op = "!=",  a = 2, b = 13.0, r = 1],
+    [struct op = "!=",  a = 13.0, b = 2, r = 1],
+    [struct op = "!=",  a = 13.0, b = 13, r = 0],
+    [struct op = "!=",  a = 2.0, b = 13, r = 1],
+    [struct op = "!=",  a = 13.0, b = 2.0, r = 1],
+    [struct op = "!=",  a = 13.0, b = 13.0, r = 0],
+    [struct op = "!=",  a = 2.0, b = 13.0, r = 1],
+    [struct op = "!=",  a = "abc", b = "abz", r = 1],
+    [struct op = "!=",  a = "abc", b = "abc", r = 0],
+    [struct op = "!=",  a = "abz", b = "abc", r = 1],
+    [struct op = "!=",  a = "ab", b = "abz", r = 1],
+    [struct op = "!=",  a = "abz", b = "ab", r = 1],
+    [struct op = "!=",  a = [array 1,2], b = [array 1,2], r = 0],
+    [struct op = "!=",  a = [array 1,3], b = [array 1,2], r = 1],
+    [struct op = "!=",  a = [array 1], b = [array 1,2], r = 1],
+    [struct op = "!=",  a = [array 1,2], b = [array 1], r = 1],
+    /* File equality not tested here. */
+    /* Function equality not tested here. */
+    /* Ptr equality not tested here. */
+    [struct op = "!=",  a = #a.b#, b = #a.b#, r = 0],
+    [struct op = "!=",  a = #a.b#, b = #a.c#, r = 1],
+    [struct op = "!=",  a = #a.#, b = #a.b#, r = 1],
+    [struct op = "!=",  a = #a.b#, b = #a.#, r = 1],
+    [struct op = "!=",  a =[set 1,"a"], b = [set 1,"a"], r = 0],
+    [struct op = "!=",  a =[set 1,"a"], b = [set 1,"b"], r = 1],
+    [struct op = "!=",  a =[set 1], b = [set 1,"a"], r = 1],
+    [struct op = "!=",  a =[set 1,"a"], b = [set 1], r = 1],
+    [struct op = "!=",  a = [struct a=1,b=2], b = [struct a=1,b=2], r = 0],
+    [struct op = "!=",  a = [struct a=1,b=2], b = [struct a=1,b=3], r = 1],
+    [struct op = "!=",  a = [struct a=1], b = [struct a=1,b=2], r = 1],
+    [struct op = "!=",  a = [struct a=1,b=2], b = [struct a=1], r = 1],
+    [struct op = "!=",  a = NULL, b = NULL, r = 0],
+    [struct op = "!=",  a = NULL, b = 0, r = 1],
+
+    [struct op = "&",   a = 7, b = 13, r = 5],
+    [struct op = "&=",  a = 7, b = 13, r = 5],
+
+    [struct op = "|",   a = 7, b = 13, r = 15],
+    [struct op = "|=",  a = 7, b = 13, r = 15],
+
+    [struct op = "^",   a = 7, b = 13, r = 10],
+    [struct op = "^=",  a = 7, b = 13, r = 10],
+
+    [struct op = "!~",   a = #a.c#, b = "abc", r = 0],
+    [struct op = "!~",   a = "abc", b = #a.c#, r = 0],
+    [struct op = "!~",   a = #a(.)c#, b = "abc", r = 0],
+    [struct op = "!~",   a = #a.#, b = "abc", r = 0],
+    [struct op = "!~",   a = "abc", b = #a.#, r = 0],
+    [struct op = "!~",   a = #a.c$#, b = "ab", r = 1],
+    [struct op = "!~",   a = "ab", b = #a.c$#, r = 1],
+
+    [struct op = "~",   a = #a.c#, b = "abc", r = 1],
+    [struct op = "~",   a = "abc", b = #a.c#, r = 1],
+    [struct op = "~",   a = #a(.)c#, b = "abc", r = 1],
+    [struct op = "~",   a = #a.#, b = "abc", r = 1],
+    [struct op = "~",   a = "abc", b = #a.#, r = 1],
+    [struct op = "~",   a = #a.c$#, b = "ab", r = 0],
+    [struct op = "~",   a = "ab", b = #a.c$#, r = 0],
+
+    [struct op = "~~",  a = #a(.)c#, b = "abc", r = "b"],
+    [struct op = "~~=", a = #a(.)c#, b = "abc", r = "b"],
+    [struct op = "~~",  a = "abc", b = #a(.)c#, r = "b"],
+    [struct op = "~~=", a = "abc", b = #a(.)c#, r = "b"],
+    [struct op = "~~",  a = #a(.)c$#, b = "ab", r = NULL],
+    [struct op = "~~=", a = #a(.)c$#, b = "ab", r = NULL],
+    [struct op = "~~",  a = "ab", b = #a(.)c$#, r = NULL],
+    [struct op = "~~=", a = "ab", b = #a(.)c$#, r = NULL],
+
+    [struct op = "~~~", a = #a(.)c(.)e#, b = "abcde", r = [array "b", "d"]],
+    [struct op = "~~~", a = "abcde", b = #a(.)c(.)e#, r = [array "b", "d"]],
+    [struct op = "~~~", a = "abcde", b = #xyz#, r = NULL],
+    [struct op = "~~~", a = "abcde", b = #ab#, r = [array]],
+];
+
+/*
+ * For each operator, operands and result set we build a function which
+ * performs the operation (by parseing a generated bit of text) and run
+ * it; testing the return value against the given one.
+ */
+local func;            /* The generated function. */
+local binop;           /* The element of binops (above) we are considering. */
+local result;
+local count    = 1;
+
+forall (binop in binops)
+{
+    parse(sprintf("local func(a, b){return a %s b;}", binop.op), scope());
+
+    try
+        result = func(binop.a, binop.b);
+    onerror
+    {
+        fail(sprintf("%a %s %a failed with error '%s' (binops %d)",
+            binop.a,
+            binop.op,
+            binop.b,
+            error,
+            count));
+    }
+
+    if (result != binop.r)
+    {
+        fail(sprintf("%a %s %a produced %a, expected %a (binops %d)",
+            binop.a,
+            binop.op,
+            binop.b,
+            result,
+            binop.r,
+            count));
+    }
+    if (typeof(result) != typeof(binop.r))
+    {
+        fail(sprintf("%a %s %a produced type %s, expected type %s (binops %d)",
+            binop.a,
+            binop.op,
+            binop.b,
+            typeof(result),
+            typeof(binop.r),
+            count));
+    }
+    ++count;
+}
+
+a := 1 ? 0 + 1 : 2;
+if (a != 1)
+    fail("incorrect ? : result");
+
+a := 1;
+b := 2;
+c := 3;
+a <=> b <=> c;
+if (a != 3 || b != 1 || c != 2)
+	fail("<=> failure");
+
+a := 1;
+b := 2;
+c = a <=> b;
+if (c != 2)
+	fail("<=> for value failed");
+
+a := 2;
+b = a++;
+if (b != 2)
+	fail("postfix ++ for value didn't work");
+
+(a := 2) = 3;
+if (a != 3)
+	fail(":= for lvalue didn't work");
+
+a := set();
+a.x := 1;
+if (a.x != 1)
+	fail("failed to := to non-super supporting object");
+
+if (1, 2, 3 != 3)
+	fail("failed to evaluate comma op correctly");
+
+
+c := [class
+	
+	m1()
+	{
+		return this:^m1();
+	}
+];
+a = c:new(c);
+super(c, NULL);
+error := NULL; try c:m1(); onerror;
+if (error !~ #no super#)
+	fail("wrong error in super-less :^");
+
+c := [class
+	
+	m1()
+	{
+		class := NULL;
+		return this:^m1();
+	}
+];
+a = c:new(c);
+error := NULL; try c:m1(); onerror;
+if (error !~ #evaluated#)
+	fail("wrong error in super-less :^");
+
+error := NULL; try 1(2); onerror;
+if (error == NULL)
+	fail("faled to fail on bad call");
+
+c := [class
+
+	m2()
+	{
+		fail("deliberate");
+	}
+];
+
+a := c:new();
+error = NULL; try a:m2(); onerror;
+if (error == NULL)
+	fail("failed to propogate error correctly in optimised : call");
+
+(a=1)=2;
+
+a := @[struct c = 1];
+b := [struct c = 2];
+error := NULL; try a.c <=> b.c; onerror;
+if (error == NULL)
+	fail("failed to fail on bad swap");
+
+error := NULL; try a := 1 / 0; onerror;
+if (error == NULL)
+	fail("failed to fail on 1 / 0");
+
+error := NULL; try a := 1 % 0; onerror;
+if (error == NULL)
+	fail("failed to fail on 1 % 0");
+
+error := NULL; try a := 1.0 / 0; onerror;
+if (error == NULL)
+	fail("failed to fail on 1.0 / 0");
+
+error := NULL; try a := 1 / 0.0; onerror;
+if (error == NULL)
+	fail("failed to fail on 1 / 0.0");
+
+error := NULL; try a := 1.0 / 0.0; onerror;
+if (error == NULL)
+	fail("failed to fail on 1.0 / 0.0");
+
+error := NULL; try a := &(struct())["xxx"] + 1; onerror;
+if (error == NULL)
+	fail("failed to fail on ptr add of non-int index");
+
+error := NULL; try a := 1 + &(struct())["xxx"]; onerror;
+if (error == NULL)
+	fail("failed to fail on ptr add of non-int index");
+
+error := NULL; try a := &[array 1][0] - &(struct())["xxx"]; onerror;
+if (error == NULL)
+	fail("failed to fail on ptr sub of non-int index");
+
+error := NULL; try a := &[array 1][0] > &(struct())["xxx"]; onerror;
+if (error == NULL)
+	fail("failed to fail on ptr > of non-int index");
+
+error := NULL; try a := &[array 1][0] < &(struct())["xxx"]; onerror;
+if (error == NULL)
+	fail("failed to fail on ptr < of non-int index");
+
+error := NULL; try a := &[array 1][0] >= &(struct())["xxx"]; onerror;
+if (error == NULL)
+	fail("failed to fail on ptr >= of non-int index");
+
+error := NULL; try a := &[array 1][0] <= &(struct())["xxx"]; onerror;
+if (error == NULL)
+	fail("failed to fail on ptr <= of non-int index");
+
+if (!1 != 0)
+	fail("failed to !1");
+
+if (!0 != 1)
+	fail("failed to !0");
+
+a := 123;
+if (-a != -123)
+	fail("failed to uniary minus on int");
+a := 123.0;
+if (-a != -123.0)
+	fail("failed to uniary minus on float");
+
+error = NULL; try a := ~"hello"; onerror;
+if (error == NULL)
+	fail("failed to fail on bad unary");

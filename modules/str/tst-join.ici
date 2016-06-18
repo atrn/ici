@@ -1,0 +1,6 @@
+a := [array "abc", "123"];
+
+if (str.join(a) != "abc 123")
+    fail("join");
+if (str.join(a, "-") != "abc-123")
+    fail("join");

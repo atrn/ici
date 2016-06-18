@@ -1,0 +1,23 @@
+if (argc != 3)
+{
+    printf("usage: %s framemaker-html-output output-html\n", argv[0]);
+    exit(1);
+}
+
+html = getfile(fopen(argv[1], "r"));
+
+html = gsub
+(
+    html,
+    #(<A [^>]*>) ?([^<]*</A>)\n#,
+    "\\1\\2"
+);
+
+html = gsub
+(
+    html,
+    #</?DELETEME[^>]*>\n?#,
+    "\\1\\2"
+);
+
+put(html, fopen(argv[2], "w"));

@@ -1,0 +1,103 @@
+/*
+ * listbox.ici
+ */
+
+extern listbox = [struct : widget,
+
+    type = "listbox",
+
+    new = [func (self, parent)
+    {
+	self.name = self@makename(parent);
+	tcl.tk("listbox", self.name);
+    }],
+
+    setheight = [func (self, lines)
+    {
+	tcl.tk(self.name, "configure -height", lines);
+    }],
+
+    setwidth = [func (self, chars)
+    {
+	tcl.tk(self.name, "configure -width", chars);
+    }],
+
+    setmode = [func (self, mode)
+    {
+	tcl.tk(self.name, "configure -mode", mode);
+    }],
+
+    setfrom = [func (self, what)
+    {
+	self@delete("0", "end");
+	if (typeof(what) == "array")
+	{
+	    auto i, n;
+	    for (n = nels(what), i = 0; i < n; ++i)
+		self@insert(i, tcl.str(what[i]));
+	}
+    }],
+
+    insert = [func (self, index, element)
+    {
+	tcl.tk(self.name, "insert", index, element);
+    }],
+
+    currentselection = [func (self)
+    {
+	auto s;
+	if ((s = tcl.tk(self.name, "curselection")) == "")
+	    return -1;
+	return int(s);
+    }],
+
+    get = [func (self, what)
+    {
+	auto what = "active";
+	return tcl.tk(self.name, "get " + what);
+    }],
+
+    yscrollcommand = [func (self, cmd)
+    {
+	tcl.tk(self.name, "configure -yscrollcommand {" + cmd + "}");
+    }],
+
+    attachscrollbar = [func (self, scrollbar)
+    {
+	self@yscrollcommand(scrollbar.name + " set");
+	scrollbar@settclaction(self.name + " yview");
+    }],
+
+    delete = [func (self, first, last)
+    {
+	auto last = "";
+	tcl.tk(self.name, "delete", first, last);
+    }],
+
+    setselection = [func (self, index)
+    {
+	tcl.tk(self.name, "selection set", index);
+    }],
+
+    size = [func (self)
+    {
+	tcl.tk(self.name, "size");
+    }],
+
+    see = [func (self, what)
+    {
+	tcl.tk(self.name, "see", what);
+    }],
+
+    unhighlight = [func (self, el)
+    {
+	auto el = 0;
+	tcl.tk(self.name, "selection clear", el);
+    }],
+
+    highlight = [func (self, el)
+    {
+	tcl.tk(self.name, "selection set", el);
+    }],
+
+];

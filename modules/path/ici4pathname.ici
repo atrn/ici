@@ -1,0 +1,146 @@
+/*
+ * $Id: ici4pathname.ici,v 1.2 2003/03/08 06:48:05 timl Exp $
+ */
+
+/*
+ * Pathname manipulation
+ *
+ * Functions for manipulating file system pathnames.
+ *
+ * This --intro-- and --synopsis-- are part of --ici-pathname-- documentation.
+ */
+
+/*
+ * pathname.separator - pathname component separator
+ *
+ * The string pathname.separator is the character sequence used
+ * to separate path name components.  The separator is used when
+ * composing and decomposing pathnames.
+ *
+ * This --topic-- forms part of the --ici-pathname-- documentation.
+ */
+extern separator = "/";
+if (version() ~ #Win32#)
+    separator = "\\";
+
+/*
+ * pathname.join - join one or more path name elements
+ *
+ * string = pathname.join(string...)
+ *
+ * The pathname.join() function concatenates one or more path
+ * name elements separating each with the system's
+ * pathname separator - the value of pathname.separator.
+ *
+ * This --topic-- forms part of the --ici-pathname-- documentation.
+ */
+extern
+join(head)
+{
+    auto        vargs = [array];
+    auto        comp;
+
+    if (typeof(head) == "array")
+    {
+        vargs = interval(head, 1);
+        head = head[0];
+    }
+    forall (comp in vargs)
+        head = sprintf("%s%s%s", head, separator, comp);
+    return head;
+}
+
+/*
+ * pathname.split - split a pathname into separate elements
+ *
+ * array = pathname.split(string)
+ *
+ * The pathname.split() function separates a pathname into
+ * the various elements according to local file system
+ * rules - it splits the name at each pathname.separator.
+ *
+ * This --topic-- forms part of the --ici-pathname-- documentation.
+ */
+extern
+split(path)
+{
+    return gettokens(path, separator);
+}
+
+/**
+ * pathname.base, pathname.basename - return the base portion of a pathname
+ *
+ * string = pathname.base(string)
+ * string = pathname.basename(string)
+ *
+ * This --topic-- forms part of the --ici-pathname-- documentation.
+ */
+extern
+basename(path, ext)
+{
+    auto        s;
+    auto        ext = NULL;
+
+    s = path ~~ $regexp(sprintf(".*%s(.*)", separator));
+    if (s == NULL)
+        s = path;
+    if (ext)
+    {
+        auto    n;
+        n = nels(ext);
+        if (n <= nels(s) && interval(s, nels(s) - n) == ext)
+            s = interval(s, 0, nels(s) - n);
+    }
+    return s;
+}
+
+extern base = basename;
+
+/*
+ * pathname.dir, pathname.dirname - return the directory portion of a pathname
+ *
+ * string = pathname.dir(string)
+ * string = pathname.dirname(string)
+ *
+ * The form path.dirname() is formally deprecated though it
+ * is retained as dirname is in common use elsewhere.
+ *
+ * This --topic-- forms part of the --ici-pathname-- documentation.
+ */
+extern
+dirname(path)
+{
+    auto        s;
+
+    if
+    (
+        path !~ $regexp(separator)
+        ||
+        !(s = path ~~ $regexp(sprintf("(.*)%s.*$", separator)))
+    )
+        s = ".";
+    return s;
+}
+
+extern dir = dirname;
+
+/**
+ * pathname.ext, pathname.extension - return the extension portion of a pathname
+ *
+ * string = pathname.ext(string)
+ * string = pathname.extension(string)
+ *
+ * The form pathname.ext() is the preferred form however the long form,
+ * pathname.extension, is present for aesethetic reasons (it matches
+ * basename and dirname).
+ *
+ * This --topic-- forms part of the --ici-pathname-- documentation.
+ */
+extern
+extension(path)
+{
+    path = path ~~ #.*\.(.*)$#;
+    return path ? path : "";
+}
+
+extern ext = extension;

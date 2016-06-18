@@ -1,0 +1,32 @@
+#!/bin/env ici3
+
+auto c = [class
+
+	new()
+	{
+		auto o ;
+		o = caste.caste_new() ;
+		super(o, class) ;
+		return o ;
+	}
+	
+	_fetch(k)
+	{
+		printf("_fetch( %s )\n", string(k) ) ;
+		return caste.caste_fetch(this, k) ;
+	}
+
+	_assign(k,v)
+	{
+		printf("_assign( %s , %s )\n", string(k), string(v) ) ;
+		return caste.caste_assign(this,k,v) ;
+	}
+
+] ;
+
+auto o ;
+o = c:new() ;
+
+printf( "setting o.a\n" ) ;
+o.a = 7 ;
+printf( "o.a = %s\n", string(o.a) ) ;

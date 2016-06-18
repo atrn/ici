@@ -1,0 +1,10 @@
+*  Converted to work with ici version 4
+
+   In the process this module was renamed and is now known
+   as "pathname".  This is because ici now defines a variable,
+   path, which stops loading of the path module.
+
+   The walk function for perfoming a directory traversal has
+   been removed as its name, pathname.walk, does not make as
+   much sense as it should.  The function will appear in another
+   module and be greatly enhanced.

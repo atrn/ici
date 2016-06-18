@@ -1,0 +1,7 @@
+file = fopen("test-save-string.ici.dat");
+o = serialisation.restore(file);
+close(file);
+if (typeof(o) != "string")
+    fail("restore failed: restored a " + typeof(o));
+if (o != "This")
+    fail(sprintf("restore failed: restored string \"%s\"", string(o)));

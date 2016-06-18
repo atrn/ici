@@ -1,0 +1,52 @@
+static
+xdeepcopy(o, ss, depth)
+{
+    auto depth = 0;
+
+    v := k := NULL;
+    switch (typeof(o))
+    {
+    case "struct":
+        if (ss[o])
+            return NULL;
+        ss[o] := 1;
+        r := struct();
+	if (super(o))
+	    super(r, xdeepcopy(super(o), ss, depth + 1));
+        forall (v, k in o)
+            r[xdeepcopy(k, ss, depth + 1)] := xdeepcopy(v, ss, depth + 1);
+        return r;
+
+    case "set":
+        r := set();
+        forall (v, k in o)
+            r[xdeepcopy(k, ss, depth + 1)] := 1;
+        return r;
+
+    case "array":
+        r := array();
+        forall (v in o)
+            push(r, xdeepcopy(v, ss, depth + 1));
+        return r;
+
+    default:
+	return copy(o);
+    }
+}
+
+s := xdeepcopy(scope(), set());
+
+static
+prep(s)
+{
+    if (s)
+        prep(super(s));
+    forall (v, k in s)
+        if (typeof(v) == "file")
+            del(s, k);
+}
+
+prep(s);
+file := fopen("test-save-scope.ici.dat", "w");
+serialisation.save(file, s);
+close(file);

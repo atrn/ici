@@ -1,0 +1,44 @@
+.TH icipathname 1 "The ICI Programming Language" "" "The ICI Programming Language"
+.SH "NAME"
+icipathname - The ICI pathname module - Pathname manipulation
+.SH "DESCRIPTION"
+.P
+Functions for manipulating file system pathnames.
+.SH "DETAILS"
+.SS "pathname.base, pathname.basename - return the base portion of a pathname"
+.P
+string = pathname.base(string) string = pathname.basename(string)
+.SS "pathname.dir, pathname.dirname - return the directory portion of a pathname"
+.P
+string = pathname.dir(string) string = pathname.dirname(string)
+.P
+The form path.dirname() is formally deprecated though
+it is retained as dirname is in common use elsewhere.
+.SS "pathname.ext, pathname.extension - return the extension portion of a pathname"
+.P
+string = pathname.ext(string) string = pathname.extension(string)
+.P
+The form pathname.ext() is the preferred form however
+the long form, pathname.extension, is present for aesethetic
+reasons (it matches basename and dirname).
+.SS "pathname.join - join one or more path name elements"
+.P
+string = pathname.join(string...)
+.P
+The pathname.join() function concatenates one or more
+path name elements separating each with the system\'s
+pathname separator - the value of pathname.separator.
+.SS "pathname.separator - pathname component separator"
+.P
+The string pathname.separator is the character sequence
+used to separate path name components. The separator
+is used when composing and decomposing pathnames.
+.SS "pathname.split - split a pathname into separate elements"
+.P
+array = pathname.split(string)
+.P
+The pathname.split() function separates a pathname
+into the various elements according to local file system
+rules - it splits the name at each pathname.separator.
+.SH "SEE ALSO"
+ici(1), iciex(1)

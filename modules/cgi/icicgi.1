@@ -1,0 +1,63 @@
+.TH icicgi 1 "The ICI Programming Language" "" "The ICI Programming Language"
+.SH "NAME"
+icicgi - The ICI cgi module - HTTP CGI script helper functions
+.SH "DESCRIPTION"
+.P
+ICI module to interface with an HTTP server\'s Common
+Gateway Interface.
+.P
+The cgi module provides a number of functions to simplify
+writing CGI "scripts" in ICI. Functions are provided
+to retrieve data sent to the CGI program as the result
+of a form\'s post and to abstract the output side of
+a CGI program.
+.SH "DETAILS"
+.SS "cgi.content_length(length) - generate a "Content-Length" HTTP header"
+.SS "cgi.content_type(string) - generate a "Content-type" HTTP header"
+.SS "cgi.end_reply_header() - output the end of header line (a blank line)"
+.SS "struct = cgi.form_data([string]) - return form post data"
+.P
+This function decodes and returns form post data. The
+data to be decode may be given as \fIstring\fP or may
+be obtained implicitly according to the particular
+HTTP request method used by the form: if the method
+is "GET" the encoded form data is obtained from the
+QUERY_STRING environment variable; if the method is
+"POST" the data is read from the standard input.
+.P
+The form data is returned as a struct with key/value
+pairs corresponding to the form\'s keys and values.
+If a given key appears only once in the form the value
+is returned as a string, if a given key occurs more
+than once the value is an array containing the values
+associated with that key in the form\'s data.
+.P
+Multipart form encoding is supported through a separate
+multipart form parser function cgi.multipart_form_data().
+If it is known that a form will return its values as
+a multipart post it may be more efficient to call that
+function directly especially if the form contains values
+with a large string representation.
+.SS "string = cgi.getcookie() - return the cookie for this request or NULL if no cookie."
+.SS "cgi.no_content() - output a "no content" CGI status header"
+.SS "cgi.redirect([status,] url) - generate a redirect status"
+.SS "cgi.setcookie(string) - output an HTTP header to setting a cookie."
+.SS "cgi.start_reply_header([key, val]...) - start CGI program output"
+.P
+The cgi.start_reply_header() is used by a program to
+note the start of its output. If no parameters are
+given the function does nothing and merely acts as
+a place-holder to match the cgi.end_reply_header()
+function. If parameters are given they must be an even
+number of strings which are used to output HTTP reply
+header values. The first string in each pair is the
+header\'s name with the second string of the pair being
+its associated value.
+.P
+Note that the common HTTP header fields have their
+own functions.
+.SS "cgi.status(code [, msg]) - generate a status CGI header"
+.SS "cgi.string_to_urle(string) - return the "URL" encoded form of a string"
+.SS "string = cgi.urle_to_string(string) - decode a "URL" encoded string"
+.SH "SEE ALSO"
+ici(1), iciex(1)

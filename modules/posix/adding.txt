@@ -1,0 +1,71 @@
+Adding Individual Functions Using ICI's Auto-load Feature.
+
+ICI provides access to many Unix system calls and C library
+functions. This makes it suitable for systems programming where
+performance is not a major factor and ease of implementation or
+maintainance is important or ICI's strengths in data structuring
+are useful. Sometimes however you require access to a function not
+provided in standard ICI. How do you get at this function?
+
+ICI has recently added the ability to load native code extensions at
+run-time. This facility has been available for some time in extended
+versions of the language but has now been incorporated into ICI
+proper. The method of its incorporation also adds a major facility
+into ICI - dynamic loading of modules to resolve undefined
+references.
+
+ICI's native code extension mechanism is quite flexible. Native code
+modules are represented as an ICI object. Typically modules contain a
+number of objects and use an ICI aggregate object to wrap these into a 
+single item. Struct's are most commonly used as they allow users to use
+dot-notation to access the module's objects.
+
+If a module exports a single function it can take advantage of the
+native code interface and present itself as a single function. For
+instance recently I was writing a program that required a call to the
+fcntl() system call in Unix. ICI doesn't provide fcntl() so I wrote a
+native code module that provided the function and suddenly ICI had
+fcntl(). It didn't require any funny naming (e.g., Sys.fcntl()) or
+statements to the language translator to load a particular module. ICI 
+just acquired a fcntl() function along with the other builtin system
+calls.
+
+Adding the fcntl function was easy. ICI's native code loader calls a
+function defined in the module to initialise the module and return an
+object to represent it. To write a single-function module we just
+arrange for this function to return the cfunc object directly. Here's
+an extract from the code,
+
+	...  various #includes
+
+	static int
+	f_fcntl(void)
+	{
+	    ...   fcntl's code
+	}
+
+	object_t *fcntl_library_init(void)
+	{
+	    static cfunc_t cfunc = {CF_OBJ, "fcntl", f_fcntl};
+	    cfunc.o_head.o_type = &func_type;
+	    return objof(&cfunc);
+	}
+
+The fcntl_library_init() function is called by the interpreter when
+the module is loaded (and if this function does not exist the module
+is not considered a valid ICI module). The function initialises a
+cfunc_t object and returns its. That's it. The fcntl function itself
+is a standard ICI native code function.
+
+This is compiled as a shared object and stored in a file icifcntl.so
+in one of the directories on the code loader's search path. When code
+such as the following is encountered,
+
+	fcntl(0, "getown")
+
+The shared object is loaded, the fcntl_library_init() function called
+and the cfunc object returned. This is then used as the result of the
+name lookup for "fcntl". The "call" operator immediately following
+causes the f_fcntl function to be called which will eventually call
+the system call of the same name.
+

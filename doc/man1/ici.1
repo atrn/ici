@@ -1,0 +1,591 @@
+.r ici.1
+.TH "ici" "1"
+.SH NAME
+ici \- ICI programming language interpreter
+.SH SYNOPSIS
+\fBici\fP \fIfile args...\fP
+.br
+\fBici\fP [\fB-f\fP \fIfile\fP] [\fB-\fP] [\fB-e\fP \fIprog\fP] [\fB-\fP\fI#\fP] [\fB-l\fP \fImod\fP] [\fB-m\fP \fIname\fP] [\fB--\fP] \fIargs...\fP
+.br
+\fBici\fP [\fB-h \fP| \fB-?\fP | \fB-v\fP]
+.SH DESCRIPTION
+\fBici\fP is an interpreter for the ICI language defined in
+\fIThe ICI Programming Language\fP (\fIici.pdf\fP from \fIici.sf.net\fP,
+and probably installed on this system).
+ICI is a general purpose interpretive programming language
+that has dynamic typing and flexible data types with the basic
+syntax, flow control constructs andoperators of C. It is designed
+for use in many environments, including embedded systems, as
+an adjunct to other programs, as a text-based interface to compiled
+libraries, and as a cross-platform scripting language with
+good string-handling capabilities.
+The ICI language and source is free for any use but without
+warranties of any kind.
+.PP
+This page details the command line switches, and
+gives a summary of the language. More detail may be found in the
+following man pages.
+
+.TP 1i
+.B icisyn
+Statement forms and syntax.
+.TP 1i
+.B iciops
+Expression operators.
+.TP 1i
+.B icifuncs
+Core language functions.
+.TP 1i
+.B icitypes
+Core language data types and their semantics.
+.TP 1i
+.B icire
+Regular expressions.
+.TP 1i
+.B icioo
+Object oriented programming.
+.TP 1i
+.B iciex
+A summary of extension modules. Each extension module also
+has its own man page. These are a seperate installation from
+the language core.
+
+.PP
+The ICI language is reminiscent of C, with a very similar syntax,
+and the same operator precedence.
+Features of the language include automatic garbage collection,
+exception handling, dynamic aggregate data types like sets,
+associative arrays (`structs'),
+and support for object oriented programming.
+ICI is strongly, but dynamically, typed.
+That is, types are properties of objects, rather than the variables
+that refer to them.
+The only requirement is that types must make sense at run-time.
+Functions can be called with optional parameters, default values,
+and varying types.
+Case-expressions in switch statements can be strings and other types.
+.PP
+The most visible differences between ici and C are:
+.IP \(bu 1c
+Declarations take no type specifier.
+.IP \(bu 1c
+Function declarations require a storage class (e.g. \fCstatic\fR)
+to distinguish them from a function call.
+.IP \(bu 1c
+There is no `main' \- execution starts with the first executable statement.
+.IP \(bu 1c
+Declarations are executable statements \- but they are executed
+\fIonce only\fP,
+at parse time.
+.PP
+The interpreter may be invoked in three ways, the
+first using no command line switches, the second using
+switches, and the third (which is trivial) just prints version
+or help information and exits.
+.P
+The first form is useful when your program is a script invoked
+via a #! on the first line. In this form all arguments are passed
+directly to your program. 
+The second form allows certain options to be specified to the interpreter
+itself, rather than just your program.
+.PP
+In both usages the \fIfile\fP argument may be replaced
+with a \fB\(mi\fP to indicate that standard input should be read. Also any
+remaining command line arguments are collected into an array and made
+available to the ici program as the global variable \fBargv\fP.
+.PP
+The interpreter parses the ICI program from the named file and
+executes it. ICI programs are ordinary text files. Comments may
+started with the characters /* and continue until the next */, and
+they may also be stated with // and continue till end of line.
+Also, lines which start with a # in column one are ignored by
+the core language.
+.PP
+A program consists of a series of statements. Statements may be either
+declarations or executable statements. A declaration defines a name and possibly
+associates a parse-time value with that name.
+Expressions and other executable
+statements generate code which is executed.
+
+.ta 1i 2i 3i 4i 5i
+
+.SS "Command Line Arguments"
+.PP
+The ici interpreter accepts the command line options described below.
+For these options to be accepted,
+they must be provided before any other options intended for
+the ici script itself.
+They may be terminated by the `--' option.
+.PP
+The remaining options (after those intended for the interpreter),
+are made available to the user's program via the extern variable \fIargv\fP,
+an array of strings.
+The variable \fIargc\fP gives
+the number of options.
+The first element (``argv[0]''),
+is the name of the ici program,
+with subsequent elements being the options.
+.PP
+The following options are understood by the ici interpreter:
+
+.TP 1i
+.B "\(mi\^\(mi"
+End of switches.
+All remaining options are placed in
+the ici program's \fIargv\fP array.
+This can be used to avoid conflicts between options
+provided for the interpreter and options provided for the
+ici program (script).
+
+.TP 1i
+.B "\(miv"
+Outputs a message to stderr describing the version of the
+ici interpreter and exits.
+
+.TP 1i
+.B "\(mim name"
+Use \fIname\fP as the name of the module being parsed. The
+ici program's argv[0] is set to \fIname\fP. This is done prior
+to any files being parsed.
+
+.TP 1i
+.B "\(mif pathname"
+Parse the named file.
+In other words,
+run the ici script provided in \fIpathname\fP.
+
+.TP 1i
+.B "\(mie expression"
+Parse (run) the expression. Multiple \fI-e\fP options may be given and
+may also be mixed with other switches.
+
+.TP 1i
+.B "\(mi#"
+\fI#\fP is a decimal digit. Parse a module from a specific
+file descriptor.
+
+.TP 1i
+.B "\(mil mod"
+Loads the module \fImod\fP as if by the \fIload()\fP function.
+
+.PP
+Any arguments not starting with a `\(mi'
+are placed in the ici program's \fIargv\fP array.
+Such options DO NOT constitute the end of switch processing.
+The `\(mi\^\(mi' option must be used if that behaviour is required.
+.PP
+On Win32 platforms,
+ici performs wildcard expansion in the traditional
+MS-DOS fashion.  Arguments containing wildcard meta-characters, `?' and
+`*', may be protected by enclosing them in single or double quotes.
+The character / may be used as well as \(mi to introduce options.
+.PP
+In an ICI program,
+access to the command line options is via the variable:
+.PP
+\fBargv\fP
+.PP
+An array of strings containing the command line options. The first
+element is the name of the ici program and subsequent elements are the
+options (arguments) passed to that program.
+
+.SS "Reserved Words"
+.PP
+The complete list of ICI's reserved words is:
+.PP
+.nf
+        \fBNULL        auto        break
+        case        continue    default
+        do          else        extern
+        for         forall      if
+        in          onerror     return
+        static      switch      try
+        waitfor     while\fP
+.fi
+
+.ta 1c 2c 3c 4c 5c 6c 7c 8c 9c 10c
+
+.SS "Lexicon"
+.PP
+The first stage of the ici parser breaks the input streams into tokens,
+optionally separated by white space.
+The next token is always formed from the longest meaningful sequence
+of characters.
+These are the tokens that make up ici's set of operators:
+
+.nf
+        *       &       \(mi       +       !
+        ~       ++      \(mi\(mi      @       ,
+        $       /       %       >>      <<
+        <       >       <=      >=      ==
+        !=      ~       !~      ~~      ~~~
+        &       ^       |       &&      ||
+        :       ?       =       +=      \(mi=
+        *=      /=      %=      >>=     <<=
+        &=      ^=      |=      ~~=     <=>
+        .       \(mi>      :       :=      :^
+    
+Other tokens are:
+
+        [       ]       (       )       {       }       ;
+.fi
+
+Still other tokens are literal regular expressions (they start and
+end with a `#',
+enclosing any sequence of characters except newline),
+literal strings,
+literal characters,
+and literal numbers.
+
+White space consists of spaces, tabs, newlines, or comments.
+Comments are as in C++ (/* ... */ and // till end of line).
+Also, lines starting in # in the first column 
+are ignored by the core interpreter.
+
+Literal strings and literal characters can include the following escape
+sequences:
+
+.IP \ea 2c
+audible bell (ASCII 0x07)
+.IP \eb 2c
+backspace (ASCII 0x08)
+.IP \ec\fIx\fP 2c
+control-\fIx\fP (ASCII 0x01 .. 0x1A)
+.IP \ee 2c
+escape (ASCII 0x1B)
+.IP \ef 2c
+form feed (ASCII 0x0C)
+.IP \en 2c
+newline (ASCII 0x0A)
+.IP \er 2c
+carriage return (ASCII 0x0D)
+.IP \et 2c
+tab (ASCII 0x09)
+.IP \ev 2c
+vertical tab (ASCII 0x0B)
+.IP \e" 2c
+double quote (ASCII 0x22)
+.IP \e' 2c
+single quote (ASCII 0x27)
+.IP \e? 2c
+question mark (ASCII 0x3F)
+.IP \e\e 2c
+backslash (ASCII 0x5C)
+.IP \ex\fIx..\fP 2c
+the character with hex code \fIx..\fP (1, or 2 hexadecimal digits).
+.IP \ex\fIn...\fP 2c
+the character with octal code \fIn...\fP (1, 2, or 3 octal digits).
+
+.PP
+Adjacent string literals (separated by white space)
+are concatenated to form a single string literal.
+As are regular expressions.
+A sequence of upper or lower case letters, underscores and digits is
+interpreted as:
+.IP "" 1c
+An integer if possible,
+.IP "" 1c
+otherwise as a floating point number if possible,
+.IP "" 1c
+otherwise as an identifier.
+
+.ta 1i 2i 3i 4i 5i
+
+.SS "Syntax"
+.PP
+Ici's syntax is defined by the following grammar.
+.PP
+.nf
+statement       executable-statement
+                declaration
+.PP
+executable-statement    expression \fB;\fP
+        compound-statement
+        \fBif (\fP expression \fB)\fP statement
+        \fBif (\fP expression \fB)\fP statement \fBelse\fP statement
+        \fBwhile  (\fP expression \fB)\fP statement
+        \fBdo\fP statement \fBwhile (\fP expression \fB) ;\fP
+        \fBfor (\fP [ expression ] \fB;\fP [ expression ] \fB;\fP [ expression ] \fB)\fP statement
+        \fBforall (\fP expression [ \fB,\fP expression ] \fBin\fP expression \fB)\fP statement
+        \fBswitch (\fP expression \fB)\fP compound-statement
+        \fBcase\fP parser-evaluated-expression \fB:\fP
+        \fBdefault ;\fP
+        \fBbreak ;\fP
+        \fBcontinue ;\fP
+        \fBreturn\fP [ expression ] \fB;\fP
+        \fBtry\fP statement \fBonerror\fP statement
+	\fBwaitfor (\fP expression \fB;\fP expression \fB)\fP statement
+	\fBcritsect\fP statement
+        \fB;\fP
+.PP
+factor  integer-number
+        character-code
+        floating-point-number
+        string
+        regular-expression
+        identifier
+        \fBNULL\fP
+        \fB(\fP expression \fB)\fP
+        \fB[ array\fP expression-list  \fB]\fP 
+        \fB[ set\fP expression-list \fB]\fP 
+        \fB[ struct\fP [(\fB:\fP|\fB=\fP) expression \fB,\fP] assignment-list \fB]\fP 
+        \fB[ class\fP [(\fB:\fP|\fB=\fP) expression \fB,\fP] assignment-list \fB]\fP 
+        \fB[ func\fP function-body \fB]\fP
+	\fB[ module\fP [(\fB:\fP|\fB=\fP) expression \fB,\fP] statement...\fB]\fP
+	\fB[\fP identifier users-data... \fB]\fP
+.PP
+
+expression-list empty
+        expression [ \fB,\fP ]
+        expression \fB,\fP expression-list
+.PP
+
+assignment-list empty
+        assignment [ \fB,\fP ]
+        assignment \fB,\fP assignment-list
+.PP
+
+assignment      struct-key \fB=\fP  expression
+.PP
+
+struct-key      identifier
+        \fB(\fP expression \fB)\fP
+.PP
+
+function-body   \fB(\fP identifier-list \fB)\fP compound-statement
+.PP
+
+identifier-list empty
+        identifier [  \fB,\fP ]
+        identifier \fB,\fP  identifier-list
+.PP
+
+primary-expression      factor  primary-operation...
+.PP
+
+primary-operation       \fB[\fP expression \fB]\fP
+        \fB.\fP identifier
+        \fB. (\fP expression \fB)\fP
+        \fB->\fP identifier
+        \fB->  (\fP expression \fB)\fP
+        \fB(\fP expression-list \fB)\fP
+
+.PP
+
+term    [ prefix-operator...] primary-expression [ postfix-operator... ]
+.PP
+
+prefix-operator Any of:
+        \fB*  &  \(mi  +  !  ~  ++  \(mi\(mi  @  $\fP
+.PP
+
+postfix-operator        Any of:
+        \fB++  \(mi\(mi\fP
+
+expression      term
+        expression binary-operator expression
+
+binary-operator Any of:
+
+        \fB@
+        *  /  %
+        +  \(mi
+        >>  <<
+        <  >  <=  >=
+        ==  !=  ~  !~  ~~  ~~~
+        &
+
+        ^
+        |
+        &&
+        ||
+        :
+        ?
+        =  := +=  \(mi=  *=  /=  %=  >>=  <<=  &=  ^=  |=  ~~=  <=>
+        ,\fP
+
+compound-statement
+        \fB{\fP statement... \fB}\fP
+.fi
+.sp 2
+.SS "Unary Operators"
+.PP
+\fIPrefix operators\fP
+
+.IP \fB*\fP 2c
+Indirection; applied to a pointer, gives target of the pointer.
+.IP \fB&\fP 2c
+Address of; applied to any lvalue, gives a pointer to it.
+.IP \fB\(mi\fP 2c
+Negation; gives negative of any arithmetic value.
+.IP \fB+\fP 2c
+Positive; no real effect.
+.IP \fB!\fP 2c
+Logical not; applied to 0 or NULL, gives 1, else gives 0.
+.IP \fB~\fP 2c
+Bit-wise complement.
+.IP \fB++\fP 2c
+Pre-increment; increments an lvalue and gives new value.
+.IP \fB\(mi\(mi\fP 2c
+Pre-decrement; decrements an lvalue and gives new value.
+.IP \fB@\fP 2c
+Atomic form; gives the (unique) read-only version of any value.
+.IP \fB$\fP 2c
+Immediate evaluation.
+This \fB$\fP, is only a pseudo-operator.  It actually has
+its effect entirely at parse time.  The \fB$\fP operator causes its subject
+expression to be evaluated immediately by the parser and the result of
+that evaluation substituted in its place.  This is used to speed later
+execution, to protect against later scope or variable changes, and to
+construct constant values which are better made with running code
+than literal constants.
+.PP
+\fIPostfix operators\fP
+
+.IP \fB++\fP 2c
+Post-increment; increments an lvalue and gives old value.
+.IP \fB\(mi\(mi\fP 2c
+Post-increment; decrements an lvalue and gives old value.
+
+.PP
+.PP
+.SS "Binary Operators"
+
+.IP \fB@\fP 2c
+Form a pointer.
+.IP \fB*\fP 2c
+Multiplication, Set intersection.
+.IP \fB/\fP 2c
+Division.
+.IP \fB%\fP 2c
+Modulus.
+.IP \fB+\fP 2c
+Addition, Set union.
+.IP \fB\(mi\fP 2c
+Subtraction, Set difference
+.IP \fB>>\fP 2c
+Right shift (shift to lower significance)
+.IP \fB<<\fP 2c
+Left shift (shift to higher significance)
+.IP \fB<\fP 2c
+Logical test for less than, Proper subset
+.IP \fB>\fP 2c
+Logical test for greater than, Proper superset
+.IP \fB<=\fP 2c
+Logical test for less than or equal to, Subset
+.IP \fB>=\fP 2c
+Logical test for greater than or equal to, Superset
+.IP \fB==\fP 2c
+Logical test for equality
+.IP \fB!=\fP 2c
+Logical test for inequality
+.IP \fB~\fP 2c
+Logical test for regular expression match
+.IP \fB!~\fP 2c
+Logical test for regular expression non-match
+.IP \fB~~\fP 2c
+Regular expression sub-string extraction
+.IP \fB~~~\fP 2c
+Regular expression multiple sub-string extraction
+.IP \fB&\fP 2c
+Bit-wise and
+.IP \fB^\fP 2c
+Bit-wise exclusive or
+.IP \fB|\fP 2c
+Bit-wise or
+.IP \fB&&\fP 2c
+Logical and
+.IP \fB||\fP 2c
+Logical or
+.IP \fB:\fP 2c
+Choice separator (must be right hand subject of ? operator)
+.IP \fB?\fP 2c
+Choice (right hand expression must use : operator)
+.IP \fB=\fP 2c
+Assignment
+.IP \fB:=\fP 2c
+Assignment to most local scope or context
+.IP \fB+=\fP 2c
+Add to
+.IP \fB\(mi=\fP 2c
+Subtract from
+.IP \fB*=\fP 2c
+Multiply by
+.IP \fB/=\fP 2c
+Divide by
+.IP \fB%=\fP 2c
+Modulus by
+.IP \fB>>=\fP 2c
+Right shift by
+.IP \fB<<=\fP 2c
+Left shift by
+.IP \fB&=\fP 2c
+And by
+.IP \fB^=\fP 2c
+Exclusive or by
+.IP \fB|=\fP 2c
+Or by
+.IP \fB~~=\fP 2c
+Replace by regular expression extraction
+.IP \fB<=>\fP 2c
+Swap values
+.IP \fB,\fP 2c
+Multiple expression separator
+.sp 2
+
+
+.SH ENVIRONMENT
+.B ICIPATH
+A colon-separated (semi-colon on Windows) list of directories in
+which to look for modules.
+
+.SH FILES
+.TP 1i
+.B /usr/local
+Is the usual base of installation.
+.TP
+.B .../bin/ici
+The main ICI executable.
+.TP
+.B .../share/doc/ici4/ici.pdf
+The core language manual.
+.TP
+.B .../man/man1/ici*.1
+Man pages.
+.TP
+.B .../lib/ici4/
+The directory for extension modules.
+.TP
+.B .../include/ici.h
+ICI SDK include file.
+.TP
+.B .../lib/libici4.a
+ICI SDK library.
+
+.SH "SEE ALSO"
+icifuncs(1), icinet(1), icioo(1), iciops(1), icisyn(1), icitypes(1)
+.PP
+See the ICI website, http://ici.sf.net
+.PP
+ICI source code is maintained at SourceForge, http://sf.net.
+Distributions are also available there.
+
+.SH AUTHOR
+Tim Long
+.PP
+.nf
+With the assistance of:
+Andy Newman
+Chris Amies
+Luke Kendall
+Giordano Pezzoli
+Yiorgos Adamopolous
+Gary Gendel
+John Rosauer
+Ross Cartlidge
+
+not to mention:
+
+Henry Spencer
+Philip Hazel
+.fi

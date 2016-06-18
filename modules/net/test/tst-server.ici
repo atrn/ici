@@ -1,0 +1,15 @@
+static	port = 19871;
+
+static
+hello(c)
+{
+    printf(c.to, "HELO I'm an echo server, version 1\r\n");
+}
+
+static
+request(c, s)
+{
+    printf(c.to, "ECHO %s\r\n", s);
+}
+
+tcp.server(port, hello, request);

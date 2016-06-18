@@ -1,0 +1,77 @@
+/*
+ * apply(o, fn [, args...])
+ *
+ * Call a function on each element of an aggregate.
+ */
+export
+apply(fn, aggr)
+{
+    var vargs = [array];
+    k := v := NULL;
+    switch (t := typeof(aggr))
+    {
+    case "array":
+    case "set":
+    case "string":
+	forall (v in aggr)
+	    call(fn, array(v) + vargs);
+	break;
+
+    case "struct":
+        if (super(aggr))
+            call(apply, array(super(aggr), fn) + vargs);
+        forall (v, k in aggr)
+            call(fn, array(k, v) + vargs);
+        break;
+
+    default:
+	fail(sprintf("cannot apply a function to a %s", t));
+    }
+}
+
+
+/*
+ * aggr = map(aggr, fn [, args...])
+ *
+ * Transform an aggregate by passing each element through a function and return a
+ * new aggregate, of the same type, containing the transformed elements.
+ */
+export
+map(aggr, fn)
+{
+    var vargs = [array];
+    v := k := r := NULL;
+    switch (t := typeof(aggr))
+    {
+    case "array":
+	r := array();
+	forall (v in aggr)
+	    push(r, call(fn, array(v) + vargs));
+	break;
+
+    case "set":
+	r := set();
+	forall (v in aggr)
+	    r[call(fn, array(v) + vargs)] := 1;
+	break;
+
+    case "string":
+	r := array();
+	forall (v in aggr)
+	    push(r, call(fn, array(v) + vargs));
+	r := implode(r);
+	break;
+
+    case "struct":
+        r := struct();
+        if (super(aggr))
+            super(r, call(map, array(super(aggr), fn) + vargs));
+        forall (v, k in aggr)
+            r[k] := call(fn, array(v, k) + vargs);
+        break;
+
+    default:
+	fail(sprintf("cannot map a %s", t));
+    }
+    return r;
+}

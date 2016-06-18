@@ -1,0 +1,17 @@
+This is an interface to Jame Clark's ``expat'' XML parser. Originally
+written for ici 2.0 by Scott Newham <snaf@zeta.org.au> then turned into
+an ici module and considerably expanded by Andy Newman <atrn@zeta.org.au>.
+
+The module provides a direct ICI interface to expat. It doesn't try to
+do much more than wrap the C functions and make them usable from
+ICI. Function names are kept the same (with the ``XML_'') and calling
+conventions are kept as close to those of the C API as possible.
+Additional functionality is provided in the ici portion of the module.
+Functions are provided to read an XML stream into memory, process it
+and write it back out.
+
+Further documentation is in the doc directory. Example programs are in
+the test directory. For building instructions read the Makefiles.
+
+--
+Andy Newman <atrn@zeta.org.au>

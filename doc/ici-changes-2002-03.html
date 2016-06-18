@@ -1,0 +1,375 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.78 [en] (Windows NT 5.0; U) [Netscape]">
+   <title>ICI Changes 2002-03</title>
+</head>
+<body text="#000000" bgcolor="#FFFFF0" link="#0000EE" vlink="#551A8B" alink="#FF0000">
+
+<h2>
+New ICI stuff, March 2002</h2>
+Well, I had a week off to work on ICI. Here is a summary of the changes.
+Unfortunately, at time of writting I still have some testing to do, and
+there is some porting work to do, and I haven't checked it in. Checkin
+will be fairly soon. Beware that the head of development will be unproven
+for a while. Comments to <a href="mailto:ici@research.canon.com.au">the
+ICI mail list</a> welcome of course.
+<h3>
+Highlights</h3>
+
+<ul>
+<li>
+Multi-threading.</li>
+
+<li>
+Arrays double ended (i.e. queues as well as stacks).</li>
+
+<li>
+Major documentation upgrade.</li>
+
+<li>
+More than just structs can have supers.</li>
+
+<li>
+Object header reduced from 8 to 4 bytes.</li>
+
+<li>
+Dense allocation of small objects.</li>
+
+<li>
+Struct indexed by string lookaside mechanism improved.</li>
+
+<li>
+Faster and smaller (as a consequence of some of the above and other changes).</li>
+</ul>
+I have moved to major version number to 4, as external C interfaces will
+(at least) require re-compilation. Possible some small changs as well.
+<br>&nbsp;
+<h3>
+Multi-threading</h3>
+I've added native OS based multi-threading to ICI. This was tricky to add
+without slowing things down, but I managed it. The model is very simple,
+and treats all ICI data and objects as a single shared resource. So ICI-bound
+programs will happily multi-thread, but not take advantage of multiple
+processors. However, time spent in I/O or suitable heavy computing tasks
+outside of ICI are truly independent. It has minimal impact on the C side
+of things.
+<p>The language suppport for this is:
+<pre>&nbsp;&nbsp;&nbsp; exec = thread(callable, args...)</pre>
+starts a new thread that calls <i>callable</i> (e.g. a function or method)
+and passing
+<i>args</i>. Returns an execution context. The thread runs
+until <i>callable</i> returns.
+<pre>&nbsp;&nbsp;&nbsp; critsect <i>statement</i></pre>
+executes <i>statement</i> indivisibly with respect to other threads. Eg:
+<pre>&nbsp;&nbsp;&nbsp; critsect ++shared_counter;</pre>
+
+<pre>&nbsp;&nbsp;&nbsp; critsect
+&nbsp;&nbsp;&nbsp; {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; item = shared_list;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; shared_list = item.next;
+&nbsp;&nbsp;&nbsp; }</pre>
+More importantly:
+<pre>&nbsp;&nbsp;&nbsp; waitfor (<i>wait-condition</i>; <i>wait-object</i>) <i>statement</i></pre>
+waits till <i>wait-condition</i> is true, sleeping until <i>wait-object</i>
+is woken up before each re-test of the condition. Once <i>wait-condition</i>
+is true, <i>statemet</i> is executed. All of this is done under a critical
+section except for the actual sleep on the <i>wait-object</i>. For example,
+suppose <i>jobs</i> is an array to which things to-do get added occasionally
+in some other thread.
+<pre>&nbsp;&nbsp;&nbsp; waitfor (nels(jobs) > 0; jobs)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; job = rpop(jobs);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /* rpop? see below. */</pre>
+Some other thread might have code:
+<pre>&nbsp;&nbsp;&nbsp; push(jobs, job);
+&nbsp;&nbsp;&nbsp; wakeup(jobs);</pre>
+The <i>wakeup</i> function wakes up all threads waiting on the given object,
+which makes them re-evaluate their wait condition. The object can be anything.
+An integer, a string, an array (as in this example). For example, a wakeup
+is done on the execution context object of a thread when it exits.
+<p>It was tricky to add multiple execution contexts to the execution engine
+without slowing things down. Adding a single indirection in the top-of-stack
+references added 10..20% to the execution time of some programs. In the
+end I devised a method that didn't involve any additional indirection.
+I also reduced the use of macros in this area (which I think makes it clearer
+and easier to debug).
+<p>On the C side there is not much impact. Current C code should not notice
+any difference - it will just run with the global mutex taken and be indivisible
+with respect to other ICI threads. You can call <i>ici_leave()</i> to release
+the mutex. It gives you a pointer that you pass to <i>ici_enter()</i> to
+re-aquire the mutex. For example:
+<pre>&nbsp;&nbsp;&nbsp; {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; exec_t&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *x;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; x = ici_leave();
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ...read file or something...
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ici_enter(x);
+&nbsp;&nbsp;&nbsp; }</pre>
+
+<h3>
+Arrays are now queues, not just stacks</h3>
+Arrays can now be efficiently pushed and poped at the front as well as
+the end. The new functions <i>rpush()</i> and <i>rpop()</i> achieve this.
+I've always felt the lack of a good list type, but after coding an "ordered
+set", I realised that it would be much more efficient and probably even
+more useful if arrays became gowable circular buffers, rather than just
+growable stacks as they have been before now. But anyone who has looked
+at the parser/compiler/execution engine will realise that arrays-as-stacks
+are critical to performance, so I couldn't afford to introduce any overhead.
+<p>To solve this, internally arrays conceptually have two forms: pure stacks,
+and the general case of being a queue. As long as no <i>rpush</i> or <i>rpop</i>
+operations have been done, they have the same internal operation they always
+did. All the important stacks used internally have this property. Once
+an <i>rpush</i> or <i>rpop</i> has been done an extra pointer introduced
+into arrays might be different from the base -- it is now a circular buffer.
+In the general case you have to use new rules for accessing the contents
+of arrays from C. This was probably the hardest change to make. Arrays
+are used everywhere.
+<p><i>rpush()</i> and <i>rpop()</i> seem like a small additional feature.
+But after using it just a few times I think it was worth it. Lots of things
+become easier to do.
+<h3>
+Documentation upgrade</h3>
+I have given the documentation a major upgrade. I'm a long way from finished,
+but it's heaps better than it was. On the understanding that you realise
+this is still work-in-progress, and various chapters just finish in the
+middle, I've put a snap-shot at <a href="http://www.zeta.org.au/~timl/ici.pdf">http://www.zeta.org.au/~timl/ici.pdf</a>
+.Chapter 3 - Language Reference and chapter 5 - Core language functions,
+are almost finshed.
+<h3>
+Allowing more than just structs to have supers</h3>
+This has no visible effect on the language. But it means that in C you
+can make objects that have supers. This means you can make intrinsic OO
+objects that you can subclass and everything in complete generality.
+<h3>
+Object header reduced from 8 bytes to 4</h3>
+I have reduced the universal header on objects from 2 x 32bit words to
+1 x 32 bit word. This sounds like a major change, but was actually was
+not too bad. The net change on execution time is neutral or slightly improved.
+Basically I eliminated the type pointer. To get the type pointer now, it
+uses a small integer to index an array of pointers. The down-side is you
+have to call a function to register a new type to get your small int (which
+you place in the object header when you make a new object of that type).
+This in itself is not a big percentage improvement on memory use, but when
+combined with the next thing...
+<h3>
+Dense allocation of small objects</h3>
+ICI has long maintained the principle that each object is independently
+malloced from the underling system. But the overheads on this are, I decided,
+unjustifiable on hosted environments. The new scheme allocates chunks (currently
+1024bytes) which are dense arrays of small objects. There are no boundary
+words. So ints now consume just 8 bytes of memory each (previously 24+
+bytes in real terms). The technique for eliminating boundary words, and
+keeping the fast free lists, is to have alloc/free routines where the caller
+is required to tell the free how much memory it asked for on the alloc.
+Thus we have:
+<pre>&nbsp;&nbsp;&nbsp; x = ici_talloc(<i>type</i>);
+&nbsp;&nbsp;&nbsp; ...
+&nbsp;&nbsp;&nbsp; ici_tfree(x, <i>type</i>);</pre>
+and
+<pre>&nbsp;&nbsp;&nbsp; x = ici_nalloc(<i>size</i>);
+&nbsp;&nbsp;&nbsp; ...
+&nbsp;&nbsp;&nbsp; ici_nfree(x, <i>size</i>);</pre>
+98% of the time this is really easy because the place you free the data
+knows exectly how big it is. For the occasions where this is not convenient,
+you can use the completely malloc/free equivalent:
+<pre>&nbsp;&nbsp;&nbsp; x = ici_alloc(<i>size</i>);
+&nbsp;&nbsp;&nbsp; ...
+&nbsp;&nbsp;&nbsp; ici_free(x);</pre>
+Unfortunately, in making this change I have lost all that beautiful debug
+support that was put into the old allocator. I might go back and try to
+retro-fit it sometime.
+<p>The net effect of this is an improvement in CPU time and memory usage.
+The improved CPU time comes mostly (I think) from a large total memory
+bandwidth reduction into the processor cache. Especially on garbage collection.
+(Before objects were so big they would just about fill a whole cache line
+by themselves. Now a whole bunch come in together.) A "small" object is
+one less than or equal to 64 bytes. Things over 64 bytes go straight to
+malloc without further memory overhead.
+<p>The down-side of this change (and the reason I didn't do it years ago)
+is that the dense allocation can't be freed until you shut the interpreter
+down with <i>ici_uninit()</i>. But I figured that in most applications
+you want ICI to go faster and have lower peak memory usage; more than have
+it reduce malloc heap usage between tasks.
+<h3>
+Improving the coherence of the struct-lookup lookaside mechanism</h3>
+The struct-lookup lookaside mechanism is the process whereby strings record
+by-pass information to avoid actual searching of struct hash tables and
+chasing up the super chain. There is a universal serial number that can
+be incremented to invalidate all such by-pass records. It is now incremented
+a lot less often, which means the lookaside works more often, which makes
+things faster.
+<h3>
+Other speed-ups</h3>
+There are a few other speed-ups that are a bit too technical to go into
+here. Calls from C to ICI are faster.
+<br>&nbsp;
+<h3>
+Change log</h3>
+Here is the change log so far...
+<pre>*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Added an ici_pcre() function to avoid exposing internals
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; of PCRE in the ici.h include file.
+
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Changed the definition of the struct lookup look-aside cache
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; stored in strings. It used to apply only to variables. But
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; now it applies to all struct lookups. That meant it could be
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cleaned up and the number of times it is invalidated (by
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; incrementing ici_vsver) greatly reduced. This makes a good
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; improvement in execution speed.
+
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Generalised the super mechanism. Objects that want to support
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; a super (still only structs in the core language) use the
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; new type objwsup_t (object-with-super) instead of object_t
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; as their header. This includes the super poiner. They must
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; then also set the O_SUPER flag in their header. They must also
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; support some extra fetch/assign functions.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; There are quiet a few place where struct_t types became
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; objwsup_t types as a consequence of this.
+
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Removed the version number from the naming of auto-loading
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ICI modules (but not native code modules). Thus, for example,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; the version 3 startup file was called:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ici3core.ici
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; but it will now be called
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; icicore.ici
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; I think the ICI language (as opposed to its internal APIs)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; is sufficiently stable that it is not really required.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; I found it an unnecessary inconvenience.
+
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Changed chkbuf() to ici_chkbuf().
+
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Added a new basic type "handle". This not accessible from the
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; core language, but C code can use it to return generic references
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; to C data objects. It supports a super pointer, so C code
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; can associate a class (i.e. a struct full of intrinsic methods)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; with it to allow it to be used as an OO object (which can also
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; identify it as an object of the expected type when passed back
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; from ICI code). It also allows a type name to be associated
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; with the handle which will appear in diagnostics.
+
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Changed 'error' to 'ici_error'.
+
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Changed ici_evaluate() to use a catch object on its C stack
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; as its frame marker on its ICI execution stack. This avoids
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; an object allocation on each ici_evaluate call. The arguments
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; to ici_evaluate have changed slightly as a consequence.
+
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Removed syscall functions from the core. They will only
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; be accessible through the sys module in future.
+
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Changed the allocation routines to allocate small objects
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; densly (no boundary words) out of larger chunks. The
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; technique for eliminating boundary words, and keeping the
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; fast&nbsp; free lists, is to have alloc/free routines where
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; the caller is required to tell the free how much memory
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; it asked for on the&nbsp; alloc. Thus we have:
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; x = ici_talloc(type);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ...
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ici_tfree(x, type);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; and
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; x = ici_nalloc(size);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ...
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ici_nfree(x, size);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 98% of the time this is really easy because the place you
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; free the data knows exectly how big it is. For the occasions&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; where this is not convenient, you can use the completely
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; malloc/free equivalent:
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; x = ici_alloc(size);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ...
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ici_free(x);
+
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Added a small array (32) of pre-generated small ints to allow
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; a quick check and use of these very common numbers.
+
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Changed the internal ICI calling convention. The call operator
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; object used to store the number of actual parameters to a
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; function. Now an seperate int is pushed onto the operand
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; stack. There is now just a single static call operator.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Because ints are not heavily optimised, a call from C to ICI
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; now, typically, does no allocation until its in the main
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; execution engine.
+
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Moved the lib curses based text window feature out of the core.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Will put it in an extension module soon.
+
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Changed new_array() to take an int argument being the initial
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; number of slots for the array to have. The caller can assume
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; that that many items can be pushed on. Use 0 for the default
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; value.
+
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Changed arrays so that they can be efficiently push()ed and
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; pop()ed at *both* ends. Thus they can be used to form efficent
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; queues. Although apparently a small feature, queues are something
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; that I've always felt were important and missing from ICI.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; However this was a *big* change (much harder than the
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; object header change). The parser and execution engine rely
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; heavily on arrays for their efficiency. To prevent an impact
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; on them we distinguish arrays that have neve been used as a
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; queue (never had the new functions rpush() or rpop() done on
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; them) from the general case. Virgin arrays are refered to as
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; stacks and have all the old semantics. But in the general case
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; arrays are now growable circular buffers. Were you don't know
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; the origin or history of an array, you must assume the general
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; case and use some new knowledge, functions and macros to access it
+
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Removed the feature of binary &lt;&lt; that allowed "array &lt;&lt; int".
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; This has been flagged for removal in the documentation for a
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; long time, and became difficult to support.
+
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Changed the universal object header(!) From 2 x 32 bit
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; words to 1 x 32 bit word. Theoretically this is a huge
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; change, but it was actually pretty easy. It requires
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; recompilation of external modules, and some changes to their
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; source. Basically the type is now completely indicated by
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; the small int o_tcode field of the header. To find a pointer
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; to the type structure you must index an array of pointers to
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; them. Use ici_typeof(o) for this. Types must now register their
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; type_t structure to obtain their small int type code, which
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; they should remember and use when making new objects. After this
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; change, the next release will move to version 4 to keep extension
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; modules with the new smaller objects seperate.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The overall effect on CPU time seems to be neutral or a
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; slight improvement.
+
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Added multi-threading. This is based on native machine threads,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; but the whole mass of ICI objects and static data is gated
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; through a single mutex. So it works fine except threads competing
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for the ICI execution engine will not take advantage of multiple
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; processors (but they will if they spend their time in functions
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; that release the mutex while running).
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; It was a little difficult to achieve this without slowing things
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; down. Introducing a single extra indirection in top-of-stack
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; accesses (the obvious way) adds up to 20% to the execution time
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; of some programs. But I managed it.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; New language contructs "waitfor (expr; obj) stmt" and
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "critsetc stmt" have been added. As well as the "wakeup(obj)"
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; and "sleep(num)" functions. All I/O routines in the core
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; release the mutex around the low level I/O - except the parser.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (See new documentation.)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; In the process, o_top, x_top and v_top macros got removed.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Use ici_os.a_top instead.
+
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The ICI Technical Description has been updated to
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; FrameMaker 6 format and split into seperate chapters;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; each in a seperate source file.
+
+*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Removed the obsolete function ici_op_offsq() and operator
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; o_offsq from from array.c, ici.def, and fwd.h.
+</pre>
+
+</body>
+</html>

@@ -1,0 +1,5 @@
+e = str.base64_encode(argv[1]);
+printf("'%s' => '%s'\n", argv[1], e);
+
+d = str.base64_decode(e);
+printf("'%s' => '%s'\n", e, d);

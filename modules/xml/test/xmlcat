@@ -1,0 +1,107 @@
+#!/usr/local/bin/ici
+
+/*
+ * Copy an XML stream.
+ */
+
+static	indent_width		= 1;
+static	number_lines		= false;
+static	strip_blank_lines	= true;
+
+static
+indent(u, n)
+{
+    if (number_lines)
+	printf("%-5d\t", xml.GetCurrentLineNumber(u.parser));
+    printf("%*s", n * indent_width, "");
+}
+
+static
+start_element(arg, name, attr)
+{
+    auto	val, key;
+
+    indent(arg, arg.depth++);
+    printf("<%s", name);
+    forall (val, key in attr)
+	printf(" %s=\"%s\"", key, val);
+    printf(">\n");
+}
+
+static
+end_element(arg, name)
+{
+    indent(arg, --arg.depth);
+    printf("</%s>\n", name);
+}
+
+static
+character_data(arg, s)
+{
+    if (strip_blank_lines && s ~ #^\s*$#)
+	return;
+    indent(arg, arg.depth);
+    printf("%s\n", s);
+}
+
+static
+xmlcat(f)
+{
+    auto s, parser;
+
+    parser = xml.ParserCreate();
+    xml.SetUserData(parser, struct("parser", parser, "depth", 0));
+    xml.SetElementHandler(parser, start_element, end_element);
+    xml.SetCharacterDataHandler(parser, character_data);
+    while (s = getline(f))
+	xml.Parse(parser, s + "\n", 0);
+    xml.Parse(parser, "");
+}
+
+static
+usage()
+{
+    printf
+    (
+	stderr,
+	"usage: %s [-w[number]] [-n] [-b] [file]\n",
+	basename(argv[0])
+    );
+    exit(1);
+}
+
+auto i;
+for (i = 1; i < argc && argv[i][0] == "-"; ++i)
+{
+    if (argv[i] == "--")
+    {
+	++i;
+	break;
+    }
+    switch (argv[i][1])
+    {
+    case "w":
+	if ((indent_width = int(interval(argv[i], 2))) < 0)
+	    indent_width = 1;
+	break;
+
+    case "n":
+	number_lines = true;
+	break;
+
+    case "b":
+	strip_blank_lines = false;
+	break;
+
+    default:
+	usage();
+    }
+}
+
+if (argc - i > 1)
+    usage();
+
+if (i == argc || argv[i] == "-")
+    xmlcat(stdin);
+else
+    xmlcat(fopen(argv[i]));

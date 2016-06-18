@@ -1,0 +1,26 @@
+static	l, i, n;
+
+l = list.list(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
+for (i = 10; i < 20; ++i)
+     list.addhead(l, i);
+
+for (i = 0; i < l.nels; ++i)
+    printf("%d ", l[i]);
+printf(": output via array-like traversal\n");
+
+for (n = list.head(l); n != NULL; n = n.next)
+    printf("%d ", n.obj);
+printf(": output via list-like traversal\n");
+
+for (n = list.tail(l); n != NULL; n = n.prev)
+    printf("%d ", n.obj);
+printf(": output via backwards list-like traversal\n");
+
+while (l.nels)
+{
+    i = list.remhead(l);
+    printf("%d removed gives: ", i);
+    for (n = list.head(l); n; n = n.next)
+	printf("%d ", n.obj);
+    printf("%*s(%d elements in list)\n", 2 * (10 - l.nels), "", l.nels);
+}

@@ -1,0 +1,75 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+            <HTML>
+            <HEAD>
+                <TITLE>The ICI cgi module</TITLE>
+                <STYLE TYPE="text/css">
+                    BODY {color: black}
+                    P {font-size: 12pt; width: 450pt}
+                    H1 {font-size: 12pt; font-family: Arial;
+                        font-weight: bold}
+                    H2 {font-size: 10pt; font-family: Arial;
+                        font-style: italic; font-weight: bold}
+                    PRE {background: aliceblue}
+                    DT {font-style: Italic}
+                    DD.DefnIn4cm {width: 337pt; margin-left: 113pt}   
+                    DD.DefnIn2cm {width: 396pt; margin-left: 56pt}
+                </STYLE>
+                <META NAME="Generator" CONTENT="extract-doc-from-src.ici">
+                <META NAME="Keywords" CONTENT="ICI">
+                <META NAME="Description" CONTENT="ICI extension module documentation">
+            </HEAD>
+            <BODY BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#FF0000" VLINK="#800000" ALINK="#FF00FF" BACKGROUND="?">
+            <H1>The ICI cgi module - HTTP CGI script helper functions</H1>
+<P ALIGN="left">ICI module to interface with an HTTP server's Common
+Gateway Interface.</P>
+<P ALIGN="left">The cgi module provides a number of functions to simplify
+writing CGI &quot;scripts&quot; in ICI. Functions are
+provided to retrieve data sent to the CGI program as
+the result of a form's post and to abstract the output
+side of a CGI program.</P>
+<H1>Details</H1>
+<H2>cgi.content_length(length) - generate a &quot;Content-Length&quot; HTTP header</H2>
+<H2>cgi.content_type(string) - generate a &quot;Content-type&quot; HTTP header</H2>
+<H2>cgi.end_reply_header() - output the end of header line (a blank line)</H2>
+<H2>struct = cgi.form_data([string]) - return form post data</H2>
+<P ALIGN="left">This function decodes and returns form post data. The
+data to be decode may be given as <I>string</I> or
+may be obtained implicitly according to the particular
+HTTP request method used by the form: if the method
+is &quot;GET&quot; the encoded form data is obtained
+from the QUERY_STRING environment variable; if the
+method is &quot;POST&quot; the data is read from the
+standard input.</P>
+<P ALIGN="left">The form data is returned as a struct with key/value
+pairs corresponding to the form's keys and values.
+If a given key appears only once in the form the value
+is returned as a string, if a given key occurs more
+than once the value is an array containing the values
+associated with that key in the form's data.</P>
+<P ALIGN="left">Multipart form encoding is supported through a separate
+multipart form parser function cgi.multipart_form_data().
+If it is known that a form will return its values as
+a multipart post it may be more efficient to call that
+function directly especially if the form contains values
+with a large string representation.</P>
+<H2>string = cgi.getcookie() - return the cookie for this request or NULL if no cookie.</H2>
+<H2>cgi.no_content() - output a &quot;no content&quot; CGI status header</H2>
+<H2>cgi.redirect([status,] url) - generate a redirect status</H2>
+<H2>cgi.setcookie(string) - output an HTTP header to setting a cookie.</H2>
+<H2>cgi.start_reply_header([key, val]...) - start CGI program output</H2>
+<P ALIGN="left">The cgi.start_reply_header() is used by a program to
+note the start of its output. If no parameters are
+given the function does nothing and merely acts as
+a place-holder to match the cgi.end_reply_header()
+function. If parameters are given they must be an even
+number of strings which are used to output HTTP reply
+header values. The first string in each pair is the
+header's name with the second string of the pair being
+its associated value.</P>
+<P ALIGN="left">Note that the common HTTP header fields have their
+own functions.</P>
+<H2>cgi.status(code [, msg]) - generate a status CGI header</H2>
+<H2>cgi.string_to_urle(string) - return the &quot;URL&quot; encoded form of a string</H2>
+<H2>string = cgi.urle_to_string(string) - decode a &quot;URL&quot; encoded string</H2>
+</BODY>
+</HTML>

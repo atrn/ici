@@ -1,0 +1,462 @@
+extern
+mm_to_pts(v)
+{
+     return v / 25.4 * 72;
+}
+
+extern
+Library = [class
+
+    get_majorversion()
+    {
+	return pdf.get_majorversion();
+    }
+
+    get_minorversion()
+    {
+	return pdf.get_minorversion();
+    }
+
+    boot()
+    {
+	return pdf.boot();
+    }
+
+    shutdown()
+    {
+	return pdf.shutdown();
+    }
+
+];
+
+extern
+Document = [class
+
+    new(filename)
+    {
+	this = this:^new();
+	this.m_pdf := pdf.new();
+        if (filename != NULL)
+        {
+            pdf.open_file(this.m_pdf, filename);
+        }
+	return this;
+    }
+
+    close()
+    {
+	pdf.close(m_pdf);
+    }
+
+    begin_page(w, h)
+    {
+	return pdf.begin_page(m_pdf, w, h);
+    }
+
+    end_page()
+    {
+	return pdf.end_page(m_pdf);
+    }
+
+    add_bookmark(text, parent, open)
+    {
+	return pdf.add_bookmark(m_pdf, text, parent, open);
+    }
+
+    set_info(key, val)
+    {
+	return pdf.set_info(m_pdf, key, val);
+    }
+
+    attach_file(llx, lly, urx, ury, filename, desc, author, mimetype, icon)
+    {
+        return pdf.attach_file(m_pdf, llx, lly, urx, ury, filename, desc, author, mimetype, icon);
+    }
+
+    add_note(llx, lly, urx, ury, contents, title, icon, open)
+    {
+	return pdf.add_note(m_pdf, llx, lly, urx, ury, contents, title, icon, open);
+    }
+
+    add_pdflink(llx, lly, urx, ury, filename, page, dest)
+    {
+        return pdf.add_pdflink(m_pdf, llx, lly, urx, ury, filename, page, dest);
+    }
+
+    add_launchlink(llx, lly, urx, ury, filename)
+    {
+	return pdf.add_launchlink(m_pdf, llx, lly, urx, ury, filename);
+    }
+
+    add_weblink(llx, lly, urx, ury, url)
+    {
+	return pdf.add_weblink(m_pdf, llx, lly, urx, ury, url);
+    }
+
+    set_border_style(style, width)
+    {
+	return pdf.set_border_style(m_pdf, style, width);
+    }
+
+    set_border_color(r, g, b)
+    {
+	return pdf.set_border_color(m_pdf, r, g, b);
+    }
+
+    set_border_dash(w, b)
+    {
+	return pdf.set_border_dash(m_pdf, w, b);
+    }
+
+    add_bookmark(text, parent, open)
+    {
+	return pdf.add_bookmark(m_pdf, text, parent, open);
+    }
+
+    add_launchlink(lx, ly, ux, uy, filename)
+    {
+	return pdf.add_launchlink(m_pdf, lx, ly, ux, uy, filename);
+    }
+
+    add_note(lx, ly, ux, uy, contents, title, icon, open)
+    {
+	return pdf.add_note(m_pdf, lx, ly, ux, uy, contents, title, icon, open);
+    }
+
+    add_pdflink(lx, ly, ux, uy, filename, page, dest)
+    {
+	return pdf.add_pdflink(m_pdf, lx, ly, ux, uy, filename, page, dest);
+    }
+
+    add_thumbnail(i)
+    {
+	return pdf.add_thumbnail(m_pdf, i);	
+    }
+
+    add_weblink(lx, ly, ux, uy, url)
+    {
+	return pdf.add_weblink(m_pdf, lx, ly, ux, uy, url);
+    }
+
+    arc(a, b, c, d, e)
+    {
+	return pdf.arc(m_pdf, a, b, c, d, e);
+    }
+
+    arcn(a, b, c, d, e)
+    {
+	return pdf.arcn(m_pdf, a, b, c, d, e);
+    }
+
+    attach_file(lx, ly, ux, uy, filename, desc, author, mimetype, icon)
+    {
+	return pdf.attach_file(m_pdf, lx, ly, ux, uy, filename, desc, author, mimetype, icon);
+    }
+
+    begin_pattern(w, h, x, y, type)
+    {
+	return pdf.begin_pattern(m_pdf, w, h, x, y, type);
+    }
+
+    begin_template(a, b)
+    {
+	return pdf.begin_template(m_pdf, a, b);
+    }
+
+    circle(x, y, r)
+    {
+	 return pdf.circle(m_pdf, x, y, r);
+    }
+
+    clip()
+    {
+	pdf.clip(m_pdf);
+    }
+
+    close_image(img)
+    {
+        pdf.close_image(m_pdf, img);
+    }
+
+    closepath()
+    {
+        pdf.closepath(m_pdf);
+    }
+    
+    closepath_fill_stroke()
+    {
+        pdf.closepath_fill_stroke(m_pdf);
+    }
+
+    closepath_stroke()
+    {
+        pdf.closepath_stroke(m_pdf);
+    }
+
+    concat(a, b, c, d, e, f)
+    {
+        pdf.concat(m_pdf, a, b, c, d, e, f);
+    }
+
+    continue_text(txt)
+    {
+        pdf.continue_text(m_pdf, txt);
+    }
+
+    curveto(a, b, c, d, e, f)
+    {
+        pdf.curveto(m_pdf, a, b, c, d, e, f);
+    }
+    
+    delete()
+    {
+        pdf.delete(m_pdf);
+    }
+
+    end_pattern()
+    {
+        pdf.end_pattern(m_pdf);
+    }
+    
+    end_template()
+    {
+        pdf.end_template(m_pdf);
+    }
+    
+    endpath()
+    {
+        pdf.endpath(m_pdf);
+    }
+
+    fill()
+    {
+        pdf.fill(m_pdf);
+    }
+    
+    fill_stroke()
+    {
+        pdf.fill_stroke(m_pdf);
+    }
+
+    findfont(name, encoding, embed)
+    {
+        auto encoding = "builtin";
+        auto embed = 0;
+        return pdf.findfont(m_pdf, name, encoding, embed);
+    }
+    
+    get_buffer()
+    {
+        return pdf.get_buffer(m_pdf);
+    }
+
+    initgraphics()
+    {
+        pdf.initgraphics(m_pdf);
+    }
+
+    lineto(x, y)
+    {
+        pdf.lineto(m_pdf, x, y);
+    }
+
+    makespotcolor(name)
+    {
+        return pdf.makespotcolor(m_pdf, name);
+    }
+
+    moveto(x, y)
+    {
+        pdf.moveto(m_pdf, x, y);
+    }
+
+    open_file(name)
+    {
+        pdf.open_file(m_pdf, name);
+    }
+
+    open_image_file(type, name, sparam, iparam)
+    {
+        auto sparam = "";
+        auto iparam = 0;
+        return pdf.open_image_file(m_pdf, type, name, sparam, iparam);
+    }
+
+    place_image(img, x, y, s)
+    {
+        pdf.place_image(m_pdf, img, x, y, s);
+    }
+
+    rect(x, y, w, h)
+    {
+        pdf.rect(m_pdf, x, y, w, h);
+    }
+    
+    restore()
+    {
+        pdf.restore(m_pdf);
+    }
+    
+    rotate(a)
+    {
+        pdf.rotate(m_pdf, a);
+    }
+    
+    save()
+    {
+        pdf.save(m_pdf);
+    }
+    
+    scale(sx, sy)
+    {
+        if (sy == NULL)
+            sy = sx;
+        pdf.scale(m_pdf, sx, sy);
+    }
+    
+    set_border_color(r, g, b)
+    {
+        pdf.set_border_color(m_pdf, r, g, b);
+    }
+    
+    set_border_dash(a, b)
+    {
+        pdf.set_border_dash(m_pdf, a, b);
+    }
+    
+    set_border_style(style, w)
+    {
+        pdf.set_border_style(m_pdf, style, w);
+    }
+    
+    set_info(a, b)
+    {
+        pdf.set_info(m_pdf, a, b);
+    }
+    
+    set_text_matrix(a, b, c, d, e, f)
+    {
+        pdf.set_text_matrix(m_pdf, a, b, c, d, e, f);
+    }
+    
+    set_text_pos(x, y)
+    {
+        pdf.set_text_pos(m_pdf, x, y);
+    }
+
+    setcolor(fstype, cspace, c1, c2, c3, c4)
+    {
+        pdf.setcolor(m_pdf, fstype, cspace, c1, c2, c3, c4);
+    }
+    
+    setdash(a, b)
+    {
+        pdf.setdash(m_pdf, a, b);
+    }
+    
+    setflat(f)
+    {
+        pdf.setflat(m_pdf, f);
+    }
+    
+    setfont(fid, sz)
+    {
+        pdf.setfont(m_pdf, fid, sz);
+    }
+    
+    setgray(g)
+    {
+        pdf.setgray(m_pdf, g);
+    }
+    
+    setgray_fill(g)
+    {
+        pdf.setgray_fill(m_pdf, g);
+    }
+
+    setgray_stroke(g)
+    {
+        pdf.setgray_stroke(m_pdf, g);
+    }
+    
+    setlinecap(lcap)
+    {
+        pdf.setlinecap(m_pdf, lcap);
+    }
+    
+    setlinejoin(ljoin)
+    {
+        pdf.setlinejoin(m_pdf, ljoin);
+    }
+    
+    setlinewidth(w)
+    {
+        pdf.setlinewidth(m_pdf, w);
+    }
+
+    setmatrix(a, b, c, d, e, f)
+    {
+        pdf.setmatrix(m_pdf, a, b, c, d, e, f);
+    }
+
+    setmiterlimit(l)
+    {
+        pdf.setmiterlimit(m_pdf, l);
+    }
+    
+    setpolydash(a)
+    {
+        pdf.setpolydash(m_pdf, a);
+    }
+    
+    setrgbcolor(r, g, b)
+    {
+        pdf.setrgbcolor(m_pdf, r, g, b);
+    }
+    
+    setrgbcolor_fill(r, g, b)
+    {
+        pdf.setrgbcolor_fill(m_pdf, r, g, b);
+    }
+    
+    setrgbcolor_stroke(r, g, b)
+    {
+        pdf.setrgbcolor_stroke(m_pdf, r, g, b);
+    }
+    
+    show(txt)
+    {
+        pdf.show(m_pdf, txt);
+    }
+    
+    show_boxed(txt, x, y, w, h, hmode, feature)
+    {
+        return pdf.show_boxed(m_pdf, txt, x, y, w, h, hmode, feature);
+    }
+
+    show_xy(txt, x, y)
+    {
+        pdf.show_xy(m_pdf, txt, x, y);
+    }
+    
+    skew(a, b)
+    {
+        pdf.skew(m_pdf, a, b);
+    }
+
+    string_width(txt, fid, sz)
+    {
+        return pdf.string_width(m_pdf, txt, fid, sz);
+    }
+    
+    stroke()
+    {
+        pdf.stroke(m_pdf);
+    }
+    
+    translate(dx, dy)
+    {
+        pdf.translate(m_pdf, dx, dy);
+    }
+
+];

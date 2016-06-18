@@ -1,0 +1,39 @@
+static N = 1000;
+
+static check(a, i, v)
+{
+    o = a[i];
+    if (typeof(o) != typeof(v))
+        fail(sprintf("restore failed: element %d, type %s expected %s", i, typeof(o), typeof(v)));
+
+    if (typeof(o) == "float")
+        r := testutil.floateq(o, v);
+    else
+        r := o == v;
+    if (!r)
+	fail(sprintf("restore failed: element %d == %s", i, string(a[i])));
+}
+
+file = fopen("test-save-array.ici.dat");
+o = serialisation.restore(file);
+close(file);
+if (typeof(o) != "array")
+    fail("restore failed: restored a " + typeof(o));
+if (nels(o) != N)
+    fail(sprintf("restore failed: nels == %d", nels(o)));
+
+if (typeof(o[0]) != "array")
+    fail("restore failed: element 0: " + typeof(o[0]));
+
+if (typeof(o[1]) != "array")
+    fail("restore failed: element 1: " + typeof(o[1]));
+
+for (i := 0; i < N; ++i)
+{
+    check(o[0], 0, 1);
+    check(o[0], 1, "two");
+    check(o[0], 2, 3.1415);
+    check(o[0], 3, "four");
+    check(o[0], 4, "FIVE");
+    check(o[0], 5, 6.0);
+}

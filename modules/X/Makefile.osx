@@ -1,0 +1,75 @@
+#
+# $Id: Makefile.osx,v 1.2 2001/11/16 20:26:32 atrn Exp $
+#
+
+NAME	= X
+OBJS	= display.o window.o hints.o atom.o event.o vars.o misc.o gc.o\
+	  graphics.o pixmap.o cursor.o color.o colormap.o\
+	  keysym.o font.o visual.o
+
+PREFIX	= /usr/local/
+
+ICI	= $(PREFIX)include/ici3
+FLAVOUR	= osx
+ICI_DEFS= -DCONFIG_FILE='"conf-$(FLAVOUR).h"'
+
+TOOLS	= ../tools
+
+X11	= /usr/X11R6
+XLIBS	= -L$(X11)/lib -lX11 -lXext
+
+INCS	= -I$(ICI) -I$(X11)/include
+DEFS	= $(ICI_DEFS)
+
+CC	= cc
+OPTIM	= -O
+WARN	= -Wall
+SYMS	= -g
+CODEGEN	= -dynamic -fno-common
+CFLAGS	= $(WARN) $(OPTIM) $(SYMS) $(CODEGEN) $(INCS) $(DEFS)
+LDFLAGS = -flat_namespace -bundle -undefined suppress
+LIBS	= $(XLIBS) -lm
+
+
+LIB	= ici$(NAME).dylib
+
+all:	$(LIB)
+
+$(LIB):	$(OBJS) strings.o cfuncs.o
+	$(CC) $(LDFLAGS) -o $@ $(OBJS) strings.o cfuncs.o $(LIBS)
+
+$(OBJS): ici.h strs.h
+
+.SUFFIXES: .c .i .s
+
+.c.i:
+	$(CC) -E $(CFLAGS) $*.c > $*.i
+
+.c.s:
+	$(CC) -S $(CFLAGS) $*.c
+
+SRCS=	$(OBJS:.o=.c)
+
+strs.h strings.c : $(SRCS) $(TOOLS)/mk-strings.ici
+	cat $(SRCS) | ici3 $(TOOLS)/mk-strings.ici $(NAME)
+
+cfuncs.c : $(SRCS) $(TOOLS)/mk-cfuncs.ici
+	cat $(SRCS) | ici3 $(TOOLS)/mk-cfuncs.ici $(NAME)
+
+ici.h : $(TOOLS)/mk-ici-dot-h.ici
+	ici3 $(TOOLS)/mk-ici-dot-h.ici $(NAME)
+
+install: $(LIB)
+	install -c -m 444 $(LIB) $(PREFIX)lib/ici3/$(LIB)
+
+clean:
+	rm -f *.o *.so cfuncs.c strings.c strs.h
+
+clobber: clean
+	rm -f .depend ici.h
+
+depend: ici.h strs.h
+	mkdep $(CFLAGS) $(SRCS)
+
+docs:
+	ici $(TOOLS)/mk-doc.ici -module $(NAME) -dir doc -text $(SRCS)

@@ -1,0 +1,5 @@
+file := fopen(basename(argv[0]) + ".dat", "w");
+a := array();
+a[0] := a;
+serialisation.save(file, a);
+close(file);

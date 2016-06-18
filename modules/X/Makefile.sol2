@@ -1,0 +1,74 @@
+#
+# $Id: Makefile.sol2,v 1.2 1999/09/08 02:15:05 andy Exp $
+#
+
+NAME	= X
+OBJS	= display.o window.o hints.o atom.o event.o vars.o misc.o gc.o\
+	  graphics.o pixmap.o cursor.o color.o colormap.o\
+	  keysym.o font.o visual.o
+
+PREFIX	= /usr/local/
+
+ICI	= $(PREFIX)include/ici
+FLAVOUR	= sol2
+ICI_DEFS= -DCONFIG_FILE='"conf-$(FLAVOUR).h"'
+
+TOOLS	= ../tools
+
+X11	= /usr/openwin
+XLIBS	= -L$(X11)/lib -lX11 -lXext
+
+INCS	= -I$(ICI) -I$(X11)/include
+DEFS	= $(ICI_DEFS)
+CC	= gcc -pipe
+OPTIM	= -O
+WARN	= -Wall -Wno-implicit-int
+SYMS	= -g
+CODEGEN	= -fpic
+CFLAGS	= $(WARN) $(OPTIM) $(SYMS) $(CODEGEN) $(INCS) $(DEFS)
+
+LIBS	= $(XLIBS) -lm
+
+
+LIB	= ici$(NAME).so
+
+all:	$(LIB)
+
+$(LIB):	$(OBJS) strings.o cfuncs.o
+	ld -G -o $@ $(OBJS) strings.o cfuncs.o $(LIBS)
+
+$(OBJS): ici.h strs.h
+
+.SUFFIXES: .c .i .s
+
+.c.i:
+	$(CC) -E $(CFLAGS) $*.c > $*.i
+
+.c.s:
+	$(CC) -S $(CFLAGS) $*.c
+
+SRCS=	$(OBJS:.o=.c)
+
+strs.h strings.c : $(SRCS) $(TOOLS)/mk-strings.ici
+	cat $(SRCS) | ici $(TOOLS)/mk-strings.ici $(NAME)
+
+cfuncs.c : $(SRCS) $(TOOLS)/mk-cfuncs.ici
+	cat $(SRCS) | ici $(TOOLS)/mk-cfuncs.ici $(NAME)
+
+ici.h : $(TOOLS)/mk-ici-dot-h.ici
+	ici $(TOOLS)/mk-ici-dot-h.ici $(NAME)
+
+install: $(LIB)
+	/usr/ucb/install -c -m 444 $(LIB) $(PREFIX)lib/ici
+
+clean:
+	rm -f *.o *.so cfuncs.c strings.c strs.h
+
+clobber: clean
+	rm -f .depend ici.h
+
+depend: ici.h strs.h
+	mkdep $(CFLAGS) $(SRCS)
+
+docs:
+	ici $(TOOLS)/mk-doc.ici -module $(NAME) -dir doc -text $(SRCS)

@@ -1,0 +1,13 @@
+if (bignum.compare([bignum -123],  bignum.bignum(-123)) != 0)
+    fail("literal bignum != int bignum");
+
+if (bignum.tostring([bignum 56]) != "56")
+    fail("failed to convert bignum to string");
+    
+n = bignum.mult([bignum 2000000], [bignum 3000000]);
+if (bignum.compare(n, [bignum 6000000000000]) != 0)
+    fail("failed to mult");
+
+n = bignum.div(n, [bignum 3]);
+if (bignum.compare(n, [bignum 2000000000000]) != 0)
+    fail("failed to div");

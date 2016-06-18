@@ -1,0 +1,23 @@
+<document_database>
+ <document>
+  <title>The CISRA Document Database</title>
+  <author>A.Newman</author>
+  <doc_number>2092</doc_number>
+  <format>Applix Words</format>
+  <abstract>
+   This document describes the CISRA document database, its structure,
+   and the implementation in ICI. It assumes the reader is familiar
+   with the following acronyms: HTML, HTTP, TCP/IP, CGI, XML, LDAP,
+   ICI, OOP, DLL, W3C, and so on.
+  </abstract>
+  <revision>
+   <number>1.0</number>
+   <date>17th December</date>
+   <comment>This is the initial version of the document.</comment>
+  </revision>
+ </document>
+ <cdrom>
+  <title>AT&amp;T Software Toolchest. Volume 1.</title>
+  <path>/home/docs/SoftwareToolchest</path>
+ </cdrom>
+</document_database>

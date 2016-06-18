@@ -1,0 +1,36 @@
+/*
+ * tst-3.ici
+ */
+
+extern
+newfile()
+{
+    auto filename, panel, topwin;
+
+    panel = object.new(app.openfilepanel);
+    if ((filename = panel@run()) != "")
+    {
+	panel = object.new(app.textwidget, topwin = object.new(app.toplevelwindow));
+	topwin@settitle(filename);
+	panel@loadfile(filename);
+	panel@allowmodifications(false);
+	panel@setfont(app.font("FixedWidth", 16));
+	app.pack(panel);
+    }
+}
+
+static
+button(s, a)
+{
+    auto b;
+
+    b = object.new(app.button, s);
+    b@setfont(app.font("SansSerifBold", 14));
+    b@setaction(a);
+    app.pack(b);
+}
+
+button(" Load ", "newfile();");
+button(" Quit ", "exit();");
+
+app.run();

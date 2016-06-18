@@ -1,0 +1,59 @@
+use("App");
+
+static
+not_implemented()
+{
+    new
+    (
+	MessageBox,
+	"ok",
+	"Operation Not Implemented",
+	"The operation you have selected is not yet\nimplemented in this application."
+    );
+}
+
+auto menubar, m, i, j = 4;
+
+menubar = new(Frame);
+menubar@setRelief("raised");
+
+m = new(Menu, menubar, "File");
+
+auto menu = [array
+    [struct
+	Open = not_implemented,
+    ],
+    [struct
+	Save = not_implemented,
+    ],
+    [struct
+	Close = not_implemented,
+    ],
+    [struct
+	Quit = exit,
+    ],
+];
+
+auto v, k;
+
+j = 1;
+forall (i in menu)
+{
+    k = keys(i)[0];
+    v = i[k];
+    m@appendItem(k, v);
+    m@setItemFont(k, Font@name("SerifBold", 11 + j));
+    j += j;
+}
+
+Pack(m, "-side left -padx 10");
+
+m = new(Menu, menubar, "Edit");
+forall (i in [array "Cut", "Copy", "Paste", "Delete"])
+    m@appendItem(i, not_implemented);
+Pack(m, "-side left -padx 10");
+
+Pack(menubar, "-side top -anchor w");
+Pack(new(Text), "-side bottom");
+
+App.run();

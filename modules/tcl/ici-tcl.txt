@@ -1,0 +1,101 @@
+Introduction
+
+ICI-Tcl is an interface between ICI and Tk/Tcl. ICI-Tcl is both an ICI
+extension that lets ICI call the Tcl interpreter and a Tcl command
+that allows Tcl to call ICI. ICI-Tcl adds a "tcl_interp" type to ICI
+and a number of functions for evaluating Tcl code. It also adds an
+"ici" command to Tcl that allows Tcl code to call upon ICI.
+
+
+The ICI-Tcl interface is,
+
+	tcp_interp = tcl.Interpreter()
+
+	    Create and return a new Tcl interpreter object for use in
+	    subsequent calls to Eval, GlobalEval or EvalFile.
+
+	string = tcl.Eval([interpreter,] string)
+	string = tcl.GlobalEval([interpreter,] string)
+	string = tcl.EvalFile([interpreter,] string)
+
+	    Evaluate Tcl code and return the result. The nature of
+	    evaluation depends on the actual function being called and
+	    controls how the string parameter is used. Eval and
+	    GlobalEval evaluate code directly and the string contains
+	    Tcl code. EvalFile evalulates the content of a file and
+	    the string is the name of the file containing the Tcl
+	    program to be evaluated.
+
+	string = tcl.GetVar([interpreter,] string [, string] [, "global" ])
+
+	    Get the value of a Tcl variable with the given name.
+	    If the name is given in two separate arguments the first
+	    must be the name of a Tcl array variable and the second
+	    string is the index.
+
+	    If interpreter is not given the default interpreter
+	    is used. If the last parameter is the string "global"
+	    then only the Tcl global level is searched.
+
+	string = tcl.GetVar2([interpreter,] string, string [, "global" ])
+
+	    A hack until GetVar can be rewritten.
+
+	tcl.SetVar([interpreter, ] name [, name2] , value)
+
+	    Set the Tcl variable, or array element if two names are
+	    given, to the value. Use the default interpreter if none
+	    is given in the call.
+
+	tcl.Tk_MainLoop()
+
+	    Calls Tk's event processing loop.
+
+
+Tcl's ICI command.
+
+ICI-Tcl/Tk adds a new command to the interpreters it creates. The
+"ici" command takes a single parameter, a string containing ICI code
+to be parsed, and calls the ICI interpreter to run it. The result of
+the command is the empty string.
+
+To call ICI from Tcl you do something like,
+
+	ici "printf(\"Hello, World!\\n\");"
+
+Note how the ICI code is in a Tcl string and any "funny" characters
+need escaping so they survive the Tcl parser.
+
+
+Exchanging data between ICI and Tcl.
+
+To set a Tcl variable from ICI you need to evaluate a Tcl
+expression,
+
+	tcl.Eval("set a foobar");
+
+This could be wrapped in an ICI function as,
+
+	static tcl_set_variable(name, value)
+	{
+	    tcl.Eval("set " + name + string(value));
+	}
+
+And used as,
+
+	tcl_set_variable("toggle_underlines", 1);
+
+Note that tcl_set_variable() calls string() to turn the value object
+into a string as necessary.
+
+To obtain the value of a Tcl variable you also use tcl.Eval() to
+perform a "set" command but this time you use the output,
+
+	printf("%s\n", tcl.Eval("set a"));
+
+This, of course, can be wrapped in an ICI function,
+
+	static tcl_get_variable(name)
+	{
+	    return tcl.Eval("set " + name);
+	}

@@ -1,0 +1,39 @@
+/*
+ * $Id: test3,v 1.1.1.1 1999/09/08 01:27:24 andy Exp $
+ *
+ * Smallest program that responds to the "delete window" event
+ * and has a class so it can have attributes in Window Maker.
+ */
+
+auto wm_delete_window_atom, win, disp, curs, pixmap, data;
+
+disp = X.OpenDisplay();
+win = X.CreateSimpleWindow(disp, X.DefaultRootWindow(disp));
+wm_delete_window_atom = X.InternAtom(disp, "WM_DELETE_WINDOW");
+X.SetClassHint(disp, win, basename(argv[0]));
+X.SetWMProtocols(disp, win, array(wm_delete_window_atom));
+X.StoreName(disp, win, argv[0]);
+
+data = alloc(1,1);
+data[0] = 0;
+pixmap = X.CreatePixmapFromBitmapData(disp, win, data, 1, 1, 0, 0, 1);
+curs = X.CreatePixmapCursor(disp, pixmap, pixmap, color, color, 0, 0);
+
+#curs = X.CreateFontCursor(disp, 20);
+X.DefineCursor(disp, win, curs);
+X.MapWindow(disp, win);
+
+auto event;
+for (;;)
+{
+    event = X.NextEvent(disp);
+    if
+    (
+	event.type == "ClientMessage"
+	&&
+	X.Atom(disp, event.data[0]) == wm_delete_window_atom
+    )
+    {
+	exit();
+    }
+}

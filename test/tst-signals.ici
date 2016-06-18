@@ -1,0 +1,22 @@
+signal
+(
+    "quit",
+    [func ()
+    {
+	printf("\n* SIGQUIT\n");
+	exit(0);
+    }]
+);
+
+signal
+(
+    "int",
+    [func ()
+    {
+	printf("\n* SIGINT *\n");
+    }]
+);
+
+var s;
+while (s = getline())
+    printf("%s\n", s);

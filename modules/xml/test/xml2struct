@@ -1,0 +1,112 @@
+/*
+ * xml_to_struct - read an XML stream
+ *
+ *
+ */
+
+static
+start(u, name, attr)
+{
+    if (!u.cursor[name])
+	u.cursor[name] = array();
+    push(u.cursor[name], struct(u.cursor, "_", ""));
+    push(u.stack, u.cursor);
+    u.cursor = u.cursor[name];
+}
+
+static
+end(u, name)
+{
+    u.cursor = pop(u.stack);
+    if (nels(top(u.cursor[name])) == 1)
+    {
+	pop(u.cursor[name]);
+	push(u.cursor[name], top(u.cursor[name])._);
+    }
+}
+
+static
+char(u, s)
+{
+    if (!top(u.cursor)._)
+	top(u.cursor)._ = s;
+    else
+	top(u.cursor)._ = sprintf("%s%s", top(u.cursor)._, s);
+}
+
+extern
+xml_to_struct(file)
+{
+    auto parser, u, s;
+
+    if (!file)
+	file = stdin;
+    parser = xml.ParserCreate();
+    xml.SetUserData
+    (
+	parser,
+	u = struct
+	(
+	    "parser",	parser,
+	    "cursor",	struct(),
+	    "stack",	array()
+	)
+    );
+    xml.SetElementHandler(parser, start, end);
+    xml.SetCharacterDataHandler(parser, char);
+    while (s = getline(file))
+	xml.Parse(parser, s + "\n", 0);
+    xml.Parse(parser, "");
+    return u.cursor; /* [keys(u.cursor)[0]]; */
+}
+
+if (1)
+{
+
+auto x = xml_to_struct();
+
+static
+clean(s)
+{
+    auto	a, c, n;
+    auto	map = [struct
+	("\n") = "\\n",
+	("\r") = "\\r",
+	("\b") = "\\b",
+	("\f") = "\\f", 
+	("\a") = "\\a",
+	("\t") = "\\t",
+    ];
+
+    a = array();
+    forall (c in s)
+    {
+	if (c >= " " && c <= "~")
+	    push(a, c);
+	else if (n = map[c])
+	    push(a, n);
+	else
+	    push(a, sprintf("\\%03o", toint(c)));
+    }
+    return implode(a);
+}
+
+static
+print(x, ind)
+{
+    auto v, k, ind = 0;
+
+    forall (v, k in x)
+    {
+	if (typeof(v) == "struct")
+	    printf("%*s%s = [struct\n", ind, "", k),
+		print(v, ind+1),
+		printf("%*s]%s\n", ind, "", ind ? "," : ";");
+	else if (k != "_")
+	    printf("%*s%s = \"%s\"\n", ind, "", k, clean(v));
+    }
+}
+
+print(x);
+
+}

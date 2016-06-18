@@ -1,0 +1,26 @@
+/*
+ * tst-4.ici - demonstrate use of resource files
+ */
+
+use("App");
+use("TextWidget");
+
+/*
+ * Called when user presses the "Load" button. This function pops up a
+ * file open panel and loads the selected file into a new TextWidget.
+ */
+extern
+loadButton()
+{
+    auto filename;
+
+    filename = new(OpenFilePanel)@run();
+    if (filename != "")
+	new(TextWindow, filename);
+}
+
+/*
+ * Load program resources and process events.
+ */
+App.loadResources();
+App.run();

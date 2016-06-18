@@ -1,0 +1,31 @@
+/* 
+ *
+ */
+
+static	fontmap = [struct
+    Serif		 = "-adobe-times-normal-r-normal--%d-*-*-*-*-*-*-*",
+    SerifItalic		 = "-adobe-times-normal-o-normal--%d-*-*-*-*-*-*-*",
+    SerifBold		 = "-adobe-times-bold-r-normal--%d-*-*-*-*-*-*-*",
+    SerifBoldItalic	 = "-adobe-times-bold-o-normal--%d-*-*-*-*-*-*-*",
+    SansSerif		 = "-adobe-helvetica-normal-r-normal--%d-*-*-*-*-*-*-*",
+    SansSerifItalic	 = "-adobe-helvetica-normal-o-normal--%d-*-*-*-*-*-*-*",
+    SansSerifBold	 = "-adobe-helvetica-bold-r-normal--%d-*-*-*-*-*-*-*",
+    SansSerifBoldItalic	 = "-adobe-helvetica-bold-o-normal--%d-*-*-*-*-*-*-*",
+    FixedWidth		 = "-adobe-courier-normal-r-normal--%d-*-*-*-*-*-*-*",
+    FixedWidthItalic	 = "-adobe-courier-normal-o-normal--%d-*-*-*-*-*-*-*",
+    FixedWidthBold	 = "-adobe-courier-bold-r-normal--%d-*-*-*-*-*-*-*",
+    FixedWidthBoldItalic = "-adobe-courier-bold-o-normal--%d-*-*-*-*-*-*-*",
+];
+
+extern
+
+    font = [func (name, size)
+    {
+	auto	size   = 14;
+
+	if (!fontmap[name])
+	    fail("Invalid font name");
+	return sprintf(fontmap[name], size);
+    }]
+
+;

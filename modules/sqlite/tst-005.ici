@@ -1,0 +1,76 @@
+#!/usr/local/bin/path
+
+NAME := "db-005";
+
+rpush(path, ".");
+
+start_afresh := 0;
+check_words := 0;
+verbose := 0;
+
+rpop(argv); // get rid of program name
+while (arg := rpop(argv))
+{
+    if (arg == "-C")
+	start_afresh = 1;
+    else if (arg == "-c")
+	check_words = 1;
+    else if (arg == "-v")
+	verbose = 1;
+}
+
+if (start_afresh)
+{
+    try remove(NAME); onerror ;
+}
+
+try
+{
+    sys.access(NAME);
+    db := sqlite.db:new(NAME);
+}
+onerror
+{
+    db := sqlite.db:new(NAME, "c");
+    db:exec("create table words(word varchar[64])");
+}
+
+printf("Reading words"); flush();
+words := gettokens(fopen("/usr/share/dict/words"), "\n");
+printf("\rWriting words to db\n");
+nwords := 0;
+nadded := 0;
+start := now();
+db:exec("begin");
+forall (word in words)
+{
+    ++nwords;
+    if (verbose)
+    {
+	if (!(nwords % 10))
+	{
+	    printf("%d words\r", nwords);
+	    flush();
+	}
+    }
+    if (check_words)
+    {
+	sql = sprintf("select word from words where word = '%s'", word);
+	r = db:exec(sql);
+	if (nels(r) == 1)
+	    continue;
+    }
+    sql = sprintf("insert into words values ('%s')", word);
+    db:exec(sql);
+    ++nadded;
+}
+db:exec("commit");
+end := now();
+duration := end - start;
+
+printf("\r%.2f seconds, %d words read, %d added to db\n", duration, nwords, nadded);
+if (duration == 0.0) duration = 1;
+printf("Reading %.2f words per second, adding %.2f per second\n",
+    nwords / duration, nadded / duration);
+r := db:exec("select count(*) from words");
+printf("%s words in db\n", r[0]["count(*)"]);

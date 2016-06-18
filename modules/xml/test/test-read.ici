@@ -1,0 +1,201 @@
+/*
+ * Read XML and output the in-memory representation.
+ */
+
+static
+cleanstr(s)
+{
+    auto	a, c, n;
+    auto	map = [struct
+	("\n") = "\\n",
+	("\r") = "\\r",
+	("\b") = "\\b",
+	("\f") = "\\f", 
+	("\a") = "\\a",
+	("\t") = "\\t",
+	("\"") = "\\\"",
+    ];
+    a = array();
+    forall (c in s)
+    {
+	if (n = map[c])
+	    push(a, n);
+	else if (c >= " " && c <= "~")
+	    push(a, c);
+	else
+	    push(a, sprintf("\\%03o", toint(c)));
+    }
+    return implode(a);
+}
+
+static
+print(f, o, ind, first, last)
+{
+    auto v, k, ind = 0, first = 0, last;
+
+    if (last == NULL)
+	last = first;
+
+    auto	p = [struct
+
+	NULL	= "NULL",
+	int	= "%d",
+	float	= "%g",
+
+	string	= [func (f, o, ind, first)
+	{
+	    printf(f, "%*s\"%s\"", first, "", cleanstr(o));
+	}],
+	regexp	= [func (f, o, ind, first)
+	{
+	    printf(f, "%*s#%s#", first, "", o.pattern);
+	}],
+	array	= [func (f, o, ind, first, last)
+	{
+	    auto	e, last = NULL;
+
+	    if (last == NULL)
+	        last = first;
+
+	    if (nels(o)==2 && ((e=o[0])==0 || e==1) && typeof(o[1])=="string")
+	    {
+		printf
+		(
+		    f, "%*s[array xml.%s, ", first, "",
+		    e ? "PROCESSING_INSTRUCTION" : "OTHER_DATA"
+		);
+		print(f, o[1]);
+		printf(f, "]");
+	    }
+	    else
+	    {
+		printf(f, "%*s[array\n", first, "");
+		forall (e in o)
+		{
+		    print(f, e, ind+1, ind+1, ind+1);
+		    printf(f, ",\n");
+		}
+		printf(f, "%*s]", last, "");
+	    }
+	}],
+	set	= [func (f, o, ind, first)
+	{
+	    auto e;
+	    
+	    printf(f, "%*s[set\n", first, "");
+	    forall (e in o)
+	    {
+		print(f, e, ind+1, first+1);
+		printf(f, ",\n");
+	    }
+	    printf(f, "%*s]", first, "");
+	}],
+	struct	= [func (f, o, ind, first)
+	{
+	    auto v, k, indent;
+	    indent = first;
+	    auto p_one = [func (f, k, v, ind, first, last)
+	    {
+		auto first = 0, last = NULL;
+		if (last == NULL)
+		    last = first;
+		if (k == 0 || k == 1 || k == 2)
+		{
+		    printf
+		    (
+			f, "%*sxml.%s = ", first, "",
+			[array "ELEMENTS", "TAG", "ID"][k]
+		    );
+		    if (k == 0)
+		    {
+			printf(f, "\n");
+		        print(f, v, ind, ind, last);
+		    }
+		    else
+		        print(f, v, ind+1);
+		}
+		else
+		{
+		    print(f, k, ind+1, ind);
+		    printf(f, " = ");
+		    print(f, v, ind);
+		}
+		printf(f, ",");
+	    }];
+	    printf(f, "%*s[struct\n", ind, "");
+	    p_one(f, 1, o[1], ind+1, first+1);
+	    printf(f, " ");
+	    p_one(f, 2, o[2], 0, 0);
+	    printf(f, " ");
+	    if (nels(o[0]) > 0)
+	        p_one(f, 0, o[0], ind+1, 0, ind+1);
+	    printf(f, "\n");
+	    forall (v, k in o)
+	        if (k != 0 && k != 1 && k != 2)
+		{
+		    p_one(f, k, v, ind+1, ind+1);
+		    printf(f, "\n");
+		}
+	    printf(f, "%*s]", ind, "");
+	}],
+    ];
+    switch (typeof(v = p[typeof(o)]))
+    {
+    case "string":
+	printf(f, "%*s" + v, first, "", o);
+	break;
+    case "func":
+	v(f, o, ind, first, last);
+	break;
+    default:
+	printf(f, "%*s[%s]", first, "", typeof(v));
+    }
+}
+
+static
+remove_whitespace_cdata(els)
+{
+    auto	e, r, ws = $regexp("^[\n\t ]*$");
+
+    r = array();
+    forall (e in els)
+    {
+	switch (typeof(e))
+	{
+	case "string":
+	    if (e ~ ws)
+		continue;
+	    break;
+
+	case "struct":
+	    e[0] = remove_whitespace_cdata(e[0]);
+	    break;
+
+	case "array":
+	    if (e[1] ~ ws)
+		continue;
+	}
+	push(r, e);
+    }
+    return r;
+}
+
+auto f_in  = stdin;
+auto f_out = stdout;
+if (argc > 1)
+{
+    f_in = fopen(argv[1]);
+    if (argc > 2)
+	f_out = fopen(argv[2], "w");
+}
+
+auto x;
+
+x = xml.read(f_in);
+
+#print(f_out, x);
+#printf(f_out, "\n");
+#printf(f_out, "\n");
+
+print(f_out, remove_whitespace_cdata(x));
+printf(f_out, "\n");

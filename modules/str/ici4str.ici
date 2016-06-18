@@ -1,0 +1,281 @@
+/*
+ * $Id: ici4str.ici,v 1.3 2003/04/19 11:33:34 timl Exp $
+ */
+
+/*
+ * str.capitalize - capitalize a word
+ *
+ * This --topic-- forms part of the --ici-str-- documentation.
+ */
+extern
+capitalize(s)
+{
+    if (s[0] >= "a" && s[0] <= "z")
+        s = str.toupper(s[0]) + interval(s, 1);
+    return s;
+}
+
+/*
+ * str.plural - form a plural form of a word
+ *
+ * This --topic-- forms part of the --ici-str-- documentation.
+ */
+extern
+plural(word, count, suffix)
+{
+    auto suffix = "s";
+
+    if (count != 1)
+        word += suffix;
+    return word;
+}
+
+/*
+ * str.trim - remove leading and trailing spaces
+ *
+ * This --topic-- forms part of the --ici-str-- documentation.
+ */
+extern
+trim(str)
+{
+    return sub(sub(str, #^\s+#, ""), #\s+$#, "");
+}
+
+
+static  base64_digit    = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                          "abcdefghijklmnopqrstuvwxyz"
+                          "0123456789+/";
+
+static  base64_value    = [struct
+    ('A') = 0,    ('B') = 1,    ('C') = 2,    ('D') = 3,
+    ('E') = 4,    ('F') = 5,    ('G') = 6,    ('H') = 7,
+    ('I') = 8,    ('J') = 9,    ('K') = 10,   ('L') = 11,
+    ('M') = 12,   ('N') = 13,   ('O') = 14,   ('P') = 15,
+    ('Q') = 16,   ('R') = 17,   ('S') = 18,   ('T') = 19,
+    ('U') = 20,   ('V') = 21,   ('W') = 22,   ('X') = 23,
+    ('Y') = 24,   ('Z') = 25,   ('a') = 26,   ('b') = 27,
+    ('c') = 28,   ('d') = 29,   ('e') = 30,   ('f') = 31,
+    ('g') = 32,   ('h') = 33,   ('i') = 34,   ('j') = 35,
+    ('k') = 36,   ('l') = 37,   ('m') = 38,   ('n') = 39,
+    ('o') = 40,   ('p') = 41,   ('q') = 42,   ('r') = 43,
+    ('s') = 44,   ('t') = 45,   ('u') = 46,   ('v') = 47,
+    ('w') = 48,   ('x') = 49,   ('y') = 50,   ('z') = 51,
+    ('0') = 52,   ('1') = 53,   ('2') = 54,   ('3') = 55,
+    ('4') = 56,   ('5') = 57,   ('6') = 58,   ('7') = 59,
+    ('8') = 60,   ('9') = 61,   ('+') = 62,   ('/') = 63,
+];
+
+/*
+ * string = str.base64_encode(string)
+ *
+ * Encode a string using MIME's base 64 encoding mechanism.
+ *
+ * This --topic-- forms part of the --ici-str-- documentation.
+ */
+extern
+base64_encode(src)
+{
+    for
+    (
+        src = explode(src), dst = array(), idx = 0, len = nels(src);
+        len >= 3;
+        idx += 3, len -= 3
+    )
+    {
+        t = (src[idx+0] << 16) | (src[idx+1] << 8) | src[idx+2];
+        push(dst, base64_digit[(t >> 18) & 0x3f]);
+        push(dst, base64_digit[(t >> 12) & 0x3f]);
+        push(dst, base64_digit[(t >>  6) & 0x3f]);
+        push(dst, base64_digit[ t        & 0x3f]);
+    }
+    if (len == 2)
+    {
+        t = (src[idx+0] << 16) | (src[idx+1] << 8);
+        push(dst, base64_digit[(t >> 18) & 0x3f]);
+        push(dst, base64_digit[(t >> 12) & 0x3f]);
+        push(dst, base64_digit[(t >>  6) & 0x3f]);
+        push(dst, '=');
+    }
+    else if (len == 1)
+    {
+        t = src[idx+0] << 16;
+        push(dst, base64_digit[(t >> 18) & 0x3f]);
+        push(dst, base64_digit[(t >> 12) & 0x3f]);
+        push(dst, '=');
+        push(dst, '=');
+    }
+    return implode(dst);
+}
+
+/*
+ * string = str.base64_decode(string)
+ *
+ * Decode a string encoded using MIME's base 64 encoding mechanism.
+ *
+ * This --topic-- forms part of the --ici-str-- documentation.
+ */
+extern
+base64_decode(src)
+{
+    for
+    (
+        src = explode(src), dst = array(), idx = 0, len = nels(src);
+        len >= 4;
+        idx += 4, len -= 4
+    )
+    {
+        if (src[idx+2] == $toint("="))
+        {
+            code = (base64_value[src[idx]] << 18) | (base64_value[src[idx+1]] << 12);
+            push(dst, (code >> 16) & 0xff);
+        }
+        else if (src[idx+3] == $toint("="))
+        {
+            code = (base64_value[src[idx]] << 18)
+                   | (base64_value[src[idx+1]] << 12)
+                   | (base64_value[src[idx+2]] << 6);
+            push(dst, (code >> 16) & 0xff);
+            push(dst, (code >>  8) & 0xff);
+        }
+        else
+        {
+            code = (base64_value[src[idx]] << 18)
+                   | (base64_value[src[idx+1]] << 12)
+                   | (base64_value[src[idx+2]] << 6)
+                   | base64_value[src[idx+3]];
+            push(dst, (code >> 16) & 0xff);
+            push(dst, (code >>  8) & 0xff);
+            push(dst, code & 0xff);
+        }
+    }
+    return implode(dst);
+}
+
+/*
+ * [str text...] or [str(raw,squeeze) text...]
+ *
+ * Parse bulk text into a string. Text up to the first un-escaped off-square
+ * bracket is gathered. The text is gathered without regard to special
+ * characters except for the sequence '\]' which is reduced to a single ']'.
+ * Apart from that, '\' characters are not special.
+ *
+ * By default, leading white-space (spaces and tabs) is stripped from each
+ * line before the text is returned as a string. Also, all whitespace
+ * (including newlines etc.) are stripped from the start and end of the text.
+ *
+ * A set of optional flags may be supplied by placing a '(' character
+ * immediately after the '[str'. After this may follow comma seperated
+ * identifiers and finally a closing ')' (whitespace is allowed). The possible
+ * identifiers and their meanings are:
+ *
+ * raw                  Don't strip any whitespace.
+ *
+ * squeeze              Reduce all sequences of whitespace characters to a
+ *                      single space.
+ *
+ * This --topic-- forms part of the --ici-str-- documentation.
+ */
+extern
+parser(f)
+{
+    auto    raw = 0;
+    auto    squeeze = 0;
+
+    if ((c := getchar(f)) == "(")
+    {
+        while ((t = parsetoken(f)) != ")")
+        {
+            if (t != "name")
+                fail(sprintf("%s, %d: \"[str(...\" not followed by an identifier",
+                    f.name, f.line));
+            switch ((t := tokenobj(f)))
+            {
+            case "raw":
+                raw := 1;
+                break;
+                
+            case "squeeze":
+                squeeze := 1;
+                break;
+                
+            default:
+                fail(sprintf("%s, %d: \"[str(...\" followed by \"%s\" which is not \"raw\" or \"squeeze\"",
+                    f.name, f.line, t));
+            }
+            switch ((t := parsetoken(f)))
+            {
+            case ",": continue;
+            default: fail(sprintf("%s, %d: \"[str(...ident\" not followed by \",\" or \")\"",
+                f.name, f.line));
+            case ")": break;
+            }
+            break;
+        }
+    }
+    else
+    {
+        rejectchar(f, c);
+    }
+    s := strbuf();
+    sloshed := 0;
+    for (;;) 
+    {
+        c := getchar(f);
+        if (c == "]")
+        {
+            if (sloshed)
+                s[nels(s) - 1] = toint(c);
+            else
+                break;
+        }
+        else
+            strcat(s, c);
+        sloshed = (c == "\\");
+    }
+    rejectchar(f, c);
+    if (!raw)
+    {
+        s = s ~~ #(?s)^\s*(\S.*)#;
+        s = s ~~ #(?s)^(.*\S)\s*$#;
+        s = gsub(s, #(^|\n)[ \t]+#, "\\1");
+    }
+    if (squeeze)
+        s = gsub(s, #\s+#, " ");
+    return @s;
+}
+
+/**
+ * string = str.cleanse(string)
+ *
+ * Escape any characters in the input string that cannot be
+ * directly represented in an ICI string literal.
+ */
+extern
+cleanse(s)
+{
+    r := array();
+    ch := NULL;
+    forall (ch in s)
+    {
+        switch (ch)
+        {
+        case "\\":      push(r, "\\\\"); break;
+        case "\a":      push(r, "\\a"); break;
+        case "\f":      push(r, "\\f"); break;
+        case "\n":      push(r, "\\n"); break;
+        case "\r":      push(r, "\\r"); break;
+        case "\t":      push(r, "\\t"); break;
+        case "\"":      push(r, "\\\""); break;
+        default:
+            if (ch < " " || ch > "~")
+            {
+                push(r, sprintf("\\%03o", toint(ch)));
+            }
+            else
+            {
+                push(r, ch);
+            }
+        }
+    }
+    return implode(r);
+}

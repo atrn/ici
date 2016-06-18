@@ -1,0 +1,43 @@
+PREFIX	=	/usr/local/
+ICIV	=	ici3
+LIBICI	=	$(PREFIX)lib/$(ICIV)
+
+all : install
+
+install: $(LIBICI)/exts/ici.h-in\
+	 $(LIBICI)/tools/mk-cfuncs.ici\
+	 $(LIBICI)/tools/mk-ici-dot-h.ici\
+	 $(LIBICI)/tools/mk-strings.ici
+
+$(LIBICI)/exts/ici.h-in : ici.h-in
+	[ -d "$(LIBICI)/exts" ] || mkdir -p "$(LIBICI)/exts"
+	$${INSTALL:-install} -c -m 444 ici.h-in "$(LIBICI)/exts"
+
+$(LIBICI)/exts/ici.h-in:	ici.h-in
+
+$(LIBICI)/tools/mk-cfuncs.ici : mk-cfuncs.ici
+	[ -d "$(LIBICI)/tools" ] || mkdir -p "$(LIBICI)/tools"
+	$${INSTALL:-install} -c -m 555 mk-cfuncs.ici $@
+
+$(LIBICI)/tools/mk-ici-dot-h.ici : mk-ici-dot-h.ici
+	[ -d "$(LIBICI)/tools" ] || mkdir -p "$(LIBICI)/tools"
+	$${INSTALL:-install} -c -m 555 mk-ici-dot-h.ici $@
+
+$(LIBICI)/tools/mk-strings.ici : mk-strings.ici
+	[ -d "$(LIBICI)/tools" ] || mkdir -p "$(LIBICI)/tools"
+	$${INSTALL:-install} -c -m 555 mk-strings.ici $@
+
+uninstall:
+	rm -f $(LIBICI)/exts/ici.h-in
+	rm -f $(LIBICI)/tools/mk-cfuncs.ici
+	rm -f $(LIBICI)/tools/mk-ici-dot-h.ici
+	rm -f $(LIBICI)/tools/mk-strings.ici
+
+ici.h\
+strs.h\
+strings.h\
+cfuncs.c\
+clean\
+depend\
+clobber:
+	@: no need to do anything

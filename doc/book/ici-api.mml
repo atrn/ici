@@ -1,0 +1,1348 @@
+<MML>
+<Include "ici-fmt.mml">
+<Heading2><Marker <MType 2> <MText `ARG, C API macro'> >ARG
+<CodeIn1cm>\ <bold>#define\ ARG(n)<HardSpace><HardSpace>...<nobold>
+<Comment From cfunc.h>
+<Body>In a call from ICI to a function coded in C, this macro returns the object
+passed as the 'i'th actual parameter (the first parameter is ARG(0)).  The
+type of the result is an <italic>(ici_obj_t *)<noitalic>.  There is no actual or implied
+incref associated with this.  Parameters are known to be on the ICI operand
+stack, and so can be assumed to be referenced and not garbage collected.<Body>(This macro has no ICI_ prefix for historical reasons.)<Heading2><Marker <MType 2> <MText `ARGS, C API macro'> >ARGS
+<CodeIn1cm>\ <bold>#define\ ARGS()<HardSpace><HardSpace>...<nobold>
+<Comment From cfunc.h>
+<Body>In a call from ICI to a function coded in C, this macro returns
+a pointer to the first argument to this function, with subsequent
+arguments being available by *decrementing* the pointer.<Body>(This macro has no ICI_ prefix for historical reasons.)<Heading2><Marker <MType 2> <MText `CF_ARG1, C API macro'> >CF_ARG1
+<CodeIn1cm>\ <bold>#define\ CF_ARG1()<HardSpace><HardSpace>...<nobold>
+<Comment From cfunc.h>
+<Body>In a call from ICI to a function coded in C, this macro returns the
+<italic>cf_arg1<noitalic> field of the current C function.  The macro <italic>CF_ARG2()<noitalic> can also
+be used to obtain the <italic>cf_arg2<noitalic> field. See the <italic>ici_cfunc_t<noitalic> type.<Body>They are both (void *) (Prior to ICI 4.0, <italic>CF_ARG1()<noitalic> was a function
+pointer.)<Heading2><Marker <MType 2> <MText `ICI_BACK_COMPAT_VER, C API macro'> >ICI_BACK_COMPAT_VER
+<CodeIn1cm>\ <bold>#define\ ICI_BACK_COMPAT_VER<HardSpace><HardSpace>...<nobold>
+<Comment From fwd.h>
+<Body>The oldet version number for which the binary interface for seperately
+compiled modules is backwards compatible. This is updated whenever
+the exernal interface changes in a way that could break already compiled
+modules. We aim to never to do that again. See <italic>ici_interface_check()<noitalic>.<Heading2><Marker <MType 2> <MText `ICI_DIR_SEP, C API macro'> >ICI_DIR_SEP
+<CodeIn1cm>\ <bold>#define\ ICI_DIR_SEP<HardSpace><HardSpace>...<nobold>
+<Comment From fwd.h>
+<Body>The character which seperates segments in a path on this
+architecture.<Heading2><Marker <MType 2> <MText `ICI_DLL_EXT, C API macro'> >ICI_DLL_EXT
+<CodeIn1cm>\ <bold>#define\ ICI_DLL_EXT<HardSpace><HardSpace>...<nobold>
+<Comment From fwd.h>
+<Body>The string which is the extension of a dynamicly loaded library on this
+architecture.<Heading2><Marker <MType 2> <MText `ICI_NO_OLD_NAMES, C API macro'> >ICI_NO_OLD_NAMES
+<CodeIn1cm>\ <bold>#define\ ICI_NO_OLD_NAMES<HardSpace><HardSpace>...<nobold>
+<Comment From fwd.h>
+<Body>This define may be made before an include of <italic>ici.h<noitalic> to suppress a group
+of old (backward compatible) names. These names have been upgraded to
+have <italic>ici_<noitalic> prefixes since version 4.0.4. These names don't effect the
+binary interface of the API; they are all type or macro names. But you
+might want to suppress them if you get a clash with some other include
+file (for example, <italic>file_t<noitalic> has been known to clash with defines in
+<italic>\<file.h\><noitalic> on some systems).<Body>If you just was to get rid of one or two defines, you can <italic>#undef<noitalic> them
+after the include of <italic>ici.h<noitalic>.<Body>The names this define supresses are:<CodeIn1cm><pts 9>\ array_t\ \ \ \ \ float_t\ \ \ \ \ object_t\ \ \ \ catch_t<HardReturn>
+slot_t\ \ \ \ \ \ set_t\ \ \ \ \ \ \ struct_t\ \ \ \ exec_t<HardReturn>
+file_t\ \ \ \ \ \ func_t\ \ \ \ \ \ cfunc_t\ \ \ \ \ method_t<HardReturn>
+int_t\ \ \ \ \ \ \ mark_t\ \ \ \ \ \ null_t\ \ \ \ \ \ objwsup_t<HardReturn>
+op_t\ \ \ \ \ \ \ \ pc_t\ \ \ \ \ \ \ \ ptr_t\ \ \ \ \ \ \ regexp_t<HardReturn>
+src_t\ \ \ \ \ \ \ string_t\ \ \ \ type_t\ \ \ \ \ \ wrap_t<HardReturn>
+ftype_t\ \ \ \ \ forall_t\ \ \ \ parse_t\ \ \ \ \ mem_t<HardReturn>
+debug_t
+<Heading2><Marker <MType 2> <MText `ICI_OBJ_SET_TFNZ, C API macro'> >ICI_OBJ_SET_TFNZ
+<CodeIn1cm>\ <bold>#define\ ICI_OBJ_SET_TFNZ(o,\ tcode,\ flags,\ nrefs,\ leafz)<HardSpace><HardSpace>...<nobold>
+<Comment From object.h>
+<Body>Set the basic fields of the object header of <italic>o<noitalic>.  <italic>o<noitalic> can be any struct
+declared with an object header (this macro casts it).  This macro is
+prefered to doing it by hand in case there is any future change in the
+structure.  See comments on each field of <italic>ici_obj_t<noitalic>.  This is normally
+the first thing done after allocating a new bit of memory to hold an ICI
+object.<Heading2><Marker <MType 2> <MText `ICI_PATH_SEP, C API macro'> >ICI_PATH_SEP
+<CodeIn1cm>\ <bold>#define\ ICI_PATH_SEP<HardSpace><HardSpace>...<nobold>
+<Comment From fwd.h>
+<Body>The character which seperates directories in a path list on this
+architecture.<Heading2><Marker <MType 2> <MText `ICI_VER, C API macro'> >ICI_VER
+<CodeIn1cm>\ <bold>#define\ ICI_VER<HardSpace><HardSpace>...<nobold>
+<Comment From fwd.h>
+<Body>The ICI version number composed into an 8.8.16 unsigned long for simple
+comparisons. The components of this are also available as <italic>ICI_VER_MAJOR<noitalic>,
+<italic>ICI_VER_MINOR<noitalic>, and <italic>ICI_VER_RELEASE<noitalic>.<Heading2><Marker <MType 2> <MText `NARGS, C API macro'> >NARGS
+<CodeIn1cm>\ <bold>#define\ NARGS()<HardSpace><HardSpace>...<nobold>
+<Comment From cfunc.h>
+<Body>In a call from ICI to a function coded in C, this macro returns the
+count of actual arguments to this C function.<Body>(This macro has no ICI_ prefix for historical reasons.)<Heading2><Marker <MType 2> <MText `hassuper, C API macro'> >hassuper
+<CodeIn1cm>\ <bold>#define\ hassuper(o)<HardSpace><HardSpace>...<nobold>
+<Comment From object.h>
+<Body>Test if this object supports a super type.  (It may or may not have a super
+at any particular time).<Heading2><Marker <MType 2> <MText `ici_alimit, C API macro'> >ici_alimit
+<CodeIn1cm>\ <bold>#define\ ici_alimit(a)<HardSpace><HardSpace>...<nobold>
+<Comment From array.h>
+<Body>A macro to assist in doing for loops over the elements of an array.
+Use as:<CodeIn1cm><pts 9>\ ici_array_t\ \ *a;<HardReturn>
+ici_obj_t\ \ \ \ **e;<HardReturn>
+for\ (e\ =\ ici_astart(a);\ e\ !=\ ici_alimit(a);\ e\ =\ ici_anext(a,\ e))<HardReturn>
+\ \ \ \ ...
+<Heading2><Marker <MType 2> <MText `ici_alloc, C API function'> >ici_alloc
+<CodeIn1cm><bold>void\ *\ ici_alloc(size_t\ z)
+<nobold>
+<Comment From alloc.c>
+<Body>Allocate a block of size <italic>z<noitalic>. This just maps to a raw malloc() but
+does garbage collection as necessary and attempts to track memory
+usage to control when the garbage collector runs. Blocks allocated
+with this must be freed with ici_free().<Body>It is preferable to use ici_talloc(), or failing that, ici_nalloc(),
+instead of this function. But both require that you can match the
+allocation by calling ici_tfree() or ici_nalloc() with the original
+type/size you passed in the allocation call. Those functions use
+dense fast free lists for small objects, and track memory usage
+better.<Body>See also: <italic>ICIs allocation functions<noitalic>, ici_free(), ici_talloc(),
+ici_nalloc().<Heading2><Marker <MType 2> <MText `ici_anext, C API macro'> >ici_anext
+<CodeIn1cm>\ <bold>#define\ ici_anext(a,\ e)<HardSpace><HardSpace>...<nobold>
+<Comment From array.h>
+<Body>A macro to assist in doing for loops over the elements of an array.
+Use as:<CodeIn1cm><pts 9>\ ici_array_t\ \ *a;<HardReturn>
+ici_obj_t\ \ \ \ **e;<HardReturn>
+for\ (e\ =\ ici_astart(a);\ e\ !=\ ici_alimit(a);\ e\ =\ ici_anext(a,\ e))<HardReturn>
+\ \ \ \ ...
+<Heading2><Marker <MType 2> <MText `ici_argcount, C API function'> >ici_argcount
+<CodeIn1cm><bold>int\ ici_argcount(int\ n)
+<nobold>
+<Comment From cfunc.c>
+<Body>Generate a generic error message to indicate that the wrong number of
+arguments have been supplied to an intrinsic function, and that it really
+(or most commonly) takes <italic>n<noitalic>.  This function sets the error descriptor
+(ici_error) to a message like:<CodeIn1cm><pts 9>\ %d\ arguments\ given\ to\ %s,\ but\ it\ takes\ %d
+<Body>and then returns 1.<Body>This function may only be called from the implementation of an intrinsic
+function.  It takes the number of actual argument and the function name
+from the current operand stack, which therefore should not have been
+distured (which is normal for intrincic functions).  It takes the number of
+arguments the function should have been supplied with (or typically is)
+from <italic>n<noitalic>.  This function is typically used from C coded functions that are
+not using ici_typecheck() to process arguments.  For example, a function
+that just takes a single object as an argument might start:<CodeIn1cm><pts 9>\ static\ int<HardReturn>
+myfunc()<HardReturn>
+{<HardReturn>
+\ \ \ \ ici_obj_t\ \ *o;
+<HardReturn><HardReturn>
+\ \ \ \ if\ (NARGS()\ !=\ 1)<HardReturn>
+\ \ \ \ \ \ \ \ return\ ici_argcount(1);<HardReturn>
+\ \ \ \ o\ =\ ARG(0);<HardReturn>
+\ \ \ \ .\ .\ .
+<Heading2><Marker <MType 2> <MText `ici_argerror, C API function'> >ici_argerror
+<CodeIn1cm><bold>int\ ici_argerror(int\ i)
+<nobold>
+<Comment From cfunc.c>
+<Body>Generate a generic error message to indicate that argument i of the current
+intrinsic function is bad.  Despite being generic, this message is
+generally pretty informative and useful.  It has the form:<CodeIn1cm><pts 9>\ argument\ %d\ of\ %s\ incorrectly\ supplied\ as\ %s
+<Body>The argument number is base 0.  I.e.  ici_argerror(0) indicates the 1st
+argument is bad.<Body>The function returns 1, for use in a direct return from an intrinsic
+function.<Body>This function may only be called from the implementation of an intrinsic
+function.  It takes the function name from the current operand stack, which
+therefore should not have been distured (which is normal for intrincic
+functions).  This function is typically used from C coded functions that
+are not using ici_typecheck() to process arguments.  For example, a
+function that just takes a single mem object as an argument might start:<CodeIn1cm><pts 9>\ static\ int<HardReturn>
+myfunc()<HardReturn>
+{<HardReturn>
+\ \ \ \ ici_obj_t\ \ *o;
+<HardReturn><HardReturn>
+\ \ \ \ if\ (NARGS()\ !=\ 1)<HardReturn>
+\ \ \ \ \ \ \ \ return\ ici_argcount(1);<HardReturn>
+\ \ \ \ if\ (!ismem(ARG(0)))<HardReturn>
+\ \ \ \ \ \ \ \ return\ ici_argerror(0);<HardReturn>
+\ \ \ \ .\ .\ .
+<Heading2><Marker <MType 2> <MText `ici_array_find_slot, C API function'> >ici_array_find_slot
+<CodeIn1cm><bold>extern\ ici_obj_t\ **\ ici_array_find_slot(ici_array_t\ *a,\ ptrdiff_t\ i)
+<nobold>
+<Comment From array.c>
+<Body>Return a pointer to the slot in the array <italic>a<noitalic> that does, or should contain
+the index <italic>i<noitalic>.  This will grow and <italic>ici_null<noitalic> fill the array as necessary
+(and fail if the array is atomic).  Only positive <italic>i<noitalic>.  Returns NULL on
+error, usual conventions.  This will not fail if <italic>i<noitalic> is less than
+<italic>ici_array_nels(a)<noitalic>.<Heading2><Marker <MType 2> <MText `ici_array_gather, C API function'> >ici_array_gather
+<CodeIn1cm><bold>void\ ici_array_gather(ici_obj_t\ **b,\ ici_array_t\ *a,\ ptrdiff_t\ start,\ ptrdiff_t\ n)
+<nobold>
+<Comment From array.c>
+<Body>Copy <italic>n<noitalic> object pointers from the given array, starting at index <italic>start<noitalic>,
+to <italic>b<noitalic>.  The span must cover existing elements of the array (that is, don't
+try to read from negative or excessive indexes).<Body>This function is used to copy objects out of an array into a contiguous
+destination area.  You can't easily just memcpy, because the span of
+elements you want may wrap around the end.  For example, the implementaion
+of interval() uses this to copy the span of elements it wants into a new
+array.<Heading2><Marker <MType 2> <MText `ici_array_get, C API function'> >ici_array_get
+<CodeIn1cm><bold>ici_obj_t\ *\ ici_array_get(ici_array_t\ *a,\ ptrdiff_t\ i)
+<nobold>
+<Comment From array.c>
+<Body>Return the element or the array <italic>a<noitalic> from index <italic>i<noitalic>, or <italic>ici_null<noitalic> if out of
+range.  No incref is done on the object.<Heading2><Marker <MType 2> <MText `ici_array_nels, C API function'> >ici_array_nels
+<CodeIn1cm><bold>ptrdiff_t\ ici_array_nels(ici_array_t\ *a)
+<nobold>
+<Comment From array.c>
+<Body>Return the number of elements in the array <italic>a<noitalic>.<Heading2><Marker <MType 2> <MText `ici_array_new, C API function'> >ici_array_new
+<CodeIn1cm><bold>ici_array_t\ *\ ici_array_new(ptrdiff_t\ n)
+<nobold>
+<Comment From array.c>
+<Body>Return a new array.  It will have room for at least <italic>n<noitalic> elements to be
+pushed contigously (that is, there is no need to use ici_stk_push_chk() for
+objects pushed immediately, up to that limit).  If <italic>n<noitalic> is 0 an internal
+default will be used.  The returned array has ref count 1.  Returns NULL on
+failure, usual conventions.<Heading2><Marker <MType 2> <MText `ici_array_pop, C API function'> >ici_array_pop
+<CodeIn1cm><bold>ici_obj_t\ *\ ici_array_pop(ici_array_t\ *a)
+<nobold>
+<Comment From array.c>
+<Body>Pop and return the top of the given array, or <italic>ici_null<noitalic> if it is empty.
+Returns NULL on error (for example, attempting to pop and atomic array).
+Usual error conventions.<Heading2><Marker <MType 2> <MText `ici_array_push, C API function'> >ici_array_push
+<CodeIn1cm><bold>int\ ici_array_push(ici_array_t\ *a,\ ici_obj_t\ *o)
+<nobold>
+<Comment From array.c>
+<Body>Push the object <italic>o<noitalic> onto the end of the array <italic>a<noitalic>. This is the general
+case that works for any array whether it is a stack or a queue.
+On return, o_top[-1] is the object pushed. Returns 1 on error, else 0,
+usual error conventions.<Heading2><Marker <MType 2> <MText `ici_array_rpop, C API function'> >ici_array_rpop
+<CodeIn1cm><bold>ici_obj_t\ *\ ici_array_rpop(ici_array_t\ *a)
+<nobold>
+<Comment From array.c>
+<Body>Pop and return the front of the given array, or <italic>ici_null<noitalic> if it is empty.
+Returns NULL on error (for example, attempting to pop and atomic array).
+Usual error conventions.<Heading2><Marker <MType 2> <MText `ici_array_rpush, C API function'> >ici_array_rpush
+<CodeIn1cm><bold>int\ ici_array_rpush(ici_array_t\ *a,\ ici_obj_t\ *o)
+<nobold>
+<Comment From array.c>
+<Body>Push the object <italic>o<noitalic> onto the front of the array <italic>a<noitalic>. Return 1 on failure,
+else 0, usual error conventions.<Heading2><Marker <MType 2> <MText `ici_assign, C API macro'> >ici_assign
+<CodeIn1cm>\ <bold>#define\ ici_assign(o,k,v)<HardSpace><HardSpace>...<nobold>
+<Comment From object.h>
+<Body>Assign the value <italic>v<noitalic> to key <italic>k<noitalic> of the object <italic>o<noitalic>. This macro just calls
+the particular object's <italic>t_assign()<noitalic> function.<Body>Note that the argument <italic>o<noitalic> is subject to multiple expansions.<Body>Returns non-zero on error, usual conventions.<Heading2><Marker <MType 2> <MText `ici_assign_base, C API macro'> >ici_assign_base
+<CodeIn1cm>\ <bold>#define\ ici_assign_base(o,k,v)<HardSpace><HardSpace>...<nobold>
+<Comment From object.h>
+<Body>Assign the value <italic>v<noitalic> to key <italic>k<noitalic> of the object <italic>o<noitalic>, but only assign into
+the base object, even if there is a super chain. This may only be called
+on objects that support supers.<Body>Note that the argument <italic>o<noitalic> is subject to multiple expansions.<Body>Returns non-zero on error, usual conventions.<Heading2><Marker <MType 2> <MText `ici_assign_cfuncs, C API function'> >ici_assign_cfuncs
+<CodeIn1cm><bold>int\ ici_assign_cfuncs(ici_objwsup_t\ *s,\ ici_cfunc_t\ *cf)
+<nobold>
+<Comment From cfunco.c>
+<Body>Assign into the structure <italic>s<noitalic> all the intrinsic functions listed in the
+array of <italic>ici_cfunc_t<noitalic> structures pointed to by <italic>cf<noitalic>.  The array must be
+terminated by an entry with a <italic>cf_name<noitalic> of NULL.  Typically, entries in the
+array are formated as:<CodeIn1cm><pts 9>\ {CF_OBJ,\ \ \ \ "func",\ \ \ \ \ f_func},
+<Body>Where CF_OBJ is a convenience macro to take care of the normal object
+header, "func" is the name your function will be assigned to in the given
+struct, and <italic>f_func<noitalic> is a C function obeying the rules of ICI intrinsic
+functions.<Body>Returns non-zero on error, in which case error is set, else zero.<Heading2><Marker <MType 2> <MText `ici_assign_fail, C API function'> >ici_assign_fail
+<CodeIn1cm><bold>int\ ici_assign_fail(ici_obj_t\ *o,\ ici_obj_t\ *k,\ ici_obj_t\ *v)
+<nobold>
+<Comment From object.c>
+<Body>This is a convenience function which can be used directly as the <italic>t_assign<noitalic>
+entry in a type's <italic>ici_type_t<noitalic> struction if the type doesn't support
+asignment.  It sets <italic>ici_error<noitalic> to a message of the form:<CodeIn1cm><pts 9>\ attempt\ to\ set\ %s\ keyed\ by\ %s\ to\ %s
+<Body>and returns 1.  Also, it can b called from within a custom assign function
+in cases where the particular assignment is illegal.<Heading2><Marker <MType 2> <MText `ici_assign_super, C API macro'> >ici_assign_super
+<CodeIn1cm>\ <bold>#define\ ici_assign_super(o,k,v,b)<HardSpace><HardSpace>...<nobold>
+<Comment From object.h>
+<Body>Assign the value <italic>v<noitalic> at the key <italic>k<noitalic> of the object <italic>o<noitalic>, but only if the key
+<italic>k<noitalic> is already an element of <italic>o<noitalic> or one of its supers.  The object <italic>o<noitalic>
+*must* be one that supports supers (such as a <italic>struct<noitalic> or a <italic>handle<noitalic>).<Body>This function is used internally in assignments up the super chain (thus
+the name).  In this context the argument <italic>b<noitalic> indicates the base struct of
+the assign and is used to maintain the internal lookup look-aside
+mechanism.  If not used in this manner, <italic>b<noitalic> should be supplied as NULL.<Body>Return -1 on error, 0 if it was not found, and 1 if the assignment was
+completed.<Heading2><Marker <MType 2> <MText `ici_astart, C API macro'> >ici_astart
+<CodeIn1cm>\ <bold>#define\ ici_astart(a)<HardSpace><HardSpace>...<nobold>
+<Comment From array.h>
+<Body>A macro to assist in doing for loops over the elements of an array.
+Use as:<CodeIn1cm><pts 9>\ ici_array_t\ \ *a;<HardReturn>
+ici_obj_t\ \ \ \ **e;<HardReturn>
+for\ (e\ =\ ici_astart(a);\ e\ !=\ ici_alimit(a);\ e\ =\ ici_anext(a,\ e))<HardReturn>
+\ \ \ \ ...
+<Heading2><Marker <MType 2> <MText `ici_atexit, C API function'> >ici_atexit
+<CodeIn1cm><bold>void\ ici_atexit(void\ (*func)(void),\ ici_wrap_t\ *w)
+<nobold>
+<Comment From uninit.c>
+<Body>Register the function <italic>func<noitalic> to be called at ICI interpreter shutdown
+(i.e. <italic>ici_uninit()<noitalic> call).<Body>The caller must supply a <italic>ici_wrap_t<noitalic> struct, which is usually statically
+allocated. This structure will be linked onto an internal list and
+be unavailable till after <italic>ici_uninit()<noitalic> is called.<Heading2><Marker <MType 2> <MText `ici_atom, C API function'> >ici_atom
+<CodeIn1cm><bold>ici_obj_t\ *\ ici_atom(ici_obj_t\ *o,\ int\ lone)
+<nobold>
+<Comment From object.c>
+<Body>Return the atomic form of the given object <italic>o<noitalic>.  This will be an object
+equal to the one given, but read-only and possibly shared by others.  (If
+the object it already the atomic form, it is just returned.)<Body>This is achieved by looking for an object of equal value in the
+<italic>atom pool<noitalic>. The atom pool is a hash table of all atoms. The object's
+<italic>t_hash<noitalic> and <italic>t_cmp<noitalic> functions will be used it this lookup process
+(from this object's <italic>ici_type_t<noitalic> struct).<Body>If an existing atomic form of the object is found in the atom pool,
+it is returned.<Body>If the <italic>lone<noitalic> flag is 1, the object is free'd if it isn't used.
+("lone" because the caller has the lone reference to it and will replace
+that with what atom returns anyway.) If the <italic>lone<noitalic> flag is zero, and the
+object would be used (rather than returning an equal object already in the
+atom pool), a copy will made and that copy stored in the atom pool and
+returned.  Also note that if lone is 1 and the object is not used, the
+nrefs of the passed object will be transfered to the object being returned.<Body>Never fails, at worst it just returns its argument (for historical
+reasons).<Heading2><Marker <MType 2> <MText `ici_atom_probe, C API function'> >ici_atom_probe
+<CodeIn1cm><bold>ici_obj_t\ *\ ici_atom_probe(ici_obj_t\ *o)
+<nobold>
+<Comment From object.c>
+<Body>Probe the atom pool for an atomic form of o.  If found, return that atomic
+form, else NULL.  This can be use by *_new() routines of intrinsically
+atomic objects.  These routines generally set up a dummy version of the
+object being made which is passed to this probe.  If it finds a match, that
+is returned, thus avoiding the allocation of an object that may be thrown
+away anyway.<Heading2><Marker <MType 2> <MText `ici_call, C API function'> >ici_call
+<CodeIn1cm><bold>int\ ici_call(ici_str_t\ *func_name,\ char\ *types,\ ...)
+<nobold>
+<Comment From call.c>
+<Body>Call an ICI function by name from C with simple argument types and
+return value.  The name (<italic>func_name<noitalic>) is looked up in the current scope.<Body>See <italic>ici_func()<noitalic> for an explanation of <italic>types<noitalic>. Apart from taking a name,
+rather than an ICI function object, this function behaves in the same
+manner as <italic>ici_func()<noitalic>.<Body>There is some historical support for <italic>@<noitalic> operators, but it is deprecated
+and may be removed in future versions.<Heading2><Marker <MType 2> <MText `ici_callv, C API function'> >ici_callv
+<CodeIn1cm><bold>int\ ici_callv(ici_str_t\ *func_name,\ char\ *types,\ va_list\ va)
+<nobold>
+<Comment From call.c>
+<Body>Varient of <italic>ici_call()<noitalic> (see) taking a variable argument list.<Body>There is some historical support for <italic>@<noitalic> operators, but it is deprecated
+and may be removed in future versions.<Heading2><Marker <MType 2> <MText `ici_cfunc_t, C API struct'> >ici_cfunc_t
+<CodeIn1cm>\ <bold>struct\ ici_cfunc<HardReturn>
+{<HardReturn>
+\ \ \ \ ici_obj_t\ \ \ o_head;<HardReturn>
+\ \ \ \ char\ \ \ \ \ \ \ \ *cf_name;<HardReturn>
+\ \ \ \ int\ \ \ \ \ \ \ \ \ (*cf_cfunc)();<HardReturn>
+\ \ \ \ void\ \ \ \ \ \ \ \ *cf_arg1;<HardReturn>
+\ \ \ \ void\ \ \ \ \ \ \ \ *cf_arg2;<HardReturn>
+}<nobold>
+<Comment From cfunc.h>
+<Body>The C struct which is the ICI intrinsic function type. That is,
+a function that is coded in C. (There are actually two types, this
+one, and a second for functions that are coded in ICI, that are both
+called <italic>func<noitalic>.)<Comment From cfunc.h>
+<Body><italic>ici_cfunc_t<noitalic> objects are often declared staticly (in an array) when
+setting up a group of C functions to be called from ICI. When doing
+this, the macro <italic>CF_OBJ<noitalic> can be used as the initialiser of the
+<italic>o_head<noitalic> field (the standard ICI object heade).<Body>The type has a well-known built-in type code of <italic>TC_CFUNC<noitalic>.<DefnTerm>o_head<DefnIn4cm>The standard ICI object header.<DefnTerm>cf_name<DefnIn4cm>A name for the function. Calls to functions
+                     such as <italic>ici_assign_cfuncs<noitalic> will use this as
+                     the name to use when assigning it into an ICI
+                     struct. Apart from that, it is only used in
+                     error messages.<DefnTerm>cf_func()<DefnIn4cm>The implementation of the function.  The formals are
+                     not mentioned here deliberately as implementaions will
+                     vary in their use of them.<DefnTerm>cf_arg1, cf_arg2<DefnIn4cm>Optional additional data items.  Sometimes it is
+                     useful to write a single C function that masquerades
+                     as severl ICI functions - driven by distinguishing
+                     data from these two fields. See <italic>CF_ARG1()<noitalic>.<Heading2><Marker <MType 2> <MText `ici_chkbuf, C API macro'> >ici_chkbuf
+<CodeIn1cm>\ <bold>#define\ ici_chkbuf(n)<HardSpace><HardSpace>...<nobold>
+<Comment From buf.h>
+<Body>Ensure that <italic>ici_buf<noitalic> points to enough memory to hold index <italic>n<noitalic> (plus
+room for a nul char at the end). Returns 0 on success, else 1 and
+sets <italic>ici_error<noitalic>.<Body>See also: <italic>The error return convention<noitalic>.<Heading2><Marker <MType 2> <MText `ici_class_new, C API function'> >ici_class_new
+<CodeIn1cm><bold>ici_objwsup_t\ *\ ici_class_new(ici_cfunc_t\ *cf,\ ici_objwsup_t\ *super)
+<nobold>
+<Comment From cfunco.c>
+<Body>Create a new class struct and assign the given cfuncs into it (as in
+ici_assign_cfuncs()).  If <italic>super<noitalic> is NULL, the super of the new struct is
+set to the outer-most writeable struct in the current scope.  Thus this is
+a new top-level class (not derived from anything).  If super is non-NULL,
+it is presumably the parent class and is used directly as the super.
+Returns NULL on error, usual conventions.  The returned struct has an
+incref the caller owns.<Heading2><Marker <MType 2> <MText `ici_cmp_unique, C API function'> >ici_cmp_unique
+<CodeIn1cm><bold>int\ ici_cmp_unique(ici_obj_t\ *o1,\ ici_obj_t\ *o2)
+<nobold>
+<Comment From object.c>
+<Body>This is a convenience function which can be used directly as the <italic>t_cmp<noitalic>
+entry in a type's <italic>ici_type_t<noitalic> struction if object of this type are
+intrinsically unique.  That is, the object is one-to-one with the memory
+allocated to hold it.  An object type would be instrinsically unique if you
+didn't want to support comparison that considered the contents, and/or
+didn't want to support copying.  If you use this function you should almost
+certainly also be using <italic>ici_hash_unique<noitalic> and <italic>ici_copy_simple<noitalic>.<Body>It returns 0 if the objects are the same object, else 1.<Heading2><Marker <MType 2> <MText `ici_copy_simple, C API function'> >ici_copy_simple
+<CodeIn1cm><bold>ici_obj_t\ *\ ici_copy_simple(ici_obj_t\ *o)
+<nobold>
+<Comment From object.c>
+<Body>This is a convenience function which can be used directly as the <italic>t_copy<noitalic>
+entry in a type's <italic>ici_type_t<noitalic> struction if object of this type are
+intrinsically unique (i.e.  are one-to-one with the memory they occupy, and
+can't be merged) or intrinsically atomic (i.e.  are one-to-one with their
+value, are are always merged).  An object type would be instrinsically
+unique if you didn't want to support comparison that considered the
+contents, and/or didn't want to support copying.  An intrinsically atomic
+object type would also use this function because, by definition, if you
+tried to copy the object, you'd just end up with the same one anyway.<Body>It increfs <italic>o<noitalic>, and returns it.<Heading2><Marker <MType 2> <MText `ici_debug_t, C API struct'> >ici_debug_t
+<CodeIn1cm>\ <bold>struct\ ici_debug<HardReturn>
+{<HardReturn>
+\ \ \ \ void\ \ \ \ (*idbg_error)(char\ *,\ ici_src_t\ *);<HardReturn>
+\ \ \ \ void\ \ \ \ (*idbg_fncall)(ici_obj_t\ *,\ ici_obj_t\ **,\ int);<HardReturn>
+\ \ \ \ void\ \ \ \ (*idbg_fnresult)(ici_obj_t\ *);<HardReturn>
+\ \ \ \ void\ \ \ \ (*idbg_src)(ici_src_t\ *);<HardReturn>
+\ \ \ \ void\ \ \ \ (*idbg_watch)(ici_obj_t\ *,\ ici_obj_t\ *,\ ici_obj_t\ *);<HardReturn>
+}<nobold>
+<Comment From exec.h>
+<Body>ICI debug interface.  The interpreter has a global debug interface enable
+flag, <italic>ici_debug_enabled<noitalic>, and a global pointer, <italic>ici_debug<noitalic>, to one of
+these structs.  If the flag is set, the interpreter calls these functions.
+See <italic>ici_debug<noitalic> and <italic>ici_debug_enabled<noitalic>.<DefnTerm>idbg_error()<DefnIn4cm>Called with the current value of ici_error (redundant,
+                     for historical reasons) and a source line marker
+                     object (see <italic>ici_src_t<noitalic>) on an uncaught error.
+                     Actually, this is not so useful, because it is
+                     currently called after the stack has been unwound.  So
+                     a user would not be able to see their stack traceback
+                     and local context.  This behaviour may change in
+                     future.<DefnTerm>idbg_fncall()<DefnIn4cm>Called with the object being called, the pointer to
+                     the first actual argument (see <italic>ARGS()<noitalic> and the number
+                     of actual arguments just before control is transfered
+                     to a callable object (function, method or anything
+                     else).<DefnTerm>idbg_fnresult()<DefnIn4cm>Called with the object being returned from any call.<DefnTerm>idbg_src()<DefnIn4cm>Called each time execution passes into the region of a
+                     new source line marker.  These typically occur before
+                     any of the code generated by a particular line of
+                     source.<DefnTerm>idbg_watch()<DefnIn4cm>In theory, called when assignments are made.  However
+                     optimisations in the interpreter have made this
+                     difficult to support without performance penalties
+                     even when debugging is not enabled.  So it is
+                     currently disabled.  The function remains here pending
+                     discovery of a method of achieving it efficiently.<Heading2><Marker <MType 2> <MText `ici_decref, C API macro'> >ici_decref
+<CodeIn1cm>\ <bold>#define\ ici_decref(o)<HardSpace><HardSpace>...<nobold>
+<Comment From object.h>
+<Body>Decrement the object 'o's reference count.  References from ordinary
+machine data objects (ie.  variables and stuff, not other objects) are
+invisible to the garbage collector.  These refs must be accounted for if
+there is a possibility of garbage collection.  Note that most routines that
+make objects (new_*(), copy() etc...) return objects with 1 ref.  The
+caller is expected to ici_decref() it when they attach it into wherever it
+is going.<Heading2><Marker <MType 2> <MText `ici_def_cfuncs, C API function'> >ici_def_cfuncs
+<CodeIn1cm><bold>int\ ici_def_cfuncs(ici_cfunc_t\ *cf)
+<nobold>
+<Comment From cfunco.c>
+<Body>Define the given intrinsic functions in the current static scope.
+See ici_assign_cfuncs() for details.<Body>Returns non-zero on error, in which case error is set, else zero.<Heading2><Marker <MType 2> <MText `ici_dont_record_line_nums, C API variable'> >ici_dont_record_line_nums
+<CodeIn1cm>\ <bold>int\ \ \ \ \ ici_dont_record_line_nums;<nobold>
+<Comment From lex.c>
+<Body>Set this to non-zero to stop the recording of file and line number
+information as code is parsed.  There is nothing in the interpreter core
+that sets this.  Setting this can both save memory and increase execution
+speed (slightly).  But diagnostics won't report line numbers and source
+line debugging operations won't work.<Heading2><Marker <MType 2> <MText `ici_enter, C API function'> >ici_enter
+<CodeIn1cm><bold>void\ ici_enter(ici_exec_t\ *x)
+<nobold>
+<Comment From thread.c>
+<Body>Enter code that uses ICI data. ICI data referes to *any* ICI objects
+or static variables. You must do this after having left ICI's mutex
+domain, by calling <italic>ici_leave()<noitalic>, before you again access any ICI data.
+This call will re-acquire the global ICI mutex that gates access to
+common ICI data. You must pass in the ICI execution context pointer
+that you remembered from the previous matching call to <italic>ici_leave()<noitalic>.<Body>If the thread was in an ICI level critical section when the <italic>ici_leave()<noitalic>
+call was made, then this will have no effect (mirroring the no effect
+that happened when the ici_leave() was done).<Body>Note that even ICI implementations without thread support provide this
+function. In these implemnetations it has no effect.<Heading2><Marker <MType 2> <MText `ici_error, C API variable'> >ici_error
+<CodeIn1cm>\ <bold>char\ \ \ \ \ \ \ \ \ \ \ \ *ici_error;<nobold>
+<Comment From object.c>
+<Body>The global error message pointer. The ICI error return convention
+dictacts that the originator of an error sets this to point to a
+short human readable string, in addition to returning the functions
+error condition. See <italic>The error return convention<noitalic> for more details.<Heading2><Marker <MType 2> <MText `ici_eval, C API function'> >ici_eval
+<CodeIn1cm><bold>ici_obj_t\ *\ ici_eval(ici_str_t\ *name)
+<nobold>
+<Comment From exec.c>
+<Body>Evaluate <italic>name<noitalic> as if it was a variable in a script in the currently
+prevailing scope, and return its value. If the name is undefined, this
+will attempt to load extension modules in an attemot to get it defined.<Body>This is slightly different from fetching the name from the top element
+of the scope stack (i.e. <italic>ici_vs.a_top[-1]<noitalic>) because it will attempt to
+auto-load, and fail if the name is not defined.<Body>The returned object has had it's reference count incremented.<Body>Returns NULL on error, usual conventions.<Heading2><Marker <MType 2> <MText `ici_fetch, C API macro'> >ici_fetch
+<CodeIn1cm>\ <bold>#define\ ici_fetch(o,k)<HardSpace><HardSpace>...<nobold>
+<Comment From object.h>
+<Body>Fetch the value of the key <italic>k<noitalic> from the object <italic>o<noitalic>.  This macro just calls
+the particular object's <italic>t_fetch()<noitalic> function.<Body>Note that the returned object does not have any extra reference count;
+however, in some circumstances it may not have any garbage collector
+visible references to it.  That is, it may be vunerable to a garbage
+collection if it is not either incref()ed or hooked into a referenced
+object immediately.  Callers are responsible for taking care.<Body>Note that the argument <italic>o<noitalic> is subject to multiple expansions.<Body>Returns NULL on failure, usual conventions.<Heading2><Marker <MType 2> <MText `ici_fetch_base, C API macro'> >ici_fetch_base
+<CodeIn1cm>\ <bold>#define\ ici_fetch_base(o,k)<HardSpace><HardSpace>...<nobold>
+<Comment From object.h>
+<Body>Fetch the value of the key <italic>k<noitalic> from the object <italic>o<noitalic>, but only consider
+the base object, even if there is a super chain. See the notes on
+<italic>ici_fetch()<noitalic>, which also apply here. The object <italic>o<noitalic> *must* be one that
+supports super types (such as a <italic>struct<noitalic> or a <italic>handle<noitalic>).<Heading2><Marker <MType 2> <MText `ici_fetch_fail, C API function'> >ici_fetch_fail
+<CodeIn1cm><bold>ici_obj_t\ *\ ici_fetch_fail(ici_obj_t\ *o,\ ici_obj_t\ *k)
+<nobold>
+<Comment From object.c>
+<Body>This is a convenience function which can be used directly as the <italic>t_fetch<noitalic>
+entry in a type's <italic>ici_type_t<noitalic> struction if the type doesn't support
+fetching.  It sets <italic>ici_error<noitalic> to a message of the form:<CodeIn1cm><pts 9>\ attempt\ to\ read\ %s\ keyed\ by\ %
+<Body>and returns 1.  Also, it can b called from within a custom assign function
+in cases where the particular fetch is illegal.<Heading2><Marker <MType 2> <MText `ici_fetch_super, C API macro'> >ici_fetch_super
+<CodeIn1cm>\ <bold>#define\ ici_fetch_super(o,k,v,b)<HardSpace><HardSpace>...<nobold>
+<Comment From object.h>
+<Body>Fetch the value of the key <italic>k<noitalic> from <italic>o<noitalic> and store it through <italic>v<noitalic>, but only
+if the item <italic>k<noitalic> is already an element of <italic>o<noitalic> or one of its supers.  See the
+notes on <italic>ici_fetch()<noitalic>, which also apply here.  The object <italic>o<noitalic> *must* be
+one that supports supers (such as a <italic>struct<noitalic> or a <italic>handle<noitalic>).<Body>This function is used internally in fetches up the super chain (thus the
+name).  In this context the argument <italic>b<noitalic> indicates the base struct of the
+fetch and is used to maintain the internal lookup look-aside mechanism.  If
+not used in this manner, <italic>b<noitalic> should be supplied as NULL.<Body>Return -1 on error, 0 if it was not found, and 1 if it was found.  If
+found, the value is stored in *v.<Heading2><Marker <MType 2> <MText `ici_file_close, C API function'> >ici_file_close
+<CodeIn1cm><bold>int\ ici_file_close(ici_file_t\ *f)
+<nobold>
+<Comment From file.c>
+<Body>Close the given ICI file <italic>f<noitalic> by calling the lower-level close function
+given in the <italic>ici_ftype_t<noitalic> associated with the file.  A guard flag is
+maintained in the file object to prevent multiple calls to the lower level
+function (this is really so we can optionally close the file explicitly,
+and let the garbage collector do it to).  Returns non-zero on error, usual
+conventions.<Heading2><Marker <MType 2> <MText `ici_file_new, C API function'> >ici_file_new
+<CodeIn1cm><bold>ici_file_t\ *\ ici_file_new(void\ *fp,\ ici_ftype_t\ *ftype,\ ici_str_t\ *name,\ ici_obj_t\ *ref)
+<nobold>
+<Comment From file.c>
+<Body>Return a file object with the given <italic>ftype<noitalic> and a file type specific
+pointer <italic>fp<noitalic> which is often somethings like a <italic>STREAM *<noitalic> or a file
+descriptor.  The <italic>name<noitalic> is mostly for error messages and stuff.  The
+returned object has a ref count of 1.  Returns NULL on error.<Body>The <italic>ftype<noitalic> is a pointer to a struct of stdio-like function pointers that
+will be used to do I/O operations on the file (see <italic>ici_ftype_t<noitalic>).  The
+given structure is assumed to exist as long as necessary.  (It is normally
+a static srtucture, so this is not a problem.) The core-supplied struct
+<italic>ici_stdio_ftype<noitalic> can be used if <italic>fp<noitalic> is a <italic>STREAM *<noitalic>.<Body>The <italic>ref<noitalic> argument is an object reference that the file object will keep in
+case the <italic>fp<noitalic> argument is an implicit reference into some object (for
+example, this is used for reading an ICI string as a file).  It may be NULL
+if not required.<Heading2><Marker <MType 2> <MText `ici_float_new, C API function'> >ici_float_new
+<CodeIn1cm><bold>ici_float_t\ *\ ici_float_new(double\ v)
+<nobold>
+<Comment From float.c>
+<Body>Return an ICI float object corresponding to the given value <italic>v<noitalic>.  Note that
+floats are intrinsically atomic.  The returned object will have had its
+reference count inceremented. Returns NULL on error, usual conventions.<Heading2><Marker <MType 2> <MText `ici_float_ret, C API function'> >ici_float_ret
+<CodeIn1cm><bold>int\ ici_float_ret(double\ ret)
+<nobold>
+<Comment From cfunc.c>
+<Body>Use <italic>return ici_float_ret(ret);<noitalic> to return a float (i.e. a C double)
+from an intrinsic fuction. The double will be converted to an ICI
+float.<CodeIn1cm><pts 9>\ 
+<Heading2><Marker <MType 2> <MText `ici_float_t, C API struct'> >ici_float_t
+<CodeIn1cm>\ <bold>struct\ ici_float<HardReturn>
+{<HardReturn>
+\ \ \ \ ici_obj_t\ \ \ o_head;<HardReturn>
+\ \ \ \ double\ \ \ \ \ \ f_value;<HardReturn>
+}<nobold>
+<Comment From float.h>
+<Body>The C struct that is the ICI float object.<Heading2><Marker <MType 2> <MText `ici_free, C API function'> >ici_free
+<CodeIn1cm><bold>void\ ici_free(void\ *p)
+<nobold>
+<Comment From alloc.c>
+<Body>Free a block allocated with ici_alloc().<Body>See also: <italic>ICIs allocation functions<noitalic>, ici_alloc(), ici_tfree(),
+ici_nfree().<Heading2><Marker <MType 2> <MText `ici_ftype_t, C API struct'> >ici_ftype_t
+<CodeIn1cm>\ <bold>struct\ ici_ftype<HardReturn>
+{<HardReturn>
+\ \ \ \ int\ \ \ \ \ \ \ \ \ (*ft_getch)();<HardReturn>
+\ \ \ \ int\ \ \ \ \ \ \ \ \ (*ft_ungetch)();<HardReturn>
+\ \ \ \ int\ \ \ \ \ \ \ \ \ (*ft_putch)();<HardReturn>
+\ \ \ \ int\ \ \ \ \ \ \ \ \ (*ft_flush)();<HardReturn>
+\ \ \ \ int\ \ \ \ \ \ \ \ \ (*ft_close)();<HardReturn>
+\ \ \ \ long\ \ \ \ \ \ \ \ (*ft_seek)();<HardReturn>
+\ \ \ \ int\ \ \ \ \ \ \ \ \ (*ft_eof)();<HardReturn>
+\ \ \ \ int\ \ \ \ \ \ \ \ \ (*ft_write)();<HardReturn>
+}<nobold>
+<Comment From file.h>
+<Body>A set of function pointers for simple file abstraction.  ICI file objects
+are implemented on top of this simple file abstraction in order to allow
+several different types of file-like entities.  Each different type of file
+uses one of these structures with specific functions.  Each function is
+assumed to be compatible with the stdio function of the same name.  In the
+case were the file is a stdio stream, these *are* the stdio functions.<Body>See also: <italic>ici_stdio_ftype<noitalic>.<Heading2><Marker <MType 2> <MText `ici_func, C API function'> >ici_func
+<CodeIn1cm><bold>int\ ici_func(ici_obj_t\ *callable,\ char\ *types,\ ...)
+<nobold>
+<Comment From call.c>
+<Body>Call a callable ICI object <italic>callable<noitalic> from C with simple argument
+marshalling and an optional return value.  The callable object is typically
+a function (but not a function name, see <italic>ici_call<noitalic> for that case).<Body><italic>types<noitalic> is a string that indicates what C values are being supplied as
+arguments.  It can be of the form ".=..." or "..." where the dots represent
+type key letters as described below.  In the first case the 1st extra
+argument is used as a pointer to store the return value through.  In the
+second case, the return value of the ICI function is not provided.<Body>Type key letters are:<DefnTerm>i<DefnIn2cm>The corresponding argument should be a C long (a pointer to a long
+         in the case of a return value).  It will be converted to an ICI
+         <italic>int<noitalic> and passed to the function.<DefnTerm>f<DefnIn2cm>The corresponding argument should be a C double.  (a pointer to a
+         double in the case of a return value).  It will be converted to an
+         ICI <italic>float<noitalic> and passed to the function.<DefnTerm>s<DefnIn2cm>The corresponding argument should be a nul terminated string (a
+         pointer to a char * in the case of a return value).  It will be
+         converted to an ICI <italic>string<noitalic> and passed to the function.<DefnIn2cm>When a string is returned it is a pointer to the character data of
+         an internal ICI string object.  It will only remain valid until
+         the next call to any ICI function.<DefnTerm>o<DefnIn2cm>The corresponding argument should be a pointer to an ICI object (a
+         pointer to an object in the case of a return value).  It will be
+         passed directly to the ICI function.<DefnIn2cm>When an object is returned it has been ici_incref()ed (that is, it
+         is held against garbage collection).<Body>Returns 0 on success, else 1, in which case ici_error has been set.<Body>See also: ici_callv(), ici_method(), ici_call(), ici_funcv().<Heading2><Marker <MType 2> <MText `ici_funcv, C API function'> >ici_funcv
+<CodeIn1cm><bold>int\ ici_funcv(ici_obj_t\ *subject,\ ici_obj_t\ *callable,\ char\ *types,\ va_list\ va)
+<nobold>
+<Comment From call.c>
+<Body>This function is a variation on <italic>ici_func()<noitalic>. See that function for details
+on the meaning of the <italic>types<noitalic> argument.<Body><italic>va<noitalic> is a va_list (variable argument list) passed from an outer var-args
+function.<Body>If <italic>subject<noitalic> is NULL, then <italic>callable<noitalic> is taken to be a callable object
+(could be a function, a method, or something else) and is called directly.
+If <italic>subject<noitalic> is non-NULL, it is taken to be an instance object and
+<italic>callable<noitalic> should be the name of one of its methods (i.e. an <italic>ici_str_t *<noitalic>).<Heading2><Marker <MType 2> <MText `ici_get_last_errno, C API function'> >ici_get_last_errno
+<CodeIn1cm><bold>int\ ici_get_last_errno(char\ *dothis,\ char\ *tothis)
+<nobold>
+<Comment From syserr.c>
+<Body>Convert the current errno (that is, the standard C global error code) into
+an ICI error message based on the standard C <italic>strerror<noitalic> function.  Returns
+1 so it can be use directly in a return from an ICI instrinsic function or
+similar.  If <italic>dothis<noitalic> and/or <italic>tothis<noitalic> are non-NULL, they are included in
+the error message.  <italic>dothis<noitalic> should be a short name like "<italic>open<noitalic>".
+<italic>tothis<noitalic> is typically a file name.  The messages it sets are, depending on
+which of <italic>dothis<noitalic> and <italic>tothis<noitalic> are NULL, the message will be one of:<CodeIn1cm><pts 9>\ strerror<HardReturn>
+failed\ to\ dothis:\ strerror<HardReturn>
+failed\ to\ dothis\ tothis:\ strerror<HardReturn>
+tothis:\ strerror
+<Heading2><Marker <MType 2> <MText `ici_get_last_win32_error, C API function'> >ici_get_last_win32_error
+<CodeIn1cm><bold>int\ ici_get_last_win32_error(void)
+<nobold>
+<Comment From win32err.c>
+<Body>Windows only.  Convert the current Win32 error (that is, the value of
+<italic>GetLastError()<noitalic>) into an ICI error message and sets ici_error to point to
+it.  Returns 1 so it can be use directly in a return from an ICI instrinsic
+function.<Heading2><Marker <MType 2> <MText `ici_handle_method_check, C API function'> >ici_handle_method_check
+<CodeIn1cm><bold>int\ ici_handle_method_check(ici_obj_t\ *inst,\ ici_str_t\ *name,\ ici_handle_t\ **h,\ void\ **p)
+<nobold>
+<Comment From handle.c>
+<Body>Verify that a method on a handle has been invoked correctly.  In
+particular, that <italic>inst<noitalic> is not NULL and is a handle with the given <italic>name<noitalic>.
+If OK and <italic>h<noitalic> is non-NULL, the handle is stored through it.  If <italic>p<noitalic> is
+non-NULL, the associted pointer (<italic>h_ptr<noitalic>) is stored through it.  Return 1
+on error and sets ici_error, else 0.<Body>For example, a typical method where the instance should be a handle
+of type <italic>XML_Parse<noitalic> might look like this:<CodeIn1cm><pts 9>\ static\ int<HardReturn>
+ici_xml_SetBase(ici_obj_t\ *inst)<HardReturn>
+{<HardReturn>
+\ \ \ \ char\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ *s;<HardReturn>
+\ \ \ \ XML_Parser\ \ \ \ \ \ \ \ \ \ p;
+<HardReturn><HardReturn>
+\ \ \ \ if\ (ici_handle_method_check(inst,\ ICIS(XML_Parser),\ NULL,\ &p))<HardReturn>
+\ \ \ \ \ \ \ \ return\ 1;<HardReturn>
+\ \ \ \ if\ (ici_typecheck("s",\ &s))<HardReturn>
+\ \ \ \ \ \ \ \ return\ 1;<HardReturn>
+\ \ \ \ if\ (!XML_SetBase(p,\ s))<HardReturn>
+\ \ \ \ \ \ \ \ return\ ici_xml_error(p);<HardReturn>
+\ \ \ \ return\ ici_null_ret();<HardReturn>
+}
+<HardReturn><HardReturn>
+
+<Heading2><Marker <MType 2> <MText `ici_handle_new, C API function'> >ici_handle_new
+<CodeIn1cm><bold>ici_handle_t\ *\ ici_handle_new(void\ *ptr,\ ici_str_t\ *name,\ ici_objwsup_t\ *super)
+<nobold>
+<Comment From handle.c>
+<Body>Return a handle object corresponding to the given C data <italic>ptr<noitalic>, with the
+ICI type <italic>name<noitalic> (which may be NULL), and with the given <italic>super<noitalic> (which
+may be NULL).<Body>The returned handle will have had its reference count inceremented.<Body>ICI handle objects are generic wrapper/interface objects around some C data
+structure. They act, on the ICI side, as objects with the type <italic>name<noitalic>.
+When you are passed a handle back from ICI code, you can check this name
+to prevent the ICI program from giving you some other data type's handle.
+(You can't make handles at the script level, so you are safe from all
+except other native code mimicing your type name.)<Body>Handles are intrinsicly atomic with respect to the <italic>ptr<noitalic> and <italic>name<noitalic>. So
+this function actually just finds the existing handle of the given data
+object if that handle already exists.<Body>Handle's will, of course, be garbage collected as usual.  If your C data is
+dependent on the handle, you should store a pointer to a free function
+for your data in the <italic>h_pre_free<noitalic> field of the handle.  It will be called
+just before the gardbage collector frees the memory of the handle.<Body>If, on the other hand, your C data structure is the master structure and it
+might be freed by some other aspect of your code, you must consider that
+its handle object may still be referenced from ICI code.  You don't want to
+have it passed back to you and inadvertently try to access your freed data.
+To prevent this you can set the H_CLOSED flag in the handle's object header
+when you free the C data (see <italic>ici_handle_probe()<noitalic>).  Note that in
+callbacks where you are passed the handle object directly, you are
+reponsible to checking H_CLOSED.  Also, once you use this mechanism, you
+must *clear* the H_CLOSED field after a real new handle allocation (because
+you might be reusing the old memory, and this function might be returning
+to you a zombie handle).<Body>Handles can support assignment to fields "just like a struct" by
+the automatic creation of a private struct to store such values in upon
+first assignment. This mechanism is, by default, only enabled if you
+supply a non-NULL super. But you can enable it even with a NULL super
+by setting O_SUPER in the handle's object header at any time. (Actually,
+it is an historical accident that <italic>super<noitalic> was ever an argument to this
+function.)<Body>Handles can support an interface function that allows C code to implement
+fetch and assign operations, as well as method invocation on fields of the
+handle.  See the <italic>h_member_intf<noitalic> in the <italic>ici_handle_t<noitalic> type description
+(and the <italic>Common tasks<noitalic> section of this chapter.)<Body>Handles can also be used as instances of an ICI class.  Typically the class
+will have the methods that operate on the handle.  In this case you will
+pass the class in <italic>super<noitalic>.  Instance variables will be supported by the
+automatic creation of the private struct to hold them (which allows the
+class to be extended in ICI with additional instance data that is not part
+of your C code).  However, note that these instance variables are not
+"magic".  Your C code does not notice them getting fetched or assigned to.<Heading2><Marker <MType 2> <MText `ici_handle_probe, C API function'> >ici_handle_probe
+<CodeIn1cm><bold>ici_handle_t\ *\ ici_handle_probe(void\ *ptr,\ ici_str_t\ *name)
+<nobold>
+<Comment From handle.c>
+<Body>If it exists, return a pointer to the handle corresponding to the C data
+structure <italic>ptr<noitalic> with the ICI type <italic>name<noitalic>.  If it doesn't exist, return
+NULL.  The handle (if returned) will have been increfed.<Body>This function can be used to probe to see if there is an ICI handle
+associated with your C data structure in existence, but avoids allocating
+it if does not exist already (as <italic>ici_handle_new()<noitalic> would do).  This can be
+useful if you want to free your C data structure, and need to mark any ICI
+reference to the data by setting H_CLOSED in the handle's object header.<Heading2><Marker <MType 2> <MText `ici_handle_t, C API struct'> >ici_handle_t
+<CodeIn1cm>\ <bold>struct\ ici_handle<HardReturn>
+{<HardReturn>
+\ \ \ \ ici_objwsup_t\ \ \ o_head;<HardReturn>
+\ \ \ \ void\ \ \ \ \ \ \ \ \ \ \ \ *h_ptr;<HardReturn>
+\ \ \ \ ici_str_t\ \ \ \ \ \ \ *h_name;<HardReturn>
+\ \ \ \ void\ \ \ \ \ \ \ \ \ \ \ \ (*h_pre_free)(ici_handle_t\ *h);<HardReturn>
+\ \ \ \ ici_obj_t\ \ \ \ \ \ \ *h_member_map;<HardReturn>
+\ \ \ \ int\ \ \ \ \ \ \ \ \ \ \ \ \ (*h_member_intf)(void\ *ptr,\ int\ id,\ ici_obj_t\ *setv,\ ici_obj_t\ **retv);<HardReturn>
+\ \ \ \ int\ \ \ \ \ \ \ \ \ \ \ \ \ (*h_general_intf)(ici_handle_t\ *h,\ ici_obj_t\ *k,\ ici_obj_t\ *setv,\ ici_obj_t\ **retv);<HardReturn>
+}<nobold>
+<Comment From handle.h>
+<Body>The C struct which is the ICI handle object.  A handle is a generic object
+that can be used to refer to some C data object.  Handles support an
+(optional) super pointer.  Handles are named with an ICI string to give
+type checking, reporting, and diagnostic support.  The handle object
+provides most of the generic machinery of ICI objects.  An optional
+pre-free function pointer can be supplied to handle cleanup on final
+collection of the handle.<Body>See also <italic>ici_handle_new()<noitalic>.<DefnTerm>o_head<DefnIn4cm>The object header for objects that (can) support super
+                     pointers.<DefnTerm>h_ptr<DefnIn4cm>The pointer to the primitive data object that his
+                     handle is associated with.<DefnTerm>h_name<DefnIn4cm>The type name this handle will appear to have from ICI
+                     script code, and for type checking in interfacing with
+                     C.<DefnTerm>h_pre_free<DefnIn4cm>An optional function that will be called just before
+                     this handle object is freed by the garbage collector.
+                     NULL if not needed.<DefnTerm>h_member_map<DefnIn4cm>An optional map (NULL if not needed) as made by
+                     <italic>ici_make_handle_member_map()<noitalic> and used internally
+                     when the <italic>h_member_intf<noitalic> function is used.<DefnTerm>h_member_intf<DefnIn4cm>An optional function (NULL if not needed) to implement
+                     property access and method invocation on the object.
+                     <italic>ptr<noitalic> is the <italic>h_ptr<noitalic> field of the handle.  The
+                     implementation must know which <italic>id<noitalic> values apply to
+                     methods, and which to properties.  When the <italic>id<noitalic>
+                     refers to a method, the usual environment for
+                     intrinsic function invocations can be assumed (e.g.
+                     <italic>ici_typecheck()<noitalic> is available) except the return
+                     value should be stored through <italic>*retv<noitalic> without any
+                     extra reference count.<DefnIn4cm>When the <italic>id<noitalic> refers to a property, if <italic>setv<noitalic> is
+                     non-NULL, this is an assignment of <italic>setv<noitalic> to the
+                     property.  If the assignment is possible and proceeds
+                     without error, <italic>setv<noitalic> should be assigned to <italic>*retv<noitalic>
+                     prior to return (else <italic>*retv<noitalic> should be unmodified).<DefnIn4cm>When the <italic>id<noitalic> refers to a property and <italic>setv<noitalic> is NULL,
+                     this is a fetch, and <italic>*retv<noitalic> should be set to the
+                     value, without any extra reference count.<DefnIn4cm>In all cases, 0 indicates a successful return
+                     (although if <italic>*retv<noitalic> has not been updated, it will be
+                     assumed that the <italic>id<noitalic> was not actually a member of
+                     this object and an error may be raised by the calling
+                     code).  Non-zero on error, usual conventions.<DefnTerm>h_general_intf<DefnIn4cm>An optional function (NULL if not needed) to implement
+                     general fetch and assign processing on the handle,
+                     even when the keys are not known in advance (as might
+                     happen, for example, if the object could be indexed by
+                     integers).  If <italic>h_member_intf<noitalic> is non-NULL, and
+                     satisfied a fetch or assign first, this function is
+                     not called.<DefnIn4cm>If <italic>setv<noitalic> is non-NULL, this is an assignment.  If the
+                     assignment is to a key (<italic>k<noitalic>) that is valid and the
+                     assignment is successful, <italic>*retv<noitalic> should be updated
+                     with <italic>setv<noitalic>.<DefnIn4cm>If <italic>setv<noitalic> is NULL, this is a fetch, and <italic>*retv<noitalic> should
+                     be set to the fetched value.<DefnIn4cm>In both cases, no extra reference should be given to
+                     the returned object.<DefnIn4cm>In both cases, 0 indicates a successful return
+                     (although if <italic>*retv<noitalic> has not been updated, it will be
+                     assumed that the key was not actually a member of
+                     this object and an error may be raised by the calling
+                     code).  Non-zero on error, usual conventions.<Heading2><Marker <MType 2> <MText `ici_hash_unique, C API function'> >ici_hash_unique
+<CodeIn1cm><bold>unsigned\ long\ ici_hash_unique(ici_obj_t\ *o)
+<nobold>
+<Comment From object.c>
+<Body>This is a convenience function which can be used directly as the <italic>t_hash<noitalic>
+entry in a type's <italic>ici_type_t<noitalic> struction if object of this type are
+intrinsically unique.  That is, the object is one-to-one with the memory
+allocated to hold it.  An object type would be instrinsically unique if you
+didn't want to support comparison that considered the contents, and/or
+didn't want to support copying.  If you use this function you should almost
+certainly also be using <italic>ici_cmp_unique<noitalic> and <italic>ici_copy_simple<noitalic>.<Body>It returns hash based on the address <italic>o<noitalic>.<Heading2><Marker <MType 2> <MText `ici_incref, C API macro'> >ici_incref
+<CodeIn1cm>\ <bold>#define\ ici_incref(o)<HardSpace><HardSpace>...<nobold>
+<Comment From object.h>
+<Body>Increment the object 'o's reference count.  References from ordinary
+machine data objects (ie.  variables and stuff, not other objects) are
+invisible to the garbage collector.  These refs must be accounted for if
+there is a possibility of garbage collection.  Note that most routines that
+make objects (new_*(), copy() etc...) return objects with 1 ref.  The
+caller is expected to ici_decref() it when they attach it into wherever it
+is going.<Heading2><Marker <MType 2> <MText `ici_init, C API function'> >ici_init
+<CodeIn1cm><bold>int\ ici_init(void)
+<nobold>
+<Comment From init.c>
+<Body>Perform basic interpreter setup. Return non-zero on failure, usual
+conventions.<Body>After calling this the scope stack has a struct for autos on it, and
+the super of that is for statics. That struct for statics is where
+global definitions that are likely to be visible to all code tend
+to get set. All the intrinsic functions for example. It forms the
+extern scope of any files parsed at the top level.<Body>In systems supporting threads, on exit, the global ICI mutex has been
+acquired (with ici_enter()).<Heading2><Marker <MType 2> <MText `ici_int_new, C API function'> >ici_int_new
+<CodeIn1cm><bold>ici_int_t\ *\ ici_int_new(long\ i)
+<nobold>
+<Comment From int.c>
+<Body>Return the int object with the value <italic>v<noitalic>.  The returned object has had its
+ref count incremented.  Returns NULL on error, usual convention.  Note that
+ints are intrinsically atomic, so if the given integer already exists, it
+will just incref it and return it.<Body>Note, 0 and 1 are available directly as <italic>ici_zero<noitalic> and <italic>ici_one<noitalic>.<Heading2><Marker <MType 2> <MText `ici_int_ret, C API function'> >ici_int_ret
+<CodeIn1cm><bold>int\ ici_int_ret(long\ ret)
+<nobold>
+<Comment From cfunc.c>
+<Body>Use <italic>return ici_int_ret(ret);<noitalic> to return an integer (i.e. a C long) from
+an intrinsic fuction.<Heading2><Marker <MType 2> <MText `ici_int_t, C API struct'> >ici_int_t
+<CodeIn1cm>\ <bold>struct\ ici_int<HardReturn>
+{<HardReturn>
+\ \ \ \ ici_obj_t\ \ \ o_head;<HardReturn>
+\ \ \ \ long\ \ \ \ \ \ \ \ i_value;<HardReturn>
+}<nobold>
+<Comment From int.h>
+<Body>The C struct that is the ICI int object.<Heading2><Marker <MType 2> <MText `ici_interface_check, C API function'> >ici_interface_check
+<CodeIn1cm><bold>int\ ici_interface_check(unsigned\ long\ mver,\ unsigned\ long\ bver,\ char\ const\ *name)
+<nobold>
+<Comment From init.c>
+<Body>Check that the seperately compiled module that calls this function has been
+compiled against a compatible versions of the ICI core that is now trying
+to load it. An external module should call this like:<CodeIn1cm><pts 9>\ if\ (ici_interface_check(ICI_VER,\ ICI_BACK_COMPAT_VER,\ "myname"))<HardReturn>
+\ \ \ \ return\ NULL;
+<Body>As soon as it can on load.  ICI_VER and ICI_BACK_COMPAT_VER come from ici.h
+at the time that module was compiled.  This functions compares the values
+passed from the external modules with the values the core was compiled
+with, and fails (usual conventions) if there is any incompatibility.<Heading2><Marker <MType 2> <MText `ici_leave, C API function'> >ici_leave
+<CodeIn1cm><bold>ici_exec_t\ *\ ici_leave(void)
+<nobold>
+<Comment From thread.c>
+<Body>Leave code that uses ICI data. ICI data refers to *any* ICI objects
+or static variables. You would want to call this because you are
+about to do something that uses a lot of CPU time or blocks for
+any real time. But you must not even sniff any of ICI's data until
+after you call <italic>ici_enter()<noitalic> again. <italic>ici_leave()<noitalic> releases the global
+ICI mutex that stops ICI threads from simultaneous access to common data.
+All ICI objects are "common data" because they are shared between
+threads.<Body>Returns the pointer to the ICI execution context of the current
+thread. This must be preserved (in a local variable on the stack
+or some other thread safe location) and passed back to the matching
+call to ici_enter() you will make some time in the future.<Body>If the current thread is in an ICI level critical section (e.g.
+the test or body of a watifor) this will have no effect (but should
+still be matched with a call to <italic>ici_enter()<noitalic>.<Body>This function never fails.<Body>Note that even ICI implementations without thread support provide this
+function. In these implemnetations it has no effect.<Heading2><Marker <MType 2> <MText `ici_main, C API function'> >ici_main
+<CodeIn1cm><bold>int\ ici_main(int\ argc,\ char\ *argv[])
+<nobold>
+<Comment From icimain.c>
+<Body>An optional main entry point to the ICI interpreter.  <italic>ici_main<noitalic> handles a
+complete interpreter life-cycle based on the given arguments.  A command
+line ICI interpreter is expected to simply pass its given <italic>argc<noitalic> and <italic>argv<noitalic>
+on to <italic>ici_main<noitalic> then return its return value.<Body>If ici_main2 fails (that is, returns non-zero) it will also set ici_error in
+the usual ICI manner.  However it will have already printed an error
+message on standard error, so no further action need be taken.<Body><italic>ici_main<noitalic> handles all calls to <italic>ici_init()<noitalic> and <italic>ici_uninit()<noitalic> within its
+scope.  A program calling <italic>ici_main<noitalic> should *not* call <italic>ici_init()<noitalic>.<Body><italic>argc<noitalic> and <italic>argv<noitalic> are as standard for C <italic>main<noitalic> functions.  For details on
+the interpretation of the arguments, see documentation on normal command
+line invocation of the ICI interpreter.<Heading2><Marker <MType 2> <MText `ici_make_handle_member_map, C API function'> >ici_make_handle_member_map
+<CodeIn1cm><bold>ici_obj_t\ *\ ici_make_handle_member_map(ici_name_id_t\ *ni)
+<nobold>
+<Comment From handle.c>
+<Body>Build the map that <italic>ici_handle_t<noitalic> objects use to map a member name (used in
+ICI code) to an integer ID (used in the C code). The returned map is actually
+an ICI struct. It is returned with 1 refernce count.<Body>The argument <italic>ni<noitalic> should be a pointer to the first element of an arrary
+of <italic>ici_name_id_t<noitalic> structs that contain the names of members and the integer
+IDs that your code would like to refere to them by. All members that are
+to be invoked as methods calls must include the flag H_METHOD in the ID.
+(This flag is removed from the ID when it is passed back to your code. H_METHOD
+is the most significant bit in the 32 bit ID.) The list is terminated by an
+entry with a name of NULL.<Body>For example:<CodeIn1cm><pts 9>\ enum\ {P_Property1,\ P_Property2,\ M_Method1,\ M_Method2,\ ...};
+<HardReturn><HardReturn>
+static\ ici_name_id_t\ member_name_ids[]\ =<HardReturn>
+{<HardReturn>
+\ \ \ \ {"Property1",\ \ \ \ \ \ \ \ P_Property1},<HardReturn>
+\ \ \ \ {"Property2",\ \ \ \ \ \ \ \ P_Property1},<HardReturn>
+\ \ \ \ {"Method1",\ \ \ \ \ \ \ \ \ \ M_Method1},<HardReturn>
+\ \ \ \ {"Method2",\ \ \ \ \ \ \ \ \ \ M_Method2},<HardReturn>
+\ \ \ \ {NULL},<HardReturn>
+}
+<HardReturn><HardReturn>
+ici_obj_t\ \ \ *ici_member_map;
+<HardReturn><HardReturn>
+...<HardReturn>
+\ \ \ \ ici_member_map\ =\ ici_make_handle_member_map(member_name_ids)<HardReturn>
+\ \ \ \ if\ (ici_member_map\ ==\ NULL)<HardReturn>
+\ \ \ \ \ \ \ \ ...
+<Heading2><Marker <MType 2> <MText `ici_mem_new, C API function'> >ici_mem_new
+<CodeIn1cm><bold>ici_mem_t\ *\ ici_mem_new(void\ *base,\ size_t\ length,\ int\ accessz,\ void\ (*free_func)())
+<nobold>
+<Comment From mem.c>
+<Body>Return a new ICI mem object refering to the memory at address <italic>base<noitalic>
+with length <italic>length<noitalic>, which is measured in units of <italic>accessz<noitalic> bytes.
+<italic>accessz<noitalic> must be either 1, 2 or 4. If <italic>free_func<noitalic> is provided it
+will be called when the mem object is about to be freed with <italic>base<noitalic>
+as an argument.<Body>Returns NULL on error, usual conventions.<Heading2><Marker <MType 2> <MText `ici_method, C API function'> >ici_method
+<CodeIn1cm><bold>int\ ici_method(ici_obj_t\ *inst,\ ici_str_t\ *mname,\ char\ *types,\ ...)
+<nobold>
+<Comment From call.c>
+<Body>Call the method <italic>mname<noitalic> of the object <italic>inst<noitalic> with simple argument
+marshalling.<Body>See <italic>ici_func()<noitalic> for an explanation of <italic>types<noitalic>. Apart from calling
+a method, this function behaves in the same manner as <italic>ici_func()<noitalic>.<Heading2><Marker <MType 2> <MText `ici_method_check, C API function'> >ici_method_check
+<CodeIn1cm><bold>int\ ici_method_check(ici_obj_t\ *o,\ int\ tcode)
+<nobold>
+<Comment From oofuncs.c>
+<Body>Return 0 if o (the subject object argument supplied to C implemented
+methods) is present (indicating a method call was made) and is an
+object with a super and, (if tcode != TC_NONE) has the given type
+code. Else return 1 and set error appropriately.<Heading2><Marker <MType 2> <MText `ici_method_new, C API function'> >ici_method_new
+<CodeIn1cm><bold>ici_method_t\ *\ ici_method_new(ici_obj_t\ *subject,\ ici_obj_t\ *callable)
+<nobold>
+<Comment From method.c>
+<Body>Returns a new ICI method object that combines the given <italic>subject<noitalic> object
+(typically a struct) with the given <italic>callable<noitalic> object (typically a
+function).  A method is also a callable object.<Body>Returns NULL on error, usual conventions.<Heading2><Marker <MType 2> <MText `ici_module_new, C API function'> >ici_module_new
+<CodeIn1cm><bold>ici_objwsup_t\ *\ ici_module_new(ici_cfunc_t\ *cf)
+<nobold>
+<Comment From cfunco.c>
+<Body>Create a new module struct and assign the given cfuncs into it (as in
+ici_assign_cfuncs()).  Returns NULL on error, usual conventions.  The
+returned struct has an incref the caller owns.<Heading2><Marker <MType 2> <MText `ici_nalloc, C API function'> >ici_nalloc
+<CodeIn1cm><bold>void\ *\ ici_nalloc(size_t\ z)
+<nobold>
+<Comment From alloc.c>
+<Body>Allocate an object of the given <italic>size<noitalic>.  Return NULL on failure, usual
+conventions.  The resulting object must be freed with ici_nfree() and only
+ici_nfree().  Note that ici_nfree() also requires to know the size of the
+object being freed.<Body>This function is preferable to ici_alloc(). It should be used if
+you can know the size of the allocation when the free happens so
+you can call ici_nfree(). If this isn't the case you will have to
+use ici_alloc().<Body>See also: <italic>ICIs allocation functions<noitalic>, ici_talloc(), ici_alloc(),
+ici_nfree().<Heading2><Marker <MType 2> <MText `ici_need_stdin, C API function'> >ici_need_stdin
+<CodeIn1cm><bold>ici_file_t\ *\ ici_need_stdin(void)
+<nobold>
+<Comment From cfunc.c>
+<Body>Return the ICI file object that is the current value of the <italic>stdin<noitalic>
+name in the current scope. Else NULL, usual conventions. The file
+has not increfed (it is referenced from the current scope, until
+that assumption is broken, it is known to be uncollectable).<Heading2><Marker <MType 2> <MText `ici_need_stdout, C API function'> >ici_need_stdout
+<CodeIn1cm><bold>ici_file_t\ *\ ici_need_stdout(void)
+<nobold>
+<Comment From cfunc.c>
+<Body>Return the file object that is the current value of the <italic>stdout<noitalic>
+name in the current scope. Else NULL, usual conventions.  The file
+has not increfed (it is referenced from the current scope, until
+that assumption is broken, it is known to be uncollectable).<Heading2><Marker <MType 2> <MText `ici_nfree, C API function'> >ici_nfree
+<CodeIn1cm><bold>void\ ici_nfree(void\ *p,\ size_t\ z)
+<nobold>
+<Comment From alloc.c>
+<Body>Free an object allocated with ici_nalloc(). The <italic>size<noitalic> passed here
+must be exactly the same size passed to ici_nalloc() when the
+allocation was made. If you don't know the size, you should have
+called ici_alloc() in the first place.<Body>See also: <italic>ICIs allocation functions<noitalic>, ici_nalloc().<Heading2><Marker <MType 2> <MText `ici_null, C API macro'> >ici_null
+<CodeIn1cm>\ <bold>#define\ ici_null<HardSpace><HardSpace>...<nobold>
+<Comment From fwd.h>
+<Body>This ICI NULL object. It is of type <italic>(ici_obj_t *)<noitalic>.<Heading2><Marker <MType 2> <MText `ici_null_ret, C API macro'> >ici_null_ret
+<CodeIn1cm>\ <bold>#define\ ici_null_ret()<HardSpace><HardSpace>...<nobold>
+<Comment From fwd.h>
+<Body>Use <italic>return ici_null_ret();<noitalic> to return a ICI NULL from an intrinsic
+fuction.<Heading2><Marker <MType 2> <MText `ici_obj_t, C API struct'> >ici_obj_t
+<CodeIn1cm>\ <bold>struct\ ici_obj<HardReturn>
+{<HardReturn>
+\ \ \ \ char\ \ \ \ \ \ \ \ o_tcode;<HardReturn>
+\ \ \ \ char\ \ \ \ \ \ \ \ o_flags;<HardReturn>
+\ \ \ \ char\ \ \ \ \ \ \ \ o_nrefs;<HardReturn>
+\ \ \ \ char\ \ \ \ \ \ \ \ o_leafz;<HardReturn>
+}<nobold>
+<Comment From object.h>
+<Body>This is the universal header of all objects.  Each object includes this as
+its first element.  In the real structures associated with each object type the type
+specific stuff follows<Comment From object.h>
+<DefnTerm>o_tcode<DefnIn4cm>The small integer type code that characterises
+                     this object. Standard core types have well known
+                     codes identified by the TC_* defines. Other
+                     types are registered at run-time and are given
+                     the next available code.<DefnIn4cm>This code can be used to index ici_types[] to discover
+                     a pointer to the type structure.<DefnTerm>o_flags<DefnIn4cm>Some boolean flags. Well known flags that apply to
+                     all objects occupy the lower 4 bits of this byte.
+                     The upper four bits are available for object specific
+                     use. See O_* below.<DefnTerm>o_nrefs<DefnIn4cm>A small integer count of the number of references
+                     to this object that are *not* otherwise visible
+                     to the garbage collector.<DefnTerm>o_leafz<DefnIn4cm>If (and only if) this object does not reference any
+                     other objects (i.e. its t_mark() function just sets
+                     the O_MARK flag), and its memory cost fits in this
+                     signed byte (\< 127), then its size can be set here
+                     to accelerate the marking phase of the garbage
+                     collector. Else it must be zero.<Comment From object.h>
+<Body>The generic flags that may appear in the lower 4 bits of o_flags are:<DefnTerm>O_MARK<DefnIn4cm>The garbage collection mark flag.<DefnTerm>O_ATOM<DefnIn4cm>Indicates that this object is the read-only
+                     atomic form of all objects of the same type with
+                     the same value. Any attempt to change an object
+                     in a way that would change its value with respect
+                     to the <italic>t_cmp()<noitalic> function (see <italic>ici_type_t<noitalic>) must
+                     check for this flag and fail the attempt if it is
+                     set.<DefnTerm>O_SUPER<DefnIn4cm>This object can support a super.<Heading2><Marker <MType 2> <MText `ici_objname, C API function'> >ici_objname
+<CodeIn1cm><bold>char\ *\ ici_objname(char\ p[ICI_OBJNAMEZ],\ ici_obj_t\ *o)
+<nobold>
+<Comment From object.c>
+<Body>Format a human readable version of the object <italic>o<noitalic> into the buffer
+<italic>p<noitalic> in less than 30 chars. Returns <italic>p<noitalic>. See <italic>The error return
+convention<noitalic> for some examples.<Heading2><Marker <MType 2> <MText `ici_objwsup_t, C API struct'> >ici_objwsup_t
+<CodeIn1cm>\ <bold>struct\ ici_objwsup<HardReturn>
+{<HardReturn>
+\ \ \ \ ici_obj_t\ \ \ \ \ \ \ o_head;<HardReturn>
+\ \ \ \ ici_objwsup_t\ \ \ *o_super;<HardReturn>
+}<nobold>
+<Comment From object.h>
+<Body>"Object with super." This is a specialised header for all objects that
+support a super pointer.  All such objects must have the O_SUPER flag set
+in o_flags and provide the <italic>t_fetch_super()<noitalic> and <italic>t_assign_super()<noitalic>
+functions in their type structure.  The actual <italic>o_super<noitalic> pointer will be
+NULL if there is no actual super, which is different from O_SUPER being
+clear (which would mean there could not be a super, ever).<Heading2><Marker <MType 2> <MText `ici_parse, C API function'> >ici_parse
+<CodeIn1cm><bold>int\ ici_parse(ici_file_t\ *f,\ ici_objwsup_t\ *s)
+<nobold>
+<Comment From parse.c>
+<Body>Parse the given file <italic>f<noitalic> in the given scope <italic>s<noitalic>. It is common to call
+this function with <italic>s<noitalic> being <italic>ici_vs.a_top[-1]<noitalic>, that is, the current
+scope.<Body>Returns non-zero on error, usual conventions.<Heading2><Marker <MType 2> <MText `ici_parse_file, C API function'> >ici_parse_file
+<CodeIn1cm><bold>int\ ici_parse_file(char\ *mname,\ char\ *file,\ ici_ftype_t\ *ftype)
+<nobold>
+<Comment From parse.c>
+<Body>Parse a file as a new top-level module.  This function create new auto and
+static scopes, and makes the current static scope the exern scope of the
+new module.  This function takes a generic file-like stream.  The specific
+stream is identified by <italic>file<noitalic> and the stdio-like access functions required
+to read it are contained in the structure pointed to by <italic>ftype<noitalic>.  A name
+for the module, for use in error messages, is supplied in <italic>mname<noitalic>
+(typically the name of the file).<Body>This function can be used when the source of data to be parsed is not a
+real file, but some other source like a resource.<Body>The file is closed prior to a successful return, but not a failure.<Body>Return 0 if ok, else -1, usual conventions.<Heading2><Marker <MType 2> <MText `ici_parse_fname, C API function'> >ici_parse_fname
+<CodeIn1cm><bold>int\ ici_parse_fname(char\ *fname)
+<nobold>
+<Comment From parse.c>
+<Body>Parse a file as a new top-level module.  This function create new auto and
+static scopes, and makes the current static scope the exern scope of the
+new module.  This function takes a file name which it opens with fopen (as
+opposed to <italic>ici_parse_file<noitalic> which can be used to parse more generic data
+sources).<Body>Return 0 if ok, else -1, usual conventions.<Heading2><Marker <MType 2> <MText `ici_ptr_new, C API function'> >ici_ptr_new
+<CodeIn1cm><bold>ici_ptr_t\ *\ ici_ptr_new(ici_obj_t\ *a,\ ici_obj_t\ *k)
+<nobold>
+<Comment From ptr.c>
+<Body>Return a new ICI pointer object. The pointer will point to the element
+keyed by <italic>k<noitalic> in the object <italic>a<noitalic>.<Body>The returned object has had it' reference count incremented.<Body>Returns NULL on error, usual conventions.<Heading2><Marker <MType 2> <MText `ici_register_type, C API function'> >ici_register_type
+<CodeIn1cm><bold>int\ ici_register_type(ici_type_t\ *t)
+<nobold>
+<Comment From object.c>
+<Body>Register a new <italic>ici_type_t<noitalic> structure and return a new small int type code
+to use in the header of objects of that type. The pointer <italic>t<noitalic> passed to
+this function is retained and assumed to remain valid indefinetly
+(it is normally a statically initialised structure).<Body>Returns the new type code, or zero on error in which case ici_error
+has been set.<Heading2><Marker <MType 2> <MText `ici_rego, C API macro'> >ici_rego
+<CodeIn1cm>\ <bold>#define\ ici_rego(o)<HardSpace><HardSpace>...<nobold>
+<Comment From object.h>
+<Body>Register the object <italic>o<noitalic> with the garbage collector.  Object that are
+registered with the garbage collector can get collected.  This is typically
+done after allocaton and initialisation of basic fields when making a new
+object.  Once an object has been registered with the garbage collector, it
+can *only* be freed by the garbage collector.<Body>(Not all objects are registered with the garabage collector. The main
+exception is staticly defined objects. For example, the <italic>ici_cfunt_t<noitalic>
+objects that are the ICI objects representing functions coded in C
+are typically staticly defined and never registered. However there
+are problems with unregistered objects that reference other objects,
+so this should be used with caution.)<Heading2><Marker <MType 2> <MText `ici_ret_no_decref, C API function'> >ici_ret_no_decref
+<CodeIn1cm><bold>int\ ici_ret_no_decref(ici_obj_t\ *o)
+<nobold>
+<Comment From cfunc.c>
+<Body>General way out of an intrinsic function returning the object o where
+the given object has no extra refernce count. Returns 0 indicating no
+error.<Body>This is suitable for using as a return from an intrinsic function
+as say:<CodeIn1cm><pts 9>\ return\ ici_ret_no_decref(o);
+<Body>If the object you are returning has an extra reference which must be
+decremented as part of the return, use ici_ret_with_decref() (above).<Heading2><Marker <MType 2> <MText `ici_ret_with_decref, C API function'> >ici_ret_with_decref
+<CodeIn1cm><bold>int\ ici_ret_with_decref(ici_obj_t\ *o)
+<nobold>
+<Comment From cfunc.c>
+<Body>General way out of an intrinsic function returning the object <italic>o<noitalic>, but
+the given object has a reference count which must be decref'ed on the
+way out. Return 0 unless the given <italic>o<noitalic> is NULL, in which case it returns
+1 with no other action.<Body>This is suitable for using as a return from an intrinsic function
+as say:<CodeIn1cm><pts 9>\ return\ ici_ret_with_decref(objof(ici_int_new(2)));
+<Body>(Although see ici_int_ret().) If the object you wish to return does
+not have an extra reference, use ici_ret_no_decref().<Heading2><Marker <MType 2> <MText `ici_set_new, C API function'> >ici_set_new
+<CodeIn1cm><bold>ici_set_t\ *\ ici_set_new()
+<nobold>
+<Comment From set.c>
+<Body>Return a new ICI set object. The returned set has been increfed.
+Returns NULL on error, usual conventions.<Heading2><Marker <MType 2> <MText `ici_sopen, C API function'> >ici_sopen
+<CodeIn1cm><bold>ici_file_t\ *\ ici_sopen(char\ *data,\ int\ size,\ ici_obj_t\ *ref)
+<nobold>
+<Comment From sfile.c>
+<Body>Create an ICI file object that treats the given <italic>data<noitalic> (of length <italic>size<noitalic>)
+as a read-only file.  If <italic>ref<noitalic> is non-NULL it is assumed to be an object
+that must hang around for this data to stay valid, and the data is used
+in-place (this is used when reading an ICI string as a file).  But if <italic>ref<noitalic>
+is NULL, it is assumed that the data must be copied into a private
+allocation first.
+The private allocation will be freed when the file is closed.<Body>Returns NULL on error, usual conventions.<Heading2><Marker <MType 2> <MText `ici_src_t, C API struct'> >ici_src_t
+<CodeIn1cm>\ <bold>struct\ ici_src<HardReturn>
+{<HardReturn>
+\ \ \ \ ici_obj_t\ \ \ s_head;<HardReturn>
+\ \ \ \ int\ \ \ \ \ \ \ \ \ s_lineno;<HardReturn>
+\ \ \ \ ici_str_t\ \ \ *s_filename;<HardReturn>
+}<nobold>
+<Comment From src.h>
+<Body>The C struct which is the ICI src object. These are never seen by
+ICI script code. They are source line markers that are passed to
+debugger functions to indicate source location.<Comment From src.h>
+<DefnTerm>s_filename<DefnIn4cm>The name of the source file this source
+                     marker is associated with.<DefnTerm>s_lineno<DefnIn4cm>The linenumber.<Heading2><Marker <MType 2> <MText `ici_str_alloc, C API function'> >ici_str_alloc
+<CodeIn1cm><bold>ici_str_t\ *\ ici_str_alloc(int\ nchars)
+<nobold>
+<Comment From string.c>
+<Body>Allocate a new string object (single allocation) large enough to hold
+nchars characters, and register it with the garbage collector.  Note: This
+string is not yet an atom, but must become so as it is *not* mutable.<Body>WARINING: This is *not* the normal way to make a string object. See
+ici_str_new().<Heading2><Marker <MType 2> <MText `ici_str_buf_new, C API function'> >ici_str_buf_new
+<CodeIn1cm><bold>ici_str_t\ *\ ici_str_buf_new(int\ n)
+<nobold>
+<Comment From string.c>
+<Body>Return a new mutable string (i.e. one with a seperate growable allocation).
+The initially allocated space is n, but the length is 0 until it has been
+set by the caller.<Body>The returned string has a reference count of 1 (which is caller is
+expected to decrement, eventually).<Body>Returns NULL on error, usual conventions.<Heading2><Marker <MType 2> <MText `ici_str_get_nul_term, C API function'> >ici_str_get_nul_term
+<CodeIn1cm><bold>ici_str_t\ *\ ici_str_get_nul_term(char\ *p)
+<nobold>
+<Comment From string.c>
+<Body>Make a new atomic immutable string from the given nul terminated
+string of characters.<Body>The returned string has a reference count of 0, unlike
+ici_str_new_nul_term() which is exactly the same in other respects.<Body>Returns NULL on error, usual conventions.<Heading2><Marker <MType 2> <MText `ici_str_need_size, C API function'> >ici_str_need_size
+<CodeIn1cm><bold>int\ ici_str_need_size(ici_str_t\ *s,\ int\ n)
+<nobold>
+<Comment From string.c>
+<Body>Ensure that the given string has enough allocated memory to hold a string
+of n characters (and a guard <italic>\0<noitalic> which this routine stores).  Grows ths
+string as necessary.  Returns 0 on success, 1 on error, usual conventions.
+Checks that the string is mutable and not atomic.<Heading2><Marker <MType 2> <MText `ici_str_new, C API function'> >ici_str_new
+<CodeIn1cm><bold>ici_str_t\ *\ ici_str_new(char\ *p,\ int\ nchars)
+<nobold>
+<Comment From string.c>
+<Body>Make a new atomic immutable string from the given characters.<Body>Note that the memory allocated to a string is always at least one byte
+larger than the listed size and the extra byte contains a <italic>\0<noitalic>.  For
+when a C string is needed.<Body>The returned string has a reference count of 1 (which is caller is
+expected to decrement, eventually).<Body>See also: <italic>ici_str_new_nul_term()<noitalic> and <italic>ici_str_get_nul_term()<noitalic>.<Body>Returns NULL on error, usual conventions.<Heading2><Marker <MType 2> <MText `ici_str_new_nul_term, C API function'> >ici_str_new_nul_term
+<CodeIn1cm><bold>ici_str_t\ *\ ici_str_new_nul_term(char\ *p)
+<nobold>
+<Comment From string.c>
+<Body>Make a new atomic immutable string from the given nul terminated
+string of characters.<Body>The returned string has a reference count of 1 (which is caller is
+expected to decrement, eventually).<Body>Returns NULL on error, usual conventions.<Heading2><Marker <MType 2> <MText `ici_str_ret, C API function'> >ici_str_ret
+<CodeIn1cm><bold>int\ ici_str_ret(char\ *str)
+<nobold>
+<Comment From cfunc.c>
+<Body>Use <italic>return ici_str_ret(str);<noitalic> to return a nul terminated string from
+an intrinsic fuction. The string will be converted into an ICI string.<Heading2><Marker <MType 2> <MText `ici_struct_new, C API function'> >ici_struct_new
+<CodeIn1cm><bold>ici_struct_t\ *\ ici_struct_new(void)
+<nobold>
+<Comment From struct.c>
+<Body>Return a new ICI struct object. The returned struct has been increfed.
+Returns NULL on error, usual conventions.<Heading2><Marker <MType 2> <MText `ici_struct_unassign, C API function'> >ici_struct_unassign
+<CodeIn1cm><bold>void\ ici_struct_unassign(ici_struct_t\ *s,\ ici_obj_t\ *k)
+<nobold>
+<Comment From struct.c>
+<Body>Remove the key <italic>k<noitalic> from the ICI struct object <italic>s<noitalic>, ignoring super-structs.<Heading2><Marker <MType 2> <MText `ici_talloc, C API macro'> >ici_talloc
+<CodeIn1cm>\ <bold>#define\ ici_talloc(t)<HardSpace><HardSpace>...<nobold>
+<Comment From alloc.h>
+<Body>Allocate an object of the given type <italic>t<noitalic>. Return NULL on failure, usual
+conventions. The resulting object *must* be freed with <italic>ici_tfree()<noitalic>.
+Note that <italic>ici_tfree()<noitalic> also requires to know the type of the object
+being freed.<Heading2><Marker <MType 2> <MText `ici_tfree, C API macro'> >ici_tfree
+<CodeIn1cm>\ <bold>#define\ ici_tfree(p,\ t)<HardSpace><HardSpace>...<nobold>
+<Comment From alloc.h>
+<Body>Free the object <italic>o<noitalic> which was allocated by a call to <italic>ici_talloc()<noitalic> with
+the type <italic>t<noitalic>.  The object *must* have been allocated with <italic>ici_talloc()<noitalic>.<Heading2><Marker <MType 2> <MText `ici_type_t, C API struct'> >ici_type_t
+<CodeIn1cm>\ <bold>struct\ ici_type<HardReturn>
+{<HardReturn>
+\ \ \ \ unsigned\ long\ (*t_mark)(ici_obj_t\ *);<HardReturn>
+\ \ \ \ void\ \ \ \ \ \ \ \ (*t_free)(ici_obj_t\ *);<HardReturn>
+\ \ \ \ unsigned\ long\ (*t_hash)(ici_obj_t\ *);<HardReturn>
+\ \ \ \ int\ \ \ \ \ \ \ \ \ (*t_cmp)(ici_obj_t\ *,\ ici_obj_t\ *);<HardReturn>
+\ \ \ \ ici_obj_t\ \ \ *(*t_copy)(ici_obj_t\ *);<HardReturn>
+\ \ \ \ int\ \ \ \ \ \ \ \ \ (*t_assign)(ici_obj_t\ *,\ ici_obj_t\ *,\ ici_obj_t\ *);<HardReturn>
+\ \ \ \ ici_obj_t\ \ \ *(*t_fetch)(ici_obj_t\ *,\ ici_obj_t\ *);<HardReturn>
+\ \ \ \ char\ \ \ \ \ \ \ \ *t_name;<HardReturn>
+\ \ \ \ void\ \ \ \ \ \ \ \ (*t_objname)(ici_obj_t\ *,\ char\ [ICI_OBJNAMEZ]);<HardReturn>
+\ \ \ \ int\ \ \ \ \ \ \ \ \ (*t_call)(ici_obj_t\ *,\ ici_obj_t\ *);<HardReturn>
+\ \ \ \ ici_str_t\ \ \ *t_ici_name;<HardReturn>
+\ \ \ \ int\ \ \ \ \ \ \ \ \ (*t_assign_super)(ici_obj_t\ *,\ ici_obj_t\ *,\ ici_obj_t\ *,\ ici_struct_t\ *);<HardReturn>
+\ \ \ \ int\ \ \ \ \ \ \ \ \ (*t_fetch_super)(ici_obj_t\ *,\ ici_obj_t\ *,\ ici_obj_t\ **,\ ici_struct_t\ *);<HardReturn>
+\ \ \ \ int\ \ \ \ \ \ \ \ \ (*t_assign_base)(ici_obj_t\ *,\ ici_obj_t\ *,\ ici_obj_t\ *);<HardReturn>
+\ \ \ \ ici_obj_t\ \ \ *(*t_fetch_base)(ici_obj_t\ *,\ ici_obj_t\ *);<HardReturn>
+\ \ \ \ ici_obj_t\ \ \ *(*t_fetch_method)(ici_obj_t\ *,\ ici_obj_t\ *);<HardReturn>
+\ \ \ \ void\ \ \ \ \ \ \ \ *t_reserved2;\ \ \ /*\ Must\ be\ zero.\ */<HardReturn>
+\ \ \ \ void\ \ \ \ \ \ \ \ *t_reserved3;\ \ \ /*\ Must\ be\ zero.\ */<HardReturn>
+\ \ \ \ void\ \ \ \ \ \ \ \ *t_reserved4;\ \ \ /*\ Must\ be\ zero.\ */<HardReturn>
+}<nobold>
+<Comment From object.h>
+<Body>Every object has a header. In the header the o_tcode (type code) field
+can be used to index the ici_types[] array to discover the obejct's
+type structure. This is the type structure.<Body>Implemantations of new types typically declare one of these strutures
+statically and initialise its members with the functions that determine the
+nature of the new type.  (Actually, most of the time it is only initialised
+as far as the <italic>t_name<noitalic> field.  The remainder is mostly for intenal ICI use
+and should be left zero.)<Comment From object.h>
+<DefnTerm>t_mark(o)<DefnIn4cm>Must sets the O_MARK flag in o-\>o_flags of this object
+                     and all objects referenced by this one which don't
+                     already have O_MARK set.  Returns the approximate
+                     memory cost of this and all other objects it sets the
+                     O_MARK of.  Typically recurses on all referenced
+                     objects which don't already have O_MARK set (this
+                     recursion is a potential problem due to the
+                     uncontrolled stack depth it can create).  This is only
+                     used in the marking phase of garbage collection.<DefnIn4cm>The macro ici_mark() calls the t_mark function of the
+                     object (based on object type) if the O_MARK flag of
+                     the object is clear, else it returns 0.  This is the
+                     usual interface to an object's mark function.<DefnIn4cm>The mark function implemantation of objects can assume
+                     the O_MARK flag of the object they are being invoked
+                     on is clear.<DefnTerm>t_free(o)<DefnIn4cm>Must free the object o and all associated data, but not
+                     other objects which are referenced from it.  This is
+                     only called from garbage collection.  Care should be
+                     taken to remember that errors can occur during object
+                     creation and that the free function might be asked to
+                     free a partially allocated object.<DefnTerm>t_cmp(o1, o2)<DefnIn4cm>Must compare o1 and o2 and return 0 if they are the
+                     same, else non zero.  This similarity is the basis for
+                     merging objects into single atomic objects and the
+                     implementation of the == operator.<DefnIn4cm>Currently only zero versus non-zero results are
+                     significant.  However in future versions the t_cmp()
+                     function may be generalised to return less than, equal
+                     to, or greater than zero depending if <italic>o1<noitalic> is less
+                     than, equal to, or greater than <italic>o2<noitalic>.  New
+                     implementations would be wise to adopt this usage now.<DefnIn4cm>Some objects are by nature both unique and
+                     intrinsically atomic (for example, objects which are
+                     one-to-one with some other allocated data which they
+                     alloc when the are created and free when they die).
+                     For these objects the existing function
+                     ici_cmp_unique() can be used as their implementation
+                     of this function.<DefnIn4cm>It is very important in implementing this function not
+                     to miss any fields which may otherwise distinguish two
+                     obejcts.  The cmp, hash and copy operations of an
+                     object are all related.  It is useful to check that
+                     they all regard the same data fields as significant in
+                     performing their operation.<DefnTerm>t_copy(o)<DefnIn4cm>Must returns a copy of the given object.  This is the
+                     basis for the implementation of the copy() function.
+                     On failure, NULL is returned and error is set.  The
+                     returned object has been ici_incref'ed.  The returned
+                     object should cmp() as being equal, but be a distinct
+                     object for objects that are not intrinsically atomic.<DefnIn4cm>Intrinsically atomic objects may use the existing
+                     function ici_copy_simple() as their implemenation of
+                     this function.<DefnIn4cm>Return NULL on failure, usual conventions.<DefnTerm>t_hash(o)<DefnIn4cm>Must return an unsigned long hash which is sensitive
+                     to the value of the object.  Two objects which cmp()
+                     equal should return the same hash.<DefnIn4cm>The returned hash is used in a hash table shared by
+                     objects of all types.  So, somewhat problematically,
+                     it is desireable to generate hashes which have good
+                     spread and seperation across all objects.<DefnIn4cm>Some objects are by nature both unique and
+                     intrinsically atomic (for example, objects which are
+                     one-to-one with some other allocated data which they
+                     alloc when the are created and free when they die).
+                     For these objects the existing function
+                     <italic>ici_hash_unique()<noitalic> can be used as their
+                     implementation of this function.<DefnTerm>t_assign(o, k, v)<DefnIn4cm>Must assign to key <italic>k<noitalic> of the object <italic>o<noitalic> the value
+                     <italic>v<noitalic>.  Return 1 on error, else 0.<DefnIn4cm>The existing function <italic>ici_assign_fail()<noitalic> may be used
+                     both as the implementation of this function for object
+                     types which do not support any assignment, and as a
+                     simple method of generating an error for particular
+                     assignments which break some rule of the object.<DefnIn4cm>Not that it is not necessarilly wrong for an
+                     intrinsically atomic object to support some form of
+                     assignment.  Only for the modified field to be
+                     significant in a <italic>t_cmp()<noitalic> operation.  Objects which
+                     are intrinsically unique and atomic often support
+                     assignments.<DefnIn4cm>Return non-zero on failure, usual conventions.<DefnTerm>t_fetch(o, k)<DefnIn4cm>Fetch the value of key <italic>k<noitalic> of the object <italic>o<noitalic>.  Return
+                     NULL on error.<DefnIn4cm>Note that the returned object does not have any extra
+                     reference count; however, in some circumstances it may
+                     not have any garbage collector visible references to
+                     it.  That is, it may be vunerable to a garbage
+                     collection if it is not either incref()ed or hooked
+                     into a referenced object immediately.  Callers are
+                     responsible for taking care.<DefnIn4cm>The existing function <italic>ici_fetch_fail()<noitalic> may be used
+                     both as the implementation of this function for object
+                     types which do not support any assignment, and as a
+                     simple method of generating an error for particular
+                     fetches which break some rule of the object.<DefnIn4cm>Return NULL on failure, usual conventions.<DefnTerm>t_name<DefnIn4cm>The name of this type. Use for the implementation of
+                     <italic>typeof()<noitalic> and in error messages.  But apart from that,
+                     type names have no fundamental importance in the
+                     langauge and need not even be unique.<DefnTerm>t_objname(o, p)<DefnIn4cm>Must place a short (less than 30 chars) human readable
+                     representation of the object in the given buffer.
+                     This is not intended as a basis for re-parsing or
+                     serialisation.  It is just for diagnostics and debug.
+                     An implementation of <italic>t_objname()<noitalic> must not allocate
+                     memory or otherwise allow the garbage collector to
+                     run.  It is often used to generate formatted failure
+                     messages after an error has occured, but before
+                     cleanup has completed.<DefnTerm>t_call(o, s)<DefnIn4cm>Must call the object <italic>o<noitalic>.  If the object does not
+                     support being called, this should be NULL.  If <italic>s<noitalic> is
+                     non-NULL this is a method call and s is the subject
+                     object of the call.  Return 1 on error, else 0.
+                     The environment upon calling this function is
+                     the same as that for intrinsic functions. Functions
+                     and techniques that can be used in intrinsic function
+                     implementations can be used in the implementation of
+                     this function. The object being called can be assumed
+                     to be on top of the operand stack
+                     (i.e. ici_os.a_top[-1])<DefnTerm>t_ici_name<DefnIn4cm>A <italic>ici_str_t<noitalic> copy of <italic>t_name<noitalic>. This is just a cached
+                     version so that typeof() doesn't keep re-computing the
+                     string.<DefnTerm>t_fetch_method<DefnIn4cm>An optional alternative to the basic <italic>t_fetch()<noitalic> that
+                     will be called (if supplied) when doing a fetch for
+                     the purpose of forming a method.  This is really only
+                     a hack to support COM under Windows.  COM allows
+                     remote objects to have properties, like
+                     object.property, and methods, like object:method().
+                     But without this special hack, we can't tell if a
+                     fetch operation is supposed to perform the COM get/set
+                     property operation, or return a callable object for a
+                     future method call.  Most objects will leave this
+                     NULL.<DefnIn4cm>Return NULL on failure, usual conventions.<Heading2><Marker <MType 2> <MText `ici_typecheck, C API function'> >ici_typecheck
+<CodeIn1cm><bold>int\ ici_typecheck(char\ *types,\ ...)
+<nobold>
+<Comment From cfunc.c>
+<Body>Marshall function arguments in a call from ICI to C.  This function may
+only be called from the implementation of an intrinsic function.<Body><italic>types<noitalic> is a character string.  Each character corresponds to an actual
+argument in the ICI side of the call.  Each is checked according to the
+particular letter, and possibly converted and/or assigned through a
+corresponing pointer to a C-side data item provided in the vargars argument
+list to this function.<Body>Any detected type mismatches result in a non-zero return.  If all types
+match, all assignments will be made and zero will be returned.<Body>The key letters that may be used in <italic>types<noitalic>, and their meaning, are:<DefnTerm>o<DefnIn2cm>Any ICI object is required in the ICI actuals, the corresponding
+         vararg must be a pointer to an <italic>(ici_obj_t *)<noitalic>; which will be set
+         to the actual argument.<DefnTerm>h<DefnIn2cm>An ICI handle object.  The next available vararg must be an ICI
+         string object.  The corresponding ICI argument must be a handle
+         with that name.  The next (again) available vararg after that is a
+         pointer to store the <italic>(ici_handle_t *)<noitalic> through.<DefnTerm>p<DefnIn2cm>An ICI ptr object is required in the actuals, then as for <italic>o<noitalic>.<DefnTerm>d<DefnIn2cm>An ICI struct object is required in the actuals, then as for <italic>o<noitalic>.<DefnTerm>a<DefnIn2cm>An ICI array object is required in the actuals, then as for <italic>o<noitalic>.<DefnTerm>u<DefnIn2cm>An ICI file object is required in the actuals, then as for <italic>o<noitalic>.<DefnTerm>r<DefnIn2cm>An ICI regexp object is required in the actuals, then as for <italic>o<noitalic>.<DefnTerm>m<DefnIn2cm>An ICI mem object is required in the actuals, then as for <italic>o<noitalic>.<DefnTerm>i<DefnIn2cm>An ICI int object is required in the actuals, the value of this
+         int will be stored through the corresponding pointer which must be
+         a <italic>(long *)<noitalic>.<DefnTerm>f<DefnIn2cm>An ICI float object is required in the actuals, the value of this
+         float will be stored through the corresponding pointer which must
+         be a <italic>(double *)<noitalic>.<DefnTerm>n<DefnIn2cm>An ICI float or int object is required in the actuals, the value
+         of this float or int will be stored through the corresponding
+         pointer which must be a <italic>(double *)<noitalic>.<DefnTerm>s<DefnIn2cm>An ICI string object is required in the actuals, the corresponding
+         pointer must be a (char **).  A pointer to the raw characters of
+         the string will be stored through this (this will be <italic>\0<noitalic>
+         terminated by virtue of all ICI strings having a gratuitous <italic>\0<noitalic>
+         just past their real end).  These characters can be assumed to
+         remain available until control is returned back to ICI because the
+         string is still on the ICI operand stack and can't be collected.
+         Once control has reurned to ICI, they could be collected at any
+         time.<DefnTerm>-<DefnIn2cm>The acutal parameter at this position is skipped, but it must be
+         present.<DefnTerm>*<DefnIn2cm>All remaining actual parametes are ignored (even if there aren't
+         any).<Body>The capitalisation of any of the alphabetic key letters above changes
+their meaning.  The acutal must be an ICI ptr type.  The value this
+pointer points to is taken to be the value which the above descriptions
+concern themselves with (i.e. in place of the raw actual parameter).<Body>There must be exactly as many actual arguments as key letters unless
+the last key letter is a *.<Body>Error returns have the usual ICI error conventions.<Heading2><Marker <MType 2> <MText `ici_typeof, C API macro'> >ici_typeof
+<CodeIn1cm>\ <bold>#define\ ici_typeof(o)<HardSpace><HardSpace>...<nobold>
+<Comment From object.h>
+<Body>Return a pointer to the <italic>ici_type_t<noitalic> struct of the given object.<Heading2><Marker <MType 2> <MText `ici_uninit, C API function'> >ici_uninit
+<CodeIn1cm><bold>void\ ici_uninit(void)
+<nobold>
+<Comment From uninit.c>
+<Body>Shut down the interpreter and clean up any allocations.  This function is
+the reverse of <italic>ici_init()<noitalic>.  It's first action is to call any wrap-up
+functions registered through <italic>ici_atexit()<noitalic><Body>Calling <italic>ici_init()<noitalic> again after calling this hasn't been adequately
+tested.<Body>This routine currently does not handle shutdown of other threads,
+either gracefully or ungracefully. They are all left blocked on the
+global ICI mutex without any help of recovery.<Heading2><Marker <MType 2> <MText `ici_waitfor, C API function'> >ici_waitfor
+<CodeIn1cm><bold>int\ ici_waitfor(ici_obj_t\ *o)
+<nobold>
+<Comment From thread.c>
+<Body>Wait for the given object to be signaled. This is the core primitive of
+the waitfor ICI language construct. However this function only does the
+actual waiting part. When called, it will release the ICI mutex, and
+wait for the object <italic>o<noitalic> to be signaled by an <italic>ici_wakeup<noitalic> call. It will
+the re-aquire the mutex and return. It should always be assumed that
+any particular object could be "woken up" for reasons that are not
+aparent to the waiter. In other words, always check that the condition
+that necessitates you waiting has really finished.<Body>The caller of this function would use a loop such as:<CodeIn1cm><pts 9>\ while\ (condition-not-met)<HardReturn>
+\ \ \ \ waitfor(object);
+<Body>Returns non-zero on error. Usual conventions. Note that this function
+will always fail in implementations without thread support.<Heading2><Marker <MType 2> <MText `ici_wakeup, C API function'> >ici_wakeup
+<CodeIn1cm><bold>int\ ici_wakeup(ici_obj_t\ *o)
+<nobold>
+<Comment From thread.c>
+<Body>Wake up all ICI threads that are waiting for the given object (and
+thus allow them re-evaluate their wait expression).<Heading2><Marker <MType 2> <MText `ici_yield, C API function'> >ici_yield
+<CodeIn1cm><bold>void\ ici_yield(void)
+<nobold>
+<Comment From thread.c>
+<Body>Allow a switch away from, and back to, this ICI thread, otherwise
+no effect. This allows other ICI threads to run, but by the time
+this function returns, the ICI mutex has be re-acquired for the
+current thread. This is the same as as <italic>ici_enter(ici_leave())<noitalic>,
+except it is more efficient when no actual switching was required.<Body>Note that even ICI implementations without thread support provide this
+function. In these implemnetations it has no effect.

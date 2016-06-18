@@ -1,0 +1,17 @@
+#!/usr/local/bin/path
+rpush(path, ".");
+
+sys.access(tstdb.NAME);
+db = sqlite.db:new(tstdb.NAME);
+
+for (i = 0; i < tstdb.V1; ++i)
+{
+    for (j = 0; j < tstdb.V2; ++j)
+    {
+	for (k = 0; k < tstdb.V3; ++k)
+	{
+	    id := tstdb.id(i, j, k);
+	    r := sqlite.exec(db, sprintf("select * from %s where id = %d", tstdb.TABLE, id));
+	}
+    }
+}

@@ -1,0 +1,117 @@
+/*
+ * Util.ici - various utility functions
+ */
+
+/*
+ * Output a debug message for debugging the IDE itself.
+ */
+extern
+db()
+{
+    auto vargs = [array];
+    printf(stderr, "ide: ");
+    call(printf, array(stderr) + vargs);
+    printf(stderr, "\n");
+}
+
+/*
+ * Set of things currently being debugged. Things get added to this set
+ * via '-debug' command line arguments.
+ */
+static	dbing = [set];
+
+/*
+ * Output debug message if system is being debugged.
+ */
+extern
+debugging(what)
+{
+    auto	vargs = NULL;
+
+    if (vargs)
+    {
+	if (dbing[what])
+	    call(db, vargs);
+    }
+    return dbing[what];
+}
+
+/*
+ * Process any debug options in the command line arguments. Add
+ * the debug "system" to the set of things being debugged and remove
+ * the argument from argv/argc.
+ */
+auto	a, i;
+for (a = array(argv[0]), i = 1; i < argc; ++i)
+{
+    if (argv[i] != "-debug")
+	push(a, argv[i]);
+    else if (++i == argc)
+	exit("bad -debug option, no argument");
+    else
+	assign(dbing, argv[i]);
+}
+argv = a;
+argc = nels(a);
+
+/*
+ * Generate a temporary filename. Use a given directory if passed but
+ * default to using /usr/tmp is none given.
+ */
+extern
+tmpfilename(dir)
+{
+    auto	dir = "/usr/tmp";
+    auto	pid;
+    auto	c, d;
+
+    pid = getpid();
+    for (c = 'a'; c < 'z'; ++c)
+    {
+	for (d = 'a'; d < 'z'; ++d)
+	{
+	    auto name;
+	    name = sprintf("tmp%c%c%d", c, d, pid);
+	    try
+		access(dir + "/" + name);
+	    onerror
+	        return name;
+	}
+    }
+    fail("no temporary files left!");
+}
+
+/*
+ * Return the directory portion of a pathname
+ */
+extern
+dirname(path)
+{
+    auto	s;
+
+    if (!(s = path ~~ #^(.*)/.*$#))
+	s = ".";
+    return s;
+}
+
+/*
+ * Return the base portion of a pathname
+ */
+extern
+basename(path, ext)
+{
+    auto	s;
+    auto	ext = NULL;
+
+    s = path ~~ #.*/(.*)#;
+    if (s == NULL)
+	s = path;
+    if (ext)
+    {
+	auto	n;
+	n = nels(ext);
+	if (n <= nels(s) && interval(s, nels(s) - n) == ext)
+	    s = interval(s, nels(s) - n);
+    }
+    return s;
+}

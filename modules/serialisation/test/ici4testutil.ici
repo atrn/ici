@@ -1,0 +1,12 @@
+extern failed(fmt)
+{
+    auto vargs = [array];
+    msg := sprintf("restore failed: ", sprintf(fmt, vargs));
+    fail(msg);
+}
+
+extern floateq(a, b)
+{
+    epsilon := 1e-5;
+    return abs(a - b) < epsilon;
+}

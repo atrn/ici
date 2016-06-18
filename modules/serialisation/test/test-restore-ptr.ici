@@ -1,0 +1,7 @@
+file = fopen("test-save-ptr.ici.dat");
+o = serialisation.restore(file);
+close(file);
+if (typeof(o) != "ptr")
+    fail("restore failed: restored a " + typeof(o));
+if (*o != 1)
+    fail("restore failed: restored an int with value " + string(o));

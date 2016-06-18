@@ -1,0 +1,9 @@
+ICI interface to PostgreSQL C API
+
+This module provides interfaces to PostgreSQL. There is a low-level
+interface, the PQ module, that is essentially a one-to-one mapping of
+the PostgreSQL C API to ICI. This is accompanied by an ICI portion,
+PQ.ici that defines constants used in the module interface.  The
+second interface, PostgreSQL.ici, provides an OO interface to
+PostgreSQL using ICI's class mechanism. Database connections and
+query results are represented as classes.

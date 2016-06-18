@@ -1,0 +1,8 @@
+A directory for files that don't belong anywhere else and would just
+clutter up the source directory.
+
+Contents
+
+	bsd-port		Directory containing source for the
+				{Free|Net|Open}BSD "ports" collection
+				entry for ici.

@@ -1,0 +1,5478 @@
+
+
+
+ici(1)                                                     ici(1)
+
+
+NAME
+       ici - ici interpreter
+
+SYNOPSIS
+       ici file arguments...
+       ici [options] file arguments...
+
+DESCRIPTION
+       Ici  is an interpreter for the ici language defined in the
+       ICI Technical Description.  It is designed for use in many
+       environments, including embedded systems, as an adjunct to
+       other programs, as  a  text-based  interface  to  compiled
+       libraries, and as a cross-platform scripting language with
+       good string-handling capabilities.
+
+       The ici language is reminiscent of C, with a very  similar
+       syntax,  the  same operator precedence, but a few powerful
+       additions.  Automatic garbage collection,  exception  han-
+       dling,  dynamic  collection data types like sets, associa-
+       tive arrays (`structs'), and support for  object  oriented
+       programming  are  features  of  the  language.   Types are
+       assigned at run-time and can be examined  via  `typeof()'.
+       The only requirement is that types must make sense at run-
+       time.  Function argument lists are represented as  an  ici
+       array  so  they  can  be  manipulated  just like any other
+       first-class type - they can  be  examined,  extended,  and
+       passed  on  to  other  functions.  Functions can be called
+       with optional  parameters,  default  values,  and  varying
+       types.   Case-expressions  in  switch  statements  can  be
+       strings and other types.
+
+       The most visible differences between ici and C are:
+
+       +   Declarations take no type specifier.
+
+       +   Function declarations require a  storage  class  (e.g.
+           static) to distinguish them from a function call.
+
+       +   There  is  no `main' - execution starts with the first
+           executable statement.
+
+       +   Declarations are executable statements - but they  are
+           executed once only, at parse time.
+
+       The  interpreter  may  be  invoked  in two ways, the first
+       using no  command  line  switches  and  the  second  using
+       switches  forcing  the  interpreter to examine the command
+       line arguments. The first form is useful when your program
+       requires  access to command line switches. The second form
+       provides some useful command line options.
+
+       In both usages the file argument may be replaced with a  -
+       to  indicate  that standard input should be read. Also any
+       remaining command line arguments  are  collected  into  an
+
+
+
+                                                                1
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+       array  and made available to the ici program as the global
+       variables argc and argv (see below  for  further  informa-
+       tion).
+
+       The interpreter parses the ici program from the named file
+       and executes it. Ici programs  are  ordinary  text  files.
+       Comments  are  started with the characters /* and continue
+       until the next */.  Also, lines which start with a # char-
+       acter are considered comments.
+
+       A  program  consists of a series of statements. Statements
+       may be either declarations or expressions.  A  declaration
+       defines  a name and possibly associates a parse-time value
+       with that name.  Expressions and other  executable  state-
+       ments generate code which is executed.
+
+       On Unix systems a startup file is read when the ici inter-
+       preter is run. This file contains standard ici code  defi-
+       nitions  for  a  number of functions. There is a switch to
+       inhibit this.
+
+
+
+   Command Line Arguments
+       The ici  interpreter  accepts  the  command  line  options
+       described  below.   For these options to be accepted, they
+       must be provided before any other options intended for the
+       ici  script itself.  They should also be terminated by the
+       `--' option.
+
+       The remaining options (after those intended for the inter-
+       preter),  are made available to the user's program via the
+       extern variable argv, an array of strings.   The  variable
+       argc  gives  the  number  of  options.   The first element
+       (``argv[0]''), is the name of the ici program, with subse-
+       quent elements being the options.
+
+       The  following  options  are  understood by the ici inter-
+       preter:
+
+
+       --        End of  switches.   All  remaining  options  are
+                 placed  in  the  ici program's argv array.  This
+                 can be used to avoid conflicts  between  options
+                 provided  for  the  interpreter and options pro-
+                 vided for the ici program (script).
+
+
+       -v        Outputs a message to stderr describing the  ver-
+                 sion of the ici interpreter and exits.
+
+
+       -m name   Use name as the name of the module being parsed.
+                 The ici program's argv[0] is set to  name.  This
+
+
+
+                                                                2
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+                 is done prior to any files being parsed.
+
+
+       -f pathname
+                 Parse  the  named file.  In other words, run the
+                 ici script provided in pathname.
+
+
+       -l pathname
+                 Parse the named library file. Library files  are
+                 stored  in  a  central directory.  The extension
+                 `.ici'  is  automatically  added  to   pathname.
+                 Under    Unix,    the   default   directory   is
+                 /usr/local/etc/ici.  Under Windows, the  default
+                 directory is C:\ICI\LIB.
+
+
+       -e expression
+                 Parse  (run) the expression. Multiple -e options
+                 may be given and may also be  mixed  with  other
+                 switches.
+
+
+       -s        Do not read the startup file.
+
+
+       -#        # is a decimal digit. Parse a module from a spe-
+                 cific file descriptor.
+
+       Any arguments not starting with a `-' are  placed  in  the
+       ici  program's argv array.  Such options DO NOT constitute
+       the end of switch processing.  The  `--'  option  must  be
+       used if that behaviour is required.
+
+       On Win32 platforms, ici performs wildcard expansion in the
+       traditional MS-DOS fashion.  Arguments containing wildcard
+       meta-characters,  `?' and `*', may be protected by enclos-
+       ing them in single or double quotes.
+
+       In an ici program, access to the command line  options  is
+       via these two variables:
+
+       argv
+
+       An  array  of strings containing the command line options.
+       The first element is the name of the ici program and  sub-
+       sequent  elements  are  the  options (arguments) passed to
+       that program.
+
+       argc
+
+       The count of the number of elements  in  argv.   Initially
+       equal to nels(argv).
+
+
+
+
+                                                                3
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+   Reserved Words
+       The complete list of ici's reserved words is:
+
+                 NULL      auto      break
+                 case      continue  default
+                 do        else      extern
+                 for       forall    if
+                 in        onerror   return
+                 static    switch    try
+                 while
+
+
+
+   Lexicon
+       The first stage of the ici parser breaks the input streams
+       into tokens, optionally separated  by  white  space.   The
+       next  token  is  always formed from the longest meaningful
+       sequence of characters.  These are the tokens that make up
+       ici's set of operators:
+
+           *   &   -   +   !   ~   ++ --  @   $
+           /   %   >>  <<  <   >   <= >=  ==  !=
+           ~   !~  ~~  ~~~ &   ^   |  &&  ||  :
+           ?   =   +=  -=  *=  /=  %= >>= <<= &=
+           ^=  |=  ~~= <=> ,   .   ->
+
+       Other tokens are:
+
+           [   ]   (   )   {   }   ;
+
+       Still  other  tokens are literal regular expressions (they
+       start and end with a `#', enclosing any sequence of  char-
+       acters  except  newline), literal strings, literal charac-
+       ters, and literal numbers.
+
+       White space consists of spaces, tabs,  newlines,  or  com-
+       ments.   Comments are as in C (/* ... */), and also from a
+       # at the start of a line to the end of the line.
+
+       Literal strings and literal  characters  can  include  the
+       following escape sequences:
+
+
+       \a      audible bell (ASCII 0x07)
+
+       \b      backspace (ASCII 0x08)
+
+       \cx     control-x (ASCII 0x01 .. 0x1A)
+
+       \e      escape (ASCII 0x1B)
+
+       \f      form feed (ASCII 0x0C)
+
+       \n      newline (ASCII 0x0A)
+
+
+
+                                                                4
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+       \r      carriage return (ASCII 0x0D)
+
+       \t      tab (ASCII 0x09)
+
+       \v      vertical tab (ASCII 0x0B)
+
+       \"      double quote (ASCII 0x22)
+
+       \'      single quote (ASCII 0x27)
+
+       \?      question mark (ASCII 0x3F)
+
+       \\      backslash (ASCII 0x5C)
+
+       \xx..   the character with hex code x.. (1, or 2 hexadeci-
+               mal digits).
+
+       \xn...  the character with octal code n...  (1,  2,  or  3
+               octal digits).
+
+
+       Adjacent  string  literals  (separated by white space) are
+       concatenated to form a single string literal.  A  sequence
+       of  upper or lower case letters, underscores and digits is
+       interpreted as:
+
+           An integer if possible,
+
+           otherwise as a floating point number if possible,
+
+           otherwise as an identifier.
+
+
+
+   Syntax
+       Ici's syntax is defined by the following grammar.
+
+       statement executable-statement
+                           declaration
+
+       executable-statement          expression ;
+                 compound-statement
+                 if ( expression ) statement
+                 if ( expression ) statement else statement
+                 while  ( expression ) statement
+                 do statement while ( expression ) ;
+                 for ( [ expression ] ; [ expression ] ; [ expression ] ) statement
+                 forall ( expression [ , expression ] in expression ) statement
+                 switch ( expression ) compound-statement
+                 case parser-evaluated-expression :
+                 default ;
+                 break ;
+                 continue ;
+                 return [ expression ] ;
+
+
+
+                                                                5
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+                 try statement onerror statement
+                 ;
+
+       factor    integer-number
+                 character-code
+                 floating-point-number
+                 string
+                 regular-expression
+                 identifier
+                 NULL
+                 ( expression )
+                 [ array expression-list  ]
+                 [ set expression-list ]
+                 [ struct [ : expression , ] assignment-list ]
+                 [ func function-body ]
+
+
+       expression-list     empty
+                 expression [ , ]
+                 expression , expression-list
+
+
+       assignment-list     empty
+                 assignment [ , ]
+                 assignment , assignment-list
+
+
+       assignment          struct-key =  expression
+
+
+       struct-key          identifier
+                 ( expression )
+
+
+       function-body       ( identifier-list ) compound-statement
+
+
+       identifier-list     empty
+                 identifier [  , ]
+                 identifier ,  identifier-list
+
+
+       primary-expression  factor  primary-operation...
+
+
+       primary-operation   [ expression ]
+                 . identifier
+                 . ( expression )
+                 -> identifier
+                 ->  ( expression )
+                 ( expression-list )
+
+
+
+
+
+
+                                                                6
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+       term      [ prefix-operator...] primary-expression [ postfix-operator... ]
+
+
+       prefix-operator     Any of:
+                 *  &  -  +  !  ~  ++  --  @  $
+
+
+       postfix-operator    Any of:
+                 ++  --
+
+       expression          term
+                 expression binary-operator expression
+
+       binary-operator     Any of:
+
+                 @
+                 *  /  %
+                 +  -
+                 >>  <<
+                 <  >  <=  >=
+                 ==  !=  ~  !~  ~~  ~~~
+                 &
+
+                 ^
+                 |
+                 &&
+                 ||
+                 :
+                 ?
+                 =  +=  -=  *=  /=  %=  >>=  <<=  &=  ^=  |=  ~~=  <=>
+                 ,
+
+       compound-statement
+                 { statement... }
+
+
+
+   Unary Operators
+       Prefix operators
+
+
+       *       Indirection; applied to a pointer, gives target of
+               the pointer.
+
+       &       Address of; applied to any lvalue, gives a pointer
+               to it.
+
+       -       Negation; gives negative of any arithmetic  value.
+
+       +       Positive; no real effect.
+
+       !       Logical  not;  applied to 0 or NULL, gives 1, else
+               gives 0.
+
+
+
+
+                                                                7
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+       ~       Bit-wise complement.
+
+       ++      Pre-increment; increments an lvalue and gives  new
+               value.
+
+       --      Pre-decrement;  decrements an lvalue and gives new
+               value.
+
+       @       Atomic form; gives the (unique) read-only  version
+               of any value.
+
+       $       Immediate  evaluation.   This $, is only a pseudo-
+               operator.  It actually has its effect entirely  at
+               parse  time.   The  $  operator causes its subject
+               expression to  be  evaluated  immediately  by  the
+               parser  and  the result of that evaluation substi-
+               tuted in its place.  This is used to  speed  later
+               execution, to protect against later scope or vari-
+               able changes, and  to  construct  constant  values
+               which  are better made with running code than lit-
+               eral constants.
+
+       Postfix operators
+
+
+       ++      Post-increment; increments an lvalue and gives old
+               value.
+
+       --      Post-increment; decrements an lvalue and gives old
+               value.
+
+
+
+
+   Binary Operators
+       @       Form a pointer.
+
+       *       Multiplication, Set intersection.
+
+       /       Division.
+
+       %       Modulus.
+
+       +       Addition, Set union.
+
+       -       Subtraction, Set difference
+
+       >>      Right shift (shift to lower significance)
+
+       <<      Left shift (shift to higher significance)
+
+       <       Logical test for less than, Proper subset
+
+       >       Logical test for greater than, Proper superset
+
+
+
+                                                                8
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+       <=      Logical test for less than or equal to, Subset
+
+       >=      Logical test for greater than or equal to,  Super-
+               set
+
+       ==      Logical test for equality
+
+       !=      Logical test for inequality
+
+       ~       Logical test for regular expression match
+
+       !~      Logical test for regular expression non-match
+
+       ~~      Regular expression sub-string extraction
+
+       ~~~     Regular expression multiple sub-string extraction
+
+       &       Bit-wise and
+
+       ^       Bit-wise exclusive or
+
+       |       Bit-wise or
+
+       &&      Logical and
+
+       ||      Logical or
+
+       :       Choice  separator (must be right hand subject of ?
+               operator)
+
+       ?       Choice (right hand expression must use : operator)
+
+       =       Assignment
+
+       +=      Add to
+
+       -=      Subtract from
+
+       *=      Multiply by
+
+       /=      Divide by
+
+       %=      Modulus by
+
+       >>=     Right shift by
+
+       <<=     Left shift by
+
+       &=      And by
+
+       ^=      Exclusive or by
+
+       |=      Or by
+
+
+
+
+                                                                9
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+       ~~=     Replace by regular expression extraction
+
+       <=>     Swap values
+
+       ,       Multiple expression separator
+
+
+
+   Pattern Matching
+       Ici  uses  Philip  Hazel's  PCRE  (Perl-compatible regular
+       expression) package.  The following is  extract  from  the
+       file  pcre.3  included  with  the PCRE distribution.  This
+       document is intended to be used with the PCRE C  functions
+       and  makes  reference to a number of constants that may be
+       used as option specifiers to the C functions.  These  con-
+       stants  are  not available in the ICI interface at time of
+       writing  although  the  regexp()  function  does  allow  a
+       numeric option specific to be passed.
+
+
+   REGULAR EXPRESSION DETAILS
+       The  syntax  and semantics of the regular expressions sup-
+       ported by PCRE are described  below.  Regular  expressions
+       are also described in the Perl documentation and in a num-
+       ber of other books, some of which have  copious  examples.
+       Jeffrey  Friedl's  "Mastering  Regular  Expressions", pub-
+       lished by O'Reilly (ISBN 1-56592-257-3),  covers  them  in
+       great  detail.  The description here is intended as refer-
+       ence documentation.
+
+       A regular expression is a pattern that is matched  against
+       a subject string from left to right. Most characters stand
+       for themselves in a pattern, and match  the  corresponding
+       characters  in the subject. As a trivial example, the pat-
+       tern
+
+         The quick brown fox
+
+       matches a portion of a subject string that is identical to
+       itself.  The  power  of regular expressions comes from the
+       ability to include alternatives  and  repetitions  in  the
+       pattern.  These  are  encoded in the pattern by the use of
+       meta-characters, which do not  stand  for  themselves  but
+       instead are interpreted in some special way.
+
+       There  are  two  different  sets of meta-characters: those
+       that are recognized anywhere in the pattern except  within
+       square  brackets,  and those that are recognized in square
+       brackets. Outside square brackets, the meta-characters are
+       as follows:
+
+         \      general escape character with several uses
+         ^       assert  start  of subject (or line, in multiline
+       mode)
+
+
+
+                                                               10
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+         $      assert end of  subject  (or  line,  in  multiline
+       mode)
+         .      match any character except newline (by default)
+         [      start character class definition
+         |      start of alternative branch
+         (      start subpattern
+         )      end subpattern
+         ?      extends the meaning of (
+                also 0 or 1 quantifier
+                also quantifier minimizer
+         *      0 or more quantifier
+         +      1 or more quantifier
+         {      start min/max quantifier
+
+       Part  of  a pattern that is in square brackets is called a
+       "character class". In a character  class  the  only  meta-
+       characters are:
+
+         \      general escape character
+         ^      negate the class, but only if the first character
+         -      indicates character range
+         ]      terminates the character class
+
+       The following sections describe the use  of  each  of  the
+       meta-characters.
+
+
+
+   BACKSLASH
+       The  backslash  character has several uses. Firstly, if it
+       is followed by a non-alphameric character, it  takes  away
+       any  special  meaning that character may have. This use of
+       backslash as an escape character applies both  inside  and
+       outside character classes.
+
+       For  example,  if  you  want to match a "*" character, you
+       write "\*" in the pattern. This applies whether or not the
+       following  character  would  otherwise be interpreted as a
+       meta-character, so it is always safe  to  precede  a  non-
+       alphameric  with "\" to specify that it stands for itself.
+       In particular, if you want to match a backslash, you write
+       "\\".
+
+       If  a  pattern  is compiled with the PCRE_EXTENDED option,
+       whitespace in the  pattern  (other  than  in  a  character
+       class)  and  characters  between a "#" outside a character
+       class and the  next  newline  character  are  ignored.  An
+       escaping  backslash can be used to include a whitespace or
+       "#" character as part of the pattern.
+
+       A second use of backslash provides a way of encoding  non-
+       printing characters in patterns in a visible manner. There
+       is no restriction on the appearance of non-printing  char-
+       acters,  apart  from  the  binary  zero  that terminates a
+
+
+
+                                                               11
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+       pattern, but when a pattern  is  being  prepared  by  text
+       editing,  it is usually easier to use one of the following
+       escape sequences than the binary character it represents:
+
+         \a     alarm, that is, the BEL character (hex 07)
+         \cx    "control-x", where x is any character
+         \e     escape (hex 1B)
+         \f     formfeed (hex 0C)
+         \n     newline (hex 0A)
+         \r     carriage return (hex 0D)
+         \t     tab (hex 09)
+         \xhh   character with hex code hh
+         \ddd   character with octal code ddd, or backreference
+
+       The precise effect of "\cx" is as follows:  if  "x"  is  a
+       lower case letter, it is converted to upper case. Then bit
+       6 of the character  (hex  40)  is  inverted.   Thus  "\cz"
+       becomes  hex  1A,  but  "\c{"  becomes hex 3B, while "\c;"
+       becomes hex 7B.
+
+       After "\x", up to two hexadecimal digits are read (letters
+       can be in upper or lower case).
+
+       After  "\0"  up  to  two further octal digits are read. In
+       both cases, if there are fewer than two digits, just those
+       that  are  present  are  used. Thus the sequence "\0\x\07"
+       specifies two binary zeros followed by  a  BEL  character.
+       Make  sure you supply two digits after the initial zero if
+       the character that follows is itself an octal digit.
+
+       The handling of a backslash followed by a digit other than
+       0  is  complicated.  Outside a character class, PCRE reads
+       it and any following digits as a decimal  number.  If  the
+       number  is  less  than  10, or if there have been at least
+       that many  previous  capturing  left  parentheses  in  the
+       expression,  the entire sequence is taken as a back refer-
+       ence. A description of how this works is given later, fol-
+       lowing the discussion of parenthesized subpatterns.
+
+       Inside  a  character  class,  or  if the decimal number is
+       greater than 9 and there have not been that many capturing
+       subpatterns,  PCRE  re-reads up to three octal digits fol-
+       lowing the backslash, and generates a single byte from the
+       least significant 8 bits of the value. Any subsequent dig-
+       its stand for themselves.  For example:
+
+         \040   is another way of writing a space
+         \40    is the same, provided there are fewer than 40
+                   previous capturing subpatterns
+         \7     is always a back reference
+         \11    might be a back reference, or another way of
+                   writing a tab
+         \011   is always a tab
+         \0113  is a tab followed by the character "3"
+
+
+
+                                                               12
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+         \113   is the character with octal code 113 (since there
+                   can be no more than 99 back references)
+         \377   is a byte consisting entirely of 1 bits
+         \81    is either a back reference, or a binary zero
+                   followed by the two characters "8" and "1"
+
+       Note  that  octal  values  of  100  or greater must not be
+       introduced by a leading zero, because no more  than  three
+       octal digits are ever read.
+
+       All  the  sequences that define a single byte value can be
+       used both inside and outside character classes.  In  addi-
+       tion,  inside  a  character  class,  the  sequence "\b" is
+       interpreted as the backspace character (hex 08). Outside a
+       character class it has a different meaning (see below).
+
+       The third use of backslash is for specifying generic char-
+       acter types:
+
+         \d     any decimal digit
+         \D     any character that is not a decimal digit
+         \s     any whitespace character
+         \S     any character that is not a whitespace character
+         \w     any "word" character
+         \W     any "non-word" character
+
+       Each pair of escape sequences partitions the complete  set
+       of  characters into two disjoint sets. Any given character
+       matches one, and only one, of each pair.
+
+       A "word" character is any letter or digit  or  the  under-
+       score  character, that is, any character which can be part
+       of a Perl "word". The definition of letters and digits  is
+       controlled  by  PCRE's  character  tables, and may vary if
+       locale- specific matching is  taking  place  (see  "Locale
+       support" above). For example, in the "fr" (French) locale,
+       some  character  codes  greater  than  128  are  used  for
+       accented letters, and these are matched by \w.
+
+       These  character type sequences can appear both inside and
+       outside character classes. They each match  one  character
+       of  the appropriate type. If the current matching point is
+       at the end of the subject string, all of them fail,  since
+       there is no character to match.
+
+       The  fourth  use of backslash is for certain simple asser-
+       tions. An assertion specifies a condition that has  to  be
+       met  at  a  particular point in a match, without consuming
+       any characters from the subject string. The use of subpat-
+       terns  for more complicated assertions is described below.
+       The backslashed assertions are
+
+         \b     word boundary
+         \B     not a word boundary
+
+
+
+                                                               13
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+         \A     start of subject (independent of multiline mode)
+         \Z     end of subject or newline at end (independent  of
+       multiline mode)
+         \z     end of subject (independent of multiline mode)
+
+       These  assertions may not appear in character classes (but
+       note  that  "\b"  has  a  different  meaning,  namely  the
+       backspace character, inside a character class).
+
+       A  word boundary is a position in the subject string where
+       the current character and the previous  character  do  not
+       both  match  \w  or  \W (i.e. one matches \w and the other
+       matches \W), or the start or end  of  the  string  if  the
+       first or last character matches \w, respectively.
+
+       The  \A, \Z, and \z assertions differ from the traditional
+       circumflex and dollar (described below) in that they  only
+       ever  match  at  the  very  start  and  end of the subject
+       string, whatever options are set. They are not affected by
+       the PCRE_NOTBOL or PCRE_NOTEOL options. If the startoffset
+       argument of pcre_exec() is non-zero, \A can  never  match.
+       The difference between \Z and \z is that \Z matches before
+       a newline that is the last character of the string as well
+       as  at  the  end of the string, whereas \z matches only at
+       the end.
+
+
+
+   CIRCUMFLEX AND DOLLAR
+       Outside a character class, in the default  matching  mode,
+       the  circumflex  character  is  an assertion which is true
+       only if the current matching point is at the start of  the
+       subject string. If the startoffset argument of pcre_exec()
+       is non-zero, circumflex can never match. Inside a  charac-
+       ter  class,  circumflex  has an entirely different meaning
+       (see below).
+
+       Circumflex need not be the first character of the  pattern
+       if a number of alternatives are involved, but it should be
+       the first thing in each alternative in which it appears if
+       the  pattern is ever to match that branch. If all possible
+       alternatives start with a circumflex, that is, if the pat-
+       tern is constrained to match only at the start of the sub-
+       ject, it is said to be an "anchored" pattern.  (There  are
+       also  other  constructs  that  can  cause  a pattern to be
+       anchored.)
+
+       A dollar character is an assertion which is true  only  if
+       the  current  matching  point is at the end of the subject
+       string, or immediately before a newline character that  is
+       the last character in the string (by default). Dollar need
+       not be the last character of the pattern if  a  number  of
+       alternatives  are involved, but it should be the last item
+       in any branch in which it appears.  Dollar has no  special
+
+
+
+                                                               14
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+       meaning in a character class.
+
+       The  meaning  of  dollar can be changed so that it matches
+       only at the  very  end  of  the  string,  by  setting  the
+       PCRE_DOLLAR_ENDONLY  option  at  compile or matching time.
+       This does not affect the \Z assertion.
+
+       The meanings of the circumflex and dollar  characters  are
+       changed  if the PCRE_MULTILINE option is set. When this is
+       the case, they match  immediately  after  and  immediately
+       before  an internal "\n" character, respectively, in addi-
+       tion to matching at the  start  and  end  of  the  subject
+       string.  For example, the pattern /^abc$/ matches the sub-
+       ject string "def\nabc" in multiline mode, but  not  other-
+       wise.  Consequently,  patterns that are anchored in single
+       line mode because all branches  start  with  "^"  are  not
+       anchored  in multiline mode, and a match for circumflex is
+       possible when the startoffset argument of  pcre_exec()  is
+       non-zero.  The  PCRE_DOLLAR_ENDONLY  option  is ignored if
+       PCRE_MULTILINE is set.
+
+       Note that the sequences \A, \Z, and  \z  can  be  used  to
+       match  the start and end of the subject in both modes, and
+       if all branches of a pattern start with \A  is  it  always
+       anchored, whether PCRE_MULTILINE is set or not.
+
+
+
+   FULL STOP (PERIOD, DOT)
+       Outside  a  character  class, a dot in the pattern matches
+       any one character in the subject, including a non-printing
+       character,   but   not   (by  default)  newline.   If  the
+       PCRE_DOTALL option is set, then  dots  match  newlines  as
+       well.  The  handling of dot is entirely independent of the
+       handling of circumflex and dollar, the  only  relationship
+       being  that they both involve newline characters.  Dot has
+       no special meaning in a character class.
+
+
+
+   SQUARE BRACKETS
+       An opening square bracket introduces  a  character  class,
+       terminated  by  a closing square bracket. A closing square
+       bracket on its own is not special.  If  a  closing  square
+       bracket is required as a member of the class, it should be
+       the first data character in the class  (after  an  initial
+       circumflex, if present) or escaped with a backslash.
+
+       A  character  class matches a single character in the sub-
+       ject; the character must  be  in  the  set  of  characters
+       defined  by  the  class, unless the first character in the
+       class is a circumflex, in which case the subject character
+       must  not be in the set defined by the class. If a circum-
+       flex is actually required as a member of the class, ensure
+
+
+
+                                                               15
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+       it  is  not the first character, or escape it with a back-
+       slash.
+
+       For example, the character class [aeiou] matches any lower
+       case  vowel,  while [^aeiou] matches any character that is
+       not a lower case vowel. Note that a circumflex is  just  a
+       convenient  notation  for  specifying the characters which
+       are in the class by enumerating those that are not. It  is
+       not  an  assertion: it still consumes a character from the
+       subject string, and fails if the current pointer is at the
+       end of the string.
+
+       When caseless matching is set, any letters in a class rep-
+       resent both their upper case and lower case  versions,  so
+       for  example,  a  caseless  [aeiou] matches "A" as well as
+       "a", and a caseless [^aeiou] does not match "A", whereas a
+       caseful version would.
+
+       The  newline character is never treated in any special way
+       in  character  classes,  whatever  the  setting   of   the
+       PCRE_DOTALL  or PCRE_MULTILINE options is. A class such as
+       [^a] will always match a newline.
+
+       The minus (hyphen) character can  be  used  to  specify  a
+       range of characters in a character class. For example, [d-
+       m] matches any letter between d and  m,  inclusive.  If  a
+       minus character is required in a class, it must be escaped
+       with a backslash or appear in a position where  it  cannot
+       be  interpreted  as  indicating  a range, typically as the
+       first or last character in the class.
+
+       It is not possible to have the literal  character  "]"  as
+       the end character of a range. A pattern such as [W-]46] is
+       interpreted as a class of two  characters  ("W"  and  "-")
+       followed  by  a  literal  string  "46]", so it would match
+       "W46]" or "-46]". However, if the "]" is  escaped  with  a
+       backslash  it  is  interpreted  as  the  end  of range, so
+       [W-\]46] is interpreted as a  single  class  containing  a
+       range  followed  by  two separate characters. The octal or
+       hexadecimal representation of "]" can also be used to  end
+       a range.
+
+       Ranges  operate in ASCII collating sequence. They can also
+       be used for characters specified numerically, for  example
+       [\000-\037]. If a range that includes letters is used when
+       caseless matching is set, it matches the letters in either
+       case. For example, [W-c] is equivalent to [][\^_`wxyzabc],
+       matched caselessly, and if character tables for  the  "fr"
+       locale  are in use, [\xc8-\xcb] matches accented E charac-
+       ters in both cases.
+
+       The character types \d, \D, \s, \S, \w, and  \W  may  also
+       appear  in  a character class, and add the characters that
+       they match to the class. For example,  [\dABCDEF]  matches
+
+
+
+                                                               16
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+       any  hexadecimal  digit.  A circumflex can conveniently be
+       used with the upper case character types to specify a more
+       restricted  set of characters than the matching lower case
+       type. For example, the class [^\W_] matches any letter  or
+       digit, but not underscore.
+
+       All  non-alphameric  characters other than \, -, ^ (at the
+       start) and the terminating ] are non-special in  character
+       classes, but it does no harm if they are escaped.
+
+
+
+   VERTICAL BAR
+       Vertical  bar  characters are used to separate alternative
+       patterns. For example, the pattern
+
+         gilbert|sullivan
+
+       matches either "gilbert"  or  "sullivan".  Any  number  of
+       alternatives  may appear, and an empty alternative is per-
+       mitted (matching the empty string).  The matching  process
+       tries  each  alternative  in turn, from left to right, and
+       the first one that succeeds is used. If  the  alternatives
+       are  within a subpattern (defined below), "succeeds" means
+       matching the rest of the  main  pattern  as  well  as  the
+       alternative in the subpattern.
+
+
+
+   INTERNAL OPTION SETTING
+       The    settings    of    PCRE_CASELESS,    PCRE_MULTILINE,
+       PCRE_DOTALL, and PCRE_EXTENDED can be changed from  within
+       the  pattern by a sequence of Perl option letters enclosed
+       between "(?" and ")". The option letters are
+
+         i  for PCRE_CASELESS
+         m  for PCRE_MULTILINE
+         s  for PCRE_DOTALL
+         x  for PCRE_EXTENDED
+
+       For example, (?im) sets caseless, multiline  matching.  It
+       is  also  possible to unset these options by preceding the
+       letter with a hyphen, and a combined setting and unsetting
+       such as (?im-sx), which sets PCRE_CASELESS and PCRE_MULTI-
+       LINE while unsetting  PCRE_DOTALL  and  PCRE_EXTENDED,  is
+       also  permitted. If a letter appears both before and after
+       the hyphen, the option is unset.
+
+       The scope of these option changes depends on where in  the
+       pattern  the setting occurs. For settings that are outside
+       any subpattern (defined below), the effect is the same  as
+       if the options were set or unset at the start of matching.
+       The following patterns all behave in exactly the same way:
+
+
+
+
+                                                               17
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+         (?i)abc
+         a(?i)bc
+         ab(?i)c
+         abc(?i)
+
+       which  in  turn  is  the same as compiling the pattern abc
+       with PCRE_CASELESS set.  In other words, such "top  level"
+       settings  apply  to  the  whole  pattern (unless there are
+       other changes inside subpatterns). If there is  more  than
+       one setting of the same option at top level, the rightmost
+       setting is used.
+
+       If an option change occurs inside a subpattern, the effect
+       is different. This is a change of behaviour in Perl 5.005.
+       An option change inside a  subpattern  affects  only  that
+       part of the subpattern that follows it, so
+
+         (a(?i)b)c
+
+       matches  abc  and  aBc  and  no  other  strings  (assuming
+       PCRE_CASELESS is not used).  By this means, options can be
+       made  to have different settings in different parts of the
+       pattern. Any changes made in one alternative do  carry  on
+       into  subsequent  branches within the same subpattern. For
+       example,
+
+         (a(?i)b|c)
+
+       matches "ab", "aB", "c", and "C", even though when  match-
+       ing  "C"  the  first branch is abandoned before the option
+       setting. This is because the effects  of  option  settings
+       happen  at  compile  time.  There would be some very weird
+       behaviour otherwise.
+
+       The PCRE-specific options PCRE_UNGREEDY and PCRE_EXTRA can
+       be  changed in the same way as the Perl-compatible options
+       by using the characters U and  X  respectively.  The  (?X)
+       flag  setting is special in that it must always occur ear-
+       lier in the pattern than any of the additional features it
+       turns  on, even when it is at top level. It is best put at
+       the start.
+
+
+
+   SUBPATTERNS
+       Subpatterns are delimited by parentheses (round brackets),
+       which  can be nested.  Marking part of a pattern as a sub-
+       pattern does two things:
+
+       1. It localizes a set of alternatives.  For  example,  the
+       pattern
+
+         cat(aract|erpillar|)
+
+
+
+
+                                                               18
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+       matches  one of the words "cat", "cataract", or "caterpil-
+       lar". Without the parentheses, it would match  "cataract",
+       "erpillar" or the empty string.
+
+       2. It sets up the subpattern as a capturing subpattern (as
+       defined above).  When the whole pattern matches, that por-
+       tion  of the subject string that matched the subpattern is
+       passed back to the caller  via  the  ovector  argument  of
+       pcre_exec().  Opening parentheses are counted from left to
+       right (starting from 1) to obtain the numbers of the  cap-
+       turing subpatterns.
+
+       For  example,  if  the  string  "the  red king" is matched
+       against the pattern
+
+         the ((red|white) (king|queen))
+
+       the captured substrings are "red king", "red", and "king",
+       and are numbered 1, 2, and 3.
+
+       The  fact  that  plain parentheses fulfil two functions is
+       not always helpful.  There are often times when a grouping
+       subpattern is required without a capturing requirement. If
+       an opening parenthesis is followed by "?:", the subpattern
+       does not do any capturing, and is not counted when comput-
+       ing the number of any  subsequent  capturing  subpatterns.
+       For  example,  if  the string "the white queen" is matched
+       against the pattern
+
+         the ((?:red|white) (king|queen))
+
+       the captured substrings are "white queen" and "queen", and
+       are  numbered 1 and 2. The maximum number of captured sub-
+       strings is 99, and the maximum number of all  subpatterns,
+       both capturing and non-capturing, is 200.
+
+       As  a  convenient  shorthand,  if  any option settings are
+       required at the start of a non-capturing  subpattern,  the
+       option  letters  may  appear  between the "?" and the ":".
+       Thus the two patterns
+
+         (?i:saturday|sunday)
+         (?:(?i)saturday|sunday)
+
+       match exactly the same set of strings. Because alternative
+       branches are tried from left to right, and options are not
+       reset until the end  of  the  subpattern  is  reached,  an
+       option  setting  in  one  branch  does  affect  subsequent
+       branches, so the above patterns match "SUNDAY" as well  as
+       "Saturday".
+
+
+
+
+
+
+
+                                                               19
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+   REPETITION
+       Repetition  is  specified by quantifiers, which can follow
+       any of the following items:
+
+         a single character, possibly escaped
+         the . metacharacter
+         a character class
+         a back reference (see next section)
+         a parenthesized subpattern (unless it is an assertion  -
+       see below)
+
+       The  general repetition quantifier specifies a minimum and
+       maximum number of permitted matches,  by  giving  the  two
+       numbers  in curly brackets (braces), separated by a comma.
+       The numbers must be less than 65536, and the first must be
+       less than or equal to the second. For example:
+
+         z{2,4}
+
+       matches "zz", "zzz", or "zzzz". A closing brace on its own
+       is not a special character. If the second number is  omit-
+       ted, but the comma is present, there is no upper limit; if
+       the second number and the  comma  are  both  omitted,  the
+       quantifier  specifies an exact number of required matches.
+       Thus
+
+         [aeiou]{3,}
+
+       matches at least 3 successive vowels, but may  match  many
+       more, while
+
+         \d{8}
+
+       matches  exactly  8  digits. An opening curly bracket that
+       appears in a position where a quantifier is  not  allowed,
+       or  one that does not match the syntax of a quantifier, is
+       taken as a literal character. For example, {,6} is  not  a
+       quantifier, but a literal string of four characters.
+
+       The quantifier {0} is permitted, causing the expression to
+       behave as if the previous item and the quantifier were not
+       present.
+
+       For  convenience  (and historical compatibility) the three
+       most common quantifiers  have  single-character  abbrevia-
+       tions:
+
+         *    is equivalent to {0,}
+         +    is equivalent to {1,}
+         ?    is equivalent to {0,1}
+
+       It  is possible to construct infinite loops by following a
+       subpattern that can match no characters with a  quantifier
+       that has no upper limit, for example:
+
+
+
+                                                               20
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+         (a?)*
+
+       Earlier versions of Perl and PCRE used to give an error at
+       compile time for such patterns. However, because there are
+       cases  where  this  can  be  useful, such patterns are now
+       accepted, but if any repetition of the subpattern does  in
+       fact match no characters, the loop is forcibly broken.
+
+       By  default,  the  quantifiers are "greedy", that is, they
+       match as much as possible (up to  the  maximum  number  of
+       permitted  times), without causing the rest of the pattern
+       to fail. The classic example of where this gives  problems
+       is in trying to match comments in C programs. These appear
+       between the sequences /* and */ and within  the  sequence,
+       individual  *  and  / characters may appear. An attempt to
+       match C comments by applying the pattern
+
+         /\*.*\*/
+
+       to the string
+
+         /* first command */  not comment  /* second comment */
+
+       fails, because it matches the entire  string  due  to  the
+       greediness of the .*  item.
+
+       However,  if  a quantifier is followed by a question mark,
+       then it ceases to be greedy, and instead matches the mini-
+       mum number of times possible, so the pattern
+
+         /\*.*?\*/
+
+       does  the  right thing with the C comments. The meaning of
+       the various quantifiers is not otherwise changed, just the
+       preferred  number  of matches.  Do not confuse this use of
+       question mark with its use as  a  quantifier  in  its  own
+       right.  Because  it  has two uses, it can sometimes appear
+       doubled, as in
+
+         \d??\d
+
+       which matches one digit by preference, but can  match  two
+       if that is the only way the rest of the pattern matches.
+
+       If the PCRE_UNGREEDY option is set (an option which is not
+       available in Perl) then the quantifiers are not greedy  by
+       default, but individual ones can be made greedy by follow-
+       ing them with a question mark. In other words, it  inverts
+       the default behaviour.
+
+       When a parenthesized subpattern is quantified with a mini-
+       mum repeat count that is greater than 1 or with a  limited
+       maximum,  more store is required for the compiled pattern,
+       in proportion to the size of the minimum or maximum.
+
+
+
+                                                               21
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+       If a pattern starts with .* or .{0,} and  the  PCRE_DOTALL
+       option (equivalent to Perl's /s) is set, thus allowing the
+       . to  match  newlines,  then  the  pattern  is  implicitly
+       anchored,  because  whatever follows will be tried against
+       every character position in the subject string,  so  there
+       is  no point in retrying the overall match at any position
+       after the first. PCRE treats such a pattern as  though  it
+       were  preceded  by \A. In cases where it is known that the
+       subject string contains no newlines, it is  worth  setting
+       PCRE_DOTALL  when  the  pattern begins with .* in order to
+       obtain this optimization,  or  alternatively  using  ^  to
+       indicate anchoring explicitly.
+
+       When  a  capturing  subpattern is repeated, the value cap-
+       tured is the substring that matched the  final  iteration.
+       For example, after
+
+         (tweedle[dume]{3}\s*)+
+
+       has  matched "tweedledum tweedledee" the value of the cap-
+       tured substring is "tweedledee".  However,  if  there  are
+       nested  capturing  subpatterns, the corresponding captured
+       values may have been set in previous iterations. For exam-
+       ple, after
+
+         /(a|(b))+/
+
+       matches  "aba"  the value of the second captured substring
+       is "b".
+
+
+
+   BACK REFERENCES
+       Outside a character class, a backslash followed by a digit
+       greater  than  0  (and  possibly further digits) is a back
+       reference to a capturing subpattern earlier (i.e.  to  its
+       left)  in  the pattern, provided there have been that many
+       previous capturing left parentheses.
+
+       However, if the decimal number following the backslash  is
+       less  than 10, it is always taken as a back reference, and
+       causes an error only if there are not that many  capturing
+       left  parentheses  in  the entire pattern. In other words,
+       the parentheses that are referenced need  not  be  to  the
+       left  of  the  reference for numbers less than 10. See the
+       section entitled "Backslash" above for further details  of
+       the handling of digits following a backslash.
+
+       A  back  reference  matches  whatever actually matched the
+       capturing subpattern in the current subject string, rather
+       than  anything matching the subpattern itself. So the pat-
+       tern
+
+         (sens|respons)e and \1ibility
+
+
+
+                                                               22
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+       matches "sense and sensibility" and "response and  respon-
+       sibility",  but not "sense and responsibility". If caseful
+       matching is in force at the time of  the  back  reference,
+       then the case of letters is relevant. For example,
+
+         ((?i)rah)\s+\1
+
+       matches  "rah  rah" and "RAH RAH", but not "RAH rah", even
+       though the original capturing subpattern is matched  case-
+       lessly.
+
+       There may be more than one back reference to the same sub-
+       pattern. If a subpattern has not actually been used  in  a
+       particular  match,  then  any back references to it always
+       fail. For example, the pattern
+
+         (a|(bc))\2
+
+       always fails if it starts to match "a" rather  than  "bc".
+       Because  there may be up to 99 back references, all digits
+       following the backslash are taken as part of  a  potential
+       back  reference  number.  If  the pattern continues with a
+       digit character, then some delimiter must be used to  ter-
+       minate  the back reference. If the PCRE_EXTENDED option is
+       set, this can be whitespace.  Otherwise an  empty  comment
+       can be used.
+
+       A  back  reference  that  occurs inside the parentheses to
+       which it refers fails when the subpattern is  first  used,
+       so,  for example, (a\1) never matches.  However, such ref-
+       erences can be useful  inside  repeated  subpatterns.  For
+       example, the pattern
+
+         (a|b\1)+
+
+       matches  any  number of "a"s and also "aba", "ababaa" etc.
+       At each iteration of the subpattern,  the  back  reference
+       matches the character string corresponding to the previous
+       iteration. In order for this to work, the pattern must  be
+       such  that  the first iteration does not need to match the
+       back reference. This can be done using alternation, as  in
+       the  example  above,  or by a quantifier with a minimum of
+       zero.
+
+
+
+   ASSERTIONS
+       An assertion is a test on the characters following or pre-
+       ceding  the  current matching point that does not actually
+       consume any characters. The simple assertions coded as \b,
+       \B,  \A, \Z, \z, ^ and $ are described above. More compli-
+       cated assertions are coded as subpatterns. There  are  two
+       kinds:  those  that  look ahead of the current position in
+       the subject string, and those that look behind it.
+
+
+
+                                                               23
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+       An assertion subpattern is  matched  in  the  normal  way,
+       except  that  it does not cause the current matching posi-
+       tion to be changed. Lookahead assertions  start  with  (?=
+       for  positive  assertions and (?! for negative assertions.
+       For example,
+
+         \w+(?=;)
+
+       matches a word followed  by  a  semicolon,  but  does  not
+       include the semicolon in the match, and
+
+         foo(?!bar)
+
+       matches  any  occurrence  of "foo" that is not followed by
+       "bar". Note that the apparently similar pattern
+
+         (?!foo)bar
+
+       does not find an occurrence of "bar" that is  preceded  by
+       something  other  than  "foo";  it finds any occurrence of
+       "bar" whatsoever, because the assertion (?!foo) is  always
+       true  when  the next three characters are "bar". A lookbe-
+       hind assertion is needed to achieve this effect.
+
+       Lookbehind assertions start with (?<= for positive  asser-
+       tions and (?<! for negative assertions. For example,
+
+         (?<!foo)bar
+
+       does  find  an occurrence of "bar" that is not preceded by
+       "foo".  The  contents  of  a  lookbehind   assertion   are
+       restricted  such that all the strings it matches must have
+       a fixed length. However, if  there  are  several  alterna-
+       tives, they do not all have to have the same fixed length.
+       Thus
+
+         (?<=bullock|donkey)
+
+       is permitted, but
+
+         (?<!dogs?|cats?)
+
+       causes an error at compile time. Branches that match  dif-
+       ferent  length strings are permitted only at the top level
+       of a lookbehind assertion. This is an  extension  compared
+       with  Perl 5.005, which requires all branches to match the
+       same length of string. An assertion such as
+
+         (?<=ab(c|de))
+
+       is not permitted, because its single top-level branch  can
+       match  two  different  lengths,  but  it  is acceptable if
+       rewritten to use two top-level branches:
+
+
+
+
+                                                               24
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+         (?<=abc|abde)
+
+       The implementation of lookbehind assertions is,  for  each
+       alternative, to temporarily move the current position back
+       by the fixed width and then try to  match.  If  there  are
+       insufficient  characters  before the current position, the
+       match is deemed to fail. Lookbehinds in  conjunction  with
+       once-only  subpatterns  can  be  particularly  useful  for
+       matching at the ends of strings; an example  is  given  at
+       the end of the section on once-only subpatterns.
+
+       Several  assertions (of any sort) may occur in succession.
+       For example,
+
+         (?<=\d{3})(?<!999)foo
+
+       matches "foo" preceded by three digits that are not "999".
+       Notice  that  each  of  the assertions is applied indepen-
+       dently at the same point  in  the  subject  string.  First
+       there  is  a  check that the previous three characters are
+       all digits, then there is a  check  that  the  same  three
+       characters  are  not  "999".   This pattern does not match
+       "foo" preceded by six characters, the first of  which  are
+       digits  and  the  last  three  of which are not "999". For
+       example, it doesn't match "123abcfoo".  A  pattern  to  do
+       that is
+
+         (?<=\d{3}...)(?<!999)foo
+
+       This  time  the first assertion looks at the preceding six
+       characters, checking that the first three are digits,  and
+       then  the second assertion checks that the preceding three
+       characters are not "999".
+
+       Assertions can be nested in any combination. For example,
+
+         (?<=(?<!foo)bar)baz
+
+       matches an occurrence of "baz" that is preceded  by  "bar"
+       which in turn is not preceded by "foo", while
+
+         (?<=\d{3}(?!999)...)foo
+
+       is  another  pattern which matches "foo" preceded by three
+       digits and any three characters that are not "999".
+
+       Assertion subpatterns are not capturing  subpatterns,  and
+       may  not  be repeated, because it makes no sense to assert
+       the same thing several times. If  any  kind  of  assertion
+       contains   capturing  subpatterns  within  it,  these  are
+       counted for the purposes of numbering the  capturing  sub-
+       patterns in the whole pattern.  However, substring captur-
+       ing is carried out only for positive  assertions,  because
+       it does not make sense for negative assertions.
+
+
+
+                                                               25
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+       Assertions  count towards the maximum of 200 parenthesized
+       subpatterns.
+
+
+
+   ONCE-ONLY SUBPATTERNS
+       With both maximizing and minimizing repetition, failure of
+       what  follows  normally causes the repeated item to be re-
+       evaluated to see if a different number of  repeats  allows
+       the  rest  of the pattern to match. Sometimes it is useful
+       to prevent this, either to change the nature of the match,
+       or  to cause it fail earlier than it otherwise might, when
+       the author of the pattern knows there is no point in  car-
+       rying on.
+
+       Consider,  for example, the pattern \d+foo when applied to
+       the subject line
+
+         123456bar
+
+       After matching all 6 digits  and  then  failing  to  match
+       "foo",  the  normal  action of the matcher is to try again
+       with only 5 digits matching the \d+ item, and then with 4,
+       and  so  on,  before ultimately failing. Once-only subpat-
+       terns provide the means for specifying that once a portion
+       of  the  pattern has matched, it is not to be re-evaluated
+       in this way, so the matcher would give up  immediately  on
+       failing  to  match  "foo"  the first time. The notation is
+       another kind of special parenthesis, starting with (?>  as
+       in this example:
+
+         (?>\d+)bar
+
+       This  kind of parenthesis "locks up" the  part of the pat-
+       tern it contains once it has matched, and a  failure  fur-
+       ther  into the pattern is prevented from backtracking into
+       it. Backtracking past it to previous items, however, works
+       as normal.
+
+       An  alternative  description  is that a subpattern of this
+       type matches the string of characters  that  an  identical
+       standalone pattern would match, if anchored at the current
+       point in the subject string.
+
+       Once-only subpatterns are not capturing subpatterns.  Sim-
+       ple cases such as the above example can be thought of as a
+       maximizing repeat that must swallow everything it can. So,
+       while  both \d+ and \d+? are prepared to adjust the number
+       of digits they match in order to make the rest of the pat-
+       tern  match,  (?>\d+) can only match an entire sequence of
+       digits.
+
+       This construction can of course contain  arbitrarily  com-
+       plicated subpatterns, and it can be nested.
+
+
+
+                                                               26
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+       Once-only  subpatterns  can  be  used  in conjunction with
+       lookbehind assertions to specify efficient matching at the
+       end  of the subject string. Consider a simple pattern such
+       as
+
+         abcd$
+
+       when applied to a long string which  does  not  match  it.
+       Because  matching  proceeds  from left to right, PCRE will
+       look for each "a" in the subject and then see if what fol-
+       lows  matches  the  rest of the pattern. If the pattern is
+       specified as
+
+         ^.*abcd$
+
+       then the initial .* matches the entire  string  at  first,
+       but  when  this  fails, it backtracks to match all but the
+       last character, then all but the last two characters,  and
+       so  on.  Once  again  the search for "a" covers the entire
+       string, from right to left, so we are no better off.  How-
+       ever, if the pattern is written as
+
+         ^(?>.*)(?<=abcd)
+
+       then  there can be no backtracking for the .* item; it can
+       match only the entire string.  The  subsequent  lookbehind
+       assertion  does a single test on the last four characters.
+       If  it  fails,  the  match  fails  immediately.  For  long
+       strings,  this  approach makes a significant difference to
+       the processing time.
+
+
+
+   CONDITIONAL SUBPATTERNS
+       It is possible to cause the matching  process  to  obey  a
+       subpattern conditionally or to choose between two alterna-
+       tive subpatterns, depending on the result of an assertion,
+       or whether a previous capturing subpattern matched or not.
+       The two possible forms of conditional subpattern are
+
+         (?(condition)yes-pattern)
+         (?(condition)yes-pattern|no-pattern)
+
+       If the condition is satisfied, the  yes-pattern  is  used;
+       otherwise  the  no-pattern  (if present) is used. If there
+       are more than two alternatives in the subpattern,  a  com-
+       pile-time error occurs.
+
+       There  are two kinds of condition. If the text between the
+       parentheses consists of a sequence  of  digits,  then  the
+       condition is satisfied if the capturing subpattern of that
+       number has previously matched. Consider the following pat-
+       tern,  which  contains non-significant white space to make
+       it more readable (assume the PCRE_EXTENDED option) and  to
+
+
+
+                                                               27
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+       divide it into three parts for ease of discussion:
+
+         ( \( )?    [^()]+    (?(1) \) )
+
+       The  first  part  matches an optional opening parenthesis,
+       and if that character is present, sets  it  as  the  first
+       captured  substring.  The  second part matches one or more
+       characters that are not parentheses. The third part  is  a
+       conditional subpattern that tests whether the first set of
+       parentheses matched or not. If they did, that is, if  sub-
+       ject started with an opening parenthesis, the condition is
+       true, and so the yes-pattern is  executed  and  a  closing
+       parenthesis  is  required.  Otherwise, since no-pattern is
+       not present, the  subpattern  matches  nothing.  In  other
+       words, this pattern matches a sequence of non-parentheses,
+       optionally enclosed in parentheses.
+
+       If the condition is not a sequence of digits, it  must  be
+       an assertion. This may be a positive or negative lookahead
+       or lookbehind assertion. Consider this pattern, again con-
+       taining  non-significant  white  space,  and  with the two
+       alternatives on the second line:
+
+         (?(?=[^a-z]*[a-z])
+         \d{2}[a-z]{3}-\d{2}  |  \d{2}-\d{2}-\d{2} )
+
+       The condition  is  a  positive  lookahead  assertion  that
+       matches  an optional sequence of non-letters followed by a
+       letter. In other words, it tests for the  presence  of  at
+       least one letter in the subject. If a letter is found, the
+       subject is matched against the first  alternative;  other-
+       wise  it  is  matched  against  the  second.  This pattern
+       matches strings in one of the two forms dd-aaa-dd  or  dd-
+       dd-dd, where aaa are letters and dd are digits.
+
+
+
+   COMMENTS
+       The  sequence  (?# marks the start of a comment which con-
+       tinues up to the next closing parenthesis.  Nested  paren-
+       theses  are  not  permitted. The characters that make up a
+       comment play no part in the pattern matching at all.
+
+       If the PCRE_EXTENDED option is set, an unescaped # charac-
+       ter  outside  a  character class introduces a comment that
+       continues up to the next newline character in the pattern.
+
+
+
+   PERFORMANCE
+       Certain  items  that may appear in patterns are more effi-
+       cient than others. It is more efficient to use a character
+       class  like  [aeiou]  than  a  set of alternatives such as
+       (a|e|i|o|u). In general, the  simplest  construction  that
+
+
+
+                                                               28
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+       provides  the required behaviour is usually the most effi-
+       cient. Jeffrey Friedl's book contains a lot of  discussion
+       about optimizing regular expressions for efficient perfor-
+       mance.
+
+       When a pattern begins with .* and the  PCRE_DOTALL  option
+       is  set, the pattern is implicitly anchored by PCRE, since
+       it can match only at the start of a subject  string.  How-
+       ever,  if  PCRE_DOTALL  is  not set, PCRE cannot make this
+       optimization, because the . metacharacter  does  not  then
+       match  a  newline, and if the subject string contains new-
+       lines, the pattern may match from  the  character  immedi-
+       ately  following  one  of  them  instead  of from the very
+       start. For example, the pattern
+
+         (.*) second
+
+       matches the subject "first\nand second" (where  \n  stands
+       for a newline character) with the first captured substring
+       being "and". In order to do this, PCRE has  to  retry  the
+       match starting after every newline in the subject.
+
+       If  you are using such a pattern with subject strings that
+       do not contain newlines, the best performance is  obtained
+       by  setting  PCRE_DOTALL, or starting the pattern with ^.*
+       to indicate explicit anchoring. That saves PCRE from  hav-
+       ing  to  scan  along  the subject looking for a newline to
+       restart at.
+
+       Beware of patterns that contain nested indefinite repeats.
+       These can take a long time to run when applied to a string
+       that does not match. Consider the pattern fragment
+
+         (a+)*
+
+       This can match "aaaa" in 33 different ways, and this  num-
+       ber increases very rapidly as the string gets longer. (The
+       * repeat can match 0, 1, 2, 3, or 4 times, and for each of
+       those  cases other than 0, the + repeats can match differ-
+       ent numbers of times.) When the remainder of  the  pattern
+       is  such  that the entire match is going to fail, PCRE has
+       in principle to try every possible variation, and this can
+       take an extremely long time.
+
+       An optimization catches some of the more simple cases such
+       as
+
+         (a+)*b
+
+       where a literal character follows. Before embarking on the
+       standard  matching  procedure, PCRE checks that there is a
+       "b" later in the subject string, and if there is  not,  it
+       fails  the  match  immediately.  However, when there is no
+       following literal this optimization cannot  be  used.  You
+
+
+
+                                                               29
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+       can see the difference by comparing the behaviour of
+
+         (a+)*\d
+
+       with  the pattern above. The former gives a failure almost
+       instantly when applied to a whole line of "a"  characters,
+       whereas  the latter takes an appreciable time with strings
+       longer than about 20 characters.
+
+
+   AUTHOR
+       Philip Hazel <ph10@cam.ac.uk>
+       University Computing Service,
+       New Museums Site,
+       Cambridge CB2 3QG, England.
+       Phone: +44 1223 334714
+
+       Last updated: 29 July 1999
+       Copyright (c) 1997-1999 University of Cambridge.
+
+       Legibility
+
+       Since ici concatenates adjacent  literal  strings  into  a
+       single  string, since string variables can be concatenated
+       with the + operator, and because the $ parse-time operator
+       ensures  that a function is only `compiled' into an inter-
+       nal form once, it is possible  to  rewrite  complex  #...#
+       regular  expressions into highly-legible equally-efficient
+       forms.
+
+       This means that regular expressions  can  be  easily  con-
+       structed  and maintained.  They are no longer ``write-only
+       pieces of program''.  Here is a moderately complex example
+       from   an  overly-simplistic  C  function  header  parser.
+       (`my_text' contains something like "char *  fred(float  a,
+       my_typ *b)".)
+
+       static  parts;
+       static  pat_ident  = "[A-Za-z_][A-Za-z0-9_]*";
+       static  pat_white  = "[ \t]*";
+       static  pat_wh_ptr = "[ \t*]*";
+       static  reg;
+       /*
+        * parts       To hold the matched parts of the regular expression.
+        * pat_ident   Pattern matching an identifier.
+        * pat_white   Pattern matching any number of space or tab
+        *             characters is white space.
+        * pat_wh_ptr  Treat `*' as pseudo-space for simplicity!
+        *             Note that the 1st * in with the white space
+        *             is the literal C pointer indirection char.
+        */
+
+       /*
+        * Find the function name...
+
+
+
+                                                               30
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+        */
+       func_name =
+           my_text
+           ~~
+           regexp
+           (
+                 "(" + pat_ident + ")"   /* The function name */
+                 + pat_white + "\\("     /* Anchored by the open-paren.  )*/
+           );
+
+       /*
+        * Delete the function name, but leave the parenthesis as an anchor,
+        * to find the return type.
+        */
+       my_text = gsub(my_text, func_name + pat_white + "\(", "(");
+       reg =
+           $regexp
+           (
+               "(" + pat_ident + ")"  /* Extract the return type */
+               "(" + pat_wh_ptr + ")" /* White space + ptr-edness */
+               + "\\("                /* Anchored by the open-paren.  )*/
+           );
+       parts = my_text ~~~ reg;
+
+       returns_void = parts == NULL || parts[0] == "void";
+       returns_ptr  = parts != NULL && parts[1] ~ #\*#;
+
+
+   The if statement
+       The if statement has two forms:
+
+                 if ( expression ) statement
+                 if ( expression ) statement else statement
+
+
+       The parser converts both to an internal form.  Upon execu-
+       tion, the expression  is  evaluated.   If  the  expression
+       evaluates to anything other than 0 (integer zero) or NULL,
+       the following statement is executed; otherwise it is  not.
+       In  the first form this is all that happens, in the second
+       form, if the expression evaluated to 0 or NULL the  state-
+       ment  following the else is executed; otherwise it is not.
+
+
+       The interpretation of both 0 and NULL as false,  and  any-
+       thing else as true, is common to all logical operations in
+       ici.  There is no special boolean type.
+
+
+       The ambiguity introduced by multiple if statements with  a
+       lesser  number of else clauses is resolved by binding else
+       clauses with their closest possible if.  Thus:
+
+
+
+
+
+                                                               31
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+       if (a) if (b) do_x(); else do_y();
+
+
+       is equivalent to:
+
+
+       if (a)
+       {
+           if (b)
+               do_x();
+           else
+               do_y();
+       }
+
+
+       The while statement
+
+
+       The while statement has the form:
+
+
+                 while  ( expression ) statement
+
+
+       The parser converts it to an internal form.   Upon  execu-
+       tion  a  loop is established.  Within the loop the expres-
+       sion is evaluated, and if it is false (0 or NULL) the loop
+       is  terminated  and  flow  of  control continues after the
+       while statement.  But if the expression evaluates to  true
+       (not  0  and  not NULL) the statement is executed and then
+       flow of control moves back to the start of the loop  where
+       the test is performed again (although other statements, as
+       seen below, can be used to modify  this  natural  flow  of
+       control).
+
+
+       The do-while statement
+
+
+       The do-while statement has the following form:
+
+
+                 do statement while ( expression ) ;
+
+
+       The  parser  converts it to an internal form.  Upon execu-
+       tion a loop is established.  Within the loop the statement
+       is  executed.   Then the expression is evaluated and if it
+       evaluates to true, flow of control resumes at the start of
+       the  loop.   Otherwise  the loop is terminated and flow of
+       control resumes after the do-while statement.
+
+
+       The for statement
+
+
+
+                                                               32
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+       The for statement has the form:
+
+
+                 for ( [ expression ]; [ expression ]; [  expres-
+       sion ] ) statement
+
+
+       The  parser  converts it to an internal form.  Upon execu-
+       tion the  first  expression  is  evaluated  (if  present).
+       Then, a loop is established.  Within the loop: If the sec-
+       ond expression is present, it is evaluated and  if  it  is
+       false  the loop is terminated.  Next the statement is exe-
+       cuted.  Finally, the third  expression  is  evaluated  (if
+       present)  and  flow of control resumes at the start of the
+       loop.
+
+
+
+   The forall statement
+       The forall statement has the form:
+
+
+                 forall ( expression [ ,expression ]  in  expres-
+       sion ) statement
+
+
+       The  parser  converts it to an internal form.  In doing so
+       the first and second expressions are required to be  lval-
+       ues  (that is, capable of being assigned to).  Upon execu-
+       tion the first expression is evaluated  and  that  storage
+       location  is  noted.   If the second expression is present
+       the same is done for it.  The  third  expression  is  then
+       evaluated  and  the  result  noted; it must evaluate to an
+       array, a set, a struct, a string, or NULL;  we  will  call
+       this the aggregate.  If this is NULL, the forall statement
+       is finished and flow of control continues after the state-
+       ment; otherwise, a loop is established.
+
+
+       Within  the  loop,  an  element is selected from the noted
+       aggregate.  The value of that element is assigned  to  the
+       location  given  by  the  first expression.  If the second
+       expression was present, it is assigned  the  key  used  to
+       access  that  element.   Then  the  statement is executed.
+       Finally, flow of control resumes at the start of the loop.
+
+
+       Each  arrival  at the start of the loop will select a dif-
+       ferent element from the aggregate.  If  no  as  yet  unse-
+       lected  elements are left, the loop terminates.  The order
+       of selection is predictable for arrays and strings, namely
+       first  to  last.   But  for  structs and sets it is unpre-
+       dictable.  Also, while changing the values of  the  struc-
+       ture  members  is  acceptable, adding or deleting keys, or
+
+
+
+                                                               33
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+       adding or deleting set elements during the loop will  have
+       an unpredictable effect on the progress of the loop.
+
+
+       Note in particular the interpretation of the value and key
+       for a set.  For consistency with the access method and the
+       behavior  of  structs and arrays, the values are all 1 and
+       the elements are regarded as the keys. As a special  case,
+       when the second expression is omitted, the first is set to
+       each "key" in turn, that is, the elements of the set.
+
+
+       When a forall loop is applied to a string (which is not  a
+       true aggregate), the "sub-elements" will be successive one
+       character sub-strings.
+
+
+       Note that although the sequence of choice of elements from
+       a  set or struct is at first examination unpredictable, it
+       will be the same in a second forall loop  applied  without
+       the structure or set being modified in the interim.
+
+
+
+   The switch, case, and default statements
+       These statements have the form:
+
+                 switch ( expression ) compound-statement
+                 case expression :
+                 default :
+
+
+       The  parser  converts  the switch statement to an internal
+       form.  As it is parsing the compound statement,  it  notes
+       any  case and default statements it finds at the top level
+       of the compound  statement.   When  a  case  statement  is
+       parsed  the  expression  is  evaluated  immediately by the
+       parser.  As noted previously for parser evaluated  expres-
+       sions,  it may perform arbitrary actions, but it is impor-
+       tant to be aware that it is resolved to a particular value
+       just  once  by the parser.  As the case and default state-
+       ments are seen their position and the  associated  expres-
+       sions are noted in a table.
+
+
+       Upon execution, the switch statement's expression is eval-
+       uated.  This value is looked up in the  table  created  by
+       the  parser.   If a matching case statement is found, flow
+       of control immediately moves  to  immediately  after  that
+       case statement.  On no match, if there is a default state-
+       ment flow of control immediately moves to just after that.
+       If  there  is  no  matching case and no default statement,
+       flow of control continues just  after  the  entire  switch
+       statement.
+
+
+
+                                                               34
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+   The break and continue statements
+       The break and continue statements have the form:
+
+                 break ;
+                 continue ;
+
+
+       The  parser converts these to an internal form.  Upon exe-
+       cution of a break  statement  the  execution  engine  will
+       cause  the  nearest  enclosing  loop  (a while, do, for or
+       forall) or switch statement within the same scope to  ter-
+       minate.  Flow of control will resume immediately after the
+       affected statement.  Note that a break statement without a
+       surrounding  loop or switch in the same function or module
+       is illegal.
+
+
+       Upon execution  of  a  continue  statement  the  execution
+       engine  will  cause  the nearest enclosing loop to move to
+       the next iteration.  For while and do loops this means the
+       test.   For  for  loops  it means the step, then the test.
+       For forall loops it means the next element of  the  aggre-
+       gate.
+
+
+
+   The return statement
+       The return statement has the form:
+
+
+                 return [ expression ] ;
+
+
+       The parser converts this to an internal form.  Upon execu-
+       tion, the execution engine evaluates the expression if  it
+       is  present.  If it is not, the value NULL is substituted.
+       Then the current function terminates with  that  value  as
+       its  apparent  value  in any expression it is embedded in.
+       It is an error for there to be no enclosing function.
+
+
+
+   The try statement
+       The try statement has the form:
+
+
+                 try  statement onerror statement
+
+
+       The parser converts this to an internal form.  Upon execu-
+       tion,  the  first statement is executed. If this statement
+       executes normally flow continues after the try  statement;
+       the  second  statement is ignored.  But if an error occurs
+       during the execution of the  first  statement  control  is
+
+
+
+                                                               35
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+       passed immediately to the second statement.
+
+
+       Note  that  "during the execution" applies to any depth of
+       function calls, even to other modules or  the  parsing  of
+       sub-modules.   When  an  error  occurs both the parser and
+       execution  engine  unwind  as  necessary  until  an  error
+       catcher (that is, a try statement) is found.
+
+
+       Errors can occur almost anywhere and for a variety of rea-
+       sons.  They can be  explicitly  generated  with  the  fail
+       function  (described  below),  they  can be generated as a
+       side-effect of execution (such as division by  zero),  and
+       they  can  be  generated  by  the  parser due to syntax or
+       semantic errors in the parsed source.  For whatever reason
+       an  error  is  generated,  a  message (a string) is always
+       associated with it.
+
+
+       When any otherwise uncaught error occurs during the execu-
+       tion of the first statement, two things are done:
+
+
+       Firstly,   the  string  associated  with  the  failure  is
+       assigned to the variable error.  The assignment is made as
+       if  by  a  simple assignment statement within the scope of
+       the try statement.
+
+
+       Secondly, flow of control is passed to the statement  fol-
+       lowing the onerror keyword.
+
+
+       Once the second statement finishes execution, flow of con-
+       trol continues as if the whole try statement had  executed
+       normally.
+
+
+       The  handling  of  errors  which are not caught by any try
+       statement is implementation dependent.  A  typical  action
+       is  to prepend the file and line number on which the error
+       occurred to the error string, print this, and exit.
+
+
+
+   The null statement
+       The null statement has the form:
+
+
+                 ;
+
+
+
+
+
+
+                                                               36
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+       The parser may convert this to an internal form. Upon exe-
+       cution it will do nothing.
+
+
+
+   Declaration statements
+       There are two types of declaration statements:
+
+
+       declaration
+                 storage-class declaration-list ;
+                 storage-class identifier function-body
+
+
+       storage-class
+                 extern
+                 static
+                 auto
+
+
+       declaration-list    identifier [ = expression ]
+                 declaration-list , identifier [ = expression ]
+
+
+       That  is, a comma separated list of identifiers, each with
+       an optional initialisation, terminated by a semicolon.
+
+
+       The storage class  keyword  establishes  which  scope  the
+       variables  in  the  list  are  established  in.  Note that
+       declaring the same identifier at different scope levels is
+       permissible and that they are different variables.
+
+
+       A  declaration  with no initialisation first checks if the
+       variable already exists at the given scope.  If  it  does,
+       it  is  left unmodified.  In particular, any value it cur-
+       rently has is undisturbed.  If it does  not  exist  it  is
+       established and is given the value NULL.
+
+
+       A declaration with an initialisation establishes the vari-
+       able in the given scope and gives it the given value  even
+       if  it already exists and even if it has some other value.
+
+
+       Note that initial values are parser evaluated expressions.
+       That  is they are evaluated immediately by the parser, but
+       may take arbitrary actions apart from that.
+
+
+
+   Abbreviated function declarations
+       As seen above there are two  forms  of  declaration.   The
+
+
+
+                                                               37
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+       second:
+
+
+                 storage-class identifier function-body
+
+
+       is  the  normal  way to declare simple functions, and is a
+       shorthand for:
+
+
+                 storage-class identifier = [ func  function-body
+       ] ;
+
+       E.g.:
+          static sum(a, b) { return a + b; }
+
+       is a shorthand for:
+
+          static sum = [func (a, b) { return a + b; }];
+
+   Data types
+       Ici  supports  a base set of standard data types.  Each is
+       identified by a simple name.  In summary these are:
+
+
+       array     An ordered sequence of other objects.
+
+       file      An open file reference.
+
+       float     A double precision floating point number.
+
+       func      A function.
+
+       int       A signed 32 bit integer.
+
+       mem       References to raw machine memory.
+
+       ptr       A reference to a storage location.
+
+       regexp    A compiled regular expression.
+
+       set       An unordered collection of other objects.
+
+       string    An ordered sequence of 8 bit characters.
+
+       struct    An unordered set of pairs of objects.
+
+       socket    The communication socket type  is  also  defined
+                 for ici on the Unix and Win32 platforms.
+
+       window    The  ASCII  terminal-window type is also defined
+                 for ici on the Unix and Win32 platforms.
+
+
+
+
+
+                                                               38
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+   Operators
+       The following table is in precedence order.
+
+
+       *ptr      Indirection: The result references the thing the
+                 pointer points to. The result is an lvalue.
+
+
+       &any      Address  of:  The result is a pointer to any. If
+                 any is an lvalue  the  pointer  references  that
+                 storage  location.   If any is not an lvalue but
+                 is a term other than a  bracketed  non-term,  as
+                 described  in  the  syntax  above, a one element
+                 array containing any will be  fabricated  and  a
+                 pointer  to  that storage location returned. For
+                 example:
+
+                           p = &1;
+
+                 sets p to be a pointer to the first  element  of
+                 an  un-named array, which currently contains the
+                 number 1.
+
+
+       -num      Negation:  Returns  the  negation  of  num.  The
+                 result  is  the  same  type as the argument. The
+                 result is not an lvalue.
+
+
+       +any      Has no  effect  except  the  result  is  not  an
+                 lvalue.
+
+
+       !any      Logical negation: If any is 0 (integer) or NULL,
+                 1 is returned, else 0 is returned.
+
+
+       ~int      Bit-wise complement: The bit-wise complement  of
+                 int is returned.
+
+
+       ++any     Pre-increment:  Equivalent  to  (any  += 1). any
+                 must be an lvalue and obey the  restrictions  of
+                 the binary + operator.  See + below.
+
+
+       --any     Pre-decrement:  Equivalent  to  (any  -= 1). any
+                 must be an lvalue and obey the  restrictions  of
+                 the binary - operator.  See - below.
+
+
+       @any      Atomic  form  of:  Returns the unique, read-only
+                 form of any.  If any is already  atomic,  it  is
+                 returned  immediately.  Otherwise an atomic form
+
+
+
+                                                               39
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+                 of any is found or generated and returned;  this
+                 is  of  execution time order equal to the number
+                 of elements in any.
+
+
+       $any      Immediate evaluation: Recognised by the  parser.
+                 The  sub-expression any is immediately evaluated
+                 by invocation  of  the  execution  engine.   The
+                 result of the evaluation is substituted directly
+                 for this expression term by the parser.
+
+
+       any++     Post-increment: Notes the  value  of  any,  then
+                 performs  the  equivalent  of (any += 1), except
+                 any is only evaluated once, and finally  returns
+                 the original noted value.  any must be an lvalue
+                 and obey the restrictions of the binary + opera-
+                 tor.  See + below.
+
+
+       any--     Post-increment:  Notes  the  value  of any, then
+                 performs the equivalent of (any  -=  1),  except
+                 any  is only evaluated once, and finally returns
+                 the original noted value.  any must be an lvalue
+                 and obey the restrictions of the binary - opera-
+                 tor.  See - below.
+
+
+       any1 @ ident
+                 Form pointer: Returns a pointer object.  It is a
+                 pointer  within  the  aggregate object any1.  It
+                 refers to the part of any1 keyed by the  identi-
+                 fier.   E.g.  [array  1,  "fred",  3  ] @ "fred"
+                 yields a pointer  to  the  2nd  element  of  the
+                 array.   Refer also to the section Method Calls.
+                 [Actually, it core dumps.]
+
+
+       num1 * num2
+                 Multiplication: Returns the product of  the  two
+                 numbers,  if  both  nums are ints, the result is
+                 int, else the result is float.
+
+
+       set1 * set2
+                 Set intersection: Returns a  set  that  contains
+                 all  elements that appear in both set1 and set2.
+
+
+       num1 / num2
+                 Division: Returns the result of dividing num1 by
+                 num2.   If  both  numbers are ints the result is
+                 int, else the result is float.  If num2 is  zero
+                 the   error  division  by  0  is  generated,  or
+
+
+
+                                                               40
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+                 division by 0.0 if the result would have been  a
+                 float.
+
+
+       int1 % int2
+                 Modulus:  Returns the remainder of dividing int1
+                 by int2.  If int2 is zero the error modulus by 0
+                 is generated.
+
+
+       num1 + num2
+                 Addition:  Returns the sum of num1 and num2.  If
+                 both numbers are ints the result  is  int,  else
+                 the result is float.
+
+
+       ptr + int Pointer  addition:  ptr must point to an element
+                 of an indexable object whose index  is  an  int.
+                 Returns a new pointer which points to an element
+                 of the same aggregate which has the index  which
+                 is  the  sum  of ptr's index and int.  The argu-
+                 ments may be in any order.
+
+
+       string1 + string2
+                 String concatenation: Returns the  string  which
+                 is   the  concatenation  of  the  characters  of
+                 string1 then string2.  The execution time  order
+                 is  proportional  to  the  total  length  of the
+                 result.
+
+
+       array1 + array2
+                 Array concatenation: Returns a new  array  which
+                 is the concatenation of the elements from array1
+                 then array2.  The execution time order is   pro-
+                 portional  to  the  total  length of the result.
+                 Note the difference between the following:
+
+                           a += [array 1];
+                           push(a, 1);
+
+                 In the first case  a  is  replaced  by  a  newly
+                 formed  array  which  is the original array with
+                 one element added.  But in the second  case  the
+                 push  function (see below) appends an element to
+                 the array a refers  to,  without  making  a  new
+                 array. The second case is much faster, but modi-
+                 fies an existing array.
+
+
+       struct1 + struct2
+                 Structure concatenation: Returns  a  new  struct
+                 which  is  a  copy  of  struct1,  with  all  the
+
+
+
+                                                               41
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+                 elements of struct2 assigned into it.  Obeys the
+                 semantics of copying and assignment discussed in
+                 other sections with  regard  to  super  structs.
+                 The  execution time order is proportional to the
+                 sum of the lengths of the two arguments.
+
+
+       set1 + set2
+                 Set union: Returns a new set which contains  all
+                 the elements from both sets.  The execution time
+                 order is  proportional to the sum of the lengths
+                 of the two arguments.
+
+
+       num1 - num2
+                 Subtraction:  Returns  the result of subtracting
+                 num2 from num1.  If both numbers  are  ints  the
+                 result is int, else the result is float.
+
+
+       set1 - set2
+                 Set  subtraction:  Returns  a new set which con-
+                 tains all the elements of set1,  less  the  ele-
+                 ments  of set2. The execution time order is pro-
+                 portional to the sum of the lengths of  the  two
+                 arguments.
+
+
+       ptr1 - ptr2
+                 Pointer subtraction: ptr1 and ptr2 must point to
+                 elements of indexable objects whose  indexs  are
+                 ints.  Returns an int which is the index of ptr1
+                 less the index of ptr2.
+
+
+       int1 >> int2
+                 Right shift: Returns the result of right  shift-
+                 ing  int1  by  int2.   Equivalent to division by
+                 2**int2.  int1 is interpreted as a signed  quan-
+                 tity.
+
+
+       int1 << int2
+                 Left  shift: Returns the result of left shifting
+                 int1 by int2.  Equivalent to  multiplication  by
+                 2**int2.
+
+
+       array << int
+                 Left shift array: Returns a new array which con-
+                 tains the  elements  of  array  from  index  int
+                 onwards.  Equivalent to the function call inter-
+                 val(array, int) (which is considered preferable,
+                 this operator may disappear in future releases).
+
+
+
+                                                               42
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+       num1 < num2
+                 Numeric test for less than: Returns 1 if num1 is
+                 less than num2, else 0.
+
+
+       set1 < set2
+                 Test for subset: Returns 1 if set1 contains only
+                 elements that are in set2, else 0.
+
+
+       string1 < string2
+                 Lexical test for less than: Returns 1 if string1
+                 is lexically less than string2, else 0.
+
+
+       ptr1 < ptr2
+                 Pointer  test for less than:  ptr1 and ptr2 must
+                 point to elements  of  indexable  objects  whose
+                 indexes  are  ints.  Returns 1 if ptr1 points to
+                 an element with a lesser index than  ptr2,  else
+                 0.
+
+                 The  >,  <=  and  >=  operators work in the same
+                 fashion as <, above. For sets >  tests  for  one
+                 set  being a superset of the other.  The < and >
+                 operators test for proper sub- or  super-  sets.
+                 That is, one set can contain only those elements
+                 contained in the other set but cannot  be  equal
+                 to  the other set.  The <= and >= operators test
+                 for sub- or super- sets.  That is  one  set  can
+                 contain  elements contained in the other set and
+                 can equal the other set.
+
+
+       any1 == any2
+                 Equality test: Returns 1 if  any1  is  equal  to
+                 any2,  else 0.  Two objects are equal when: they
+                 are the same object; or they are both arithmetic
+                 (int and float) and have equivalent numeric val-
+                 ues; or they are aggregates of the same type and
+                 all the sub-elements are the same objects.
+
+
+       any1 != any2
+                 Inequality  test: Returns 1 if any1 is not equal
+                 to any2, else 0.  See above.
+
+
+       string ~ regexp
+                 Logical  test  for  regular  expression   match:
+                 Returns  1  if  string can be matched by regexp,
+                 else 0.  The arguments may be in any order.
+
+
+
+
+
+                                                               43
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+       string !~ regexp
+                 Logical test for regular  expression  non-match:
+                 Returns  1  if string can not be matched by reg-
+                 exp, else 0.  The arguments may be in any order.
+
+
+       string ~~ regexp
+                 Regular    expression   sub-string   extraction:
+                 Returns  the  sub-string  of  string  which   is
+                 matched by the first bracket enclosed portion of
+                 regexp, or NULL if there is no match  or  regexp
+                 does  not contain a (...) portion. The arguments
+                 may be in any order.  For example, a  "basename"
+                 operation can be performed with:
+
+                           argv[0] ~~= #([^/]*)$#;
+
+
+       string ~~~ regexp
+                 Regular  expression  multiple sub-string extrac-
+                 tion: Returns an array of the the sub-strings of
+                 string  which  are matched by the (...) enclosed
+                 portions of regexp,  or  NULL  if  there  is  no
+                 match. The arguments may be in any order.
+
+
+       int1 & int2
+                 Bit-wise  and:  Returns the bit-wise and of int1
+                 and int2.
+
+
+       int1 ^ int2
+                 Bit-exclusive or: Returns the bit-wise exclusive
+                 or of int1 and int2.
+
+
+       int1 | int2
+                 Bit-wise or: Returns the bit-wise or of int1 and
+                 int2.
+
+
+       any1 && any2
+                 Logical  and:  Evaluates  the  expression  which
+                 determines  any1, if this evaluates to 0 or NULL
+                 (i.e. false), 0 is returned, else any2 is evalu-
+                 ated  and  returned.  Note that if any1 does not
+                 evaluate to a true value, the  expression  which
+                 determines any2 is never evaluated.
+
+
+       any1 || any2
+                 Logical   or:  Evaluates  the  expression  which
+                 determines any1, if this evaluates to other than
+                 0  or NULL (i.e. true), 1 is returned, else any2
+
+
+
+                                                               44
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+                 is evaluated and returned.  Note  that  if  any1
+                 does  not evaluate to a false value, the expres-
+                 sion which determines any2 is never evaluated.
+
+
+       any1 ? any2 : any3
+                 Choice: If any1  is  neither  0  or  NULL  (i.e.
+                 true),  the expression which determines  any2 is
+                 evaluated  and  returned,  else  the  expression
+                 which determines any3 is evaluated and returned.
+                 Only one of any2 and any3  are  evaluated.   The
+                 result  may be an lvalue if the returned expres-
+                 sion is. Thus:
+
+                           flag ? a : b = value
+
+                 is a legal expression and will assign  value  to
+                 either a or b depending on the state of flag.
+
+
+       any1 = any2
+                 Assignment:  Assigns any2 to any1.  any1 must be
+                 an lvalue. The behavior of assignment is a  con-
+                 sequence  of  aggregate  access  as discussed in
+                 earlier sections.  In short, an lvalue (in  this
+                 case any1) can always be resolved into an aggre-
+                 gate and an index into the  aggregate.   Assign-
+                 ment  sets  the element of the aggregate identi-
+                 fied by the index to any2.  The returned  result
+                 of  the  whole  assignment  is  any1,  after the
+                 assignment has been performed.
+
+                 The result is an lvalue, thus:
+
+                           ++(a = b)
+
+                 will assign b to a and then increment a by 1.
+
+                 Note that assignment operators (this and follow-
+                 ing  ones)  associate  right to left, unlike all
+                 other binary operators, thus:
+
+                           a = b += c -= d
+
+                 Will subtract d from c, then add the  result  to
+                 b, then assign the final value to a.
+
+
+       +=  -=  *=  /=  %=  >>=  <<=  &=  ^=  |=  ~~=
+                 Compound  assignments:  All  these operators are
+                 defined by the rewriting rule:
+
+                           any1 op= any2
+
+
+
+
+                                                               45
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+                 is equivalent to:
+
+                           any1 = any1 op any2
+
+                 except that any1 is not  evaluated  twice.  Type
+                 restrictions and the behaviour or op will follow
+                 the rules given with that binary operator above.
+                 The  result  will be an lvalue (as a consequence
+                 of = above).  There are no further restrictions.
+                 Thus:
+
+                           a = "Hello";
+                           a += " world.\n";
+
+                 will  result  in the variable a referring to the
+                 string:
+
+                           "Hello world.\n"
+
+
+       any1 <=> any2
+                 Swap: Swaps the current values of any1 and any2.
+                 Both  operands  must  be  lvalues. The result is
+                 any1 after the swap and  is  an  lvalue,  as  in
+                 other  assignment  operators.   Also  like other
+                 assignment operators, associativity is right  to
+                 left, thus:
+
+                           a <=> b <=> c <=> d
+
+                 rotates  the  values of a, b and c towards d and
+                 brings d's original value back to a.
+
+       any1 , any2
+                 Sequential  evaluation:  Evaluates  any1,   then
+                 any2.  The  result  is  any2 and is an lvalue if
+                 any2 is. Note that in situations where comma has
+                 meaning  at the top level of parsing an  expres-
+                 sion  (such  as  in  function  call  arguments),
+                 expression  parsing  precedence  starts  at  one
+                 level below the comma, and a comma will  not  be
+                 recognised as an operator.  Surround the expres-
+                 sion with brackets to avoid this if necessary.
+
+
+   Method Calls
+       Ici's support for object-oriented programming is very sim-
+       ple.   Inheritance is already provided through the ability
+       to extend one structure's scope by defining a super struc-
+       ture for it.  This can be done either with the notation:
+
+           static  my_instance = [struct:my_parent x, y ];
+
+       or with the functional notation
+
+
+
+                                                               46
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+           static  my_instance = super(my_parent, x, y);
+
+       although   it's  probably  better  to  set  up  an  atomic
+       (`class') variable for the super structure, and use that:
+
+           @my_parent
+
+       to refer to an atomic (unchanging) version of your `class'
+       struct.
+
+
+       The  method call is achieved by an extension of the normal
+       function call operator "()".  When the "()" operand  is  a
+       function  identifier,  the function is called in the usual
+       way with the supplied parameter list.   But  if  the  "()"
+       operand  is  a  pointer object keyed by a function identi-
+       fier, the function is called with  the  object  pointed-to
+       passed as an implicit first parameter.
+
+       The  binary  operator  `@'  forms  such  a pointer from an
+       aggregate object (usually  a  struct)  and  an  identifier
+       (i.e.  a  member  of  the struct).  This is the same basic
+       technique used for  dynamic  dispatch  in  languages  like
+       Smalltalk and Objective-C.
+
+
+       Here  is  a  little example showing a few ways this can be
+       used.  Note the occasional use of literal functions.
+
+       static
+       showtype(any, label)
+       {
+           printf("%s is a %s\n", label, typeof(any));
+       }
+
+       /*
+        * Class definition.
+        */
+       static Point =
+       [struct
+           p_x     = 0.0,
+           p_y     = 0.0,
+           p_swap  = [func (self) { self.p_x <=> self.p_y; } ],
+           p_print = [func (s) { printf("Pt <%g %g>\n", s.p_x, s.p_y);} ],
+           p_what  = showtype,
+       ];
+
+       static p1 = struct(@Point);  /* Set super struct to be atomic Point */
+
+           p1.p_x = 1.2;
+           p1.p_y = 3.4;
+
+           p1@p_what("p1");
+           p1@p_print();
+
+
+
+                                                               47
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+           p1@p_swap();
+           p1@p_print();
+
+
+       Which produces this output when run:
+
+       p1 is a struct
+       Pt <1.2 3.4>
+       Pt <3.4 1.2>
+
+
+       In summary, method calls depend on:
+
+       +       Ici's super  linkage  to  provide  the  normal  OO
+               inheritance name search mechanism.
+
+       +       The  `@'  binary  operator to form a keyed pointer
+               that will select the named member of the struct.
+
+       +       The "()" (call) operator's special treatment of  a
+               function-keyed pointer.
+
+       The  syntax  is  the  natural result of using ici's normal
+       language facilities.
+
+
+   Standard Functions
+       The following  list  summarises  the  standard  functions.
+       Following  this is a detailed description of each of them.
+       This is not the complete list of functions - system  func-
+       tions (like sleep(), access(), etc.), and socket functions
+       are described in their own sections.
+
+
+                 float =   acos(number)
+                 mem =     alloc(int [, int])
+                 array =   array(any...)
+                 float =   asin(number)
+                 any =     assign(struct, any, any)
+                 float =   atan(number)
+                 float =   atan2(number, number)
+                 any =     call(func, array)
+                 any =     call(pointer, array)
+                 float =   ceil(number)
+                           close(file)
+                 any =     copy(any)
+                 float =   cos(number)
+                 file =    currentfile()
+                           del(struct, any)
+                 int =     eq(any, any)
+                 int =     eof(file)
+                           exit([int|string|NULL])
+                 float =   exp(number)
+                 array =   explode(string)
+
+
+
+                                                               48
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+                           fail(string)
+                 any =     fetch(struct, any)
+                 float =   float(any)
+                 float =   floor(number)
+                 int =     flush(file)
+                 float =   fmod(number, number)
+                 file =    fopen(string [, string])
+                           flush([file])
+                 string =  getchar([file])
+                 string =  getfile([file])
+                 string =  getline([file])
+                 string =  getenv(string)
+                 string =  gettoken([file|string [,string]])
+                 array    =   gettokens([file|string     [,string
+       [,string [,string]]]])
+                 string =  gsub(string, regexp, string)
+                 string =  implode(array)
+                 struct =  include(string [, struct])
+                 int =     int(any)
+                 string =  interval(string, int [, int])
+                 array =   interval(array, int [, int])
+                 int =     isatom(any)
+                 array =   keys(struct)
+                 float =   log(number)
+                 float =   log10(number)
+                 mem =     mem(int, int [,int])
+                 file =    mopen(string [, string])
+                 int =     nels(any)
+                 int|float =         num(string|int|float)
+                 struct =  parse(file|string [, struct])
+                 any =     pop(array)
+                 file =    popen(string [, string])
+                 float =   pow(number, number)
+                           printf([file,] string [, any...])
+                 any =     push(array, any)
+                           put(string)
+                           putenv(string [, string])
+                 int =     rand([int])
+                           reclaim()
+                 regexp =  regexp(string)
+                 regexp =  regexpi(string)
+                           remove(string)
+                 struct =  scope([struct])
+                 int =     seek(file, int, int)
+                 set =     set(any...)
+                 float =   sin(number)
+                 int =     sizeof(any)
+                 array =   smash(string, string)
+                 file =    sopen(string [, string])
+                           sort(array, func)
+                 string =  sprintf(string [, any...])
+                 float =   sqrt(number)
+                 string =  string(any)
+                 struct =  struct(any, any...)
+
+
+
+                                                               49
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+                 string =  sub(string, regexp, string)
+                 struct =  super(struct [, struct])
+                 int =     system(string)
+                 float =   tan(number)
+                 string =  tochar(int)
+                 int =     toint(string)
+                 any =     top(array [, int])
+                 int =     trace(string)
+                 string =  typeof(any)
+                 array =   vstack()
+                 file =    waitfor(file...)
+                 int =     waitfor(int...)
+                 float =   waitfor(float...)
+
+
+
+       The  following  is  an  alphabetic  listing of each of the
+       standard functions.
+
+       angle = acos(x)
+
+       Returns the arc cosine of x in the range 0 to pi.
+
+       mem = alloc(nwords [, wordz])
+
+       Returns a new mem object referring to nwords (an  int)  of
+       newly  allocated  and cleared memory.  Each word is either
+       1, 2, or 4 bytes as specified by wordz  (an  int,  default
+       1).   Indexing  of mem objects performs the obvious opera-
+       tions, and thus pointers work too.
+
+       array = array(any...)
+
+       Returns an array formed from all the arguments. For  exam-
+       ple:
+
+       array()
+
+       will return a new empty array; and
+
+       array(1, 2, "a string")
+
+       will  return  a  new  array with three elements, 1, 2, and
+       "the string".
+
+       This is the run-time equivalent of the array literal. Thus
+       the following two expressions are equivalent:
+
+       $array(1, 2, "a string")
+
+       [array 1, 2, "a string"]
+
+       float = asin(x)
+
+
+
+
+                                                               50
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+       Returns the arc sine of x  in the range -pi/2 to pi/2.
+
+       value = assign(struct, key, value)
+
+       Sets  the  element  of  struct identified by key to value,
+       ignoring any super struct.  Returns value.
+
+       angle = atan(x)
+
+       Returns the arc tangent of x  in the range -pi/2 to  pi/2.
+
+       angle = atan2(y, x)
+
+       Returns the angle from the origin to the rectangular coor-
+       dinates x, y (floats) in the range -pi to pi.
+
+       return = call(func, args)
+       return =call(pointer, args)
+
+       In the first form, this calls the function func with argu-
+       ments taken from the array args.  Returns the return value
+       of the function.
+
+       This is often used to pass on an  unknown  argument  list.
+       For example:
+
+       static
+       db()
+       {
+           auto vargs;
+
+           if (debug)
+               return call(printf, vargs);
+       }
+
+       new = copy(old)
+
+       Returns  a copy of old.  If old is an intrinsically atomic
+       type such as an int or string, the new will  be  the  same
+       object  as  the  old.   But  if  old  is an array, set, or
+       struct, a copy will be returned.  The copy will be  a  new
+       non-atomic object (even if old was atomic) which will con-
+       tain exactly the same objects as old and will be equal  to
+       it  (that is ==).  If old is a struct with a super struct,
+       new will have the same super (exactly the same super,  not
+       a copy of it).
+
+       x = cos(angle)
+
+       Returns  the cosine of angle (a float interpreted in radi-
+       ans).
+
+       file = currentfile()
+
+
+
+
+                                                               51
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+       Returns the file associated  with  the  innermost  parsing
+       context, or NULL if there is no module being parsed.
+
+       This  function  can  be  used to include data in a program
+       source file which is out-of-band with respect to the  nor-
+       mal  parse stream.  But to do this it is necessary to know
+       up to what character in the file in  question  the  parser
+       has consumed.
+
+       In  general:  after having parsed any simple statement the
+       parser will have consumed up to and including  the  termi-
+       nating  semicolon, and no more.  Also, after having parsed
+       a compound statement the parser will have consumed  up  to
+       and  including  the  terminating  close brace and no more.
+       For example:
+
+       static help = gettokens(currentfile(), "", "!")[0]
+
+       ;This is the text of the help message.
+       It follows exactly after the ; because
+       that is exactly up to where the parser
+       will have consumed. We are using the
+       gettokens() function (as described below)
+       to read the text.
+       !
+
+       static otherVariable = "etc...";
+
+       This function can also be used to parse the rest of a mod-
+       ule within an error catcher.  For example:
+
+       try
+           parse(currentfile(), scope())
+       onerror
+           printf("That didn't work, but never mind.\n");
+
+       static this = that;
+       etc();
+
+       The functions  parse and scope are described below.
+
+       del(struct, key)
+
+       Deletes the element of struct identified by key. Any super
+       structs are ignored.  Returns NULL.  For example:
+
+       static s = [struct a = 1, b = 2, c = 3];
+       static v, k;
+
+       forall (v, k in s)
+           printf("%s=%d\n", k, v);
+       del(s, "b");
+       printf("\n");
+       forall (v, k in s)
+
+
+
+                                                               52
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+           printf("%s=%d\n", k, v);
+
+       When run would produce (possibly in some other order):
+
+       a=1
+       c=3
+       b=2
+
+       a=1
+       c=3
+
+       int = eof([file])
+
+       Returns non-zero if end of file has been read on file.  If
+       file  is  not given the current value of stdin in the cur-
+       rent scope is used.
+
+       eq(obj1, obj2)
+
+       Returns 1 (one) if obj1 and obj2 are the same object, else
+       0 (zero).
+
+       exit([string|int|NULL])
+
+       Causes the interpreter to finish execution and exit. If no
+       parameter or the empty string or NULL is passed, the  exit
+       status  is  zero. If an integer is passed that is the exit
+       status. If a non-empty string is passed then  that  string
+       is  printed to the interpreter's standard error output and
+       an exit status of one used.  This is implementation depen-
+       dent and may be replaced by a more general exception mech-
+       anism.  Avoid.
+
+       float = exp(x)
+
+       Returns the exponential function of x.
+
+       array = explode(string)
+
+       Returns an array containing each of the integer  character
+       codes of the characters in string.
+
+       fail(string)
+
+       Causes an error to be raised with the message string asso-
+       ciated with it.  See the section of error handling in  the
+       try statement above.  For example:
+
+       if (qf > 255)
+           fail(sprintf("Q factor %d is too large", qf));
+
+       value = fetch(struct, key)
+
+       Returns   the  value  from  struct  associated  with  key,
+
+
+
+                                                               53
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+       ignoring any super structs. Returns NULL if the key is not
+       an element of struct.
+
+       value = float(x)
+
+       Returns a floating point interpretation of x, or 0.0 if no
+       reasonable interpretation exists. x should be  an  int,  a
+       float, or a string, else 0.0 will be returned.
+
+       file = fopen(name [, mode])
+
+       Opens  the  named file for reading or writing according to
+       mode and returns a file object that may be used to perform
+       I/O  on  the  file. Mode is the same as in C and is passed
+       directly to the C library fopen function. If mode  is  not
+       specified "r" is assumed.
+
+       fprintf(file, fmt, args...)
+
+       Formats  a  string  based  on  fmt and args as per sprintf
+       (below) and outputs the  result  to  file.   See  sprintf.
+       Changes to ici's printf have made fprintf redundant and it
+       may be removed in  future  versions  of  the  interpreter.
+       Avoid.
+
+       string = getchar([file])
+
+       Reads  a  single  character  from file and returns it as a
+       string. Returns NULL upon end of  file.  If  file  is  not
+       given  the  current value of stdin in the current scope is
+       used.
+
+       string = getfile([file])
+
+       Reads all remaining data from file and  returns  it  as  a
+       string.  Returns an empty string upon end of file. If file
+       is not given the current value of  stdin  in  the  current
+       scope is used.
+
+       string = getline([file])
+
+       Reads a line of text from file and returns it as a string.
+       Any end-of-line marker is removed.  Returns NULL upon  end
+       of  file.  If file is not given the current value of stdin
+       in the current scope is used.
+
+       string = gettoken([file [, seps]])
+
+       Read a token (that is, a string) from file.
+
+       Seps must be a string.  It is  interpreted  as  a  set  of
+       characters which do not from part of the token.  Any lead-
+       ing sequence of these characters is first skipped.  Then a
+       sequence  of  characters not in seps is gathered until end
+
+
+
+                                                               54
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+       of file or a character from seps is found.  This terminat-
+       ing  character  is  not  consumed.  The gathered string is
+       returned, or NULL if end of file  was  encountered  before
+       any token was gathered.
+
+       If  file  is  not  given the current value of stdin in the
+       current scope is used.
+
+       If seps is not given the string " \t\n" is assumed.
+
+       array = gettokens([file [, seps [, terms [, delims]]]])
+
+       Read tokens (that is, strings) from file.  The tokens  are
+       character  sequences  separated  by seps and terminated by
+       terms.  Returns an array of strings, NULL on end of  file.
+
+       If seps is a string, it is interpreted as a set of charac-
+       ters, any sequence of which will separate one  token  from
+       the next.  In this case leading and trailing separators in
+       the input stream are discarded.
+
+       If seps is an integer it is  interpreted  as  a  character
+       code.  Tokens are taken to be sequences of characters sep-
+       arated by exactly one of that character.
+
+       Separators are not returned as tokens, they are  consumed.
+       Each  separator  separates  two  tokens.   So empty-string
+       tokens are returned when a sequence of more than on  sepa-
+       rator occurs.
+
+       terms  must  be  a  string.  It is interpreted as a set of
+       characters, any one of which will terminate the  gathering
+       of  tokens.   The character which terminated the gathering
+       will be consumed.
+
+       delims, if provided, must be a string.  Each character  in
+       the  string is accepted as a single-character token in its
+       own right.  Unlike separators, delimiters are returned  as
+       tokens.
+
+       If  file  is  not given, the current value of stdin in the
+       current scope will be used.
+
+       If seps is not given, the string " \t" is assumed.
+
+       If terms is not given, the string "\n" is assumed.
+
+       If delims is not given, the empty string "" is assumed.
+
+       For example:
+
+       forall (token in gettokens(currentfile()))
+           printf("<%s>", token)
+       ;   This    is my line    of data.
+
+
+
+                                                               55
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+       printf("\n");
+
+       when run will print:
+
+       <This><is><my><line><of><data.>
+
+       Whereas:
+
+       forall (token in gettokens(currentfile(), ':', "*"))
+                 printf("<%s>", token)
+       ;:abc::def:ghi:*
+       printf("\n");
+
+       when run will print:
+
+       <><abc><><def><ghi><>
+
+       string = gsub(string, string|regexp, string)
+
+       gsub performs text substitution using regular expressions.
+       It  takes the first parameter, matches it against the sec-
+       ond parameter and then replaces the matched portion of the
+       string  with  the third parameter. If the second parameter
+       is a string it is converted to a regular expression as  if
+       the  regexp  function  had  been  called.  Gsub  does  the
+       replacement multiple times to replace all  occurrances  of
+       the  pattern.  It  returns  the  new  string formed by the
+       replacement. If there is no match this is original string.
+       The  replacement  string  may contain the special sequence
+       "\&" which is replaced by the string that matched the reg-
+       ular  expression.  Parenthesized  portions  of the regular
+       expression may be matched by using \n where n is a decimal
+       digit.
+
+       string = implode(array)
+
+       Returns a string formed from the concatenation of elements
+       of array.  Integers in the array will  be  interpreted  as
+       character  codes; strings in the array will be included in
+       the concatenation directly.  Other types are ignored.
+
+       struct = include(string [, scope])
+
+       Parses the code contained in the file named by the  string
+       into  the  scope. If scope is not passed the current scope
+       is used. Include always returns the scope into  which  the
+       code was parsed. The file is opened by calling the current
+       definition of the ici fopen() function so  path  searching
+       can be implemented by overriding that function.
+
+       value = int(any)
+
+       Returns an integer interpretation of x, or 0 if no reason-
+       able interpretation exists. x should be an int,  a  float,
+
+
+
+                                                               56
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+       or a string, else 0 will be returned.
+
+       subpart = interval(str_or_array, start [, length])
+
+       Returns  a  sub-interval  of  str_or_array,  which  may be
+       either a string or an array.
+
+       If start (an integer) is positive the sub-interval  starts
+       at  that offset (offset 0 is the first element).  If start
+       is negative the sub-interval  starts  that  many  elements
+       from the end of the string (offset -1 is the last element,
+       -2 the second last etc).
+
+       If length is absent, all the elements from the  start  are
+       included  in  the  interval.  Otherwise that many elements
+       are included (or till the end, whichever is smaller).
+
+       For example,  the  last  character  in  a  string  can  be
+       accessed with:
+
+       last = interval(str, -1);
+
+       And the first three elements of an array with:
+
+       first3 = interval(ary, 0, 3);
+
+       isatom(any)
+
+       Return  1  (one)  if  any is an atomic (read-only) object,
+       else 0 (zero).  Note that integers, floats and strings are
+       always atomic.
+
+       array = keys(struct)
+
+       Returns  an  array of all the keys from struct.  The order
+       is not predictable, but is repeatable if no  elements  are
+       added  or deleted from the struct between calls and is the
+       same order as taken by a forall loop.
+
+       float = log(x)
+
+       Returns the natural logarithm of x (a float).
+
+       float = log10(x)
+
+       Returns the log base 10 of x (a float).
+
+       mem = mem(start, nwords [, wordz])
+
+       Returns a memory object which refers to a particular  area
+       of  memory  in  the ici interpreter's address space.  Note
+       that this is a highly dangerous operation.  Many implemen-
+       tations  will  not  include  this function or restrict its
+       use.  It is designed for diagnostics, embedded systems and
+
+
+
+                                                               57
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+       controllers.  See the alloc function above.
+
+       file = mopen(mem [, mode])
+
+       Returns  a  file,  which  when  read will fetch successive
+       bytes from the given memory  object.   The  memory  object
+       must have an access size of one (see alloc and mem above).
+       The file is read-only and the mode, if passed, must be one
+       of "r" or "rb".
+
+       int = nels(any)
+
+       Returns  the number of elements in any.  The exact meaning
+       depends on the type of any.  If any is an:
+
+
+       array     the length of the array is returned; if it is a
+
+       struct    the number of key/value pairs is returned; if it
+                 is a
+
+       set       the number of elements is returned; if it is a
+
+       string    the  number of characters is returned; and if it
+                 is a
+
+       mem       the number of words (either 1, 2 or 4 byte quan-
+                 tities) is returned;
+
+       and if it is anything else, one is returned.
+
+
+       number = num(x)
+
+       If x is an int or float, it is returned directly.  If x is
+       a string it will be converted to an int or float depending
+       on  its appearance; applying octal and hex interpretations
+       according to the normal ici  source  parsing  conventions.
+       (That is, if it starts with a 0x it will be interpreted as
+       a hex number, else if it starts with a 0 it will be inter-
+       preted  as an octal number, else it will be interpreted as
+       a decimal number.)
+
+       If x can not be interpreted as a number the  error  %s  is
+       not a number is generated.
+
+       scope = parse(source [, scope])
+
+       Parses  source  in  a  new variable scope, or, if scope (a
+       struct) is supplied, in that scope.  Source may either  be
+       a file or a string, and in either case it is the source of
+       text for the parse.  If the parse is successful, the vari-
+       ables  scope  structure of the sub-module is returned.  If
+       an  explicit  scope  was  supplied  this  will   be   that
+
+
+
+                                                               58
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+       structure.
+
+       If  scope  is not supplied a new struct is created for the
+       auto variables.  This structure in turn  is  given  a  new
+       structure  as  its  super struct for the static variables.
+       Finally, this structure's super  is  set  to  the  current
+       static  variables.   Thus the static variables of the cur-
+       rent module form the externs of the sub-module.
+
+       If scope is supplied it is used directly as the scope  for
+       the  sub-module.   Thus  the  base  structure  will be the
+       struct for autos, its super will be the struct for statics
+       etc.
+
+       For example:
+
+
+       static x = 123;
+       parse("static x = 456;", scope());
+       printf("x = %d\n", x);
+
+       When run will print:
+
+       x = 456
+
+       Whereas:
+
+       static x = 123;
+       parse("static x = 456;");
+       printf("x = %d\n", x);
+
+       When run will print:
+
+       x = 123
+
+       Note that while the following will work:
+
+       parse(fopen("my-module.ici"));
+
+       It is preferable in a large program to use:
+
+       parse(file = fopen("my-module.ici"));
+       close(file);
+
+       In  the  first  case the file will eventually be closed by
+       garbage collection, but exactly when this will  happen  is
+       unpredictable. The underlying system may only allow a lim-
+       ited number of simultaneous open files.  Thus if the  pro-
+       gram  continues  to  open  files  in this fashion a system
+       limit may be reached before the unused files  are  garbage
+       collected.
+
+       any = pop(array)
+
+
+
+
+                                                               59
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+       Returns  the  last element of array and reduces the length
+       of array by one.  If the array was empty  to  start  with,
+       NULL is returned.
+
+       file = popen(string, [flags])
+
+       Executes  a new process, specified as a shell command line
+       as for the system function, and returns a file that either
+       reads  or  writes  to  the standard input or output of the
+       process according to mode. If mode is "r" the reading from
+       the file reads from the standard output of the process. If
+       mode is "w" writing to the file  writes  to  the  standard
+       input  of  the  process.  If  mode  is  not  speicified it
+       defaults to "r".
+
+       float = pow(x, y)
+
+       Returns x^y where both x and y are floats.
+
+       printf([file,] fmt, args...)
+
+       Formats a string based on fmt  and  args  as  per  sprintf
+       (below)  and outputs the result to the file or to the cur-
+       rent value of the stdout variable in the current scope  if
+       the  first  parameter  is  not a file.  The current stdout
+       must be a file.  See sprintf.
+
+       any = push(array, any)
+
+       Appends any to array, increasing its length  in  the  pro-
+       cess.  Returns any.
+
+       put(string [, file])
+
+       Outputs  string to file. If file is not passed the current
+       value of stdout in the current scope is used.
+
+       int = rand([seed])
+
+       Returns an pseudo random integer in the  range  0..0x7FFF.
+       If  seed  (an int) is supplied the random number generator
+       is first seeded with that number.  The  sequence  is  pre-
+       dictable based on a given seed.
+
+       reclaim()
+
+       Force  a garbage collection to occur.  (This should not be
+       needed in normal operation.)
+
+       re = regexp(string)
+
+       Returns a compiled regular expression derived from  string
+       This  is  the  method of generating regular expressions at
+       run-time, as opposed  to  the  direct  lexical  form.  For
+
+
+
+                                                               60
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+       example, the following three expressions are similar:
+
+       str ~ #.*\.c#
+       str ~ regexp(".*\\.c");
+       str ~ $regexp(".*\\.c");
+
+       except  that  the middle form computes the regular expres-
+       sion each time it is executed.  Note that when  a  regular
+       expression includes a # character the regexp function must
+       be used, as the direct  lexical  form  has  no  method  of
+       escaping a #.
+
+       Note  that  regular  expressions are intrinsically atomic.
+       Also note that non-equal strings may sometimes compile  to
+       the same regular expression.
+
+       re = regexpi(string)
+
+       Returns  a compiled regular expression derived from string
+       that is case-insensitive. I.e., the regexp  will  match  a
+       string  regardless  of  the case of alphabetic characters.
+       Note that there is no literal form of regular  expressions
+       that has this property.
+
+       remove(string)
+
+       Deletes the file whose name is given in string.
+
+       current = scope([replacement])
+
+       Returns  the  current  scope  structure.  This is a struct
+       whose base element holds the auto variables, the super  of
+       that hold the statics, the super of that holds the externs
+       etc.  Note that this is a real reference  to  the  current
+       scope  structure.   Changing, adding and deleting elements
+       of these structures will affect the values and presence of
+       variables in the current scope.
+
+       If  a replacement is given, that struct  replaces the cur-
+       rent scope structure, with the obvious implications.  This
+       should  clearly  be used with caution.  Replacing the cur-
+       rent scope with a structure which has no reference to  the
+       standard functions also has the obvious effect.
+
+       int = seek(file, int, int)
+
+       Set  the  input/output position for a file and returns the
+       new I/O position or -1 if an error ocurred. The  arguments
+       are the same as for the C library's fseek function. If the
+       file object does not support setting the I/O  position  or
+       the seek operation fails an error is raised.
+
+       set = set(any...)
+
+
+
+
+                                                               61
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+       Returns a set formed from all the arguments. For example:
+
+       set()
+
+       will return a new empty set; and
+
+       set(1, 2, "a string")
+
+       will  return a new set with three elements, 1, 2, and "the
+       string".
+
+       This is the run-time equivalent of the set  literal.  Thus
+       the following two expressions are equivalent:
+
+       $set(1, 2, "a string")
+
+       [set 1, 2, "a string"]
+
+       x = sin(angle)
+
+       Returns  the  sine  of angle (a float interpreted in radi-
+       ans).
+
+       int = sizeof(any)
+
+       Sizeof is the old name of  the  nels  function  (described
+       above).
+
+       file = sopen(string [, mode])
+
+       Returns  a  file,  which  when  read will fetch successive
+       characters from the given string. The  file  is  read-only
+       and the mode, if passed, must be one of "r" or "rb".
+
+       Files are, in general, system dependent.  This is the only
+       standard routine which opens a file.  But on systems  that
+       support  byte stream files, the function fopen will be set
+       to the most appropriate method of opening a file for  gen-
+       eral  use.  The  interpretation  of mode is largely system
+       dependent, but the strings "r", "w", and  "rw"  should  be
+       used  for  read, write, and read-write file access respec-
+       tively.
+
+       sort(array, func)
+
+       Sort the content of the array using the  heap  sort  algo-
+       rithm with func as the comparison function. The comparison
+       function is called with  two  elements  of  the  array  as
+       parameters,  a  and  b.  If  a  is equal to b the function
+       should return zero. If a is less than b, -1, and if  a  is
+       greater than b, 1.
+
+       For example,
+
+
+
+
+                                                               62
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+       static
+       cmp(a, b)
+       {
+           if (a == b)
+               return 0;
+           if (a < b)
+               return -1;
+           return 1;
+       }
+
+       static a = array(1, 3, 2);
+
+       sort(a, cmp);
+
+
+       string = sprintf(fmt, args...)
+
+       Return  a  formatted  string  based  on fmt (a string) and
+       args.  Most of the usual % format escapes of ANSI C printf
+       are  supported.  In particular; the integer format letters
+       diouxXc are supported, but if a float is provided it  will
+       be converted to an int.  The floating point format letters
+       feEgG are supported, but if the argument is an int it will
+       be  converted  to a float.  The string format letter, s is
+       supported and requires a string.  Finally the % format  to
+       get a single % works.
+
+       The  flags,  precision,  and  field width options are sup-
+       ported.  The indirect field width  and  precision  options
+       with * also work and the corresponding argument must be an
+       int.
+
+       For example:
+
+       sprintf("%08X <%4s> <%-4s>", 123, "ab", "cd")
+
+       will produce the string:
+
+       0000007B <  ab> <cd  >
+
+       and
+
+       sprintf("%0*X", 4, 123)
+
+       will produce the string:
+
+       007B
+
+       x = sqrt(float)
+
+       Returns the square root of float.
+
+       string = string(any)
+
+
+
+
+                                                               63
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+       Returns a short textual representation of any. If  any  is
+       an  int  or float it is converted as if by a %d or %g for-
+       mat.  If it is a string  it  is  returned  directly.   Any
+       other  type will returns its type name surrounded by angle
+       brackets, as in <struct>.
+
+       struct = struct([super,] key, value...)
+
+       Returns a new structure.  This is the run-time  equivalent
+       of  the  struct  literal.   If  there are an odd number of
+       arguments the first is  used  as  the  super  of  the  new
+       struct; it must be a struct.  The remaining pairs of argu-
+       ments are treated as key and value pairs to initialise the
+       structure with; they may be of any type.  For example:
+
+       struct()
+
+       returns a new empty struct;
+
+       struct(anotherStruct)
+
+       returns  a new empty struct which has anotherStruct as its
+       super;
+
+       struct("a", 1, "b", 2)
+
+       returns a new struct which has two entries a  and  b  with
+       the values 1 and 2; and
+
+       struct(anotherStruct, "a", 1, "b", 2)
+
+       returns  a  new  struct which has two entries a and b with
+       the values 1 and 2 and a super of anotherStruct.
+
+       Note that the super of the new struct  is  set  after  the
+       assignments  of  the new elements have been made. Thus the
+       initial elements given as arguments will not affect values
+       in any super struct.
+
+       The following two expressions are equivalent:
+
+       $struct(anotherStruct, "a", 1, "b", 2)
+
+       [struct:anotherStruct, a = 1, b = 2]
+
+       string = sub(string, string|regexp, string)
+
+       sub()  performs  text  substitution  using regular expres-
+       sions. It takes the first parameter,  matches  it  against
+       the second parameter and then replaces the matched portion
+       of the string with the  third  parameter.  If  the  second
+       parameter is a string it is converted to a regular expres-
+       sion as if the regexp function had been called.  Sub  does
+       the  replacement  once  (unlike  gsub). It returns the new
+
+
+
+                                                               64
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+       string formed by the replacement. If  there  is  no  match
+       this  is  original string. The replacement string may con-
+       tain the special sequence "\&" which is  replaced  by  the
+       string  that matched the regular expression. Parenthesized
+       portions of the regular expression may be matched by using
+       \n where n is a decimal digit.
+
+       current = super(struct [, replacement])
+
+       Returns  the  current  super  struct  of  struct,  and, if
+       replacement is supplied, sets  it  to  a  new  value.   If
+       replacement  is NULL any current super struct reference is
+       cleared (that is, after this struct will have no super).
+
+       x = tan(angle)
+
+       Returns the tangent of angle (a float interpreted in radi-
+       ans).
+
+       string = tochar(int)
+
+       Returns  a  one  character  string made from the character
+       code specified by int.
+
+
+       int = toint(string)
+
+       Returns the character  code  of  the  first  character  of
+       string.
+
+       string = typeof(any)
+
+       Returns  the type name (a string) of any.  See the section
+       on types above for the possible type names.
+
+       array = vstack()
+
+       Returns a representation of the call stack of the  current
+       program at the time of the call. It can be used to perform
+       stack tracebacks and  related  debugging  operations.  The
+       result is an array of structures, each of which is a vari-
+       able scope (see scope) structure  of  successively  deeper
+       nestings of the current function nesting.
+
+       event = waitfor(event...)
+
+       Blocks  (waits)  until  an  event  indicated by any of its
+       arguments occurs, then returns that argument.  The  inter-
+       pretation  of an event depends on the nature of each argu-
+       ment.  A file argument is triggered when input  is  avail-
+       able  on  the  file.  A float argument waits for that many
+       seconds to expire, an int for that many millisecond  (they
+       then  return 0, not the argument given). Other interpreta-
+       tions are implementation dependent. Where  several  events
+
+
+
+                                                               65
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+       occur simultaneously, the first as listed in the arguments
+       will be returned.
+
+       Note that in some  implementations  some  file  types  may
+       always  appear ready for input, despite the fact that they
+       are not.
+
+
+   Pointers
+       Pointers in ici work basically like pointers in  C  -  but
+       are  implemented  as objects in their own right.  Pointers
+       in ici are completely safe.
+
+       An ici pointer consists of two  parts,  the  object  being
+       pointed to, and a key to indicate the specific part of the
+       object.
+
+       Integers can be added to or subtracted from a  pointer  if
+       the  object  is  indexed by an integer (like an array or a
+       string).
+
+           auto x = [array 1, "fred", 3];
+           auto    p = &x[0];
+           ++p;
+           printf("*p is a %s0, typeof(*p));
+       *p is a string
+
+           x = "Hello!";
+           p = &x[0];
+           printf("*p is %s0, *p);
+       *p is H
+           p += 5;
+           printf("*p is %s0, *p);
+       *p is !
+
+
+
+   Unix System Calls
+       Most Unix implementation of ici provide access to many  of
+       the  Unix  system  calls  and other useful C library func-
+       tions. Note that not all system calls  are  supported  and
+       those  that  are may be incompletely supported (e.g., sig-
+       nal). Most system call functions return integers, zero  if
+       the  call succeeded. Errors are reported using ici's error
+       handling and "system calls" will never return the -1 error
+       return  value.  If an error is raised by a system call the
+       value of "error" in the error handler will  be  the  error
+       message  (as printed by the perror(3) function or returned
+       by the ANSI C strerror() function).
+
+       To assist in the use of system calls ici pre-defines vari-
+       ables to hold the various flags and other values used when
+       calling the system calls. These variables  are  equivalent
+       to the macros used in C. Not all systems support all these
+
+
+
+                                                               66
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+       variables. If the C header files do  not  define  a  value
+       then ici will not pre-define the variable.
+
+       Win32 Support
+
+       The  version  of  ici for Microsoft's 32-bit Windows plat-
+       forms (Win32) supports many of these functions.  Functions
+       supported  on  Win32 platforms (Windows 95 and Windows NT)
+       are marked with WIN32. In addition some functions are only
+       available on Win32 platforms and are marked as so.
+
+       The  following list summarises the Unix system call inter-
+       face pre-defined variables. See the documentation for  the
+       C macros for information as to their use.
+
+       Values for open's flags parameter,
+
+                 O_RDONLY
+                 O_WRONLY
+                 O_RDWR
+                 O_APPEND
+                 O_CREAT
+                 O_TRUNC
+                 O_EXCL
+                 O_SYNC
+                 O_NDELAY
+                 O_NONBLOCK
+                 O_BINARY            (WIN32 only)
+
+       Values for spawn's mode parameter,
+
+                 _P_WAIT             (WIN32 only)
+                 _P_NOWAIT           (WIN32 only)
+
+       Values for access's mode parameter,
+
+                 R_OK
+                 W_OK
+                 X_OK
+                 F_OK
+
+       Values for lseek's whence parameter,
+
+                 SEEK_SET
+                 SEEK_CUR
+                 SEEK_END
+
+       The  following  list summarises the system interface func-
+       tions. Following this is a detailed description of each of
+       them.
+                 int =     access(string [, int])
+                 int =     creat(string, int)
+                 array =   dir([string, ] [regexp, ] [string ])
+                 int =     dup(int [, int])
+
+
+
+                                                               67
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+                           exec(string, array)
+                           exec(string, string...)
+                 int =     lseek(int, int [, int])
+                 int =     open(string, int [, int])
+                 array =   pipe()
+                 struct =  stat(string|int|file)
+                 int =     wait()
+                 string =  ctime(int)
+                 int =     time()
+                 file =    fdopen(int)
+                 string =  getcwd()
+                           alarm(int)
+                           acct(string)
+                           chdir(string)
+                           chmod(string, int)
+                           chown(string, int, int)
+                           chroot(string)
+                           _close(int)
+                           _exit(int)
+                 int =     fork()
+                 int =     getpid()
+                 int =     getpgrp()
+                 int =     getppid()
+                 int =     getuid()
+                 int =     geteuid()
+                 int =     getgid()
+                 int =     getegid()
+                           kill(int, int)
+                           link(string, string)
+                           mkdir(string, int)
+                           mknod(string, int, int)
+                           nice(int)
+                           pause()
+                           rmdir(string)
+                           setpgrp()
+                           setuid(int)
+                           setgid(int)
+                           signal(int, int)
+                           sync()
+                           ulimit(int, int)
+                           umask(int)
+                           unlink(string)
+                           clock()
+                           system(string)
+                           lockf(int, int, int)
+                           sleep(int)
+                 int =     spawn([int, ] string, string...)
+                 int =     spawn([int, ] string, array)
+                           rename(string, string)
+                 struct =  passwd(int|string)
+                 array =   passwd()
+
+
+       int = access(string [, int])
+
+
+
+                                                               68
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+       Call the access(2) function to determine the accessibility
+       of a file. The first parameter is the pathname of the file
+       system  object to be tested. The second, optional, parame-
+       ter is the mode (a bitwise combination of R_OK,  W_OK  and
+       X_OK  or  the special value, F_OK).  If mode is not passed
+       F_OK is assumed. Access  returns  0  if  the  file  system
+       object is accessible. Also supported on WIN32 platforms.
+
+       int = creat(pathname, mode)
+
+       Create  a  new  ordinary  file with the given pathname and
+       mode (permissions etc...) and return the file  descriptor,
+       open  for  writing,  for the file. Also supported on WIN32
+       platforms.
+
+       array =   dir([pathname, ] [regexp, ] [selector ])
+
+       This function is used to obtain the names of files  within
+       a given directory.  It returns an array of filenames.
+
+       The pathname argument provides the directory pathname.  If
+       NULL or omitted, the current directory is used.
+
+       A regular expression can be used to select  just  matching
+       names.
+
+       A  string  argument after a regular expression, or the 2nd
+       string argument if two are provided, is interpreted  as  a
+       file-type  selector.   It  is  a string comprised of these
+       characters:
+
+       f         Include regular files.
+
+       d         Include directories.
+
+       a         Include all files - regular, directory and  spe-
+                 cial.
+
+
+       If  no  format is provided, the default is to select only
+       regular files.
+       All  hidden  files are also returned.  So, when traversing
+       directories, make sure you skip ``.'' and ``..''.
+
+
+       int = dup(int [, int])
+
+       Duplicate a file descriptor by calling dup(2)  or  dup2(2)
+       and return a new descriptor. If only a single parameter is
+       passed dup(2) is called otherwise dup2(2) is called.  Also
+       supported on WIN32 platforms.
+
+       exec(pathname, array)
+
+
+
+
+                                                               69
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+       exec(pathname, string...)
+
+       Execute  a  new  program in the current process. The first
+       parameter to exec is the pathname of  an  executable  file
+       (the  program).  The  remaining  parameters are either; an
+       array of strings defining the parameters to be  passed  to
+       the  program,  or,  a  variable number of strings that are
+       passed, in order, to the program as  its  parameters.  The
+       first form is similar to C's execv function and the second
+       form to C's execl functions. Note that no searching of the
+       user's path is performed and the environment passed to the
+       program is that of the current  process  (i.e.,  both  are
+       implemented  by  calls to execv(2)). This function is also
+       available on Win32 platforms.
+
+       int = lseek(int, int [, int])
+
+       Set the read/write position for an open  file.  The  first
+       parameter  is the file descriptor associated with the file
+       system object, the second parameter the offset. The  third
+       is  the  whence  value  which  determines how the new file
+       position is calculated. The whence value  may  be  one  of
+       SEEK_SET, SEEK_CUR or SEEK_END and defaults to SEEK_SET if
+       not specified. Also supported on WIN32 platforms.
+
+       int = open(pathname, int [, int])
+
+       Open the named file for reading or writing depending  upon
+       the  value  of  the  second parameter, flags, and return a
+       file descriptor. The second parameter is a bitwise  combi-
+       nation  of  the  various O_ values (see above) and if this
+       set includes the O_CREAT flag  a  third  parameter,  mode,
+       must  also be supplied. Also supported on WIN32 platforms.
+
+       array = pipe()
+
+       Create a pipe and return an array containing two, integer,
+       file  descriptors  used  to  refer to the input and output
+       endpoints of the pipe.
+
+       struct = stat(pathname|int|file)
+
+       Obtain information on the named file system  object,  file
+       descriptor  or  file  underlying  an  ici  file object and
+       return a struct containing that information. If the param-
+       eter  is  a  file  object that file object must refer to a
+       file opened with ici's fopen function. The returned struct
+       contains  the following keys (which have the same names as
+       the fields of the Unix statbuf structure with the  leading
+       "st_" prefix removed):
+
+                 dev
+                 ino
+                 mode
+
+
+
+                                                               70
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+                 nlink
+                 uid
+                 gid
+                 rdev
+                 size
+                 atime
+                 mtime
+                 ctime
+                 blksize
+                 blocks
+
+       All  values  are  integers.  Also supported on WIN32 plat-
+       forms.
+
+       int = wait()
+
+       Wait until a signal is received or a child process  termi-
+       nates  or  stops  due  to  tracing  and  return the status
+       returned by system call.
+
+       string = ctime(int)
+
+       Convert a time value (see time, below) to a string of  the
+       form  "Sun Sep 16 01:03:52 1973\n" and return that string.
+       This is primarily of use when converting the  time  values
+       returned by stat. Also supported on WIN32 platforms.
+
+       int = time()
+
+       Return  the time since 00:00:00 GMT,  Jan.  1,  1970, mea-
+       sured in seconds.  Also supported on WIN32 platforms.
+
+       file = fdopen(int [, mode])
+
+       Returns a file object that can be used to perform  I/O  on
+       the  specified  file  descriptor.  The  file is opened for
+       reading or writing according to mode (see fopen). If  mode
+       is specified "r" (reading) is assumed.
+
+       string = getcwd()
+
+       Returns  the  name  of the current working directory. Also
+       supported on WIN32 platforms.
+
+       alarm(int)
+
+       Schedule a SIGALRM signal to be posted to the current pro-
+       cess  in the specified number of seconds. If the parameter
+       is zero any alarm is cancelled.
+
+       acct(pathname)
+
+       Enable accounting on the specified file.
+
+
+
+
+                                                               71
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+       chdir(pathname)
+
+       Change the process's  current  working  directory  to  the
+       specified path. Also supported on WIN32 platforms.
+
+       chmod(pathname, int)
+
+       Change the mode of a file system object.
+
+       chown(pathname, int, int)
+
+       Change  the  owner and group identifiers for a file system
+       object.
+
+       chroot(pathname)
+
+       Change root directory for process.
+
+       _close(int)
+
+       Close a file descriptor. Also  supported  on  WIN32  plat-
+       forms.
+
+       _exit(int)
+
+       Exit  the current process returning an integer exit status
+       to the parent. Also supported on WIN32 platforms.
+
+       int = fork()
+
+       Create a new process. In the parent this returns the  pro-
+       cess  identifier  for  the  newly  created process. In the
+       newly created process it returns zero.
+
+       int = getpid()
+
+       Get the process identifier for the current process.
+
+       int = getpgrp()
+
+       Get the current process group identifier.
+
+       int = getppid()
+
+       Get the parent process identifier.
+
+       int = getuid()
+
+       Get the real user identifier of the owner of  the  current
+       process.
+
+       int = geteuid()
+
+       Get  the  effective  user  identifier for the owner of the
+
+
+
+                                                               72
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+       current process.
+
+       int = getgid()
+
+       Get the real group identifier for the current process.
+
+       int = getegid()
+
+       Get the effective group identifier for  the  current  pro-
+       cess.
+
+       kill(int, int)
+
+       Post a signal to a process.
+
+       link(pathname, pathname)
+
+       Create a link to an existing file.
+
+       mkdir(pathname, int)
+
+       Create a directory with the specified mode. Also supported
+       on WIN32 platforms.
+
+       mknod(pathname, int, int)
+
+       Create a special file.
+
+       nice(int)
+
+       Change the nice value of a process.
+
+       pause()
+
+       Wait until a signal is delivered to the process.
+
+       rmdir(pathname)
+
+       Remove a directory. Also supported on WIN32 platforms.
+
+       setpgrp()
+
+       Set the process group.
+
+       setuid(int)
+
+       Set the real and effective user identifier for the current
+       process.
+
+       setgid(int)
+
+       Set  the  real and effective group identifier for the cur-
+       rent process.
+
+
+
+
+                                                               73
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+       signal(int, int)
+
+       Control signal handling in the process.  Note  at  present
+       handlers cannot be installed so signals are of limited use
+       in ici programs.
+
+       sync()
+
+       Schedule in-memory file data to be written to disk.
+
+       ulimit(int, int)
+
+       Get and set user limits.
+
+       umask(int)
+
+       Set file creation mask.
+
+       unlink(pathname)
+
+       Remove a file. Also supported on WIN32 platforms.
+
+       system(string)
+
+       Execute a system command and return its exit status.  Also
+       supported  on  WIN32  platforms however using the system's
+       command interpreter.
+
+       sleep(int)
+
+       Suspend the process for the specified number of seconds.
+
+       int = spawn([mode,] string, string...)
+
+       int = spawn([mode, ] string, array)
+
+       int = spawnp([mode,] string, string...)
+
+       int = spawnp([mode, ] string, array)
+
+       Spawn a sub-process. The parameters, other than mode,  are
+       as for exec - the string is the name of the executable and
+       the remaining parameters form the command  line  arguments
+       passed to the executable.
+
+       The mode parameter controls whether or not the parent pro-
+       cess waits for the spawned process to termiante.  If  mode
+       is _P_WAIT the call to spawn returns when the process ter-
+       minates and the result of spawn is the process  exit  sta-
+       tus.  If  mode  is  not passed or is _P_NOWAIT the call to
+       spawn returns prior to the  process  terminating  and  the
+       result is the Win32 process handle for the new process.
+
+       The  spawnp  variant will search the directories listed in
+
+
+
+                                                               74
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+       the PATH environment variable for the executable  program.
+       In all other respects it is indentical to spawn.
+
+       This function is only available on Win32 platforms.
+
+       rename(pathname, pathname)
+
+       Change the name of a file. The first parameter is the name
+       of an existing file and the second is the new name that it
+       is to be given.
+
+       struct = passwd(int | string)
+
+       array = passwd()
+
+       The  passwd()  function  accesses  the  Unix password file
+       (which may or may not be an actual file according  to  the
+       local  system  configuration). With no parameters passwd()
+       returns an array of all password file entries, each  entry
+       is  a  struct. With a parameter passwd() returns the entry
+       for the specific user id., int parameter,  or  user  name,
+       string  parameter.  A password file entry is a struct with
+       the following keys and values:
+
+
+       name      The user's login name, a string.
+
+       passwd    The user's encrypted password, a  string.   Note
+                 that  some systems protect this (shadow password
+                 files) and this  field  may  not  be  an  actual
+                 encrypted password.
+
+       uid       The user id., an int.
+
+       gid       The user's default group, an int.
+
+       gecos     The so-called gecos field, a string.
+
+       dir       The user's home directory, a string.
+
+       shell     The user's shell (initial program), a string.
+
+
+   Terminal-window Interface
+       This extension provides rectangular ascii character window
+       areas that can be stacked over one another within an  area
+       of  the screen, and also provides character input and out-
+       put.
+
+       The extension introduces a new type, window, to hold  win-
+       dow  objects.   Screen positions are described in terms of
+       (line, column) pairs.  The top of the screen  is  line  0,
+       the left column is 0.
+
+
+
+
+                                                               75
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+       The  following  list summarises the window interface func-
+       tions. Following this is a detailed description of each of
+       them.
+
+                 w_box(window);
+                 w_clear(window);
+                 w_cursorat(window, int, int);
+                 string = w_edit(window, int, int, int, string);
+                 string = w_getchar();
+                 w_mesg(string);
+                 w_pop(window);
+                 int   =  w_paint(window,  int,  int,  string  [,
+       string]);
+                 win = w_push(int, int, int, int);
+                 win = w_refresh();
+                 w_suspend();
+                 win = w_textwin(int, int, string [, string]);
+                 w_ungetchar();
+
+
+       The window type has these components:
+
+
+              w_nlines  The number of lines in the window.
+
+
+              w_ncols   The number of columns in the window.
+
+
+              w_atline  The line number of the cursor position.
+
+
+              w_atcol   The column number of the cursor position.
+
+       A  window  can  also be indexed by an integer - it returns
+       the character at that position within the  window,  or  an
+       empty string if the index was out of bounds.
+
+
+       w_box(window);
+
+       Outlines the window by filling in the characters along the
+       borders appropriately.
+
+       w_clear(window);
+
+       Blanks the window (writes a space character at every posi-
+       tion).
+
+       w_cursorat(window, line, col);
+
+       Positions the cursor at the window co-ordinate.
+
+       string = w_edit(window, line, col, width, string);
+
+
+
+                                                               76
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+       The  function  allows  the  user to edit the window in the
+       specified area determined by the  window  co-ordinate  and
+       the width.  It returns the contents of the edited area.
+
+       It is terminated by ... ###?
+
+       The string can be edited with the backspace character, the
+       arrow keys, and of course by typing.
+
+       string = w_getchar();
+
+       This returns the name of the key struck.  In the  case  of
+       printable ascii characters, this is just a string contain-
+       ing the single ascii character.
+
+       On a Unix system, it does more.  In the case of a function
+       key  it  returns the function key name ("F1" .. "F12" ..),
+       in the case of other  keys  it  returns  "LEFT",  "RIGHT",
+       "UP", "DOWN", "HOME", "END", "PGUP", "PGDOWN" as appropri-
+       ate.
+
+       w_mesg(string);
+
+       Paints the string onto the current window at  the  current
+       cursor  position.   Note  that  the window is not re-drawn
+       until w_refresh() is called.
+
+       w_pop(window);
+
+       Destroys the window.  Any windows below will no longer  be
+       obscured.
+
+       int = w_paint(window, line, col, msg [, tabs]);
+
+       The  string msg is painted onto the window starting at the
+       given window co-ordinates.  Line and col are treated as in
+       w_push(), below.
+
+       The  optional  string is a sequence of tab specifiers with
+       no separators.  They define tab positions, with  the  same
+       semantics  as  in troff.  This basically means that when a
+       tab is painted onto the window, the cursor is moved to the
+       appropriate  position.   If  missing,  tabs are assumed to
+       move to the next column that is a multiple of 8.  This  is
+       equivalent to setting "8L" (see below).
+
+       Each tab specifier is an optional +, followed by a decimal
+       number followed by an optional leader character,  followed
+       by  one  of  L (normal left tabbing), C (tab centred) or R
+       (right tabs).
+
+       The `+' means the position is  relative  to  the  previous
+       tab.   Otherwise, tab positions are relative to the start-
+       ing column.  The last tab specifier repeats.
+
+
+
+                                                               77
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+       The tab specifiers make it very easy to lay  out  text  in
+       windows neatly.
+
+       win = w_push(line, col, nlines, ncols);
+
+       Create  a  new  window  positioned at the given screen co-
+       ordinates, and with  the  number  of  lines  and  columns.
+       Assuming  that  `screen_lines' and `screen_cols' represent
+       the number of lines and columns  in  the  terminal  window
+       then:
+
+       If  nlines  <  0, it is set to screen_lines - abs(nlines %
+       screen_lines)
+
+       If ncols < 0: it is  set  to  screen_cols  -  abs(ncols  %
+       screen_cols)
+
+       If  line == -2: the window is positioned so it touches the
+       bottom of the screen.  If line == -1: the window is  posi-
+       tioned so it's vertically centered.
+
+       If  col  == -2: the window is positioned so it touches the
+       right edge of the screen.  If col ==  -1:  the  window  is
+       positioned so it's horizontally centered.
+
+       win = w_refresh();
+
+       Update the screen from all the windows that have been mod-
+       ified.  Does  a  reasonably  optimal  update  to  minimise
+       actual changes.
+
+       w_suspend();
+
+       ###
+
+       win = w_textwin(line, col, string [, tabs]);
+
+       A  new  window is created at the screen co-ordinate (line,
+       column), big enough to hold the given text, and the  first
+       string is painted onto it.  Line and col are treated as in
+       w_push().  The optional string is a sequence of tab speci-
+       fiers with no separators.  (See w_paint().)
+
+       Try this:
+
+               auto w;
+
+               w =
+                   w_textwin
+                   (
+                       3, 7,
+                       "Mary had a little lamb\n"
+                       "Its fleas were black as pitch\n"
+                       "So everywhere that Mary went\n"
+
+
+
+                                                               78
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+                       "She had a dreadful itch\n"
+                   );
+               w_refresh();
+               sleep(2);
+
+               w_box(w);
+               w_mesg("Dying soon...");
+               w_refresh();
+               sleep(2);
+
+               w_pop(w);
+               w_refresh();
+
+       w_ungetchar();
+
+       Put  a keystroke back into the input stream.  You can only
+       push back a maximum of one.
+
+
+
+   Sockets Interface
+       The sockets extension is available on systems that provide
+       BSD-compatible  sockets calls and for Win32 platforms. The
+       extension allows ici programs to access network functions.
+       The  sockets  extension is generally compatible with the C
+       sockets functions but uses  types  and  calling  semantics
+       more akin to the ici environment.
+
+       The  sockets  extension  introduces a new type, socket, to
+       hold socket objects. The new intrinsic  function,  socket,
+       returns a socket object.
+
+       Network Addresses
+
+       The  sockets  interfaces  specifies  IP  network addresses
+       using strings. Network addresses are  of  the  form  port@
+       host  where  the  @host  part is optional. The port may be
+       specified as an integer number or a string which is looked
+       up in the services database. If the port is a service name
+       it may be in the form name/protocol  with  protocol  being
+       either tcp or udp.  The host portion of the address may be
+       a domain name, an IP address in dotted decimal notation or
+       one  of the special addresses local ("." - dot), any ("?")
+       or all ("*"). If the host portion is omitted  the  default
+       host  depends  on the context. See the descriptions of the
+       connect and bind functions below.
+
+       The following list summarises the sockets interface  func-
+       tions. Following this is a detailed description of each of
+       them.
+
+                 skt =     socket(string)
+                 skt =     listen(skt)
+                 skt =     accept(skt)
+
+
+
+                                                               79
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+                 skt =     connect(skt, string)
+                 skt =     bind(skt, string)
+                 struct =  select([int,] set [, set [, set]])
+                 int =     getsockopt(skt, string)
+                           setsockopt(skt, string, int)
+                 string =  domainname()
+                 string =  hostname()
+                 string =  username([int])
+                 string =  getpeername(skt)
+                 string =  getsockname(skt)
+                           sendto(skt, string, string)
+                 struct =  recvfrom(skt, int)
+                           send(skt, string)
+                 string =  recv(skt, int)
+                 int =     getportno(skt)
+                 string =  gethostbyname(string)
+                 int =     sktno(skt)
+                 file =    sktopen(skt [, mode])
+                 array =   socketpair()
+
+       skt = socket(string)
+
+       Create and return a new socket  object  of  the  specified
+       protocol.  The  string, the protocol, may be one of tcp or
+       udp. For example:
+
+       skt = socket("tcp");
+
+       skt = accept(skt)
+
+       Accept a connection to a  TCP  socket  and  return  a  new
+       socket for that connection.
+
+       skt = listen(skt)
+
+       Allow  connections  to  a  TCP  socket. Returns the socket
+       passed.
+
+       skt = connect(skt, address)
+
+       Establish a TCP connection to  the  specified  address  or
+       associate the address with as the destination for messages
+       on a UDP socket. If the host portion of the address is not
+       specified  "." (dot) is used to connect to the local host.
+       The original socket is returned.
+
+       skt = bind(skt [, address|int])
+
+       Associate a local address for the socket (TCP or UDP).  If
+       the  address is not specified the system selects an unused
+       local port number for the socket. If the host  portion  of
+       the  address  is  not  specified "?" (any) is used. If the
+       address is passed as an integer it specifies the port num-
+       ber to be bound, the host portion is "?". Bind returns the
+
+
+
+                                                               80
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+       socket parameter.
+
+       struct = select([int,] set|NULL [, set|NULL [, set|NULL]])
+
+       Check  sockets  for  I/O  readiness with optional timeout.
+       Select may be passed up to three sets of sockets that  are
+       checked  for readiness to perform I/O. The first set holds
+       the sockets to test for input pending, the second set  the
+       sockets  to  test  for  output  able and the third set the
+       sockets to test for exceptional states. NULL may be passed
+       in  place  of a set parameter to avoid passing empty sets.
+       An integer may also appear in  the  parameter  list.  This
+       integer  specifies  the number of milliseconds to wait for
+       the sockets to become ready. If a zero timeout  is  passed
+       the  sockets are polled to test their state. If no timeout
+       is passed the call blocks until at least one of the  sock-
+       ets is ready for I/O.
+
+       The result of select is a struct containing three sets, of
+       sockets, identified by the keys read, write and except.
+
+       int = getsockopt(skt, string, int)
+
+       Retrieve the value of a socket option. A socket  may  have
+       various  attributes associated with it. These are accessed
+       via  the  getsockopt   and   setsockopt   functions.   The
+       attributes  are identified using string keys from the fol-
+       lowing list:
+
+                 debug
+                 reuseaddr
+                 keepalive
+                 dontroute
+                 useloopback
+                 linger
+                 broadcast
+                 oobinline
+                 sndbuf
+                 rcvbuf
+                 type
+                 error
+
+       setsockopt(skt, string, int)
+
+       Set a socket option (see getsockopt for option  names)  to
+       the integer value.
+
+       string = domainname()
+
+       Return the domain name of the current host.
+
+       string = hostname()
+
+       Return the name of the current host.
+
+
+
+                                                               81
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+       string = username([int])
+
+       Return  the name of the owner of the current process or if
+       an integer, user number, is passed, of that user.
+
+       string = getpeername(skt)
+
+       Return the address of the peer of a TCP socket.
+
+       string = getsockname(skt)
+
+       Return the local address of a socket.
+
+       sendto(skt, string, string)
+
+       Send the data in the second  parameter  to  the  specified
+       address.
+
+       array = socketpair()
+
+       Returns an array containing a pair of connected sockets.
+
+       struct = recvfrom(skt, int)
+
+       Receive a message on a socket and return a struct contain-
+       ing the data of the message, in  string,  and  the  source
+       address  of  the data. The int parameter gives the maximum
+       number of bytes to receive. The result is  a  struct  with
+       the keys msg and addr used to access the returned informa-
+       tion.
+
+       send(skt, string)
+
+       Send the content of the string on a socket.
+
+       string = recv(skt, int)
+
+       Receive data from a socket and return it as a string.  The
+       int  parameter fives the maximum size of message that will
+       be received.
+
+       int = getportno(skt)
+
+       Return the local port number assigned  to  a  TCP  or  UDP
+       socket.
+
+       string = gethostbyname(string)
+
+       Match  a  network  address  against the hosts database and
+       return a hostname.
+
+       int = sktno(skt)
+
+       Return the file descriptor associated with a socket.
+
+
+
+                                                               82
+
+
+
+
+
+ici(1)                                                     ici(1)
+
+
+       file = sktopen(skt [, mode])
+
+       Open a socket as a file, for input or output according  to
+       mode  (see fopen). This function is not available on WIN32
+       platforms.
+
+
+ENVIRONMENT
+       ICIPATH A colon-separated list of directories in which  to
+       look for modules.
+
+
+FILES
+       /usr/local/lib/ici/ici_init.ici Standard startup file.
+
+
+SEE ALSO
+       See the ICI website, http://www.zeta.org.au/~atrn/ici/
+
+       OpenPage  is a page-based graphics language for high qual-
+       ity colour printing built from ici as the  language  core.
+       See http://www.research.canon.com.au/openpage.html
+
+
+AUTHOR
+       Tim Long <timl@research.canon.com.au>
+
+       With the assistance of:
+       Andy Newman
+       Chris Amies
+       Luke Kendall
+       Giordano Pezzoli
+       Yiorgos Adamopolous
+       Gary Gendel
+       John Rosauer
+       Ross Cartlidge
+
+       not to mention:
+
+       Henry Spencer
+       Philip Hazel
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                                               83
+
+

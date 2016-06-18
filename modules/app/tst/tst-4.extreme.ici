@@ -1,0 +1,1 @@
+extern fn(){auto f;f=object.new(app.openfilepanel)@run();if(f!="")object.new(app.textwidget,f);}app.loadresources();app.run();

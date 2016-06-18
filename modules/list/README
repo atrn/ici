@@ -1,0 +1,163 @@
+* ici list module
+
+The list module adds list data type to ici. A list is an ordered collection of
+objects, like arrays, but with the properties of fast insertion and removal
+of elements at arbitrary positions within the collection (arrays support efficient
+addition and removal of the last element of the collection, other operations require
+copying data).
+
+
+** The lists module
+
+The lists module is an auto-load module that is used simply by referring to it.
+The module is entirely native-code and is written in portable C. The module should
+be easy to port to any system with ici.
+
+
+* Data structures
+
+** List objects
+
+Lists are represented by list objects. A list object has a number of
+attributes that may be obtained via indexing a list object with one of
+a number of well-known strings. The keys recognised are:
+
+    nels	       The number of elements in the list, zero or more.
+    head	       The first node in the list or NULL if the list is empty.
+    tail	       The last node in the list or NULL if empty.
+
+
+** List node objects
+
+Internally lists are represented as doubly linked lists of list node objects.
+List nodes contain the links needed to form the list and a reference to the
+actual object represented by the node. A node is in one list at a time but
+objects may be in many lists. When traversing lists users are exposed to
+these objects.
+
+List nodes may be indexed with three keys, all strings:
+
+     obj       The underlying object represented by the node.
+     next      The next node in the list or NULL if none.
+     prev      The previous node in the list or NULL if none.
+
+Using list nodes is discussed below.
+
+
+* Using lists
+
+** Creating lists
+
+Lists are created with the function list.list(). This returns a new, empty
+list object ready to be used with other list functions. E.g.,
+
+     static alist;
+     alist = list.list();
+
+If parameters are passed they become the initial elements of the list:
+
+   alist = list.list(1, "two", 3.0);
+
+Creates a list of three elements, an integer, 1, the string "two" and
+the floating point number, 3.0.
+
+
+** Adding things to lists.
+
+There are three ways of adding things to lists. You can add them at the head
+via list.addhead(), at the tail via list.addtail() or at abitrary positions
+via list.insert().
+
+The list.addhead() and list.addtail() both take two parameters, a list and
+a object to be added. The object is added at the corresponding end of the
+list and the function returns. E.g.,
+
+     list.addhead(alist, something);
+     list.addtail(alist, 0);
+
+The list.insert() function takes a list, object and a position which is specified
+by either an integer, by a node or NULL to mean "tail". If the position is an integer
+the object is added at that position in the list, 0 for the head, 1 for the second
+position etc... If a list has N elements then a position of N+1 means append to
+the list. Any other values outside the list range are raised as errors. E.g.,
+
+    list.insert(alist, "thing to add", 1);
+
+Passing a node object as a position to list.insert() means "insert the object
+prior to this object". To append to the list the position is passed as NULL.
+This means the position can be easily obtained through traversals that run over
+the end of the list.
+
+    list.insert(alist, "another addition", alist.head);
+
+
+** Adding lists to lists.
+
+The list.append() function adds the nodes of one list to the end of
+another. The source list is unaffected. The function performs the task
+more efficiently than can be obtained using ici code.
+
+The list.join() function forms a new list from one or more lists. With
+a single list it makes a duplicate of its argument. With more than one
+argument it forms a new list by copying all the nodes from the source
+lists in order.
+
+
+** Removing things from lists.
+
+Like adding there are three ways to remove things from lists. You can
+remove the head element with list.remhead(), the tail with list.remtail()
+and arbitrary elements may be removed with the list.remove() function.
+All remove functions return the object removed so they can be used to
+traverse and consume a list in one operation. All removal functions take
+a list as their first parameter. The list.remove() function takes an
+additional parameter to indicate which element is to be removed.
+
+The list.remove() function allows elements to be explicitly named or
+a integer positional index to be used. If the argument is a list node
+that object is removed from the list. If the argument is an integer
+the node at that position in the list is removed. Position zero is the
+head of the list and the tail is position nels - 1 where nels is the
+number of elements in the list.
+
+
+** Traversing lists
+
+There are two ways of traversing lists, array-like and list-like.
+
+The first form uses the list like an array with integer indicies:
+
+    for (i = 0; i < l.nels; ++i)
+	printf("element %d = %s\n", i, l[i]);
+
+Each element of the list has an integer index that corresponds with its
+position in the list counted from the list head. The head being element
+zero, the second element one, and so on... Indexing a list with an integer
+returns the object stored at that position within the list.
+
+The list implementation has optimistations to make this form of traversal
+more effecient than naive implementations. The previous element and index
+is cached and the shortest path from that node to the requested
+node is used when doing any required searching.  This speeds sequential
+accesses while having no, theoretical, affect on random accesses (still
+O(N/2), we're just using a different starting point for the linear search).
+
+The second form of list traversal uses the list node objects. This is more
+like list traversal in other languages:
+
+    n := l.head;
+    while (n)
+    {
+	printf("%s\n", n.obj);
+	n = n.next;
+    }
+
+The head element is obtained by indexing the list with the key "head" (likewise
+the tail may be obtained with the key "tail"). This head (or tail) element will
+be NULL if the list is empty. To traverse the list we simply loop while getting
+the next (or previous) node in the list using the list node.
+
+A list node object represents a position within a list. To access the object stored
+at that position we need to index the node object. The key "obj" is used to select
+the object refered to by the list node. This is shown in the call to printf above.
+

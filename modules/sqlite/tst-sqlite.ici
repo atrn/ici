@@ -1,0 +1,56 @@
+// ensure the current directory is searched first when finding modules,
+// push "." onto the head the search path "list" (array).
+rpush(path, ".");
+
+// Where our test files are stored.
+static test_files_dir = ".";
+
+// Regular expression to extract the test number from the filename.
+static test_file_pattern = #^tst-([0-9]+)\.ici$#;
+
+// Extract the test number from a test file filename and return as an integer.
+static
+test_number(filename)
+{
+    str = filename ~~ test_file_pattern;
+    if (str == "" || str == NULL)
+	fail(string(filename) + " is not a test file filename");
+    if (str[0] == "0")
+	str = sub(str, #^0*(\d+)#, "\\1");
+    return int(str);
+}
+
+// Compare two file names through the test number they represent.
+static
+by_test_number(a, b)
+{
+    return cmp(test_number(a), test_number(b));
+}
+
+// Run all the tests we can find in the test directory.
+test_files := dir(test_files_dir, test_file_pattern);
+sort(test_files, by_test_number);
+printf("%d tests\n", nels(test_files));
+
+nfailures := 0;
+npasses := 0;
+test := 0;
+forall (test in test_files)
+{
+    printf("\nRunning %s\n", test);
+    try
+    {
+	environment := struct(struct(copy(super(super(scope())))));
+	file := fopen(test);
+	parse(file, environment);
+	close(file);
+	++npasses;
+    }
+    onerror
+    {
+	printf("Test Failure : %s\n%s\n\n", test, error);
+	++nfailures;
+    }
+}
+
+printf("\n\n%d passes\n%d failures\n", npasses, nfailures);

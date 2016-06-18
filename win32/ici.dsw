@@ -1,0 +1,104 @@
+Microsoft Developer Studio Workspace File, Format Version 6.00
+# WARNING: DO NOT EDIT OR DELETE THIS WORKSPACE FILE!
+
+###############################################################################
+
+Project: "ici"=.\ici.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name ici4
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "ici4"=.\ici4.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "ici4install"=.\ici4install.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name ici
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name ici4
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name ici4widb
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name iciw
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "icisdk"=.\icisdk.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name ici
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name ici4
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name iciw
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "iciw"=.\iciw.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name ici4
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Global:
+
+Package=<5>
+{{{
+}}}
+
+Package=<3>
+{{{
+}}}
+
+###############################################################################
+

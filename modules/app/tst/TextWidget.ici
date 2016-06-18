@@ -1,0 +1,34 @@
+/*
+ * TextWindow is a new type of UI object. A TextWindow stores some
+ * text from a file and displays it. It has a scroll bar on the right
+ * hand that allows users to control what part of the text is visible.
+ */
+extern TextWindow = [struct : TopLevelWindow,
+
+    /*
+     * Create a new TextWindow. The parameter is the name of the file
+     * to be loaded into the TextWindow and is also used as the window's
+     * title.
+     */
+    new = [func (self, name)
+    {
+	self@super()@new();
+	self@setTitle(name);
+
+	self.sbar = new(ScrollBar, "vertical", self);
+	Pack(self.sbar, "-side right -fill y");
+	self.text = new(Text, self);
+	Pack(self.text, "-side left -expand yes -fill both");
+	self.text@clear();
+
+	self.text@attachScrollBar(self.sbar);
+
+	auto f, s;
+	f = fopen(name);
+	while (s = getline(f))
+	    self.text@append(s + "\n");
+	close(f);
+	self.text@allowModifications(false);
+    }],
+
+];

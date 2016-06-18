@@ -1,0 +1,10 @@
+ps.startviewer();
+ps.startjob();
+ps.startpage(1);
+ps.moveto(10, 10);
+ps.font("Helvetica", 24);
+ps.setrgbcolor("sea green");
+ps.show("Hello (World)");
+ps.showpage();
+ps.endpage();
+ps.endjob();

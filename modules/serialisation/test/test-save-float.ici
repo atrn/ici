@@ -1,0 +1,3 @@
+file := fopen(basename(argv[0]) + ".dat", "w");
+serialisation.save(file, 3.1415);
+close(file);

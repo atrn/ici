@@ -1,0 +1,3 @@
+# From path/Makefile.frag...
+MOD	= pathname
+# End path/Makefile.frag

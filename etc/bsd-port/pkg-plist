@@ -1,0 +1,10 @@
+bin/ici
+include/ici.h
+include/icistr-setup.h
+lib/ici4/ici3core.ici
+lib/ici4/ici3core1.ici
+lib/ici4/ici3core2.ici
+lib/ici4/ici3core3.ici
+lib/libici4.a
+%%DOCSDIR%%/ici.pdf
+@unexec rmdir %D/lib/ici4 2>/dev/null || true

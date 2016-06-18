@@ -1,0 +1,282 @@
+.TH iciHTML 1 "The ICI Programming Language" "" "The ICI Programming Language"
+.SH "NAME"
+iciHTML - The ICI HTML module
+.SH "DESCRIPTION"
+.SH "DETAILS"
+.SS "HTML.Address  --  wrapper element that displays its body as an address"
+.SS "element = HTML.Address:new([string])"
+.P
+Create a new Address element with the given body text.
+.SS "HTML.Big  --  wrapper element that displays its body text in a larger font"
+.SS "HTML.Blockquote  --  wrapper element that displays its body as a quote"
+.SS "element = HTML.Blockquote:new([string])"
+.P
+Create a new Blockquote element with the given body
+text.
+.SS "HTML.Bold  --  embolden child element text"
+.P
+.RS 5
+.nf
+
+.fi
+.RE 1
+.SS "element = HTML.Bold:new([string])"
+.P
+Create a new Bold element with the given body text.
+.SS "HTML.Cite  --  wrapper element that displays its body text as a citation"
+.SS "HTML.Code  --  wrapper element that displays its body text as program code"
+.SS "HTML.Element - base class of HTML elements"
+.P
+An element is the base unit in the document hierarchy.
+An element has a "tag", some attributes (key/value
+pairs), some body text and a sequence of child elements.
+The basic operations on elements are setting its body
+text, adding child elements, setting attributes and
+finally generating an HTML representation of an element.
+.P
+The element output operation is implemented in stages.
+Each stage is implemented in a separate method allowing
+derived classes to specialise the behaviour. Output
+is separated into "head", "body" and "tail" sections.
+Output of element attributes is also separated out
+allowing separate control over attribute output if
+required.
+.P
+The interface to element output is a single method,
+"output(file)", that outputs HTML for the element instance
+to the given file. This interface can be considered
+a "protocol". Any class that implements an "output(file)"
+method may be used as a child element within an HTML.Element
+instance. Presumably the class performs some special
+action, e.g, a database lookup, and returns appropriate
+HTML objects to present the object within the HTML
+page.
+.P
+Adding child elements is performed by the "add()" method.
+"add()" appends the elements given as its arguments
+to the child elements of the instance. The "add()"
+method also allows strings, arrays and functions to
+be passed as children to be added to the array. If
+an array is given its elements are passed to "add()"
+to be added individually. The elements may be object
+instances, arrays or functions as per the arguments
+to "add()". If a function is passed it is called and
+its result passed in a recursive call to "add()" on
+the instance. The function may return an object instance,
+array or function as per the arguments to "add()".
+.P
+The above calling semantics give great flexibliity
+in adding objects. A single invoccation of "add()"
+is often sufficent to generate a complete page or complex
+document structure and the use of embedded functions
+simplifies the dynamic generation of content.
+.SS "element = HTML.Element:new(tag, text)"
+.P
+Create a new instance of an element. The arguments
+are the element\'s tag and optional body text, both
+strings. The new element is created with the given
+tag and body text and no attributes or children.
+.SS "HTML.Em  --  wrapper element that displays its body in a emphasised style"
+.SS "element = HTML.Em:new([string])"
+.P
+Create a new Em element with the given body text.
+.SS "HTML.Font  --  control font presentation"
+.P
+An HTML.Font element allows control over the font used
+by any child elements. It is a wrapper element to control
+the presentation of its children.
+.SS "element = HTML.Font:new([string])"
+.P
+Create a new Font element with the given body text.
+.SS "HTML.Italic  --  italicise child element text"
+.SS "element = HTML.Italic:new([string])"
+.P
+Create a new Italic element with the given body text.
+.SS "HTML.Kbd  --  wrapper element that displays its body text as keyboard entered text"
+.SS "HTML.Markup  --  class to represent arbtirary content"
+.P
+The HTML.Markup class provides an escape mecahanism
+within the structure of HTML.Element based classes.
+An HTML.Markup instance stores arbitrary text which
+is output direct to the output stream. The intent is
+to allow any HTML content to be used with this class
+hierarchy.
+.SS "element = HTML.Markup:new(string)"
+.P
+Create a new element holding the given content data
+given as argument. The data is output verbatim during
+output. Markup elements allow arbitrary data to be
+embedded within a document.
+.SS "HTML.NoEndTagElement  --  internal base-class for elements with no end tag"
+.P
+This is a specialisation of HTML.Element that removes
+overrides output_tail() so no end tag is generated
+for type of this element. All other behaviour is the
+same as HTML.Element.
+.SS "HTML.P  --  HTML paragraph element"
+.P
+An HTML.P instance represents a paragraph. It is a
+special case of element in that it has no start tag
+and the end of a paragraph is marked by a sole "<P>"
+element. The class overrides the "output_head()" method
+to remove any start tag and implements "output_tail()"
+to generate the "<p>". Body output is done by HTML.Element.
+.SS "element = HTML.P:new([string])"
+.P
+Create a new HTML paragraph element with the given
+string as its body. If no argument is passed the body
+is the empty string.
+.SS "HTML.Page  -  a HTML page"
+.SS "page = HTML.Page:new([string [, bool]])"
+.P
+Create a new HTML.Page instance with the given title
+string, if any. If the second parameter is passed it
+can be used to disable the default behaviour that assumes
+we are running as a CGI program under some HTTP server.
+If the flag is passed as false no CGI output is generated.
+.SS "HTML.Small  --  wrapper element that displays its body text in a smaller font"
+.SS "HTML.Strike  --  wrapper element that displays its body text in a strikeout font"
+.SS "HTML.Strong  --  wrapper element that displays its body text in a strong style"
+.SS "HTML.Style  --  page header style element"
+.SS "HTML.Typewriter  --  wrapper element that displays its body text in a fixed width font"
+.SS "HTML.Underline  -- wrapper element that displsus its body text with an underline"
+.SS "element = element:add(...)"
+.P
+Add child elements to an element. See the comment at
+the head of this class for a description of the arguments
+and semantics of this method.
+.P
+Returns the element instance for method chaining.
+.SS "element = element:add_text(string)"
+.P
+Append the given string to the element\'s body text.
+.SS "element = element:attr(name, value)"
+.P
+Set the named attribute of the element to the given
+value. Both name and value are strings. If the attribute
+exists it is overwritten, if it does not exist it is
+created. Returns the element instance for method chaining.
+.SS "array = element:children()"
+.P
+Return the array storing the element\'s children.
+.SS "element = element:color(string)"
+.P
+Set the color used when drawing characters with a font
+element.
+.SS "element = element:face(string)"
+.P
+Set the typeface used with a Font element. Returns
+the element instance to allow for method chaining.
+.SS "string|NULL = element:get_attr(string)"
+.P
+Return the value of the named attribute. Returns NULL
+if there is no such attribute for this element.
+.SS "string = element:get_text()"
+.P
+Return the element\'s body text. If the element has
+no body text an empty string is returned.
+.SS "element = element:id(str)"
+.P
+Define the id of an element.
+.SS "element = element:klass(str)"
+.P
+Define the class of an element.
+.SS "element = element:output([file])"
+.P
+Output an element to the given file or stdout if no
+file is passed. This method outputs an HTML representation
+of the element instance to the given stream. Output
+is performed in three method calls - "output_head()"
+to output the start of the element. Then "output_body()"
+to output any body text and child elements and finally
+"output_tail()" to generate the end tag for the element.
+.P
+The method returns the instance to allow method chaining.
+.SS "element:output_attr(file)"
+.P
+Output the element\'s attributes for use in a HTML tag.
+.SS "element:output_body(file)"
+.P
+Output the element\'s body and children to the given
+file.
+.SS "element:output_head(file)"
+.P
+Output the element\'s start tag and attributes.
+.SS "element:output_tail(file)"
+.P
+Output the element\'s end tag.
+.SS "element = element:size(int|string)"
+.P
+Set the size of the font defined by the font element.
+The size may be given as a integer or string. Returns
+the element instance to allow for method chaining.
+.SS "element = element:style(str)"
+.P
+Define a style attribute for an element.
+.SS "element = element:text(string)"
+.P
+Set the element\'s body text to the given string. Returns
+the instance for method chaining.
+.SS "markup:output_body(file)"
+.P
+Implement Element:output_body() to output our markup
+content. We can\'t use the Element class implementation
+as we define no concept of children (although we inherit
+it, the behaviour is nullified by not outputting any
+child elements).
+.SS "markup:output_head(file)"
+.P
+Override Element:output_head() to do nothing.
+.SS "p:output_head(file)"
+.P
+Override Element:output_head to do nothing.
+.SS "p:output_tail(file)"
+.P
+Implement Element:output_tail() to output the trailing
+paragraph tag.
+.SS "page = page:add_cgi_header(name, value)"
+.SS "page = page:add_header(element)"
+.P
+Add an element to the header section of the page, i.e,
+the portion between the <head> and </head> tags. This
+is used to add meta tags and the like.
+.SS "page = page:bgcolor(string)"
+.P
+Define the page background color.
+.SS "page = page:colors(string [, string [, string, [string]]])"
+.P
+Define the colors used when rendering the page. The
+first argument, the only required argument, defines
+the page background color. The second argument is the
+default color of text, the third argument the default
+color of links and the final argument the default color
+of visited links.
+.SS "page = page:nocgi([flag])"
+.P
+Disable or enable output of CGI headers. They are enabled
+by default.
+.SS "page:output_head(file)"
+.P
+Implement Element:outupt_head() to output the page
+header before the <body> tag, which is our element\'s
+tag in the Element instance. This outputs the headers
+defined by by user.
+.SS "page:output_tail(file)"
+.P
+Implement Element:output_tail() to output the real
+end of page tag following the </body> our superclass
+outputs.
+.SS "string|array = page:param(string)"
+.SS "struct = page:params()"
+.SS "page = page:style(text)"
+.SS "page = page:text_colors(string [, string, [string]])"
+.P
+Define the colors used when drawing text on the page.
+The first argument is the default color of text, the
+second argument the color of text within anchors and
+the third argument the color of visited links.
+.SS "page = page:title(string)"
+.P
+Set the page title.
+.SH "SEE ALSO"
+ici(1), iciex(1)

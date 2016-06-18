@@ -1,0 +1,12 @@
+n = int(argv[1]);
+if (n < 0)
+    fail("invalid power");
+
+two = bignum.bignum(2);
+bn  = bignum.bignum(1);
+
+for (i = 0; i < n; ++i)
+{
+    printf("2^%d = %s\n", i, bignum.tostring(bn));
+    bn = bignum.mult(bn, two);
+}

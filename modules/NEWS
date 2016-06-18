@@ -1,0 +1,143 @@
+*	Various updates to Gtk, sys, pq (PostgreSQL) and other modules.
+
+*	bignum module added
+
+*	libshout module, shout, added.
+
+*	PostgreSQL module, pq, added.  This is a direct mapping
+	of the C API to ICI.  The code was written by Andy Newman
+	for Silverbrook Research.
+
+*	ptime() added to str module (does ANSI C's strptime).
+
+*	Gtk substantially enhanced.
+
+*	Released as ici-modules-0.1.0 on 14 August 2000.
+
+*	Modules fixed to build against either ici 2 or ici 3.
+	Use "make ICIV=ici" or "make ICIV=ici3".
+
+*	Tim Long has written an module, dll, that allows calling
+	arbitrary functions in native-code libraries. It works
+	for Windows and Andy ported it to FreeBSD and Linux on
+	the 80x86 and Solaris on the Sparc.
+
+*	Windows port commenced.  Many of the modules now build and
+	function on Windows (NT, 95 & 98 have NOT been tested). The
+	X11-dependent modules have not been ported although it is
+	technically feasible (I don't use X11 client-side things on
+	Windows).
+
+*	OpenGL interface exists but there's something wrong with the
+	GLX bit which is stopping it working.
+
+*	Made the serialisation code use the processor to determine
+	if its little or big endian rather than rely on user config.
+
+*	Net and sys modules improved. Various limitations removed from
+	both and many name changes to remove the chance of problems when
+	used with ici's with sockets and system calls still configured.
+
+*	More makefile changes with new tools. FreeBSD 3.x is the development
+	platform with Linux and Solaris being the port platforms.
+
+*	More work everywhere. Tools re-written to be (a) correct and
+	(b) not complete hacks. Configuration better now with removal
+	of references to anything in modules from the config code.
+
+*	Imlib module added that gives provides easy image support for
+	the X module.
+
+*	env module brought back. This gives you access to the process
+	environment as a struct.
+
+*	OpenGL interface via the gl module added.
+
+*	Many changes in the X11 module. Loads more functions etc...
+	and changes to the way external (i.e., X server) resouces
+	are freed - ici garbage collection no longer frees the
+	X resources, the programmer must explictly free them.
+
+News for version 0.3
+
+*	Lots of makefile cleanups. The Linux versions work. I use
+	the modules on RedHat Linux 4.2, 5.2 and FreeBSD 2.2.8. I
+	have built the modules on Solaris but not used them much.
+
+*	A nearly complete interface to Window Maker's WINGs toolkit is
+	provided in the wings directory. This also includes the Window
+	Maker wmlib functions for Window Maker specific applications
+	although I haven't been successful at making both work together.
+	Individually they're fine.
+
+*	The tools to auto-generate code have been tidied up a little
+	and enhanced. They still need to be totally rewritten but they're
+	a little better than they were.
+
+xml module news
+
+*	There are now some ici wrapper functions for parsing an XML
+	stream and reading it into an in-memory data structure which
+	may be processed using a simple interface. The in-memory
+	structure may then be output to an stream (as XML).
+
+X module news
+
+*	The X module now has more functions and support for more
+	X and Xlib types. It is still far from complete but useful
+	programs are able to be written using it.
+
+net module news
+
+*	Names in the net module have been changed to ensure there
+	are no clashes with the current sockets code in the ici
+	interpreter. Also several functions have had little bug
+	fixes or small changes in their interface. Nothing major.
+
+*	net.getpeername() no longer maps the port number to a service
+	name (stupid thing to do in the first place!).
+
+*	net.socket() may be passed an integer (file descriptor) to be
+	turned into a socket object with that descriptor.
+
+serialisation module news
+
+*	Several fixes to the object serialisation code (again dynamic
+	linking issues rather than the actual code).
+
+*	You can now specify a scope to restore which is used as the
+	scope for any function objects de-serialised. This is needed
+	if you want to control what objects are accessible to restored
+	functions. Without it there is always a path out of any sandbox
+	you attempt to enforce on the functions. Now there isn't.
+
+sys module news
+
+*	The functions in the posix module are now also in the sys module.
+
+*	The code has been changed to use more macros to allow the auto
+	generation of the cfunc_t table.
+
+
+News for version 0.2.1
+
+*	Makefiles tidied up. Now looking to automatic generation
+	to handle the multiple platforms.
+
+News for version 0.2
+
+*	This release fixes lots of portability problems. Linux
+	and Solaris are actively being used to test the code after
+	its development on FreeBSD.
+
+*	The collection has been trimmed down. Only those modules that
+	are under active development are in the collection. Modules
+	that are not complete enough for any real use have been
+	removed.
+
+*	Various problems have been fixed in many modules. All are
+	under active use and development.
+
+News for version 0.1
+
+*	There was no news for version 0.1.

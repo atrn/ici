@@ -1,0 +1,51 @@
+static
+start_element(arg, name, attr)
+{
+    auto	i, j, val, key, depth;
+
+    depth = nels(arg);
+    printf("s:%*s<%s\n", depth, "", name); /* indent output */
+    forall (val, key in attr)
+	printf("s:%*s%s=\"%s\"\n", depth, "", key, val);
+    printf("s:%*s>\n", depth, "");
+    push(arg, name);
+}
+
+static
+end_element(arg, name)
+{
+    pop(arg);
+    printf("e:%*s</%s>\n", nels(arg), "", name);
+}
+
+static
+clean(s)
+{
+    auto	a, c, n;
+    auto	map = [struct
+	("\n") = "\\n", ("\r") = "\\r",
+    ];
+    a = array();
+    forall (c in s)
+    {
+	if (c >= " " && c <= "~")
+	    push(a, c);
+	else if (n = map[c])
+	    push(a, n);
+	else
+	    push(a, sprintf("\\%03o", toint(c)));
+    }
+    return implode(a);
+}
+
+static
+character_data(arg, s)
+{
+    printf("c:%s:%*s%s\n", top(arg), nels(arg), "", clean(s));
+}
+
+auto parser = xml.ParserCreate();
+xml.SetUserData(parser, array());
+xml.SetElementHandler(parser, start_element, end_element);
+xml.SetCharacterDataHandler(parser, character_data);
+xml.Parse(parser, getfile());

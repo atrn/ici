@@ -1,0 +1,8 @@
+file = fopen("test-save-func.ici.dat");
+o = serialisation.restore(file);
+close(file);
+if (typeof(o) != "func")
+    fail("restore failed: restored a " + typeof(o));
+r := o(1, 2);
+if (r != 3)
+    fail("restored function gave incorrect result");

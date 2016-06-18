@@ -1,0 +1,11 @@
+/*
+ * pack.ici
+ */
+
+extern
+pack(widget)
+{
+    auto vargs = [array "-expand 1 -fill both"];
+    call(tcl.tk, array("pack", widget.name) + vargs);
+    return widget;
+}

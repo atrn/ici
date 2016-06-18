@@ -1,0 +1,77 @@
+/*
+ * $Id: icinet.ici,v 1.1 2000/03/11 00:29:18 andy Exp $
+ *
+ * Various network related functions for ici.
+ */
+
+
+extern
+class_of(ipaddr)
+{
+    auto	bits;
+
+    bits = int(gettokens(ipaddr, ".")[0]);
+    if ((bits & 0x80) == 0)
+	return "A";
+    if ((bits & 0xc0) == 0x80)
+	return "B";
+    if ((bits & 0xe0) == 0xc0)
+	return "C";
+    if ((bits & 0xf0) == 0xe0)
+	return "D";
+    fail("bad address");
+}
+
+
+static
+join(v, sep)
+{
+    auto	e, s, seprtr, sep = "";
+
+    s = "";
+    forall (e in v)
+    {
+	s = sprintf("%s%s%s", s, seprtr, e);
+	seprtr = sep;
+    }
+    return s;
+}
+
+
+extern
+network_of(ipaddr)
+{
+    auto	v;
+
+    v = gettokens(ipaddr, ".");
+    switch (class_of(ipaddr))
+    {
+    case "A":
+	v[3] = "0";
+	v[2] = "0";
+	v[1] = "0";
+	break;
+    case "B":
+	v[3] = "0";
+	v[2] = "0";
+	break;
+    case "C":
+	v[3] = "0";
+	break;
+    }
+    return join(v, ".");
+}
+
+
+extern
+bits_for_network_class(ipaddr)
+{
+    auto bits = [struct
+	A = 8,
+	B = 16,
+	C = 24,
+	D = 8,
+    ];
+    return bits[class_of(ipaddr)];
+}
+

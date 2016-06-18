@@ -1,0 +1,9 @@
+*  Made uuid objects atomic and remove a number of functions
+   no longer required due to such atomicity.  In particular
+   the compare(), copy() clear() and is_null() functions have
+   been removed.  Comparisons may be performed using the '=='
+   operator or the `eq()' function.  Copying is no longer
+   meaningful and clear() and is_null() are not allowed as
+   they would change the underlying UUID value.
+
+*  Converted to work with ici version 4

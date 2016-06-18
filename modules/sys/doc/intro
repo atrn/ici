@@ -1,0 +1,157 @@
+Introduction
+
+	The sys module provides access to Unix system calls in ici
+	programs. Most functions are available and platform
+	differences are somewhat hidden. Where appropriate calling
+	sequences are modified to adopt conventions used in ici
+	programs (e.g., flags are passed as strings) and many have
+	useful default parameters.
+
+File Descriptors
+
+	As in C resources are specified by file descriptors, small
+	integers.
+
+Errors
+
+	System calls that return errors, i.e., -1 and set errno, are
+	trapped and result in ici errors being raised. These can be
+	trapped using the usual try...onerror... construct. The error
+	string is set to the system error message associated with the
+	particular value of errno.
+
+Pathnames
+
+	Pathnames are strings. In all the following descriptions
+	whereever a pathname appears it is labelled as such but
+	it should be remembered these are actually string objects.
+	This is natural so should not be difficult.
+
+Constants
+
+	Many of the macros used in the C interface to the system are
+	available as integer variables in the sys module. Typically
+	these are the flags and mode values for open, stat, et al.
+	They are documented later. In the descriptions it should be
+	obvious where these variables are referenced.
+
+Functions
+
+int = sys.access(pathname, int)
+
+	Does an access(2) system call and returns the result. The
+	integer specifies who to test for access and is a set of
+	the values - sys.F_OK, sys.R_OK, sys.W_OK, sys.X_OK. The
+	result is an integer indicating the accessibilty. See the
+	manual page for access(2) for details. Note that if the
+	file does not exist an error will be raised.
+
+int = sys.acct(pathname)
+
+	Enable system accounting. See the manual page for details.
+
+int = sys.alarm(int)
+
+	Arrange for a SIGARLM to be sent in the given number of
+	seconds. Not entirely useful in ici as it is currently
+	lacking signal handling ability.
+
+sys.chdir(pathname)
+
+	Change the current working directory for the process to pathname.
+
+sys.chmod(pathname, int)
+
+	Change the access modes for a file or directory.
+
+sys.chown(pathname, int, int)
+
+	Change the owner and group of a file.
+
+sys.chroot(pathname)
+
+	int = clock()
+
+sys.close(int)
+
+	Close the given file descriptors.
+
+sys.creat(pathname, int)
+
+string = sys.ctime(int)
+
+array = sys.dir(pathname, regexp, string)
+
+int = sys.dup(int, int)
+
+sys.exec(string, string...)
+sys.exec(string, array)
+
+sys._exit(int)
+
+int = sys.fcntl(int, string)
+
+file = sys.fdopen(int, int)
+
+int = sys.fork()
+
+string = sys.getcwd()
+
+int = sys.getegid()
+int = sys.geteuid()
+int = sys.getgid()
+int = sys.getpgrp()
+int = sys.getpid()
+int = sys.getppid()
+int = sys.getuid()
+
+sys.kill(int, int)
+
+sys.link(pathname, pathname)
+sys.lseek(int, int, int)
+sys.mkdir(pathname, int)
+sys.mkfifo(pathname, int)
+sys.mknod(pathname, int, int)
+sys.nice(int)
+sys.open(pathname, int)
+
+array = sys.passwd()
+struct = sys.passwd(string|int)
+
+sys.pause()
+array = sys.pipe()
+string = sys.read(int, int)
+
+string = sys.readlink(pathname)
+
+sys.rename(pathname, pathname)
+
+sys.rmdir(pathname)
+
+sys.setgid(int)
+
+sys.setpgrp(int, int)
+
+sys.setuid(int)
+
+sys.signal(int, int)
+
+sys.sleep(int)
+
+struct = sys.stat(string|file|int)
+
+sys.symlink(pathname, string)
+
+sys.sync()
+
+int = sys.system(string)
+
+int = sys.time()
+
+sys.umask(int)
+
+sys.unlink(pathname)
+
+int = sys.wait()
+
+int = sys.write(int, string)

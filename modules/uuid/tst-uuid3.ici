@@ -1,0 +1,7 @@
+id := uuid.generate();
+
+v := uuid.variant(id);
+printf("Variant: %d (%s)\n", v, uuid.variant_name[v]);
+
+t := uuid.type(id);
+printf("Type: %d (%s)\n", t, uuid.type_name[t]);

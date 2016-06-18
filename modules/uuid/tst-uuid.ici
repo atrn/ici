@@ -1,0 +1,13 @@
+id1 := uuid.generate();
+id2 := uuid.generate();
+
+if (id1 == id2)
+     fail("generated equal uuids!");
+
+id3 := uuid.parse(uuid.unparse(id1));
+if (id3 != id1 || !eq(id1, id3))
+    fail("parse/unparse failure");
+
+id4 := copy(id3);
+if (!eq(id3, id4))
+    fail("copy");

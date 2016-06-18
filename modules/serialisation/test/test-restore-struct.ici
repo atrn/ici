@@ -1,0 +1,10 @@
+file = fopen("test-save-struct.ici.dat");
+o = serialisation.restore(file);
+close(file);
+if (typeof(o) != "struct")
+    testutil.failure("restored a %s, expected a struct", typeof(o));
+k = call(set, keys(o));
+if (!k["x"])
+    testutil.failure("not \"x\" key");
+if (!k["y"])
+    testutil.failure("not \"y\" key");

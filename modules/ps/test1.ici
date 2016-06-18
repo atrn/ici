@@ -1,0 +1,8 @@
+/*
+ * The smallest compliant job that actually does anything. There's no need
+ * for a call to endpage() as endjob() is smart enough do it for us.
+ */
+
+ps.startjob();
+ps.startpage();
+ps.endjob();

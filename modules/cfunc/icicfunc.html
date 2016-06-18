@@ -1,0 +1,64 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+            <HTML>
+            <HEAD>
+                <TITLE>The ICI cfunc module</TITLE>
+                <STYLE TYPE="text/css">
+                    BODY {color: black}
+                    P {font-size: 12pt; width: 450pt}
+                    H1 {font-size: 12pt; font-family: Arial;
+                        font-weight: bold}
+                    H2 {font-size: 10pt; font-family: Arial;
+                        font-style: italic; font-weight: bold}
+                    PRE {background: aliceblue}
+                    DT {font-style: Italic}
+                    DD.DefnIn4cm {width: 337pt; margin-left: 113pt}   
+                    DD.DefnIn2cm {width: 396pt; margin-left: 56pt}
+                </STYLE>
+                <META NAME="Generator" CONTENT="extract-doc-from-src.ici">
+                <META NAME="Keywords" CONTENT="ICI">
+                <META NAME="Description" CONTENT="ICI extension module documentation">
+            </HEAD>
+            <BODY BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#FF0000" VLINK="#800000" ALINK="#FF00FF" BACKGROUND="?">
+            <H1>The ICI cfunc module - Embedded native-code extension functions</H1>
+<P ALIGN="left">The ICI cfunc module provides a facility for embedding
+native code extension functions within ICI source files.
+The cfunc module defines a &quot;[cfunc ...]&quot;
+literal which contains the C source code for native-code
+ICI functions. The cfunc module provides a parser extension
+function which extracts this code, wraps it in an ICI
+native-code module structure and then calls the system
+C compiler to build a dynamically loadable ICI module
+from the resultant C source file. The function, in
+its native-code ICI module form, is then dynamically
+loaded into the ICI process.</P>
+<P ALIGN="left">The &quot;[cfunc ... ]&quot; literal has the following
+form:</P>
+<PRE>    '[cfunc' c-identifier c-function-body ']'</PRE>
+<P ALIGN="left">The c-identifier defines the name by which the extension
+function may be referenced from within the ICI program.
+The c-function-body is the complete C source code for
+the extension function. E.g., the following defines
+a native code function that adds two, ICI, integers
+(which ICI represents using C's long int type).</P>
+<PRE>    [cfunc add_two_integers
+    {
+        long a, b;
+        if (ici_typecheck(&quot;ii&quot;, &amp;a, &amp;b))
+            return 1;
+        return ici_int_ret(a + b);
+    }]</PRE>
+<P ALIGN="left">When the above code is encountered during parsing of
+the ICI program the function body is extracted and
+written to a temporary file which is then compiled
+and an appropriate dynamic library constructed from
+its object file. The dynamic library is then loaded
+using ICI's dynamic loading function, load().</P>
+<P ALIGN="left">To avoid re-compilation a hash of the source code file
+is maintained alongside the dynamic library file. If
+the newly extracted source code has an identical hash
+value to any existing hash then the module is used
+as is. Note that because comments are stripped from
+the embedded source code simple changes in commentary
+will not result in re-compilation.</P>
+</BODY>
+</HTML>

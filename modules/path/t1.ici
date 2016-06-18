@@ -1,0 +1,14 @@
+printf("Separator = %s\n", path.separator);
+printf("argv[0] \"%s\", basename \"%s\"\n", argv[0], path.basename(argv[0]));
+
+auto a, e;
+a = path.split(argv[0]);
+printf("nels = %d\n", nels(a));
+forall (e in a)
+    printf(" el \"%s\"\n", e);
+
+printf("Joined = \"%s\"\n", path.join(a));
+push(a, "another");
+printf("Joined = \"%s\"\n", path.join(a));
+
+printf("Exten: %s\n", path.extension(argv[0]));

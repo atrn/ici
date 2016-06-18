@@ -1,0 +1,38 @@
+/*
+ * This test program takes a Dia document and scales the points and
+ * rectangles by half. This is to overcome Dia 0.3's inability to resize
+ * the document which was the whole point of the ici XML module - so I
+ * could easily do it. The key is xml.process() which does a traversal
+ * over the document's in-memory structure, calling functions we define
+ * for particular tags.
+ */
+
+xml.write
+(
+    xml.process
+    (
+	xml.read(),
+	[struct
+
+	    ("dia:rectangle") = [func (e)
+	    {
+		auto v;
+		v = e.val ~~~ #^([^,]+),([^;]+);([^,]+),(.*)$#;
+		v[0] = float(v[0]) / 2;
+		v[1] = float(v[1]) / 2;
+		v[2] = float(v[2]) / 2;
+		v[3] = float(v[3]) / 2;
+		e.val = sprintf("%.2f,%.2f;%.2f,%.2f", v[0], v[1], v[2], v[3]);
+	    }],
+
+	    ("dia:point") = [func (e)
+	    {
+		auto v;
+		v = e.val ~~~ #^([^,]+),([^;]+)$#;
+		v[0] = float(v[0]) / 2;
+		v[1] = float(v[1]) / 2;
+		e.val = sprintf("%.2f,%.2f", v[0], v[1]);
+	    }],
+	]
+    )
+);

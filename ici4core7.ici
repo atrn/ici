@@ -1,0 +1,131 @@
+/*
+ * print([file,] [any])
+ *
+ * Output a textual representation of an object to a file.
+ *
+ */
+export
+print()
+{
+    var vargs, stream, o, v, k, term = "\n", sdelim = "", raw = 0, supers = [set];
+
+    if (vargs == NULL)
+    {
+	stream = stdout;
+	o = "\n";
+	raw = 1;
+    }
+    else
+    {
+	switch (len(vargs))
+	{
+	case 1:
+	    stream = stdout;
+	    o = vargs[0];
+	    break;
+
+	case 2:
+	    stream = vargs[0];
+	    o = vargs[1];
+	    break;
+
+	case 3:
+	    stream = vargs[0];
+	    o = vargs[1];
+	    term = vargs[2];
+	    sdelim = "\"";
+	    break;
+
+        case 4:
+	    stream = vargs[0];
+	    o = vargs[1];
+	    term = vargs[2];
+	    sdelim = "\"";
+            supers = vargs[3];
+            break;
+
+	default:
+	    fail("incorrect number of parameters to print()");
+	}
+    }
+
+    switch (t := typeof(o))
+    {
+    case "array":
+    case "set":
+	printf(stream, "[%s", t);
+	forall (v in o)
+	{
+	    printf(stream, " ");
+	    print(stream, v, "");
+	    printf(stream, ",");
+	}
+	printf(stream, "]%s", term);
+	break;
+
+    case "struct":
+	printf(stream, "[struct");
+	if (ss := super(o))
+	{
+            if (supers[ss])
+	    {
+		printf(stream, ": <super...>");
+	    }
+	    else
+            {
+                assign(supers, ss);
+                printf(stream, ": ");
+                print(stream, super(o), "", supers);
+            }
+	}
+	forall (v, k in o)
+	{
+	    if (typeof(k) == "string" && k ~ #^[_a-zA-Z][_a-zA-Z0-9]*$#)
+		printf(stream, " %s", k);
+	    else
+	    {
+		printf(stream, " (");
+		print(stream, k, "");
+		printf(stream, ")");
+	    }
+	    printf(stream, " = ");
+	    print(stream, v, "");
+	    printf(stream, ",");
+	}
+	printf(stream, "]%s", term);
+	break;
+
+    case "string":
+	cleanse := [func (s)
+	{
+	    r := array();
+	    forall (c in s)
+	    {
+		if (c >= " " && c <= "~")
+		    push(r, c);
+		else
+		    switch (c)
+		    {
+		    case "\a": push(r, "\\a"); break;
+		    case "\b": push(r, "\\b"); break;
+		    case "\f": push(r, "\\f"); break;
+		    case "\n": push(r, "\\n"); break;
+		    case "\r": push(r, "\\r"); break;
+		    case "\t": push(r, "\\t"); break;
+		    default:
+			push(r, sprintf("\\%03o", toint(c)));
+		    }
+	    }
+	    return implode(r);
+	}];
+	if (raw)
+	    printf(stderr, "%s", o);
+	else
+	    printf(stream, "%s%s%s%s", sdelim, cleanse(o), sdelim, term);
+	break;
+
+    default:
+	printf(stream, "%s%s", string(o), term);
+	break;
+    }
+}

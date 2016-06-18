@@ -1,0 +1,149 @@
+/*
+ * iciapp.ici - main include file for ICI application framework
+ *
+ */
+
+# Fix ICIPATH to include our private directory
+#auto icipath = getenv("ICIPATH");
+#if (!icipath)
+#    icipath = ".:/usr/local/lib/ici";
+#putenv("ICIPATH=/usr/local/lib/ici/app" + icipath);
+
+tcl.tk("wm title . ", tcl.str(path.base(argv[0], ".ici")));
+tcl.tk("wm group . .");
+tcl.tk("wm command . { ici " + tcl.str(argv[0]) + "}");
+
+#include("app/object.ici");
+include("app/font.ici");
+include("app/util.ici");
+include("app/widget.ici");
+include("app/preferences.ici");
+include("app/pack.ici");
+include("app/place.ici");
+include("app/frame.ici");
+include("app/label.ici");
+include("app/button.ici");
+include("app/menu.ici");
+include("app/popupmenu.ici");
+include("app/messagebox.ici");
+include("app/dialog.ici");
+include("app/listbox.ici");
+include("app/text.ici");
+include("app/textwidget.ici");
+include("app/scrollbar.ici");
+include("app/scrollinglist.ici");
+include("app/toplevelwindow.ici");
+include("app/openfilepanel.ici");
+include("app/canvas.ici");
+
+extern
+
+    /**
+     * setTitle - set the title string displayed by the system for our window
+     */
+    settitle = [func (name)
+    {
+	tcl.tk("wm title . {" + name + "}");
+    }],
+
+    /*
+     * setCommand - tell the system what command line the window represents
+     */
+    setcommand = [func (str)
+    {
+	tcl.tk("wm command . {" + str + "}");
+    }],
+
+    /*
+     * setClient - set the name of the host running the command
+     */
+    setclient = [func (str)
+    {
+	tcl.tk("wm client . {" + str + "}");
+    }],
+
+    /*
+     * setGeometry - set the overall geometry for our window
+     */
+    setgeometry = [func (geometry)
+    {
+        tcl.tk("wm geometry .", geometry);
+    }],
+
+    /*
+     * iconify - make our window iconic
+     */
+    iconify = [func ()
+    {
+        tcl.tk("wm iconify .");
+    }],
+
+    /*
+     * loadresources
+     */
+    loadresources = [func (filename)
+    {
+	if (!filename)
+	{
+	    if (argv[0] ~ #\.ici$#)
+		filename = sub(argv[0], #ici$#, "res");
+	    else
+		filename = sprintf("%s.%s", argv[0], "res");
+	}
+
+	auto f, wi, pack, w, v, k;
+
+	f = fopen(filename);
+	forall (wi in parse(f, struct(struct(super(super(scope()))))).ui)
+	{
+	    pack = NULL;
+	    w = new(scope()[wi.widget]);
+	    if (debug())
+		printf(stderr, "%s %s\n", wi.widget, typeof(w));
+	    forall (v, k in wi)
+	    {
+		if (debug())
+		    printf(stderr, "%s = %s\n", string(k), string(v));
+	        switch (k)
+		{
+		case "font":
+		    w@setFont(v);
+		    break;
+		case "text":
+		    w@setText(v);
+		    break;
+		case "pack":
+		    pack = v;
+		    break;
+		case "relief":
+		    w@setRelief(v);
+		    break;
+		case "justify":
+		    w@justify(v);
+		    break;
+		case "action":
+		    w@setAction(v);
+		    break;
+		}
+		if (pack)
+		    pack(w, pack);
+	    }
+	}
+	close(f);
+    }],
+
+    update = [func ()
+    {
+	tcl.tk("update");
+    }],
+
+    bell = [func ()
+    {
+	tcl.tk("bell");
+    }],
+
+    run = [func ()
+    {
+	tcl.tk_mainloop();
+    }]
+;

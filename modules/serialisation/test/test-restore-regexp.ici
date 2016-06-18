@@ -1,0 +1,7 @@
+file = fopen("test-save-regexp.ici.dat");
+o = serialisation.restore(file);
+close(file);
+if (typeof(o) != "regexp")
+    fail("restore failed: restored a " + typeof(o));
+if (o.pattern != #.*#.pattern)
+    fail("restore failed: restored an regexp with value " + o.pattern);

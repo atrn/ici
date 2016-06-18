@@ -1,0 +1,11 @@
+u := "ABC";
+l := "abc";
+
+if (str.toupper(l) != u)
+    fail("toupper");
+if (str.toupper(u) != u)
+    fail("toupper");
+if (str.tolower(u) != l)
+   fail("tolower");
+if (str.tolower(l) != l)
+   fail("tolower");

@@ -1,0 +1,454 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+<TITLE>Notes on building the ICI core</TITLE>
+<META NAME="Generator" CONTENT="TextPad 3.0">
+<META NAME="Author" CONTENT="Tim Long">
+<META NAME="Keywords" CONTENT="ICI">
+<META NAME="Description" CONTENT="ICI low level maintenance and extension">
+</HEAD>
+
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#FF0000" VLINK="#800000" ALINK="#FF00FF" BACKGROUND="?">
+<H1>Notes on building ICI</H1>
+<P ALIGN="left">
+
+<A NAME="contents">
+<H2>Contents</H2>
+</A>
+
+<UL>
+    <LI><A HREF="#intro">Introduction</A>
+    <LI><A HREF="#supported">Building ICI for a supported UNIX like platform</A>
+    <LI><A HREF="#ICI_on_windows">ICI on Microsoft Windows</A>
+    <LI><A HREF="#Configuration">Configuration</A>
+    <UL>
+        <LI><A HREF="#Config_change">Changing the configuration</A>
+    </UL>
+    <LI><A HREF="#ICI_extentsions">General notes on building ICI and extensions</A>
+    <LI><A HREF="#ICI_as_extentsion">ICI as an extension</A>
+    <LI><A HREF="#releases">Some notes on making release</A>
+</UL>
+
+<A NAME="intro">
+<H2>Introduction</H2>
+</A>
+    The ICI core is designed to build simply and easily on most
+    platforms. This description deals with building the ICI core
+    itself. The extension modules are in a seperate package.
+<P ALIGN="left">
+    The build process makes two things:<OL>
+        <LI> The core run-time that can be used to run ICI scripts
+             from the command line (or loaded dynamically by other
+             programs).
+        <LI> A software development kit (SDK) which can be used
+             to write extension modules (or use ICI as an
+             extension to another program).
+    </OL>
+    For each target configurtion (typically a platform flavour)
+    a different configuration include file is made by copying
+    the closest exisiting one, and adjusting. Each of these files
+    is called <I>conf-xxx.h</I> where <I>xxx</I> is the "flavour".
+    There is typically also a <I>Makefile.xxx</I> to match each of these.
+    (For Windows there is also a Visual C workspace.)
+<P ALIGN="left">
+    The file ici.h is the main include file for both seperately
+    compiled extension
+    modules and programs invoking the ICI interpreter. It is
+    made by the build process specificly for each different flavour.
+    (Actually, it is made by an ICI script, <I>mk-ici-h.ici</I>,
+    so you <I>must</I>
+    successfully build ICI before you can make ici.h.)
+<P ALIGN="left">
+    The following table summarises some of the standard configurations
+    for which configuration includes and Makefiles are included
+    in the ICI source. Building on these platforms should be
+    reasonably straightforward.
+<TABLE BORDER=1 CELLSPACING=1 CELLPADDING=1 WIDTH="100%">
+<TR ALIGN="left" VALIGN="top">
+    <TH>Platform</TH>
+    <TH>Makefile</TH>
+    <TH>Config file</TH>
+    <TH>Make/build produces</TH>
+    <TH>Notes</TH>
+</TR>
+<TR ALIGN="left" VALIGN="top">
+    <TD>Win32</TD>
+    <TD>win32\ici4.dsw or Makefile.w32</TD>
+    <TD>conf-w32.h</TD>
+    <TD>ici4.dll, ici4.lib, ici.h, ici.exe, iciw.exe</TD>
+    <TD><A HREF="#ICI_on_Windows">ICI on Microsoft Windows</A></TD>
+</TR>
+<TR ALIGN="left" VALIGN="top">
+    <TD>Linux</TD>
+    <TD>Makefile.linux</TD>
+    <TD>conf-linux.h</TD>
+    <TD>liblinux.a, ici.linux, ici.h</TD>
+    <TD>&nbsp;</TD>
+</TR>
+<TR ALIGN="left" VALIGN="top">
+    <TD>BeOS (x86)</TD>
+    <TD>Makefile.beos</TD>
+    <TD>conf-beos.h</TD>
+    <TD>libbeos.a, ici.beos, ici.h</TD>
+    <TD>&nbsp;</TD>
+</TR>
+<TR ALIGN="left" VALIGN="top">
+    <TD>BSD</TD>
+    <TD>Makefile.bsd</TD>
+    <TD>conf-bsd.h</TD>
+    <TD>ici4, ici.h</TD>
+    <TD><A HREF="#ICI_on_BSD">ICI on BSD Unix</A></TD>
+</TR>
+<TR ALIGN="left" VALIGN="top">
+    <TD>Solaris 2</TD>
+    <TD>Makefile.sol2</TD>
+    <TD>conf-sol2.h</TD>
+    <TD>ici.sol2, libsol2.a, ici.h</TD>
+    <TD>&nbsp;</TD>
+</TR>
+<TR ALIGN="left" VALIGN="top">
+    <TD>MacOSX</TD>
+    <TD>Makefile.osx</TD>
+    <TD>conf-osx.h</TD>
+    <TD>ici4, libici4.a, ici.h</TD>
+    <TD><A HREF="#ICI_on_BSD">ICI on BSD Unix</A></TD>
+</TR>
+</TABLE>
+
+<A NAME="supported">
+<H2>Building ICI for a supported UNIX-like platform</H2>
+</A>
+    Building ICI for a supported platform is easy. Simply decide what
+    machine you're on and do a <I>make -f Makefile.$MACHINE</I> (where you
+    replace <I>$MACHINE</I> with the name)
+    to create the library <I>lib$MACHINE.a</I>
+    and the interpreter <I>ici.$MACHINE</I>. For example under SunOS 4.1 we use
+    the name "sun" and <I>Makefile.sun</I> to build <I>libsun.a</I>
+    and <I>ici.sun</I>. Under
+    NeXTSTEP we use <I>Makefile.next</I> etc... To see the list of supported
+    systems it suffices to see what configuration files exist, these files
+    have names in the form <I>conf-$MACHINE.</I>h.
+<P ALIGN="left">
+    To install the interpreter use <I>make -f Makefile.$MACHINE install</I>. This
+    installs the interpreter, library, manual pages, documentation, header
+    and startup files. See the Makefiles for details.
+    
+<H3>Manifest of a core install on UNIX-like machines</H3>
+<P ALIGN="left">
+ICI would usually be installed in /usr/local. From that base,
+the following forms a core run-time installation:
+<PRE>
+bin/ici (linked to bin/ici4)
+bin/ici4
+include/ici.h
+include/icistr-setup.h
+lib/libici4.a
+lib/ici4/ici.pdf
+lib/ici4/ici4core.ici
+lib/ici4/ici4core1.ici
+lib/ici4/ici4core2.ici
+lib/ici4/ici4core3.ici
+man/man1/ici.1
+man/man1/icifuncs.1
+man/man1/icinet.1
+man/man1/icioo.1
+man/man1/iciops.1
+man/man1/icire.1
+man/man1/icistmt.1
+man/man1/icisys.1
+man/man1/icitypes.1
+</PRE>
+
+<A NAME="ICI_on_Windows">
+<H2>ICI on Microsoft Windows</H2>
+</A>
+    On Windows platforms (any Win32 varient), ICI is compiled into
+    a DLL (Dynamic Link Library) called <I>ici4.dll</I>. A definition file
+    (<I>ici.def</I>) is used to specify which identifiers should be
+    externally visible to other programs. The DLL is linked to use
+    multi-threaded DLL based run-time libraries.
+<P ALIGN="left">
+    There is a Makefile.w32 that can be used to build ICI
+    from the command line using Microsoft Visual C. However, this
+    is no longer used much. A Visual C workspace is located in
+    the win32 sub-directory. See README.txt in that directory for
+    details.
+<P ALIGN="left">
+    Applications may use the ICI DLL as a run-time component by
+    including the library file <I>ici4.lib</I> in their build
+    (<I>ici4.lib</I> is
+    produced as a side-effect of the build of <I>ici4.dll</I>) and,
+    of course, including relevent include files.
+<P ALIGN="left">
+    Two other programs,
+    <I>ici.exe</I> and <I>iciw.exe</I> are also built. They are just simple
+    stubs to invoke the DLL. The first (<I>ici.exe</I>) is a console
+    application, the second (<I>iciw.exe</I>) is a window application.
+    They both take command line arguments, but <I>iciw.exe</I> does not
+    support wild-card expansion.
+<P ALIGN="left">
+    If iciw.exe is copied to another file name, say xxx.exe, and
+    the file xxx.ici exists in the same directory,
+    xxx.ici will be inserted as the first argument
+    as if it had been provided on the command line. This is a
+    kludge to alleviate the lack of #! support under Windows.
+<H3>Manifest of a core install on Windows</H3>
+<P ALIGN="left">
+The following forms a core run-time installation:
+<PRE>
+*system-dir*\ici4.dll
+*system-dir*\ici.exe
+*system-dir*\iciw.exe
+*system-dir*\ici\ici4core.ici
+*system-dir*\ici\ici4core1.ici
+*system-dir*\ici\ici4core2.ici
+*system-dir*\ici\ici4core3.ici
+*system-dir*\ici\ici4widb.dll
+*prog-files*\ICI\ici.pdf
+</PRE>
+
+<A NAME="ICI_on_BSD">
+<H2>ICI on BSD Unix</H2>
+</A>
+    The BSD configuration of ICI is intended to be portable to
+    all major variants of BSD 4.4 - FreeBSD, NetBSD, OpenBSD, BSDi
+    and Darwin (Mac OS X). Not all these platforms have been tested
+    although no major problems are expected.
+<P ALIGN="left">
+    Individual BSD variants require somewhat different build
+    methods, essentially different invoccations of make(1) to
+    work around differences in the implementation of the
+    <TT>bsd.prog.mk</TT> include file. The reference
+    platform is FreeBSD on which a simple <TT>make</TT> suffices
+    to build the interpreter and a <TT>make install</TT> to install
+    it.  On other systems extra command line arguments may be required.
+<P ALIGN="left">
+    <TABLE BORDER="1">
+      <TR ALIGN="left" VALIGN="top">
+        <TH WIDTH="20%">Variant</TH>
+        <TH>Version</TH>
+        <TH>Make Command</TH>
+        <TH>Comments</TH>
+      </TR>
+      <TR ALIGN="left" VALIGN="top">
+        <TD>FreeBSD</TD>
+        <TD>2.x, 3.x, 4.x, 5.x</TD>
+        <TD><TT>make</TT></TD>
+        <TD>The reference BSD platform.</TD>
+      </TR>
+      <TR ALIGN="left" VALIGN="top">
+        <TD>NetBSD</TD>
+        <TD>1.4, 1.5</TD>
+        <TD><TT>make MANDIR=${PREFIX}/man</TT></TD>
+        <TD>NetBSD installs manual pages differently to FreeBSD
+          On NetBSD the pages are formatted and the <EM>cat</EM>
+          version of the page installed. Select ${PREFIX} according
+          to where you install ICI, this is usally /usr/local</TD>
+      </TR>
+      <TR ALIGN="left" VALIGN="top">
+        <TD>OpenBSD</TD>
+        <TD>2.7</TD>
+        <TD><TT>make</TT></TD>
+        <TD>No significant differences between OpenBSD and FreeBSD.</TD>
+      </TR>
+      <TR ALIGN="left" VALIGN="top">
+        <TD>BSDi</TD>
+        <TD>?</TD>
+        <TD><TT>make?</TT></TD>
+        <TD>This configuration has yet to be tested</TD>
+      </TR>
+      <TR ALIGN="left" VALIGN="top">
+        <TD>Darwin (Mac OS X)</TD>
+        <TD>10.2.6</TD>
+        <TD><TT>make</TT></TD>
+	<TD>
+	ICI should build "out of the box" on Mac OS X.  Previous
+	versions required the <TT>dlcompat</TT> library but this
+	has been replaced (see the <TT>macosx</TT> directory in
+	the source distribution).
+        </TD>
+      </TR>
+    </TABLE>
+
+<A NAME="Configuration">
+<H2>Configuration</H2>
+</A>
+    The distributed makefiles build the interpreter with the default
+    configuration for that system. The configuration is controlled by the
+    system's <I>conf-$MACHINE.h</I> file. A configuration defines which language
+    extensions (collections of builtin functions) are included in the
+    build and overcomes some portability concerns. The file <I>conf-sample.h</I>
+    contains a prototype configuration.
+
+<A NAME="Config_change">
+<H3>Changing the configuration</H3>
+</A>
+    To change the configuration you edit the system's `conf-xxx.h' header file
+    and define or undefine macros to include/exclude features. The default
+    macros are listed below. Defining the macro REMOVES the feature from
+    the build (which is why the names all start with "NO"). The macros
+    are:
+<DL>
+    <DT>NOMATH<DD>
+            Don't include mathematical builtins such as the
+            trigonometric functions etc... This is useful
+            on small or embedded systems that do not require
+            these. On most hosted environments (i.e. those
+            with a real OS) it is better to leave these in
+            as you'll want them one day.
+
+    <DT>NOWIN<DD>
+            Don't include the ICI text windowing functions
+            (the code in win.c). ICI's text windowing provides
+            a simple curses-like environment (but faster and
+            smaller). There is some documentation in the ICI
+            manual page and the source of course.
+
+    <DT>NODB<DD>
+            Obsolete. Previous versions of ICI supported a
+            text file database package which is no longer
+            included. This name used to control its inclusion.
+
+    <DT>NOTRACE<DD>
+            Don't include the trace() function or its support
+            code. This function was an attempt to include some
+            kind of debug tracing in ICI but isn't all that
+            useful.
+
+    <DT>NOWAITFOR<DD>
+            Don't include the waitfor() function. Useful for
+            systems that don't implement BSD's select().
+
+    <DT>NOSKT<DD>
+            Obsolete. Previous versions of ICI included BSD sockets
+            functions in the core. They have now moved to the net
+            extension module.
+            
+    <DT>NOSYSCALL<DD>
+            Obsolete. Previous versions of ICI included Unix-style
+            function in the core. They have now moved to the sys
+            extension module.
+
+    <DT>NODIR<DD>
+            Don't include the dir() function.
+
+    <DT>NOPASSWD<DD>
+            Don't include the Unix password file access
+            function.
+
+    <DT>NOSTARTUPFILE<DD>
+            Don't look for a startup file or provide the
+            -s switch to stop that behaviour.
+
+    <DT>NODEBUGGING<DD>
+            Don't include the debugging hooks. This may be
+            used to avoid including the debug code and its
+            tests in the execution loop. Might be useful
+            if performance is an issue.
+
+    <DT>ICI_RAND_IS_C_RAND<DD>
+            If this is defined then ICI's rand() function
+            will be implemented via the C library rand()
+            function otherwise ICI uses its own generator
+            function.
+
+    <DT>NOEVENTS<DD>
+            Don't include the event processing framework, see
+            events.c.
+
+    <DT>NOPROFILE<DD>
+            Don't include the profiling support, see profile.c
+            and profile.h.
+</DL>
+
+<A NAME="ICI_extensions">
+<H2>General notes on building ICI and extensions</H2>
+</A>
+    For all systems except MS Windows (for which it is optional),
+    for both ICI main code
+    builds and extension builds, the preprocessor define
+    <A NAME="CONFIG_FILE"><I>CONFIG_FILE</I></A>
+    must be defined to be the name
+    of the ICI configuration file which is specific to the
+    target. The defined value should include double
+    quotes around the name. For example:
+    <P ALIGN="left">
+    <CODE>"conf-sun.h"<BR></CODE>
+    is the file used by SunOS, and this would be defined on
+    the command line or in the project settings with:<BR>
+    <CODE>-DCONFIG_FILE=\"conf-w32.h\"</CODE>
+
+<A NAME="ICI_as_extension">
+<H2>ICI as an extension</H2>
+</A>
+    We are concerned here with the case where ICI does not
+    supply the main entry point, but is invoked from other
+    code.
+    There are a number build issues involved with this.
+<P ALIGN="left">
+    Firstly, every one of your source files that references some
+    ICI items must include <I>fwd.h</I> from the ICI source directory,
+    and possibly other includes. It is almost essential that
+    the include search path, for those source files at least,
+    has the ICI source directory on it.
+<P ALIGN="left">
+    Secondly, those same source files may need to be primed with the
+    definition of the current platform's ICI configuration include
+    file (CONFIG_FILE). See the note on
+    <A HREF="#CONFIG_FILE">CONFIG_FILE</A>
+    defines.
+<P ALIGN="left">
+    See <A HREF="#ICI_on_Windows">ICI on Microsoft Windows</A>
+    for further details of linking ICI into Window's programs.
+    
+<A NAME="releases">
+<H2>Some notes on making release</H2>
+</A>
+<P ALIGN="left">
+    These notes are a checklist of a few things that shouldn't be forgotten
+    when making new releases. They are not a complete recipe.
+<UL>
+    <LI>
+        Update and commit everything on all machines.
+    </LI>
+    <LI>
+        Rebuild the core API documentation MML file that
+        is extracted from the core source by going to
+        doc/book and running ici extract-doc-from-src.ici
+    </LI>
+    <LI>
+        Use FrameMaker to open the book, update it, and regenerate doc/ici.pdf.
+    </LI>
+    <LI>
+        Check and update the ICI_VER* version numbers in fwd.h. 
+    </LI>
+    <LI>
+        Update the version string in conf.c.
+    </LI>
+    <LI>
+        Write some release notes to be pasted into the release note area
+        at SourceForge associated with the release. (You'll also paste in
+        the change log.)
+    </LI>
+    <LI>
+        Using MS Visual C, build 'ici4', 'ici4sdk', and 'ici4install' and test
+        install the core and the SDK. Test with test/tst-all.ici.
+    </LI>
+    <LI>
+        Test and install the Linux build.
+    </LI>
+    <LI>
+        Examine Makefile.dist and adjust things if necessary. Especially the
+        release number.
+    </LI>
+    <LI>
+        Use make -f Makefile.dist dist-gz to make a distribution.
+    </LI>
+    <LI>
+        Unpack it somewhere and build and test under both Linux and Windows.
+    </LI>
+</UL>
+
+
+</BODY>
+</HTML>

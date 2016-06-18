@@ -1,0 +1,104 @@
+net		This is the sockets functions found in ICI and
+		made into a module. This allows you to build
+		ICI without sockets support and still write
+		programs that access networking functions.
+
+sys		System calls. Again extracted from ici.
+		
+posix		A collection of Posix system calls and library
+		functions not implemented in ICI. This is not
+		a single module but consists of several individual
+		functions that are automatically loaded when
+		referenced. This is so the calls resemble the
+		system call functions directly available in ICI.
+		This module is deprecated as the direct system
+		call functions are to be removed from ICI at
+		some future stage and the sys module used for
+		all system call accesses.
+
+str		String processing functions that aren't in ici
+		but need to be fast so are coded in C.
+
+cgi		An ICI-only module providing functions useful
+		for writing CGI scripts for web servers. Provides
+		functions for generating reply headers, parsing
+		query strings, etc...
+
+html		A collection of functions for ouputting HTML.
+		Useful in conjunction with the CGI module. This
+		too is an ICI-only module.
+
+xml		An interface to James Clark's ``expat'' XML parser
+		allowing ICI programs to read and process XML encoded
+		data. Includes an ici layer for DOM-like representation
+		of XML encoded data structures in memory or use the
+		SAX i/f provided by expat.
+
+serialisation	Two new functions for ICI, save() and restore(),
+		that allow nearly all objects to be transferred
+		as bytes streams using ICI files. Can be used
+		to archive objects and transfer functions or
+		data between interpreters. When combined with
+		network connections this can be used to provide
+		a environment for mobile programs or simplifies
+		protocol implementation through automatic marshalling
+		and demarshalling of complex data structures.
+
+ps		An ICI-only module to generate PostScript output.
+		Not complete at all but very easy to add to and
+		expand and suffices for simple output.
+
+tcl		A Tcl/Tk module. Binds the two languages and
+		allows calling each from the other. Allows the
+		creation of programs with Tk GUIs in ICI.
+
+utype		"User-defined types" for ICI. Not really but
+		this module lets you create structure objects
+		that can control access to the members. At a
+		minimum it allows you to rename the type of
+		a struct object to allow stricter type checking
+		in ICI code. Has been used for a simple persistent
+		object mechanism (in conjunction with the object
+		serialisation module).
+
+path		A number of functions for manipulating file
+		system pathnames. Includes all the old
+		favorites (basename, dirname, et al).
+
+X		An interface to Xlib. Contains many functions
+		required for most X11 applications. Easily extended.
+		Has been used to toolkits, small applications and
+		a window manager.
+
+wings		An interface to Window Maker's WINGs library
+		and the wmlib routines. Mostly complete but
+		needs use to iron out problems.
+
+env		Access the process environment as a struct.
+
+gl		ici binding to OpenGL (via Mesa).
+
+glx		the GLX portion of the OpenGL binding. Something is
+		astray with this module and gl in general. Things
+		appear to work but no output in the window. The
+		same code in C works correctly. The suspicision
+		is something related to run-time loading and linking
+		of the mulitple modules and possible mixups with
+		dynamic libraries used by the gl and glx modules.
+
+dll		Call arbitrary functions in shared libraries.
+		Written by Tim Long. Unix ports by Andy Newman.
+
+ppp		An ici module to talk to FreeBSD's user-level
+		ppp daemon over its control socket.
+
+gtk		The Gtk C API mapped to ICI.
+
+PQ		An mapping of the PostgreSQL C API to ICI.
+
+shout		An interface to libshout for sending data to
+		icecast and Shoutcast servers.
+
+bignum		Wrapper around some of the functions in the
+		DEC/Inria BigNum library (included).  Does
+		basic arbitrary size integer arithmetic.

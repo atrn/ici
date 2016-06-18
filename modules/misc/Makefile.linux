@@ -1,0 +1,51 @@
+PREFIX	= /usr/local/
+ICIV	= ici3
+ICI	= $(PREFIX)include/$(ICIV)
+LIBICI	= $(PREFIX)lib/$(ICIV)
+FLAVOUR	= linux
+ICI_DEFS= -DCONFIG_FILE='"conf-$(FLAVOUR).h"' -D$(ICIV)
+TOOLS	= ../tools
+INCS	= -I$(ICI)
+DEFS	= $(ICI_DEFS)
+CC	= cc -Wall
+OPTIM	= -g -O
+PIC	= -fpic
+CFLAGS	= $(PIC) $(OPTIM) $(INCS) $(DEFS)
+
+ALL=	$(ICIV)getbyte.so\
+	$(ICIV)join.so\
+	$(ICIV)fread.so\
+	$(ICIV)ungetc.so\
+	$(ICIV)tmpnam.so
+
+all:	$(ALL)
+
+$(ICIV)getbyte.so: icigetbyte.o
+	$(CC) -shared -Wl,-soname,$@ -o $@ icigetbyte.o
+
+$(ICIV)join.so: icijoin.o
+	$(CC) -shared -Wl,-soname,$@ -o $@ icijoin.o
+
+$(ICIV)fread.so: icifread.o
+	$(CC) -shared -Wl,-soname,$@ -o $@ icifread.o
+
+$(ICIV)ungetc.so: iciungetc.o
+	$(CC) -shared -Wl,-soname,$@ -o $@ iciungetc.o
+
+$(ICIV)tmpnam.so: icitmpnam.o
+	$(CC) -shared -Wl,-soname,$@ -o $@ icitmpnam.o
+
+install: $(ALL)
+	install -c -m 444 $(ALL) $(LIBICI)
+
+uninstall:
+	rm -f $(LIBICI)/$(ICIV)getbyte.so
+
+clean:
+	rm -f *.so *.o
+
+clobber: clean
+	rm -f .depend
+
+depend:
+	mkdep $(CFLAGS) *.c

@@ -1,0 +1,31 @@
+extern myname = path.base(argv[0], ".ici");
+
+if (argc != 2)
+{
+    printf(stderr, "usage: %s module-name\n", myname);
+    exit(1);
+}
+
+/* Makefile definitions are stored in a struct: maps name to value */
+static	vars = struct();
+
+/* Read the Make.vars file if it exists */
+auto f, s;
+try
+{
+    f = fopen("Make.vars");
+    while (s = getline(f))
+    {
+	if (s ~ #=#)
+	{
+	    s = s ~~ #^([^=]*)\s*=\s*(.*)$#;
+	    s[0] = str.toupper(s[0]);
+	}
+    }
+    close(f);
+}
+onerror
+{
+    if (error !~ #no such file#)
+	fail(error);
+}

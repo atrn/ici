@@ -1,0 +1,27 @@
+Summary
+
+New Build Using Ninja
+
+On supported platforms,
+
+    $ make
+
+Configuration is in two places
+
+    Makefiles/Makefile.PLATFORM
+    conf/SYSTEM.h
+
+Replace "PLATFORM" with the system's uname and SYSTEM with a more
+generic name, e.g. Mac OS is "Darwin" according to uname but we call
+it "osx", other platforms may be more consistent.
+
+# Supported Platforms
+
+## Mac OS
+## FreeBSD
+## Debian
+
+# Further Information
+
+    doc/building.html
+

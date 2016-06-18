@@ -1,0 +1,6 @@
+tst-0.ici	Hello World.
+tst-1.ici	A "Quit" button.
+tst-2.ici	A slightly more complicated program.
+tst-3.ici	Using modules.
+tst-4.ici	And using resource files
+tst-4.res	Resources for tst-4.ici

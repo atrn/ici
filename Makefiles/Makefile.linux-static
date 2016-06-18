@@ -1,0 +1,138 @@
+#
+# For compiling a statically linked executable under Linux.
+#
+
+VERSION = $(shell awk '{print $$1}' VERSION)
+PREFIX  = /usr/local
+
+TARGET  = ici
+CONFIG  = conf/linux.h
+
+GCC	?= gcc
+CC      = @echo CC $< ; $(GCC) -pipe -D_THREAD_SAFE
+LD	= $(GCC)
+
+COPT_EXTRA =
+COPT	?= -O3 -fomit-frame-pointer -march=native -mtune=native -msse4 -mfpmath=sse -flto $(COPT_EXTRA)
+LIBS    = -lm -ldl -lpthread
+
+#DEFS	+= -DICI_JEMALLOC
+#LIBS   += -ljemalloc
+
+# For debugging...
+#OPTIM  = -O0
+#OPTIM   =
+
+# For releases
+OPTIM  = -DNDEBUG $(COPT)
+
+# On 64-bit machines we need to use "large model" for objects
+# so the linker can link us.
+# OPTIM   += -mcmodel=large
+
+#
+# Other optimizations that may be useful but modern CPUs
+# make them less important or even pessimizations (e.g large
+# code via inlining and -O3 is often slower)
+#
+# -O3
+# -finline-functions
+# -fexpensive-optimizations
+# -malign-double
+#
+
+PCH     = fwd.h
+GCH     = $(PCH).gch
+
+CFLAGS  = -g -Wall $(OPTIM) -I. $(DEFS)
+LDFLAGS = $(CFLAGS) -export-dynamic -Wl,-rpath -Wl,$(PREFIX)/lib
+RM      = rm -f
+
+SRCS    = $(shell ls *.c | egrep -v '^(main|win32err|win32timezone)\.c')
+OBJS    = $(SRCS:.c=.o)
+PCREOBJS= study.o maketables.o pcre.o
+ALLOBJS = main.o $(OBJS) $(PCREOBJS)
+
+all:    $(TARGET) ici.h
+
+$(TARGET): $(ALLOBJS)
+	@echo LD $@; $(LD) $(LDFLAGS) -o $@ $(ALLOBJS) $(LIBS)
+
+gch pch	: $(GCH)
+
+$(GCH)  : $(PCH)
+	@echo CFLAGS=$(CFLAGS)
+	$(CC) $(CFLAGS) -o $@ $(PCH)
+
+$(ALLOBJS) : $(GCH)
+
+study.o : pcre/study.c
+	$(CC) -c -o $@ $(CFLAGS) pcre/study.c
+
+maketables.o    : pcre/maketables.c
+	$(CC) -c -o $@ $(CFLAGS) pcre/maketables.c
+
+pcre.o  : pcre/pcre.c
+	$(CC) -c -o $@ $(CFLAGS) pcre/pcre.c
+
+ici.h	: $(TARGET)
+	ANICIPATH=. ./$(TARGET) mk-ici-h.ici $(CONFIG)
+
+clean   :
+	$(RM) $(TARGET) $(ALLOBJS) ici.h
+
+clobber : clean
+	$(RM) $(GCH) .depend
+
+#
+# The following only works if you have the BSD mkdep program
+# installed. On Ubuntu its part of the pmake package.
+depend	:
+	mkdep $(CFLAGS) $(SRCS)
+
+-include .depend
+
+# Core modules
+COREMODS=\
+	ici4core.ici\
+	ici4core1.ici\
+	ici4core2.ici\
+	ici4core3.ici
+
+MAN1S=\
+	doc/man1/ici.1\
+	doc/man1/icifuncs.1\
+	doc/man1/icioo.1\
+	doc/man1/iciops.1\
+	doc/man1/icire.1\
+	doc/man1/icistmt.1\
+	doc/man1/icitypes.1
+
+# Install the init file, headers and docs.
+INSTALL		= install -c
+INSTALL_PROG	= $(INSTALL) -m 555
+INSTALL_DATA	= $(INSTALL) -m 444
+
+install: $(TARGET) $(COREMODS) ici.h icistr-setup.h $(MAN1S) doc/ici.pdf
+	@echo '=========================================='
+	@echo 'Creating installation directories'
+	@echo '=========================================='
+	-mkdir -p $(PREFIX)/bin
+	-mkdir -p $(PREFIX)/lib/ici4
+	-mkdir -p $(PREFIX)/include
+	-mkdir -p $(PREFIX)/man/man1
+	-mkdir -p $(PREFIX)/share/doc/ici4
+	@echo '=========================================='
+	@echo 'Installing ici interpreter and manual page'
+	@echo '=========================================='
+	$(INSTALL_PROG) $(TARGET) $(PREFIX)/bin/ici
+	$(INSTALL_DATA) $(COREMODS) $(PREFIX)/lib/ici4
+	$(INSTALL_DATA) $(MAN1S) $(PREFIX)/man/man1
+	@echo '=========================================='
+	@echo 'Documentation'
+	@echo '=========================================='
+	$(INSTALL_DATA) doc/ici.pdf $(PREFIX)/share/doc/ici4
+	@echo '=========================================='
+	@echo 'Install done'
+	@echo '=========================================='
+

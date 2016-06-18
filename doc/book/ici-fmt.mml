@@ -1,0 +1,26 @@
+<MML>
+<Comment *** Include file for Chapter template>
+<Comment *** Define paragraph formats in the Book/Chapter template>
+<!DefineTag Body>
+<!DefineTag BodyAfterHead>
+<!DefineTag Bulleted>
+<!DefineTag BulletedCont>
+<!DefineTag CellBody>
+<!DefineTag CellHeading>
+<!DefineTag ChapterTitle>
+<!DefineTag Equation>
+<!DefineTag Extract>
+<!DefineTag Figure>
+<!DefineTag Footnote>
+<!DefineTag Heading1>
+<!DefineTag Heading2>
+<!DefineTag HeadingRunin>
+<!DefineTag Numbered>
+<!DefineTag Numbered1>
+<!DefineTag NumberedCont>
+<!DefineTag TableFootnote>
+<!DefineTag TableTitle>
+<!DefineTag DefnIn4cm>
+<!DefineTag DefnIn2cm>
+<!DefineTag DefnTerm>
+<!DefineTag CodeIn1cm>

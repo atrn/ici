@@ -1,0 +1,32 @@
+local x;
+local y;
+
+x = 1;
+{
+     x += 2;
+     x += 3;
+}
+if (x != 6)
+    fail("compound statement effected flow");
+
+y = 0;
+forall (x in [array 4, 5, 6])
+    y += x;
+if (y != 15)
+    fail("forall loop gave wrong sum");
+
+y = 0;
+forall (x in NULL)
+    y += x;
+if (y != 0)
+    fail("NULL forall loop failed");
+
+
+x = [struct];
+super(x, y = @[struct a = 1]);
+++x.a;
+super(x, NULL);
+if (x.a != 2)
+    fail("failed to inc new element");
+if (y.a != 1)
+    fail("changed element in atomic super");

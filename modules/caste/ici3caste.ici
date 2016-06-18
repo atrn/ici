@@ -1,0 +1,64 @@
+/*******************************************************
+ * "CASTE" Module for ICI
+ * (C) Copyright 2001, Tim Vernum
+ * Based on work by Andy Newman
+ *******************************************************
+ INSERT LICENCE TEXT HERE 
+ *******************************************************/
+
+extern CLASS = [class
+
+	new()
+	{
+		auto o ;
+		o = caste_new() ;
+		super(o, this) ;
+		return o ;
+	}
+
+	_fetch(k)
+	{
+		return caste_fetch(this, k) ;
+	}
+
+	_assign(k,v)
+	{
+		return caste_assign(this,k,v) ;
+	}
+
+//	_call()
+//	{
+//		return NULL ;
+//	}
+
+	getClass()
+	{
+		return super(this) ;
+	}
+
+	clone()
+	{
+		return copy(this) ;
+	}
+	
+	tostring()
+	{
+		return string(this) ;
+	}
+
+	instanceof(c)
+	{
+		auto s ;
+		
+		if( typeof(c) != "struct" )
+			return 0 ;
+			
+		for( s = this ; s != NULL ; s = super(s) )
+		{
+			if( eq(s,c) )
+				return 1 ;
+		}
+		return 0 ;
+	}
+
+] ;

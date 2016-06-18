@@ -1,0 +1,8 @@
+file := fopen("test-save-cyclic-array.ici.dat");
+a := serialisation.restore(file);
+close(file);
+
+if (nels(a) != 1)
+    fail("wrong number of elements");
+if (!eq(a, a[0]))
+    fail("a[0] is not a");

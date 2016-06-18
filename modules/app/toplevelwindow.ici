@@ -1,0 +1,44 @@
+/*
+ * toplevelwindow.ici
+ *
+ * Define class for top-level windows.
+ */
+
+extern toplevelwindow = [struct : widget,
+
+    type = "toplevelwindow",
+
+    /*
+     * Create a new TopLevelWindow object.
+     *
+     * All we need to do is create a name for ourselves
+     * and create the Tk toplevel object with that name.
+     */
+    new = [func (self)
+    {
+	self.name = self@makename();
+	tcl.tk("toplevel", self.name);
+    }],
+
+    /*
+     * Close a TopLevelWindow.
+     *
+     *
+     */
+    close = [func (self)
+    {
+	if (self.closed)
+	    fail("TopLevelWindow is already closed");
+	try
+	    tcl.tk("destroy", self.name);
+	onerror
+	    ;
+	self.closed = true;
+    }],
+
+    settitle = [func (self, title)
+    {
+	tcl.tk("wm title", self.name, title);
+    }],
+
+];

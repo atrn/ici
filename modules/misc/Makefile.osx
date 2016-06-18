@@ -1,0 +1,51 @@
+PREFIX	= /usr/local/
+ICIV	?= ici3
+ICI	= $(PREFIX)include/$(ICIV)
+LIBICI	= $(PREFIX)lib/$(ICIV)
+ICI_DEFS= -D$(ICIV)
+TOOLS	= ../tools
+INCS	= -I$(ICI)
+DEFS	= $(ICI_DEFS)
+CC	= cc -Wall
+OPTIM	= -g
+PIC	= -dynamic -fno-common
+CFLAGS	= $(PIC) $(OPTIM) $(INCS) $(DEFS)
+LDFLAGS = -flat_namespace -bundle -undefined suppress
+
+ALL=	$(ICIV)getbyte.dylib\
+	$(ICIV)join.dylib\
+	$(ICIV)fread.dylib\
+	$(ICIV)ungetc.dylib\
+	$(ICIV)tmpnam.dylib
+
+all:	$(ALL)
+
+$(ICIV)getbyte.dylib: icigetbyte.o
+	$(CC) $(LDFLAGS) -o $@ icigetbyte.o -install_name $(PREFIX)lib/ici3/$@
+
+$(ICIV)join.dylib: icijoin.o
+	$(CC) $(LDFLAGS) -o $@ icijoin.o -install_name $(PREFIX)lib/ici3/$@
+
+$(ICIV)fread.dylib: icifread.o
+	$(CC) $(LDFLAGS) -o $@ icifread.o -install_name $(PREFIX)lib/ici3/$@
+
+$(ICIV)ungetc.dylib: iciungetc.o
+	$(CC) $(LDFLAGS) -o $@ iciungetc.o -install_name $(PREFIX)lib/ici3/$@
+
+$(ICIV)tmpnam.dylib: icitmpnam.o
+	$(CC) $(LDFLAGS) -o $@ icitmpnam.o -install_name $(PREFIX)lib/ici3/$@
+
+install: $(ALL)
+	install -c -m 444 $(ALL) $(LIBICI)
+
+uninstall:
+	rm -f $(LIBICI)/$(ICIV)getbyte.dylib
+
+clean:
+	rm -f *.dylib *.o
+
+clobber: clean
+	rm -f .depend
+
+depend:
+	mkdep $(CFLAGS) *.c

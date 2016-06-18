@@ -1,0 +1,102 @@
+local words = set();
+local dict = struct();
+local digrams = struct();
+local trigrams = struct();
+
+local incr(dict, key)
+{
+    if (dict[key] == NULL)
+	dict[key] = 0;
+    ++dict[key];
+}
+
+local read_words()
+{
+    data := getfile("/usr/share/dict/words");
+    file := sopen(data);
+    while (word := getline(file))
+	words += word;
+    close(file);
+}
+
+local form_dict(idx)
+{
+    var idx = 0;
+
+    forall (word in words)
+    {
+	if (idx < len(word))
+	{
+	    ch := word[idx];
+	    if (!dict[ch])
+		dict[ch] = set();
+	    dict[ch] += word;
+	}
+    }
+}
+
+local calc_hist(dict)
+{
+    hist := array();
+    forall (v, k in dict)
+    {
+	push(hist, struct("k", k, "n", v));
+    }
+    return sort(hist, [func (a, b) { return cmp(a.n, b.n); }]);
+}
+
+local dump_hist(hist)
+{
+    forall (v in hist)
+	printf("%.4f %d %s\n", v.p, v.n, v.k);
+}
+
+local determine_grams()
+{
+    forall (word in words)
+    {
+	n := len(word);
+	if (n < 2)
+	    continue;
+	for (i := 0; i < n - 1; ++i)
+	{
+	    digram := interval(word, i, 2);
+	    incr(digrams, digram);
+	}
+	if (n < 3)
+	    continue;
+	for (i := 0; i < n - 2; ++i)
+	{
+	    trigram := interval(word, i, 3);
+	    incr(trigrams, trigram);
+	}
+    }
+}
+
+// printf("%d collects\n", ncollects());
+
+read_words();
+
+// form_dict();
+// hist := calc_hist(dict);
+// dump_hist(hist);
+
+// printf("%d collects\n", ncollects());
+
+// form_dict(1);
+// hist := calc_hist();
+// dump_hist(hist);
+
+// printf("%d collects\n", ncollects());
+
+determine_grams();
+
+hist := calc_hist(digrams);
+dump_hist(hist);
+
+printf("%d collects\n", ncollects());
+
+hist := calc_hist(trigrams);
+dump_hist(hist);
+
+printf("%d collects\n", ncollects());

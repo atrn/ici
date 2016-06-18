@@ -1,0 +1,30 @@
+#!/usr/local/bin/ici
+
+/*
+ * Draw a simple user-interface - two buttons.
+ */
+tcl.tk("ttk::button .b -text Hello -command {ici {hello(\"World\");}}");
+// tcl.tk(".b configure -font 10x20");
+tcl.tk("ttk::button .q -text Quit -command {ici {quit();}}");
+// tcl.tk(".q configure -font 10x20");
+tcl.tk("pack .b .q -fill both -expand 1");
+
+/*
+ * Functions called from actions on the Tk widgets.
+ */
+
+static hello(msg)
+{
+    printf("Hello (%s)!\n", msg);
+}
+
+static quit()
+{
+    // printf("Finished.\n");
+    tcl.tk("destroy .");
+}
+
+/*
+ * Run the event loop
+ */
+tcl.tk_main_loop();

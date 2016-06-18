@@ -1,0 +1,118 @@
+/*
+ * min - return the minimum of all parameters
+ */
+export
+min(v)
+{
+    var        vargs = [array];
+    var        rc;
+
+    rc = v;
+    forall (v in vargs)
+        if (v < rc)
+            rc = v;
+    return rc;
+}
+
+/*
+ * max - return the maximum value of all parameters
+ */
+export
+max(v)
+{
+    var        vargs = [array];
+    var        rc;
+
+    rc = v;
+    forall (v in vargs)
+        if (v > rc)
+            rc = v;
+    return rc;
+}
+
+/*
+ * Raise an error for an incorrect argument argument passed to a function.
+ * Mimics the interpreter's internal routine to do the same thing.
+ */
+local
+argerror(f, n, t)
+{
+    fail(sprintf("argument %d of %s() incorrectly supplied as %s", n, f, t));
+}
+
+/*
+ * Raise an error for an incorrect number of arguments to a function.
+ * Mimics the interpreter's internal routine.
+ */
+local
+argcount(f, n, a)
+{
+    fail(sprintf("%d arguments given to %s, but it takes %d", a, f, n));
+}
+
+/*
+ * typecheck - validate arguments via format string
+ *
+ * Parameters:
+ *      f       A string, the name of function calling typecheck. This is
+ *              used when raising errors about too few arguments or an
+ *              argument being of incorrect type.
+ *
+ *      XXXX    This can be removed now that ICI has _funcname_. Typecheck
+ *              can all vstack() to find the caller's name, if it has
+ *              one, and issue the appropriate message.
+ *
+ *      fmt     A format string specifying the types for the
+ *              arguments, each character represents a single
+ *              argument. If there are too few arguments or
+ *              arguments of incorrect type an error is raised.
+ *              The following characters are used,
+ *
+ *                      i       int
+ *                      s       string
+ *                      f       float
+ *                      d       struct
+ *                      a       array
+ *                      u       file
+ *                      r       regexp
+ *
+ *      args    An array of the parameters to be validated.
+ *
+ * Returns:
+ *      A struct containing two keys, "args" - an array of the actual
+ *      validated parameters - and "vargs" - an array containing any
+ *      remaining parameters.
+ */
+export
+typecheck(f, fmt, args)
+{
+    var        o;
+    var        c;
+    var        res;
+    var        i;
+    var        n;
+    var        map = [struct
+        i = "int",
+        s = "string",
+        f = "float",
+        d = "struct",
+        a = "array",
+        u = "file",
+        r = "regexp",
+    ];
+    i = 0;
+    n = len(args);
+    res = array();
+    if (len(fmt) != len(args))
+        argcount(f, len(fmt), i);
+    forall (c in fmt)
+    {
+        o = args[i];
+        if (!(c = map[c]))
+            fail("invalid type specifier in typecheck() format string");
+        if ((t = typeof(o)) != c)
+            argerror(f, i, t);
+        push(res, o);
+    }
+    return struct("args", res, "vargs", interval(args, i));
+}

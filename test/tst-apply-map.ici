@@ -1,0 +1,28 @@
+apply
+(
+    [func (f) { printf("%-8d %s\n", f.size, f.filename); }],
+
+    sort
+    (
+	map
+	(
+	    map
+	    (
+		dir(argv[1] || ".", "f"),
+		[func (filename, directory_name)
+		{
+		    return pathjoin(directory_name, filename);
+		}],
+		argv[1] || "."
+	    ),
+	    [func (filename)
+	    {
+		return struct("filename", filename, "size", sys.stat(filename).size);
+	    }]
+	),
+	[func (a, b)
+	{
+	    return cmp(b.size, a.size);
+	}]
+    )
+);

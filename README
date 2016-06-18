@@ -1,0 +1,22 @@
+ICI is a general purpose interpretive programming language that has dynamic
+typing and flexible data types with the flow control constructs and operators
+of C.  It is designed for use in many environments, including embedded
+systems, as an adjunct to other programs, as a text-based interface to
+compiled libraries, and as a cross-platform scripting language with good
+string-handling capabilities.
+
+The ICI language and source is not copyright in any way.
+
+The ici man pages are quite complete and reasonably lengthy.  There is
+also a technical document describing the language (ici.pdf in the
+doc directory). The ICI Technical Description is copyrighted
+but may be used for any purpose as long as its copyright notice
+is retained. All other documents are in the public domain unless
+otherwise noted.
+
+For instructions on building ICI see the file.......BUILDING.
+For information about what's new see the file.......CHANGES.
+For details of future developments read the file....TODO.
+For details of platform specific problems see.......PLATFORM.
+The version number and date are in the file.........VERSION.
+The people responsible are listed in the file.......CREDITS.

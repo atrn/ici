@@ -1,0 +1,2 @@
+LIBS += -L$(PREFIX)/lib -lpdf
+CFLAGS += -I$(PREFIX)/include

@@ -1,0 +1,60 @@
+local IM = 139968;
+local IA = 3877;
+local IC = 29573;
+
+local
+gen_random(max)
+{
+    local last = 42;
+
+    return max * (last = (last * IA + IC) % IM) / IM ;
+}
+
+local
+heapsort(n, ra)
+{
+    ir = n;
+    l = (n >> 1) + 1;
+    for (;;)
+    {
+        if (l > 1)
+        {
+            rra = ra[--l];
+        }
+        else
+        {
+            rra = ra[ir];
+            ra[ir] = ra[1];
+            if (--ir == 1)
+            {
+                ra[1] = rra;
+                return;
+            }
+        }
+        i = l;
+        j = l << 1;
+        while (j <= ir)
+        {
+            if (j < ir && ra[j] < ra[j+1])
+                ++j;
+            if (rra < ra[j])
+            {
+                ra[i] = ra[j];
+                j += (i = j);
+            }
+            else
+            {
+                j = ir + 1;
+            }
+        }
+        ra[i] = rra;
+    }
+}
+
+N = argv[1] ? int(argv[1]) : 1;
+ary = array();
+for (i = 0; i <= N; ++i)
+    ary[i] = gen_random(1.0);
+heapsort(N, ary);
+// printf("%.10f\n", ary[N]);
+

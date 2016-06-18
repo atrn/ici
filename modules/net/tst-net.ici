@@ -1,0 +1,57 @@
+n = 1000;
+static data = "Hello there sailor\n";
+
+static
+echo_client(n, port)
+{
+    sock := net.connect(net.socket("tcp/ip"), port);
+    for (i := 0; i < n; ++i)
+    {
+        net.send(sock, data);
+        if ((ans := net.recv(sock, nels(data))) != data)
+            fail(sprintf("received \"%s\", expected \"%s\"", ans, data));
+    }
+    net.close(sock);
+    return 1;
+}
+
+ssock = net.listen(net.bind(net.socket("tcp/ip")));
+client = thread(echo_client, n, net.getportno(ssock));
+csock = net.accept(ssock);
+t = 0;
+while (str = net.recv(csock, nels(data)))
+{
+    net.send(csock, str);
+    t += nels(str);
+}
+waitfor(client.state != "active"; client)
+    ;
+
+if (t != n * nels(data))
+    fail("didn't process right amount of data");
+
+/*
+ * A slightly different test...
+ */
+static connector()
+{
+    for (i := 0; i < 10; i++)
+    {
+        skt = net.socket("tcp");
+        net.connect(skt, "1088@localhost");
+        net.send(skt, "Test string");
+        net.close(skt);
+    }
+}
+
+thread(connector);
+listener := net.socket("tcp");
+net.listen(net.bind(listener, 1088));
+for (i := 0; i < 10; i++)
+{
+    net.select(set(listener), set(), set());
+    skt = net.accept(listener);
+    if (net.recv(skt, 100) != "Test string")
+        fail("failed to net.recv test string");
+    net.close(skt);
+}

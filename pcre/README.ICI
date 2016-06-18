@@ -1,0 +1,17 @@
+The ici version of PCRE has two simple modifications to assist the ici
+garbage collector/memory allocator and to control the names exported
+by the PCRE object files.
+
+PCRE's internal regexp data structure has a size field added so we
+know how much memory is used by a compiled regexp which is used by
+ici's garbage collector to track how much memory is being used.
+
+In addition the names exported by the PCRE code are prefixed with the
+strings "ici_". Acheived with some #defines at the start of pcre.h.
+
+Code modification are  surrounded  by the comment lines, "/* ICI */"
+and this is in only three places. At the start of pcre.h, an addition
+of a ``size_t size'' member to the compiled regexp structure defined in
+internal.h and the corresponding initialisation of this field in pcre.c
+
+Andy Newman <andy@research.canon.com.au> &| <atrn@zeta.org.au>

@@ -1,0 +1,125 @@
+#
+# Makefile for building ici on OpenSolaris 10 with the SunStudio compiler
+#
+# This is a Sun make makefile.
+#
+
+PROG		= ici
+
+SO_VERSION:sh	= awk '{print $1}' VERSION
+SO              = libici4.so
+SHLIB		= $(SO).$(SO_VERSION)
+
+PREFIX		= /opt/ici
+
+COPT		= -DNDEBUG -xO4 -xtarget=native -xbuiltin='%all' -xspace
+LIBS		= -lm -lpthread
+
+DEFS		= -DCONFIG_FILE='"conf/opensolaris.h"'
+
+COMMON_CFLAGS	= $(COPT) -g -I. $(DEFS) -mt
+PROG_CFLAGS	= $(COMMON_CFLAGS)
+CFLAGS	        = $(COMMON_CFLAGS) -Kpic
+
+SRCS:sh		= echo *.c
+OBJS		= $(SRCS:.c=.o) study.o maketables.o pcre.o
+
+all             : ici.h
+
+echo		:
+	@echo $(OBJS)
+
+ici.h		: $(PROG) mk-ici-h.ici
+`	LD_LIBRARY_PATH=. ANICIPATH=. ./$(PROG) mk-ici-h.ici conf/opensolaris.h
+
+$(PROG) 	: main.o $(SHLIB)
+	$(CC) -o $@ $(PROG_CFLAGS) main.o -R$(PREFIX)/lib -L. -lici4 $(LIBS)
+
+$(SHLIB)	: $(OBJS)
+	$(CC) -o $@ -G $(CFLAGS) $(OBJS)
+	ln -sf $(SHLIB) $(SO)
+
+fwd.h           : conf/opensolaris.h
+
+#
+# Build a debug version
+#
+debug		:
+	$(MAKE) -f Makefiles/Makefile.opensolaris COPT=-O0 clobber;\
+	$(MAKE) -f Makefiles/Makefile.opensolaris COPT=-O0
+
+profile		:
+	$(MAKE) -f Makefiles/Makefile.opensolaris COPT='-O2 -pg -DNDEBUG'
+
+#
+# Special rules for PCRE sources, they live in a sub-directory.
+#
+study.o 	: pcre/study.c
+	$(CC) -c -o $@ $(CFLAGS) pcre/study.c
+
+maketables.o	: pcre/maketables.c
+	$(CC) -c -o $@ $(CFLAGS) pcre/maketables.c
+
+pcre.o		: pcre/pcre.c
+	$(CC) -c -o $@ $(CFLAGS) pcre/pcre.c
+
+#
+# Install everything
+#
+install		: $(PROG)
+	@echo '=========================================='
+	@echo 'Creating installation directories'
+	@echo '=========================================='
+	[ -d '$(PREFIX)/bin' ] || mkdir -p '$(PREFIX)/bin'
+	-[ -d  '$(PREFIX)/include' ] || mkdir -p '$(PREFIX)/include'
+	-[ -d '$(PREFIX)/man/man1' ] || mkdir -p '$(PREFIX)/man/man1'
+	-[ -d '$(PREFIX)/lib/ici4' ] || mkdir -p '$(PREFIX)/lib/ici4'
+	-[ -d '$(PREFIX)/share/doc/ici4' ] || mkdir -p '$(PREFIX)/share/doc/ici4'
+	@echo '=========================================='
+	@echo 'Installing ici interpreter'
+	@echo '=========================================='
+	rm -f '$(PREFIX)/bin/$(PROG)'
+	/usr/sbin/install -f '$(PREFIX)/bin' -m 555 $(PROG)
+	@echo '=========================================='
+	@echo 'Installing ici library'
+	@echo '=========================================='
+	rm -f '$(PREFIX)/lib/$(SHLIB)' '$(PREFIX)/lib/$(SO)'
+	/usr/sbin/install -f '$(PREFIX)/lib' -m 444 $(SHLIB)
+	@(cd '$(PREFIX)/lib' && ln -sf $(SHLIB) $(SO))
+	@echo '=========================================='
+	@echo 'Startup file'
+	@echo '=========================================='
+	for f in ici4core*.ici ; do\
+		rm -f "$(PREFIX)/lib/ici4/$$f";\
+		/usr/sbin/install -f '$(PREFIX)/lib/ici4' -m 444 $$f;\
+	done
+	@echo '=========================================='
+	@echo 'Headers'
+	@echo '=========================================='
+	rm -f '$(PREFIX)/include/ici.h' '$(PREFIX)/include/icistr-setup.h'
+	/usr/sbin/install -f '$(PREFIX)/include' -m 444 ici.h
+	/usr/sbin/install -f '$(PREFIX)/include' -m 444 icistr-setup.h
+	@echo '=========================================='
+	@echo 'Documentation'
+	@echo '=========================================='
+	rm -f '$(PREFIX)/share/doc/ici4/ici.pdf'
+	/usr/sbin/install -f '$(PREFIX)/share/doc/ici4' -m 444 doc/ici.pdf
+	for f in doc/man1/*.1; do\
+		b=$$(basename $$f);\
+		rm -f "$(PREFIX)/man/man1/$$b";\
+		/usr/sbin/install -f '$(PREFIX)/man/man1' -m 444 $$f;\
+	done
+	@echo '=========================================='
+	@echo 'Install done'
+	@echo '=========================================='
+
+
+#
+# Clean and clobber
+#
+
+clean		:
+	rm -f $(PROG) $(OBJS) $(SHLIB) ici.h $(SO)
+
+clobber		: clean
+	rm -f .depend

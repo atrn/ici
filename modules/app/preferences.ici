@@ -1,0 +1,82 @@
+/*
+ * preferences.ici - preferences system for ICI applications
+ *
+ * Applications typically have various attributes users may change to
+ * suite their particular way of working. Things like colour settings,
+ * fonts, window sizes etc... All of these are user preferences. ICI
+ * applications keep track of user preferences by storing each application's
+ * preferences in individual files as ICI struct literal. Structs store
+ * key/value pairs and allow any objects to be used for both keys and
+ * values. To load the preferences the ICI program simply parses the file
+ * and reads the values of resultant object. The preferences files aren't
+ * exactly ICI code. To make life a little simpler for the end-user the
+ * files are fragments of ICI code and have the "auto x = [struct" and
+ * terminating "];" added for them. Preferences files do however require
+ * the user to separate entries with commas so that the string that is
+ * parsed is syntactically correct ICI.
+ *
+ */
+
+/*
+ * Establish the name "Preferences" in the extern scope level. Applications
+ * will typically have a set of default preferences which they can store
+ * in Preferences using simple assignments.
+ */
+extern
+preferences = [struct
+];
+
+/*
+ * Try to read this application's preferences from the file system and
+ * parse them. We use the user's .preferences directory in their home
+ * directory and the base name of the current program to determine the
+ * file we want to read. We then construct a string containing a valid
+ * ICI assingment of a struct literal to a variable and parse that code
+ * in a simple scope that defines a few handy constants. After parsing
+ * we add the values defined in the preferences file to the 
+ */
+auto	fn = passwd(getuid()).dir + "/.preferences/" + path.basename(argv[0]);
+auto	f;
+try
+{
+    auto s, l, scp;
+
+    f = fopen(fn);
+    s = "auto preferences = [struct\n";
+    while (l = getline(f))
+    {
+	if (l[0] ~ #\s#)
+	    s = sprintf("%s%s", s, l);
+	else
+	{
+	    l = l ~~~ #^([^\s=]+)\s*=(.*)#;
+	    s = sprintf("%s(\"%s\")=%s,\n", s, l[0], l[1]);
+	}
+    }
+    s = sprintf("%s];\n", s);
+    scp = struct(struct(copy(externs())));
+    parse(s, scp);
+
+    /*
+     * Add user preferences to defaults to obtain full settings.
+     */
+    super(scp.preferences, preferences);
+    preferences = scp.preferences;
+}
+onerror
+{
+    if (error !~ #not open#)
+	fail(error);
+}
+
+/*
+ * Debugging...
+ */
+if (0)
+{
+    auto v, k;
+    printf(stderr, "Preferences for %s:\n", path.basename(argv[0]));
+    forall (v, k in preferences)
+	printf(stderr, "%s = %s\n", k, string(v));
+    printf(stderr, "\n");
+}

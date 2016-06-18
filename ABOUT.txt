@@ -1,0 +1,50 @@
+* anici
+
+anici is a heavily a modified version of Tim Long's ICI language.
+
+See the CHANGES file for full details, in summary anici,
+
+- changes some keywords for aesthetic reasons
+- adds object serialization (save/restore) as standard
+
+And as part of this anici is,
+
+- 64-bit safe
+
+And plans,
+
+- UTF-8 encoded strings
+
+
+
+* anici object serialization
+
+The goal of anici has always been about using ici as a language for
+mobile programs, using generic object serialization as the basic
+mechanism.
+
+The object serialization formed the basis of a distributed programming
+experiment with mobile programs - programs that move around a network
+during execution, taking their state with them when they relocate
+execution location. Thanks to ici being interpretered we can also
+easily control the execution environment (in theory) and enforce
+security policies or tailor standard functions to specific users and
+so on. Of course coding mistakes introduce holes in this scheme
+however the size of the code base is small enough to allow for code
+auditing.
+
+
+* serialization protocol
+
+The save() and restore() functions work with a binary representation
+of an object graph.  All standard types are supported including
+functions which are communicated in their compiled, virtual machine
+form and structures with cycles.  Atomic objects are sent once within
+a specific "session" making for moderate efficiency gains for large
+numbers of repeated structures and similar objects with repeated
+atomic objects, typically strings.
+
+The protocol is a tagged, type protocol.
+
+Each object is sent as a one byte object type identifier followed by
+an object specific representation.

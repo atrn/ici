@@ -1,0 +1,267 @@
+#
+# For compiling a standard version for WIN32 with Microsoft Visual C++.
+#
+# Useful targets in this makefile are:
+#
+#    all                The default. Builds executables.
+#
+#    sdk                Makes a zip archive of files suitable for export
+#                       as an ICI software development kit.
+#
+#    clean              Removes (almost) all generated files.
+#
+#
+
+CC  = cl /nologo
+RM  = del
+SAFEICI = ici
+
+#
+# The major ICI version number.
+#
+VER=4
+SDK=ici4-win32-sdk
+
+#
+# All these options are in the documentation, but here is a ready-ref:
+# /MD   Use multithreaded release DLL versions of standard libs.
+# /Zi   Use a "program database" for debug info.
+# /Os	Optimisation level, and a float thing.
+# /GF   Merged and read-only strings.
+# /Wn   Warning level n.
+#
+OPTIM	= /Ob1 /Os /Oi /Oy
+CFLAGS  = /MD /Zi $(OPTIM) /GF /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /W3 /I.
+LDFLAGS = /MD /Zi
+LIBS    = user32.lib wsock32.lib advapi32.lib winmm.lib
+
+#
+# If you want to debug...
+#
+#CFLAGS = /GB /MDd /Zi /Od /W3 -I.
+#LDFLAGS = /MDd /Zi
+
+OBJS    = \
+    alloc.obj aplfuncs.obj arith.obj array.obj call.obj \
+    catch.obj cfunc.obj cfunco.obj clib.obj clib2.obj \
+    compile.obj conf.obj control.obj crc.obj events.obj exec.obj \
+    error.obj exerror.obj file.obj findpath.obj float.obj forall.obj \
+    func.obj handle.obj icimain.obj init.obj int.obj \
+    lex.obj load.obj mark.obj mem.obj method.obj \
+    mkvar.obj null.obj \
+    object.obj oofuncs.obj op.obj parse.obj pc.obj profile.obj \
+    ptr.obj refuncs.obj regexp.obj set.obj sfile.obj \
+    signals.obj smash.obj src.obj \
+    sstring.obj string.obj \
+    struct.obj syserr.obj thread.obj \
+    trace.obj unary.obj uninit.obj win32err.obj \
+    win32timezone.obj \
+    buf.obj strtol.obj \
+    idb.obj idb2.obj
+
+PCREOBJS=\
+    study.obj maketables.obj pcre.obj
+
+SDKFILES = \
+    ici$(VER).dll ici$(VER).lib ici$(VER).pdb \
+    ici4core.ici ici4core1.ici ici4core2.ici ici4core3.ici \
+    ici.exe wici.exe \
+    ici.h icistr-setup.h \
+    doc\ici.pdf \
+    ici$(VER)widb.dll
+
+all             : ici$(VER).dll ici.exe ici.h
+
+sdk             : ici$(VER)-win32-sdk.zip
+
+$(SDK).zip      : $(SDKFILES)
+                -del $(SDK).zip
+                -del /Q $(SDK)\*
+                -mkdir $(SDK)
+                @-for %%f in ( $(SDKFILES) ) do copy %%f $(SDK)
+                zip -o -r $@ $(SDK)
+
+ici$(VER).dll:  $(OBJS) $(PCREOBJS) ici.def
+                $(CC) $(LDFLAGS) -Fe$@ $(OBJS) $(PCREOBJS) $(LIBS) /link /DEBUG /DLL /def:ici.def
+				mt.exe /manifest ici4.dll.manifest -outputresource:ici4.dll;2
+
+ici.h           : mk-ici-h.ici
+                $(SAFEICI) mk-ici-h.ici conf/w32.h
+
+ici.exe         : main.obj ici$(VER).dll
+                $(CC) $(LDFLAGS) -Fe$@ main.obj setargv.obj ici$(VER).lib
+				mt.exe /manifest ici.exe.manifest -outputresource:ici.exe;1
+
+main.obj        : main.c
+                $(CC) -c -Fo$@ $(CFLAGS) main.c
+
+study.obj       : pcre/study.c
+                $(CC) -c -Fo$@ $(CFLAGS) pcre/study.c
+
+maketables.obj  : pcre/maketables.c
+                $(CC) -c -Fo$@ $(CFLAGS) pcre/maketables.c
+
+pcre.obj        : pcre/pcre.c
+                $(CC) -c -Fo$@ $(CFLAGS) pcre/pcre.c
+
+clean:
+                @-for %%f in ( main.obj $(OBJS) $(PCREOBJS) $(TARGET) *.ilk *.pdb ici$(VER).lib ici$(VER).exp ) do $(RM) %%f
+                rmdir /s /q $(SDK)
+
+ici.h : conf/w32.h fwd.h object.h alloc.h buf.h catch.h \
+    cfunc.h array.h int.h float.h exec.h file.h forall.h func.h \
+    handle.h mark.h mem.h method.h null.h op.h parse.h pc.h \
+    ptr.h re.h set.h src.h str.h struct.h trace.h wrap.h
+
+alloc.obj: fwd.h conf/w32.h
+alloc.obj:  alloc.h
+aplfuncs.obj: exec.h array.h object.h fwd.h conf/w32.h
+aplfuncs.obj:   alloc.h int.h float.h
+aplfuncs.obj: func.h cfunc.h str.h sstring.h struct.h buf.h null.h op.h
+arith.obj: exec.h array.h object.h fwd.h conf/w32.h
+arith.obj:  alloc.h int.h float.h op.h parse.h ptr.h str.h
+arith.obj: sstring.h struct.h buf.h primes.h re.h pcre/pcre.h set.h
+array.obj: ptr.h exec.h array.h object.h fwd.h conf/w32.h
+array.obj:  alloc.h int.h float.h op.h buf.h primes.h
+buf.obj: fwd.h conf/w32.h
+buf.obj:  alloc.h buf.h
+call.obj: buf.h exec.h array.h object.h fwd.h conf/w32.h
+call.obj:  alloc.h int.h float.h func.h cfunc.h str.h
+call.obj: sstring.h null.h op.h catch.h
+catch.obj: exec.h array.h object.h fwd.h conf/w32.h
+catch.obj:  alloc.h int.h float.h catch.h op.h func.h
+catch.obj: cfunc.h
+cfunc.obj: exec.h array.h object.h fwd.h conf/w32.h
+cfunc.obj:  alloc.h int.h float.h func.h cfunc.h str.h
+cfunc.obj: sstring.h struct.h set.h op.h ptr.h buf.h file.h re.h pcre/pcre.h
+cfunc.obj: null.h parse.h mem.h 
+cfunco.obj: cfunc.h exec.h array.h object.h fwd.h conf/w32.h
+cfunco.obj:  alloc.h int.h float.h ptr.h struct.h op.h
+cfunco.obj: pc.h str.h sstring.h catch.h buf.h mark.h null.h primes.h
+clib.obj: file.h exec.h array.h object.h fwd.h conf/w32.h
+clib.obj:  alloc.h int.h float.h func.h cfunc.h op.h str.h
+clib.obj: sstring.h buf.h null.h re.h pcre/pcre.h 
+clib2.obj: str.h sstring.h func.h cfunc.h
+compile.obj: parse.h array.h object.h fwd.h conf/w32.h
+compile.obj:  alloc.h op.h str.h sstring.h
+conf.obj: fwd.h conf/w32.h
+conf.obj:  alloc.h func.h cfunc.h
+control.obj: exec.h array.h object.h fwd.h conf/w32.h
+control.obj:  alloc.h int.h float.h op.h buf.h pc.h
+control.obj: struct.h null.h forall.h catch.h
+events.obj: fwd.h conf/w32.h
+events.obj:  alloc.h
+exec.obj: exec.h array.h object.h fwd.h conf/w32.h
+exec.obj:  alloc.h int.h float.h op.h catch.h ptr.h func.h
+exec.obj: cfunc.h str.h sstring.h buf.h pc.h struct.h set.h parse.h re.h
+exec.obj: pcre/pcre.h src.h null.h forall.h primes.h 
+exec.obj:   binop.h
+exerror.obj: str.h sstring.h buf.h
+file.obj: file.h primes.h
+findpath.obj: fwd.h conf/w32.h
+findpath.obj:   alloc.h
+float.obj: float.h primes.h  
+forall.obj: exec.h array.h object.h fwd.h conf/w32.h
+forall.obj:  alloc.h int.h float.h struct.h set.h forall.h
+forall.obj: str.h sstring.h buf.h
+func.obj: func.h cfunc.h exec.h array.h object.h fwd.h conf/w32.h
+func.obj:  alloc.h int.h float.h ptr.h struct.h op.h pc.h
+func.obj: str.h sstring.h catch.h buf.h mark.h null.h primes.h
+handle.obj: fwd.h conf/w32.h
+handle.obj:  alloc.h object.h fwd.h handle.h
+icimain.obj: ptr.h exec.h array.h object.h fwd.h conf/w32.h
+icimain.obj:  alloc.h int.h float.h file.h str.h sstring.h
+icimain.obj: struct.h buf.h wrap.h func.h cfunc.h
+idb.obj: src.h exec.h array.h object.h fwd.h conf/w32.h
+idb.obj:  alloc.h int.h float.h struct.h str.h sstring.h
+idb.obj: func.h cfunc.h op.h buf.h file.h
+idb2.obj: fwd.h conf/w32.h
+idb2.obj:  alloc.h exec.h array.h object.h fwd.h int.h
+idb2.obj: float.h
+init.obj: func.h cfunc.h buf.h struct.h exec.h array.h object.h fwd.h
+init.obj: conf/w32.h 
+init.obj:  alloc.h int.h float.h str.h sstring.h
+init.obj: pcre/pcre.h
+int.obj: int.h primes.h
+lex.obj: parse.h file.h buf.h src.h str.h sstring.h array.h object.h fwd.h
+lex.obj: conf/w32.h 
+lex.obj:  alloc.h
+load.obj: exec.h array.h object.h fwd.h conf/w32.h
+load.obj:  alloc.h int.h float.h str.h sstring.h struct.h
+load.obj: file.h buf.h func.h cfunc.h 
+mark.obj: mark.h
+mem.obj: mem.h int.h buf.h primes.h
+method.obj: method.h object.h fwd.h conf/w32.h
+method.obj:  alloc.h exec.h array.h int.h float.h buf.h
+method.obj: primes.h str.h sstring.h
+mkvar.obj: exec.h array.h object.h fwd.h conf/w32.h
+mkvar.obj:  alloc.h int.h float.h struct.h buf.h
+nptrs.obj: fwd.h conf/w32.h
+nptrs.obj:  alloc.h
+null.obj: null.h
+object.obj: exec.h array.h object.h fwd.h conf/w32.h
+object.obj:  alloc.h int.h float.h buf.h str.h sstring.h
+object.obj: func.h cfunc.h pc.h primes.h 
+oofuncs.obj: exec.h array.h object.h fwd.h conf/w32.h
+oofuncs.obj:  alloc.h int.h float.h func.h cfunc.h str.h
+oofuncs.obj: sstring.h struct.h buf.h re.h pcre/pcre.h null.h op.h method.h
+op.obj: op.h exec.h array.h object.h fwd.h conf/w32.h
+op.obj:  alloc.h int.h float.h primes.h
+parse.obj: parse.h func.h cfunc.h str.h sstring.h struct.h buf.h file.h op.h
+parse.obj: exec.h array.h object.h fwd.h conf/w32.h
+parse.obj:  alloc.h int.h float.h
+pc.obj: exec.h array.h object.h fwd.h conf/w32.h
+pc.obj:  alloc.h int.h float.h pc.h
+profile.obj: fwd.h conf/w32.h
+profile.obj:  alloc.h profile.h object.h fwd.h str.h
+profile.obj: sstring.h func.h cfunc.h op.h exec.h array.h int.h float.h null.h
+profile.obj: struct.h
+ptr.obj: exec.h array.h object.h fwd.h conf/w32.h
+ptr.obj:  alloc.h int.h float.h ptr.h struct.h op.h buf.h
+ptr.obj: primes.h cfunc.h
+refuncs.obj: exec.h array.h object.h fwd.h conf/w32.h
+refuncs.obj:  alloc.h int.h float.h func.h cfunc.h str.h
+refuncs.obj: sstring.h struct.h buf.h re.h pcre/pcre.h null.h op.h
+regexp.obj: str.h sstring.h re.h pcre/pcre.h 
+regexp.obj:  exec.h array.h object.h fwd.h conf/w32.h
+regexp.obj:  alloc.h int.h float.h op.h buf.h primes.h
+regexp.obj: pcre/internal.h  
+regexp.obj: pcre/pcre.h
+set.obj: object.h fwd.h conf/w32.h
+set.obj:  alloc.h set.h op.h int.h buf.h null.h primes.h
+sfile.obj: file.h
+signals.obj: fwd.h conf/w32.h
+signals.obj:  alloc.h exec.h array.h object.h fwd.h
+signals.obj: int.h float.h op.h func.h cfunc.h method.h str.h sstring.h
+smash.obj: fwd.h conf/w32.h
+smash.obj:  alloc.h
+src.obj: exec.h array.h object.h fwd.h conf/w32.h
+src.obj:  alloc.h int.h float.h src.h
+sstring.obj: fwd.h conf/w32.h
+sstring.obj:  alloc.h str.h sstring.h
+string.obj: str.h sstring.h struct.h exec.h array.h object.h fwd.h
+string.obj: conf/w32.h 
+string.obj:  alloc.h int.h float.h primes.h
+strtol.obj: fwd.h conf/w32.h
+strtol.obj:  alloc.h 
+struct.obj: struct.h ptr.h exec.h array.h object.h fwd.h conf/w32.h
+struct.obj:  alloc.h int.h float.h func.h cfunc.h op.h
+struct.obj: buf.h str.h sstring.h pc.h primes.h
+syserr.obj: fwd.h conf/w32.h
+syserr.obj:  alloc.h
+thread.obj: fwd.h conf/w32.h
+thread.obj:  alloc.h exec.h array.h object.h fwd.h int.h
+thread.obj: float.h cfunc.h op.h catch.h
+trace.obj: func.h cfunc.h object.h fwd.h conf/w32.h
+trace.obj:  alloc.h trace.h file.h set.h struct.h array.h
+trace.obj: re.h pcre/pcre.h str.h sstring.h int.h float.h exec.h op.h
+unary.obj: exec.h array.h object.h fwd.h conf/w32.h
+unary.obj:  alloc.h int.h float.h op.h parse.h buf.h
+unary.obj: null.h
+uninit.obj: buf.h exec.h array.h object.h fwd.h conf/w32.h
+uninit.obj:  alloc.h int.h float.h wrap.h
+win32err.obj: fwd.h conf/w32.h
+win32err.obj:   alloc.h buf.h
+winmain.obj: fwd.h conf/w32.h
+winmain.obj:  alloc.h
+wrap.obj: wrap.h

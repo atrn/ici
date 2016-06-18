@@ -1,0 +1,41 @@
+This directory contains some tools that make writing modules a little
+easier. To start with there's a makefile that can be copied and
+customised for a module. For most things it needs only the name of the 
+module, its object files and any special switches to the compiler to
+be specified. Everything else is taken care of. The most important
+things are defined as variables at the start of the file which makes
+it easy to customise.
+
+This makefile uses some ICI programs to automate some of the tasks of
+module writing. One things that is particularly tiresome is defining 
+the table of function objects the module exports. The mk-ici-dot-h.ici
+script generates a header file, ici-priv.h, that is supposed to be
+included by every source file in the module. The ici.h header defines
+a macro to make this task easier.
+
+Firstly for defining functions that are exported by the module the
+FUNC() macro is used. This takes a single parameter, the name of the
+function. It should be followed by the function's body. E.g.,
+
+	FUNC(getpid)
+	{
+	    return int_ret(getpid());
+	}
+
+The mk-cfuncs.ici program takes advantage of this function. It scans
+source files for lines that start with "FUNC" and generates a file
+that has external declarations for the functions and a cfunc table. In 
+addition this file, cfuncs.c, defines the module's initialisation
+function that uses the cfunc table to populate a struct object used to 
+represent the module.
+
+The FUNC() macro must be used to define functions that are exported by 
+the module. If it is not used the function will not be detected and
+not placed in the cfuncs table. Also the macro must appear at the
+beginning of the line. This is not considered a major limitation.
+
+The use of all these macros makes it easy to generate code that makes
+the module private. The macros prefix all names with "ici_" and the
+module's name making the possibility of name clashes minimal. The
+Makefile defines a name which is passed to the various helper programs 
+to use as the module name.

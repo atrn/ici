@@ -1,0 +1,5 @@
+auto button = object.new(app.button);
+button@settext("Hello, World!");
+button@setaction("exit();");
+app.pack(button);
+app.run();

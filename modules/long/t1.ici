@@ -1,0 +1,14 @@
+a := long.long(1);
+for (i := 0; i < 64; ++i)
+{
+	printf("%d: %s\n", i, long.tohexstring(a));
+	a = long.shiftleft(a, 1);
+}
+a = long.long(-1);
+if (long.abs(a) != long.long(1))
+	printf("long.abs is broken, abs(%s) != 1\n", long.tostring(a));
+a = long.add(a, long.long(1));
+if (long.bot(a) | long.top(a))
+{
+	printf("long.add is broken, -1 + 1 != 0\n");
+}

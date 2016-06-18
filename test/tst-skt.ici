@@ -1,0 +1,1 @@
+printf("%s", recv(connect(socket("tcp"), "daytime@localhost"), 128));

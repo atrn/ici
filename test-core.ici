@@ -1,0 +1,1561 @@
+rpush(path, "c:\\timl\\ici-modules\\xml");
+
+/*
+ * Basic installation confidence test. Each feature is tested on the
+ * assumption that all other features, other than the one being teste, work.
+ *
+ * The tests are a bit patchy. Some areas are done thoroughly, others not.
+ */
+printf("Should finish with \"deliberate failure\".\n");
+
+printf("parse...\n");
+[module
+    /*
+     * Test some basic parser features.
+     */
+    local
+    func1()
+    {
+        return _func_;
+    }
+
+    if (func1() != func1)
+        fail("_func_ not set correctly");
+    if (func1.vars._func_ != func1)
+        fail("func.vars incorrect");
+    if (func1.name != "func1")
+        fail("func.name incorrect");
+
+
+    local x = [array #abc#];
+    if (x[0] != #abc#)
+        fail("const regexp incorrectly parsed");
+];
+
+printf("stmt...\n");
+[module
+    local x;
+    local y;
+
+    x = 1;
+    {
+         x += 2;
+         x += 3;
+    }
+    if (x != 6)
+        fail("compound statement effected flow");
+
+    y = 0;
+    forall (x in [array 4, 5, 6])
+        y += x;
+    if (y != 15)
+        fail("forall loop gave wrong sum");
+
+    y = 0;
+    forall (x in NULL)
+        y += x;
+    if (y != 0)
+        fail("NULL forall loop failed");
+
+
+    x = [struct];
+    super(x, y = @[struct a = 1]);
+    ++x.a;
+    super(x, NULL);
+    if (x.a != 2)
+        fail("failed to inc new element");
+    if (y.a != 1)
+        fail("changed element in atomic super");
+];
+
+printf("binops...\n");
+[module
+    /*
+     * This is a basic confidence test.  It tests each binary operator against
+     * a simple case of each of its allowed types and sometimes tests some
+     * special cases.
+     */
+    local binops =
+    [array
+        [struct op = "*",   a = 7, b = 13, r = 91],
+        [struct op = "*=",  a = 7, b = 13, r = 91],
+        [struct op = "*",   a = 7.0, b = 13.0, r = 91.0],
+        [struct op = "*=",  a = 7.0, b = 13.0, r = 91.0],
+        [struct op = "*",   a = 7, b = 13.0, r = 91.0],
+        [struct op = "*=",  a = 7, b = 13.0, r = 91.0],
+        [struct op = "*",   a = 7.0, b = 13, r = 91.0],
+        [struct op = "*=",  a = 7.0, b = 13, r = 91.0],
+
+        [struct op = "/",   a = 13, b = 7, r = 1],
+        [struct op = "/=",  a = 13, b = 7, r = 1],
+        [struct op = "/",   a = 14.0, b = 7.0, r = 2.0],
+        [struct op = "/=",  a = 14.0, b = 7.0, r = 2.0],
+        [struct op = "/",   a = 14, b = 7.0, r = 2.0],
+        [struct op = "/=",  a = 14, b = 7.0, r = 2.0],
+        [struct op = "/",   a = 14.0, b = 7, r = 2.0],
+        [struct op = "/=",  a = 14.0, b = 7, r = 2.0],
+
+        [struct op = "%",   a = 13, b = 7, r = 6],
+        [struct op = "%=",  a = 13, b = 7, r = 6],
+
+        [struct op = "+",   a = 7, b = 13, r = 20],
+        [struct op = "+=",  a = 7, b = 13, r = 20],
+        [struct op = "+",   a = 7.0, b = 13.0, r = 20.0],
+        [struct op = "+=",  a = 7.0, b = 13.0, r = 20.0],
+        [struct op = "+",   a = 7, b = 13.0, r = 20.0],
+        [struct op = "+=",  a = 7, b = 13.0, r = 20.0],
+        [struct op = "+",   a = 7.0, b = 13, r = 20.0],
+        [struct op = "+=",  a = 7.0, b = 13, r = 20.0],
+        [struct op = "+",   a = "wx", b = "yz", r = "wxyz"],
+        [struct op = "+=",  a = "wx", b = "yz", r = "wxyz"],
+        [struct op = "+",   a = [array 1,2], b = [array 3,4], r = [array 1,2,3,4]],
+        [struct op = "+=",  a = [array 1,2], b = [array 3,4], r = [array 1,2,3,4]],
+        [struct op = "+",   a = [struct x=1,z=1], b = [struct y=2,z=3], r = [struct x=1,y=2,z=3]],
+        [struct op = "+=",  a = [struct x=1,z=1], b = [struct y=2,z=3], r = [struct x=1,y=2,z=3]],
+        [struct op = "+",   a = [set 1,"x"], b = [set 1,"y"], r = [set 1,"x","y"]],
+        [struct op = "+=",  a = [set 1,"x"], b = [set 1,"y"], r = [set 1,"x","y"]],
+        /* No test of pointer addition here. */
+
+        [struct op = "-",   a = 7, b = 13, r = -6],
+        [struct op = "-=",  a = 7, b = 13, r = -6],
+        [struct op = "-",   a = 7.0, b = 13.0, r = -6.0],
+        [struct op = "-=",  a = 7.0, b = 13.0, r = -6.0],
+        [struct op = "-",   a = 7, b = 13.0, r = -6.0],
+        [struct op = "-=",  a = 7, b = 13.0, r = -6.0],
+        [struct op = "-",   a = 7.0, b = 13, r = -6.0],
+        [struct op = "-=",  a = 7.0, b = 13, r = -6.0],
+        [struct op = "-",   a = [set 1,"x"], b = [set 1,"y"], r = [set "x"]],
+        [struct op = "-=",  a = [set 1,"x"], b = [set 1,"y"], r = [set "x"]],
+        /* No test of pointer subtraction here. */
+
+        [struct op = ">>",  a = 13, b = 2, r = 3],
+        [struct op = ">>=", a = 13, b = 2, r = 3],
+
+        [struct op = "<<",  a = 13, b = 2, r = 52],
+        [struct op = "<<=", a = 13, b = 2, r = 52],
+
+        [struct op = "<",   a = 13, b = 2, r = 0],
+        [struct op = "<",   a = 13, b = 13, r = 0],
+        [struct op = "<",   a = 2, b = 13, r = 1],
+        [struct op = "<",   a = 13, b = 2.0, r = 0],
+        [struct op = "<",   a = 13, b = 13.0, r = 0],
+        [struct op = "<",   a = 2, b = 13.0, r = 1],
+        [struct op = "<",   a = 13.0, b = 2, r = 0],
+        [struct op = "<",   a = 13.0, b = 13, r = 0],
+        [struct op = "<",   a = 2.0, b = 13, r = 1],
+        [struct op = "<",   a = 13.0, b = 2.0, r = 0],
+        [struct op = "<",   a = 13.0, b = 13.0, r = 0],
+        [struct op = "<",   a = 2.0, b = 13.0, r = 1],
+        [struct op = "<",   a = "abc", b = "abz", r = 1],
+        [struct op = "<",   a = "abc", b = "abc", r = 0],
+        [struct op = "<",   a = "abz", b = "abc", r = 0],
+        [struct op = "<",   a = "ab", b = "abz", r = 1],
+        [struct op = "<",   a = "abz", b = "ab", r = 0],
+        /* No test of pointer comparison here. */
+
+        [struct op = "<=",  a = 13, b = 2, r = 0],
+        [struct op = "<=",  a = 13, b = 13, r = 1],
+        [struct op = "<=",  a = 2, b = 13, r = 1],
+        [struct op = "<=",  a = 13, b = 2.0, r = 0],
+        [struct op = "<=",  a = 13, b = 13.0, r = 1],
+        [struct op = "<=",  a = 2, b = 13.0, r = 1],
+        [struct op = "<=",  a = 13.0, b = 2, r = 0],
+        [struct op = "<=",  a = 13.0, b = 13, r = 1],
+        [struct op = "<=",  a = 2.0, b = 13, r = 1],
+        [struct op = "<=",  a = 13.0, b = 2.0, r = 0],
+        [struct op = "<=",  a = 13.0, b = 13.0, r = 1],
+        [struct op = "<=",  a = 2.0, b = 13.0, r = 1],
+        [struct op = "<=",  a = "abc", b = "abz", r = 1],
+        [struct op = "<=",  a = "abc", b = "abc", r = 1],
+        [struct op = "<=",  a = "abz", b = "abc", r = 0],
+        [struct op = "<=",  a = "ab", b = "abz", r = 1],
+        [struct op = "<=",  a = "abz", b = "ab", r = 0],
+
+        [struct op = ">",   a = 13, b = 2, r = 1],
+        [struct op = ">",   a = 13, b = 13, r = 0],
+        [struct op = ">",   a = 2, b = 13, r = 0],
+        [struct op = ">",   a = 13, b = 2.0, r = 1],
+        [struct op = ">",   a = 13, b = 13.0, r = 0],
+        [struct op = ">",   a = 2, b = 13.0, r = 0],
+        [struct op = ">",   a = 13.0, b = 2, r = 1],
+        [struct op = ">",   a = 13.0, b = 13, r = 0],
+        [struct op = ">",   a = 2.0, b = 13, r = 0],
+        [struct op = ">",   a = 13.0, b = 2.0, r = 1],
+        [struct op = ">",   a = 13.0, b = 13.0, r = 0],
+        [struct op = ">",   a = 2.0, b = 13.0, r = 0],
+        [struct op = ">",   a = "abc", b = "abz", r = 0],
+        [struct op = ">",   a = "abc", b = "abc", r = 0],
+        [struct op = ">",   a = "abz", b = "abc", r = 1],
+        [struct op = ">",   a = "ab", b = "abz", r = 0],
+        [struct op = ">",   a = "abz", b = "ab", r = 1],
+
+        [struct op = ">=",  a = 13, b = 2, r = 1],
+        [struct op = ">=",  a = 13, b = 13, r = 1],
+        [struct op = ">=",  a = 2, b = 13, r = 0],
+        [struct op = ">=",  a = 13, b = 2.0, r = 1],
+        [struct op = ">=",  a = 13, b = 13.0, r = 1],
+        [struct op = ">=",  a = 2, b = 13.0, r = 0],
+        [struct op = ">=",  a = 13.0, b = 2, r = 1],
+        [struct op = ">=",  a = 13.0, b = 13, r = 1],
+        [struct op = ">=",  a = 2.0, b = 13, r = 0],
+        [struct op = ">=",  a = 13.0, b = 2.0, r = 1],
+        [struct op = ">=",  a = 13.0, b = 13.0, r = 1],
+        [struct op = ">=",  a = 2.0, b = 13.0, r = 0],
+        [struct op = ">=",  a = "abc", b = "abz", r = 0],
+        [struct op = ">=",  a = "abc", b = "abc", r = 1],
+        [struct op = ">=",  a = "abz", b = "abc", r = 1],
+        [struct op = ">=",  a = "ab", b = "abz", r = 0],
+        [struct op = ">=",  a = "abz", b = "ab", r = 1],
+
+        [struct op = "==",  a = 13, b = 2, r = 0],
+        [struct op = "==",  a = 13, b = 13, r = 1],
+        [struct op = "==",  a = 2, b = 13, r = 0],
+        [struct op = "==",  a = 13, b = 2.0, r = 0],
+        [struct op = "==",  a = 13, b = 13.0, r = 1],
+        [struct op = "==",  a = 2, b = 13.0, r = 0],
+        [struct op = "==",  a = 13.0, b = 2, r = 0],
+        [struct op = "==",  a = 13.0, b = 13, r = 1],
+        [struct op = "==",  a = 2.0, b = 13, r = 0],
+        [struct op = "==",  a = 13.0, b = 2.0, r = 0],
+        [struct op = "==",  a = 13.0, b = 13.0, r = 1],
+        [struct op = "==",  a = 2.0, b = 13.0, r = 0],
+        [struct op = "==",  a = "abc", b = "abz", r = 0],
+        [struct op = "==",  a = "abc", b = "abc", r = 1],
+        [struct op = "==",  a = "abz", b = "abc", r = 0],
+        [struct op = "==",  a = "ab", b = "abz", r = 0],
+        [struct op = "==",  a = "abz", b = "ab", r = 0],
+        [struct op = "==",  a = [array 1,2], b = [array 1,2], r = 1],
+        [struct op = "==",  a = [array 1,3], b = [array 1,2], r = 0],
+        [struct op = "==",  a = [array 1], b = [array 1,2], r = 0],
+        [struct op = "==",  a = [array 1,2], b = [array 1], r = 0],
+        /* File equality not tested here. */
+        /* Function equality not tested here. */
+        /* Ptr equality not tested here. */
+        [struct op = "==",  a = #a.b#, b = #a.b#, r = 1],
+        [struct op = "==",  a = #a.b#, b = #a.c#, r = 0],
+        [struct op = "==",  a = #a.#, b = #a.b#, r = 0],
+        [struct op = "==",  a = #a.b#, b = #a.#, r = 0],
+        [struct op = "==",  a =[set 1,"a"], b = [set 1,"a"], r = 1],
+        [struct op = "==",  a =[set 1,"a"], b = [set 1,"b"], r = 0],
+        [struct op = "==",  a =[set 1], b = [set 1,"a"], r = 0],
+        [struct op = "==",  a =[set 1,"a"], b = [set 1], r = 0],
+        [struct op = "==",  a = [struct a=1,b=2], b = [struct a=1,b=2], r = 1],
+        [struct op = "==",  a = [struct a=1,b=2], b = [struct a=1,b=3], r = 0],
+        [struct op = "==",  a = [struct a=1], b = [struct a=1,b=2], r = 0],
+        [struct op = "==",  a = [struct a=1,b=2], b = [struct a=1], r = 0],
+        [struct op = "==",  a = NULL, b = NULL, r = 1],
+        [struct op = "==",  a = NULL, b = 0, r = 0],
+
+        [struct op = "!=",  a = 13, b = 2, r = 1],
+        [struct op = "!=",  a = 13, b = 13, r = 0],
+        [struct op = "!=",  a = 2, b = 13, r = 1],
+        [struct op = "!=",  a = 13, b = 2.0, r = 1],
+        [struct op = "!=",  a = 13, b = 13.0, r = 0],
+        [struct op = "!=",  a = 2, b = 13.0, r = 1],
+        [struct op = "!=",  a = 13.0, b = 2, r = 1],
+        [struct op = "!=",  a = 13.0, b = 13, r = 0],
+        [struct op = "!=",  a = 2.0, b = 13, r = 1],
+        [struct op = "!=",  a = 13.0, b = 2.0, r = 1],
+        [struct op = "!=",  a = 13.0, b = 13.0, r = 0],
+        [struct op = "!=",  a = 2.0, b = 13.0, r = 1],
+        [struct op = "!=",  a = "abc", b = "abz", r = 1],
+        [struct op = "!=",  a = "abc", b = "abc", r = 0],
+        [struct op = "!=",  a = "abz", b = "abc", r = 1],
+        [struct op = "!=",  a = "ab", b = "abz", r = 1],
+        [struct op = "!=",  a = "abz", b = "ab", r = 1],
+        [struct op = "!=",  a = [array 1,2], b = [array 1,2], r = 0],
+        [struct op = "!=",  a = [array 1,3], b = [array 1,2], r = 1],
+        [struct op = "!=",  a = [array 1], b = [array 1,2], r = 1],
+        [struct op = "!=",  a = [array 1,2], b = [array 1], r = 1],
+        /* File equality not tested here. */
+        /* Function equality not tested here. */
+        /* Ptr equality not tested here. */
+        [struct op = "!=",  a = #a.b#, b = #a.b#, r = 0],
+        [struct op = "!=",  a = #a.b#, b = #a.c#, r = 1],
+        [struct op = "!=",  a = #a.#, b = #a.b#, r = 1],
+        [struct op = "!=",  a = #a.b#, b = #a.#, r = 1],
+        [struct op = "!=",  a =[set 1,"a"], b = [set 1,"a"], r = 0],
+        [struct op = "!=",  a =[set 1,"a"], b = [set 1,"b"], r = 1],
+        [struct op = "!=",  a =[set 1], b = [set 1,"a"], r = 1],
+        [struct op = "!=",  a =[set 1,"a"], b = [set 1], r = 1],
+        [struct op = "!=",  a = [struct a=1,b=2], b = [struct a=1,b=2], r = 0],
+        [struct op = "!=",  a = [struct a=1,b=2], b = [struct a=1,b=3], r = 1],
+        [struct op = "!=",  a = [struct a=1], b = [struct a=1,b=2], r = 1],
+        [struct op = "!=",  a = [struct a=1,b=2], b = [struct a=1], r = 1],
+        [struct op = "!=",  a = NULL, b = NULL, r = 0],
+        [struct op = "!=",  a = NULL, b = 0, r = 1],
+
+        [struct op = "&",   a = 7, b = 13, r = 5],
+        [struct op = "&=",  a = 7, b = 13, r = 5],
+
+        [struct op = "|",   a = 7, b = 13, r = 15],
+        [struct op = "|=",  a = 7, b = 13, r = 15],
+
+        [struct op = "^",   a = 7, b = 13, r = 10],
+        [struct op = "^=",  a = 7, b = 13, r = 10],
+
+        [struct op = "~",   a = #a.c#, b = "abc", r = 1],
+        [struct op = "~",   a = "abc", b = #a.c#, r = 1],
+        [struct op = "~",   a = #a(.)c#, b = "abc", r = 1],
+        [struct op = "~",   a = #a.#, b = "abc", r = 1],
+        [struct op = "~",   a = "abc", b = #a.#, r = 1],
+        [struct op = "~",   a = #a.c$#, b = "ab", r = 0],
+        [struct op = "~",   a = "ab", b = #a.c$#, r = 0],
+
+        [struct op = "~~",  a = #a(.)c#, b = "abc", r = "b"],
+        [struct op = "~~=", a = #a(.)c#, b = "abc", r = "b"],
+        [struct op = "~~",  a = "abc", b = #a(.)c#, r = "b"],
+        [struct op = "~~=", a = "abc", b = #a(.)c#, r = "b"],
+        [struct op = "~~",  a = #a(.)c$#, b = "ab", r = NULL],
+        [struct op = "~~=", a = #a(.)c$#, b = "ab", r = NULL],
+        [struct op = "~~",  a = "ab", b = #a(.)c$#, r = NULL],
+        [struct op = "~~=", a = "ab", b = #a(.)c$#, r = NULL],
+
+        [struct op = "~~~", a = #a(.)c(.)e#, b = "abcde", r = [array "b", "d"]],
+        [struct op = "~~~", a = "abcde", b = #a(.)c(.)e#, r = [array "b", "d"]],
+    ];
+
+    /*
+     * For each operator, operands and result set we build a function which
+     * performs the operation (by parseing a generated bit of text) and run
+     * it; testing the return value against the given one.
+     */
+    local func;            /* The generated function. */
+    local binop;           /* The element of binops (above) we are considering. */
+    local result;
+    local count    = 1;
+
+    forall (binop in binops)
+    {
+        parse(sprintf("local func(a, b){return a %s b;}", binop.op), scope());
+
+        try
+            result = func(binop.a, binop.b);
+        onerror
+        {
+            fail(sprintf("%s %s %s failed with error '%s' (binops %d)",
+                string(binop.a),
+                binop.op,
+                string(binop.b),
+                error,
+                count));
+        }
+
+        if (result != binop.r)
+        {
+            fail(sprintf("%s %s %s produced %s, expected %s (binops %d)",
+                string(binop.a),
+                binop.op,
+                string(binop.b),
+                string(result),
+                string(binop.r),
+                count));
+        }
+        if (typeof(result) != typeof(binop.r))
+        {
+            fail(sprintf("%s %s %s produced type %s, expected type %s (binops %d)",
+                string(binop.a),
+                binop.op,
+                string(binop.b),
+                typeof(result),
+                typeof(binop.r),
+                count));
+        }
+        ++count;
+    }
+
+    a := 1 ? 0 + 1 : 2;
+    if (a != 1)
+        fail("incorrect ? : result");
+];
+
+printf("sets...\n");
+[module
+    /*
+     * Work sets with random data.
+     */
+    var victim     = [set];
+    var state      = [struct];
+    var i;
+    var e;
+    var v;
+
+    for (i = 0; i < 100; ++i)
+    {
+        switch (int(rand() * 2))
+        {
+        case 0:
+            /*
+             * Add a random element, give it a distinct value, and record
+             * that it should be present.
+             */
+            e = int(rand() * 100);
+            victim.(e) = 1;
+            state.(e) = 1;
+            break;
+
+        case 1:
+            /*
+             * Delete a random element, and record that it should be absent.
+             */
+            e = int(rand() * 100);
+            victim.(e) = 0;
+            state.(e) = 0;
+            break;
+        }
+        /*
+         * Check the state of the victim against the recorded state.
+         */
+        forall (v, e in state)
+        {
+            if (v)
+            {
+                if (!victim.(e))
+                    fail(sprintf("element absent at pass %d of sets test", i));
+            }
+            else
+            {
+                if (victim.(e) != NULL)
+                    fail(sprintf("element present at pass %d of sets test", i));
+            }
+        }
+    }
+];
+
+printf("del...\n");
+[module
+    /*
+     * Work the del() function with random data.
+     */
+    var victim = [struct];
+    var state  = [struct];
+    var i;
+    var e;
+    var v;
+
+    for (i = 0; i < 100; ++i)
+    {
+        switch (int(rand() * 2) % 2)
+        {
+        case 0:
+            /*
+             * Add a random element, give it a distinct value, and record
+             * that it should be present.
+             */
+            e = int(rand() * 100);
+            victim.(e) = e * 10;
+            state.(e) = 1;
+            break;
+
+        case 1:
+            /*
+             * Delete a random element, and record that it should be absent.
+             */
+            e = int(rand() * 100);
+            del(victim, e);
+            state.(e) = 0;
+            break;
+        }
+        /*
+         * Check the state of the victim against the recorded state.
+         */
+        forall (v, e in state)
+        {
+            if (v)
+            {
+                if (victim.(e) != e * 10)
+                    fail(sprintf("wrong value at pass %d of del() test", i));
+            }
+            else
+            {
+                if (victim.(e) != NULL)
+                    fail(sprintf("value not NULL at pass %d of del() test", i));
+            }
+        }
+    }
+];
+
+printf("many...\n");
+[module
+    local i = 0;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    i += 1; i += 1; i += 1; i += 1; i += 1;
+    if (i != 1000)
+        fail("failed to increment i to 1000");
+];
+
+printf("func...\n");
+[module
+    /*
+     * This is a basic confidence test.  It tests each function against its
+     * basics modes of operation.
+     *
+     * Each test is made with the assumption that all other features of the
+     * interpreter, except the one being tested, work.
+     */
+
+    local x;
+    local y;
+    local z;
+
+    if (array("a", 1, "c") != [array "a", 1, "c"])
+        fail("array() did not produce the expected result");
+    if (typeof(array()) != "array")
+        fail("array() did not produce an array");
+    if (len(array()) != 0)
+        fail("array() did not produce a zero length array");
+
+    if (copy(1) != 1)
+        fail("simple copy failed");
+
+    x = [array 1, 2, [array 3, 4]];
+    if ((y = copy(x)) != x)
+        fail("copy of array was not equal");
+    if (eq(x, y))
+        fail("copy of array was same object");
+
+    x = [struct a=1, b=2, c=[array 3, 4]];
+    if ((y = copy(x)) != x)
+        fail("copy of struct was not equal");
+    if (eq(x, y))
+        fail("copy of struct was same object");
+
+    x = [set 1, 2, [array 3, 4]];
+    if ((y = copy(x)) != x)
+        fail("copy of set was not equal");
+    if (eq(x, y))
+        fail("copy of set was same object");
+
+    x = 1;
+    try
+        fail("testing fail");
+    onerror
+    {
+        if (error != "testing fail")
+            fail("fail failed to set error");
+        x = 0;
+    }
+    if (x)
+        fail("fail failed to do onerror clause");
+
+    if (!eq(float(1.23), 1.23))
+        fail("float() failed to pass through 1.23");
+    if (!eq(float(123), 123.0))
+        fail("float() failed to convert 123 to 123.0");
+    if (!eq(float("456"), 456.0))
+        fail("float() failed to convert \"456\" to 456.0");
+    if (!eq(float([array]), 0.0))
+        fail("float() failed to convert an array to 0.0");
+
+    if (!eq(int(123), 123))
+        fail("int() failed to pass through 123");
+    if (!eq(int(12.3), 12))
+        fail("int() failed to convert 12.3 to 12");
+    if (!eq(int("456"), 456))
+        fail("int() failed to convert \"456\" to 456");
+    if (!eq(int([array]), 0))
+        fail("int() failed to convert an array to 0");
+    if (!eq(int(" \t\n\r\f-0xFFFFFFFFFFFFFFFF"), 1))
+        fail("int() failed to do 64 bit unsigned/signed conversion");
+
+    if (eq(1, 1.0))
+        fail("1 and 1.0 were eq()");
+    if (eq([array], [array]))
+        fail("two distinct arrays were eq()");
+    x = [array 1, 2];
+    x = y;
+    if (!eq(x, y))
+        fail("same objects were not eq()");
+    y = copy(x);
+    if (eq(x, y))
+        fail("different objects were eq()");
+    y = @y;
+    x = @x;
+    if (!eq(x, y))
+        fail("same atomic objects were !eq()");
+
+    x = 0;
+    parse("local x = 1;");
+    if (x)
+        fail("parse() didn't happen in new module");
+    x = 1;
+    parse("local x = 0;", scope());
+    if (x)
+        fail("parse() didn't happen in current module");
+
+    x = 0;
+    parse(sopen("local x = 1;", "r"));
+    if (x)
+        fail("file parse() didn't happen in new module");
+    x = 1;
+    parse(sopen("x = 0;", "r"), scope());
+    if (x)
+        fail("file parse() didn't happen in current module");
+
+    local l1       = 1;
+    local l2       = 1;
+    parse("parse(\"export l2 = 3; l1=10;\"); if (l2 != 3) fail(\"bad export\");");
+    if (l1 != 10)
+        fail("bad scope skip");
+    if (l2 != 1)
+        fail("excessive export effect");
+
+    x = 123;
+    if (super(scope()).x != 123)
+        fail("scope() returned wrong struct");
+
+    if (!isatom("abc"))
+        fail("isatom() reported string as non-atom");
+    if (isatom([array]))
+        fail("isatom() reported simple array as atom");
+    if (!isatom(@[array]))
+        fail("isatom() reported atomic array as non-atom");
+
+    if (!eq(regexp(".*"), #.*#))
+        fail("regexp() didn't produce expected result");
+
+    if (len(123) != 1)
+        fail("len(123) didn't produce 1");
+    if (len("ab") != 2)
+        fail("len(\"ab\") didn't produce 1");
+    if (len([array 1, 2, [array]]) != 3)
+        fail("len(array) didn't produce expected result");
+    if (len([struct a=1, b=2, c=[array], d=4]) != 4)
+        fail("len(struct) didn't produce expected result");
+    if (len([set 1, 2, [array], 4, 5]) != 5)
+        fail("len(set) didn't produce expected result");
+    if (len(alloc(5, 1)) != 5)
+        fail("len(alloc(5, 1)) didn't produce expected result");
+    if (len(alloc(6, 2)) != 6)
+        fail("len(alloc(6, 2)) didn't produce expected result");
+    if (len(alloc(7, 4)) != 7)
+        fail("len(alloc(7, 4)) didn't produce expected result");
+
+    if (!eq(string("123"), "123"))
+        fail("string() failed to pass through \"123\"");
+    if (!eq(string(12.30), "12.3"))
+        fail("string() failed to convert 12.30 to \"12.3\"");
+    if (!eq(string(456), "456"))
+        fail("string() failed to convert 456 to \"456\"");
+    if (!eq(string([array]), "<array>"))
+        fail("string() failed to convert an array to \"<array>\"");
+
+    if (struct("a", 1, "b", 2) != [struct a=1, b=2])
+        fail("struct() failed to produce the expected result");
+    if (typeof(struct()) != "struct")
+        fail("struct() failed to produce a struct");
+    if (len(struct()) != 0)
+        fail("struct() failed to produce an empty struct");
+
+    if (set("a", 1, "b", 2) != [set "a", 1, "b", 2])
+        fail("set() failed to produce the expected result");
+    if (typeof(set()) != "set")
+        fail("set() failed to produce a set");
+    if (len(set()) != 0)
+        fail("set() failed to produce an empty set");
+
+    forall
+    (
+        x in
+        [array
+            [struct name="int",     obj=123],
+            [struct name="float",   obj=123.0],
+            [struct name="string",  obj="123"],
+            [struct name="struct",  obj=[struct]],
+            [struct name="array",   obj=[array]],
+            [struct name="set",     obj=[set]],
+            [struct name="func",    obj=[func(){}]],
+            [struct name="mem",     obj=$alloc(0)],
+            [struct name="ptr",     obj=$&x],
+            [struct name="regexp",  obj=#.#],
+            [struct name="NULL",    obj=NULL],
+            [struct name="file",    obj=currentfile()],
+        ]
+    )
+    {
+        if (typeof(x.obj) != x.name)
+            fail(sprintf("typeof() failed to identify %s (gave %s)",
+                x.name, typeof(x.obj)));
+    }
+
+    x = [array 1, 2, 3];
+    if (push(x, "a") != "a")
+        fail("push() didn't return expected value");
+    if (x != [array 1, 2, 3, "a"])
+        fail("push() didn't have expected effect");
+
+    if (pop(x) != "a")
+        fail("pop() didn't return expected value");
+    if (x != [array 1, 2, 3])
+        fail("pop() didn't have expected effect");
+
+    local
+    afunc(a, b)
+    {
+        // var vargs;
+
+        if (a != 1 || b != 2 || vargs != NULL)
+            fail("call() didn't transfer as expected");
+        return 3;
+    }
+    if (call(afunc, [array 1, 2]) != 3)
+        fail("call() didn't return correctly");
+
+    if (call(afunc, 1, [array 2]) != 3)
+        fail("call() didn't return correctly");
+
+    if (call(afunc, 1, 2, NULL) != 3)
+        fail("call() didn't return correctly");
+
+    x = keys([struct a=1, b=2]);
+    if (x != [array "a", "b"] && x != [array "b", "a"])
+        fail("keys() didn't produce the expected result");
+
+    if (smash("ab cd ef", " ") != [array "ab", "cd", "ef"])
+        fail("smash() didn't produce the expected result");
+    if (smash("ab cd ef", # #, "\\0") != [array "ab", "cd"])
+        fail("smash() didn't produce the expected result");
+    if (smash("ab cd ef", # #, "\\0", 0) != [array "ab", "cd"])
+        fail("smash() didn't produce the expected result");
+    if (smash("ab cd ef", # #, "\\0", 1) != [array "ab", "cd", "ef"])
+        fail("smash() didn't produce the expected result");
+    if (smash("ab cd ef", #(.) #, "x\\0", 1) != [array "xa", "xc", "ef"])
+        fail("smash() didn't produce the expected result");
+    if (tochar(0x41) != "A")
+        fail("tochar() didn't produce the expected result");
+
+    if (toint("A") != 0x41)
+        fail("toint() didn't produce the expected result");
+
+    if (typeof(rand()) != "int")
+        fail("rand() didn't produce an int");
+    if (rand() == rand())
+        fail("two successive rand() calls gave same result");
+    if (rand(123) != rand(123))
+        fail("two rand() calls with same seed gave different results");
+
+
+    if (interval("12345", -1) != "5")
+        fail("interval() with neg offset failed");
+    if (interval("12345", -3, 2) != "34")
+        fail("interval() with neg offset and count failed");
+    if (interval("12345", 2) != "345")
+        fail("interval() with 1 arg on string count failed");
+    if (interval("12345", 2, 2) != "34")
+        fail("interval() with 2 arg on string count failed");
+    if (interval("12345", 2, 10) != "345")
+        fail("interval() with 2 arg, 2nd large, on string count failed");
+
+    if (interval([array 1, 2, 3, 4, 5], -1) != [array 5])
+        fail("interval() with array and neg offset failed");
+    if (interval([array 1, 2, 3, 4, 5], -3, 2) != [array 3, 4])
+        fail("interval() with array and neg offset and count failed");
+    if (interval([array 1, 2, 3, 4, 5], 2) != [array 3, 4, 5])
+        fail("interval() with 1 arg on array count failed");
+    if (interval([array 1, 2, 3, 4, 5], 2, 2) != [array 3, 4])
+        fail("interval() with 2 arg on array count failed");
+    if (interval([array 1, 2, 3, 4, 5], 2, 10) != [array 3, 4, 5])
+        fail("interval() with 2 arg, 2nd large, on array count failed");
+
+    if (explode("ABC") != [array 0x41, 0x42, 0x43])
+        fail("explode() didn't produce the expected result");
+
+    if (implode([array 0x41, "BC", 0x44]) != "ABCD")
+        fail("implode() didn't produce the expected result");
+
+    if (getfile(sopen("ABCD", "r")) != "ABCD")
+        fail("sopen() failed to produce the expected result");
+
+    if (num("0x123A") != 0x123A)
+        fail("num(\"0x123A\") returned wrong value");
+    if (typeof(num("0x123A")) != "int")
+        fail("num(\"0x123A\") returned wrong type");
+    if (num("1.23e2") != 1.23e2)
+        fail("num(\"1.23e2\") returned wrong value");
+    if (typeof(num("1.23e2")) != "float")
+        fail("num(\"1.23e2\") returned wrong type");
+    if (num(1.23e2) != 1.23e2)
+        fail("num(1.23e2) returned wrong value");
+    if (typeof(num(1.23e2)) != "float")
+        fail("num(1.23e2) returned wrong type");
+    if (num(123) != 123)
+        fail("num(123) returned wrong value");
+    if (typeof(num(123)) != "int")
+        fail("num(123) returned wrong type");
+
+    if (!eq(abs(123), 123))
+        fail("abs(123) not eq to 123");
+    if (abs(123.5) != 123.5)
+        fail("abs(123.5) != 123.5");
+    if (abs(-123) != 123)
+        fail("abs(-123) != 123");
+    if (typeof(abs(-123)) != "int")
+        fail("abs(-123) not an int");
+    if (abs(-123.5) != 123.5)
+        fail("abs(-123.5) != 123.5");
+
+    if (calendar(calendar(0.0)) != 0.0)
+        fail("calendar(calendar(0.0)) != 0.0");
+
+    if (calendar(calendar(-12345.0)) != -12345.0)
+        fail("calendar(calendar(-12345.0)) != -12345.0");
+
+    x = calendar(0.0);
+    ++x.second;
+    ++x.minute;
+    ++x.hour;
+    ++x.day;
+    if (calendar(x) != 1 + 60 + 60 * 60 + 60 * 60 * 24)
+        fail("failed to advance calendar");
+
+    if (typeof(currentfile()) != "file")
+        fail("currentfile() didn't return a file");
+    if ((x = getline(currentfile())) != "This is the rest of this line")
+    {
+        fail("did not read correct data from currentfile");
+        exit(0);
+    }
+    else
+        ;This is the rest of this line
+
+    x = gettokens(currentfile())
+    ;  this is  the input
+    if (x != [array "this", "is", "the", "input"])
+        fail("simple gettokens returned wrong value");
+
+    x = gettokens(currentfile(), ':')
+    ;::is:input:
+    if (x != [array "", "", "is", "input", ""])
+        fail("gettokens returned wrong value");
+
+    z = [array
+        [struct f = acos, a = [array 0.5], r = 1.0472, e = 1e-5],
+        [struct f = sin, a = [array 0.5], r = 0.479426, e = 1e-5],
+        [struct f = tan, a = [array 0.5], r = 0.546302, e = 1e-5],
+        [struct f = asin, a = [array 0.5], r = 0.523599, e = 1e-5],
+        [struct f = atan, a = [array 0.5], r = 0.463648, e = 1e-5],
+        [struct f = atan2, a = [array 0.5, 0.4], r = 0.896055, e = 1e-5],
+        [struct f = exp, a = [array 0.5], r = 1.64872, e = 1e-5],
+        [struct f = log, a = [array 0.5], r = -0.693147, e = 1e-5],
+        [struct f = log10, a = [array 0.5], r = -0.30103, e = 1e-5],
+        [struct f = pow, a = [array 0.5, 0.4], r = 0.757858, e = 1e-5],
+        [struct f = sqrt, a = [array 0.5], r = 0.707107, e = 1e-5],
+    ];
+
+    forall (x in z)
+    {
+        r = call(x.f, x.a);
+        if (abs(r - x.r) > x.e)
+            fail(sprintf("%s returned %g, not %g", x.f.name, r, x.r));
+    }
+
+    if (abs(pi - 3.1415) > 1e-4)
+        fail("pi has wrong value");
+
+    x = alloc(3);
+    x[1] = 0x123;
+    if (x[1] != 0x23)
+        fail("alloc() bytes didn't chop bits");
+    x = alloc(3, 1);
+    x[1] = 0x123;
+    if (x[1] != 0x23)
+        fail("alloc() bytes didn't chop bits");
+    x = alloc(3, 2);
+    x[1] = 0x12345;
+    if (x[1] != 0x2345)
+        fail("alloc() 16 bit words didn't chop bits");
+    x = alloc(3, 4);
+    x[1] = 0x12345678;
+    if (x[1] != 0x12345678)
+        fail("alloc() 32 bit words didn't work (" + string(x[1]) + ")");
+    if (x[0] != 0 || x[2] != 0)
+    {
+        fail("alloc() mem wasn't cleared");
+    }
+
+    x = array(1, 2, 3);
+    rpush(x, 0);
+    if (pop(x) != 3)
+        fail("pop of queue got wrong result");
+    y = array(1, 2, 3);
+    rpush(y, 0);
+    rpush(y, -1);
+    if (x + y != [array 0, 1, 2, -1, 0, 1, 2, 3])
+        fail("sum of queues incorrect");
+
+    /* exit() not tested here. */
+    /* import() not tested here. */
+    /* vstack() not tested here. */
+    /* sprintf() not tested here. */
+];
+
+printf("regexp...\n");
+[module
+    /*
+     * More complete test of regexp code in ICI. Uses tst-regexp.dat file to
+     * specify tests and runs through them all.
+     */
+
+    /*
+     * Functions for trying various regexp operations. All have the following
+     * parameters in common,
+     *
+     *      fn              The function to use to turn a string into a regexp.
+     *                      This is either regexp() or regexpi(), the latter
+     *                      forming case-insensitive regexps. In test_sub()
+     *                      this is the second parameter and is called fn2.
+     *
+     *      str             The string to be matched against.
+     *
+     *      pat             A string representation of a regexp to match
+     *                      against the string `str'. Turned into a real
+     *                      regexp object using `fn'.
+     *
+     *      result          The expected result of the operation/function.
+     *
+     *                      For test_match() this is an int, 0 or 1 - the result
+     *                      of the `~' operator.
+     *
+     *                      For test_extract() it is a string or NULL (if the
+     *                      sub-string extraction is expected to fail).
+     *
+     *                      For test_extractv() it is either an array of strings
+     *                      or NULL (again if the extraction is to fail).
+     *
+     *                      For test_sub() it is a string.
+     *
+     * The test_sub() function takes additional parameters. The first parameter,
+     * called fn1, is the substitution function, either sub() or gsub(). There
+     * is also a string parameter, repl, which is the text used to replace the
+     * matching sub-string.
+     *
+     * Each function attempts the operation and raises an error if it does not
+     * produce the expected result. The error string contains a description of
+     * what went wrong and what was expected.
+     */
+
+    local
+    test_match(fn, str, pat, result)
+    {
+        if ((str ~ fn(pat)) != result)
+            fail(sprintf("\"%s\" ~ \"%s\" failed", pat, str));
+    }
+
+    local
+    test_extract(fn, str, pat, result)
+    {
+        var        rc;
+
+        if ((rc = str ~~ fn(pat)) != result)
+        {
+            fail
+            (
+                sprintf
+                (
+                    "\"%s\" ~~ \"%s\" produced \"%s\", expected \"%s\"",
+                    pat,
+                    str,
+                    typeof(rc) == "NULL" ? "NULL" : rc,
+                    typeof(result) == "NULL" ? "NULL" : result
+                )
+            );
+        }
+    }
+
+    local
+    test_extractv(fn, str, pat, result)
+    {
+        var        rc, t, i, n;
+
+        rc = str ~~~ fn(pat);
+        t = typeof(rc);
+        if (t != typeof(result))
+        {
+            fail
+            (
+                sprintf
+                (
+                    "\"%s\" ~~~ \"%s\" produced %s, expected %s",
+                    str,
+                    pat,
+                    rc == NULL ? "NULL" : "an array",
+                    result == NULL ? "NULL" : "an array"
+                )
+            );
+        }
+        if (t == "array")
+        {
+            if ((n = len(rc)) != len(result))
+            {
+                fail
+                (
+                    sprintf
+                    (
+                        "\"%s\" ~~~ \"%s\" returned %d string%s, expected %d",
+                        str,
+                        pat,
+                        n,
+                        n == 1 ? "" : "s",
+                        len(result)
+                    )
+                );
+            }
+            for (i = 0; i < n; ++i)
+            {
+                if (rc[i] != result[i])
+                {
+                    fail
+                    (
+                        sprintf
+                        (
+                            "\"%s\" ~~~ \"%s\" match %d, got \"%s\" expected \"%s\"",
+                            str,
+                            pat,
+                            i + 1,
+                            rc[i],
+                            result[i]
+                        )
+                    );
+                }
+            }
+        }
+    }
+
+    local
+    test_sub(fn1, fn2, str, pat, repl, result)
+    {
+        var        rc;
+
+        if ((rc = fn1(str, fn2(pat), repl)) != result)
+            fail
+            (
+                sprintf
+                (
+                    "sub(\"%s\", \"%s\", \"%s\") produced \"%s\", expected \"%s\"",
+                    str,
+                    pat,
+                    repl,
+                    rc,
+                    result
+                )
+            );
+    }
+
+    local match(str, pat, result){test_match(regexp, str, pat, result);}
+    local matchi(str, pat, result){test_match(regexpi, str, pat, result);}
+    local extract(str, pat, result){test_extract(regexp, str, pat, result);}
+    local extracti(str, pat, result){test_extract(regexpi, str, pat, result);}
+    local extractv(str, pat, result){test_extractv(regexp, str, pat, result);}
+    local extractvi(str, pat, result){test_extractv(regexpi, str, pat, result);}
+    local tsub(str, pat, repl, result){test_sub(sub, regexp, str, pat, repl, result);}
+    local tsubi(str, pat, repl, result){test_sub(sub, regexpi, str, pat, repl, result);}
+    local tgsub(str, pat, repl, result){test_sub(gsub, regexp, str, pat, repl, result);}
+    local tgsubi(str, pat, repl, result){test_sub(gsub, regexpi, str, pat, repl, result);}
+
+    /*
+     * Regular expression code test cases.
+     *
+     * This file is used by the driver program, tst-regexp.ici, to test various
+     * aspects of ICI's regular expression support. The file consists of ICI
+     * function calls to specific test functions defined by the driver program.
+     * The functions are,
+     *
+     *  match(string, pattern, expected_result)
+     *  matchi(string, pattern, expected_result)
+     *
+     *      These test the ICI `~' operator and regexp() (or regexpi() for
+     *      matchi()) function. The string is matched against the pattern
+     *      and if the result is not what is expected an error is raised.
+     *      The expected_result should be an integer, 1 for success, 0
+     *      for failure (this is the result of the `~' operator).
+     *
+     *  extract(string, pattern, expected_result)
+     *  extracti(string, pattern, expected_result)
+     *
+     *      Tests the `~~' operator (and regexp() or regexpi() functions)
+     *      by extracting, from str, whatever matches the pattern and
+     *      comparing it to the expected result. As for the match function
+     *      the `i' version uses case-insensitive regular expressions.
+     *      The type of expected_result should be a string.
+     *
+     *  extractv(string, pattern, expected_result)
+     *  extractvi(string, pattern, expected_result)
+     *
+     *      Tests the `~~~' operator. Comments as per extract/extracti
+     *      with the expected_result being an array of strings.
+     *
+     */
+
+    /*
+     * Test basic regular expression matching
+     */
+
+    match(      "",         "^$",               1);
+    match(      "some text",        "^$",               0);
+
+    match(      "Text and digits 1002", "[0-9]+",           1);
+
+    match(      "A [{ in a char class", "[\\[{]",           1);
+    match(      "A [bracket] in a char class",  "[]]",      1);
+
+    /*
+     * Case-insensitive matching
+     */
+    matchi(     "AABB",     "AABB",             1);
+    matchi(     "aaBb",     "aabb",             1);
+
+    /*
+     * String extraction
+     */
+    extract("Should be NULL returned", "THIS", NULL);
+    extract("Should be THIS returned", "(THIS)", "THIS");
+    extract("A [{ in a char class", "([\\[{])",         "[");
+
+    /* XXX
+     *
+     * This fails! The regexp looks okay but it doesn't match.
+     */
+    //extract("A [bracket] in a char class", "([][a-z]*)",   "[bracket]");
+
+    /*
+     * Multiple string extraction
+     */
+    extractv
+    (
+        "abc 123 do re mi baby you and me",
+        "abc (123) do (re mi) (baby you) and (me)",
+        [array "123", "re mi", "baby you", "me"]
+    );
+
+    /*
+     * Test substitution via sub()
+     */
+    tsub(    "abc",      "a",        "x",        "xbc");
+
+
+    /*
+     * Test substitutions using gsub().
+     */
+    tgsub
+    (
+        "C:\\kit\\Test3\\xms2.fpx",
+        "[\"\\\\]",
+        "\\\\\\&",
+        "C:\\\\kit\\\\Test3\\\\xms2.fpx"
+    );
+
+];
+
+printf("thread...\n");
+[module
+    /*
+     * We use Ackerman's function to do work.
+     */
+    local
+    ack(x, y)
+    {
+        return x > 0
+            ? ack(x - 1, y > 0 ? ack(x, y - 1) : 1)
+            : y + 1;
+    }
+
+    x := go(ack, 2, 3);
+    waitfor (x.result != NULL; x)
+        ;
+    if (x.result != 9)
+        fail("incorrect result from func in other thread");
+
+    local count;
+    var x, i, did_crit = 0;
+    go([func(){for (count = 0; count < 50000; ++count);}]);
+    while (count == NULL)
+        ;
+    while (count < 50000)
+    {
+        critsect
+        {
+            x = count;
+            for (i = 0; i < 1000; ++i)
+                ;
+            if (x != count)
+                fail("critsect was divisible");
+            did_crit = 1;
+        }
+    }
+    if (!did_crit)
+        fail("didn't execute critsect");
+
+    local state = "ping";
+
+    local
+    t1()
+    {
+        var    i;
+
+        for (i = 0; i < 10; ++i)
+        {
+            waitfor (state == "ping"; "ping")
+            {
+                state = "pong";
+                wakeup("pong");
+            }
+        }
+        state = i;
+        wakeup("done");
+        wakeup("pong");
+    }
+
+    local
+    t2()
+    {
+        for (;;)
+        {
+            waitfor (state == "pong" && typeof(state) != "int"; "pong")
+            {
+                state = "ping";
+                wakeup("ping");
+            }
+        }
+    }
+
+    go(t1);
+    go(t2);
+
+    waitfor (typeof(state) == "int"; "done")
+        ;
+    if (state != 10)
+        fail("failed to waitfor/wakeup correctly");
+];
+
+printf("misc...\n");
+[module
+    var x, y, z;
+
+    if (typeof(stdin) != "file")
+        fail("stdin is not a file");
+    if (typeof(stdout) != "file")
+        fail("stdout is not a file");
+    if (typeof(stderr) != "file")
+        fail("stderr is not a file");
+    if (typeof(path) != "array")
+        fail("path is not an array");
+    if (len(path) == 0)
+        fail("path is empty");
+    forall (x in path)
+    {
+        if (typeof(x) != "string")
+            fail("path is not an array of strings");
+    }
+    if (typeof(argv) != "array")
+        fail("argv is not an array");
+    if (typeof(argv[0]) != "string")
+        fail("argv[0] is not a string");
+];
+
+printf("xml...");
+[module
+    x = NULL;
+    try
+        x = xml;
+    onerror
+        x = NULL;
+
+    y = gettokens(currentfile(), "", "!")[0];
+    <mydoc>
+        <foo x_attr="1" y_attr="Hello">
+            This is some character data.
+        </foo>
+    </mydoc>
+    !
+
+    if (x == NULL)
+    {
+        printf("not available, skipped.\n");
+    }
+    else
+    {
+        printf("\n");
+        z = xml.read(sopen(y));
+        if (typeof(z) != "array")
+            fail("type of xml.read is not array");
+        if (z[1][xml.TAG] != "mydoc")
+            fail("incorrect top level tag in xml");
+        if (z[1][xml.ELEMENTS][1][xml.TAG] != "foo")
+            fail("incorrect mid level tag in xml");
+        if (z[1][xml.ELEMENTS][1].y_attr != "Hello")
+            fail("incorrect attribute in xml");
+        if (z[1][xml.ELEMENTS][1][xml.ELEMENTS][0] !~ #data#)
+            fail("incorrect character data in xml");
+    }
+];
+
+printf("onerror...\n");
+[module
+    local x;
+
+    try
+        x = 1;
+    onerror
+        fail("failed when should not have");
+
+    x = 0;
+    try
+    {
+        x = 1;
+        fail("should happen");
+        x = 2;
+    }
+    onerror
+    {
+        if (error != "should happen")
+            fail("wrong error string");
+        if (x != 1)
+            fail("wrong flow of control for error (no. 1)");
+        x = 3;
+    }
+    if (x != 3)
+        fail("wrong flow of control for error (no. 2)");
+
+    local
+    func1(a)
+    {
+        try
+        {
+            try
+                return 1 / a;
+            onerror
+                fail(error);
+        }
+        onerror
+            return 0;
+        return 2;
+    }
+
+    if (func1(1) != 1)
+        fail("nested onerror in function failed");
+
+    if (func1(0) != 0)
+        fail("failure in nested onerror failed");
+
+    local
+    func2()
+    {
+        var    error;
+
+        try
+            fail("failure");
+        onerror
+            return error;
+        return "no failure";
+    }
+
+    error = "should not be effected";
+    if (func2() != "failure")
+        fail("fail returned wrong string");
+    if (error != "should not be effected")
+    {
+        printf("error = %s\n", error);
+        fail("wrong scope in setting error");
+    }
+
+    fail("deliberate failure");
+];
+

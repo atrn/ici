@@ -1,0 +1,392 @@
+.r iciops.1
+.TH "iciops" "1"
+.SH NAME
+iciops \- ICI expression operators
+.SH DESCRIPTION
+
+.PP
+The following table is in precedence order.
+
+.TP 1i
+.B "*ptr"
+Indirection: The result references the thing the pointer points
+to. The result is an lvalue.
+
+.TP 1i
+.B "&any"
+Address of: The result is a pointer to any. If any is an lvalue
+the pointer references that storage location.  If any
+is not an lvalue but is a term other than a bracketed
+non-term, as described in the syntax above, a one
+element array containing any will be fabricated and a
+pointer to that storage location returned. For
+example:
+
+        \fCp = &1;\fR
+
+sets p to be a pointer to the first element of an
+un-named array, which currently contains the number 1.
+
+.TP 1i
+.B "-num"
+Negation: Returns the negation of num. The result is the same
+type as the argument. The result is not an lvalue.
+
+.TP 1i
+.B "+any"
+Has no effect except the result is not an lvalue.
+
+.TP 1i
+.B "!any"
+Logical negation: If any is 0 (integer) or NULL, 1 is
+returned, else 0 is returned.
+
+.TP 1i
+.B "~int"
+Bit-wise complement: The bit-wise complement of int is
+returned.
+
+.TP 1i
+.B "++any"
+Pre-increment: Equivalent to (any += 1). any must be an lvalue
+and obey the restrictions of the binary + operator.
+See + below.
+
+.TP 1i
+.B "--any"
+Pre-decrement: Equivalent to (any -= 1). any must be an lvalue 
+and obey the restrictions of the binary - operator.
+See - below.
+
+.TP 1i
+.B "@any"
+Atomic form of: Returns the unique, read-only form of any.  If 
+any is already atomic, it is returned immediately.
+Otherwise an atomic form of any is found or generated
+and returned; this is of execution time order equal to
+the number of elements in any.  \" ### See the section on
+'\" objects above for more explanation. \" ### Oops! No such section!
+
+.TP 1i
+.B "$any"
+Immediate evaluation: Recognised by the parser.  The
+sub-expression any is immediately evaluated by invocation of
+the execution engine.  The result of the evaluation
+is substituted directly for this expression term by
+the parser.
+
+.TP 1i
+.B "any++"
+Post-increment: Notes the value of any, then performs
+the equivalent of (any += 1), except any is only
+evaluated once, and finally returns the original
+noted value.  any must be an lvalue and obey the
+restrictions of the binary + operator.  See + below.
+
+.TP 1i
+.B "any--"
+Post-increment: Notes the value of any, then performs
+the equivalent of (any -= 1), except any is only
+evaluated once, and finally returns the original
+noted value.  any must be an lvalue and obey the
+restrictions of the binary - operator.  See - below.
+
+.TP 1i
+.B "num1 * num2"
+Multiplication: Returns the product of the two numbers, if
+both nums are ints, the result is int, else the result
+is float.
+
+.TP 1i
+.B "set1 * set2"
+Set intersection: Returns a set that contains all
+elements that appear in both set1 and set2.
+
+.TP 1i
+.B "num1 / num2"
+Division: Returns the result of dividing num1 by num2.
+If both numbers are ints the result is int, else the
+result is float.  If num2 is zero the error division
+by 0 is generated, or division by 0.0 if the result
+would have been a float.
+
+.TP 1i
+.B "int1 % int2"
+Modulus: Returns the remainder of dividing int1 by int2.
+If int2 is zero the error modulus by 0 is generated.
+
+.TP 1i
+.B "num1 + num2"
+Addition: Returns the sum of num1 and num2.  If both numbers 
+are ints the result is int, else the result is float.
+
+.TP 1i
+.B "ptr + int"
+Pointer addition: ptr must point to an element of an
+indexable object whose index is an int.  Returns a new
+pointer which points to an element of the same aggregate
+which has the index which is the sum of ptr's index
+and int.  The arguments may be in any order.
+
+.TP 1i
+.B "string1 + string2"
+String concatenation: Returns the string which is
+the concatenation of the characters of string1 then
+string2.  The execution time order is proportional to
+the total length of the result.
+
+.TP 1i
+.B "array1 + array2"
+Array concatenation: Returns a new array which is the
+concatenation of the elements from array1 then array2.  The
+execution time order is  proportional to the total length
+of the result. Note the difference between the following:
+
+        \fCa += [array 1];
+.br
+        push(a, 1);\fR
+
+In the first case a is replaced by a newly formed array which is the 
+original array with one element added.  But in the second case the 
+push function (see below) appends an element to the array a refers 
+to, without making a new array. The second case is much faster, 
+but modifies an existing array.
+
+.TP 1i
+.B "struct1 + struct2"
+Structure concatenation: Returns a new struct
+which is a copy of struct1, with all the elements of struct2 assigned
+into it.  Obeys the semantics of copying and assignment discussed in
+other sections with regard to super structs.  The execution time order
+is proportional to the sum of the lengths of the two arguments.
+
+.TP 1i
+.B "set1 + set2"
+Set union: Returns a new set which contains all the
+elements from both sets.  The execution time order is  proportional to
+the sum of the lengths of the two arguments.
+
+.TP 1i
+.B "num1 - num2"
+Subtraction: Returns the result of subtracting num2 from num1.  If 
+both numbers are ints the result is int, else the result is float.
+
+.TP 1i
+.B "set1 - set2"
+Set subtraction: Returns a new set which contains all the elements 
+of set1, less the elements of set2. The execution time order is
+proportional to the sum of the lengths of the two arguments.
+
+.TP 1i
+.B "ptr1 - ptr2"
+Pointer subtraction: ptr1 and ptr2 must point to elements
+of indexable objects whose indexs are ints.  Returns an int which is
+the index of ptr1 less the index of ptr2.
+
+.TP 1i
+.B "int1 >> int2"
+Right shift: Returns the result of right shifting int1
+by int2.  Equivalent to division by 2**int2.  int1 is interpreted as a
+signed quantity.
+
+.TP 1i
+.B "int1 << int2"
+Left shift: Returns the result of left shifting int1
+by int2.  Equivalent to multiplication by 2**int2.
+
+.TP 1i
+.B "array << int"
+Left shift array: Returns a new array which contains the
+elements of array from index int onwards.  Equivalent to the function
+call interval(array, int) (which is considered preferable, this operator
+may disappear in future releases).
+
+.TP 1i
+.B "num1 < num2"
+Numeric test for less than: Returns 1 if num1 is less
+than num2, else 0.
+
+.TP 1i
+.B "set1 < set2"
+Test for subset: Returns 1 if set1 contains only elements
+that are in set2, else 0.
+
+.TP 1i
+.B "string1 < string2"
+Lexical test for less than: Returns 1 if string1
+is lexically less than string2, else 0.
+
+.TP 1i
+.B "ptr1 < ptr2"
+Pointer test for less than:  ptr1 and ptr2 must point
+to elements of indexable objects whose indexes are ints.  Returns 1 if
+ptr1 points to an element with a lesser index than ptr2, else 0.
+.IP "" 1i
+The >, <= and >= operators work in the same fashion as <, above. For
+sets > tests for one set being a superset of the other.
+The < and > operators test for proper sub- or super- sets.
+That is,
+one set can
+contain only those elements contained in the other set but cannot be
+equal to the other set.
+The <= and >= operators test for sub- or super- sets.
+That is one set can
+contain elements contained in the other set and can equal the other set.
+
+.TP 1i
+.B "any1 == any2"
+Equality test: Returns 1 if any1 is equal to any2, else 0.
+Two objects are equal when: they are the same object; or they are both
+arithmetic (int and float) and have equivalent numeric values; or they are
+aggregates of the same type and all the sub-elements are the same objects.
+
+.TP 1i
+.B "any1 != any2"
+Inequality test: Returns 1 if any1 is not equal to any2,
+else 0.  See above.
+
+.TP 1i
+.B "string ~ regexp"
+Logical test for regular expression match: Returns 1
+if string can be matched by regexp, else 0.  The arguments may be in
+any order.
+
+.TP 1i
+.B "string !~ regexp"
+Logical test for regular expression non-match:
+Returns 1 if string can not be matched by regexp, else 0.  The arguments
+may be in any order.
+
+.TP 1i
+.B "string ~~ regexp"
+Regular expression sub-string extraction:
+Returns the sub-string of string which is matched by the first bracket
+enclosed portion of regexp, or NULL if there is no match or regexp
+does not contain a (...) portion. The arguments may be in any order.
+For example, a "basename" operation can be performed with:
+
+        \fCargv[0] ~~= #([^/]*)$#;\fR
+
+.TP 1i
+.B "string ~~~ regexp"
+Regular expression multiple sub-string extraction:
+Returns an array of the the sub-strings of string which are matched by
+the (...) enclosed portions of regexp, or NULL if there is no match. The
+arguments may be in any order.
+
+.TP 1i
+.B "int1 & int2"
+Bit-wise and: Returns the bit-wise and of int1 and int2.
+
+.TP 1i
+.B "int1 ^ int2"
+Bit-exclusive or: Returns the bit-wise exclusive or of
+int1 and int2.
+
+.TP 1i
+.B "int1 | int2"
+Bit-wise or: Returns the bit-wise or of int1 and int2.
+
+.TP 1i
+.B "any1 && any2"
+Logical and: Evaluates the expression which determines
+any1, if this evaluates to 0 or NULL (i.e. false), 0 is returned, else
+any2 is evaluated and returned. Note that if any1 does not evaluate to
+a true value, the expression which determines any2 is never evaluated.
+
+.TP 1i
+.B "any1 || any2"
+Logical or: Evaluates the expression which determines
+any1, if this evaluates to other than 0 or NULL (i.e. true), 1 is
+returned, else any2 is evaluated and returned. Note that if any1 does
+not evaluate to a false value, the expression which determines any2 is
+never evaluated.
+
+.TP 1i
+.B "any1 ? any2 : any3"
+Choice: If any1 is neither 0 or NULL (i.e. true),
+the expression which determines  any2 is evaluated and returned,
+else the expression which determines any3 is evaluated and returned.
+Only one of any2 and any3 are evaluated.  The result may be an lvalue
+if the returned expression is. Thus:
+
+        \fCflag ? a : b = value\fR
+
+is a legal expression and will assign value to either a or b depending
+on the state of flag.
+
+.TP 1i
+.B "any1 = any2"
+Assignment: Assigns any2 to any1.  any1 must be an lvalue. The 
+behavior of assignment is a consequence of aggregate access as 
+discussed in earlier sections.  In short, an lvalue (in this case any1) 
+can always be resolved into an aggregate and an index into the aggregate.
+Assignment sets the element of the aggregate identified by the index
+to any2.  The returned result of the whole assignment is any1, after
+the assignment has been performed.
+
+The result is an lvalue, thus:
+
+        \fC++(a = b)\fR
+
+will assign b to a and then increment a by 1.
+
+Note that assignment operators (this and following ones) associate
+right to left, unlike all other binary operators, thus:
+
+        \fCa = b += c -= d\fR
+
+Will subtract d from c, then add the result to b, then assign
+the final value to a.
+
+.TP 1i
+.B "any1 := any2"
+Assignment to local scope: Assigns any2 to any1, except it ignores
+any existing named value in super scopes of a struct and always
+assigns in the base struct (creating the element if necessary).
+
+.TP 1i
+.B "+=  -=  *=  /=  %=  >>=  <<=  &=  ^=  |=  ~~="
+Compound assignments: All these operators are defined by the rewriting
+rule:
+
+        any1 op= any2
+
+is equivalent to:
+
+        any1 = any1 op any2
+
+except that any1 is not evaluated twice. Type restrictions and the 
+behaviour or op will follow the rules given with that binary operator
+above. The result will be an lvalue (as a consequence of = above).
+There are no further restrictions.  Thus:
+
+        \fCa = "Hello";
+.br
+        a += " world.\en";\fR
+
+will result in the variable a referring to the string:
+
+        \fC"Hello world.\en"\fR
+
+.TP 1i
+.B "any1 <=> any2"
+Swap: Swaps the current values of any1 and any2. Both
+operands must be lvalues. The result is any1 after the swap and is an
+lvalue, as in other assignment operators.  Also like other assignment
+operators, associativity is right to left, thus:
+
+        \fCa <=> b <=> c <=> d\fR
+
+rotates the values of a, b and c towards d and brings d's original 
+value back to a.
+.TP 1i
+.B "any1 , any2"
+Sequential evaluation: Evaluates any1, then any2. The
+result is any2 and is an lvalue if any2 is. Note that in situations where
+comma has meaning at the top level of parsing an  expression (such as
+in function call arguments), expression parsing precedence starts at one
+level below the comma, and a comma will not be recognised as an operator.
+Surround the expression with brackets to avoid this if necessary.
+.SH "SEE ALSO"
+ici(1), icinet(1), icioo(1), iciops(1), icisyn(1), icitypes(1), iciex(1)

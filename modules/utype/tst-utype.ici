@@ -1,0 +1,12 @@
+auto c, cc, i, pi = 4 * atan(1);
+for (cc = Complex.number(), i = 0; i < 100000; ++i)
+{
+    c = Complex.number(i, i * (1 / (cc.asum() + pi/2)));
+    cc = c;
+    printf("re = %f im = %f\n", c["re"], c["im"]);
+    printf("typeof(c) = %s\n", typeof(c));
+#    try
+#	c["foo"] = 1;
+#    onerror
+#	printf("%s\n", error);
+}

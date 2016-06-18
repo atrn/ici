@@ -1,0 +1,6 @@
+var a, b, c;
+
+a = [set 1];
+b = [set 2];
+c = a < b;
+

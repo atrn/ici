@@ -1,0 +1,50 @@
+/*
+ * button.ici - class for representing button GUI objects.
+ */
+
+extern button = [struct : widget,
+
+    type = "button",
+
+    /**
+     * Create a new button object.
+     *
+     * PARAMETERS
+     *	text	The text to show in the button. May be NULL or omitted
+     *		for buttons that show images. Must be passed if a parent
+     *		is to be specified.
+     *	parent	The parent widget for this button.
+     */
+    new = [func (self, text, parent)
+    {
+	auto parent = NULL;
+	auto text = NULL;
+
+	self.name   = self@makename(parent);
+	self.action = NULL;
+	tcl.tk
+	(
+	    sprintf
+	    (
+		"button %s %s",
+		self.name,
+		text ? sprintf("-text {%s}", text) : ""
+	    )
+	);
+    }],
+
+    /**
+     * Make a button display an image.
+     *
+     * PARAMETERS
+     *	name	The name of image file.
+     */
+    setimage = [func (self, name)
+    {
+#	printf(stderr, "image name = %s\n", name);
+	name = tcl.tk("image create photo -file " + name);
+#	printf(stderr, "image name = %s\n", name);
+	tcl.tk(self.name, "configure -image " + name);
+    }],
+
+];

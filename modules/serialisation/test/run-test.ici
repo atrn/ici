@@ -1,0 +1,19 @@
+static ici(prog)
+{
+    if (system("ici " + prog) != 0)
+	fail(prog + ": failed");
+}
+
+re := #test-save-(.*)\.ici$#;
+save_files := sort(dir(".", re));
+forall (save_test in save_files)
+{
+    test_name := save_test ~~ re;
+    restore_test := "test-restore-" + test_name + ".ici";
+    printf("%s .. ", test_name); flush();
+
+    ici(save_test);
+    ici(restore_test);
+
+    printf("passed\n");
+}

@@ -1,0 +1,67 @@
+rand(sys.time());
+
+static
+clock(period, chan, o)
+{
+    for (;;)
+    {
+	sys.usleep(1000 * period);
+	chan:put(o);
+    }
+}
+
+static
+producer(chan, ntimes, end)
+{
+    for (i := 0; i < ntimes; ++i)
+    {
+        chan:put(i);
+	sys.usleep((100 + rand() % 1000) * 1000);
+    }
+    chan:put(end);
+}
+
+static
+consumer(chan0, chan1, chan2, end)
+{
+    chans := array(chan0, chan1, chan2);
+    nclients := nels(chans);
+    for (going := 1; going; )
+    {
+	n := channel.alt(chans);
+	o := chans[n]:get();
+	if (o == end)
+	{
+	    chans[n] = NULL;
+	    if (--nclients == 0)
+		break;
+	}
+	else
+	{
+	    printf("(%d %s) ", n, string(o));
+	    flush();
+	}
+    }
+}
+
+ntimes := 1000;
+sz := 1;
+
+if (argc > 1)
+{
+    ntimes := int(argv[1]);
+    if (argc > 2)
+        sz := int(argv[2]);
+}
+
+chan0 := channel:new(sz);
+chan1 := channel:new(sz);
+chan2 := channel:new(sz);
+end := "end";
+t0 := thread(producer, chan0, ntimes, end);
+t1 := thread(producer, chan1, ntimes, end);
+t2 := thread(clock, 1000, chan2, "*");
+t3 := thread(consumer, chan0, chan1, chan2, end);
+
+waitfor (t2.status == "finished"; t2 )
+    ;

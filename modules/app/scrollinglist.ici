@@ -1,0 +1,100 @@
+extern scrollinglist = [struct : frame,
+
+    new = [func (self, parent)
+    {
+	self@super().new(self, parent);
+	self.sbar = object.new(app.scrollbar, "vertical", self);
+	self.list = object.new(app.listbox, self);
+	self.sbar@setrelief("flat");
+	self.list@setrelief("flat");
+	self.list@setrelief("sunken");
+	app.pack(self.list, "-side left -fill both -expand yes -padx 1");
+	app.pack(self.sbar, "-side top -fill y -expand yes -anchor e -pady 1");
+	self.list@attachscrollbar(self.sbar);
+    }],
+ 
+    bind = [func (self, event, action)
+    {
+	super(super(self)).bind(self, event, action);
+	self.list@bind(event, action);
+    }],
+
+    configure = [func (self, key, value)
+    {
+#	self.list@configure(event, action);
+	tcl.tk(self.list.name, "configure", key, value);
+    }],
+
+    setwidth = [func (self, n)
+    {
+	return self.list@setwidth(n);
+    }],
+
+    setheight = [func (self, n)
+    {
+	return self.list@setheight(n);
+    }],
+
+    setfrom = [func (self, what)
+    {
+	return self.list@setfrom(what);
+    }],
+
+    delete = [func (self, a, b)
+    {
+	return self.list@delete(a, b);
+    }],
+
+    get = [func (self, what)
+    {
+	auto what = "active";
+	return self.list@get(what);
+    }],
+
+    setheight = [func (self, fnt)
+    {
+	return self.list@setheight(fnt);
+    }],
+
+    setfont = [func (self, fnt)
+    {
+	return self.list@setfont(fnt);
+    }],
+
+    setbackground = [func (self, color)
+    {
+	return self.list@setbackground(color);
+    }],
+
+    size = [func (self)
+    {
+	return self.list@size();
+    }],
+
+    see = [func (self, what)
+    {
+	return self.list@see(what);
+    }],
+
+    highlight = [func (self, what)
+    {
+	self.list@highlight(what);
+    }],
+		
+    unhighlight = [func (self, what)
+    {
+	auto what = 0;
+	self.list@unhighlight(what);
+    }],
+		
+    listbox = [func (self)
+    {
+	return self.list;
+    }],
+
+    scrollbar = [func (self)
+    {
+	return self.sbar;
+    }],
+
+];

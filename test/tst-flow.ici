@@ -1,0 +1,203 @@
+local x;
+local y;
+
+y = 0;
+forall (x in [array 4, 5, 6])
+    y += x;
+if (y != 15)
+    fail("forall loop gave wrong sum");
+
+y = 0;
+forall (x in NULL)
+    y += x;
+if (y != 0)
+    fail("NULL forall loop failed");
+
+y = 0;
+for (x = 1; x < 10; ++x)
+	y += x;
+if (y != 45)
+	fail("for loop executed wrong number of times");
+
+y = 0;
+for (x = 1; x < 10; ++x)
+{
+	if (x & 1)
+		continue;
+	y += x;
+}
+if (y != 20)
+	fail("continue executed incorrectly");
+
+y = 0;
+for (x = 1; x < 10; ++x)
+{
+	critsect
+	{
+		if (x & 1)
+			continue;
+	}
+	y += x;
+}
+if (y != 20)
+	fail("continue in critsect executed incorrectly");
+
+y = 0;
+for (x = 1; x < 10; ++x)
+{
+	critsect
+	{
+		if (x == 3)
+			break;
+	}
+	y += x;
+}
+if (y != 3)
+	fail("break in critsect executed incorrectly");
+
+x = 0;
+switch("a")
+{
+	x = 1;
+}
+if (x != 0)
+	fail("incorrect switch execution");
+
+x = 0;
+switch("a")
+{
+default:
+	x = 1;
+}
+if (x != 1)
+	fail("incorrect switch execution");
+
+	
+x = 0;
+switch("a")
+{
+case "a":
+	x = 1;
+	break;
+
+case "b":
+	x = 2;
+}
+if (x != 1)
+	fail("failed to switch correctly");
+
+
+error := NULL;
+try
+	X := totaly_undefined_name;
+onerror
+	;
+
+if (error == NULL)
+	fail("didn't fail on undefined name");
+
+local
+load(name)
+{
+	return super(scope()).var_defined_export = 123;
+}
+
+x := var_defined_export;
+if (x != 123)
+	fail("failed to var-load export");
+
+
+local
+load(name)
+{
+}
+
+error = NULL;
+try
+	x := not_var_defined_export;
+onerror
+	;
+if (error == NULL)
+	fail("didn't fail on non var load");
+
+
+/*
+ * This is actually a test of the error and recover from excessive
+ * core engine recursion.
+ */
+local
+load(name)
+{
+	return oh_bugger_another_undefined;
+}
+error = NULL;
+try
+	x := an_undefined_variable;
+onerror
+	;
+
+if (error == NULL || error !~ #excessive recursive#)
+	fail("wrong error from recursive undefined: " + error);
+
+error := NULL;
+try
+	forall (x in 2)
+		;
+onerror
+	;
+if (error == NULL)
+	fail("failed to fail on bad forall");
+
+
+local c = [class
+
+	method()
+	{
+		return 123;
+	}
+];
+
+local d = [class:c,
+
+	method()
+	{
+		x := this:^method;
+		return this:^method() + x();
+		
+	}
+];
+
+x := d:new();
+if (x:method() != 123 + 123)
+	fail(":^ didn't work");
+
+y = x:method;
+if (y() != 123 + 123)
+	fail("unoptimised method call didn't work");
+
+
+/*
+ * Remove our local load function.
+ */
+del(super(scope()), "load");
+saved_load := load;
+for (s := scope(); s != NULL; s = super(s))
+	del(s, "load");
+error = NULL;
+try
+	x:= an_undefined_var_with_no_load;
+onerror
+	;
+if (error == NULL)
+	fail("failed to fail on undefined with no load()");
+
+export load = saved_load;
+
+var a;
+forall (a in [array 1, 2, 3])
+{
+	if (a == 2)
+		break;
+}
+if (a != 2)
+	fail("break from froall didn't work");
