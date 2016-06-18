@@ -3,7 +3,7 @@
  *
  * Return -1, 0 or 1 depending on whether a is less than, equal to, or
  * greater than b. This is coded in ICI because it is a real pain to
- * organise access to the code that does < and > in C.
+ * organise access to the code that implements < and > from C.
  */
 export cmp(a, b)
 {

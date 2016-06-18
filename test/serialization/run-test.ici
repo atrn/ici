@@ -1,6 +1,6 @@
 static ici(prog)
 {
-    if (system("ici " + prog) != 0)
+    if (system("anici " + prog) != 0)
 	fail(prog + ": failed");
 }
 
