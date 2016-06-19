@@ -22,7 +22,7 @@ PROG_CFLAGS	= $(COMMON_CFLAGS)
 CFLAGS	        = $(COMMON_CFLAGS) -Kpic
 
 SRCS:sh		= echo *.c
-OBJS		= $(SRCS:.c=.o) study.o maketables.o pcre.o
+OBJS		= $(SRCS:.c=.o) study.o pcre.o
 
 all             : ici.h
 
@@ -56,9 +56,6 @@ profile		:
 #
 study.o 	: pcre/study.c
 	$(CC) -c -o $@ $(CFLAGS) pcre/study.c
-
-maketables.o	: pcre/maketables.c
-	$(CC) -c -o $@ $(CFLAGS) pcre/maketables.c
 
 pcre.o		: pcre/pcre.c
 	$(CC) -c -o $@ $(CFLAGS) pcre/pcre.c

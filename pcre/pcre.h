@@ -12,7 +12,6 @@
 #define	pcre_exec	ici_pcre_exec
 #define	pcre_free	ici_pcre_free
 #define	pcre_info	ici_pcre_info
-#define	pcre_maketables	ici_pcre_maketables
 #define	pcre_malloc	ici_pcre_malloc
 #define	pcre_study	ici_pcre_study
 #define	pcre_version	ici_pcre_version
@@ -108,7 +107,6 @@ extern int pcre_exec(const pcre *, const pcre_extra *, const char *,
 extern int pcre_get_substring(const char *, int *, int, int, const char **);
 extern int pcre_get_substring_list(const char *, int *, int, const char ***);
 extern int pcre_info(const pcre *, int *, int *);
-extern unsigned const char *pcre_maketables(void);
 extern pcre_extra *pcre_study(const pcre *, int, const char **);
 extern const char *pcre_version(void);
 

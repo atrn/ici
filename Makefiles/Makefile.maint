@@ -108,7 +108,7 @@ FILES   = \
 	\
 	pcre/ChangeLog pcre/LICENCE pcre/Makefile pcre/README pcre/README.ICI\
 	pcre/RunTest pcre/Tech.Notes pcre/chartables.c pcre/dftables.c\
-	pcre/dll.mk pcre/get.c pcre/internal.h pcre/maketables.c pcre/pcre.3\
+	pcre/dll.mk pcre/get.c pcre/internal.h pcre/pcre.3\
 	pcre/pcre.3.html pcre/pcre.3.txt pcre/pcre.c pcre/pcre.def pcre/pcre.h\
 	pcre/pcreposix.3 pcre/pcreposix.3.html pcre/pcreposix.3.txt\
 	pcre/pcreposix.c pcre/pcreposix.h pcre/pcretest.c pcre/perltest\

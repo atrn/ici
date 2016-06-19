@@ -71,7 +71,7 @@ OBJS=                                                                           
         null.o                                                                          \
 	object.o oofuncs.o op.o                                                         \
         parse.o pc.o profile.o ptr.o                                                    \
-	pcre/maketables.o pcre/pcre.o pcre/study.o                                      \
+	pcre/pcre.o pcre/study.o                                                        \
         refuncs.o regexp.o restore.o                                                    \
         save.o set.o sfile.o signals.o smash.o src.o sstring.o strtol.o                 \
                 struct.o syserr.o string.o                                              \

@@ -59,7 +59,7 @@ OBJS    =                                                       \
 OSXOBJS=semaphore.o
 
 PCREOBJS=\
-	study.o maketables.o pcre.o
+	study.o pcre.o
 
 ALL_OBJS = $(OBJS) $(PCREOBJS) $(OSXOBJS)
 
@@ -77,9 +77,6 @@ $(GCH) : $(PCH)
 
 study.o : pcre/study.c
 	$(CC) -c -o $@ $(CFLAGS) pcre/study.c
-
-maketables.o    : pcre/maketables.c
-	$(CC) -c -o $@ $(CFLAGS) pcre/maketables.c
 
 pcre.o  : pcre/pcre.c
 	$(CC) -c -o $@ $(CFLAGS) pcre/pcre.c

@@ -60,7 +60,7 @@ OBJS    = \
 	idb.o idb2.o profile.o
 
 PCREOBJS=\
-	study.o maketables.o pcre.o
+	study.o pcre.o
 
 $(SHARED_LIB) $(IMPORT_LIB): $(OBJS) $(PCREOBJS) cygwin.def
 	$(CC) -shared -Xlinker $(LDFLAGS) \
@@ -78,9 +78,6 @@ $(PROG) : main.o $(IMPORT_LIB)
 
 study.o : pcre/study.c
 	$(CC) -c -o $@ $(CFLAGS) pcre/study.c
-
-maketables.o    : pcre/maketables.c
-	$(CC) -c -o $@ $(CFLAGS) pcre/maketables.c
 
 pcre.o  : pcre/pcre.c
 	$(CC) -c -o $@ $(CFLAGS) pcre/pcre.c

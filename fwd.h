@@ -76,6 +76,8 @@
 
 /*
  * ICI version number. Note that this occurs in a string in conf.c too.
+ *
+ * ANICI uses a major version of 5 and the word 'ANICI' in the string.
  */
 #define ICI_VER_MAJOR   5
 #define ICI_VER_MINOR   0

@@ -147,9 +147,9 @@ f_load(void)
             return -1;
         }
 #ifdef NEED_UNDERSCORE_ON_SYMBOLS
-        sprintf(entry_symbol, "_ici_%s_library_init", name->s_chars);
+        sprintf(entry_symbol, "_anici_%s_init", name->s_chars);
 #else
-        sprintf(entry_symbol, "ici_%s_library_init", name->s_chars);
+        sprintf(entry_symbol, "anici_%s_init", name->s_chars);
 #endif
         library_init = (ici_obj_t *(*)(void))dlsym(lib, entry_symbol);
         if (library_init == NULL)

@@ -32,7 +32,6 @@ int.c
 lex.c
 load.c
 main.c
-pcre/maketables.c
 mark.c
 mem.c
 method.c

@@ -41,7 +41,6 @@ build int.o: cc int.c
 build lex.o: cc lex.c
 build load.o: cc load.c
 build main.o: cc main.c
-build pcre/maketables.o: cc pcre/maketables.c
 build mark.o: cc mark.c
 build mem.o: cc mem.c
 build method.o: cc method.c
@@ -74,5 +73,5 @@ build syserr.o: cc syserr.c
 build thread.o: cc thread.c
 build unary.o: cc unary.c
 build uninit.o: cc uninit.c
-build anici : ld alloc.o aplfuncs.o archive.o arith.o array.o buf.o call.o catch.o cfunc.o cfunco.o compile.o conf.o control.o crc.o crc32c.o error.o events.o exec.o exerror.o file.o findpath.o float.o forall.o func.o handle.o hash.o icimain.o idb.o idb2.o init.o int.o lex.o load.o main.o pcre/maketables.o mark.o mem.o method.o mkvar.o null.o object.o oofuncs.o op.o parse.o pc.o pcre/pcre.o profile.o ptr.o refuncs.o regexp.o restore.o save.o macosx/semaphore.o set.o sfile.o signals.o smash.o src.o sstring.o string.o strtol.o struct.o pcre/study.o syserr.o thread.o unary.o uninit.o
+build anici : ld alloc.o aplfuncs.o archive.o arith.o array.o buf.o call.o catch.o cfunc.o cfunco.o compile.o conf.o control.o crc.o crc32c.o error.o events.o exec.o exerror.o file.o findpath.o float.o forall.o func.o handle.o hash.o icimain.o idb.o idb2.o init.o int.o lex.o load.o main.o mark.o mem.o method.o mkvar.o null.o object.o oofuncs.o op.o parse.o pc.o pcre/pcre.o profile.o ptr.o refuncs.o regexp.o restore.o save.o macosx/semaphore.o set.o sfile.o signals.o smash.o src.o sstring.o string.o strtol.o struct.o pcre/study.o syserr.o thread.o unary.o uninit.o
 default anici

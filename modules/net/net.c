@@ -58,71 +58,32 @@
 #else /* USE_WINSOCK */
 
 /*
- * For ease of compatibility with WINSOCK we use its definitions and
- * emulate them on Unix. Luckily such emulation is rather trivial.
+ * For compatibility with WINSOCK we use its definitions and emulate
+ * them on Unix via trivial emulation.
  */
 #define SOCKET          int
-#define closesocket     close
+#define closesocket(s)  close(s)
 #define SOCKET_ERROR    (-1)
 
 #include <errno.h>
 #include <sys/param.h>
 #include <sys/types.h>
-#include <sys/stat.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include <netinet/tcp.h> /* for TCP_NODELAY (on most systems) */
+#include <netinet/tcp.h> /* TCP_NODELAY */
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <sys/time.h>
 #include <pwd.h>
-#if __hpux || BSD4_4 || linux
 #include <unistd.h>
-#endif
-#if NeXT
-#include <libc.h>
-#endif
-#if sun
-#define bzero(p,n)      (memset((p), 0, (n)))
-#endif
 
-#endif /* USE_WINSOCK else */
+#endif /* USE_WINSOCK */
 
-#if defined(ULTRIX) || defined(BSD4_4) && !defined(INADDR_LOOPBACK)
+#if !defined(INADDR_LOOPBACK)
 /*
  * Local loop back IP address (127.0.0.1) in host byte order.
  */
-#define INADDR_LOOPBACK         (u_long)0x7F000001
-#endif
-
-#if defined(sun) && __STDC__
-/*
- * SunOS 4.x doesn't prototype many things.
- */
-int close(int);
-int socket(int, int, int);
-int socketpair(int, int, int, int *);
-int listen(int, int);
-#ifndef SUNOS5
-int accept(int, struct sockaddr *, int *);
-int connect(int, struct sockaddr *, int);
-int bind(int, struct sockaddr *, int);
-int sendto(int, char *, int, int, struct sockaddr *, int);
-#endif
-#ifndef SUNOS5
-int send(int, char *, int, int);
-#endif
-#ifndef SUNOS5
-int recvfrom(int, char *, int, int, struct sockaddr *, int *);
-int recv(int, char *, int, int);
-int getsockopt(int, int, int, char *, int *);
-int setsockopt(int, int, int, char *, int);
-int getpeername(int, struct sockaddr *, int *);
-int getsockname(int, struct sockaddr *, int *);
-#endif
-int gethostname(char *, int);
-int getuid(void);
-int shutdown(int, int);
+#define INADDR_LOOPBACK         (uint32_t)0x7F000001
 #endif
 
 /*
@@ -175,7 +136,7 @@ new_netsocket(SOCKET fd)
     h->h_pre_free = socket_prefree;
     /*
      * Turn off super support. This means you can't assign or fetch
-     * values in a socket.
+     * values with a socket.
      */
     ici_objof(h)->o_flags &= ~ICI_O_SUPER;
     return h;
@@ -187,10 +148,12 @@ new_netsocket(SOCKET fd)
 static int
 isclosed(ici_handle_t *skt)
 {
-    if (!(ici_objof(skt)->o_flags & ICI_H_CLOSED))
-        return 0;
-    ici_error = "attempt to use closed socket";
-    return 1;
+    int closed = ici_objof(skt)->o_flags & ICI_H_CLOSED;
+    if (closed)
+    {
+        ici_error = "attempt to use closed socket";
+    }
+    return closed;
 }
 
 /*
@@ -200,18 +163,14 @@ isclosed(ici_handle_t *skt)
 static ici_exec_t *
 potentially_block(void)
 {
-#ifndef NOSIGNALS
     ici_signals_blocking_syscall(1);
-#endif
     return ici_leave();
 }
 
 static void
 unblock(ici_exec_t *x)
 {
-#ifndef NOSIGNALS
     ici_signals_blocking_syscall(0);
-#endif
     ici_enter(x);
 }
 
@@ -431,24 +390,9 @@ ici_net_socket(void)
     else if (ici_typecheck("o", &proto))
     {
         long            i;
-#ifdef ICI_PEDANTIC_SKTS
-        struct stat     statbuf;
-#endif
 
         if (ici_typecheck("i", &i))
             return 1;
-#ifdef ICI_PEDANTIC_SKTS
-        if (fstat(i, &statbuf) == -1)
-        {
-            error = strerror(errno);
-            return 1;
-        }
-        if ((statbuf.st_mode & S_IFMT) != S_IFSOCK)
-        {
-            error = "not a socket";
-            return 1;
-        }
-#endif
         return ici_ret_with_decref(ici_objof(new_netsocket(i)));
     }
     if (proto == ICIS(tcp) || proto == ICIS(tcp_ip))
@@ -679,9 +623,6 @@ ici_net_bind(void)
  * object. Uses, and updates, the count of ready descriptors that is
  * returned by select(2) so we can avoid unneccesary work.
  */
-#ifdef __GNUC__
-__inline__
-#endif
 static int
 select_add_result
 (
@@ -1927,7 +1868,7 @@ ici_net_shutdown()
     return ici_ret_no_decref(ici_objof(skt));
 }
 
-static cfunc_t ici_net_cfuncs[] =
+ICI_DEFINE_CFUNCS(net)
 {
     {ICI_CF_OBJ, "socket", ici_net_socket},
     {ICI_CF_OBJ, "close", ici_net_close},
@@ -1957,8 +1898,8 @@ static cfunc_t ici_net_cfuncs[] =
     {ICI_CF_OBJ}
 };
 
-object_t *
-ici_net_library_init(void)
+ici_obj_t *
+ici_net_init(void)
 {
 #ifdef  USE_WINSOCK
     {
@@ -1980,4 +1921,3 @@ ici_net_library_init(void)
         return NULL;
     return ici_objof(ici_module_new(ici_net_cfuncs));
 }
-

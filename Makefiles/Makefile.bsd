@@ -24,7 +24,7 @@ CFLAGS		= -fPIC $(COMMON_CFLAGS)
 
 SRCS		!= ls *.c | grep -v '^win32'
 
-OBJS		+= $(SRCS:.c=.o) study.o maketables.o pcre.o
+OBJS		+= $(SRCS:.c=.o) study.o pcre.o
 
 GCH		= fwd.h.gch
 
@@ -59,9 +59,6 @@ profile		:
 #
 study.o 	: pcre/study.c
 	$(CC) -c -o $@ $(CFLAGS) pcre/study.c
-
-maketables.o	: pcre/maketables.c
-	$(CC) -c -o $@ $(CFLAGS) pcre/maketables.c
 
 pcre.o		: pcre/pcre.c
 	$(CC) -c -o $@ $(CFLAGS) pcre/pcre.c

@@ -45,7 +45,7 @@ RM      = rm -f
 
 SRCS    = $(shell ls *.c | grep -v '^win32')
 OBJS    = $(SRCS:.c=.o)
-PCREOBJS= study.o maketables.o pcre.o
+PCREOBJS= study.o pcre.o
 ALLOBJS = main.o $(OBJS) $(PCREOBJS)
 
 all:    $(TARGET) ici.h
@@ -68,9 +68,6 @@ $(GCH)  : $(PCH)
 
 study.o : pcre/study.c
 	$(CC) -c -o $@ $(CFLAGS) pcre/study.c
-
-maketables.o    : pcre/maketables.c
-	$(CC) -c -o $@ $(CFLAGS) pcre/maketables.c
 
 pcre.o  : pcre/pcre.c
 	$(CC) -c -o $@ $(CFLAGS) pcre/pcre.c
