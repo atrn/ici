@@ -85,7 +85,7 @@ OBJS=                                                                           
 #
 ################################################################
 
-all: $(PROG) ici.h
+all: $(PROG) anici.h
 
 ifdef STATIC
 $(PROG): main.o $(OBJS)
@@ -126,17 +126,17 @@ $(GCH) : $(PCH) conf/osx.h alloc.h
 ################################################################
 
 # Headers that are potentially used in module writing are made public
-ICIHDRS= ici.h icistr-setup.h
+ICIHDRS= anici.h icistr-setup.h
 
 # Useful public documentation
 DOCS= doc/ici.pdf
 
-ici.h: $(PROG)
+anici.h: $(PROG)
 	ANICIPATH=. ./$(PROG) mk-ici-h.ici conf/osx.h
 
 # Install the init file, headers and docs.
 ifndef STATIC
-install: $(PROG) $(LIB) ici.h
+install: $(PROG) $(LIB) anici.h
 	@echo '=========================================='
 	@echo 'Creating installation directories'
 	@echo '=========================================='
@@ -177,7 +177,7 @@ endif
 ################################################################
 
 clean:
-	rm -f $(PROG) $(LIB) main.o $(OBJS) ici.h
+	rm -f $(PROG) $(LIB) main.o $(OBJS) anici.h
 
 clobber: clean
 	rm -f .depend $(GCH)

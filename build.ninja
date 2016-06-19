@@ -5,6 +5,8 @@ rule cc
   command = cc $cflags -c $in -o $out
 rule ld
   command = cc $ldflags $in $libs -o $out
+rule mk-ici-h
+  command = ANICIPATH=. ./anici mk-ici-h.ici conf/osx.h
 build alloc.o: cc alloc.c
 build aplfuncs.o: cc aplfuncs.c
 build archive.o: cc archive.c
@@ -72,4 +74,5 @@ build unary.o: cc unary.c
 build uninit.o: cc uninit.c
 build macosx/semaphore.o: cc macosx/semaphore.c
 build anici: ld alloc.o aplfuncs.o archive.o arith.o array.o buf.o call.o catch.o cfunc.o cfunco.o compile.o conf.o control.o crc.o crc32c.o error.o events.o exec.o exerror.o file.o findpath.o float.o forall.o func.o handle.o hash.o icimain.o idb.o idb2.o init.o int.o lex.o load.o main.o mark.o mem.o method.o mkvar.o null.o object.o oofuncs.o op.o parse.o pc.o pcre/pcre.o profile.o ptr.o refuncs.o regexp.o restore.o save.o set.o sfile.o signals.o smash.o src.o sstring.o string.o strtol.o struct.o pcre/study.o syserr.o thread.o unary.o uninit.o macosx/semaphore.o
-default anici
+build anici.h: mk-ici-h anici mk-ici-h.ici conf/osx.h
+default anici.h
