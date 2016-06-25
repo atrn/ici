@@ -36,7 +36,7 @@ typedef void    *dll_t;
 # endif
 #endif
 
-static const char   ici_prefix[] = "ici4";
+static const char   ici_prefix[] = "anici-";
 
 /*
  * Find and return the outer-most writeable struct in the current scope.

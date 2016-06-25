@@ -15,7 +15,7 @@ The following people have assisted in ICI's development...
 	functions, expanded set operators, new regular expression
 	package and functions. Native code interface and debugger
 	hooks. Makes sure ICI works for him under BSD. "Owns" module
-	collection.
+	collection. Serialization and channels.
 
     Chris Amies <chrisa@iname.com>
 

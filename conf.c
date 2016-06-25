@@ -21,6 +21,7 @@ extern ici_cfunc_t  ici_signals_cfuncs[];
 extern ici_cfunc_t  ici_debug_cfuncs[];
 #endif
 extern ici_cfunc_t  ici_thread_cfuncs[];
+extern ici_cfunc_t  ici_channel_cfuncs[];
 
 ici_cfunc_t *ici_funcs[] =
 {
@@ -42,6 +43,7 @@ ici_cfunc_t *ici_funcs[] =
 #endif
     ici_signals_cfuncs,
     ici_thread_cfuncs,
+    ici_channel_cfuncs,
     NULL
 };
 

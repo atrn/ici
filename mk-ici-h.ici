@@ -75,4 +75,4 @@ forall (i in incs)
 push(icih, "\n#ifdef __cplusplus\n}\n#endif\n");
 push(icih, "\n#endif /* ANICI_ANICI_H */\n");
 
-put(implode(icih), fopen(pathjoin(dst_dir, "anici.h"), "w"));
+puts(implode(icih), fopen(pathjoin(dst_dir, "anici.h"), "w"));

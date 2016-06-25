@@ -9,7 +9,7 @@
 # staticaly linked executable is created.
 #
 
-STATIC=         YES
+# STATIC=         YES
 
 PREFIX=         /opt/anici
 PROG=           anici
@@ -60,7 +60,8 @@ INSTALL_DATA=   install -c -m 444
 OBJS=                                                                                   \
 	alloc.o aplfuncs.o archive.o arith.o array.o                                    \
 	buf.o                                                                           \
-	call.o catch.o cfunc.o cfunco.o compile.o conf.o control.o crc.o crc32c.o       \
+	call.o catch.o cfunc.o cfunco.o channel.o compile.o conf.o                      \
+               control.o crc.o crc32c.o                                                 \
 	error.o exec.o exerror.o events.o                                               \
         file.o findpath.o float.o forall.o func.o                                       \
         handle.o hash.o                                                                 \

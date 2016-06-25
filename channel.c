@@ -1,6 +1,11 @@
-/*
- * $Id: channel.c,v 1.2 2003/03/08 06:48:05 timl Exp $
- */
+#define ICI_CORE
+#include "fwd.h"
+#include "channel.h"
+#include "cfunc.h"
+#include "array.h"
+#include "int.h"
+#include "null.h"
+#include "str.h"
 
 /*
  * TODO: add close() support
@@ -57,42 +62,24 @@
  *
  */
 
-#include <anici.h>
-
-#include "icistr.h"
-#include <icistr-setup.h>
-
-static ici_objwsup_t *channel_class;
-static int           channel_tcode;
-
-typedef struct
-{
-    ici_objwsup_t       o_head;
-    ici_array_t *       c_q;
-    long                c_capacity;
-    ici_obj_t *         c_altobj;
-}
-channel_t;
-
-#define channelof(o) ((channel_t *)(o))
-#define ischannel(o) (ici_typeof(o) == &channel_type)
+#include "channel.h"
 
 static unsigned long
 mark_channel(ici_obj_t *o)
 {
-    unsigned long mem = sizeof (channel_t);
+    unsigned long mem = sizeof (ici_channel_t);
     o->o_flags |= ICI_O_MARK;
     mem += ici_mark(ici_objwsupof(o)->o_super);
-    mem += ici_mark(channelof(o)->c_q);
-    if (channelof(o)->c_altobj != NULL)
-	mem += ici_mark(channelof(o)->c_altobj);
+    mem += ici_mark(ici_channelof(o)->c_q);
+    if (ici_channelof(o)->c_altobj != NULL)
+	mem += ici_mark(ici_channelof(o)->c_altobj);
     return mem;
 }
 
 static void
 free_channel(ici_obj_t *o)
 {
-    ici_tfree(o, channel_t);
+    ici_tfree(o, ici_channel_t);
 }
 
 static int
@@ -120,7 +107,7 @@ fetch_base_channel(ici_obj_t *o, ici_obj_t *k)
     return ici_fetch(ici_objwsupof(o)->o_super, k);
 }
 
-static ici_type_t channel_type =
+ici_type_t ici_channel_type =
 {
     mark_channel,
     free_channel,
@@ -141,7 +128,7 @@ static ici_type_t channel_type =
 
 
 /*
- * channel = channel:new([capacity])
+ * channel = channel([capacity])
  *
  * Create a new channel with the given capacity. If the capacity
  * is not given it defaults to one, if it is given it must be a
@@ -150,57 +137,55 @@ static ici_type_t channel_type =
  * This --topic-- forms part of the --ici-channel-- documentation.
  */
 static int
-channel_new(ici_objwsup_t *klass)
+f_channel(void)
 {
-    long capacity = 1;
-    channel_t *chan;
+    long                capacity = 0;
+    ici_channel_t       *chan;
 
-    if (ici_method_check(ici_objof(klass), 0))
-        return 1;
     if (ICI_NARGS() != 0)
     {
         if (ici_typecheck("i", &capacity))
             return 1;
-        if (capacity < 1)
+        if (capacity < 0)
         {
-            ici_error = "channel capacity must be a positive value";
+            ici_error = "channel capacity must be non-negative";
             return 1;
         }
     }
-    chan = ici_nalloc(sizeof (channel_t));
-    // chan = ici_talloc(channel_t);
+    // chan = ici_nalloc(sizeof (ici_channel_t));
+    chan = ici_talloc(ici_channel_t);
     if (chan == NULL)
         return 1;
-    if ((chan->c_q = ici_array_new(capacity)) == NULL)
+    if ((chan->c_q = ici_array_new(capacity ? capacity : 1)) == NULL)
     {
-        ici_tfree(chan, channel_t);
+        ici_tfree(chan, ici_channel_t);
         return 1;
     }
-    ICI_OBJ_SET_TFNZ(chan, channel_tcode, ICI_O_SUPER, 1, 0);
-    chan->o_head.o_super = channel_class;
+    ICI_OBJ_SET_TFNZ(chan, ICI_TC_CHANNEL, ICI_O_SUPER, 1, 0);
     chan->c_capacity = capacity;
     chan->c_altobj = NULL;
     ici_rego(chan);
     return ici_ret_with_decref(ici_objof(chan));
 }
 
-/* 
- * any = channel:get()
- *
+/*
+ * any = get(channel)
+ * 
  * Return the next object from the channel.  If there are no objects
  * in the channel the caller is blocked until an object is available.
- *
- * This --topic-- forms part of the --ici-channel-- documentation.
  */
 static int
-channel_get(ici_objwsup_t *inst)
+f_get(void)
 {
+    ici_obj_t *c;
     ici_obj_t *o;
     ici_array_t *q;
 
-    if (ici_method_check(ici_objof(inst), channel_tcode))
+    if (ici_typecheck("o", &c))
         return 1;
-    q = channelof(inst)->c_q;
+    if (!ici_ischannel(c))
+        return ici_argerror(0);
+    q = ici_channelof(c)->c_q;
     while (ici_array_nels(q) < 1)
     {
         if (ici_waitfor(ici_objof(q)))
@@ -208,13 +193,13 @@ channel_get(ici_objwsup_t *inst)
     }
     o = ici_array_rpop(q);
     ici_wakeup(ici_objof(q));
-    if (channelof(inst)->c_altobj != NULL)
-	ici_wakeup(channelof(inst)->c_altobj);
+    if (ici_channelof(c)->c_altobj != NULL)
+	ici_wakeup(ici_channelof(c)->c_altobj);
     return ici_ret_no_decref(o);
 }
 
 /*
- * channel:put(any)
+ * put(channel, any)
  *
  * Write an object to a channel.  If the channel has space for the
  * object the object is placed in the channel and the caller continues
@@ -225,79 +210,43 @@ channel_get(ici_objwsup_t *inst)
  * This --topic-- forms part of the --ici-channel-- documentation.
  */
 static int
-channel_put(ici_objwsup_t *inst)
+f_put(ici_objwsup_t *inst)
 {
+    ici_obj_t *c;
     ici_obj_t *o;
     ici_array_t *q;
 
-    if (ici_method_check(ici_objof(inst), channel_tcode))
+    if (ici_typecheck("oo", &c, &o))
         return 1;
-    if (ici_typecheck("o", &o))
+    if (!ici_ischannel(c))
         return 1;
-    q = channelof(inst)->c_q;
-    while (ici_array_nels(q) >= channelof(inst)->c_capacity)
+    q = ici_channelof(c)->c_q;
+
+    // unbuffered
+    if (ici_channelof(c)->c_capacity == 0)
     {
-        if (ici_waitfor(ici_objof(q)))
-            return 1;
+        while (ici_array_nels(q) > 0)
+        {
+            if (ici_waitfor(ici_objof(q)))
+                return 1;
+        }
+    }
+    else
+    {
+        while (ici_array_nels(q) >= ici_channelof(c)->c_capacity)
+        {
+            if (ici_waitfor(ici_objof(q)))
+                return 1;
+        }
     }
     ici_array_push(q, o);
     ici_wakeup(ici_objof(q));
-    if (channelof(inst)->c_altobj != NULL)
-	ici_wakeup(channelof(inst)->c_altobj);
+    if (ici_channelof(c)->c_altobj != NULL)
+	ici_wakeup(ici_channelof(c)->c_altobj);
     return ici_null_ret();
 }
 
-/*
- * int = channel:capacity()
- *
- * Return the capacity of a channel, the number of objects
- * thay may be queueud within a channel.
- *
- * This --topic-- forms part of the --ici-channel-- documentation.
- */
-static int
-channel_capacity(ici_objwsup_t *inst)
-{
-    if (ici_method_check(ici_objof(inst), channel_tcode))
-        return 1;
-    return ici_int_ret(channelof(inst)->c_capacity);
-}
-
-/*
- * int = channel:queued()
- *
- * Return the number of objects queued on a channel, the number
- * of objects that may be "gotten" without blocking.
- *
- * This --topic-- forms part of the --ici-channel-- documentation.
- */
-static int
-channel_queued(ici_objwsup_t *inst)
-{
-    if (ici_method_check(ici_objof(inst), channel_tcode))
-        return 1;
-    return ici_int_ret(ici_array_nels(channelof(inst)->c_q));
-}
-
-/*
- * int = channel:space()
- *
- * Return the space available within a channel - the number of objects
- * that may be "put" into before the sending thread will block.
- *
- * This is "racy" in that the space available may increase after
- * this function returns.
- *
- * This --topic-- forms part of the --ici-channel-- documentation.
- */
-static int
-channel_space(ici_objwsup_t *inst)
-{
-    if (ici_method_check(ici_objof(inst), channel_tcode))
-        return 1;
-    return ici_int_ret(channelof(inst)->c_capacity - ici_array_nels(channelof(inst)->c_q));
-}
-
+//================================================================
 
 static int
 alt_setup(ici_array_t *alts, ici_obj_t *obj)
@@ -308,10 +257,10 @@ alt_setup(ici_array_t *alts, ici_obj_t *obj)
     for (i = 0; i < n; ++i)
     {
 	ici_obj_t *o = ici_array_get(alts, i);
-        channel_t *chan;
-	if (ischannel(o))
+        ici_channel_t *chan;
+	if (ici_ischannel(o))
 	{
-	    chan = channelof(o);
+	    chan = ici_channelof(o);
 	    chan->c_altobj = obj;
 	}
 	else if (!ici_isnull(o))
@@ -333,25 +282,24 @@ alt(ici_array_t *alts)
     for (i = 0; i < n && idx == -1; ++i)
     {
 	ici_obj_t *o = ici_array_get(alts, i);
-	if (ischannel(o) && ici_array_nels(channelof(o)->c_q) > 0)
+	if (ici_ischannel(o) && ici_array_nels(ici_channelof(o)->c_q) > 0)
 	    idx = i;
     }
     return idx;
 }
 
 /*
- * int = channel.alt(array)
+ * int = alt(array)
  *
  * Determine which of a collection of channels is ready to perform I/O
  * and returns its index within that collection (allowing the I/O to
  * be performed).
  */
 static int
-channel_alt(ici_objwsup_t *ign)
+f_alt(void)
 {
     int idx;
     ici_array_t *alts;
-    (void)ign;
 
     if (ici_typecheck("a", &alts))
         return 1;
@@ -366,29 +314,11 @@ channel_alt(ici_objwsup_t *ign)
     return ici_int_ret(idx);
 }
 
-static ici_cfunc_t channel_cfuncs[] =
+ICI_DEFINE_CFUNCS(channel)
 {
-    {ICI_CF_OBJ, "new", channel_new},
-    {ICI_CF_OBJ, "get", channel_get},
-    {ICI_CF_OBJ, "put", channel_put},
-    {ICI_CF_OBJ, "capacity", channel_capacity},
-    {ICI_CF_OBJ, "queued", channel_queued},
-    {ICI_CF_OBJ, "alt", channel_alt},
-    {ICI_CF_OBJ, "space", channel_space},
+    ICI_DEFINE_CFUNC(channel,   f_channel),
+    ICI_DEFINE_CFUNC(get,       f_get),
+    ICI_DEFINE_CFUNC(put,       f_put),
+    ICI_DEFINE_CFUNC(alt,       f_alt),
     {ICI_CF_OBJ}
 };
-
-ici_obj_t *
-anici_channel_init(void)
-{
-    if (ici_interface_check(ICI_VER, ICI_BACK_COMPAT_VER, "channel"))
-        return NULL;
-    if (init_ici_str())
-        return NULL;
-    if ((channel_tcode = ici_register_type(&channel_type)) == 0)
-        return NULL;
-    if ((channel_class = ici_class_new(channel_cfuncs, NULL)) == NULL)
-        return NULL;
-    /* ici_decref(channel_class); */
-    return ici_objof(channel_class);
-}

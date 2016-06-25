@@ -24,6 +24,7 @@
 #include "parse.h"
 #include "mem.h"
 #include "handle.h"
+#include "channel.h"
 #include "pcre/pcre.h"
 
 #include <stdio.h>
@@ -902,6 +903,8 @@ f_nels()
         size = ici_setof(o)->s_nels;
     else if (ici_ismem(o))
         size = ici_memof(o)->m_length;
+    else if (ici_ischannel(o))
+        size = ici_channelof(o)->c_capacity;
     else
         size = 1;
     return ici_int_ret(size);
@@ -3569,7 +3572,7 @@ f_tmpname()
 }
 
 static int
-f_put()
+f_puts()
 {
     ici_str_t  *s;
     ici_file_t *f;
@@ -4308,7 +4311,7 @@ ICI_DEFINE_CFUNCS(std)
     ICI_DEFINE_CFUNC(fopen,     f_fopen),
     ICI_DEFINE_CFUNC(_popen,    f_popen),
     ICI_DEFINE_CFUNC(tmpname,   f_tmpname),
-    ICI_DEFINE_CFUNC(put,       f_put),
+    ICI_DEFINE_CFUNC(puts,      f_puts),
     ICI_DEFINE_CFUNC(flush,     f_fflush),
     ICI_DEFINE_CFUNC(close,     f_fclose),
     ICI_DEFINE_CFUNC(seek,      f_fseek),

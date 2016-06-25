@@ -1,24 +1,19 @@
-#
-# This bsd specific makefile was automatically created by
-# processing Makefile.bsd to get channel/Makefile.
-#
-# See the comments in configure for details.
-#
-PREFIX	= /usr/local
-MOD	= channel
-CFLAGS	= -DBSD_4 -g -O2 -DNDEBUG -Wall -I. -I/usr/local/include -fPIC
-LDFLAGS = -shared
+NAME	= channel
+CFLAGS	= -I../.. -I. -mmacosx-version-min=10.6
+LDFLAGS = -macosx_version_min 10.6
 OBJS	= channel.o 
 C_SRC	= channel.c 
 ALL_SRC	= $(C_SRC) 
-ICIMOD	= ici4channel.so
-LIBS	= 
+ICIMOD	= anici-channel.bundle
+LIBS	= -L../.. -lanici -lSystem
 LIBINSTALLS = $(ICIMOD) 
 
 default: $(ICIMOD)
 
 $(ICIMOD): $(OBJS)
-	$(CC) -o $@ $(OBJS) $(LIBS) $(LDFLAGS) 
+	libtool -dynamic -o $@ $(LDFLAGS) $(OBJS) $(LIBS)
+
+#	$(CC) -o $@ $(OBJS) $(LIBS) $(LDFLAGS) 
 
 doc: ici$(MOD).1 ici$(MOD).html $(MOD).man.frag $(MOD).synopsis
 

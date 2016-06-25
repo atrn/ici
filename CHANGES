@@ -1,7 +1,13 @@
 Major Changes in Version 5
 
-*    remove trace, never used and better done via an improved
-     debugging interface
+*    added channel module to core, converting class-based
+     approach to a function-based interface.
+
+*    renamed existng put() builtin to puts()
+
+*    removed tracing, it was never used and is better done
+     via an improved debugging interface. I wrote it. I
+     can kill it.
 
 *    merged the clib.c source into cfunc.c
 

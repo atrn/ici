@@ -1,17 +1,2 @@
 This file documents platform specific features or mis-features.
 
-* FreeBSD
-
-To have "make depend" work correctly bsd.prog.mk requires the Makefile be
-called "Makefile" (or "makefile").  Either link, copy or rename Makefile.bsd
-as appropriate (a link is the preferred method).
-
-
-* Linux
-
-* Solaris
-
-flock() is not supported as it is a BSD-thing and only provided by
-the SunOS 4.x compatibility libraries.
-
-* Windows

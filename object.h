@@ -577,7 +577,8 @@ struct ici_objwsup
 #define ICI_TC_REF          26
 #define ICI_TC_RESTORER     27
 #define ICI_TC_SAVER        28
-#define ICI_TC_MAX_CORE     28
+#define ICI_TC_CHANNEL      29
+#define ICI_TC_MAX_CORE     29
 
 #define ICI_TRI(a,b,t)      (((((a) << 4) + b) << 6) + t_subtype(t))
 

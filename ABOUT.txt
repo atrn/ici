@@ -1,19 +1,19 @@
 * anici
 
-anici is a heavily a modified version of Tim Long's ICI language.
+anici is a modified version of Tim Long's ICI language.
 
-See the CHANGES file for full details, in summary anici,
+See the CHANGES file for the full details.
 
 - changes some keywords for aesthetic reasons
 - adds object serialization (save/restore) as standard
+- adds the channel type as standard
 
 And as part of this anici is,
 
 - 64-bit safe
 
-And plans,
 
-- UTF-8 encoded strings
+
 
 
 
