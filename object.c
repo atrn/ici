@@ -586,47 +586,6 @@ ici_rego_work(ici_obj_t *o)
     ici_grow_objs(o);
 }
 
-#if 0
-static inline int
-is_new(ici_obj_t *o)
-{
-    return (o->o_flags & ICI_O_OLD) == 0;
-}
-
-static inline int
-is_marked(ici_obj_t *o)
-{
-    return (o->o_flags & ICI_O_MARK) != 0;
-}
-
-static void
-sweep(void)
-{
-    ici_obj_t  **a;
-    ici_obj_t  *o;
-    ici_obj_t  **b;
-
-    for (a = b = ici_objs; a < ici_objs_top; ++a)
-    {
-	o = *a;
-	if (!is_marked(o))
-	{
-	    if ((o->o_flags & ICI_O_ATOM) == 0 || unatom(o) == 0)
-	    {
-		freeo(o);
-            }
-            else
-            {
-                o->o_flags &= ~ICI_O_MARK;
-		o->o_flags |= ICI_O_OLD;
-                *b++ = o;
-            }
-        }
-        ici_objs_top = b;
-    }
-}
-#endif
-
 /*
  * Mark sweep garbage collection.  Should be safe to do any time, as new
  * objects are created without the nrefs == 0 which allows them to be
