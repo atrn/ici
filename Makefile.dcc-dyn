@@ -2,16 +2,15 @@
 
 .PHONY: exe lib clean
 
-CFLAGS= -DNDEBUG -Os -I. -Imacos
 SRCS=   *.c macos/*.c pcre/*.c
 OBJS=	$(SRCS:.c=.o)
 
 exe: lib
-	@dcc $(CFLAGS) main.o -o anici -L. -lanici &&\
+	@dcc main.o -o anici -L. -lanici &&\
 	    ./anici mk-ici-h.ici conf/macos.h
 
 lib:
-	@dcc $(CFLAGS) -fPIC -c $(SRCS) &&\
+	@dcc -fPIC -c $(SRCS) &&\
 	    libtool -dynamic -o libanici.dylib \
                 -macosx_version_min 10.12\
                 -framework System \

@@ -15,7 +15,7 @@ memoized(f)
 {
     return [func ()
     {
-	auto vargs = [array];
+	var vargs = [array];
 	return memoize(f, vargs);
     }];
 }

@@ -2,12 +2,11 @@
 
 .PHONY: all clean
 
-CFLAGS= -DNDEBUG -Os -I. -Imacos
 SRCS=   *.c macos/*.c pcre/*.c
 OBJS=	$(SRCS:.c=.o)
 
 all:
-	@dcc $(CFLAGS) $(SRCS) -o anici &&\
+	@dcc $(SRCS) -o anici &&\
 	    ./anici mk-ici-h.ici conf/macos.h
 
 clean:

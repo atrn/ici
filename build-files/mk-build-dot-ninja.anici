@@ -1,0 +1,14 @@
+argc < 2 && exit("usage: mk-build-dot-ninja filename [filenames...]");
+local echo(s) { printf(" %s", s); }
+local cat(filename) { printf("%s", getfile(filename)); }
+local obj(filename) { return sub(filename, #\.c$#, ".o"); }
+local emitcc(filename) { printf("build %s: cc %s\n", obj(filename), filename); }
+sources := gettokens(fopen("common-files"), "\n", "") + interval(argv, 2);
+objects := map(sources, obj);
+cat(argv[1]);
+cat("rules");
+apply(emitcc, sources);
+printf("build anici: ld");
+apply(echo, objects);
+printf("\n");
+printf("default anici\n");

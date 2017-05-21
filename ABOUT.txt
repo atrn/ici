@@ -1,18 +1,25 @@
 * anici
 
-anici is a modified version of Tim Long's ICI language.
+This is anici, a modified version of Tim Long's ICI language.
 
-See the CHANGES file for the full details.
+See the CHANGES file for the full details of the changes but
+in summary anici is ICI with, or without, the following:
 
 - changes some keywords for aesthetic reasons
-- adds object serialization (save/restore) as standard
-- adds the channel type as standard
+- incorporates various modules as standard parts of
+  the environment:
+
+  str           extra string functions
+  path
+  sys
+  net
+  channel
+  archive
+  errno
 
 And as part of this anici is,
 
 - 64-bit safe
-
-
 
 
 
