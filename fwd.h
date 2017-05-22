@@ -103,7 +103,7 @@
  *
  * This --macro-- forms part of the --ici-api--.
  */
-#define ICI_BACK_COMPAT_VER ((5UL << 24) | (0UL << 16) | 3)
+#define ICI_BACK_COMPAT_VER ((5UL << 24) | (0UL << 16) | 0)
 
 /*
  * DLI is defined in some configurations (Windows, in the conf include file)

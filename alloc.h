@@ -41,7 +41,7 @@ extern void             ici_free(void *);
  *
  * This --macro-- forms part of the --ici-api--.
  */
-#define ici_talloc(t)   (((t)*)(ici_nalloc(sizeof(t))))
+#define ici_talloc(t)   ((t *)(ici_nalloc(sizeof(t))))
 
 /*
  * Free the object 'o' which was allocated by a call to 'ici_talloc()' with

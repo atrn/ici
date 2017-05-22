@@ -12,7 +12,7 @@
 #ifndef PREFIX
 #define PREFIX          "/opt/anici/"
 #endif
-#define ICI_DLL_EXT     ".bundle"
+#define ICI_DLL_EXT     ".dylib"
 #define ICI_USE_POSIX_THREADS
 #define sem_t ici_sem_t
 #define sem_init ici_sem_init

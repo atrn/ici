@@ -1,1 +1,4 @@
--DNDEBUG -Ofast -Oz -I. -Imacos
+-DNDEBUG
+-I. -Imacos
+# fast and z seem to work best
+-Ofast -Oz

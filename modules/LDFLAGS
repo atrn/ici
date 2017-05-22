@@ -1,0 +1,3 @@
+-L../..
+-lanici
+-framework System -macosx_version_min 10.12

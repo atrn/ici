@@ -1,11 +1,7 @@
 /*.o
 /**/*.o
 /fwd.h.gch
-/.depend
 /anici
-/ici.h
-/.ninja*
 /anici.h
-/libanici.dylib
-/modules/channel/anici-channel.bundle
+*.dylib
 /.dcc/

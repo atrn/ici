@@ -207,7 +207,7 @@ ici_interface_check(unsigned long mver, unsigned long bver, char const *name)
     }
     return ici_set_error
     (
-        "%s module was built for ICI %d.%d.%d, which is incompatible with this version %d.%d.%d",
+        "%s module was built for ANICI %d.%d.%d, which is incompatible with this version %d.%d.%d",
         name,
         (int)(mver >> 24),
         (int)(mver >> 16) & 0xFF,

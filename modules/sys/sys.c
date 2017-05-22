@@ -19,9 +19,9 @@
  * This --intro-- and --synopsis-- are part of --ici-sys-- documentation.
  */
 
-#include <ici.h>
+#include <anici.h>
 #include "icistr.h"
-#include <icistr-setup.h>
+#include <anicistr-setup.h>
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -194,7 +194,7 @@
  * Create pre-defined variables to replace C's #define's.
  */
 int
-ici_sys_vars_init(objwsup_t *scp)
+ici_sys_vars_init(ici_objwsup_t *scp)
 {
     int         i;
 
@@ -426,8 +426,8 @@ static int ici_sys_fdopen()
 static int ici_sys_close()
 {
     int                 rc;
-    object_t            *fd0;
-    object_t            *fd1;
+    ici_obj_t            *fd0;
+    ici_obj_t            *fd1;
 
     if (ICI_NARGS() != 1)
         return ici_argcount(1);
@@ -435,7 +435,7 @@ static int ici_sys_close()
         rc = close(ici_intof(ICI_ARG(0))->i_value);
     else if (ici_isarray(ICI_ARG(0)))
     {
-        array_t *a = ici_arrayof(ICI_ARG(0));
+        ici_array_t *a = ici_arrayof(ICI_ARG(0));
 
         if
         (
@@ -464,9 +464,9 @@ static int ici_sys_close()
 /* Convert a struct to a struct flock for fcntl's F_SETLK */
 
 static int
-struct_to_flock(struct_t *d, struct flock *flock)
+struct_to_flock(ici_struct_t *d, struct flock *flock)
 {
-    object_t    *o;
+    ici_obj_t    *o;
 
     if ((o = ici_fetch(d, ICISO(start))) == ici_null)
         flock->l_start = 0;
@@ -558,8 +558,8 @@ static int ici_sys_fcntl()
     return not_on_win32("fcntl");
 #else
     long        fd;
-    string_t    *what;
-    object_t    *arg;
+    ici_str_t    *what;
+    ici_obj_t    *arg;
     int         iarg;
     int         iwhat;
     int         r;
@@ -652,30 +652,6 @@ static int ici_sys_fileno()
 }
 
 /*
- * sys.setlinebuf(file)
- *
- * Set line buffering mode as per 'setlinebuf(3)' of a file that uses
- * stdio as its underlying implementation (which includes files opened
- * with 'fopen'. Other file types are ignored.
- *
- * Not supported on Win32 or Cygwin.
- *
- * This --topic-- forms part of the --ici-sys-- documentation.
- */
-#if !defined(_WIN32) && !defined(__CYGWIN__)
-static int ici_sys_setlinebuf()
-{
-    ici_file_t      *file;
-
-    if (ici_typecheck("u", &file))
-        return 1;
-    if (file->f_type->ft_getch == fgetc)
-        setlinebuf((FILE *)file->f_file);
-    return ici_null_ret();
-}
-#endif /* _WIN32, CYGWIN */
-
-/*
  * sys.mkdir(pathname, int)
  *
  * Create a directory with the specified mode.  Supported on Win32 platforms.
@@ -743,7 +719,7 @@ static int ici_sys_read()
 {
     long        fd;
     long        len;
-    string_t    *s;
+    ici_str_t    *s;
     int         r;
     char        *msg;
 
@@ -785,7 +761,7 @@ static int ici_sys_read()
 static int ici_sys_write()
 {
     long        fd;
-    object_t    *o;
+    ici_obj_t    *o;
     char        *addr;
     long        sz;
     int         havesz = 0;
@@ -892,10 +868,10 @@ static int ici_sys_readlink()
  */
 static int ici_sys_stat()
 {
-    object_t    *o;
+    ici_obj_t    *o;
     struct stat statb;
     int         rc;
-    struct_t    *s;
+    ici_struct_t    *s;
 
     if (ICI_NARGS() != 1)
         return ici_argcount(1);
@@ -960,10 +936,10 @@ fail:
  */
 static int ici_sys_lstat()
 {
-    object_t    *o;
+    ici_obj_t    *o;
     struct stat statb;
     int         rc;
-    struct_t    *s;
+    ici_struct_t    *s;
 
     if (ICI_NARGS() != 1)
         return ici_argcount(1);
@@ -1026,7 +1002,7 @@ fail:
 static int ici_sys_ctime()
 {
     time_t      timev;
-    string_t    *s;
+    ici_str_t    *s;
 
     if (ici_typecheck("i", &timev) || (s = ici_str_new_nul_term(ctime(&timev))) == NULL)
         return 1;
@@ -1051,10 +1027,10 @@ static int ici_sys_time()
 #ifndef _WIN32
 
 static int
-assign_timeval(struct_t *s, string_t *k, struct timeval *tv)
+assign_timeval(ici_struct_t *s, ici_str_t *k, struct timeval *tv)
 {
-    struct_t    *ss;
-    int_t       *i;
+    ici_struct_t    *ss;
+    ici_int_t       *i;
 
     if (k == NULL)
         ss = s;
@@ -1109,9 +1085,9 @@ fail:
 static int ici_sys_getitimer()
 {
     long                which = ITIMER_VIRTUAL;
-    struct_t            *s;
+    ici_struct_t            *s;
     struct itimerval    value;
-    object_t            *o;
+    ici_obj_t            *o;
 
     if (ICI_NARGS() != 0)
     {
@@ -1146,9 +1122,9 @@ static int ici_sys_getitimer()
 }
 
 static int
-fetch_timeval(object_t *s, struct timeval *tv)
+fetch_timeval(ici_obj_t *s, struct timeval *tv)
 {
-    object_t    *o;
+    ici_obj_t    *o;
 
     if (!ici_isstruct(s))
         return 1;
@@ -1182,10 +1158,10 @@ fetch_timeval(object_t *s, struct timeval *tv)
 static int ici_sys_setitimer()
 {
     long                which = ITIMER_VIRTUAL;
-    struct_t            *s;
+    ici_struct_t            *s;
     struct itimerval    value;
     struct itimerval    ovalue;
-    object_t            *o;
+    ici_obj_t            *o;
 
     if (ICI_NARGS() == 1)
     {
@@ -1246,7 +1222,7 @@ invalid_itimerval:
  */
 static int ici_sys_gettimeofday()
 {
-    struct_t            *s;
+    ici_struct_t            *s;
     struct timeval      tv;
 
     if (gettimeofday(&tv, NULL) == -1)
@@ -1312,8 +1288,8 @@ static int ici_sys_pipe()
     return not_on_win32("pipe");
 #else
     int         pfd[2];
-    array_t     *a;
-    int_t       *fd;
+    ici_array_t     *a;
+    ici_int_t       *fd;
 
     if ((a = ici_array_new(2)) == NULL)
         return 1;
@@ -1424,7 +1400,7 @@ static int ici_sys_exec()
     char        **argv;
     int         maxargv;
     int         n;
-    object_t    **o;
+    ici_obj_t    **o;
     char        *path;
     int         argc;
 
@@ -1474,8 +1450,8 @@ static int ici_sys_exec()
         return ici_argerror(0);
     else
     {
-        object_t **p;
-        array_t *a;
+        ici_obj_t **p;
+        ici_array_t *a;
 
         a = ici_arrayof(*o);
         for (p = ici_astart(a); p < ici_alimit(a); p = ici_anext(a, p))
@@ -1522,7 +1498,7 @@ static int ici_sys_spawn()
     char        **argv;
     int         maxargv;
     int         n;
-    object_t    **o;
+    ici_obj_t    **o;
     char        *path;
     int         argc;
     int         mode = _P_NOWAIT;
@@ -1583,8 +1559,8 @@ static int ici_sys_spawn()
         return ici_argerror(0);
     else
     {
-        object_t **p;
-        array_t *a;
+        ici_obj_t **p;
+        ici_array_t *a;
 
         a = arrayof(*o);
         for (p = ici_astart(a); p < ici_alimit(a); p = ici_anext(a, p))
@@ -1650,8 +1626,8 @@ static int ici_sys_wait()
     return not_on_win32("wait");
 #else
     int         pid;
-    struct_t    *s;
-    int_t       *i;
+    ici_struct_t    *s;
+    ici_int_t       *i;
 
 #if NeXT
     union wait  status;
@@ -1693,7 +1669,7 @@ fail:
 
 #ifndef _WIN32
 
-static struct_t *password_struct(struct passwd *);
+static ici_struct_t *password_struct(struct passwd *);
 
 /*
  * struct|array = sys.passwd([int | string])
@@ -1729,7 +1705,7 @@ static struct_t *password_struct(struct passwd *);
 static int ici_sys_passwd()
 {
     struct passwd       *pwent;
-    array_t             *a;
+    ici_array_t             *a;
 
     switch (ICI_NARGS())
     {
@@ -1756,7 +1732,7 @@ static int ici_sys_passwd()
     setpwent();
     while ((pwent = getpwent()) != NULL)
     {
-        struct_t        *s;
+        ici_struct_t        *s;
 
         if (ici_stk_push_chk(a, 1) || (s = password_struct(pwent)) == NULL)
         {
@@ -1769,11 +1745,11 @@ static int ici_sys_passwd()
     return ici_ret_with_decref(ici_objof(a));
 }
 
-static struct_t *
+static ici_struct_t *
 password_struct(struct passwd *pwent)
 {
-    struct_t    *d;
-    object_t    *o;
+    ici_struct_t    *d;
+    ici_obj_t    *o;
 
     if (pwent == NULL)
         return NULL;
@@ -1965,7 +1941,7 @@ static int ici_sys_truncate()
 #ifndef _WIN32
 
 static int
-string_to_resource(object_t *what)
+string_to_resource(ici_obj_t *what)
 {
     if (what == ICISO(core))
         return RLIMIT_CORE;
@@ -2041,11 +2017,11 @@ string_to_resource(object_t *what)
  */
 static int ici_sys_getrlimit()
 {
-    object_t            *what;
+    ici_obj_t            *what;
     int                 resource;
     struct rlimit       rlimit;
-    struct_t            *limit;
-    int_t               *iv;
+    ici_struct_t            *limit;
+    ici_int_t               *iv;
 
     if (ici_typecheck("o", &what))
         return 1;
@@ -2100,11 +2076,11 @@ fail:
  */
 static int ici_sys_setrlimit()
 {
-    object_t            *what;
-    object_t            *value;
+    ici_obj_t            *what;
+    ici_obj_t            *value;
     struct rlimit       rlimit;
     int                 resource;
-    object_t            *iv;
+    ici_obj_t            *iv;
 
     if (ici_typecheck("oo", &what, &value))
         return 1;
@@ -2206,7 +2182,7 @@ static int ici_sys_usleep()
 
 #endif /* #ifndef _WIN32 */
 
-static cfunc_t ici_sys_cfuncs[] =
+static ici_cfunc_t ici_sys_cfuncs[] =
 {
     /* utime */
     {ICI_CF_OBJ, "access",  ici_sys_access},
@@ -2506,9 +2482,6 @@ static cfunc_t ici_sys_cfuncs[] =
              */
             {ICI_CF_OBJ, "acct",    ici_sys_simple, acct,   "s"},
 #       endif
-#       if !defined(__CYGWIN__)
-            {ICI_CF_OBJ, "setlinebuf", ici_sys_setlinebuf},
-#       endif
 #       ifndef ICI_SYS_NOFLOCK
             {ICI_CF_OBJ, "flock",   ici_sys_flock},
 #       endif
@@ -2539,10 +2512,10 @@ static cfunc_t ici_sys_cfuncs[] =
     {ICI_CF_OBJ}
 };
 
-object_t *
-ici_sys_library_init(void)
+ici_obj_t *
+anici_sys_init(void)
 {
-    objwsup_t           *sys;
+    ici_objwsup_t           *sys;
 
     if (ici_interface_check(ICI_VER, ICI_BACK_COMPAT_VER, "sys"))
         return NULL;
