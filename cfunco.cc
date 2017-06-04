@@ -65,7 +65,7 @@ free_cfunc(ici_obj_t *o)
  * refernce of 1.
  */
 ici_cfunc_t *
-ici_cfunc_new(const char *name, int (*func)(), void *arg1, void *arg2)
+ici_cfunc_new(const char *name, int (*func)(...), void *arg1, void *arg2)
 {
     ici_cfunc_t         *cf;
 

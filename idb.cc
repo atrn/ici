@@ -56,7 +56,7 @@ ici_debug_respect_errors(void)
  * debugging.
  */
 static int
-f_debug(void)
+f_debug(...)
 {
     long        v, t;
 

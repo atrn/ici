@@ -77,7 +77,7 @@ static void crc32c_init_sw(void)
    as is the case on Intel processors that the assembler code here is for. */
 static uint32_t crc32c_sw(uint32_t crci, const void *buf, size_t len)
 {
-    const unsigned char *next = buf;
+    const unsigned char *next = (const unsigned char *)buf;
     uint64_t crc;
 
     pthread_once(&crc32c_once_sw, crc32c_init_sw);
@@ -224,7 +224,7 @@ static void crc32c_init_hw(void)
 /* Compute CRC-32C using the Intel hardware instruction. */
 static uint32_t crc32c_hw(uint32_t crc, const void *buf, size_t len)
 {
-    const unsigned char *next = buf;
+    const unsigned char *next = (const unsigned char *)buf;
     const unsigned char *end;
     uint64_t crc0, crc1, crc2;      /* need to be 64 bits for crc32q */
 

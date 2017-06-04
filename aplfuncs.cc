@@ -185,7 +185,7 @@ buildxx(ici_obj_t **r, ici_obj_t **dnext, struct context *c)
 }
 
 static int
-f_build()
+f_build(...)
 {
     ici_obj_t           **dstart;
     int                 i;

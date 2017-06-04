@@ -16,7 +16,7 @@
 #include "pcre/pcre.h"
 
 static int
-f_regexp()
+f_regexp(...)
 {
     int opts = 0;
 
@@ -392,7 +392,7 @@ do_sub(ici_str_t *str, ici_regexp_t *re, char *repl, int *ofs)
 #undef END
 
 static int
-f_sub()
+f_sub(...)
 {
     ici_obj_t   *str;
     ici_obj_t   *o;
@@ -432,7 +432,7 @@ f_sub()
 }
 
 static int
-f_gsub()
+f_gsub(...)
 {
     ici_str_t   *str;
     ici_regexp_t    *re;
@@ -558,7 +558,7 @@ ici_regexp_t *ici_smash_default_re;
  * Implementation of the ICI smash() function.
  */
 static int
-f_smash()
+f_smash(...)
 {
     ici_str_t           *str;
     ici_regexp_t        *re;

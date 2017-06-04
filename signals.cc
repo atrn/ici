@@ -335,7 +335,7 @@ ici_signals_invoke_handlers(void)
  * that is to handle the single.
  */
 static int
-f_signal(void)
+f_signal(...)
 {
     ici_obj_t   *sigo;
     ici_obj_t   *handlero;
@@ -449,7 +449,7 @@ f_signal(void)
  * of checking signal numbers.
  */
 static int
-f_signam(void)
+f_signam(...)
 {
     long  signo;
     char  *nam;

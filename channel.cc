@@ -137,7 +137,7 @@ ici_type_t ici_channel_type =
  * This --topic-- forms part of the --ici-channel-- documentation.
  */
 static int
-f_channel(void)
+f_channel(...)
 {
     long                capacity = 0;
     ici_channel_t       *chan;
@@ -148,7 +148,7 @@ f_channel(void)
             return 1;
         if (capacity < 0)
         {
-            ici_error = "channel capacity must be non-negative";
+            ici_set_error("channel capacity must be non-negative");
             return 1;
         }
     }
@@ -175,7 +175,7 @@ f_channel(void)
  * in the channel the caller is blocked until an object is available.
  */
 static int
-f_get(void)
+f_get(...)
 {
     ici_obj_t *c;
     ici_obj_t *o;
@@ -210,7 +210,7 @@ f_get(void)
  * This --topic-- forms part of the --ici-channel-- documentation.
  */
 static int
-f_put(ici_objwsup_t *inst)
+f_put(...)
 {
     ici_obj_t *c;
     ici_obj_t *o;
@@ -265,7 +265,7 @@ alt_setup(ici_array_t *alts, ici_obj_t *obj)
 	}
 	else if (!ici_isnull(o))
 	{
-	    ici_error = "bad object in array passed to channel.alt";
+	    ici_set_error("bad object in array passed to channel.alt");
 	    return 1;
 	}
     }
@@ -296,7 +296,7 @@ alt(ici_array_t *alts)
  * be performed).
  */
 static int
-f_alt(void)
+f_alt(...)
 {
     int idx;
     ici_array_t *alts;

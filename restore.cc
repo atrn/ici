@@ -841,7 +841,7 @@ restore(ici_archive_t *ar)
 }
 
 int
-ici_archive_f_restore(void)
+ici_archive_f_restore(...)
 {
     ici_file_t *file;
     ici_archive_t *ar;

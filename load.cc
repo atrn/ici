@@ -78,7 +78,7 @@ ici_outermost_writeable_struct(void)
  * function.
  */
 static int
-f_load(void)
+f_load(...)
 {
     ici_str_t   *name;
     ici_obj_t   *result;

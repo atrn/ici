@@ -444,7 +444,7 @@ ici_archive_save(ici_archive_t *ar, ici_obj_t *obj)
  * This --topic-- forms part of the --ici-serialisation-- documentation.
  */
 int
-ici_archive_f_save(void)
+ici_archive_f_save(...)
 {
     ici_objwsup_t *scp = ici_structof(ici_vs.a_top[-1])->o_head.o_super;
     ici_file_t *file;

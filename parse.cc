@@ -2868,7 +2868,7 @@ f_rejectchar()
 
 ici_cfunc_t ici_parse_cfuncs[] =
 {
-    {ICI_CF_OBJ, (char *)SS(parseopen),   f_parseopen},
+    {ICI_CF_OBJ, (char *)SS(parseopen),    f_parseopen},
     {ICI_CF_OBJ, (char *)SS(parsetoken),   f_parsetoken},
     {ICI_CF_OBJ, (char *)SS(parsevalue),   f_parsevalue},
     {ICI_CF_OBJ, (char *)SS(tokenobj),     f_tokenobj},

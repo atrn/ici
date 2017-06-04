@@ -214,7 +214,7 @@ ici_profile_set_done_callback(void (*done)(ici_profilecall_t *))
  *              get at the data.
  */
 static int
-f_profile()
+f_profile(...)
 {
     char *outfile;
     assert(!ici_profile_active);

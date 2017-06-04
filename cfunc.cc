@@ -685,7 +685,7 @@ f_math()
     if (ici_typecheck((char *)ICI_CF_ARG2() + 2, &av[0], &av[1]))
         return 1;
     errno = 0;
-    r = (*(double (*)())ICI_CF_ARG1())(av[0], av[1]);
+    r = (*(double (*)(...))ICI_CF_ARG1())(av[0], av[1]);
     if (errno != 0)
     {
         sprintf(n2, "%g", av[0]);

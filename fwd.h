@@ -446,7 +446,7 @@ extern void             ici_drop_all_small_allocations(void);
 // extern void             ici_get_pc(ici_array_t *code, ici_obj_t **xs);
 extern ici_objwsup_t    *ici_outermost_writeable_struct(void);
 extern ici_code_t       *ici_code_new(ici_array_t *);
-extern ici_cfunc_t      *ici_cfunc_new(const char *, int (*)(), void *, void *);
+extern ici_cfunc_t      *ici_cfunc_new(const char *, int (*)(...), void *, void *);
 extern int              ici_str_char_at(ici_str_t *, int);
 
 extern ici_obj_t        **ici_objs;

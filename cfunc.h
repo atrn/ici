@@ -21,7 +21,7 @@ struct ici_cfunc
 {
     ici_obj_t   o_head;
     const char  *cf_name;
-    int         (*cf_cfunc)();
+    int         (*cf_cfunc)(...);
     void        *cf_arg1;
     void        *cf_arg2;
 };
