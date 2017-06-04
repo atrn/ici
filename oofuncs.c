@@ -94,7 +94,7 @@ m_respondsto(ici_obj_t *o)
     }
     if (ici_isfunc(v))
     {
-	return ici_ret_with_decref(ici_objof(ici_method_new(o, v)));
+        return ici_ret_with_decref(ici_objof(ici_method_new(o, v)));
     }
     return ici_null_ret();
 }
@@ -107,8 +107,8 @@ m_unknown_method(ici_obj_t *o)
 	return 1;
     if (ICI_NARGS() > 0 && ici_isstring(ICI_ARG(0)))
     {
-	ici_str_t *name = ici_stringof(ICI_ARG(0));
-	return ici_set_error("attempt to call unknown method \"%s\"", name->s_chars);
+        ici_str_t *name = ici_stringof(ICI_ARG(0));
+        return ici_set_error("attempt to call unknown method \"%s\"", name->s_chars);
     }
     return ici_set_error("attempt to call unknown method");
 }

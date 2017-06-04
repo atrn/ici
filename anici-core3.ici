@@ -34,7 +34,7 @@ max(v)
  * Raise an error for an incorrect argument argument passed to a function.
  * Mimics the interpreter's internal routine to do the same thing.
  */
-local
+export
 argerror(f, n, t)
 {
     fail(sprintf("argument %d of %s() incorrectly supplied as %s", n, f, t));
@@ -44,7 +44,7 @@ argerror(f, n, t)
  * Raise an error for an incorrect number of arguments to a function.
  * Mimics the interpreter's internal routine.
  */
-local
+export
 argcount(f, n, a)
 {
     fail(sprintf("%d arguments given to %s, but it takes %d", a, f, n));

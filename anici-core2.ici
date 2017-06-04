@@ -66,7 +66,7 @@ basename(path, ext)
  *                      no function is called for directories found during
  *                      the traversal.
  *
- *	error		The function called when a call to dir() raises an error.
+ *      error		The function called when a call to dir() raises an error.
  *
  *      file            The function to be called for each file found during
  *                      the traversal.  If not specified or NULL then no function
@@ -84,28 +84,28 @@ walk(directory, w)
     var vargs = [array];
 
     if (!(dirpattern := w.dirpattern))
-	dirpattern = #.*#;
+	    dirpattern = #.*#;
     if (!(filepattern := w.filepattern))
-	filepattern = #.*#;
+	    filepattern = #.*#;
 
     names := name := NULL;
     try
-	names := dir(directory, dirpattern, "d");
+    	names := dir(directory, dirpattern, "d");
     onerror
     {
-	if (w.error)
-	    w.error(directory, error, dirpattern, "d");
-	return;
+	    if (w.error)
+	        w.error(directory, error, dirpattern, "d");
+	    return;
     }
     forall (name in names)
     {
-	if (![set ".", ".."][name])
-	{
-	    fullname := pathjoin(directory, name);
-	    if (w.directory)
-		call(w.directory, array(fullname) + vargs);
-	    call(walk, array(fullname, w) + vargs);
-	}
+        if (![set ".", ".."][name])
+        {
+            fullname := pathjoin(directory, name);
+            if (w.directory)
+            call(w.directory, array(fullname) + vargs);
+            call(walk, array(fullname, w) + vargs);
+        }
     }
     if (w.file)
     {
@@ -114,7 +114,7 @@ walk(directory, w)
 	onerror
 	{
 	    if (w.error)
-		w.error(directory, error, filepattern, "f");
+            w.error(directory, error, filepattern, "f");
 	    return;
 	}
         forall (name in names)
@@ -147,7 +147,7 @@ pfopen(path, name, mode)
 }
 
 /*
- * Load a non=varload ICI module
+ * Load a non-var-loaded ICI module
  */
 export
 use()
@@ -158,7 +158,7 @@ use()
     var        err = NULL;
 
     if ((path = getenv("ANICIPATH")) == NULL)
-        path = ".:/usr/local/lib/ici4";
+        path = ".:/usr/local/lib/anici";
     scp = super(top(vstack(), -1));
     forall (fn in vargs)
     {

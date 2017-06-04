@@ -118,7 +118,7 @@ int             ici_atomsz;     /* Number of slots in hash table. */
 int             ici_natoms;     /* Number of atomic objects. */
 
 int             ici_supress_collect;
-int		ici_ncollects;	/* Number of ici_collect() calls */
+int		        ici_ncollects;	/* Number of ici_collect() calls */
 
 /*
  * Format a human readable version of the object 'o' into the buffer

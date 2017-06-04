@@ -144,7 +144,7 @@ free_exec(ici_obj_t *o)
 }
 
 /*
- * Return the object at key k of the obejct o, or NULL on error.
+ * Return the object at key k of the object o, or NULL on error.
  * See the comment on t_fetch in object.h.
  */
 static ici_obj_t *

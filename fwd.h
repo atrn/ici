@@ -348,14 +348,12 @@ extern ici_obj_t                *ici_eval(ici_str_t *);
 extern ici_obj_t                *ici_make_handle_member_map(ici_name_id_t *);
 extern int                      ici_parse_fname(const char *);
 extern ici_obj_t                **ici_array_find_slot(ici_array_t *, ptrdiff_t);
-
 extern ici_exec_t               *ici_leave(void);
 extern void                     ici_enter(ici_exec_t *);
 extern void                     ici_yield(void);
 extern int                      ici_waitfor(ici_obj_t *);
 extern int                      ici_wakeup(ici_obj_t *);
 extern int                      ici_init_thread_stuff(void);
-
 extern DLI int                  ici_debug_enabled;
 extern int                      ici_debug_ign_err;
 extern DLI void                 ici_debug_ignore_errors(void);
@@ -394,7 +392,6 @@ extern int                      ici_signals_blocking_syscall(int);
 
 typedef struct expr             expr_t;
 typedef union ici_ostemp        ici_ostemp_t;
-
 
 extern ici_obj_t        *ici_evaluate(ici_obj_t *, int);
 extern char             **ici_smash(char *, int);

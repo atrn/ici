@@ -242,7 +242,7 @@ f_put(ici_objwsup_t *inst)
     ici_array_push(q, o);
     ici_wakeup(ici_objof(q));
     if (ici_channelof(c)->c_altobj != NULL)
-	ici_wakeup(ici_channelof(c)->c_altobj);
+        ici_wakeup(ici_channelof(c)->c_altobj);
     return ici_null_ret();
 }
 
@@ -281,9 +281,9 @@ alt(ici_array_t *alts)
 
     for (i = 0; i < n && idx == -1; ++i)
     {
-	ici_obj_t *o = ici_array_get(alts, i);
-	if (ici_ischannel(o) && ici_array_nels(ici_channelof(o)->c_q) > 0)
-	    idx = i;
+        ici_obj_t *o = ici_array_get(alts, i);
+        if (ici_ischannel(o) && ici_array_nels(ici_channelof(o)->c_q) > 0)
+            idx = i;
     }
     return idx;
 }

@@ -2,6 +2,18 @@
  * apply(o, fn [, args...])
  *
  * Call a function on each element of an aggregate.
+ *
+ * If the aggregate is an array, set or string the
+ * function is called for each member of the object
+ * in sequence. The argument being called with the
+ * n'th element as its first argument and any extra
+ * arguments passed to apply() following.
+ *
+ * If the aggregate is a struct the function is called
+ * with two arguments, the key and value objects from
+ * the struct for the current element being traversed.
+ * Struct traversal is shallow but does visit any
+ * super struct.
  */
 export
 apply(fn, aggr)
@@ -13,8 +25,8 @@ apply(fn, aggr)
     case "array":
     case "set":
     case "string":
-	forall (v in aggr)
-	    call(fn, array(v) + vargs);
+	    forall (v in aggr)
+	        call(fn, array(v) + vargs);
 	break;
 
     case "struct":
@@ -25,7 +37,7 @@ apply(fn, aggr)
         break;
 
     default:
-	fail(sprintf("cannot apply a function to a %s", t));
+	    fail(sprintf("cannot apply a function to a %s", t));
     }
 }
 
@@ -33,8 +45,12 @@ apply(fn, aggr)
 /*
  * aggr = map(aggr, fn [, args...])
  *
- * Transform an aggregate by passing each element through a function and return a
- * new aggregate, of the same type, containing the transformed elements.
+ * Transform an aggregate by passing each element through a function and return
+ * a new aggregate, of the same type, containing the transformed elements.
+ *
+ * i.e. m' = map(m, f)
+ *
+ * Return m' by transforming the elements of m through f().
  */
 export
 map(aggr, fn)
@@ -44,23 +60,23 @@ map(aggr, fn)
     switch (t := typeof(aggr))
     {
     case "array":
-	r := array();
-	forall (v in aggr)
-	    push(r, call(fn, array(v) + vargs));
-	break;
+	    r := array();
+	    forall (v in aggr)
+	        push(r, call(fn, array(v) + vargs));
+	    break;
 
     case "set":
-	r := set();
-	forall (v in aggr)
-	    r[call(fn, array(v) + vargs)] := 1;
-	break;
+        r := set();
+        forall (v in aggr)
+            r[call(fn, array(v) + vargs)] := 1;
+        break;
 
     case "string":
-	r := array();
-	forall (v in aggr)
-	    push(r, call(fn, array(v) + vargs));
-	r := implode(r);
-	break;
+        r := array();
+        forall (v in aggr)
+            push(r, call(fn, array(v) + vargs));
+        r := implode(r);
+        break;
 
     case "struct":
         r := struct();
@@ -71,7 +87,7 @@ map(aggr, fn)
         break;
 
     default:
-	fail(sprintf("cannot map a %s", t));
+    	fail(sprintf("cannot map a %s", t));
     }
     return r;
 }

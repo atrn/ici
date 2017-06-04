@@ -21,7 +21,7 @@
 
 #include <netinet/in.h>
 
-static int save(ici_archive_t *ar, ici_obj_t *obj);
+static int ici_archive_save(ici_archive_t *ar, ici_obj_t *obj);
 
 /*
  * Functions to write different size datums to the archive stream.
@@ -182,7 +182,7 @@ save_array(ici_archive_t *ar, ici_obj_t *obj)
         return 1;
     for (e = ici_astart(a); e != ici_alimit(a); e = ici_anext(a, e))
     {
-        if (save(ar, *e))
+        if (ici_archive_save(ar, *e))
             return 1;
     }
     return 0;
@@ -200,7 +200,7 @@ save_set(ici_archive_t *ar, ici_obj_t *obj)
         return 1;
     for (; e - s->s_slots < s->s_nslots; ++e)
     {
-        if (*e && save(ar, *e))
+        if (*e && ici_archive_save(ar, *e))
             return 1;
     }
     return 0;
@@ -215,13 +215,13 @@ save_struct(ici_archive_t *ar, ici_obj_t *obj)
     ici_objwsup_t *super = ici_objwsupof(s)->o_super;
     struct ici_sslot *sl;
 
-    if (save_object_name(ar, obj) || save(ar, super ? ici_objof(super) : ici_null) || writel(ar, s->s_nels))
+    if (save_object_name(ar, obj) || ici_archive_save(ar, super ? ici_objof(super) : ici_null) || writel(ar, s->s_nels))
         return 1;
     for (sl = s->s_slots; sl - s->s_slots < s->s_nslots; ++sl)
     {
         if (sl->sl_key && sl->sl_value)
         {
-            if (save(ar, sl->sl_key) || save(ar, sl->sl_value))
+            if (ici_archive_save(ar, sl->sl_key) || ici_archive_save(ar, sl->sl_value))
                 return 1;
         }
     }
@@ -233,7 +233,7 @@ save_struct(ici_archive_t *ar, ici_obj_t *obj)
 static int
 save_ptr(ici_archive_t *ar, ici_obj_t *obj)
 {
-    return save(ar, ici_ptrof(obj)->p_aggr) || save(ar, ici_ptrof(obj)->p_key);
+    return ici_archive_save(ar, ici_ptrof(obj)->p_aggr) || ici_archive_save(ar, ici_ptrof(obj)->p_key);
 }
 
 // func
@@ -251,20 +251,20 @@ save_func(ici_archive_t *ar, ici_obj_t *obj)
         return write32(ar, nchars) || writef(ar, cf->cf_name, nchars);
     }
 
-    if (save_object_name(ar, obj) || save(ar, ici_objof(f->f_code)) || save(ar, ici_objof(f->f_args)))
+    if (save_object_name(ar, obj) || ici_archive_save(ar, ici_objof(f->f_code)) || ici_archive_save(ar, ici_objof(f->f_args)))
         return 1;
     if ((autos = ici_structof(ici_typeof(f->f_autos)->t_copy(ici_objof(f->f_autos)))) == NULL)
         return 1;
     autos->o_head.o_super = NULL;
     ici_struct_unassign(autos, SSO(_func_));
-    if (save(ar, ici_objof(autos)))
+    if (ici_archive_save(ar, ici_objof(autos)))
     {
         ici_decref(autos);
         return 1;
     }
     ici_decref(autos);
 
-    return save(ar, ici_objof(f->f_name)) || writel(ar, f->f_nautos);
+    return ici_archive_save(ar, ici_objof(f->f_name)) || writel(ar, f->f_nautos);
 }
 
 // src
@@ -272,7 +272,7 @@ save_func(ici_archive_t *ar, ici_obj_t *obj)
 static int
 save_src(ici_archive_t *ar, ici_obj_t *obj)
 {
-    return writel(ar, ici_srcof(obj)->s_lineno) || save(ar, ici_objof(ici_srcof(obj)->s_filename));
+    return writel(ar, ici_srcof(obj)->s_lineno) || ici_archive_save(ar, ici_objof(ici_srcof(obj)->s_filename));
 }
 
 // op
@@ -417,18 +417,9 @@ save_error(ici_archive_t *ar, ici_obj_t *obj)
     return ici_set_error("%s: unable to save type", ici_typeof(obj)->t_name);
 }
 
-/*
- * save([file, ] any)
- *
- * Save an object to a file by writing a serialized object graph
- * using the given object as the root of the graph.
- *
- * If file is not given the object is written to the standard output.
- *
- * This --topic-- forms part of the --ici-serialisation-- documentation.
- */
+
 static int
-save(ici_archive_t *ar, ici_obj_t *obj)
+ici_archive_save(ici_archive_t *ar, ici_obj_t *obj)
 {
     ici_obj_t *saver;
     int (*fn)(ici_archive_t *, ici_obj_t *);
@@ -442,6 +433,16 @@ save(ici_archive_t *ar, ici_obj_t *obj)
     return save_obj(ar, obj) || (*fn)(ar, obj);
 }
 
+/*
+ * save([file, ] any)
+ *
+ * Save an object to a file by writing a serialized object graph
+ * using the given object as the root of the graph.
+ *
+ * If file is not given the object is written to the standard output.
+ *
+ * This --topic-- forms part of the --ici-serialisation-- documentation.
+ */
 int
 ici_archive_f_save(void)
 {
@@ -476,7 +477,7 @@ ici_archive_f_save(void)
 
     if ((ar = ici_archive_start(file, scp)) != NULL)
     {
-        failed = save(ar, obj);
+        failed = ici_archive_save(ar, obj);
         ici_archive_stop(ar);
     }
 

@@ -5,7 +5,7 @@ memoize(fn, args)
     key := array(deepatom(fn), deepatom(args));
     if ((result := cache[key]) == NULL)
     {
-	result := cache[key] = call(fn, args);
+	    result := cache[key] = call(fn, args);
     }
     return result;
 }
@@ -15,7 +15,7 @@ memoized(f)
 {
     return [func ()
     {
-	var vargs = [array];
-	return memoize(f, vargs);
+	    var vargs = [array];
+	    return memoize(f, vargs);
     }];
 }

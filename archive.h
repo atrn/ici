@@ -42,7 +42,7 @@ struct ici_archive
     /* Used to remember which objects have been sent - maps object address, an int, to object */
     ici_struct_t        *a_sent;
     /* The scope at the time of archive creation */
-    ici_objwsup_t	*a_scope;
+    ici_objwsup_t	    *a_scope;
 };
 
 /*
