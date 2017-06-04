@@ -1,4 +1,6 @@
+extern "C" {
 #include "fwd.h"
+}
 
 int
 main(int argc, char *argv[])
