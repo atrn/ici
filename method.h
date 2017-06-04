@@ -8,9 +8,8 @@
 /*
  * The following portion of this file exports to ici.h. --ici.h-start--
  */
-struct ici_method
+struct ici_method : ici_obj
 {
-    ici_obj_t   o_head;
     ici_obj_t   *m_subject;
     ici_obj_t   *m_callable;
 };

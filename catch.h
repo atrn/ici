@@ -12,9 +12,8 @@
 #include "object.h"
 #endif
 
-struct ici_catch
+struct ici_catch : ici_obj
 {
-    ici_obj_t   o_head;
     ici_obj_t   *c_catcher;
     short       c_odepth;       /* Operand stack depth. */
     short       c_vdepth;       /* Variable stack depth. */
@@ -23,7 +22,7 @@ struct ici_catch
 #define ici_iscatch(o)      ((o)->o_tcode == ICI_TC_CATCH)
 
 /*
- * Flags set stored in the upper nibble of o_head.o_flags (which is
+ * Flags set stored in the upper nibble of o_flags (which is
  * allowed to be used by objects).
  */
 #define CF_EVAL_BASE    0x20    /* ici_evaluate should return. */

@@ -8,9 +8,8 @@
 /*
  * The following portion of this file exports to ici.h. --ici.h-start--
  */
-struct ici_null_t
+struct ici_null_t : ici_obj
 {
-    ici_obj_t   o_head;
 };
 #define ici_nullof(o)       ((ici_null_t *)o)
 #define ici_isnull(o)       ((o) == ici_null)

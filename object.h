@@ -252,7 +252,7 @@ struct ici_type
  *
  * Note that the argument 'o' is subject to multiple expansions.
  */
-#define ici_mark(o)                                                     \
+#define xici_mark(o)                                                    \
     (                                                                   \
         (ici_objof(o)->o_flags & ICI_O_MARK) == 0                       \
         ?                                                               \
@@ -470,9 +470,8 @@ struct ici_obj
  *
  * This --struct-- forms part of the --ici-api--.
  */
-struct ici_objwsup
+struct ici_objwsup : ici_obj
 {
-    ici_obj_t       o_head;
     ici_objwsup_t   *o_super;
 };
 #define ici_objwsupof(o)    ((ici_objwsup_t *)(o))
@@ -537,6 +536,20 @@ struct ici_objwsup
  * This --macro-- forms part of the --ici-api--.
  */
 #define ici_rego(o)     ici_rego_work(ici_objof(o))
+
+inline size_t ici_mark(ici_obj_t *o)
+{
+    if ((o->o_flags & ICI_O_MARK) == 0)
+    {
+        if (o->o_leafz != 0)
+        {
+            o->o_flags |= ICI_O_MARK;
+            return o->o_leafz;
+        }
+        return ici_typeof(o)->t_mark(o);
+    }
+    return 0;
+}
 
 /*
  * The o_tcode field is a small int. These are the "well known" core

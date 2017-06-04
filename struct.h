@@ -14,9 +14,8 @@ struct ici_sslot
     ici_obj_t   *sl_value;
 };
 
-struct ici_struct
+struct ici_struct : ici_objwsup
 {
-    ici_objwsup_t   o_head;
     int         s_nels;         /* How many slots used. */
     int         s_nslots;       /* How many slots allocated. */
     ici_sslot_t *s_slots;

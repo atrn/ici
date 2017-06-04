@@ -13,9 +13,8 @@
  *
  * This --struct-- forms part of the --ici-api--.
  */
-struct ici_int
+struct ici_int : ici_obj
 {
-    ici_obj_t   o_head;
     long        i_value;
 };
 #define ici_intof(o)        ((ici_int_t *)(o))

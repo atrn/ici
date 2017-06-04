@@ -33,10 +33,8 @@ void ici_archive_byteswap(void *ptr, int sz);
 /*
  * An archiving session.
  */
-struct ici_archive
+struct ici_archive : ici_obj
 {
-    /* An archiving session is an ICI object */
-    ici_obj_t           o_head;
     /* The file used for saving or restoring */
     ici_file_t          *a_file;
     /* Used to remember which objects have been sent - maps object address, an int, to object */

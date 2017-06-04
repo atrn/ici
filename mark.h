@@ -15,9 +15,8 @@
  * could give us. One use is as the 'label' on the default clause of
  * the struct that represents a switch statement.
  */
-struct ici_mark
+struct ici_mark : ici_obj
 {
-    ici_obj_t   o_head;
 };
 #define ici_markof(o)       ((ici_mark_t *)o)
 #define ici_ismark(o)       ((o) == ici_objof(&ici_o_mark))

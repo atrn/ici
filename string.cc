@@ -227,7 +227,7 @@ ici_str_need_size(ici_str_t *s, int n)
     char                *chars;
     char                n1[30];
 
-    if ((s->o_head.o_flags & (ICI_O_ATOM|ICI_S_SEP_ALLOC)) != ICI_S_SEP_ALLOC)
+    if ((s->o_flags & (ICI_O_ATOM|ICI_S_SEP_ALLOC)) != ICI_S_SEP_ALLOC)
     {
         return ici_set_error("attempt to modify an atomic string %s", ici_objname(n1, ici_objof(s)));
     }

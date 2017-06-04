@@ -14,9 +14,8 @@
  *
  * This --struct-- forms part of the --ici-api--.
  */
-struct ici_float
+struct ici_float : ici_obj
 {
-    ici_obj_t   o_head;
     double      f_value;
 };
 #define ici_floatof(o)      ((ici_float_t *)o)

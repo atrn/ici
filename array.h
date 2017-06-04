@@ -71,9 +71,8 @@
  * Note that one must never take the atomic form of a stack, and
  * assume the result is still a stack.
  */
-struct ici_array
+struct ici_array : ici_obj
 {
-    ici_obj_t   o_head;
     ici_obj_t   **a_top;    /* The next free slot. */
     ici_obj_t   **a_bot;    /* The first used slot. */
     ici_obj_t   **a_base;   /* The base of allocation. */

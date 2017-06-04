@@ -8,9 +8,8 @@
 /*
  * The following portion of this file exports to ici.h. --ici.h-start--
  */
-struct ici_mem
+struct ici_mem : ici_obj
 {
-    ici_obj_t           o_head;
     void                *m_base;
     size_t              m_length;       /* In m_accessz units. */
     int                 m_accessz;      /* Read/write size. */

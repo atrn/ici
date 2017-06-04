@@ -211,7 +211,7 @@ f_load(...)
         {
             goto fail;
         }
-        autos->o_head.o_super = ici_objwsupof(statics);
+        autos->o_super = ici_objwsupof(statics);
         ici_decref(statics);
         if (externs == NULL)
         {
@@ -225,8 +225,8 @@ f_load(...)
                 goto fail;
             }
         }
-        statics->o_head.o_super = ici_objwsupof(externs);
-        externs->o_head.o_super = outer;
+        statics->o_super = ici_objwsupof(externs);
+        externs->o_super = outer;
         if (ici_parse(file, ici_objwsupof(autos)) < 0)
         {
             goto fail;

@@ -796,7 +796,7 @@ f_struct()
             return 1;
         }
     }
-    s->o_head.o_super = super;
+    s->o_super = super;
     return ici_ret_with_decref(ici_objof(s));
 }
 
@@ -1120,13 +1120,13 @@ f_parse()
             return 1;
         if ((a = ici_struct_new()) == NULL)
             return 1;
-        if ((a->o_head.o_super = ici_objwsupof(s = ici_struct_new())) == NULL)
+        if ((a->o_super = ici_objwsupof(s = ici_struct_new())) == NULL)
         {
             ici_decref(a);
             return 1;
         }
         ici_decref(s);
-        s->o_head.o_super = ici_objwsupof(ici_vs.a_top[-1])->o_super;
+        s->o_super = ici_objwsupof(ici_vs.a_top[-1])->o_super;
         break;
 
     default:

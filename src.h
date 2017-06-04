@@ -15,9 +15,9 @@
  *
  * This --struct-- forms part of the --ici-api--.
  */
-struct ici_src
+struct ici_src : ici_obj
 {
-    ici_obj_t   s_head;
+    // ici_obj_t   s_head;
     int         s_lineno;
     ici_str_t   *s_filename;
 };

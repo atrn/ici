@@ -8,9 +8,8 @@
 /*
  * The following portion of this file exports to ici.h. --ici.h-start--
  */
-struct ici_op
+struct ici_op : ici_obj
 {
-    ici_obj_t   o_head;
     int         (*op_func)();
     int         op_ecode;       /* See ICI_OP_* below. */
     int         op_code;

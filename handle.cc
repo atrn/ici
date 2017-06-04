@@ -134,7 +134,7 @@ ici_handle_new(void *ptr, ici_str_t *name, ici_objwsup_t *super)
 
     ici_handle_proto.h_ptr = ptr;
     ici_handle_proto.h_name = name;
-    ici_handle_proto.o_head.o_super = super;
+    ici_handle_proto.o_super = super;
     if ((h = ici_handleof(ici_atom_probe2(ici_objof(&ici_handle_proto), &po))) != NULL)
     {
         ici_incref(h);
@@ -146,7 +146,7 @@ ici_handle_new(void *ptr, ici_str_t *name, ici_objwsup_t *super)
     ICI_OBJ_SET_TFNZ(h, ICI_TC_HANDLE, (super != NULL ? ICI_O_SUPER : 0) | ICI_O_ATOM, 1, 0);
     h->h_ptr = ptr;
     h->h_name = name;
-    h->o_head.o_super = super;
+    h->o_super = super;
     h->h_pre_free = NULL;
     h->h_member_map = NULL;
     h->h_member_intf = NULL;
@@ -218,9 +218,9 @@ fetch_handle(ici_obj_t *o, ici_obj_t *k)
         if (r != NULL)
             return r;
     }
-    if (!ici_hassuper(o) || ici_handleof(o)->o_head.o_super == NULL)
+    if (!ici_hassuper(o) || ici_handleof(o)->o_super == NULL)
         return ici_fetch_fail(o, k);
-    return ici_fetch(ici_handleof(o)->o_head.o_super, k);
+    return ici_fetch(ici_handleof(o)->o_super, k);
 }
 
 /*
@@ -240,9 +240,9 @@ fetch_super_handle(ici_obj_t *o, ici_obj_t *k, ici_obj_t **v, ici_struct_t *b)
         ici_fetch_fail(o, k);
         return 1;
     }
-    if (ici_handleof(o)->o_head.o_super == NULL)
+    if (ici_handleof(o)->o_super == NULL)
         return 0;
-    return ici_fetch_super(ici_handleof(o)->o_head.o_super, k, v, b);
+    return ici_fetch_super(ici_handleof(o)->o_super, k, v, b);
 }
 
 static ici_obj_t *
@@ -281,7 +281,7 @@ fetch_base_handle(ici_obj_t *o, ici_obj_t *k)
         return ici_fetch_fail(o, k);
     if ((o->o_flags & ICI_H_HAS_PRIV_STRUCT) == 0)
         return ici_null;
-    return fetch_base(h->o_head.o_super, k);
+    return fetch_base(h->o_super, k);
 }
 
 /*
@@ -378,13 +378,13 @@ assign_handle(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v)
     if (!ici_hassuper(o))
         return ici_assign_fail(o, k, v);
     if (o->o_flags & ICI_H_HAS_PRIV_STRUCT)
-        return ici_assign(h->o_head.o_super, k, v);
+        return ici_assign(h->o_super, k, v);
     /*
      * We don't have a base struct of our own yet. Try the super.
      */
-    if (ici_handleof(o)->o_head.o_super != NULL)
+    if (ici_handleof(o)->o_super != NULL)
     {
-        switch (ici_assign_super(h->o_head.o_super, k, v, NULL))
+        switch (ici_assign_super(h->o_super, k, v, NULL))
         {
         case -1: return 1;
         case 1:  return 0;
@@ -415,9 +415,9 @@ assign_super_handle(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v, ici_struct_t *b)
 {
     if (!ici_hassuper(o))
         return ici_assign_fail(o, k, v);
-    if (ici_handleof(o)->o_head.o_super == NULL)
+    if (ici_handleof(o)->o_super == NULL)
         return 0;
-    return ici_assign_super(ici_handleof(o)->o_head.o_super, k, v, b);
+    return ici_assign_super(ici_handleof(o)->o_super, k, v, b);
 }
 
 /*

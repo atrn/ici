@@ -511,7 +511,7 @@ restore_func(ici_archive_t *ar)
     fn->f_code = ici_arrayof(code);
     fn->f_args = ici_arrayof(args);
     fn->f_autos = ici_structof(autos);
-    fn->f_autos->o_head.o_super = ar->a_scope; /* structof(ici_vs.a_top[-1])->o_head.o_super; */
+    fn->f_autos->o_super = ar->a_scope; /* structof(ici_vs.a_top[-1])->o_super; */
     fn->f_name = ici_stringof(name);
     fn->f_nautos = nautos;
 
@@ -665,12 +665,12 @@ restore_ref(ici_archive_t *ar)
 
 // restorer
 
-typedef struct
+struct restorer : ici_obj
 {
-    ici_obj_t o_head;
     ici_obj_t *(*r_fn)(ici_archive_t *);
-}
-restorer_t;
+};
+
+typedef struct restorer restorer_t;
 
 static unsigned long
 mark_restorer(ici_obj_t *o)
@@ -848,7 +848,7 @@ ici_archive_f_restore(...)
     ici_objwsup_t *scp;
     ici_obj_t *obj = NULL;
 
-    scp = ici_structof(ici_vs.a_top[-1])->o_head.o_super;
+    scp = ici_structof(ici_vs.a_top[-1])->o_super;
     switch (ICI_NARGS())
     {
     case 0:

@@ -255,7 +255,7 @@ save_func(ici_archive_t *ar, ici_obj_t *obj)
         return 1;
     if ((autos = ici_structof(ici_typeof(f->f_autos)->t_copy(ici_objof(f->f_autos)))) == NULL)
         return 1;
-    autos->o_head.o_super = NULL;
+    autos->o_super = NULL;
     ici_struct_unassign(autos, SSO(_func_));
     if (ici_archive_save(ar, ici_objof(autos)))
     {
@@ -292,12 +292,12 @@ save_op(ici_archive_t *ar, ici_obj_t *obj)
 // saver
 //
 
-typedef struct
+struct saver : ici_obj
 {
-    ici_obj_t o_head;
     int (*s_fn)(ici_archive_t *, ici_obj_t *);
-}
-saver_t;
+};
+
+typedef struct saver saver_t;
 
 static saver_t *
 saverof(ici_obj_t *obj)
@@ -446,7 +446,7 @@ ici_archive_save(ici_archive_t *ar, ici_obj_t *obj)
 int
 ici_archive_f_save(...)
 {
-    ici_objwsup_t *scp = ici_structof(ici_vs.a_top[-1])->o_head.o_super;
+    ici_objwsup_t *scp = ici_structof(ici_vs.a_top[-1])->o_super;
     ici_file_t *file;
     ici_obj_t *obj;
     ici_archive_t *ar;

@@ -95,7 +95,7 @@ ici_uninit(void)
      * mutex).
      */
     for (x = ici_execs; x != NULL; x = x->x_next)
-        x->o_head.o_nrefs = 0;
+        x->o_nrefs = 0;
 
     /*
      * We don't decref the static cached copies of our stacks, because if we

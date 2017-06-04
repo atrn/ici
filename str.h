@@ -21,9 +21,8 @@
  */
 #define ICI_KEEP_STRING_HASH 1
 
-struct ici_str
+struct ici_str : ici_obj
 {
-    ici_obj_t       o_head;
     ici_struct_t    *s_struct;      /* Where we were last found on the vs. */
     ici_sslot_t     *s_slot;        /* And our slot. */
     long            s_vsver;        /* The vs version at that time. */
@@ -51,7 +50,7 @@ struct ici_str
  *
  * s_u.su_nalloc        The number of bytes allocaed at s_chars iff it
  *                      is a seperate allocation (ICI_S_SEP_ALLOC set in
- *                      o_head.o_flags).
+ *                      o_flags).
  *
  * su.su_inline_chars   If ICI_S_SEP_ALLOC is *not* set, this is where s_chars will
  *                      be pointing. The actual string chars follow on from this.
@@ -60,14 +59,14 @@ struct ici_str
 #define ici_isstring(o)     ((o)->o_tcode == ICI_TC_STRING)
 
 /*
- * This flag (in o_head.o_flags) indicates that the lookup-lookaside mechanism
+ * This flag (in o_flags) indicates that the lookup-lookaside mechanism
  * is referencing an atomic struct.  It is stored in the allowed area of
- * o_flags in o_head.
+ * o_flags.
  */
 #define ICI_S_LOOKASIDE_IS_ATOM 0x20
 
 /*
- * This flag (in o_head.o_flags) indicates that s_chars points to seperately
+ * This flag (in o_flags) indicates that s_chars points to seperately
  * allocated memory.  If this is the case, s_u.su_nalloc is significant and
  * the memory was allocated with ici_nalloc(s_u.su_nalloc).
  */
@@ -126,9 +125,8 @@ struct ici_str
  * This structure must be an exact overlay of the one above.
  */
 typedef struct sstring  sstring_t;
-struct sstring
+struct sstring : ici_obj
 {
-    ici_obj_t   o_head;
     ici_struct_t    *s_struct;      /* Where we were last found on the vs. */
     ici_sslot_t *s_slot;        /* And our slot. */
     long        s_vsver;        /* The vs version at that time. */

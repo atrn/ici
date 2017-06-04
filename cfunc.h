@@ -17,9 +17,8 @@
  *
  * This --struct-- forms part of the --ici-api--.
  */
-struct ici_cfunc
+struct ici_cfunc : ici_obj
 {
-    ici_obj_t   o_head;
     const char  *cf_name;
     int         (*cf_cfunc)(...);
     void        *cf_arg1;
@@ -29,13 +28,11 @@ struct ici_cfunc
  * 'ici_cfunc_t' objects are often declared staticly (in an array) when
  * setting up a group of C functions to be called from ICI. When doing
  * this, the macro 'ICI_CF_OBJ' can be used as the initialiser of the
- * 'o_head' field (the standard ICI object heade).
+ * 'ici_obj' header.
  *
  * The type has a well-known built-in type code of 'ICI_TC_CFUNC'.
  *
- * o_head               The standard ICI object header.
- *
- * cf_name              A name for the function. Calls to functions
+  * cf_name              A name for the function. Calls to functions
  *                      such as 'ici_assign_cfuncs' will use this as
  *                      the name to use when assigning it into an ICI
  *                      struct. Apart from that, it is only used in

@@ -15,9 +15,8 @@ typedef void pcre_extra;
 #define ICI_PCRE_TYPES_DEFINED
 #endif
 
-struct ici_regexp
+struct ici_regexp : ici_obj
 {
-    ici_obj_t   o_head;
     pcre        *r_re;
     pcre_extra  *r_rex;
     ici_str_t   *r_pat;

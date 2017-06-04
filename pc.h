@@ -8,9 +8,8 @@
 /*
  * The following portion of this file exports to ici.h. --ici.h-start--
  */
-struct ici_pc
+struct ici_pc : ici_obj
 {
-    ici_obj_t   o_head;
     ici_array_t *pc_code;
     ici_obj_t   **pc_next;
 };

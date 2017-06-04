@@ -61,7 +61,7 @@ mark_struct(ici_obj_t *o)
     ici_sslot_t *sl;
     long                mem;
 
-    do /* Merge tail recursion on o_head.o_super. */
+    do /* Merge tail recursion on o_super. */
     {
         o->o_flags |= ICI_O_MARK;
         mem = sizeof(ici_struct_t) + ici_structof(o)->s_nslots * sizeof(ici_sslot_t);
@@ -83,7 +83,7 @@ mark_struct(ici_obj_t *o)
 
     } while
     (
-        (o = ici_objof(ici_structof(o)->o_head.o_super)) != NULL
+        (o = ici_objof(ici_structof(o)->o_super)) != NULL
         &&
         (o->o_flags & ICI_O_MARK) == 0
     );
@@ -123,7 +123,7 @@ ici_struct_new(void)
     if ((s = ici_talloc(ici_struct_t)) == NULL)
         return NULL;
     ICI_OBJ_SET_TFNZ(s, ICI_TC_STRUCT, ICI_O_SUPER, 1, 0);
-    s->o_head.o_super = NULL;
+    s->o_super = NULL;
     s->s_slots = NULL;
     s->s_nels = 0;
     s->s_nslots = 4; /* Must be power of 2. */
@@ -156,7 +156,7 @@ cmp_struct(ici_obj_t *o1, ici_obj_t *o2)
     {
         return 1;
     }
-    if (ici_structof(o1)->o_head.o_super != ici_structof(o2)->o_head.o_super)
+    if (ici_structof(o1)->o_super != ici_structof(o2)->o_super)
     {
         return 1;
     }
@@ -250,7 +250,7 @@ copy_struct(ici_obj_t *o)
         return NULL;
     }
     ICI_OBJ_SET_TFNZ(ns, ICI_TC_STRUCT, ICI_O_SUPER, 1, 0);
-    ns->o_head.o_super = s->o_head.o_super;
+    ns->o_super = s->o_super;
     ns->s_nels = 0;
     ns->s_nslots = 0;
     ns->s_slots = NULL;
@@ -415,7 +415,7 @@ fetch_super_struct(ici_obj_t *o, ici_obj_t *k, ici_obj_t **v, ici_struct_t *b)
                 sl = ici_structof(o)->s_slots + ici_structof(o)->s_nslots - 1;
             }
         }
-        if ((o = ici_objof(ici_structof(o)->o_head.o_super)) == NULL)
+        if ((o = ici_objof(ici_structof(o)->o_super)) == NULL)
         {
             return 0;
         }
@@ -524,7 +524,7 @@ assign_super_struct(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v, ici_struct_t *b)
 		}
             }
         }
-        if ((o = ici_objof(ici_structof(o)->o_head.o_super)) == NULL)
+        if ((o = ici_objof(ici_structof(o)->o_super)) == NULL)
 	{
             return 0;
 	}
@@ -582,9 +582,9 @@ assign_struct(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v)
         if (--sl < ici_structof(o)->s_slots)
             sl = ici_structof(o)->s_slots + ici_structof(o)->s_nslots - 1;
     }
-    if (ici_structof(o)->o_head.o_super != NULL)
+    if (ici_structof(o)->o_super != NULL)
     {
-        switch (ici_assign_super(ici_structof(o)->o_head.o_super, k, v, ici_structof(o)))
+        switch (ici_assign_super(ici_structof(o)->o_super, k, v, ici_structof(o)))
         {
         case -1: return 1; /* Error. */
         case 1:  return 0; /* Done. */

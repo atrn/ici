@@ -24,9 +24,8 @@ ici_profilecall_t *ici_profilecall_new(ici_profilecall_t *called_by);
  * of these.  If a function is called more than once from the same function
  * then the object is reused.
  */
-struct ici_profilecall
+struct ici_profilecall : ici_obj
 {
-    ici_obj_t       o_head;
     ici_profilecall_t   *pc_calledby;
     ici_struct_t    *pc_calls;
     long            pc_total;
@@ -34,7 +33,6 @@ struct ici_profilecall
     long            pc_call_count;
 };
 /*
- * o_head           What makes it a good little polymorphic ICI object.
  * pc_caller        The records for the function that called this function.
  * pc_calls         Records for functions called by this function.
  * pc_total         The total number of milliseconds spent in this call

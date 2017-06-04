@@ -285,7 +285,7 @@ function(ici_parse_t *p, ici_str_t *name)
             goto fail;
     }
     ici_assign(f->f_autos, SSO(vargs), ici_null);
-    f->f_autos->o_head.o_super = ici_objwsupof(ici_vs.a_top[-1])->o_super;
+    f->f_autos->o_super = ici_objwsupof(ici_vs.a_top[-1])->o_super;
     p->p_func = f;
     f->f_args = a;
     ici_decref(a);
@@ -798,12 +798,12 @@ primary(ici_parse_t *p, expr_t **ep, int exclude)
                 {
                     if (name != SSO(struct))
                     {
-                        d->o_head.o_super = ici_objwsupof(ici_vs.a_top[-1])->o_super;
+                        d->o_super = ici_objwsupof(ici_vs.a_top[-1])->o_super;
                     }
                 }
                 else
                 {
-                    d->o_head.o_super = ici_objwsupof(super);
+                    d->o_super = ici_objwsupof(super);
                     ici_decref(super);
                 }
             }
@@ -817,7 +817,7 @@ primary(ici_parse_t *p, expr_t **ep, int exclude)
                     ici_decref(d);
                     goto fail;
                 }
-                autos->o_head.o_super = ici_objwsupof(d);
+                autos->o_super = ici_objwsupof(d);
                 *ici_vs.a_top++ = ici_objof(autos);
                 ici_decref(autos);
                 ++p->p_module_depth;
@@ -847,7 +847,7 @@ primary(ici_parse_t *p, expr_t **ep, int exclude)
                     ici_decref(d);
                     goto fail;
                 }
-                autos->o_head.o_super = ici_objwsupof(d);
+                autos->o_super = ici_objwsupof(d);
                 if (ici_stk_push_chk(&ici_vs, 80)) /* ### Formalise */
                 {
                     ici_decref(d);

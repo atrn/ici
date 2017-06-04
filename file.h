@@ -52,9 +52,8 @@ struct ici_ftype
 #define FT_NOMUTEX  0x01
 
 
-struct ici_file
+struct ici_file : ici_obj
 {
-    ici_obj_t   o_head;
     void        *f_file;
     ici_ftype_t *f_type;
     ici_str_t   *f_name;    /* Reasonable name to call it by. */

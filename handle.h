@@ -16,9 +16,6 @@
  *
  * See also 'ici_handle_new()'.
  *
- * o_head               The object header for objects that (can) support super
- *                      pointers.
- *
  * h_ptr                The pointer to the primitive data object that his
  *                      handle is associated with.
  *
@@ -88,9 +85,8 @@
  *
  * This --struct-- forms part of the --ici-api--.
  */
-struct ici_handle
+struct ici_handle : ici_objwsup
 {
-    ici_objwsup_t   o_head;
     void            *h_ptr;
     ici_str_t       *h_name;
     void            (*h_pre_free)(ici_handle_t *h);
@@ -103,7 +99,7 @@ struct ici_handle
 #define ici_ishandle(o)        (ici_objof(o)->o_tcode == ICI_TC_HANDLE)
 #define ici_ishandleof(o, n)   (ici_ishandle(o) && ici_handleof(o)->h_name == (n))
 /*
- * Flags set in the upper nibble of o_head.o_flags, which is
+ * Flags set in the upper nibble of o_flags, which is
  * allowed for type specific use.
  */
 #define ICI_H_CLOSED                0x20

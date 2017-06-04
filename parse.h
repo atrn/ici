@@ -22,9 +22,8 @@ typedef struct
 #define t_float tu.tu_float
 #define t_obj   tu.tu_obj
 
-struct ici_parse
+struct ici_parse : ici_obj
 {
-    ici_obj_t   o_head;
     ici_file_t  *p_file;
     int         p_lineno;       /* Diagnostic information. */
     short       p_sol;          /* At first char in line. */

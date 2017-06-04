@@ -54,7 +54,7 @@ m_new(ici_obj_t *o)
         return 1;
     if ((s = ici_struct_new()) == NULL)
         return 1;
-    s->o_head.o_super = ici_objwsupof(o);
+    s->o_super = ici_objwsupof(o);
     return ici_ret_with_decref(ici_objof(s));
 }
 

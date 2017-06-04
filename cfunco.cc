@@ -104,7 +104,7 @@ ici_assign_cfuncs(ici_objwsup_t *s, ici_cfunc_t *cf)
 
     while (cf->cf_name != NULL)
     {
-        assert(cf->o_head.o_tcode == ICI_TC_CFUNC);
+        assert(cf->o_tcode == ICI_TC_CFUNC);
         if (cf->cf_name[0] == ICI_TC_STRING)
         {
             /*

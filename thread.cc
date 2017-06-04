@@ -362,7 +362,7 @@ ici_thread_base(void *arg)
  * From ICI: exec = go(callable, arg1, arg2, ...)
  */
 static int
-f_go()
+f_go(...)
 {
     ici_exec_t          *x;
     int                 i;
@@ -450,7 +450,7 @@ fail:
 }
 
 static int
-f_wakeup()
+f_wakeup(...)
 {
     if (ICI_NARGS() != 1)
         return ici_argcount(1);

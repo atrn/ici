@@ -33,9 +33,8 @@ union ici_ostemp
     ici_float_t f;
 };
 
-struct ici_exec
+struct ici_exec : ici_obj
 {
-    ici_obj_t   o_head;
     ici_array_t *x_xs;
     ici_array_t *x_os;
     ici_array_t *x_vs;
