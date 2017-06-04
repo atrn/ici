@@ -1,4 +1,0 @@
-rule cc
-  command = cc $cflags -c $in -o $out
-rule ld
-  command = cc $ldflags $in $libs -o $out

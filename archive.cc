@@ -209,13 +209,13 @@ void ici_archive_byteswap(void *ptr, int sz)
 {
     if (sz == sizeof (long long))
     {
-        long long *ll = ptr;
+        long long *ll = (long long *)ptr;
         *ll = htonll(*ll);
         return;
     }
 
-    char *s = ptr;
-    char *e = ptr + sz - 1;
+    char *s = (char *)ptr;
+    char *e = s + sz - 1;
     int i;
 
     for (i = 0; i < sz / 2 ; ++i)

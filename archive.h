@@ -17,7 +17,7 @@ int ici_init_saver_map(void);
 int ici_archive_f_save(void);
 int ici_archive_f_restore(void);
 int ici_archive_op_func_code(int (*fn)());
-int (*ici_archive_op_func())(int code);
+int (*ici_archive_op_func(int))(void);
 
 #if defined(__i386__) || defined(__x86_64__)
 #define ICI_ARCHIVE_LITTLE_ENDIAN_HOST 1

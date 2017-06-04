@@ -792,7 +792,7 @@ pf_ungetc(int c, void *file)
 static int
 pf_eof(void *file)
 {
-    ici_parse_t *p = file;
+    ici_parse_t *p = (ici_parse_t *)file;
     return p->p_file->f_type->ft_eof(p->p_file->f_file);
 }
 

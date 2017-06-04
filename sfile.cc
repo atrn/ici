@@ -29,7 +29,7 @@ typedef struct charbuf
 static int
 cbgetc(void *file)
 {
-    charbuf_t *cb = file;
+    charbuf_t *cb = (charbuf_t *)file;
     if (cb->cb_ptr < cb->cb_data || cb->cb_ptr >= cb->cb_data + cb->cb_size)
     {
         cb->cb_eof = 1;
@@ -42,7 +42,7 @@ cbgetc(void *file)
 static int
 cbungetc(int c, void *file)
 {
-    charbuf_t *cb = file;
+    charbuf_t *cb = (charbuf_t *)file;
     if (c == EOF || cb->cb_ptr <= cb->cb_data || cb->cb_ptr > cb->cb_data + cb->cb_size)
         return EOF;
     *--cb->cb_ptr = c;
@@ -60,7 +60,7 @@ cbflush(void *file)
 static int
 cbclose(void *file)
 {
-    charbuf_t *cb = file;
+    charbuf_t *cb = (charbuf_t *)file;
     if (cb->cb_ref == NULL)
         ici_free(cb->cb_data);
     ici_tfree(cb, charbuf_t);
@@ -70,7 +70,7 @@ cbclose(void *file)
 static long
 cbseek(void *file, long offset, int whence)
 {
-    charbuf_t *cb = file;
+    charbuf_t *cb = (charbuf_t *)file;
     switch (whence)
     {
     case 0:
@@ -91,14 +91,14 @@ cbseek(void *file, long offset, int whence)
 static int
 cbeof(void *file)
 {
-    charbuf_t *cb = file;
+    charbuf_t *cb = (charbuf_t *)file;
     return cb->cb_eof;
 }
 
 static int
 cbwrite(const void *data, long count, void *file)
 {
-    charbuf_t *cb = file;
+    charbuf_t *cb = (charbuf_t *)file;
     if (cb->cb_readonly || count <= 0)
         return 0;
     if (cb->cb_ptr < cb->cb_data || cb->cb_ptr >= cb->cb_data + cb->cb_size)
@@ -152,7 +152,7 @@ reattach_string_buffer(charbuf_t *sb)
 static int
 sbgetc(void *file)
 {
-    charbuf_t *sb = file;
+    charbuf_t *sb = (charbuf_t *)file;
     reattach_string_buffer(sb);
     return cbgetc(sb);
 }
@@ -160,7 +160,7 @@ sbgetc(void *file)
 static int
 sbungetc(int c, void *file)
 {
-    charbuf_t *sb = file;
+    charbuf_t *sb = (charbuf_t *)file;
     reattach_string_buffer(sb);
     return cbungetc(c, sb);
 }
@@ -168,7 +168,7 @@ sbungetc(int c, void *file)
 static long
 sbseek(void *file, long offset, int whence)
 {
-    charbuf_t *sb = file;
+    charbuf_t *sb = (charbuf_t *)file;
     reattach_string_buffer(sb);
     return cbseek(sb, offset, whence);
 }
@@ -176,8 +176,8 @@ sbseek(void *file, long offset, int whence)
 static int
 sbwrite(const void *ptr, long count, void *file)
 {
-    const char *data = ptr;
-    charbuf_t *sb = file;
+    const char *data = (const char *)ptr;
+    charbuf_t *sb = (charbuf_t *)file;
     ici_str_t   *s;
     int         size;
 

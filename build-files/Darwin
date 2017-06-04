@@ -1,3 +1,0 @@
-cflags = -DCONFIG_FILE='"conf/osx.h"' -I. -Imacosx -Ofast -Os -DNDEBUG -fno-common -dynamic -Wall -Wextra -Wno-missing-field-initializers -Wno-unused-parameter
-ldflags = -g -Ofast -Os -fno-common -dynamic
-libs = -framework Foundation

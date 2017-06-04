@@ -34,7 +34,7 @@ static ici_obj_t *restore(ici_archive_t *);
 static int
 readf(ici_archive_t *ar, void *buf, int len)
 {
-    char *p = buf;
+    char *p = (char *)buf;
     while (len-- > 0)
     {
         int (*get)(void *) = ar->a_file->f_type->ft_getch;
@@ -42,7 +42,7 @@ readf(ici_archive_t *ar, void *buf, int len)
 
         if ((ch = (*get)(ar->a_file->f_file)) == -1)
         {
-            ici_error = "eof";
+            ici_set_error("eof");
 	    return 1;
         }
 	*p++ = ch;
@@ -115,7 +115,7 @@ static ici_obj_t *
 restore_error(ici_archive_t *ar)
 {
     (void)ar;
-    ici_error = "unable to restore object";
+    ici_set_error("unable to restore object");
     return NULL;
 }
 
@@ -583,7 +583,7 @@ restore_src(ici_archive_t *ar)
     }
     if (!ici_isstring(filename))
     {
-        ici_error = "unexpected type of filename";
+        ici_set_error("unexpected type of filename");
         ici_decref(filename);
         return NULL;
     }
@@ -614,7 +614,7 @@ restore_cfunc(ici_archive_t *ar)
     buf = space;
     if (namelen >= (int)(sizeof space))
     {
-        if ((buf = ici_alloc(namelen)) == NULL)
+        if ((buf = (char *)ici_alloc(namelen)) == NULL)
         {
             return 0;
         }
