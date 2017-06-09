@@ -44,7 +44,11 @@
 
 #include "fwd.h"
 #include "archive.h"
+#include "int.h"
+#include "null.h"
 #include "cfunc.h"
+#include "file.h"
+#include "struct.h"
 #include "op.h"
 
 typedef int int_func();
@@ -228,7 +232,7 @@ void ici_archive_byteswap(void *ptr, int sz)
 
 ICI_DEFINE_CFUNCS(save_restore)
 {
-    {ICI_CF_OBJ, "save",        ici_archive_f_save,     0, 0},
-    {ICI_CF_OBJ, "restore",     ici_archive_f_restore,  0, 0},
-    {ICI_CF_OBJ}
+    ICI_DEFINE_CFUNC(save, ici_archive_f_save),
+    ICI_DEFINE_CFUNC(restore, ici_archive_f_restore),
+    ICI_CFUNCS_END
 };

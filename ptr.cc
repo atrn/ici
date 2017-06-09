@@ -230,6 +230,6 @@ ici_type_t  ici_ptr_type =
     call_ptr,
 };
 
-ici_op_t    ici_o_mkptr         = {ICI_OBJ(ICI_TC_OP), ici_op_mkptr};
-ici_op_t    ici_o_openptr       = {ICI_OBJ(ICI_TC_OP), ici_op_openptr};
-ici_op_t    ici_o_fetch         = {ICI_OBJ(ICI_TC_OP), ici_op_fetch};
+ici_op_t    ici_o_mkptr         = {ici_op_mkptr};
+ici_op_t    ici_o_openptr       = {ici_op_openptr};
+ici_op_t    ici_o_fetch         = {ici_op_fetch};

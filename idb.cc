@@ -72,6 +72,6 @@ f_debug(...)
 
 ici_cfunc_t ici_debug_cfuncs[] =
 {
-    {ICI_CF_OBJ,    (char *)SS(debug),        f_debug},
-    {ICI_CF_OBJ}
+    ICI_DEFINE_CFUNC(    debug,        f_debug),
+    ICI_CFUNCS_END
 };

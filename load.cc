@@ -433,6 +433,6 @@ ici_init_path(ici_objwsup_t *externs)
 
 ici_cfunc_t ici_load_cfuncs[] =
 {
-    {ICI_CF_OBJ, (char *)SS(load), f_load},
-    {ICI_CF_OBJ}
+    ICI_DEFINE_CFUNC(load, f_load),
+    ICI_CFUNCS_END
 };

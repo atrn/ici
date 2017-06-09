@@ -1,3 +1,5 @@
+// -*- mode:c++ -*-
+
 #ifndef ICI_FWD_H
 #define ICI_FWD_H
 

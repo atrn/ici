@@ -25,4 +25,4 @@ ici_type_t  ici_mark_type =
     "mark"
 };
 
-ici_mark_t  ici_o_mark  = {ICI_OBJ(ICI_TC_MARK)};
+ici_mark_t  ici_o_mark;

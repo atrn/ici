@@ -3,6 +3,7 @@
 #include "method.h"
 #include "exec.h"
 #include "buf.h"
+#include "null.h"
 #include "primes.h"
 #include "str.h"
 #ifndef NOPROFILE

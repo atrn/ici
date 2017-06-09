@@ -3,6 +3,7 @@
 #include "ptr.h"
 #include "exec.h"
 #include "file.h"
+#include "null.h"
 #include "str.h"
 #include "struct.h"
 #include "buf.h"
@@ -37,7 +38,7 @@ ici_main(int argc, char *argv[])
     int                 i;
     int                 j;
     char                *s;
-    char                *fmt;
+    const char          *fmt;
     char                *arg0;
     ici_array_t         *av = NULL;
     FILE                *stream;

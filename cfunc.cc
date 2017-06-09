@@ -751,7 +751,7 @@ f_coreici(ici_obj_t *s)
 /*--------------------------------------------------------------------------------*/
 
 static int
-f_array()
+f_array(...)
 {
     int        nargs;
     ici_array_t    *a;
@@ -4303,7 +4303,7 @@ ICI_DEFINE_CFUNCS(std)
     ICI_DEFINE_CFUNC2(memoize,     f_coreici, SS(memoize),   SS(core6)),
     ICI_DEFINE_CFUNC2(memoized,    f_coreici, SS(memoized),  SS(core6)),
     ICI_DEFINE_CFUNC2(print,       f_coreici, SS(print),     SS(core7)),
-    ICI_DEFINE_CFUNC1(printf,   ici_f_sprintf, 1),
+    ICI_DEFINE_CFUNC1(printf,      ici_f_sprintf, 1),
     ICI_DEFINE_CFUNC(getchar,   f_getchar),
     ICI_DEFINE_CFUNC(ungetchar, f_ungetchar),
     ICI_DEFINE_CFUNC(getfile,   f_getfile),
@@ -4324,5 +4324,5 @@ ICI_DEFINE_CFUNCS(std)
     ICI_DEFINE_CFUNC(rename,    f_rename),
     ICI_DEFINE_CFUNC(getenv,    f_getenv),
     ICI_DEFINE_CFUNC(putenv,    f_putenv),
-    {ICI_CF_OBJ}
+    ICI_CFUNCS_END
 };

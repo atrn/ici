@@ -1,3 +1,5 @@
+// -*- mode:c++ -*-
+
 #ifndef ICI_OBJECT_H
 #define ICI_OBJECT_H
 
@@ -252,23 +254,23 @@ struct ici_type
  *
  * Note that the argument 'o' is subject to multiple expansions.
  */
-#define xici_mark(o)                                                    \
-    (                                                                   \
-        (ici_objof(o)->o_flags & ICI_O_MARK) == 0                       \
-        ?                                                               \
-        (                                                               \
-            ici_objof(o)->o_leafz != 0                                  \
-            ?                                                           \
-            (                                                           \
-                ici_objof(o)->o_flags |= ICI_O_MARK,                    \
-                ici_objof(o)->o_leafz                                   \
-            )                                                           \
-            :                                                           \
-            (*ici_typeof(o)->t_mark)(ici_objof(o))                      \
-        )                                                               \
-        :                                                               \
-        0L                                                              \
-    )
+// #define ici_mark(o)                                                     \
+//     (                                                                   \
+//         (ici_objof(o)->o_flags & ICI_O_MARK) == 0                       \
+//         ?                                                               \
+//         (                                                               \
+//             ici_objof(o)->o_leafz != 0                                  \
+//             ?                                                           \
+//             (                                                           \
+//                 ici_objof(o)->o_flags |= ICI_O_MARK,                    \
+//                 ici_objof(o)->o_leafz                                   \
+//             )                                                           \
+//             :                                                           \
+//             (*ici_typeof(o)->t_mark)(ici_objof(o))                      \
+//         )                                                               \
+//         :                                                               \
+//         0L                                                              \
+//     )
 
 /*
  * Fetch the value of the key 'k' from the object 'o'.  This macro just calls
@@ -401,6 +403,17 @@ struct ici_type
  */
 struct ici_obj
 {
+    ici_obj() : o_tcode(0), o_flags(0), o_nrefs(0), o_leafz(0)  {}
+
+    ici_obj(char tcode, char flags = 0, char nrefs = 1, char leafz = 0)
+        : o_tcode(tcode)
+        , o_flags(flags)
+        , o_nrefs(nrefs)
+        , o_leafz(leafz)
+    {}
+
+    ~ici_obj() {}
+
     char        o_tcode;
     char        o_flags;
     char        o_nrefs;
@@ -452,13 +465,21 @@ struct ici_obj
  *
  * --ici-api-- continued.
  */
-#define ICI_O_MARK          0x01    /* Garbage collection mark. */
-#define ICI_O_ATOM          0x02    /* Is a member of the atom pool. */
-#define ICI_O_TEMP          0x04    /* Is a re-usable temp (flag for asserts). */
-#define ICI_O_SUPER         0x08    /* Has super (is ici_objwsup_t derived). */
-#define ICI_O_OLD	    0x10    /* Has been through 1+ collects */
+constexpr int ICI_O_MARK  =         0x01;    /* Garbage collection mark. */
+constexpr int ICI_O_ATOM  =         0x02;    /* Is a member of the atom pool. */
+constexpr int ICI_O_TEMP  =         0x04;    /* Is a re-usable temp (flag for asserts). */
+constexpr int ICI_O_SUPER =         0x08;    /* Has super (is ici_objwsup_t derived). */
+constexpr int ICI_O_OLD   =	    0x10;    /* Has been through 1+ collects */
 
-#define ici_objof(x)        ((ici_obj_t *)(x))
+/*
+ * ici_objof converts an arbitrary object pointer to its base ici_obj_t pointer.
+ *
+ * TODO: This will disappear. All objects are "is-a ici_obj_t" so normal C++
+ * rules will suffice for the down casts.
+ */
+#define ici_objof(x) (static_cast<ici_obj_t *>(x))
+
+#define ici_objof_ostemp(x) ((ici_obj_t *)(x))
 
 /*
  * "Object with super." This is a specialised header for all objects that
@@ -472,16 +493,24 @@ struct ici_obj
  */
 struct ici_objwsup : ici_obj
 {
+    ici_objwsup(char tcode, char flags, char nrefs, char leafz)
+        : ici_obj(tcode, flags, nrefs, leafz)
+        , o_super(nullptr)
+    {}
+
     ici_objwsup_t   *o_super;
 };
 #define ici_objwsupof(o)    ((ici_objwsup_t *)(o))
+
 /*
  * Test if this object supports a super type.  (It may or may not have a super
  * at any particular time).
  *
  * This --macro-- forms part of the --ici-api--.
  */
-#define ici_hassuper(o)     (ici_objof(o)->o_flags & ICI_O_SUPER)
+inline bool ici_hassuper(const ici_obj_t *o) { return (o->o_flags & ICI_O_SUPER) != 0; }
+
+// #define ici_hassuper(o)     (ici_objof(o)->o_flags & ICI_O_SUPER)
 
 /*
  * Return a pointer to the 'ici_type_t' struct of the given object.

@@ -165,11 +165,9 @@ static char *signal_names[NSIG] =
  * table so we use that if possible. 
  */
 #ifdef __linux__
-# define signam sys_siglist
+# define signal_names sys_siglist
 #elif defined BSD
-# define signam sys_signame
-#else
-# define signam signal_names
+# define signal_names sys_signame
 #endif
 
 /*
@@ -188,7 +186,7 @@ signam_to_signo(char *nam)
         nam += 3;
     for (signo = 0; signo < NSIG; ++signo)
     {
-        if (strcasecmp(nam, signam[signo]) == 0)
+        if (strcasecmp(nam, signal_names[signo]) == 0)
             return index_to_signo(signo);
     }
     return 0;
@@ -209,7 +207,7 @@ signo_to_signam(int signo)
 #else
     if (signo < 1 || signo >= NSIG)
         return NULL;
-    return signam[signo_to_index(signo)];
+    return signal_names[signo_to_index(signo)];
 #endif
 }
 
@@ -467,9 +465,9 @@ f_signam(...)
 /*
  * Our C-funcs
  */
-ici_cfunc_t ici_signals_cfuncs[] =
+ICI_DEFINE_CFUNCS(signals)
 {
-    {ICI_CF_OBJ,    (char *)SS(signal),   f_signal},
-    {ICI_CF_OBJ,    (char *)SS(signam),   f_signam},
-    {ICI_CF_OBJ}
+    ICI_DEFINE_CFUNC(signal,   f_signal),
+    ICI_DEFINE_CFUNC(signam,   f_signam),
+    ICI_CFUNCS_END
 };

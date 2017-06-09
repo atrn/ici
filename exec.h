@@ -1,3 +1,5 @@
+// -*- mode:c++ -*-
+
 #ifndef ICI_EXEC_H
 #define ICI_EXEC_H
 

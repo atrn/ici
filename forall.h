@@ -1,3 +1,5 @@
+// -*- mode:c++ -*-
+
 #ifndef ICI_FORALL_H
 #define ICI_FORALL_H
 

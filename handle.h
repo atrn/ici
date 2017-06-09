@@ -1,3 +1,5 @@
+// -*- mode:c++ -*-
+
 #ifndef ICI_HANDLE_H
 #define ICI_HANDLE_H
 
@@ -87,6 +89,15 @@
  */
 struct ici_handle : ici_objwsup
 {
+    ici_handle() : ici_objwsup{ICI_TC_HANDLE, 0, 1, 0}
+                 , h_ptr(nullptr)
+                 , h_name(nullptr)
+                 , h_pre_free(nullptr)
+                 , h_member_map(nullptr)
+                 , h_member_intf(nullptr)
+                 , h_general_intf(nullptr)
+    {}
+
     void            *h_ptr;
     ici_str_t       *h_name;
     void            (*h_pre_free)(ici_handle_t *h);

@@ -1,3 +1,5 @@
+// -*- mode:c++ -*-
+
 #ifndef ICI_ARRAY_H
 #define ICI_ARRAY_H
 

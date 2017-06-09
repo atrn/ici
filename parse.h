@@ -1,3 +1,5 @@
+// -*- mode:c++ -*-
+
 #ifndef ICI_PARSE_H
 #define ICI_PARSE_H
 

@@ -1,3 +1,5 @@
+// -*- mode:c++ -*-
+
 #ifndef ICI_STRUCT_H
 #define ICI_STRUCT_H
 

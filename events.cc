@@ -43,7 +43,7 @@ f_eventloop()
 
 ici_cfunc_t ici_event_cfuncs[] =
 {
-    {ICI_CF_OBJ,    (char *)SS(eventloop),       f_eventloop},
-    {ICI_CF_OBJ}
+    ICI_DEFINE_CFUNC(    eventloop,       f_eventloop),
+    ICI_CFUNCS_END
 };
 #endif /* NOEVENTS */

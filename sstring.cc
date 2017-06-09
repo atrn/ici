@@ -7,11 +7,11 @@
  * and a pesudo size of 1 in o_leafz).
  */
 #if ICI_KEEP_STRING_HASH
-#   define SSTRING(name, str)    sstring_t ici_ss_##name \
-        = {{ICI_TC_STRING, 0, 1, 1}, NULL, NULL, 0, 0, (sizeof str) - 1, NULL, str};
+#   define SSTRING(name, str)    sstring_t ici_ss_##name (str) ;
+    //        = {{ICI_TC_STRING, 0, 1, 1}, NULL, NULL, 0, 0, (sizeof str) - 1, NULL, str};
 #else
-#   define SSTRING(name, str)    sstring_t ici_ss_##name \
-        = {{ICI_TC_STRING, 0, 1, 1}, NULL, NULL, 0, (sizeof str) - 1, NULL, str};
+#   define SSTRING(name, str)    sstring_t ici_ss_##name (str) ;
+    //        = {{ICI_TC_STRING, 0, 1, 1}, NULL, NULL, 0, (sizeof str) - 1, NULL, str};
 #endif
 #include "sstring.h"
 #undef  SSTRING

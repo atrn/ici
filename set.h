@@ -1,3 +1,5 @@
+// -*- mode:c++ -*-
+
 #ifndef ICI_SETS_H
 #define ICI_SETS_H
 

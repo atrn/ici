@@ -259,5 +259,5 @@ f_build(...)
 ICI_DEFINE_CFUNCS(apl)
 {
     ICI_DEFINE_CFUNC(build, f_build),
-    {ICI_CF_OBJ}
+    ICI_CFUNCS_END
 };

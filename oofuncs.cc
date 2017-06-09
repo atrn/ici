@@ -113,11 +113,11 @@ m_unknown_method(ici_obj_t *o)
     return ici_set_error("attempt to call unknown method");
 }
 
-ici_cfunc_t ici_oo_funcs[] =
+ICI_DEFINE_CFUNCS(oo)
 {
-    {ICI_CF_OBJ,    (char *)SS(new),          m_new},
-    {ICI_CF_OBJ,    (char *)SS(isa),          m_isa},
-    {ICI_CF_OBJ,    (char *)SS(respondsto),   m_respondsto},
-    {ICI_CF_OBJ,    (char *)SS(unknown_method), m_unknown_method},
-    {ICI_CF_OBJ}
+    ICI_DEFINE_METHOD(new,              m_new),
+    ICI_DEFINE_METHOD(isa,              m_isa),
+    ICI_DEFINE_METHOD(respondsto,       m_respondsto),
+    ICI_DEFINE_METHOD(unknown_method,   m_unknown_method),
+    ICI_CFUNCS_END
 };

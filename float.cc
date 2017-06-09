@@ -16,7 +16,7 @@ ici_float_new(double v)
 {
     ici_float_t          *f;
     ici_obj_t           **po;
-    static ici_float_t   proto = {ICI_OBJ(ICI_TC_FLOAT)};
+    static ici_float_t   proto;
 
     proto.f_value = v;
     if ((f = ici_floatof(ici_atom_probe2(ici_objof(&proto), &po))) != NULL)

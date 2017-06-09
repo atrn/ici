@@ -1,6 +1,8 @@
 #define ICI_CORE
 #include "buf.h"
 #include "exec.h"
+#include "str.h"
+#include "re.h"
 #include "wrap.h"
 
 static ici_wrap_t       *wraps;

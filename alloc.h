@@ -1,3 +1,5 @@
+// -*- mode:c++ -*-
+
 #ifndef ICI_ALLOC_H
 #define ICI_ALLOC_H
 

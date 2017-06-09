@@ -484,8 +484,8 @@ find_fixedlength(uschar *code)
 {
 int length = -1;
 
-register int branchlength = 0;
-register uschar *cc = code + 3;
+ int branchlength = 0;
+ uschar *cc = code + 3;
 
 /* Scan along the opcodes for this branch. If we get to the end of the
 branch, check the length against that of the other branches. */
@@ -493,7 +493,7 @@ branch, check the length against that of the other branches. */
 for (;;)
   {
   int d;
-  register int op = *cc;
+   int op = *cc;
   if (op >= OP_BRA) op = OP_BRA;
 
   switch (op)
@@ -654,8 +654,8 @@ int greedy_default, greedy_non_default;
 int prevreqchar;
 int condcount = 0;
 int subcountlits = 0;
-register int c = 0; /* init to shut up compiler */
-register uschar *code = *codeptr;
+ int c = 0; /* init to shut up compiler */
+ uschar *code = *codeptr;
 uschar *tempcode;
 const uschar *ptr = *ptrptr;
 const uschar *tempptr;
@@ -778,7 +778,7 @@ for (;; ptr++)
         if (-c == ESC_b) c = '\b';
         else if (c < 0)
           {
-          register const uschar *cbits = cd->cbits;
+           const uschar *cbits = cd->cbits;
           class_charcount = 10;
           switch (-c)
             {
@@ -1123,7 +1123,7 @@ for (;; ptr++)
     else if ((int)*previous >= OP_BRA || (int)*previous == OP_ONCE ||
              (int)*previous == OP_COND)
       {
-      register int i;
+       int i;
       int ketoffset = 0;
       int len = code - previous;
       uschar *bralink = NULL;
@@ -1136,7 +1136,7 @@ for (;; ptr++)
 
       if (repeat_max == -1)
         {
-        register uschar *ket = previous;
+         uschar *ket = previous;
         do ket += (ket[1] << 8) + ket[2]; while (*ket != OP_KET);
         ketoffset = code - ket;
         }
@@ -1432,7 +1432,7 @@ for (;; ptr++)
       }
 
     /* Process nested bracketed re. Assertions may not be repeated, but other
-    kinds can be. We copy code into a non-register variable in order to be able
+    kinds can be. We copy code into a non- variable in order to be able
     to pass its address because some compilers complain otherwise. Pass in a
     new setting for the ims options if they have changed. */
 
@@ -1872,12 +1872,12 @@ Returns:     TRUE or FALSE
 */
 
 static BOOL
-is_anchored(register const uschar *code, int *options)
+is_anchored( const uschar *code, int *options)
 {
 do {
    const uschar *scode = first_significant_code(code + 3, options,
      PCRE_MULTILINE, FALSE);
-   register int op = *scode;
+    int op = *scode;
    if (op >= OP_BRA || op == OP_ASSERT || op == OP_ONCE || op == OP_COND)
      { if (!is_anchored(scode, options)) return FALSE; }
    else if ((op == OP_TYPESTAR || op == OP_TYPEMINSTAR) &&
@@ -1912,7 +1912,7 @@ is_startline(const uschar *code)
 {
 do {
    const uschar *scode = first_significant_code(code + 3, NULL, 0, FALSE);
-   register int op = *scode;
+    int op = *scode;
    if (op >= OP_BRA || op == OP_ASSERT || op == OP_ONCE || op == OP_COND)
      { if (!is_startline(scode)) return FALSE; }
    else if (op == OP_TYPESTAR || op == OP_TYPEMINSTAR)
@@ -1946,12 +1946,12 @@ Returns:     -1 or the fixed first char
 static int
 find_firstchar(const uschar *code, int *options)
 {
-register int c = -1;
+ int c = -1;
 do {
    int d;
    const uschar *scode = first_significant_code(code + 3, options,
      PCRE_CASELESS, TRUE);
-   register int op = *scode;
+    int op = *scode;
 
    if (op >= OP_BRA) op = OP_BRA;
 
@@ -2903,7 +2903,7 @@ Returns:      TRUE if matched
 */
 
 static BOOL
-match_ref(int offset, register const uschar *eptr, int length, match_data *md,
+match_ref(int offset,  const uschar *eptr, int length, match_data *md,
   unsigned long int ims)
 {
 const uschar *p = md->start_subject + md->offset_vector[offset];
@@ -2962,7 +2962,7 @@ Returns:       TRUE if matched
 */
 
 static BOOL
-match(register const uschar *eptr, register const uschar *ecode,
+match( const uschar *eptr,  const uschar *ecode,
   int offset_top, match_data *md, unsigned long int ims, BOOL condassert,
   const uschar *eptrb)
 {
@@ -2972,8 +2972,8 @@ for (;;)
   {
   int op = (int)*ecode;
   int min, max, ctype;
-  register int i;
-  register int c;
+   int i;
+   int c;
   BOOL minimize = FALSE;
 
   /* Opening capturing bracket. If there is space in the offset vector, save
@@ -3513,7 +3513,7 @@ for (;;)
 
       /* First, ensure the minimum number of matches are present. We get back
       the length of the reference string explicitly rather than passing the
-      address of eptr, so that eptr can be a register variable. */
+      address of eptr, so that eptr can be a  variable. */
 
       for (i = 1; i <= min; i++)
         {
@@ -3659,7 +3659,7 @@ for (;;)
 
     case OP_CHARS:
       {
-      register int length = ecode[1];
+       int length = ecode[1];
       ecode += 2;
 
 #ifdef DEBUG    /* Sigh. Some compilers never learn. */
@@ -4275,8 +4275,8 @@ initialize them to avoid reading uninitialized locations. */
 
 if (match_block.offset_vector != NULL)
   {
-  register int *iptr = match_block.offset_vector + ocount;
-  register int *iend = iptr - resetcount/2 + 1;
+   int *iptr = match_block.offset_vector + ocount;
+   int *iend = iptr - resetcount/2 + 1;
   while (--iptr >= iend) *iptr = -1;
   }
 
@@ -4320,8 +4320,8 @@ the loop runs just once. */
 do
   {
   int rc;
-  register int *iptr = match_block.offset_vector;
-  register int *iend = iptr + resetcount;
+   int *iptr = match_block.offset_vector;
+   int *iend = iptr + resetcount;
 
   /* Reset the maximum number of extractions we might see. */
 
@@ -4357,7 +4357,7 @@ do
     {
     while (start_match < end_subject)
       {
-      register int c = *start_match;
+       int c = *start_match;
       if ((start_bits[c/8] & (1 << (c&7))) == 0) start_match++; else break;
       }
     }
@@ -4381,7 +4381,7 @@ do
 
   if (req_char >= 0)
     {
-    register const uschar *p = start_match + ((first_char >= 0)? 1 : 0);
+     const uschar *p = start_match + ((first_char >= 0)? 1 : 0);
 
     /* We don't need to repeat the search if we haven't yet reached the
     place we found it at last time. */
@@ -4404,7 +4404,7 @@ do
         {
         while (p < end_subject)
           {
-          register int pp = *p++;
+           int pp = *p++;
           if (pp == req_char || pp == req_char2) { p--; break; }
           }
         }

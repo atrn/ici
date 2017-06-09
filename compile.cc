@@ -3,6 +3,8 @@
 #include "parse.h"
 #include "array.h"
 #include "op.h"
+#include "null.h"
+#include "int.h"
 #include "str.h"
 
 /*

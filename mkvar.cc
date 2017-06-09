@@ -5,6 +5,7 @@
 #include "float.h"
 #include "buf.h"
 #include "file.h"
+#include "str.h"
 
 /*
  * ici_set_val(scope, name, typespec, value)

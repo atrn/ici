@@ -1,3 +1,5 @@
+// -*- mode:c++ -*-
+
 #ifndef ICI_LOAD_W32_H
 #define ICI_LOAD_W32_H
 

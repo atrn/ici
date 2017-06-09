@@ -2,9 +2,12 @@
 #include "fwd.h"
 #include "file.h"
 #include "str.h"
+#include "null.h"
 #include "parse.h"
 #include "primes.h"
 #include "buf.h"
+#include "int.h"
+#include "null.h"
 
 /*
  * Returns 0 if these objects are eq, else non-zero.

@@ -1,3 +1,5 @@
+// -*- mode:c++ -*-
+
 /*
  * This somewhat special include file may be included to provide
  * defintions and initialisations (at run-time) of ICI string

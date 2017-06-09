@@ -1,3 +1,5 @@
+// -*- mode:c++ -*-
+
 #ifndef ICI_WRAP_H
 #define ICI_WRAP_H
 

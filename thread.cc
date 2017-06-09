@@ -2,6 +2,7 @@
 #include "fwd.h"
 #include "exec.h"
 #include "array.h"
+#include "null.h"
 #include "cfunc.h"
 #include "op.h"
 #include "catch.h"
@@ -499,9 +500,9 @@ ici_init_thread_stuff(void)
     return 0;
 }
 
-ici_cfunc_t ici_thread_cfuncs[] =
+ICI_DEFINE_CFUNCS(thread)
 {
-    {ICI_CF_OBJ,    "go",            f_go},
-    {ICI_CF_OBJ,    "wakeup",        f_wakeup},
-    {ICI_CF_OBJ}
+    ICI_DEFINE_CFUNC(go,            f_go),
+    ICI_DEFINE_CFUNC(wakeup,        f_wakeup),
+    ICI_CFUNCS_END
 };

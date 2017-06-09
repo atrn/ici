@@ -1,3 +1,5 @@
+// -*- mode:c++ -*-
+
 #ifndef ICI_ERROR_H
 #define ICI_ERROR_H
 

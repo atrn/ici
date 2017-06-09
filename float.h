@@ -1,3 +1,5 @@
+// -*- mode:c++ -*-
+
 #ifndef ICI_FLOAT_H
 #define ICI_FLOAT_H
 
@@ -16,6 +18,7 @@
  */
 struct ici_float : ici_obj
 {
+    ici_float(double v = 0.0) : ici_obj(ICI_TC_FLOAT), f_value(v) {}
     double      f_value;
 };
 #define ici_floatof(o)      ((ici_float_t *)o)

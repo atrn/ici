@@ -13,6 +13,8 @@
 #include "parse.h"
 #include "float.h"
 #include "re.h"
+#include "method.h"
+#include "mark.h"
 #include "src.h"
 #include "null.h"
 #include "forall.h"
@@ -208,7 +210,7 @@ ici_exec_t *
 ici_new_exec(void)
 {
     ici_exec_t          *x;
-    static ici_src_t    default_src = {ICI_OBJ(ICI_TC_SRC), 0, NULL};
+    static ici_src_t    default_src;
 
     if ((x = ici_talloc(ici_exec_t)) ==  NULL)
     {
@@ -1434,4 +1436,4 @@ ici_type_t  ici_exec_type =
     "exec"
 };
 
-ici_op_t    ici_o_quote         = {ICI_OBJ(ICI_TC_OP), NULL, ICI_OP_QUOTE};
+ici_op_t    ici_o_quote         = {ICI_OP_QUOTE};

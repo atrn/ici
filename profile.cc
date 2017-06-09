@@ -380,10 +380,10 @@ ici_profile_return()
 /*
  * ICI functions exported for profiling.
  */
-ici_cfunc_t ici_profile_cfuncs[] =
+ICI_DEFINE_CFUNCS(profile)
 {
-    {ICI_CF_OBJ,    (char *)SS(profile),       f_profile},
-    {ICI_CF_OBJ}
+    ICI_DEFINE_CFUNC(profile, f_profile),
+    ICI_CFUNCS_END
 };
 
 #endif

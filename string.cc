@@ -2,6 +2,7 @@
 #include "fwd.h"
 #include "str.h"
 #include "struct.h"
+#include "null.h"
 #include "exec.h"
 #include "int.h"
 #include "primes.h"
@@ -11,7 +12,8 @@
  * How many bytes of memory we need for a string of n chars (single
  * allocation).
  */
-#define STR_ALLOCZ(n)   (offsetof(ici_str_t, s_u) + (n) + 1)
+#define STR_ALLOCZ(n)   ((n) + sizeof (ici_str_t) - sizeof (int))
+// (offsetof(ici_str_t, s_u) + (n) + 1)
 
 /*
  * Allocate a new string object (single allocation) large enough to hold
@@ -41,7 +43,7 @@ ici_str_alloc(int nchars)
     s->s_struct = NULL;
     s->s_slot = NULL;
 #   if ICI_KEEP_STRING_HASH
-        s->s_hash = 0;
+    s->s_hash = 0;
 #   endif
     s->s_vsver = 0;
     ici_rego(s);
@@ -74,7 +76,7 @@ ici_str_new(const char *p, int nchars)
         ici_str_t       s;
         char            d[40];
     }
-        proto   = {{ICI_OBJ(ICI_TC_STRING)}};
+    proto; //    = {{ICI_OBJ(ICI_TC_STRING)}};
 
     assert(nchars >= 0);
     az = STR_ALLOCZ(nchars);
@@ -340,10 +342,10 @@ ici_hash_string(ici_obj_t *o)
     unsigned long       h;
 
 #   if ICI_KEEP_STRING_HASH
-        if (ici_stringof(o)->s_hash != 0)
-        {
-            return ici_stringof(o)->s_hash;
-        }
+    if (ici_stringof(o)->s_hash != 0)
+    {
+        return ici_stringof(o)->s_hash;
+    }
 #   endif
 
 #   if defined(ICI_USE_SF_HASH)

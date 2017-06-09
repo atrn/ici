@@ -8,6 +8,7 @@
 #include "forall.h"
 #include "op.h"
 #include "int.h"
+#include "null.h"
 #include "buf.h"
 #include "primes.h"
 
@@ -761,4 +762,4 @@ ici_type_t  ici_array_type =
     forall_array
 };
 
-ici_op_t    ici_o_mklvalue      = {ICI_OBJ(ICI_TC_OP), ici_op_mklvalue};
+ici_op_t    ici_o_mklvalue      = {ici_op_mklvalue};

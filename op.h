@@ -1,3 +1,5 @@
+// -*- mode:c++ -*-
+
 #ifndef ICI_OP_H
 #define ICI_OP_H
 
@@ -10,10 +12,27 @@
  */
 struct ici_op : ici_obj
 {
+    ici_op() : ici_obj(ICI_TC_OP) {}
+
+    ici_op(int (*func)())
+        : ici_obj(ICI_TC_OP)
+        , op_func(func)
+        , op_ecode(0)
+        , op_code(0)
+    {}
+
+    ici_op(int ecode, int code = 0)
+        : ici_obj(ICI_TC_OP)
+        , op_func(nullptr)
+        , op_ecode(ecode)
+        , op_code(code)
+    {}
+
     int         (*op_func)();
     int         op_ecode;       /* See ICI_OP_* below. */
     int         op_code;
 };
+
 #define ici_opof(o) ((ici_op_t *)o)
 #define ici_isop(o) ((o)->o_tcode == ICI_TC_OP)
 

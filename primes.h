@@ -1,3 +1,5 @@
+// -*- mode:c++ -*-
+
 /*
  * "random" primes (if you know what I mean). Hash functions (of which
  * there is about one per ICI type) tend to use primes in their hashes.

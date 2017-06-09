@@ -1,4 +1,5 @@
 #define ICI_CORE
+#include "op.h"
 #include "buf.h"
 #include "exec.h"
 #include "func.h"
@@ -6,7 +7,6 @@
 #include "float.h"
 #include "str.h"
 #include "null.h"
-#include "op.h"
 #include "catch.h"
 
 /*

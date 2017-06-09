@@ -54,7 +54,7 @@ ici_new_op(int (*func)(), int ecode, int code)
 {
     ici_op_t            *o;
     ici_obj_t           **po;
-    static ici_op_t     proto = {ICI_OBJ(ICI_TC_OP)};
+    static ici_op_t     proto = {ICI_TC_OP};
 
     proto.op_func = func;
     proto.op_code = code;

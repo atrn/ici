@@ -6,6 +6,7 @@
 #include "struct.h"
 #include "op.h"
 #include "pc.h"
+#include "src.h"
 #include "str.h"
 #include "catch.h"
 #include "buf.h"
@@ -352,7 +353,7 @@ ici_type_t  ici_func_type =
     call_func
 };
 
-ici_op_t    ici_o_return        = {ICI_OBJ(ICI_TC_OP), ici_op_return};
-ici_op_t    ici_o_call          = {ICI_OBJ(ICI_TC_OP), NULL, ICI_OP_CALL};
-ici_op_t    ici_o_method_call   = {ICI_OBJ(ICI_TC_OP), NULL, ICI_OP_METHOD_CALL};
-ici_op_t    ici_o_super_call    = {ICI_OBJ(ICI_TC_OP), NULL, ICI_OP_SUPER_CALL};
+ici_op_t    ici_o_return        = {ici_op_return};
+ici_op_t    ici_o_call          = {ICI_OP_CALL};
+ici_op_t    ici_o_method_call   = {ICI_OP_METHOD_CALL};
+ici_op_t    ici_o_super_call    = {ICI_OP_SUPER_CALL};

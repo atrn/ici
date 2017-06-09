@@ -1,3 +1,5 @@
+// -*- mode:c++ -*-
+
 #ifndef ICI_PROFILE_H
 #define ICI_PROFILE_H
 

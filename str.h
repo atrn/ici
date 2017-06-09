@@ -1,3 +1,5 @@
+// -*- mode:c++ -*-
+
 #ifndef ICI_STRING_H
 #define ICI_STRING_H
 
@@ -21,13 +23,38 @@
  */
 #define ICI_KEEP_STRING_HASH 1
 
+/*
+ * The ici_str_object struct is the common 'header' structure used for
+ * both dynamic (ici_str) and static (sstring) string objects.
+ *
+ * Dynamic strings are use allocated memory and partipate in garbage
+ * collection and are "normal" ICI objects. Static strings use
+ * statically allocated memory and do NOT registered with the
+ * collector. They are used for, small, well known strings such
+ * language keywords, the names of builtin functions and methods and
+ * struct fields and so forth.
+ */
+struct ici_str_object : ici_obj
+{
+    ici_struct_t    *s_struct;      /* Where we were last found on the vs. */
+    ici_sslot_t     *s_slot;        /* And our slot within that struct. */
+    long            s_vsver;        /* The vs version at that time (the slot is only valid when versions match). */
+#   if ICI_KEEP_STRING_HASH
+    unsigned long   s_hash;         /* String hash code or 0 if not yet computed */
+#   endif
+    int             s_nchars;       /* Number of characters - does NOT include an added NUL (for C compatibility) */
+    char            *s_chars;       /* Pointer to first character of string, immediately followed by others. */
+};
+
 struct ici_str : ici_obj
 {
+    ici_str() : ici_obj{ICI_TC_STRING} {}
+
     ici_struct_t    *s_struct;      /* Where we were last found on the vs. */
     ici_sslot_t     *s_slot;        /* And our slot. */
     long            s_vsver;        /* The vs version at that time. */
 #   if ICI_KEEP_STRING_HASH
-        unsigned long s_hash;  /* String hash code or 0 if not yet computed */
+    unsigned long   s_hash;         /* String hash code or 0 if not yet computed */
 #   endif
     int             s_nchars;
     char            *s_chars;
@@ -125,17 +152,31 @@ struct ici_str : ici_obj
  * This structure must be an exact overlay of the one above.
  */
 typedef struct sstring  sstring_t;
+
 struct sstring : ici_obj
 {
-    ici_struct_t    *s_struct;      /* Where we were last found on the vs. */
+    sstring(const char *cs)
+        : ici_obj(ICI_TC_STRING)
+        , s_struct(nullptr)
+        , s_slot(nullptr)
+#if ICI_KEEP_STRING_HAS
+        , s_hash(0)
+#endif
+        , s_nchars(strlen(cs))
+        , s_chars((char *)cs)
+    {
+        // memcpy(s_inline_chars, cs, s_nchars);
+    }
+
+    ici_struct_t *s_struct;     /* Where we were last found on the vs. */
     ici_sslot_t *s_slot;        /* And our slot. */
     long        s_vsver;        /* The vs version at that time. */
 #   if ICI_KEEP_STRING_HASH
-        unsigned long s_hash;   /* String hash code or 0 if not yet computed */
+    unsigned long s_hash;       /* String hash code or 0 if not yet computed */
 #   endif
     int         s_nchars;
     char        *s_chars;
-    char        s_inline_chars[15]; /* Longest string in sstring.h */
+    // char        s_inline_chars[15]; /* Longest string in sstring.h */
 };
 
 #define SSTRING(name, str)    extern sstring_t ici_ss_##name;

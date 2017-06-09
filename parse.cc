@@ -4,10 +4,15 @@
 #include "func.h"
 #include "str.h"
 #include "struct.h"
+#include "null.h"
+#include "src.h"
 #include "buf.h"
 #include "file.h"
 #include "op.h"
 #include "exec.h"
+#include "re.h"
+#include "set.h"
+#include "mark.h"
 #include "pc.h"
 #include "src.h"
 #include <errno.h>
@@ -2748,7 +2753,7 @@ parse_file_argcheck(void)
 }
 
 static int
-f_parseopen()
+f_parseopen(...)
 {
     ici_file_t		*f;
     ici_file_t		*p;
@@ -2771,7 +2776,7 @@ f_parseopen()
 }
 
 static int
-f_parsetoken()
+f_parsetoken(...)
 {
     ici_parse_t         *p;
     int                 t;
@@ -2788,7 +2793,7 @@ f_parsetoken()
 }
 
 static int
-f_tokenobj()
+f_tokenobj(...)
 {
     ici_parse_t         *p;
 
@@ -2813,7 +2818,7 @@ f_tokenobj()
 }
 
 static int
-f_rejecttoken()
+f_rejecttoken(...)
 {
     ici_parse_t         *p;
 
@@ -2826,7 +2831,7 @@ f_rejecttoken()
 }
 
 static int
-f_parsevalue()
+f_parsevalue(...)
 {
     ici_parse_t         *p;
     ici_obj_t           *o = NULL;
@@ -2844,7 +2849,7 @@ f_parsevalue()
 }
 
 static int
-f_rejectchar()
+f_rejectchar(...)
 {
     ici_file_t          *f;
     ici_str_t           *s;
@@ -2866,13 +2871,13 @@ f_rejectchar()
     return ici_ret_no_decref(ici_objof(s));
 }
 
-ici_cfunc_t ici_parse_cfuncs[] =
+ICI_DEFINE_CFUNCS(parse)
 {
-    {ICI_CF_OBJ, (char *)SS(parseopen),    f_parseopen},
-    {ICI_CF_OBJ, (char *)SS(parsetoken),   f_parsetoken},
-    {ICI_CF_OBJ, (char *)SS(parsevalue),   f_parsevalue},
-    {ICI_CF_OBJ, (char *)SS(tokenobj),     f_tokenobj},
-    {ICI_CF_OBJ, (char *)SS(rejecttoken),  f_rejecttoken},
-    {ICI_CF_OBJ, (char *)SS(rejectchar),   f_rejectchar},
-    {ICI_CF_OBJ}
+    ICI_DEFINE_CFUNC(parseopen,    f_parseopen),
+    ICI_DEFINE_CFUNC(parsetoken,   f_parsetoken),
+    ICI_DEFINE_CFUNC(parsevalue,   f_parsevalue),
+    ICI_DEFINE_CFUNC(tokenobj,     f_tokenobj),
+    ICI_DEFINE_CFUNC(rejecttoken,  f_rejecttoken),
+    ICI_DEFINE_CFUNC(rejectchar,   f_rejectchar),
+    ICI_CFUNCS_END
 };

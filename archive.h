@@ -1,3 +1,5 @@
+// -*- mode:c++ -*-
+
 /*
  * ici object serialization
  *

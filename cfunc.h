@@ -1,9 +1,12 @@
+// -*- mode:c++ -*-
+
 #ifndef ICI_CFUNC_H
 #define ICI_CFUNC_H
 
 #ifndef ICI_OBJECT_H
 #include "object.h"
 #endif
+#include "str.h"
 
 /*
  * The following portion of this file exports to ici.h. --ici.h-start--
@@ -20,10 +23,87 @@
 struct ici_cfunc : ici_obj
 {
     const char  *cf_name;
+    const int   cf_nargs;
     int         (*cf_cfunc)(...);
-    void        *cf_arg1;
-    void        *cf_arg2;
+    const void  *cf_arg1;
+    const void  *cf_arg2;
+
+    // union {
+    //     int (*cf_fn1)();
+    //     int (*cf_fn2)(ici_objwsup_t *);
+    //     int (*cf_fn3)(double);
+    //     int (*cf_fn4)(double, double);
+    // };
+
+    ici_cfunc(bool)
+        : ici_obj{ICI_TC_CFUNC, 0, 0, 0}
+        , cf_name(nullptr)
+        , cf_nargs(0)
+        , cf_cfunc(nullptr)
+        , cf_arg1(nullptr)
+        , cf_arg2(nullptr)
+    {}
+
+    template <typename F>
+    ici_cfunc(const char* name, F *f)
+        : ici_obj{ICI_TC_CFUNC, 0, 1, 0}
+        , cf_name(name)
+        , cf_nargs(0)
+        , cf_cfunc(reinterpret_cast<int (*)(...)>(f))
+        , cf_arg1(nullptr)
+        , cf_arg2(nullptr)
+    {
+    }
+
+    template <typename F>
+    ici_cfunc(const char* name, F *f, void *arg1)
+        : ici_obj{ICI_TC_CFUNC, 0, 1, 0}
+        , cf_name(name)
+        , cf_nargs(1)
+        , cf_cfunc(reinterpret_cast<int (*)(...)>(f))
+        , cf_arg1(arg1)
+        , cf_arg2(nullptr)
+    {
+    }
+
+    ici_cfunc(const char* name, int (*f)(), long arg1)
+        : ici_obj{ICI_TC_CFUNC, 0, 1, 0}
+        , cf_name(name)
+        , cf_nargs(1)
+        , cf_cfunc(reinterpret_cast<int (*)(...)>(f))
+        , cf_arg1((const void *)arg1)
+        , cf_arg2(nullptr)
+    {
+    }
+
+    ici_cfunc(const char* name, double (*f)(...), const char *arg1)
+        : ici_obj{ICI_TC_CFUNC, 0, 1, 0}
+        , cf_name(name)
+        , cf_nargs(1)
+        , cf_cfunc(reinterpret_cast<int (*)(...)>(f))
+        , cf_arg1(arg1)
+        , cf_arg2(nullptr)
+    {
+    }
+
+    template <typename F>
+    ici_cfunc(const char* name, F *f, void *arg1, void *arg2)
+        : ici_obj{ICI_TC_CFUNC, 0, 1, 0}
+        , cf_name(name)
+        , cf_nargs(2)
+        , cf_cfunc(reinterpret_cast<int (*)(...)>(f))
+        , cf_arg1(arg1)
+        , cf_arg2(arg2)
+    {
+    }
+
 };
+
+union fn {
+    int (*f0)();
+    int (*f1)(ici_obj_t *);
+};
+
 /*
  * 'ici_cfunc_t' objects are often declared staticly (in an array) when
  * setting up a group of C functions to be called from ICI. When doing
@@ -121,8 +201,12 @@ struct ici_cfunc : ici_obj
 #define ICI_CF_ARG(X)       ((void *)(X))
 
 #define ICI_DEFINE_CFUNCS(NAME) ici_cfunc_t ici_ ## NAME ## _cfuncs[] =
-#define ICI_DEFINE_CFUNC(NAME, FUNC) {ICI_CF_OBJ, (char *)SS(NAME), (FUNC), 0, 0}
-#define ICI_DEFINE_CFUNC1(NAME, FUNC, ARG) {ICI_CF_OBJ, (char *)SS(NAME), (FUNC), (void *)(ARG), 0}
-#define ICI_DEFINE_CFUNC2(NAME, FUNC, ARG1, ARG2) {ICI_CF_OBJ, (char *)SS(NAME), (FUNC), (void *)(ARG1), (void *)(ARG2)}
+#define ICI_CFUNCS_END {false}
+
+#define ICI_DEFINE_CFUNC(NAME, FUNC) {(const char *)SS(NAME), (FUNC)}
+#define ICI_DEFINE_CFUNC1(NAME, FUNC, ARG) {(const char *)SS(NAME), (FUNC), (void *)(ARG)}
+#define ICI_DEFINE_CFUNC2(NAME, FUNC, ARG1, ARG2) {(const char *)SS(NAME), (FUNC), (void *)(ARG1), (void *)(ARG2)}
+
+#define ICI_DEFINE_METHOD(NAME, FUNC) {(const char *)SS(NAME), (int (*)(...))(FUNC)}
 
 #endif /* ICI_CFUNC_H */

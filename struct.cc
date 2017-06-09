@@ -2,6 +2,7 @@
 #include "fwd.h"
 #include "struct.h"
 #include "ptr.h"
+#include "null.h"
 #include "exec.h"
 #include "func.h"
 #include "op.h"
@@ -741,9 +742,9 @@ ici_type_t  ici_struct_type =
     forall_struct
 };
 
-ici_op_t    ici_o_namelvalue    = {ICI_OBJ(ICI_TC_OP), NULL, ICI_OP_NAMELVALUE};
-ici_op_t    ici_o_colon         = {ICI_OBJ(ICI_TC_OP), NULL, ICI_OP_COLON};
-ici_op_t    ici_o_coloncaret    = {ICI_OBJ(ICI_TC_OP), NULL, ICI_OP_COLONCARET};
-ici_op_t    ici_o_dot           = {ICI_OBJ(ICI_TC_OP), NULL, ICI_OP_DOT};
-ici_op_t    ici_o_dotkeep       = {ICI_OBJ(ICI_TC_OP), NULL, ICI_OP_DOTKEEP};
-ici_op_t    ici_o_dotrkeep      = {ICI_OBJ(ICI_TC_OP), NULL, ICI_OP_DOTRKEEP};
+ici_op_t    ici_o_namelvalue    = {ICI_OP_NAMELVALUE};
+ici_op_t    ici_o_colon         = {ICI_OP_COLON};
+ici_op_t    ici_o_coloncaret    = {ICI_OP_COLONCARET};
+ici_op_t    ici_o_dot           = {ICI_OP_DOT};
+ici_op_t    ici_o_dotkeep       = {ICI_OP_DOTKEEP};
+ici_op_t    ici_o_dotrkeep      = {ICI_OP_DOTRKEEP};

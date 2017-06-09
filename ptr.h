@@ -1,3 +1,5 @@
+// -*- mode:c++ -*-
+
 #ifndef ICI_PTR_H
 #define ICI_PTR_H
 

@@ -626,12 +626,12 @@ f_smash(...)
     return ici_ret_with_decref(ici_objof(a));
 }
 
-ici_cfunc_t ici_re_funcs[] =
+ICI_DEFINE_CFUNCS(re)
 {
-    {ICI_CF_OBJ,    (char *)SS(regexp),       f_regexp,       NULL,   NULL},
-    {ICI_CF_OBJ,    (char *)SS(regexpi),      f_regexp,       NULL,   (void *)""},
-    {ICI_CF_OBJ,    (char *)SS(sub),          f_sub},
-    {ICI_CF_OBJ,    (char *)SS(gsub),         f_gsub},
-    {ICI_CF_OBJ,    (char *)SS(smash),        f_smash},
-    {ICI_CF_OBJ}
+    ICI_DEFINE_CFUNC(regexp,       f_regexp),
+    ICI_DEFINE_CFUNC2(regexpi,     f_regexp,       NULL,   (void *)""),
+    ICI_DEFINE_CFUNC(sub,          f_sub),
+    ICI_DEFINE_CFUNC(gsub,         f_gsub),
+    ICI_DEFINE_CFUNC(smash,        f_smash),
+    ICI_CFUNCS_END
 };

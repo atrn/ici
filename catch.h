@@ -1,3 +1,5 @@
+// -*- mode:c++ -*-
+
 #ifndef ICI_CATCH_H
 #define ICI_CATCH_H
 /*

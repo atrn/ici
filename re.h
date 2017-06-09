@@ -1,3 +1,5 @@
+// -*- mode:c++ -*-
+
 #ifndef ICI_RE_H
 #define ICI_RE_H
 

@@ -1,3 +1,5 @@
+// -*- mode:c++ -*-
+
 #ifndef ICI_MEM_H
 #define ICI_MEM_H
 

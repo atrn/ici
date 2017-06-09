@@ -24,6 +24,13 @@
 #include "file.h"
 #include "str.h"
 #include "func.h"
+#include "null.h"
+#include "re.h"
+#include "set.h"
+#include "mem.h"
+#include "ptr.h"
+#include "op.h"
+#include "mark.h"
 
 #include <assert.h>
 

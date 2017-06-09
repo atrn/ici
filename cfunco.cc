@@ -86,10 +86,9 @@ ici_cfunc_new(const char *name, int (*func)(...), void *arg1, void *arg2)
  * terminated by an entry with a 'cf_name' of NULL.  Typically, entries in the
  * array are formated as:
  *
- *  {ICI_CF_OBJ,    "func",     f_func},
+ *  ICI_DEFINE_CFUNC("func",     f_func),
  *
- * Where ICI_CF_OBJ is a convenience macro to take care of the normal object
- * header, "func" is the name your function will be assigned to in the given
+  *"func" is the name your function will be assigned to in the given
  * struct, and 'f_func' is a C function obeying the rules of ICI intrinsic
  * functions.
  *

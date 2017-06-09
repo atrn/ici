@@ -6,6 +6,7 @@
 #include "forall.h"
 #include "str.h"
 #include "buf.h"
+#include "null.h"
 
 /*
  * Mark this and referenced unmarked objects, return memory costs.

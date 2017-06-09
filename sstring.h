@@ -1,3 +1,5 @@
+// -*- mode:c++ -*-
+
 /*
  * Any strings listed in this file may be refered to with SS(name)
  * for a (ici_str_t *), and SSO(name) for an (ici_obj_t *). Maximum
@@ -251,3 +253,6 @@ SSTRING(op, "op")
 SSTRING(channel, "channel")
 SSTRING(get, "get")
 SSTRING(alt, "alt")
+SSTRING(save, "save")
+SSTRING(restore, "restore")
+SSTRING(wakeup, "wakeup")

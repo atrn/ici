@@ -1,3 +1,5 @@
+// -*- mode:c++ -*-
+
 #ifndef ICI_SRC_H
 #define ICI_SRC_H
 
@@ -17,7 +19,7 @@
  */
 struct ici_src : ici_obj
 {
-    // ici_obj_t   s_head;
+    ici_src() : ici_obj(ICI_TC_SRC), s_lineno(0), s_filename(nullptr) {}
     int         s_lineno;
     ici_str_t   *s_filename;
 };

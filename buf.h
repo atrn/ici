@@ -1,3 +1,5 @@
+// -*- mode:c++ -*-
+
 #ifndef ICI_BUF_H
 #define ICI_BUF_H
 /*

@@ -3,6 +3,7 @@
 #include "mem.h"
 #include "int.h"
 #include "buf.h"
+#include "null.h"
 #include "primes.h"
 
 /*

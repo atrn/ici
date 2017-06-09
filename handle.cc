@@ -4,10 +4,12 @@
 #include "string.h"
 #include "handle.h"
 #include "buf.h"
+#include "null.h"
 #include "array.h"
 #include "str.h"
 #include "cfunc.h"
 #include "int.h"
+#include "struct.h"
 
 /*
  * Format a human readable version of the object in less than 30 chars.
@@ -66,7 +68,7 @@ hash_handle(ici_obj_t *o)
          ^ ICI_PTR_HASH(ici_handleof(o)->h_name);
 }
 
-static ici_handle_t ici_handle_proto = {{{ICI_TC_HANDLE, 0, 1, 0}, NULL}};
+static ici_handle_t ici_handle_proto;
 
 /*
  * Return a handle object corresponding to the given C data 'ptr', with the
@@ -569,7 +571,7 @@ ici_make_handle_member_map(ici_name_id_t *ni)
             id = (ici_obj_t *)ici_cfunc_new
             (
                 ni->ni_name,
-                ici_handle_method,
+                (int (*)(...))(ici_handle_method),
                 (void *)(ni->ni_id & ~ICI_H_METHOD),
                 NULL
             );

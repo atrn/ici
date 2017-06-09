@@ -114,4 +114,4 @@ ici_type_t  ici_catch_type =
     "catch"
 };
 
-ici_op_t    ici_o_onerror       = {ICI_OBJ(ICI_TC_OP), ici_op_onerror};
+ici_op_t    ici_o_onerror       = {ici_op_onerror};

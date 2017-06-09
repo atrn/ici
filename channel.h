@@ -1,3 +1,5 @@
+// -*- mode:c++ -*-
+
 #ifndef ICI_CHANNEL_H
 #define ICI_CHANNEL_H
 

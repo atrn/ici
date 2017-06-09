@@ -1,3 +1,5 @@
+// -*- mode:c++ -*-
+
 /*
  * This code is in an include file because some compilers may not handle
  * the large function and switch statement which happens in exec.c.
@@ -92,7 +94,7 @@
     case ICI_TRI(ICI_TC_INT, ICI_TC_INT, T_SLASHEQ):
         if (ici_intof(o1)->i_value == 0)
         {
-            ici_error = "division by 0";
+            ici_set_error("division by 0");
             FAIL();
         }
         USEi(ici_intof(o0)->i_value / ici_intof(o1)->i_value);
@@ -101,7 +103,7 @@
     case ICI_TRI(ICI_TC_INT, ICI_TC_INT, T_PERCENTEQ):
         if (ici_intof(o1)->i_value == 0)
         {
-            ici_error = "modulus by 0";
+            ici_set_error("modulus by 0");
             FAIL();
         }
         USEi(ici_intof(o0)->i_value % ici_intof(o1)->i_value);
@@ -195,7 +197,7 @@
     case ICI_TRI(ICI_TC_FLOAT, ICI_TC_FLOAT, T_SLASHEQ):
         if (ici_floatof(o1)->f_value == 0)
         {
-            ici_error = "division by 0.0";
+            ici_set_error("division by 0.0");
             FAIL();
         }
         USEf(ici_floatof(o0)->f_value / ici_floatof(o1)->f_value);
@@ -204,7 +206,7 @@
     case ICI_TRI(ICI_TC_FLOAT, ICI_TC_INT, T_SLASHEQ):
         if (ici_intof(o1)->i_value == 0)
         {
-            ici_error = "division by 0";
+            ici_set_error("division by 0");
             FAIL();
         }
         USEf(ici_floatof(o0)->f_value / ici_intof(o1)->i_value);
@@ -213,7 +215,7 @@
     case ICI_TRI(ICI_TC_INT, ICI_TC_FLOAT, T_SLASHEQ):
         if (ici_floatof(o1)->f_value == 0)
         {
-            ici_error = "division by 0.0";
+            ici_set_error("division by 0.0");
             FAIL();
         }
         USEf(ici_intof(o0)->i_value / ici_floatof(o1)->f_value);
@@ -868,7 +870,7 @@ usef:
         }
         if ((o = ici_exec->x_os_temp_cache->a_base[n]) == ici_null)
         {
-            if ((o = ici_objof(ici_talloc(ici_ostemp_t))) == NULL)
+            if ((o = ici_objof_ostemp(ici_talloc(ici_ostemp_t))) == NULL)
             {
                 FAIL();
             }
@@ -948,7 +950,7 @@ usei:
         }
         if ((o = ici_exec->x_os_temp_cache->a_base[n]) == ici_null)
         {
-            if ((o = ici_objof(ici_talloc(ici_ostemp_t))) == NULL)
+            if ((o = ici_objof_ostemp(ici_talloc(ici_ostemp_t))) == NULL)
             {
                 FAIL();
             }

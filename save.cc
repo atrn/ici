@@ -6,6 +6,7 @@
 #include "cfunc.h"
 #include "file.h"
 #include "int.h"
+#include "null.h"
 #include "float.h"
 #include "func.h"
 #include "mark.h"
