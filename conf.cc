@@ -4,8 +4,8 @@
 
 extern ici_cfunc_t  ici_std_cfuncs[];
 extern ici_cfunc_t  ici_save_restore_cfuncs[];
-extern ici_cfunc_t  ici_re_funcs[];
-extern ici_cfunc_t  ici_oo_funcs[];
+extern ici_cfunc_t  ici_re_cfuncs[];
+extern ici_cfunc_t  ici_oo_cfuncs[];
 extern ici_cfunc_t  ici_apl_cfuncs[];
 extern ici_cfunc_t  ici_load_cfuncs[];
 extern ici_cfunc_t  ici_parse_cfuncs[];
@@ -27,8 +27,8 @@ ici_cfunc_t *ici_funcs[] =
 {
     ici_std_cfuncs,
     ici_save_restore_cfuncs,
-    ici_re_funcs,
-    ici_oo_funcs,
+    ici_re_cfuncs,
+    ici_oo_cfuncs,
     ici_apl_cfuncs,
     ici_load_cfuncs,
     ici_parse_cfuncs,
