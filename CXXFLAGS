@@ -1,15 +1,21 @@
+# Compiler options.
+#
+# This file is read by dcc (gitlab.com/atrn/dcc).
+#
+
 -std=c++14
 -Wall
 -I.
+
+# On MacOS we need this.
 -Imacos
-# debug configuration
-# pcre debug uses DEBUG
-#-DDEBUG
-# ICI debug uses !NDEBUG
-#-UNDEBUG
-#-g -O0
-#
-# release configuration
+
+# RELEASE CONFIGURATION
 # Ofast and Oz seem to work best, in that order
 -DNDEBUG
 -Ofast -Oz
+
+# DEBUG CONFIGURATION
+# pcre uses DEBUG, ICI !NDEBUG
+#-DDEBUG -UNDEBUG
+#-g -O0
