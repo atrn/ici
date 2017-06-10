@@ -163,9 +163,9 @@ struct sstring : ici_obj
         , s_hash(0)
 #endif
         , s_nchars(strlen(cs))
-        , s_chars((char *)cs)
+        , s_chars(s_inline_chars)
     {
-        // memcpy(s_inline_chars, cs, s_nchars);
+        memcpy(s_inline_chars, cs, s_nchars);
     }
 
     ici_struct_t *s_struct;     /* Where we were last found on the vs. */
@@ -176,7 +176,7 @@ struct sstring : ici_obj
 #   endif
     int         s_nchars;
     char        *s_chars;
-    // char        s_inline_chars[15]; /* Longest string in sstring.h */
+    char        s_inline_chars[15]; /* Longest string in sstring.h */
 };
 
 #define SSTRING(name, str)    extern sstring_t ici_ss_##name;

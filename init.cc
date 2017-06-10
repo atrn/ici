@@ -60,7 +60,7 @@ ici_init(void)
          * Check that the #defines of version number are in sync with our version
          * string from conf.c.
          */
-        sprintf(v, "@(#)ICI %d.%d.%d", ICI_VER_MAJOR, ICI_VER_MINOR, ICI_VER_RELEASE);
+        sprintf(v, "@(#)ANICI %d.%d.%d", ICI_VER_MAJOR, ICI_VER_MINOR, ICI_VER_RELEASE);
         assert(strncmp(v, ici_version_string, strlen(v)) == 0);
     }
 #   endif

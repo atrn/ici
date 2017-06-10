@@ -2,8 +2,9 @@
 -Wall
 -I.
 -Imacos
-# -DNDEBUG
--DDEBUG -UNDEBUG
--g -O0
-# fast and z seem to work best
-# -Ofast -Oz
+# debug
+#-DDEBUG -UNDEBUG
+#-g -O0
+# release - fast and z seem to work best
+-DNDEBUG
+-Ofast -Oz
