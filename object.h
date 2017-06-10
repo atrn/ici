@@ -15,19 +15,21 @@ namespace ici
  */
 
 /*
- * ici_types[] is the map from the small integer type codes found in the
+ * types[] is the map from the small integer type codes found in the
  * o_tcode field of every object header, to a type structure (below) that
  * characterises that type of object.  Standard core data types have standard
  * positions (see ICI_TC_* defines below).  Other types are registered at run-time
  * by calls to ici_register_type() and are given the next available slot.
  * ici_object_t's o_tcode is one byte so we're limited to 256 distinct types.
  */
-constexpr int ICI_MAX_TYPES = 256;
-extern DLI type_t   *ici_types[ICI_MAX_TYPES];
+
+constexpr size_t MAX_TYPES = 256;
+
+extern DLI type_t   *types[MAX_TYPES];
 
 /*
  * Every object has a header. In the header the o_tcode (type code) field
- * can be used to index the ici_types[] array to discover the obejct's
+ * can be used to index the types[] array to discover the obejct's
  * type structure. This is the type structure.
  *
  * Implementations of new types typically declare one of these strutures
@@ -406,7 +408,7 @@ struct ici_obj
  *                      types are registered at run-time and are given
  *                      the next available code.
  *
- *                      This code can be used to index ici_types[] to discover
+ *                      This code can be used to index types[] to discover
  *                      a pointer to the type structure.
  *
  * o_flags              Some boolean flags. Well known flags that apply to
@@ -495,7 +497,7 @@ inline bool ici_hassuper(const ici_obj_t *o) { return (o->o_flags & ICI_O_SUPER)
  *
  * This --macro-- forms part of the --ici-api--.
  */
-#define ici_typeof(o)   (ici_types[(int)ici_objof(o)->o_tcode])
+#define ici_typeof(o)   (::ici::types[(size_t)ici_objof(o)->o_tcode])
 
 /*
  * For static object initialisations...
@@ -563,7 +565,7 @@ inline size_t ici_mark(ici_obj_t *o)
 
 /*
  * The o_tcode field is a small int. These are the "well known" core
- * language types. See comments on o_tcode above and ici_types above.
+ * language types. See comments on o_tcode above and types above.
  */
 #define ICI_TC_OTHER        0
 #define ICI_TC_PC           1
