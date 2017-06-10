@@ -6,6 +6,7 @@
 #include "struct.h"
 #include "op.h"
 #include "pc.h"
+#include "int.h"
 #include "str.h"
 #include "catch.h"
 #include "buf.h"

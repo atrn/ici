@@ -54,8 +54,7 @@ struct ici_ftype
  *
  * --ici-api-- continued.
  */
-#define FT_NOMUTEX  0x01
-
+constexpr int FT_NOMUTEX = 0x01;
 
 struct ici_file : ici_obj
 {
@@ -71,11 +70,12 @@ struct ici_file : ici_obj
  *                      to keep the object referenced. Basically if f_file
  *                      is an implicit reference to some object. May be NULL.
  */
-#define ici_fileof(o)   (static_cast<ici_file_t *>(o))
-#define ici_isfile(o)   (ici_objof(o)->o_tcode == ICI_TC_FILE)
 
-#define ICI_F_CLOSED    0x20    /* File is closed. */
-#define ICI_F_NOCLOSE   0x40    /* Don't close on object free. */
+inline ici_file_t *ici_fileof(ici_obj_t *o) { return static_cast<ici_file_t *>(o); }
+inline bool ici_isfile(ici_obj_t *o) { return o->isa(ICI_TC_FILE); }
+
+constexpr int ICI_F_CLOSED = 0x20;    /* File is closed. */
+constexpr int ICI_F_NOCLOSE = 0x40;    /* Don't close on object free. */
 /*
  * End of ici.h export. --ici.h-end--
  */

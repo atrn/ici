@@ -18,8 +18,9 @@ struct ici_method : ici_obj
     ici_obj_t   *m_subject;
     ici_obj_t   *m_callable;
 };
-#define ici_methodof(o)     (static_cast<ici_method_t *>(o))
-#define ici_ismethod(o)     (ici_objof(o)->o_tcode == ICI_TC_METHOD)
+
+inline ici_method_t *ici_methodof(ici_obj_t *o) { return static_cast<ici_method_t *>(o); }
+inline bool ici_ismethod(ici_obj_t *o) { return o->isa(ICI_TC_METHOD); }
 
 /*
  * End of ici.h export. --ici.h-end--

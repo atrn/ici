@@ -1,6 +1,7 @@
 #define ICI_CORE
 #include "object.h"
 #include "set.h"
+#include "exec.h"
 #include "op.h"
 #include "int.h"
 #include "buf.h"

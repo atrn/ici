@@ -3,26 +3,15 @@
 #ifndef ICI_EXEC_H
 #define ICI_EXEC_H
 
-#ifndef ICI_FWD_H
 #include "fwd.h"
-#endif
-
-#ifndef ICI_INT_H
 #include "array.h"
-#endif
-
-#ifndef ICI_INT_H
 #include "int.h"
-#endif
-
-#ifndef ICI_FLOAT_H
+#include "null.h"
 #include "float.h"
-#endif
 
 #ifdef ICI_USE_WIN32_THREADS
 #include <windows.h>
 #endif
-
 #ifdef ICI_USE_POSIX_THREADS
 #include <sched.h>
 #include <pthread.h>
@@ -64,8 +53,10 @@ struct ici_exec : ici_obj
 #endif
     char        *x_error;
 };
-#define ici_execof(o)        (static_cast<ici_exec_t *>(o))
-#define ici_isexec(o)        (ici_objof(o)->o_tcode == ICI_TC_EXEC)
+
+inline ici_exec_t *ici_execof(ici_obj_t *o) { return static_cast<ici_exec_t *>(o); }
+inline bool ici_isexec(ici_obj_t *o) { return o->isa(ICI_TC_EXEC); }
+
 /*
  * x_xs                 The ICI interpreter execution stack. This contains
  *                      objects being executed, which includes 'pc' objects
@@ -207,6 +198,8 @@ struct ici_debug
     (*(xs) = ici_exec->x_pc_closet->a_base[(xs) - ici_xs.a_base], \
     ici_pcof(*(xs))->pc_code = code, \
     ici_pcof(*(xs))->pc_next = ici_pcof(*(xs))->pc_code->a_base)
+
+inline bool ici_isfalse(ici_obj_t *o) { return o == static_cast<ici_obj_t *>(ici_zero) || o == static_cast<ici_obj_t *>(ici_null); }
 
 } // namespace ici
 

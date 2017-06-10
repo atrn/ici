@@ -24,8 +24,9 @@ struct ici_mark : ici_obj
 {
     ici_mark() : ici_obj(ICI_TC_MARK) {}
 };
-#define ici_markof(o)       (static_cast<ici_mark_t >)o)
-#define ici_ismark(o)       ((o) == ici_objof(&ici_o_mark))
+
+inline ici_mark_t *ici_markof(ici_obj_t *o) { return static_cast<ici_mark_t *>(o); }
+inline bool ici_ismark(ici_obj_t *o) { return o == &ici_o_mark; }
 
 /*
  * End of ici.h export. --ici.h-end--

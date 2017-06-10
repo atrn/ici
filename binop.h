@@ -15,7 +15,7 @@
 #define USE0()					\
     do						\
     {						\
-        ici_os.a_top[-2] = ici_objof(ici_zero);	\
+        ici_os.a_top[-2] = ici_zero;	        \
 	--ici_os.a_top;				\
 	goto continue_with_same_pc;		\
     }						\
@@ -24,7 +24,7 @@
 #define USE1()					\
     do						\
     {						\
-	ici_os.a_top[-2] = ici_objof(ici_one);	\
+	ici_os.a_top[-2] = ici_one;	        \
 	--ici_os.a_top;				\
 	goto continue_with_same_pc;		\
     }						\
@@ -432,7 +432,7 @@
             o = ici_null;
             USEo();
         }
-        if ((o = ici_objof(ici_array_new(ici_re_nbra))) == NULL)
+        if ((o = ici_array_new(ici_re_nbra)) == NULL)
         {
             FAIL();
         }
@@ -440,7 +440,7 @@
         {
             if (ici_re_bra[i*2] == -1)
             {
-                if ((*ici_arrayof(o)->a_top = ici_objof(ici_str_alloc(0))) == NULL)
+                if ((*ici_arrayof(o)->a_top = ici_str_alloc(0)) == NULL)
                 {
                     FAIL();
                 }
@@ -482,11 +482,11 @@
         {
             ici_obj_t   *i;
 
-            if ((i = ici_objof(ici_int_new(ici_intof(ici_ptrof(o0)->p_key)->i_value - ici_intof(o1)->i_value))) == NULL)
+            if ((i = ici_int_new(ici_intof(ici_ptrof(o0)->p_key)->i_value - ici_intof(o1)->i_value)) == NULL)
             {
                 FAIL();
             }
-            if ((o = ici_objof(ici_ptr_new(ici_ptrof(o0)->p_aggr, i))) == NULL)
+            if ((o = ici_ptr_new(ici_ptrof(o0)->p_aggr, i)) == NULL)
             {
                 FAIL();
             }
@@ -510,11 +510,11 @@
         {
             ici_obj_t   *i;
 
-            if ((i = ici_objof(ici_int_new(ici_intof(ici_ptrof(o0)->p_key)->i_value + ici_intof(o1)->i_value))) == NULL)
+            if ((i = ici_int_new(ici_intof(ici_ptrof(o0)->p_key)->i_value + ici_intof(o1)->i_value)) == NULL)
             {
                 FAIL();
             }
-            if ((o = ici_objof(ici_ptr_new(ici_ptrof(o0)->p_aggr, i))) == NULL)
+            if ((o = ici_ptr_new(ici_ptrof(o0)->p_aggr, i)) == NULL)
             {
                 FAIL();
             }
@@ -524,7 +524,7 @@
 
     case ICI_TRI(ICI_TC_STRING, ICI_TC_STRING, T_PLUS):
     case ICI_TRI(ICI_TC_STRING, ICI_TC_STRING, T_PLUSEQ):
-        if ((o = ici_objof(ici_str_alloc(ici_stringof(o1)->s_nchars + ici_stringof(o0)->s_nchars))) == NULL)
+        if ((o = ici_str_alloc(ici_stringof(o1)->s_nchars + ici_stringof(o0)->s_nchars)) == NULL)
         {
             FAIL();
         }
@@ -560,7 +560,7 @@
             a->a_top += z0;
             ici_array_gather(a->a_top, ici_arrayof(o1), 0, z1);
             a->a_top += z1;
-            o = ici_objof(a);
+            o = a;
         }
         LOOSEo();
 
@@ -588,7 +588,7 @@
                     FAIL();
                 }
             }
-            o = ici_objof(s);
+            o = s;
         }
         LOOSEo();
 
@@ -616,7 +616,7 @@
                     FAIL();
                 }
             }
-            o = ici_objof(s);
+            o = s;
         }
         LOOSEo();
 
@@ -644,7 +644,7 @@
                     FAIL();
                 }
             }
-            o = ici_objof(s);
+            o = s;
         }
         LOOSEo();
 
@@ -681,24 +681,24 @@
                     FAIL();
                 }
             }
-            o = ici_objof(s);
+            o = s;
         }
         LOOSEo();
 
     case ICI_TRI(ICI_TC_SET, ICI_TC_SET, T_GRTEQ):
-        o = ici_set_issubset(ici_setof(o1), ici_setof(o0)) ? ici_objof(ici_one) : ici_objof(ici_zero);
+        o = ici_set_issubset(ici_setof(o1), ici_setof(o0)) ? ici_one : ici_zero;
         USEo();
 
     case ICI_TRI(ICI_TC_SET, ICI_TC_SET, T_LESSEQ):
-        o = ici_set_issubset(ici_setof(o0), ici_setof(o1)) ? ici_objof(ici_one) : ici_objof(ici_zero);
+        o = ici_set_issubset(ici_setof(o0), ici_setof(o1)) ? ici_one : ici_zero;
         USEo();
 
     case ICI_TRI(ICI_TC_SET, ICI_TC_SET, T_GRT):
-        o = ici_set_ispropersubset(ici_setof(o1), ici_setof(o0)) ? ici_objof(ici_one) : ici_objof(ici_zero);
+        o = ici_set_ispropersubset(ici_setof(o1), ici_setof(o0)) ? ici_one : ici_zero;
         USEo();
 
     case ICI_TRI(ICI_TC_SET, ICI_TC_SET, T_LESS):
-        o = ici_set_ispropersubset(ici_setof(o0), ici_setof(o1)) ? ici_objof(ici_one) : ici_objof(ici_zero);
+        o = ici_set_ispropersubset(ici_setof(o0), ici_setof(o1)) ? ici_one : ici_zero;
         USEo();
 
     case ICI_TRI(ICI_TC_PTR, ICI_TC_PTR, T_MINUS):
@@ -707,7 +707,7 @@
         {
             MISMATCH();
         }
-        if ((o = ici_objof(ici_int_new(ici_intof(ici_ptrof(o0)->p_key)->i_value - ici_intof(ici_ptrof(o1)->p_key)->i_value))) == NULL)
+        if ((o = ici_int_new(ici_intof(ici_ptrof(o0)->p_key)->i_value - ici_intof(ici_ptrof(o1)->p_key)->i_value)) == NULL)
         {
               FAIL();
         }
@@ -850,11 +850,11 @@
 
 #ifdef BINOPFUNC
 use0:
-    ici_os.a_top[-2] = ici_objof(ici_zero);
+    ici_os.a_top[-2] = ici_zero;
     goto done;
 
 use1:
-    ici_os.a_top[-2] = ici_objof(ici_one);
+    ici_os.a_top[-2] = ici_one;
     goto done;
 #endif
 
@@ -885,7 +885,7 @@ usef:
      * The following in-line expansion of float creation replaces, and
      * this should be equivalent to, this old code:
      *
-     * if ((o = ici_objof(ici_float_new(f))) == NULL)
+     * if ((o = ici_float_new(f)) == NULL)
      *     FAIL();
      * LOOSEo();
      */
@@ -924,7 +924,7 @@ usef:
             }
         }
         ++ici_supress_collect;
-        if ((o = ici_objof(ici_talloc(ici_float_t))) == NULL)
+        if ((o = ici_talloc(ici_float_t)) == NULL)
         {
             --ici_supress_collect;
             FAIL();
@@ -967,7 +967,7 @@ usei:
      */
     if ((i & ~ICI_SMALL_INT_MASK) == 0)
     {
-        o = ici_objof(ici_small_ints[i]);
+        o = ici_small_ints[i];
         USEo();
     }
     {
@@ -986,7 +986,7 @@ usei:
             }
         }
         ++ici_supress_collect;
-        if ((o = ici_objof(ici_talloc(ici_int_t))) == NULL)
+        if ((o = ici_talloc(ici_int_t)) == NULL)
         {
             --ici_supress_collect;
             FAIL();

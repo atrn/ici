@@ -265,7 +265,7 @@ struct type
  *
  * This --macro-- forms part of the --ici-api--.
  */
-#define ici_fetch(o,k)      ((*ici_typeof(o)->t_fetch)(ici_objof(o), ici_objof(k)))
+#define ici_fetch(o,k)      ((*ici_typeof(o)->t_fetch)((o), (k)))
 
 /*
  * Assign the value 'v' to key 'k' of the object 'o'. This macro just calls
@@ -277,7 +277,7 @@ struct type
  *
  * This --macro-- forms part of the --ici-api--.
  */
-#define ici_assign(o,k,v)   ((*ici_typeof(o)->t_assign)(ici_objof(o), ici_objof(k), ici_objof(v)))
+#define ici_assign(o,k,v)   ((*ici_typeof(o)->t_assign)((o), (k), (v)))
 
 /*
  * Assign the value 'v' to key 'k' of the object 'o', but only assign into
@@ -290,11 +290,11 @@ struct type
  *
  * This --macro-- forms part of the --ici-api--.
  */
-#define ici_assign_base(o,k,v) ((*ici_typeof(o)->t_assign_base)(ici_objof(o), ici_objof(k), ici_objof(v)))
+#define ici_assign_base(o,k,v) ((*ici_typeof(o)->t_assign_base)((o), (k), (v)))
 /*
  * This version retained for backwards compatibility.
  */
-#define assign_base(o,k,v) ((*ici_typeof(o)->t_assign_base)(ici_objof(o), ici_objof(k), ici_objof(v)))
+#define assign_base(o,k,v) ((*ici_typeof(o)->t_assign_base)((o), (k), (v)))
 
 /*
  * Fetch the value of the key 'k' from the object 'o', but only consider
@@ -304,11 +304,11 @@ struct type
  *
  * This --macro-- forms part of the --ici-api--.
  */
-#define ici_fetch_base(o,k) ((*ici_typeof(o)->t_fetch_base)(ici_objof(o), ici_objof(k)))
+#define ici_fetch_base(o,k) ((*ici_typeof(o)->t_fetch_base)((o), (k)))
 /*
  * This version retained for backwards compatibility.
  */
-#define fetch_base(o,k) ((*ici_typeof(o)->t_fetch_base)(ici_objof(o), ici_objof(k)))
+#define fetch_base(o,k) ((*ici_typeof(o)->t_fetch_base)((o), (k)))
 
 /*
  * Fetch the value of the key 'k' from 'o' and store it through 'v', but only
@@ -326,7 +326,7 @@ struct type
  *
  * This --macro-- forms part of the --ici-api--.
  */
-#define ici_fetch_super(o,k,v,b) ((*ici_typeof(o)->t_fetch_super)(ici_objof(o), ici_objof(k), v, b))
+#define ici_fetch_super(o,k,v,b) ((*ici_typeof(o)->t_fetch_super)((o), (k), (v), (b)))
 
 /*
  * Assign the value 'v' at the key 'k' of the object 'o', but only if the key
@@ -343,7 +343,7 @@ struct type
  *
  * This --macro-- forms part of the --ici-api--.
  */
-#define ici_assign_super(o,k,v,b) ((*ici_typeof(o)->t_assign_super)(ici_objof(o), ici_objof(k), ici_objof(v), b))
+#define ici_assign_super(o,k,v,b) ((*ici_typeof(o)->t_assign_super)((o), (k), (v), (b)))
 
 /*
  * Increment the object 'o's reference count.  References from ordinary
@@ -356,7 +356,7 @@ struct type
  *
  * This --macro-- forms part of the --ici-api--.
  */
-#define ici_incref(o)       (++ici_objof(o)->o_nrefs)
+#define ici_incref(o)       (++(o)->o_nrefs)
 
 /*
  * Decrement the object 'o's reference count.  References from ordinary
@@ -369,7 +369,7 @@ struct type
  *
  * This --macro-- forms part of the --ici-api--.
  */
-#define ici_decref(o)       (--ici_objof(o)->o_nrefs)
+#define ici_decref(o)       (--(o)->o_nrefs)
 
 /*
  * The generic flags that may appear in the lower 4 bits of o_flags are:
@@ -478,8 +478,8 @@ struct ici_obj
 /*
  * ici_objof converts an arbitrary object pointer to its base ici_obj_t pointer.
  *
- * TODO: This will disappear. All objects are "is-a ici_obj_t" so normal C++
- * rules suffice for the down casts. Hence the current definition.
+ * TODO: With C++ this disappears. All objects are "is-a ici_obj_t" so normal C++
+ * rules suffice for the down cast to ici_obj_t. Hence the current definition.
  */
 #define ici_objof(x) (x)
 
@@ -488,7 +488,7 @@ struct ici_obj
  *
  * This --macro-- forms part of the --ici-api--.
  */
-#define ici_typeof(o)      (ici_objof(o)->type())
+#define ici_typeof(o)      ((o)->type())
 
 /*
  * "Object with super." This is a specialised header for all objects that
@@ -509,7 +509,8 @@ struct ici_objwsup : ici_obj
 
     ici_objwsup_t   *o_super;
 };
-#define ici_objwsupof(o)    (static_cast<ici_objwsup_t *>(o))
+
+inline ici_objwsup_t *ici_objwsupof(ici_obj_t *o) { return static_cast<ici_objwsup_t *>(o); }
 
 /*
  * Test if this object supports a super type.  (It may or may not have a super
@@ -518,8 +519,6 @@ struct ici_objwsup : ici_obj
  * This --macro-- forms part of the --ici-api--.
  */
 inline bool ici_hassuper(const ici_obj_t *o) { return (o->o_flags & ICI_O_SUPER) != 0; }
-
-// #define ici_hassuper(o)     (ici_objof(o)->o_flags & ICI_O_SUPER)
 
 /*
  * For static object initialisations...
@@ -537,10 +536,10 @@ inline bool ici_hassuper(const ici_obj_t *o) { return (o->o_flags & ICI_O_SUPER)
  * This --macro-- forms part of the --ici-api--.
  */
 #define ICI_OBJ_SET_TFNZ(o, tcode, flags, nrefs, leafz) \
-    (ici_objof(o)->o_tcode = (tcode), \
-     ici_objof(o)->o_flags = (flags), \
-     ici_objof(o)->o_nrefs = (nrefs), \
-     ici_objof(o)->o_leafz = (leafz))
+    ((o)->o_tcode = (tcode),                            \
+     (o)->o_flags = (flags),                            \
+     (o)->o_nrefs = (nrefs),                            \
+     (o)->o_leafz = (leafz))
 /*
  * I was really hoping that most compilers would reduce the above to a
  * single word write. Especially as they are all constants most of the
@@ -583,7 +582,7 @@ inline size_t ici_mark(ici_obj_t *o)
  *
  * This --macro-- forms part of the --ici-api--.
  */
-#define ici_rego(o)     ici_rego_work(ici_objof(o))
+#define ici_rego(o)     ici_rego_work(o)
 
 /*
  * The o_tcode field is a small int. These are the "well known" core
@@ -629,8 +628,6 @@ inline size_t ici_mark(ici_obj_t *o)
 
 #define ICI_TRI(a,b,t)      (((((a) << 4) + b) << 6) + t_subtype(t))
 
-#define ici_isfalse(o)      ((o) == ici_objof(ici_zero) || (o) == ici_null)
-
 /*
  * End of ici.h export. --ici.h-end--
  */
@@ -640,10 +637,10 @@ inline size_t ici_mark(ici_obj_t *o)
  */
 #define ici_object_cast(x) ((ici_obj_t *)(x))
 
-#define freeo(o)        ((*ici_typeof(o)->t_free)(ici_objof(o)))
-#define hash(o)         ((*ici_typeof(o)->t_hash)(ici_objof(o)))
-#define cmp(o1,o2)      ((*ici_typeof(o1)->t_cmp)(ici_objof(o1), ici_objof(o2)))
-#define copy(o)         ((*ici_typeof(o)->t_copy)(ici_objof(o)))
+#define freeo(o)        ((*ici_typeof(o)->t_free)(o))
+#define hash(o)         ((*ici_typeof(o)->t_hash)(o))
+#define cmp(o1,o2)      ((*ici_typeof(o1)->t_cmp)((o1), (o2)))
+#define copy(o)         ((*ici_typeof(o)->t_copy)(o))
 
 #ifndef BUGHUNT
 
@@ -652,28 +649,28 @@ inline size_t ici_mark(ici_obj_t *o)
  */
 #undef  ici_rego
 #define ici_rego(o)     (ici_objs_top < ici_objs_limit \
-                            ? (void)(*ici_objs_top++ = ici_objof(o)) \
-                            : ici_grow_objs(ici_objof(o)))
+                         ? (void)(*ici_objs_top++ = (o))        \
+                            : ici_grow_objs(o))
 #else
 #undef  ici_rego
-#define ici_rego(o)     bughunt_rego(ici_objof(o))
-extern void             bughunt_rego(ici_obj_t *);
+extern void  bughunt_rego(ici_obj_t *);
+#define ici_rego(o) bughunt_rego(o)
 #endif
 
-#define ICI_STORE_ATOM_AND_COUNT(po, s) \
-        ((*(po) = ici_objof(s)), \
-        ((++ici_natoms > ici_atomsz / 2) ? \
-            ici_grow_atoms(ici_atomsz * 2), 0 : 0))
+#define ICI_STORE_ATOM_AND_COUNT(po, s)         \
+    ((*(po) = (s)),                             \
+     ((++ici_natoms > ici_atomsz / 2) ?         \
+      ici_grow_atoms(ici_atomsz * 2), 0 : 0))
 
-#define ici_atom_hash_index(h)  ((h) & (ici_atomsz - 1))
+inline long ici_atom_hash_index(long h)  { return h & (ici_atomsz - 1); }
 
 #ifdef BUGHUNT
 #   undef ici_incref
 #   undef ici_decref
     void bughunt_incref(ici_obj_t *o);
     void bughunt_decref(ici_obj_t *o);
-#   define ici_incref(o) bughunt_incref(ici_objof(o))
-#   define ici_decref(o) bughunt_decref(ici_objof(o))
+#   define ici_incref(o) bughunt_incref(o)
+#   define ici_decref(o) bughunt_decref(o)
 #endif
 
 } // namespace ici

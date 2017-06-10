@@ -110,15 +110,16 @@ struct ici_handle : ici_objwsup
     int             (*h_general_intf)(ici_handle_t *h, ici_obj_t *k, ici_obj_t *setv, ici_obj_t **retv);
 };
 
-#define ici_handleof(o)        (static_cast<ici_handle_t *>(o))
-#define ici_ishandle(o)        (ici_objof(o)->o_tcode == ICI_TC_HANDLE)
-#define ici_ishandleof(o, n)   (ici_ishandle(o) && ici_handleof(o)->h_name == (n))
+inline ici_handle_t *ici_handleof(ici_obj_t *o) { return static_cast<ici_handle_t *>(o); }
+inline bool ici_ishandle(ici_obj_t *o) { return o->isa(ICI_TC_HANDLE); }
+inline bool ici_ishandleof(ici_obj_t *o, ici_str_t *n) { return ici_ishandle(o) && ici_handleof(o)->h_name == n; }
+
 /*
  * Flags set in the upper nibble of o_flags, which is
  * allowed for type specific use.
  */
-#define ICI_H_CLOSED                0x20
-#define ICI_H_HAS_PRIV_STRUCT       0x40
+constexpr int ICI_H_CLOSED =  0x20;
+constexpr int ICI_H_HAS_PRIV_STRUCT = 0x40;
 /*
  * ICI_H_CLOSED             If set, the thing h_ptr points to is no longer
  *                      valid (it has probably been freed). This flag
@@ -139,7 +140,7 @@ struct ici_name_id
     char    *ni_name;
     long    ni_id;
 };
-#define ICI_H_METHOD    0x8000000
+constexpr int ICI_H_METHOD = 0x8000000;
 
 /*
  * End of ici.h export. --ici.h-end--

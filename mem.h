@@ -21,8 +21,9 @@ struct ici_mem : ici_obj
     void                (*m_free)(void *);
 };
 
-#define ici_memof(o)        (static_cast<ici_mem_t *>(o))
-#define ici_ismem(o)        (ici_objof(o)->o_tcode == ICI_TC_MEM)
+inline ici_mem_t *ici_memof(ici_obj_t *o) { return static_cast<ici_mem_t *>(o); }
+inline bool ici_ismem(ici_obj_t *o) { return o->isa(ICI_TC_MEM); }
+
 /*
  * End of ici.h export. --ici.h-end--
  */

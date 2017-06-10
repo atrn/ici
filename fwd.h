@@ -256,7 +256,7 @@ extern int                      ici_exec_count;
  *
  * This --macro-- forms part of the --ici-api--.
  */
-#define ici_null                (ici_objof(&ici_o_null))
+#define ici_null                (&ici_o_null)
 
 /*
  * Use 'return ici_null_ret();' to return a ICI NULL from an intrinsic
