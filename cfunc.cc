@@ -782,7 +782,7 @@ f_struct()
     if (nargs & 1)
     {
         super = ici_objwsupof(*o);
-        if (!ici_hassuper(super) && !ici_isnull(ici_objof(super)))
+        if (!ici_hassuper(super) && !ici_isnull(super))
             return ici_argerror(0);
         if (ici_isnull(ici_objof(super)))
             super = NULL;
@@ -2213,7 +2213,10 @@ f_assign()
     case 2:
         if (ici_typecheck("oo", &s, &k))
             return 1;
-        v = ici_isset(s) ? ici_objof(ici_one) : ici_null;
+        if (ici_isset(s))
+            v = ici_one;
+        else
+            v = ici_null;
         break;
 
     case 3:
@@ -2548,7 +2551,8 @@ f_gettokens()
             f = ici_fileof(fo);
         if (ici_isint(ici_objof(s)))
         {
-            sep = (unsigned char)ici_intof(ici_objof(s))->i_value;
+            ici_obj_t *so = s;
+            sep = (unsigned char)ici_intof(so)->i_value;
             hardsep = 1;
             seps = (unsigned char *)&sep;
             nseps = 1;

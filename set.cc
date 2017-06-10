@@ -296,7 +296,11 @@ assign_set(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v)
 static ici_obj_t *
 fetch_set(ici_obj_t *o, ici_obj_t *k)
 {
-    return *ici_find_set_slot(ici_setof(o), k) == NULL ? ici_null : ici_objof(ici_one);
+    auto slot = *ici_find_set_slot(ici_setof(o), k);
+    if (slot == NULL) {
+        return ici_null;
+    }
+    return ici_objof(ici_one);
 }
 
 static int

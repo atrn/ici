@@ -374,6 +374,29 @@ struct type
 #define ici_decref(o)       (--ici_objof(o)->o_nrefs)
 
 /*
+ * The generic flags that may appear in the lower 4 bits of o_flags are:
+ *
+ * ICI_O_MARK               The garbage collection mark flag.
+ *
+ * ICI_O_ATOM               Indicates that this object is the read-only
+ *                      atomic form of all objects of the same type with
+ *                      the same value. Any attempt to change an object
+ *                      in a way that would change its value with respect
+ *                      to the 't_cmp()' function (see 'type_t') must
+ *                      check for this flag and fail the attempt if it is
+ *                      set.
+ *
+ * ICI_O_SUPER              This object can support a super.
+ *
+ * --ici-api-- continued.
+ */
+constexpr int ICI_O_MARK  =         0x01;    /* Garbage collection mark. */
+constexpr int ICI_O_ATOM  =         0x02;    /* Is a member of the atom pool. */
+constexpr int ICI_O_TEMP  =         0x04;    /* Is a re-usable temp (flag for asserts). */
+constexpr int ICI_O_SUPER =         0x08;    /* Has super (is ici_objwsup_t derived). */
+constexpr int ICI_O_OLD   =	    0x10;    /* Has been through 1+ collects */
+
+/*
  * This is the universal header of all objects.  Each object includes this as
  * its first element.  In the real structures associated with each object type the type
  * specific stuff follows
@@ -395,6 +418,23 @@ struct ici_obj
         , o_nrefs(nrefs)
         , o_leafz(leafz)
     {}
+
+    inline type_t *type() const {
+        return types[(size_t)o_tcode];
+    }
+
+    inline size_t mark()
+    {
+        if (o_flags & ICI_O_MARK) {
+            return 0;
+        }
+        if (o_leafz != 0) {
+            o_flags |= ICI_O_MARK;
+            return o_leafz;
+        }
+        return type()->t_mark(this);
+    }
+
 
     char        o_tcode;
     char        o_flags;
@@ -431,35 +471,19 @@ struct ici_obj
  */
 
 /*
- * The generic flags that may appear in the lower 4 bits of o_flags are:
- *
- * ICI_O_MARK               The garbage collection mark flag.
- *
- * ICI_O_ATOM               Indicates that this object is the read-only
- *                      atomic form of all objects of the same type with
- *                      the same value. Any attempt to change an object
- *                      in a way that would change its value with respect
- *                      to the 't_cmp()' function (see 'type_t') must
- *                      check for this flag and fail the attempt if it is
- *                      set.
- *
- * ICI_O_SUPER              This object can support a super.
- *
- * --ici-api-- continued.
- */
-constexpr int ICI_O_MARK  =         0x01;    /* Garbage collection mark. */
-constexpr int ICI_O_ATOM  =         0x02;    /* Is a member of the atom pool. */
-constexpr int ICI_O_TEMP  =         0x04;    /* Is a re-usable temp (flag for asserts). */
-constexpr int ICI_O_SUPER =         0x08;    /* Has super (is ici_objwsup_t derived). */
-constexpr int ICI_O_OLD   =	    0x10;    /* Has been through 1+ collects */
-
-/*
  * ici_objof converts an arbitrary object pointer to its base ici_obj_t pointer.
  *
  * TODO: This will disappear. All objects are "is-a ici_obj_t" so normal C++
- * rules will suffice for the down casts.
+ * rules suffice for the down casts. Hence the current definition.
  */
-#define ici_objof(x) (static_cast<ici_obj_t *>(x))
+#define ici_objof(x) (x)
+
+/*
+ * Return a pointer to the 'ici_type_t' struct of the given object.
+ *
+ * This --macro-- forms part of the --ici-api--.
+ */
+#define ici_typeof(o)      (ici_objof(o)->type())
 
 /*
  * "Object with super." This is a specialised header for all objects that
@@ -491,13 +515,6 @@ struct ici_objwsup : ici_obj
 inline bool ici_hassuper(const ici_obj_t *o) { return (o->o_flags & ICI_O_SUPER) != 0; }
 
 // #define ici_hassuper(o)     (ici_objof(o)->o_flags & ICI_O_SUPER)
-
-/*
- * Return a pointer to the 'ici_type_t' struct of the given object.
- *
- * This --macro-- forms part of the --ici-api--.
- */
-#define ici_typeof(o)   (::ici::types[(size_t)ici_objof(o)->o_tcode])
 
 /*
  * For static object initialisations...

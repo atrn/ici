@@ -216,10 +216,12 @@ static int
 save_struct(ici_archive_t *ar, ici_obj_t *obj)
 {
     ici_struct_t *s = ici_structof(obj);
-    ici_objwsup_t *super = ici_objwsupof(s)->o_super;
+    ici_obj_t *super = ici_objwsupof(s)->o_super;
     struct ici_sslot *sl;
-
-    if (save_object_name(ar, obj) || ici_archive_save(ar, super ? ici_objof(super) : ici_null) || writel(ar, s->s_nels))
+    if (super == nullptr) {
+        super = ici_null;
+    }
+    if (save_object_name(ar, obj) || ici_archive_save(ar, super) || writel(ar, s->s_nels))
         return 1;
     for (sl = s->s_slots; sl - s->s_slots < s->s_nslots; ++sl)
     {
