@@ -40,5 +40,5 @@ f_mmap(void)
 ICI_DEFINE_CFUNCS(mmap)
 {
     ICI_DEFINE_CFUNC(mmap, f_mmap),
-    {ICI_CF_OBJ}
+    ICI_CFUNCS_END
 };

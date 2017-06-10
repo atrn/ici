@@ -1,13 +1,15 @@
 Major Changes in Version 5
 
-*   anici is now implemented in C++ (c++14 to be precise).
-    C++ features are used sparingly, ici_obj_t is a used
-    as base class but note that ICI objects do NOT use
-    C++ virtuals (ici_types can and will).  Also C++
-    standard library collections are NOT used and ICI's
-    internals remain largely unchanged.
+*    anici is now implemented in C++ (c++14 to be precise).
+     C++ features are used sparingly and most code remains
+     largely unchanged. ici_obj_t is now a base class but
+     note that ICI objects do NOT use C++ virtuals and use
+     the ICI tcode type based lookup. Also, C++ standard
+     library collections are NOT used.
 
-*   use my dcc program for building
+*    anici uses my dcc program for building
+
+*    ICI signals are now enabled by default.
 
 *    added channel module to core, converting class-based
      approach to a function-based interface.

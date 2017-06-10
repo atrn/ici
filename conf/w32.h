@@ -21,7 +21,6 @@
 #undef  NODEBUGGING     /* Debugger interface and functions */
 #undef  NOEVENTS        /* Event loop and associated processing. */
 #undef  NOPROFILE       /* Profiler, see profile.c. */
-#define NOSIGNALS       /* ICI level signal handling */
 
 /*
  * ICI_CORE is defined by core language files, as opposed to builds of

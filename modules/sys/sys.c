@@ -2142,15 +2142,11 @@ static int ici_sys_sleep()
 
     if (ici_typecheck("i", &t))
         return 1;
-#ifndef NOSIGNALS
     ici_signals_blocking_syscall(1);
-#endif
     x = ici_leave();
     sleep(t);
     ici_enter(x);
-#ifndef NOSIGNALS
     ici_signals_blocking_syscall(0);
-#endif
     return ici_null_ret();
 }
 
@@ -2168,15 +2164,11 @@ static int ici_sys_usleep()
 
     if (ici_typecheck("i", &t))
         return 1;
-#ifndef NOSIGNALS
     ici_signals_blocking_syscall(1);
-#endif
     x = ici_leave();
     usleep(t);
     ici_enter(x);
-#ifndef NOSIGNALS
     ici_signals_blocking_syscall(0);
-#endif
     return ici_null_ret();
 }
 
@@ -2232,18 +2224,6 @@ static ici_cfunc_t ici_sys_cfuncs[] =
     {ICI_CF_OBJ, "unlink",  ici_sys_simple, unlink, "s"}, /* should go as remove(}, is more portable */
     {ICI_CF_OBJ, "wait",    ici_sys_wait},
     {ICI_CF_OBJ, "write",   ici_sys_write},
-#   ifndef NOSIGNALS
-        /*
-         * sys.signal(int, int)
-         *
-         * Control signal handling in the process.  Note at present handlers
-         * cannot be installed so signals are of limited use in ici programs.
-         * Not supported on Win32.
-         *
-         * This --topic-- forms part of the --ici-sys-- documentation.
-         */
-        {ICI_CF_OBJ, "signal",  ici_sys_simple, signal, "ii"},
-#   endif
 #   ifdef _WIN32
         {ICI_CF_OBJ, "spawn",   ici_sys_spawn, spawnv},
         {ICI_CF_OBJ, "spawnp",  ici_sys_spawn, spawnvp},
@@ -2512,6 +2492,7 @@ static ici_cfunc_t ici_sys_cfuncs[] =
     {ICI_CF_OBJ}
 };
 
+extern "C"
 ici_obj_t *
 anici_sys_init(void)
 {
