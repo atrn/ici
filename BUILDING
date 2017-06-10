@@ -1,27 +1,20 @@
-Summary
+# Building anici
 
-New Build Using Ninja
+Building uses my build tool, dcc, available at gitlab.com/atrn/dcc
+(written in Go, install Go and then 'go install gitlab.com/atrn/dcc').
 
-On supported platforms,
+## Summary
 
-    $ make
+Supported platforms:
 
-Configuration is in two places
+- MacOS
+- BSD's
+- Most Linux-based OSes
+- Windows (with MS Visual C++)
 
-    Makefiles/Makefile.PLATFORM
-    conf/SYSTEM.h
 
-Replace "PLATFORM" with the system's uname and SYSTEM with a more
-generic name, e.g. Mac OS is "Darwin" according to uname but we call
-it "osx", other platforms may be more consistent.
+## Building
 
-# Supported Platforms
+Tyoe,
 
-## Mac OS
-## FreeBSD
-## Debian
-
-# Further Information
-
-    doc/building.html
-
+        make
