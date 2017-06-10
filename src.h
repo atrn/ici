@@ -35,8 +35,9 @@ struct ici_src : ici_obj
  *
  * --ici-api-- continued.
  */
-#define ici_srcof(o)        (static_cast<ici_src_t *>(o))
-#define ici_issrc(o)        ((o)->o_tcode == ICI_TC_SRC)
+inline ici_src_t *ici_srcof(ici_obj_t *o) { return static_cast<ici_src_t *>(o); }
+inline bool ici_issrc(ici_obj_t *o) { return o->isa(ICI_TC_SRC); }
+
 /*
  * End of ici.h export. --ici.h-end--
  */

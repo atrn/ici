@@ -19,8 +19,10 @@ struct ici_set : ici_obj
     int         s_nslots;       /* How many slots allocated. */
     ici_obj_t   **s_slots;
 };
-#define ici_setof(o)        (static_cast<ici_set_t *>(o))
-#define ici_isset(o)        ((o)->o_tcode == ICI_TC_SET)
+
+inline ici_set_t *ici_setof(ici_obj_t *o) { return static_cast<ici_set_t *>(o); }
+inline bool ici_isset(ici_obj_t *o) { return o->isa(ICI_TC_SET); }
+
 /*
  * End of ici.h export. --ici.h-end--
  */

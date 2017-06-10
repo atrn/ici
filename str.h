@@ -62,22 +62,22 @@ struct ici_str : ici_obj
  * su.su_inline_chars   If ICI_S_SEP_ALLOC is *not* set, this is where s_chars will
  *                      be pointing. The actual string chars follow on from this.
  */
-#define ici_stringof(o)     (static_cast<ici_str_t *>(o))
-#define ici_isstring(o)     ((o)->o_tcode == ICI_TC_STRING)
+inline ici_str_t * ici_stringof(ici_obj_t *o) { return static_cast<ici_str_t *>(o); }
+inline bool ici_isstring(ici_obj_t *o) { return o->isa(ICI_TC_STRING); }
 
 /*
  * This flag (in o_flags) indicates that the lookup-lookaside mechanism
  * is referencing an atomic struct.  It is stored in the allowed area of
  * o_flags.
  */
-#define ICI_S_LOOKASIDE_IS_ATOM 0x20
+constexpr int ICI_S_LOOKASIDE_IS_ATOM = 0x20;
 
 /*
  * This flag (in o_flags) indicates that s_chars points to seperately
  * allocated memory.  If this is the case, s_u.su_nalloc is significant and
  * the memory was allocated with ici_nalloc(s_u.su_nalloc).
  */
-#define ICI_S_SEP_ALLOC     0x40
+constexpr int ICI_S_SEP_ALLOC     = 0x40;
 
 /*
  * Macros to assist external modules in getting ICI strings. To use, make
