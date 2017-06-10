@@ -113,14 +113,9 @@ struct ici_cfunc : ici_obj
  *
  * This comment is also part of the --ici-api--.
  */
-#define ici_cfuncof(o)      (static_cast<ici_cfunc_t *>(o))
-#define ici_iscfunc(o)      (ici_objof(o)->o_tcode == ICI_TC_CFUNC)
 
-/*
- * Convienience macro for the object header for use in static
- * initialisations of ici_cfunc_t objects.
- */
-#define ICI_CF_OBJ          {ICI_TC_CFUNC, 0, 1, 0}
+inline ici_cfunc_t *ici_cfuncof(ici_obj_t *o) { return static_cast<ici_cfunc_t *>(o); }
+inline bool ici_iscfunc(ici_obj_t *o) { return o->isa(ICI_TC_CFUNC); }
 
 /*
  * The operand stack on entry to an intrinsic function:

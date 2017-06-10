@@ -36,8 +36,8 @@ struct ici_op : ici_obj
     int         op_code;
 };
 
-#define ici_opof(o) (static_cast<ici_op_t *>(o))
-#define ici_isop(o) ((o)->o_tcode == ICI_TC_OP)
+inline ici_op_t *ici_opof(ici_obj_t *o) { return static_cast<ici_op_t *>(o); }
+inline bool ici_isop(ici_obj_t *o) { return o->isa(ICI_TC_OP); }
 
 ici_op_t *ici_new_op(int (*func)(), int ecode, int code);
 

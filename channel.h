@@ -22,8 +22,9 @@ struct ici_channel : ici_obj
 
 typedef struct ici_channel ici_channel_t;
 
-#define ici_channelof(o) (static_cast<ici_channel_t *>(o))
-#define ici_ischannel(o) ((o)->o_tcode == ICI_TC_CHANNEL)
+inline ici_channel_t *ici_channelof(ici_obj_t *o) { return static_cast<ici_channel_t *>(o); }
+inline bool ici_ischannel(ici_obj_t *o) { return o->isa(ICI_TC_CHANNEL); }
+
 /*
  * End of ici.h export. --ici.h-end--
  */
