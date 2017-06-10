@@ -5,3 +5,4 @@
 /anici.h
 *.dylib
 /.dcc/
+/anici.static
