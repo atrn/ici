@@ -87,7 +87,7 @@ static BOOL
 set_start_bits(const uschar *code, uschar *start_bits, BOOL caseless,
   compile_data *cd)
 {
-register int c;
+int c;
 
 #ifdef NOTDEF
 /* This next statement and the later reference to dummy are here in order to

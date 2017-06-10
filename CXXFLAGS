@@ -1,7 +1,9 @@
 -std=c++14
--DNDEBUG
 -Wall
 -I.
 -Imacos
+# -DNDEBUG
+-DDEBUG -UNDEBUG
+-g -O0
 # fast and z seem to work best
--Ofast -Oz
+# -Ofast -Oz

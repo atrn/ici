@@ -2678,7 +2678,7 @@ while (code < code_end)
   {
   int charlength;
 
-  printf("%3d ", code - code_base);
+  printf("%3ld ", code - code_base);
 
   if (*code >= OP_BRA)
     {

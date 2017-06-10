@@ -2,7 +2,7 @@
 
 .PHONY: all lib clean
 
-SRCS=   *.cc macos/*.cc pcre/pcre.c pcre/study.c
+SRCS=   *.cc macos/*.cc pcre/*.cc
 
 all: lib
 	@dcc etc/main.cc -o anici -L. -lanici &&\
