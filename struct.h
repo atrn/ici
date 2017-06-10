@@ -26,8 +26,9 @@ struct ici_struct : ici_objwsup
     int         s_nslots;       /* How many slots allocated. */
     ici_sslot_t *s_slots;
 };
-#define ici_structof(o)     (static_cast<ici_struct_t *>(o))
-#define ici_isstruct(o)     (ici_objof(o)->o_tcode == ICI_TC_STRUCT)
+
+inline ici_struct_t *ici_structof(ici_obj_t *o) { return static_cast<ici_struct_t *>(o); }
+inline bool ici_isstruct(ici_obj_t *o)          { return o->isa(ICI_TC_STRUCT); }
 
 /*
  * End of ici.h export. --ici.h-end--

@@ -417,7 +417,7 @@ struct ici_obj
         , o_leafz(leafz)
     {}
 
-    inline type_t *type() const {
+    inline type_t *type() const noexcept {
         return types[(size_t)o_tcode];
     }
 
@@ -433,6 +433,13 @@ struct ici_obj
         return type()->t_mark(this);
     }
 
+    inline bool isa(char tcode) const noexcept {
+        return o_tcode == tcode;
+    }
+
+    inline bool isa(type_t *type) const noexcept {
+        return this->type() == type;
+    }
 
     char        o_tcode;
     char        o_flags;

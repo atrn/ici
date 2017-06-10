@@ -1,30 +1,43 @@
-* anici
+# anici
 
-This is anici, a modified version of Tim Long's ICI language.
+This is anici, a programming language based on Tim Long's ICI
+language with additions and changes made for the purposes of
+supporting a distributed system known as "the worm farm".
 
-See the CHANGES file for the full details of the changes but
-in summary anici is ICI with, or without, the following:
+anici is a C-like interpretive language with dynamic types, memory
+management, error reporting, and other nicities afforded by the
+interpretive runtime environment. anici includes useful builtin
+data structures.
 
-- changes some keywords for aesthetic reasons
-- incorporates various modules as standard parts of
-  the environment:
+## Overview
+
+See the CHANGES file for the full details of the changes but in
+summary anici is essentially ICI with the following changes,
+
+- anici uses different keywords or builtin function names in
+  a number of places for aesthetic reasons,
+
+- anici incorporates a number of ICI modules as standard
+  make for a richer programming environment,
 
   str           extra string functions
-  path
-  sys
-  net
-  channel
-  archive
-  errno
+  path          pathname manipulation
+  sys           system calls
+  net           network sockets
+  channel       inter-thread channels
+  archive       object serialization
+  errno         error processing
+
 
 And as part of this anici is,
 
+- written using C++
 - 64-bit safe
 
 
+## anici features
 
-
-* anici object serialization
+### object serialization
 
 The goal of anici has always been to use ici as a language for
 mobile programs. This was acheived by adding a generic object
