@@ -17,7 +17,7 @@ namespace ici
 /*
  * This --macro-- forms part of the --ici-api--.
  */
-#define                 ICI_MAX_ERROR_MSG       (1024)
+constexpr int max_error_msg = 1024;
 
 /*
  * This --function-- forms part of the --ici-api--.

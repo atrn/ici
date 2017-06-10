@@ -24,15 +24,16 @@ struct ici_catch : ici_obj
     short       c_odepth;       /* Operand stack depth. */
     short       c_vdepth;       /* Variable stack depth. */
 };
-#define ici_catchof(o)      (static_cast<ici_catch_t *>(o))
-#define ici_iscatch(o)      ((o)->o_tcode == ICI_TC_CATCH)
+
+inline ici_catch_t *ici_catchof(ici_obj_t *o) { return static_cast<ici_catch_t *>(o); }
+inline bool ici_iscatch(ici_obj_t *o) { return o->isa(ICI_TC_CATCH); }
 
 /*
  * Flags set stored in the upper nibble of o_flags (which is
  * allowed to be used by objects).
  */
-#define CF_EVAL_BASE    0x20    /* ici_evaluate should return. */
-#define CF_CRIT_SECT    0x40    /* Critical section guard. */
+constexpr int CF_EVAL_BASE = 0x20;    /* ici_evaluate should return. */
+constexpr int CF_CRIT_SECT = 0x40;    /* Critical section guard. */
 
 /*
  * The following portion of this file exports to ici.h. --ici.h-start--

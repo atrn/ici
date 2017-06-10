@@ -604,7 +604,7 @@ ici_str_ret(const char *str)
     return ici_ret_with_decref(ici_objof(ici_str_new_nul_term(str)));
 }
 
-static void *
+static ici_obj_t *
 not_a(const char *what, const char *typ)
 {
     ici_set_error("%s is not a %s", what, typ);

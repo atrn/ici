@@ -10,15 +10,21 @@
 /*
  * The following portion of this file exports to ici.h. --ici.h-start--
  */
-
 #ifndef ICI_PCRE_TYPES_DEFINED
 typedef void pcre;
 typedef void pcre_extra;
 #define ICI_PCRE_TYPES_DEFINED
 #endif
+/*
+ * End of ici.h export. --ici.h-end--
+ */
 
 namespace ici
 {
+
+/*
+ * The following portion of this file exports to ici.h. --ici.h-start--
+ */
 
 struct ici_regexp : ici_obj
 {
@@ -27,8 +33,8 @@ struct ici_regexp : ici_obj
     ici_str_t   *r_pat;
 };
 
-#define ici_regexpof(o)     (static_cast<ici_regexp_t *>(o))
-#define ici_isregexp(o)     ((o)->o_tcode == ICI_TC_REGEXP)
+inline ici_regexp_t *ici_regexpof(ici_obj_t *o) { return static_cast<ici_regexp_t *>(o); }
+inline bool ici_isregexp(ici_obj_t *o) { return o->isa(ICI_TC_REGEXP); }
 
 int ici_pcre_exec_simple(ici_regexp_t *, ici_str_t *);
 

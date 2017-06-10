@@ -88,11 +88,6 @@ struct ici_cfunc : ici_obj
 
 };
 
-union fn {
-    int (*f0)();
-    int (*f1)(ici_obj_t *);
-};
-
 /*
  * 'ici_cfunc_t' objects are often declared staticly (in an array) when
  * setting up a group of C functions to be called from ICI. When doing
@@ -189,13 +184,26 @@ union fn {
 
 #define ICI_CF_ARG(X)       ((void *)(X))
 
+/*
+ * Defines a 'cfuncs' array.
+ */
 #define ICI_DEFINE_CFUNCS(NAME) ici_cfunc_t ici_ ## NAME ## _cfuncs[] =
+
+/*
+ * Marks the end of the initializers of a cfuncs array.
+ */
 #define ICI_CFUNCS_END {false}
 
+/*
+ * Macros to define cfuncs. Use the one for the number of arguments.
+ */
 #define ICI_DEFINE_CFUNC(NAME, FUNC) {(const char *)SS(NAME), (FUNC)}
 #define ICI_DEFINE_CFUNC1(NAME, FUNC, ARG) {(const char *)SS(NAME), (FUNC), (void *)(ARG)}
 #define ICI_DEFINE_CFUNC2(NAME, FUNC, ARG1, ARG2) {(const char *)SS(NAME), (FUNC), (void *)(ARG1), (void *)(ARG2)}
 
+/*
+ * Macros to define methods within a cfuncs array.
+ */
 #define ICI_DEFINE_METHOD(NAME, FUNC) {(const char *)SS(NAME), (int (*)(...))(FUNC)}
 
 } // namespace ici

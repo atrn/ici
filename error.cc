@@ -5,10 +5,11 @@
 namespace ici
 {
 
+static char msg[max_error_msg]; /* FIXME: should be per-thread if ici_error also per-thread. */
+
 int
 ici_set_error(const char *fmt, ...)
 {
-    static char msg[ICI_MAX_ERROR_MSG]; /* FIXME: SHOULD BE PER-THREAD IF ici_error FIXED */
     va_list     va;
 
     va_start(va, fmt);

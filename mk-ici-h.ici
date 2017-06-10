@@ -68,6 +68,8 @@ forall (i in incs)
             push(icih, b);
     }
 }
+
+push(icih, "\n} // namespace ici\n"); // fwd.h supplies the namespace start
 push(icih, "\n#endif /* ANICI_ANICI_H */\n");
 
 puts(implode(icih), fopen(pathjoin(dst_dir, "anici.h"), "w"));

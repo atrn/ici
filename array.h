@@ -83,8 +83,9 @@ struct ici_array : ici_obj
     ici_obj_t   **a_base;   /* The base of allocation. */
     ici_obj_t   **a_limit;  /* Allocation limit, first one you can't use. */
 };
-#define ici_arrayof(o)  (static_cast<ici_array_t *>(o))
-#define ici_isarray(o)  ((o)->o_tcode == ICI_TC_ARRAY)
+
+inline ici_array_t *ici_arrayof(ici_obj_t *o)   { return static_cast<ici_array_t *>(o); }
+inline bool ici_isarray(ici_obj_t *o)           { return o->isa(ICI_TC_ARRAY); }
 
 /*
  * Check that there is room for 'n' new elements on the end of 'a'.  May
@@ -149,9 +150,10 @@ struct ici_array : ici_obj
 #define ici_anext(a, e) ((e) + 1 == (a)->a_limit && (a)->a_limit != (a)->a_top \
                             ? (a)->a_base : (e) + 1)
 
-} // namespace ici
-
  /*
  * End of ici.h export. --ici.h-end--
  */
+
+} // namespace ici
+
 #endif
