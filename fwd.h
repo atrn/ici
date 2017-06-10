@@ -323,7 +323,7 @@ extern int                      ici_fetch_num(ici_obj_t *, ici_obj_t *, double *
 extern int                      ici_fetch_int(ici_obj_t *, ici_obj_t *, long *);
 extern int                      ici_assign_cfuncs(ici_objwsup_t *, ici_cfunc_t *);
 extern int                      ici_def_cfuncs(ici_cfunc_t *);
-extern int                      ici_main(int, char **);
+extern int                      main(int, char **);
 extern ici_method_t             *ici_method_new(ici_obj_t *, ici_obj_t *);
 extern ici_handle_t             *ici_handle_new(void *, ici_str_t *, ici_objwsup_t *);
 extern ici_handle_t             *ici_handle_probe(void *, ici_str_t *);

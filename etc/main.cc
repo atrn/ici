@@ -3,5 +3,5 @@
 int
 main(int argc, char *argv[])
 {
-    return ici::ici_main(argc, argv) ? EXIT_FAILURE : EXIT_SUCCESS;
+    return ici::main(argc, argv);
 }
