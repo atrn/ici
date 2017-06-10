@@ -23,22 +23,13 @@
 struct ici_cfunc : ici_obj
 {
     const char  *cf_name;
-    const int   cf_nargs;
     int         (*cf_cfunc)(...);
     const void  *cf_arg1;
     const void  *cf_arg2;
 
-    // union {
-    //     int (*cf_fn1)();
-    //     int (*cf_fn2)(ici_objwsup_t *);
-    //     int (*cf_fn3)(double);
-    //     int (*cf_fn4)(double, double);
-    // };
-
-    ici_cfunc(bool)
+    ici_cfunc(bool) // sentinel for end of cfunc lists
         : ici_obj{ICI_TC_CFUNC, 0, 0, 0}
         , cf_name(nullptr)
-        , cf_nargs(0)
         , cf_cfunc(nullptr)
         , cf_arg1(nullptr)
         , cf_arg2(nullptr)
@@ -48,7 +39,6 @@ struct ici_cfunc : ici_obj
     ici_cfunc(const char* name, F *f)
         : ici_obj{ICI_TC_CFUNC, 0, 1, 0}
         , cf_name(name)
-        , cf_nargs(0)
         , cf_cfunc(reinterpret_cast<int (*)(...)>(f))
         , cf_arg1(nullptr)
         , cf_arg2(nullptr)
@@ -59,7 +49,6 @@ struct ici_cfunc : ici_obj
     ici_cfunc(const char* name, F *f, void *arg1)
         : ici_obj{ICI_TC_CFUNC, 0, 1, 0}
         , cf_name(name)
-        , cf_nargs(1)
         , cf_cfunc(reinterpret_cast<int (*)(...)>(f))
         , cf_arg1(arg1)
         , cf_arg2(nullptr)
@@ -69,7 +58,6 @@ struct ici_cfunc : ici_obj
     ici_cfunc(const char* name, int (*f)(), long arg1)
         : ici_obj{ICI_TC_CFUNC, 0, 1, 0}
         , cf_name(name)
-        , cf_nargs(1)
         , cf_cfunc(reinterpret_cast<int (*)(...)>(f))
         , cf_arg1((const void *)arg1)
         , cf_arg2(nullptr)
@@ -79,7 +67,6 @@ struct ici_cfunc : ici_obj
     ici_cfunc(const char* name, double (*f)(...), const char *arg1)
         : ici_obj{ICI_TC_CFUNC, 0, 1, 0}
         , cf_name(name)
-        , cf_nargs(1)
         , cf_cfunc(reinterpret_cast<int (*)(...)>(f))
         , cf_arg1(arg1)
         , cf_arg2(nullptr)
@@ -90,7 +77,6 @@ struct ici_cfunc : ici_obj
     ici_cfunc(const char* name, F *f, void *arg1, void *arg2)
         : ici_obj{ICI_TC_CFUNC, 0, 1, 0}
         , cf_name(name)
-        , cf_nargs(2)
         , cf_cfunc(reinterpret_cast<int (*)(...)>(f))
         , cf_arg1(arg1)
         , cf_arg2(arg2)

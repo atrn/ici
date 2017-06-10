@@ -247,32 +247,6 @@ struct ici_type
  */
 
 /*
- * The recursive traversal of all objects performed by marking is particularly
- * expensive. So we take pains to cut short function calls wherever possible.
- * Thus the size of this macro. The o_leafz field of an object tells us it
- * doesn't reference any other objects and is of small (ie o_leafz) size.
- *
- * Note that the argument 'o' is subject to multiple expansions.
- */
-// #define ici_mark(o)                                                     \
-//     (                                                                   \
-//         (ici_objof(o)->o_flags & ICI_O_MARK) == 0                       \
-//         ?                                                               \
-//         (                                                               \
-//             ici_objof(o)->o_leafz != 0                                  \
-//             ?                                                           \
-//             (                                                           \
-//                 ici_objof(o)->o_flags |= ICI_O_MARK,                    \
-//                 ici_objof(o)->o_leafz                                   \
-//             )                                                           \
-//             :                                                           \
-//             (*ici_typeof(o)->t_mark)(ici_objof(o))                      \
-//         )                                                               \
-//         :                                                               \
-//         0L                                                              \
-//     )
-
-/*
  * Fetch the value of the key 'k' from the object 'o'.  This macro just calls
  * the particular object's 't_fetch()' function.
  *
@@ -539,7 +513,6 @@ inline bool ici_hassuper(const ici_obj_t *o) { return (o->o_flags & ICI_O_SUPER)
      ici_objof(o)->o_flags = (flags), \
      ici_objof(o)->o_nrefs = (nrefs), \
      ici_objof(o)->o_leafz = (leafz))
-
 /*
  * I was really hoping that most compilers would reduce the above to a
  * single word write. Especially as they are all constants most of the
@@ -547,6 +520,24 @@ inline bool ici_hassuper(const ici_obj_t *o) { return (o->o_flags & ICI_O_SUPER)
  * it manually.
  (*(unsigned long *)(o) = (tcode) | ((flags) << 8) | ((nrefs) << 16) | ((leafz) << 24))
  */
+
+/*
+ * The recursive traversal of all objects performed by marking is particularly
+ * expensive. So we take pains to cut short function calls wherever possible.
+ * The o_leafz field of an object tells us it doesn't reference any other objects
+ * and is of small (ie o_leafz) size.
+ */
+inline size_t ici_mark(ici_obj_t *o)
+{
+    if (o->o_flags & ICI_O_MARK) {
+        return 0;
+    }
+    if (o->o_leafz != 0) {
+        o->o_flags |= ICI_O_MARK;
+        return o->o_leafz;
+    }
+    return ici_typeof(o)->t_mark(o);
+}
 
 /*
  * Register the object 'o' with the garbage collector.  Object that are
@@ -565,20 +556,6 @@ inline bool ici_hassuper(const ici_obj_t *o) { return (o->o_flags & ICI_O_SUPER)
  * This --macro-- forms part of the --ici-api--.
  */
 #define ici_rego(o)     ici_rego_work(ici_objof(o))
-
-inline size_t ici_mark(ici_obj_t *o)
-{
-    if ((o->o_flags & ICI_O_MARK) == 0)
-    {
-        if (o->o_leafz != 0)
-        {
-            o->o_flags |= ICI_O_MARK;
-            return o->o_leafz;
-        }
-        return ici_typeof(o)->t_mark(o);
-    }
-    return 0;
-}
 
 /*
  * The o_tcode field is a small int. These are the "well known" core

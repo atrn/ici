@@ -1,10 +1,13 @@
-Major Changes in This Version
+Major Changes in Version 5
 
-*   anici now uses C++ as its implementation language
+*   anici is now implemented in C++ (c++14 to be precise).
+    C++ features are used sparingly, ici_obj_t is a used
+    as base class but note that ICI objects do NOT use
+    C++ virtuals (ici_types can and will).  Also C++
+    standard library collections are NOT used and ICI's
+    internals remain largely unchanged.
 
 *   use my dcc program for building
-
-Major Changes in Version 5
 
 *    added channel module to core, converting class-based
      approach to a function-based interface.
@@ -46,10 +49,10 @@ Major Changes in Version 5
 
 *    ft_putch removed from ici_ftype
 
-*    Version 5 is essenitally a new language with the same structure
-     as the previous versions of ICI.  Version 5 changes keywords
-     purposefully breaking programs written for previous versions
-     of the language.
+*    Version 5 shoule be considered as a new language with the same
+     structure as the previous versions of ICI.  Version 5 changes
+     some keywords and purposefully breaks compatibility with programs
+     written for previous versions of the language.
 
      Keyword Changes
 

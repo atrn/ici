@@ -49,10 +49,6 @@ icih := array
     "#ifndef ANICI_ANICI_H\n"
     "#define ANICI_ANICI_H\n"
     "\n"
-    "#ifdef __cplusplus\n"
-    "extern \"C\" {\n"
-    "#endif\n"
-    "\n"
 );
 
 if (argc > 2)
@@ -72,7 +68,6 @@ forall (i in incs)
             push(icih, b);
     }
 }
-push(icih, "\n#ifdef __cplusplus\n}\n#endif\n");
 push(icih, "\n#endif /* ANICI_ANICI_H */\n");
 
 puts(implode(icih), fopen(pathjoin(dst_dir, "anici.h"), "w"));

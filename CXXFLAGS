@@ -2,9 +2,14 @@
 -Wall
 -I.
 -Imacos
-# debug
-#-DDEBUG -UNDEBUG
+# debug configuration
+# pcre debug uses DEBUG
+#-DDEBUG
+# ICI debug uses !NDEBUG
+#-UNDEBUG
 #-g -O0
-# release - fast and z seem to work best
+#
+# release configuration
+# Ofast and Oz seem to work best, in that order
 -DNDEBUG
 -Ofast -Oz

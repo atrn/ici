@@ -559,10 +559,9 @@ assign_struct(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v)
     {
 #ifndef NDEBUG
         ici_obj_t       *av;
-#endif
-
         assert(fetch_super_struct(o, k, &av, NULL) == 1);
         assert(ici_stringof(k)->s_slot->sl_value == av);
+#endif
         ici_stringof(k)->s_slot->sl_value = v;
         return 0;
     }
