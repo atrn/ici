@@ -2,19 +2,22 @@
 
 .PHONY: all lib clean
 
-SRCS= *.cc macos/*.cc pcre/*.cc
+conf?= conf/macos.h
 
-all: anici anici.static
-	./anici mk-ici-h.ici conf/macos.h
+srcs=  *.cc macos/*.cc pcre/*.cc
+hdrs=  $(shell ls *.h|grep -v anici\\.h)
 
-anici: lib
-	dcc etc/main.cc -o anici -L. -lanici
+all: anici.h
 
-lib:
-	@dcc --dll libanici.dylib -fPIC $(SRCS) -framework System -lc++ -macosx_version_min 10.12
+anici.h : anici $(hdrs) mk-ici-h.ici
+	./anici mk-ici-h.ici $(conf)
+
+anici: lib; @dcc etc/main.cc -o anici -L. -lanici
+
+lib:; @dcc --dll libanici.dylib -fPIC $(srcs) -framework System -lc++ -macosx_version_min 10.12
 
 clean:
-	@rm -rf *.o */*.o anici anici.h libanici.dylib .dcc
+	@rm -rf *.o */*.o anici anici.static anici.h libanici.dylib .dcc
 
 anici.static:
-	dcc $(SRCS) etc/main.cc -o $@
+	@dcc $(srcs) etc/main.cc -o $@
