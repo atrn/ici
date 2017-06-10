@@ -48,8 +48,10 @@ struct ici_profilecall : ici_obj
  *                  returns and add the difference to pc_total.
  * pc_call_count    The number of times this function was called.
  */
-#define ici_profilecallof(o)    (static_cast<ici_profilecall_t *>(o))
-#define ici_isprofilecall(o)    ((o)->o_tcode == ICI_TC_PROFILECALL)
+
+inline ici_profilecall_t *ici_profilecallof(ici_obj_t *o) { return static_cast<ici_profilecall_t *>(o); }
+inline bool ici_isprofilecall(ici_obj_t *o) { return o->isa(ICI_TC_PROFILECALL); }
+
 /*
  * End of ici.h export. --ici.h-end--
  */

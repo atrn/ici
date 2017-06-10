@@ -12,7 +12,7 @@
 #include "icistr.h"
 
 static int
-init_ici_str(void)
+init_ici_str()
 {
 #undef  ICI_STR
 #define ICI_STR ICI_STR_MAKE

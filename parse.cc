@@ -2590,7 +2590,7 @@ mark_parse(ici_obj_t *o)
 }
 
 int
-ici_parse_exec(void)
+ici_parse_exec()
 {
     ici_parse_t *p;
     ici_array_t *a;
@@ -2739,7 +2739,7 @@ ici_token_name(int t)
 }
 
 static ici_parse_t *
-parse_file_argcheck(void)
+parse_file_argcheck()
 {
     ici_file_t          *f;
 

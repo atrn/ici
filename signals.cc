@@ -255,7 +255,7 @@ ici_signal_handler(int signo)
  * Initialize ici's signal handling.
  */
 void
-ici_signals_init(void)
+ici_signals_init()
 {
     int     signo;
 
@@ -293,7 +293,7 @@ ici_signals_blocking_syscall(int state)
  * Call handlers for any pending signals.
  */
 int
-ici_signals_invoke_handlers(void)
+ici_signals_invoke_handlers()
 {
     int     signo;
     ici_obj_t   *fn;

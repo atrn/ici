@@ -32,7 +32,7 @@ extern ici_cfunc_t  *ici_funcs[];
  * This --func-- forms part of the --ici-api--.
  */
 int
-ici_init(void)
+ici_init()
 {
     ici_cfunc_t         **cfp;
     ici_struct_t        *scope;

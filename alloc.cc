@@ -284,7 +284,7 @@ ici_free(void *p)
  * cause total disaster if called at any other time.
  */
 void
-ici_drop_all_small_allocations(void)
+ici_drop_all_small_allocations()
 {
 #if !ICI_ALLALLOC
     achunk_t            *c;

@@ -16,13 +16,13 @@
 namespace ici
 {
 
-int ici_archive_init(void);
-int ici_init_restorer_map(void);
-int ici_init_saver_map(void);
+int ici_archive_init();
+int ici_init_restorer_map();
+int ici_init_saver_map();
 int ici_archive_f_save(...);
 int ici_archive_f_restore(...);
 int ici_archive_op_func_code(int (*fn)());
-int (*ici_archive_op_func(int))(void);
+int (*ici_archive_op_func(int))();
 
 #if defined(__i386__) || defined(__x86_64__)
 #define ICI_ARCHIVE_LITTLE_ENDIAN_HOST 1

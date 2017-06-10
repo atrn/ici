@@ -25,7 +25,7 @@ dlsym(dll_t hinst, const char *name)
 }
 
 static char *
-dlerror(void)
+dlerror()
 {
     static char     msg[80];
 

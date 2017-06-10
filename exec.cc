@@ -210,7 +210,7 @@ fetch_exec(ici_obj_t *o, ici_obj_t *k)
  * structs (ici_execs).
  */
 ici_exec_t *
-ici_new_exec(void)
+ici_new_exec()
 {
     ici_exec_t          *x;
     static ici_src_t    default_src;
@@ -281,7 +281,7 @@ fail:
  * there is room for N * 3 objects.
  */
 int
-ici_engine_stack_check(void)
+ici_engine_stack_check()
 {
     ici_array_t         *pcs;
     int                 depth;

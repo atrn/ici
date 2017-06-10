@@ -96,7 +96,7 @@ type_t archive_type =
     "archive"
 };
 
-int ici_archive_init(void)
+int ici_archive_init()
 {
     op_funcs[0] = NULL;
     op_funcs[1] = ici_o_mklvalue.op_func;

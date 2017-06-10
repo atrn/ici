@@ -122,9 +122,8 @@ restore_object_name(ici_archive_t *ar, ici_obj_t **name)
 }
 
 static ici_obj_t *
-restore_error(ici_archive_t *ar)
+restore_error(ici_archive_t *)
 {
-    (void)ar;
     ici_set_error("unable to restore object");
     return NULL;
 }
@@ -132,9 +131,8 @@ restore_error(ici_archive_t *ar)
 // null
 
 static ici_obj_t *
-restore_null(ici_archive_t *ar)
+restore_null(ici_archive_t *)
 {
-    (void)ar;
     return ici_null;
 }
 
@@ -766,7 +764,7 @@ fetch_restorer(int key)
 }
 
 int
-ici_init_restorer_map(void)
+ici_init_restorer_map()
 {
     size_t i;
 

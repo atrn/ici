@@ -53,7 +53,7 @@ long                    ici_n_active_threads;
  * This --func-- forms part of the --ici-api--.
  */
 ici_exec_t *
-ici_leave(void)
+ici_leave()
 {
     ici_exec_t          *x;
 
@@ -173,7 +173,7 @@ ici_enter(ici_exec_t *x)
  * This --func-- forms part of the --ici-api--.
  */
 void
-ici_yield(void)
+ici_yield()
 {
     ici_exec_t          *x;
 
@@ -469,7 +469,7 @@ f_wakeup(...)
  * made.
  */
 int
-ici_init_thread_stuff(void)
+ici_init_thread_stuff()
 {
 #ifdef ICI_USE_WIN32_THREADS
     if ((ici_mutex = CreateMutex(NULL, 0, NULL)) == NULL)

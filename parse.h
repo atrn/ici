@@ -43,8 +43,10 @@ struct ici_parse : ici_obj
 /*
  * The following portion of this file exports to ici.h. --ici.h-start--
  */
-#define ici_isparse(o)      (ici_objof(o)->o_tcode == ICI_TC_PARSE)
-#define ici_parseof(o)      (static_cast<ici_parse_t *>(o))
+inline ici_parse_t *ici_parseof(ici_obj_t *o) { return static_cast<ici_parse_t *>(o); }
+inline ici_parse_t *ici_parseof(void *f) { return reinterpret_cast<ici_parse_t *>(f); }
+inline bool ici_isparse(ici_obj_t *o) { return o->isa(ICI_TC_PARSE); }
+
 /*
  * End of ici.h export. --ici.h-end--
  */
@@ -53,7 +55,7 @@ struct ici_parse : ici_obj
  * Token numbers.  Note that the precedence and order of binary operators
  * is built into the token number; this drives the expression parser.
  */
-#define TM_SUBTYPE      0x003F          /* 6 bits. */
+constexpr int TM_SUBTYPE =       0x003F;          /* 6 bits. */
 #define TM_TYPE         0x07C0          /* 5 bits. */
 #define TM_PREC         0x7800          /* 4 bits, 0 is high (tight bind).*/
 #define TM_HASOBJ       0x8000          /* Implies incref on t_obj. */

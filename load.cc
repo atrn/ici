@@ -49,7 +49,7 @@ static const char   ici_prefix[] = "anici-";
  * loaded modules. Usual error conventions.
  */
 ici_objwsup_t *
-ici_outermost_writeable_struct(void)
+ici_outermost_writeable_struct()
 {
     ici_objwsup_t       *outer;
     ici_objwsup_t       *ows;
@@ -133,7 +133,7 @@ f_load(...)
     if (ici_find_on_path(fname, ICI_DLL_EXT))
     {
         dll_t           lib;
-        ici_obj_t       *(*library_init)(void);
+        ici_obj_t       *(*library_init)();
         ici_obj_t       *o;
 
         /*
@@ -154,7 +154,7 @@ f_load(...)
 #else
         sprintf(entry_symbol, "anici_%s_init", name->s_chars);
 #endif
-        library_init = (ici_obj_t *(*)(void))dlsym(lib, entry_symbol);
+        library_init = (ici_obj_t *(*)())dlsym(lib, entry_symbol);
         if (library_init == NULL)
         {
 #ifndef SUNOS5 /* Doing the dlclose results in a crash under Solaris - why? */

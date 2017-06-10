@@ -21,7 +21,7 @@ static ici_wrap_t       *wraps;
  * This --func-- forms part of the --ici-api--.
  */
 void
-ici_atexit(void (*func)(void), ici_wrap_t *w)
+ici_atexit(void (*func)(), ici_wrap_t *w)
 {
     w->w_next = wraps;
     w->w_func = func;
@@ -43,7 +43,7 @@ ici_atexit(void (*func)(void), ici_wrap_t *w)
  * This --func-- forms part of the --ici-api--.
  */
 void
-ici_uninit(void)
+ici_uninit()
 {
     int                 i;
     ici_exec_t          *x;
@@ -129,7 +129,7 @@ ici_uninit(void)
     ici_decref(&ici_os);
     ici_decref(&ici_xs);
     {
-        extern void ici_dump_refs(void);
+        extern void ici_dump_refs();
 
         ici_dump_refs();
     }

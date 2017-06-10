@@ -602,7 +602,7 @@ ici_rego_work(ici_obj_t *o)
  * reference other objects (very rare) must be appropriately registered.
  */
 void
-ici_collect(void)
+ici_collect()
 {
     ici_obj_t  **a;
     ici_obj_t  *o;
@@ -786,7 +786,7 @@ printf("mem=%ld vs. %ld, nobjects=%d, ici_natoms=%d\n", mem, ici_mem, objs_top -
 
 #ifndef NDEBUG
 void
-ici_dump_refs(void)
+ici_dump_refs()
 {
     ici_obj_t           **a;
     char                n[30];
@@ -816,7 +816,7 @@ ici_dump_refs(void)
  * but will reduce subsequent performance.
  */
 void
-ici_reclaim(void)
+ici_reclaim()
 {
     ici_collect();
 }

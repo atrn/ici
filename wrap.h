@@ -13,7 +13,7 @@ namespace ici
 struct ici_wrap
 {
     ici_wrap_t  *w_next;
-    void        (*w_func)(void);
+    void        (*w_func)();
 };
 
 /*

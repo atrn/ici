@@ -24,7 +24,7 @@ namespace ici
  * *not* registered with the garbage collector.
  */
 int
-ici_init_sstrings(void)
+ici_init_sstrings()
 {
     if
     (

@@ -17,7 +17,7 @@ attempted(const char *what, const char *towhat)
 }
 
 int
-ici_op_unary(void)
+ici_op_unary()
 {
     ici_int_t   *i;
 

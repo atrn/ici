@@ -115,10 +115,8 @@ save_obj(ici_archive_t *ar, ici_obj_t *obj)
 // NULL
 
 static int
-save_null(ici_archive_t *ar, ici_obj_t *obj)
+save_null(ici_archive_t *, ici_obj_t *)
 {
-    (void)ar;
-    (void)obj;
     return 0;
 }
 
@@ -354,7 +352,7 @@ new_saver(int (*fn)(ici_archive_t *, ici_obj_t *))
 static ici_struct_t *saver_map = NULL;
 
 int
-ici_init_saver_map(void)
+ici_init_saver_map()
 {
     size_t i;
     struct
@@ -416,9 +414,8 @@ tname(ici_obj_t *o)
 }
 
 static int
-save_error(ici_archive_t *ar, ici_obj_t *obj)
+save_error(ici_archive_t *, ici_obj_t *obj)
 {
-    (void)ar;
     return ici_set_error("%s: unable to save type", ici_typeof(obj)->t_name);
 }
 

@@ -117,7 +117,7 @@ free_struct(ici_obj_t *o)
  * This --func-- forms part of the --ici-api--.
  */
 ici_struct_t *
-ici_struct_new(void)
+ici_struct_new()
 {
     ici_struct_t   *s;
 

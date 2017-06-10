@@ -617,7 +617,7 @@ not_a(const char *what, const char *typ)
  * referenced from the scope until the caller has finished with it.
  */
 ici_array_t *
-ici_need_path(void)
+ici_need_path()
 {
     ici_obj_t           *o;
 
@@ -638,7 +638,7 @@ ici_need_path(void)
  * This --func-- forms part of the --ici-api--.
  */
 ici_file_t *
-ici_need_stdin(void)
+ici_need_stdin()
 {
     ici_file_t          *f;
 
@@ -659,7 +659,7 @@ ici_need_stdin(void)
  * This --func-- forms part of the --ici-api--.
  */
 ici_file_t *
-ici_need_stdout(void)
+ici_need_stdout()
 {
     ici_file_t          *f;
 
@@ -1231,7 +1231,7 @@ f_include()
 #endif
 
 static int
-f_call(void)
+f_call()
 {
     ici_array_t *aa;        /* The array with extra arguments, or NULL. */
     int         nargs;      /* Number of args to target function. */
@@ -3272,7 +3272,7 @@ f_which()
 }
 
 static int
-f_ncollects(void)
+f_ncollects()
 {
     return ici_int_ret(ici_ncollects);
 }
@@ -3282,7 +3282,7 @@ f_ncollects(void)
  * Required for a clean shutdown.
  */
 void
-ici_uninit_cfunc(void)
+ici_uninit_cfunc()
 {
 }
 
@@ -3801,7 +3801,7 @@ f_eof()
 }
 
 static int
-f_remove(void)
+f_remove()
 {
     char        *s;
 
@@ -3897,7 +3897,7 @@ closedir(DIR *dir)
  * The default format specifier is "f".
  */
 static int
-f_dir(void)
+f_dir()
 {
     const char          *path   = ".";
     const char          *format = "f";
@@ -4123,7 +4123,7 @@ f_chdir()
  * string = getcwd()
  */
 static int
-f_getcwd(void)
+f_getcwd()
 {
     char        buf[MAXPATHLEN+1];
 
@@ -4144,7 +4144,7 @@ f_getcwd(void)
  * Return the value of an environment variable.
  */
 static int
-f_getenv(void)
+f_getenv()
 {
     ici_str_t           *n;
     char                **p;
@@ -4184,7 +4184,7 @@ f_getenv(void)
  * Set an environment variable.
  */
 static int
-f_putenv(void)
+f_putenv()
 {
     char        *s;
     char        *t;

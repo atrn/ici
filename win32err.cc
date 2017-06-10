@@ -17,7 +17,7 @@ namespace ici
  * This --func-- forms part of the --ici-api--.
  */
 int
-ici_get_last_win32_error(void)
+ici_get_last_win32_error()
 {
     FormatMessage
     (

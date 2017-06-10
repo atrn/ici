@@ -24,7 +24,7 @@ mark_pc(ici_obj_t *o)
  * NOTE: pc's come back ready-decref'ed.
  */
 ici_pc_t *
-ici_new_pc(void)
+ici_new_pc()
 {
     ici_pc_t            *pc;
 

@@ -30,7 +30,7 @@ int ici_debug_ign_err = 0;
  * exec that handle errors themselves, e.g., f_include().
  */
 void
-ici_debug_ignore_errors(void)
+ici_debug_ignore_errors()
 {
     ici_debug_ign_err = 1;
 }
@@ -39,7 +39,7 @@ ici_debug_ignore_errors(void)
  * Restore error processing.
  */
 void
-ici_debug_respect_errors(void)
+ici_debug_respect_errors()
 {
     ici_debug_ign_err = 0;
 }
