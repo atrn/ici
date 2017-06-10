@@ -870,7 +870,7 @@ usef:
         }
         if ((o = ici_exec->x_os_temp_cache->a_base[n]) == ici_null)
         {
-            if ((o = ici_objof_ostemp(ici_talloc(ici_ostemp_t))) == NULL)
+            if ((o = ici_object_cast(ici_talloc(ici_ostemp_t))) == NULL)
             {
                 FAIL();
             }
@@ -950,7 +950,7 @@ usei:
         }
         if ((o = ici_exec->x_os_temp_cache->a_base[n]) == ici_null)
         {
-            if ((o = ici_objof_ostemp(ici_talloc(ici_ostemp_t))) == NULL)
+            if ((o = ici_object_cast(ici_talloc(ici_ostemp_t))) == NULL)
             {
                 FAIL();
             }

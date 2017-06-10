@@ -24,7 +24,7 @@ struct ici_regexp : ici_obj
     ici_str_t   *r_pat;
 };
 
-#define ici_regexpof(o)     ((ici_regexp_t *)(o))
+#define ici_regexpof(o)     (static_cast<ici_regexp_t *>(o))
 #define ici_isregexp(o)     ((o)->o_tcode == ICI_TC_REGEXP)
 
 int ici_pcre_exec_simple(ici_regexp_t *, ici_str_t *);

@@ -82,7 +82,7 @@ struct ici_str : ici_obj
  * su.su_inline_chars   If ICI_S_SEP_ALLOC is *not* set, this is where s_chars will
  *                      be pointing. The actual string chars follow on from this.
  */
-#define ici_stringof(o)     ((ici_str_t *)o)
+#define ici_stringof(o)     (static_cast<ici_str_t *>(o))
 #define ici_isstring(o)     ((o)->o_tcode == ICI_TC_STRING)
 
 /*

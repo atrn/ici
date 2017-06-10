@@ -22,7 +22,7 @@ struct ici_struct : ici_objwsup
     int         s_nslots;       /* How many slots allocated. */
     ici_sslot_t *s_slots;
 };
-#define ici_structof(o)     ((ici_struct_t *)(o))
+#define ici_structof(o)     (static_cast<ici_struct_t *>(o))
 #define ici_isstruct(o)     (ici_objof(o)->o_tcode == ICI_TC_STRUCT)
 
 /*

@@ -41,7 +41,7 @@ struct ici_parse : ici_obj
  * The following portion of this file exports to ici.h. --ici.h-start--
  */
 #define ici_isparse(o)      (ici_objof(o)->o_tcode == ICI_TC_PARSE)
-#define ici_parseof(o)      ((ici_parse_t *)(o))
+#define ici_parseof(o)      (static_cast<ici_parse_t *>(o))
 /*
  * End of ici.h export. --ici.h-end--
  */

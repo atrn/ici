@@ -475,7 +475,7 @@ struct ici_objwsup : ici_obj
 
     ici_objwsup_t   *o_super;
 };
-#define ici_objwsupof(o)    ((ici_objwsup_t *)(o))
+#define ici_objwsupof(o)    (static_cast<ici_objwsup_t *>(o))
 
 /*
  * Test if this object supports a super type.  (It may or may not have a super
@@ -609,10 +609,9 @@ inline size_t ici_mark(ici_obj_t *o)
  */
 
 /*
- * Forced cast of the ostemp union type (which is one or two ICI object types)
- * This is used in two places that can't use the static_cast<>-based ici_objof
+ * Forced cast of some pointer (e.g. ostemp union type)
  */
-#define ici_objof_ostemp(x) ((ici_obj_t *)(x))
+#define ici_object_cast(x) ((ici_obj_t *)(x))
 
 #define freeo(o)        ((*ici_typeof(o)->t_free)(ici_objof(o)))
 #define hash(o)         ((*ici_typeof(o)->t_hash)(ici_objof(o)))

@@ -68,7 +68,7 @@ struct ici_file : ici_obj
  *                      to keep the object referenced. Basically if f_file
  *                      is an implicit reference to some object. May be NULL.
  */
-#define ici_fileof(o)   ((ici_file_t *)(o))
+#define ici_fileof(o)   (static_cast<ici_file_t *>(o))
 #define ici_isfile(o)   (ici_objof(o)->o_tcode == ICI_TC_FILE)
 
 #define ICI_F_CLOSED    0x20    /* File is closed. */

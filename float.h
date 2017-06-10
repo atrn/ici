@@ -21,7 +21,7 @@ struct ici_float : ici_obj
     ici_float(double v = 0.0) : ici_obj(ICI_TC_FLOAT), f_value(v) {}
     double      f_value;
 };
-#define ici_floatof(o)      ((ici_float_t *)o)
+#define ici_floatof(o)      (static_cast<ici_float_t *>(o))
 #define ici_isfloat(o)      ((o)->o_tcode == ICI_TC_FLOAT)
 /*
  * End of ici.h export. --ici.h-end--

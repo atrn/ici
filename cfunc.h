@@ -115,7 +115,7 @@ union fn {
  *
  * This comment is also part of the --ici-api--.
  */
-#define ici_cfuncof(o)      ((ici_cfunc_t *)(o))
+#define ici_cfuncof(o)      (static_cast<ici_cfunc_t *>(o))
 #define ici_iscfunc(o)      (ici_objof(o)->o_tcode == ICI_TC_CFUNC)
 
 /*

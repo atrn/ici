@@ -80,7 +80,7 @@ struct ici_array : ici_obj
     ici_obj_t   **a_base;   /* The base of allocation. */
     ici_obj_t   **a_limit;  /* Allocation limit, first one you can't use. */
 };
-#define ici_arrayof(o)  ((ici_array_t *)(o))
+#define ici_arrayof(o)  (static_cast<ici_array_t *>(o))
 #define ici_isarray(o)  ((o)->o_tcode == ICI_TC_ARRAY)
 
 /*

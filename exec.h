@@ -61,7 +61,7 @@ struct ici_exec : ici_obj
 #endif
     char        *x_error;
 };
-#define ici_execof(o)        ((ici_exec_t *)(o))
+#define ici_execof(o)        (static_cast<ici_exec_t *>(o))
 #define ici_isexec(o)        (ici_objof(o)->o_tcode == ICI_TC_EXEC)
 /*
  * x_xs                 The ICI interpreter execution stack. This contains

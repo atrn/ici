@@ -20,7 +20,7 @@ struct ici_catch : ici_obj
     short       c_odepth;       /* Operand stack depth. */
     short       c_vdepth;       /* Variable stack depth. */
 };
-#define ici_catchof(o)      ((ici_catch_t *)(o))
+#define ici_catchof(o)      (static_cast<ici_catch_t *>(o))
 #define ici_iscatch(o)      ((o)->o_tcode == ICI_TC_CATCH)
 
 /*

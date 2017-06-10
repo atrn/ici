@@ -21,7 +21,7 @@ struct ici_mark : ici_obj
 {
     ici_mark() : ici_obj(ICI_TC_MARK) {}
 };
-#define ici_markof(o)       ((ici_mark_t *)o)
+#define ici_markof(o)       (static_cast<ici_mark_t >)o)
 #define ici_ismark(o)       ((o) == ici_objof(&ici_o_mark))
 
 /*

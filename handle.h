@@ -106,7 +106,7 @@ struct ici_handle : ici_objwsup
     int             (*h_general_intf)(ici_handle_t *h, ici_obj_t *k, ici_obj_t *setv, ici_obj_t **retv);
 };
 
-#define ici_handleof(o)        ((ici_handle_t *)(o))
+#define ici_handleof(o)        (static_cast<ici_handle_t *>(o))
 #define ici_ishandle(o)        (ici_objof(o)->o_tcode == ICI_TC_HANDLE)
 #define ici_ishandleof(o, n)   (ici_ishandle(o) && ici_handleof(o)->h_name == (n))
 /*

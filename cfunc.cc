@@ -2338,6 +2338,7 @@ f_waitfor()
 static int
 f_gettoken()
 {
+    ici_obj_t           *fo;
     ici_file_t          *f;
     ici_str_t           *s;
     unsigned char       *seps;
@@ -2358,29 +2359,33 @@ f_gettoken()
         break;
 
     case 1:
-        if (ici_typecheck("o", &f))
+        if (ici_typecheck("o", &fo))
             return 1;
-        if (ici_isstring(ici_objof(f)))
+        if (ici_isstring(fo))
         {
-            if ((f = ici_sopen(ici_stringof(f)->s_chars, ici_stringof(f)->s_nchars, ici_objof(f))) == NULL)
+            if ((f = ici_sopen(ici_stringof(fo)->s_chars, ici_stringof(fo)->s_nchars, fo)) == NULL)
                 return 1;
             ici_decref(f);
         }
-        else if (!ici_isfile(ici_objof(f)))
+        else if (!ici_isfile(fo))
             return ici_argerror(0);
+        else
+            f = ici_fileof(fo);
         break;
 
     default:
-        if (ici_typecheck("oo", &f, &s))
+        if (ici_typecheck("oo", &fo, &s))
             return 1;
-        if (ici_isstring(ici_objof(f)))
+        if (ici_isstring(fo))
         {
-            if ((f = ici_sopen(ici_stringof(f)->s_chars, ici_stringof(f)->s_nchars, ici_objof(f))) == NULL)
+            if ((f = ici_sopen(ici_stringof(fo)->s_chars, ici_stringof(fo)->s_nchars, fo)) == NULL)
                 return 1;
             ici_decref(f);
         }
-        else if (!ici_isfile(ici_objof(f)))
+        else if (!ici_isfile(fo))
             return ici_argerror(0);
+        else
+            f = ici_fileof(fo);
         if (!ici_isstring(ici_objof(s)))
             return ici_argerror(1);
         seps = (unsigned char *)s->s_chars;
@@ -2472,6 +2477,7 @@ fast_gettokens(const char *str, const char *delims)
 static int
 f_gettokens()
 {
+    ici_obj_t           *fo;
     ici_file_t          *f;
     ici_str_t           *s;
     unsigned char       *terms;
@@ -2506,33 +2512,37 @@ f_gettokens()
         break;
 
     case 1:
-        if (ici_typecheck("o", &f))
+        if (ici_typecheck("o", &fo))
             return 1;
-        if (ici_isstring(ici_objof(f)))
+        if (ici_isstring(fo))
         {
-            return fast_gettokens(ici_stringof(f)->s_chars, " \t");
+            return fast_gettokens(ici_stringof(fo)->s_chars, " \t");
         }
-        else if (!ici_isfile(ici_objof(f)))
+        else if (!ici_isfile(fo))
             return ici_argerror(0);
+        else
+            f = ici_fileof(fo);
         break;
 
     case 2:
     case 3:
     case 4:
-        if (ici_typecheck("oo*", &f, &s))
+        if (ici_typecheck("oo*", &fo, &s))
             return 1;
-        if (ICI_NARGS() == 2 && ici_isstring(ici_objof(f)) && ici_isstring(ici_objof(s)))
+        if (ICI_NARGS() == 2 && ici_isstring(fo) && ici_isstring(ici_objof(s)))
         {
-            return fast_gettokens(ici_stringof(f)->s_chars, ici_stringof(s)->s_chars);
+            return fast_gettokens(ici_stringof(fo)->s_chars, ici_stringof(s)->s_chars);
         }
-        if (ici_isstring(ici_objof(f)))
+        if (ici_isstring(fo))
         {
-            if ((f = ici_sopen(ici_stringof(f)->s_chars, ici_stringof(f)->s_nchars, ici_objof(f))) == NULL)
+            if ((f = ici_sopen(ici_stringof(fo)->s_chars, ici_stringof(fo)->s_nchars, fo)) == NULL)
                 return 1;
             loose_it = 1;
         }
-        else if (!ici_isfile(ici_objof(f)))
+        else if (!ici_isfile(fo))
             return ici_argerror(0);
+        else
+            f = ici_fileof(fo);
         if (ici_isint(ici_objof(s)))
         {
             sep = (unsigned char)ici_intof(ici_objof(s))->i_value;

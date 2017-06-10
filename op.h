@@ -33,7 +33,7 @@ struct ici_op : ici_obj
     int         op_code;
 };
 
-#define ici_opof(o) ((ici_op_t *)o)
+#define ici_opof(o) (static_cast<ici_op_t *>(o))
 #define ici_isop(o) ((o)->o_tcode == ICI_TC_OP)
 
 ici_op_t *ici_new_op(int (*func)(), int ecode, int code);

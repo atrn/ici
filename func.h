@@ -19,7 +19,7 @@ struct ici_func : ici_obj
     int             f_nautos;   /* If !=0, a hint for auto struct alloc. */
 };
 
-#define ici_funcof(o)       ((ici_func_t *)(o))
+#define ici_funcof(o)       (static_cast<ici_func_t *>(o))
 #define ici_isfunc(o)       (ici_objof(o)->o_tcode == ICI_TC_FUNC)
 
 /*
