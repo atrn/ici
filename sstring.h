@@ -230,10 +230,6 @@ SSTRING(rejecttoken, "rejecttoken")
 SSTRING(parsevalue, "parsevalue")
 SSTRING(rejectchar, "rejectchar")
 SSTRING(which, "which")
-#if 0
-    SSTRING(parse_expr, "parse_expr")
-    SSTRING(parse_stmt, "parse_stmt")
-#endif
 SSTRING(apply, "apply")
 SSTRING(map, "map")
 SSTRING(deepatom, "deepatom")
@@ -256,3 +252,7 @@ SSTRING(alt, "alt")
 SSTRING(save, "save")
 SSTRING(restore, "restore")
 SSTRING(wakeup, "wakeup")
+#if 0
+    SSTRING(parse_expr, "parse_expr")
+    SSTRING(parse_stmt, "parse_stmt")
+#endif

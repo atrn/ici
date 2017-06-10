@@ -19,7 +19,7 @@
  * by calls to ici_register_type() and are given the next available slot.
  * ici_object_t's o_tcode is one byte so we're limited to 256 distinct types.
  */
-#define ICI_MAX_TYPES   256
+constexpr int ICI_MAX_TYPES = 256;
 extern DLI ici_type_t   *ici_types[ICI_MAX_TYPES];
 
 /*
@@ -377,7 +377,12 @@ struct ici_type
  */
 struct ici_obj
 {
-    ici_obj() : o_tcode(0), o_flags(0), o_nrefs(0), o_leafz(0)  {}
+    ici_obj()
+        : o_tcode(0)
+        , o_flags(0)
+        , o_nrefs(0)
+        , o_leafz(0)
+    {}
 
     ici_obj(char tcode, char flags = 0, char nrefs = 1, char leafz = 0)
         : o_tcode(tcode)
@@ -385,8 +390,6 @@ struct ici_obj
         , o_nrefs(nrefs)
         , o_leafz(leafz)
     {}
-
-    ~ici_obj() {}
 
     char        o_tcode;
     char        o_flags;
@@ -452,8 +455,6 @@ constexpr int ICI_O_OLD   =	    0x10;    /* Has been through 1+ collects */
  * rules will suffice for the down casts.
  */
 #define ici_objof(x) (static_cast<ici_obj_t *>(x))
-
-#define ici_objof_ostemp(x) ((ici_obj_t *)(x))
 
 /*
  * "Object with super." This is a specialised header for all objects that
@@ -606,6 +607,12 @@ inline size_t ici_mark(ici_obj_t *o)
 /*
  * End of ici.h export. --ici.h-end--
  */
+
+/*
+ * Forced cast of the ostemp union type (which is one or two ICI object types)
+ * This is used in two places that can't use the static_cast<>-based ici_objof
+ */
+#define ici_objof_ostemp(x) ((ici_obj_t *)(x))
 
 #define freeo(o)        ((*ici_typeof(o)->t_free)(ici_objof(o)))
 #define hash(o)         ((*ici_typeof(o)->t_hash)(ici_objof(o)))
