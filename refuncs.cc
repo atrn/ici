@@ -39,7 +39,7 @@ f_regexp(...)
     }
     if (ICI_CF_ARG2() != NULL)
         opts |= PCRE_CASELESS;
-    return ici_ret_with_decref(ici_objof(ici_regexp_new(ici_stringof(ICI_ARG(0)), opts)));
+    return ici_ret_with_decref(ici_regexp_new(ici_stringof(ICI_ARG(0)), opts));
 }
 
 /*
@@ -197,9 +197,9 @@ do_smash
             if ((ns = ici_str_alloc(size)) == NULL)
                 goto fail;
             do_repl(s, repls[-i]->s_chars, repls[-i]->s_nchars, ns->s_chars);
-            if ((ns = ici_stringof(ici_atom(ici_objof(ns), 1))) == NULL)
+            if ((ns = ici_stringof(ici_atom(ns, 1))) == NULL)
                 goto fail;
-            *a->a_top++ = ici_objof(ns);
+            *a->a_top++ = ns;
             ici_decref(ns);
         }
     }
@@ -213,7 +213,7 @@ do_smash
             goto fail;
         if ((ns = ici_str_new(s, se - s)) == NULL)
             goto fail;
-        *a->a_top++ = ici_objof(ns);
+        *a->a_top++ = ns;
         ici_decref(ns);
     }
     return a;
@@ -431,7 +431,7 @@ f_sub(...)
     if (ici_regexpof(o) != re)
         ici_decref(re);
 
-    return ici_ret_no_decref(ici_objof(rc));
+    return ici_ret_no_decref(rc);
 }
 
 static int
@@ -482,12 +482,12 @@ f_gsub(...)
         memcpy(s, ici_stringof(*p)->s_chars, ici_stringof(*p)->s_nchars);
         s += ici_stringof(*p)->s_nchars;
     }
-    if ((ns = ici_stringof(ici_atom(ici_objof(ns), 1))) == NULL)
+    if ((ns = ici_stringof(ici_atom(ns, 1))) == NULL)
         goto fail;
     ici_decref(a);
     if (!ici_isregexp(ICI_ARG(1)))
         ici_decref(re);
-    return ici_ret_with_decref(ici_objof(ns));
+    return ici_ret_with_decref(ns);
 
 fail:
     if (a != NULL)
@@ -539,12 +539,12 @@ f_old_smash()
         goto fail;
     for (p = strs; *p != NULL; ++p)
     {
-        if ((*sa->a_top = ici_objof(ici_str_get_nul_term(*p))) == NULL)
+        if ((*sa->a_top = ici_str_get_nul_term(*p)) == NULL)
             goto fail;
         ++sa->a_top;
     }
     ici_free((char *)strs);
-    return ici_ret_with_decref(ici_objof(sa));
+    return ici_ret_with_decref(sa);
 
 fail:
     if (sa != NULL)
@@ -620,13 +620,13 @@ f_smash(...)
         repls = (ici_str_t **)(ICI_ARGS() - 2);
         for (i = 0; i < n_repls; ++i)
         {
-            if (!ici_isstring(ici_objof(repls[-i])))
+            if (!ici_isstring(repls[-i]))
                 return ici_argerror(i + 2);
         }
     }
 
     a = do_smash(str, re, repls, n_repls, include_remainder);
-    return ici_ret_with_decref(ici_objof(a));
+    return ici_ret_with_decref(a);
 }
 
 ICI_DEFINE_CFUNCS(re)

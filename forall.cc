@@ -61,7 +61,7 @@ ici_op_forall()
     fa->fa_kaggr = *--ici_os.a_top;
     fa->fa_vkey = *--ici_os.a_top;
     fa->fa_vaggr = *--ici_os.a_top;
-    ici_xs.a_top[-1] = ici_objof(fa);
+    ici_xs.a_top[-1] = fa;
     return 0;
 }
 
@@ -93,7 +93,7 @@ ici_exec_forall()
         char n[ICI_OBJNAMEZ+1];
         return ici_set_error("attempt to forall over %s", ici_objname(n, fa->fa_aggr));
     }
-    switch (step(ici_objof(fa)))
+    switch (step(fa))
     {
     case 0:
         ici_get_pc(ici_arrayof(fa->fa_code), ici_xs.a_top);

@@ -58,7 +58,7 @@ m_new(ici_obj_t *o)
     if ((s = ici_struct_new()) == NULL)
         return 1;
     s->o_super = ici_objwsupof(o);
-    return ici_ret_with_decref(ici_objof(s));
+    return ici_ret_with_decref(s);
 }
 
 static int
@@ -73,10 +73,10 @@ m_isa(ici_obj_t *o)
         return 1;
     for (s = ici_objwsupof(o); s != NULL; s = s->o_super)
     {
-        if (ici_objof(s) == klass)
-            return ici_ret_no_decref(ici_objof(ici_one));
+        if (s == klass)
+            return ici_ret_no_decref(ici_one);
     }
-    return ici_ret_no_decref(ici_objof(ici_zero));
+    return ici_ret_no_decref(ici_zero);
 }
 
 static int
@@ -97,7 +97,7 @@ m_respondsto(ici_obj_t *o)
     }
     if (ici_isfunc(v))
     {
-        return ici_ret_with_decref(ici_objof(ici_method_new(o, v)));
+        return ici_ret_with_decref(ici_method_new(o, v));
     }
     return ici_null_ret();
 }

@@ -79,7 +79,7 @@ get(ici_parse_t *p, ici_array_t *a)
         }
         else if (ici_stk_push_chk(a, 1) == 0)
         {
-            if ((*a->a_top = ici_objof(ici_src_new(p->p_lineno, p->p_file->f_name))) != NULL)
+            if ((*a->a_top = ici_src_new(p->p_lineno, p->p_file->f_name)) != NULL)
             {
                 ici_decref(*a->a_top);
                 ++a->a_top;
@@ -517,7 +517,7 @@ ici_lex(ici_parse_t *p, ici_array_t *a)
             ici_set_error("newline in #...#");
             goto fail;
         }
-        if ((p->p_got.t_obj = ici_objof(ici_str_new(buf, i))) == NULL)
+        if ((p->p_got.t_obj = ici_str_new(buf, i)) == NULL)
         {
             goto fail;
         }
@@ -646,7 +646,7 @@ ici_lex(ici_parse_t *p, ici_array_t *a)
                 ici_set_error("newline in \"...\"");
                 goto fail;
             }
-            if ((p->p_got.t_obj = ici_objof(ici_str_new(buf, i))) == NULL)
+            if ((p->p_got.t_obj = ici_str_new(buf, i)) == NULL)
             {
                 goto fail;
             }
@@ -760,7 +760,7 @@ ici_lex(ici_parse_t *p, ici_array_t *a)
             t = T_FLOAT;
             break;
         }
-        if ((p->p_got.t_obj = ici_objof(ici_str_new_nul_term(buf))) == NULL)
+        if ((p->p_got.t_obj = ici_str_new_nul_term(buf)) == NULL)
         {
             goto fail;
         }

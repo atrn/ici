@@ -86,7 +86,7 @@ main(int argc, char *argv[])
         {
             if (ici_stk_push_chk(av, 1))
                 goto fail;
-            if ((*av->a_top = ici_objof(ici_str_get_nul_term(argv[i]))) == NULL)
+            if ((*av->a_top = ici_str_get_nul_term(argv[i])) == NULL)
                 goto fail;
             ++av->a_top;
         }
@@ -121,7 +121,7 @@ main(int argc, char *argv[])
                             goto usage;
                         else
                             s = argv[i];
-                        if ((av->a_base[0] = ici_objof(ici_str_get_nul_term(s))) == NULL)
+                        if ((av->a_base[0] = ici_str_get_nul_term(s)) == NULL)
                             goto fail;
                         break;
 
@@ -130,7 +130,7 @@ main(int argc, char *argv[])
                         {
                             if (ici_stk_push_chk(av, 1))
                                 goto fail;
-                            if ((*av->a_top = ici_objof(ici_str_get_nul_term(argv[i])))==NULL)
+                            if ((*av->a_top = ici_str_get_nul_term(argv[i])) == NULL)
                                 goto fail;
                             ++av->a_top;
                         }
@@ -164,7 +164,7 @@ main(int argc, char *argv[])
             {
                 if (ici_stk_push_chk(av, 1))
                     goto fail;
-                if ((*av->a_top = ici_objof(ici_str_get_nul_term(argv[i]))) == NULL)
+                if ((*av->a_top = ici_str_get_nul_term(argv[i])) == NULL)
                     goto fail;
                 ++av->a_top;
             }
@@ -174,7 +174,7 @@ main(int argc, char *argv[])
     {
         if (arg0 == NULL)
             arg0 = argv[0];
-        if ((av->a_base[0] = ici_objof(ici_str_get_nul_term(arg0))) == NULL)
+        if ((av->a_base[0] = ici_str_get_nul_term(arg0)) == NULL)
             goto fail;
     }
     else
@@ -192,7 +192,7 @@ main(int argc, char *argv[])
         long l = av->a_top - av->a_base;
         if
         (
-            ici_set_val(ici_objwsupof(ici_vs.a_top[-1])->o_super, SS(argv), 'o', ici_objof(av))
+            ici_set_val(ici_objwsupof(ici_vs.a_top[-1])->o_super, SS(argv), 'o', av)
             ||
             ici_set_val(ici_objwsupof(ici_vs.a_top[-1])->o_super, SS(argc), 'i', &l)
         )

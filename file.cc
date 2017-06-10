@@ -50,7 +50,7 @@ fetch_file(ici_obj_t *o, ici_obj_t *k)
     if (k == SSO(name))
     {
         if (ici_fileof(o)->f_name != NULL)
-            return ici_objof(ici_fileof(o)->f_name);
+            return ici_fileof(o)->f_name;
         return ici_null;
     }
     if (ici_fileof(o)->f_type == &ici_parse_ftype && k == SSO(line))
@@ -59,7 +59,7 @@ fetch_file(ici_obj_t *o, ici_obj_t *k)
 
         if ((l = ici_int_new(ici_parseof(ici_fileof(o)->f_file)->p_lineno)) != NULL)
             ici_decref(l);
-        return ici_objof(l);
+        return l;
     }
     return ici_fetch_fail(o, k);
 }
@@ -127,11 +127,11 @@ ici_file_close(ici_file_t *f)
     ici_exec_t  *x = NULL;
     int         r;
 
-    if (ici_objof(f)->o_flags & ICI_F_CLOSED)
+    if (f->o_flags & ICI_F_CLOSED)
     {
         return ici_set_error("file already closed");
     }
-    ici_objof(f)->o_flags |= ICI_F_CLOSED;
+    f->o_flags |= ICI_F_CLOSED;
     if (f->f_type->ft_flags & FT_NOMUTEX)
         x = ici_leave();
     r = (*f->f_type->ft_close)(f->f_file);
@@ -163,9 +163,9 @@ mark_file(ici_obj_t *o)
     o->o_flags |= ICI_O_MARK;
     mem = sizeof(ici_file_t);
     if (ici_fileof(o)->f_name != NULL)
-        mem += ici_mark(ici_objof(ici_fileof(o)->f_name));
+        mem += ici_mark(ici_fileof(o)->f_name);
     if (ici_fileof(o)->f_ref != NULL)
-        mem += ici_mark(ici_objof(ici_fileof(o)->f_ref));
+        mem += ici_mark(ici_fileof(o)->f_ref);
     return mem;
 }
 

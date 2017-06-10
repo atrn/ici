@@ -168,7 +168,7 @@ f_channel(...)
     chan->c_capacity = capacity;
     chan->c_altobj = NULL;
     ici_rego(chan);
-    return ici_ret_with_decref(ici_objof(chan));
+    return ici_ret_with_decref(chan);
 }
 
 /*
@@ -191,11 +191,11 @@ f_get(...)
     q = ici_channelof(c)->c_q;
     while (ici_array_nels(q) < 1)
     {
-        if (ici_waitfor(ici_objof(q)))
+        if (ici_waitfor(q))
             return 1;
     }
     o = ici_array_rpop(q);
-    ici_wakeup(ici_objof(q));
+    ici_wakeup(q);
     if (ici_channelof(c)->c_altobj != NULL)
 	ici_wakeup(ici_channelof(c)->c_altobj);
     return ici_ret_no_decref(o);
@@ -230,7 +230,7 @@ f_put(...)
     {
         while (ici_array_nels(q) > 0)
         {
-            if (ici_waitfor(ici_objof(q)))
+            if (ici_waitfor(q))
                 return 1;
         }
     }
@@ -238,12 +238,12 @@ f_put(...)
     {
         while (ici_array_nels(q) >= ici_channelof(c)->c_capacity)
         {
-            if (ici_waitfor(ici_objof(q)))
+            if (ici_waitfor(q))
                 return 1;
         }
     }
     ici_array_push(q, o);
-    ici_wakeup(ici_objof(q));
+    ici_wakeup(q);
     if (ici_channelof(c)->c_altobj != NULL)
         ici_wakeup(ici_channelof(c)->c_altobj);
     return ici_null_ret();
@@ -306,11 +306,11 @@ f_alt(...)
 
     if (ici_typecheck("a", &alts))
         return 1;
-    if (alt_setup(alts, ici_objof(alts)))
+    if (alt_setup(alts, alts))
 	return 1;
     while ((idx = alt(alts)) == -1)
     {
-        if (ici_waitfor(ici_objof(alts)))
+        if (ici_waitfor(alts))
             return 1;
     }
     alt_setup(alts, NULL);

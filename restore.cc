@@ -147,7 +147,7 @@ restore_int(ici_archive_t *ar)
     {
         return NULL;
     }
-    return ici_objof(ici_int_new(value));
+    return ici_int_new(value);
 }
 
 // float
@@ -164,7 +164,7 @@ restore_float(ici_archive_t *ar)
 #if ICI_ARCHIVE_LITTLE_ENDIAN_HOST
     ici_archive_byteswap(&val, sizeof val);
 #endif
-    return ici_objof(ici_float_new(val));
+    return ici_float_new(val);
 }
 
 // string
@@ -193,8 +193,8 @@ restore_string(ici_archive_t *ar)
     {
         goto fail;
     }
-    ici_hash_string(ici_objof(s));
-    if ((obj = ici_atom(ici_objof(s), 1)) == NULL)
+    ici_hash_string(s);
+    if ((obj = ici_atom(s, 1)) == NULL)
     {
         goto fail;
     }
@@ -232,7 +232,7 @@ restore_regexp(ici_archive_t *ar)
     {
         return NULL;
     }
-    r = ici_objof(ici_regexp_new(s, options));
+    r = ici_regexp_new(s, options);
     if (r == NULL)
     {
         ici_decref(s);
@@ -270,13 +270,13 @@ restore_mem(ici_archive_t *ar)
         {
             ici_free(p);
         }
-        else if (readf(ar, p, sz) || ici_archive_insert(ar, name, ici_objof(m)))
+        else if (readf(ar, p, sz) || ici_archive_insert(ar, name, m))
         {
             ici_decref(m);
             m = NULL;
         }
     }
-    return ici_objof(m);
+    return m;
 }
 
 // array
@@ -300,7 +300,7 @@ restore_array(ici_archive_t *ar)
     {
         return NULL;
     }
-    if (ici_archive_insert(ar, name, ici_objof(a)))
+    if (ici_archive_insert(ar, name, a))
     {
         goto fail;
     }
@@ -319,7 +319,7 @@ restore_array(ici_archive_t *ar)
         }
 	ici_decref(o);
     }
-    return ici_objof(a);
+    return a;
 
 fail1:
     ici_archive_uninsert(ar, name);
@@ -347,7 +347,7 @@ restore_set(ici_archive_t *ar)
     {
         return NULL;
     }
-    if (ici_archive_insert(ar, name, ici_objof(s)))
+    if (ici_archive_insert(ar, name, s))
     {
         goto fail;
     }
@@ -363,14 +363,14 @@ restore_set(ici_archive_t *ar)
         {
             goto fail1;
         }
-        if (ici_assign(ici_objof(s), ici_objof(o), ici_objof(ici_one)))
+        if (ici_assign(s, o, ici_one))
         {
             ici_decref(o);
             goto fail1;
         }
         ici_decref(o);
     }
-    return ici_objof(s);
+    return s;
 
 fail1:
     ici_archive_uninsert(ar, name);
@@ -399,7 +399,7 @@ restore_struct(ici_archive_t *ar)
     {
         return NULL;
     }
-    if (ici_archive_insert(ar, name, ici_objof(s)))
+    if (ici_archive_insert(ar, name, s))
     {
         goto fail;
     }
@@ -432,7 +432,7 @@ restore_struct(ici_archive_t *ar)
             ici_decref(key);
             goto fail1;
         }
-        failed = ici_assign(ici_objof(s), key, value);
+        failed = ici_assign(s, key, value);
         ici_decref(key);
         ici_decref(value);
         if (failed)
@@ -440,7 +440,7 @@ restore_struct(ici_archive_t *ar)
             goto fail1;
         }
     }
-    return ici_objof(s);
+    return s;
 
 fail1:
     ici_archive_uninsert(ar, name);
@@ -471,7 +471,7 @@ restore_ptr(ici_archive_t *ar)
     ptr = ici_ptr_new(aggr, key);
     ici_decref(aggr);
     ici_decref(key);
-    return ptr ? ici_objof(ptr) : NULL;
+    return ptr ? ptr : NULL;
 }
 
 // func
@@ -528,9 +528,9 @@ restore_func(ici_archive_t *ar)
     ici_decref(autos);
     ici_decref(name);
 
-    if (!ici_archive_insert(ar, oname, ici_objof(fn)))
+    if (!ici_archive_insert(ar, oname, fn))
     {
-	return ici_objof(fn);
+	return fn;
     }
 
     /*FALLTHROUGH*/
@@ -571,7 +571,7 @@ restore_op(ici_archive_t *ar)
         return 0;
     }
 
-    return ici_objof(ici_new_op(ici_archive_op_func(op_func_code), op_ecode, op_code));
+    return ici_new_op(ici_archive_op_func(op_func_code), op_ecode, op_code);
 }
 
 static ici_obj_t *
@@ -595,7 +595,7 @@ restore_src(ici_archive_t *ar)
         ici_decref(filename);
         return NULL;
     }
-    if ((result = ici_objof(ici_src_new(line, ici_stringof(filename)))) == NULL)
+    if ((result = ici_src_new(line, ici_stringof(filename))) == NULL)
     {
         ici_decref(filename);
         return NULL;
@@ -643,13 +643,13 @@ restore_cfunc(ici_archive_t *ar)
     }
     fn = ici_fetch(ar->a_scope, func_name);
     ici_decref(func_name);
-    return ici_objof(fn);
+    return fn;
 }
 
 static ici_obj_t *
 restore_mark(ici_archive_t *ar)
 {
-    return ici_objof(&ici_o_mark);
+    return &ici_o_mark;
 }
 
 // ref
@@ -735,7 +735,7 @@ add_restorer(int tcode, ici_obj_t *(*fn)(ici_archive_t *))
     {
         goto fail;
     }
-    if (ici_assign(ici_objof(restorer_map), ici_objof(t), ici_objof(r)))
+    if (ici_assign(restorer_map, t, r))
     {
         ici_decref(t);
         goto fail;
@@ -755,9 +755,9 @@ fetch_restorer(int key)
     ici_obj_t   *k;
     ici_obj_t   *v = NULL;
 
-    if ((k = ici_objof(ici_int_new(key))) != NULL)
+    if ((k = ici_int_new(key)) != NULL)
     {
-        v = ici_fetch(ici_objof(restorer_map), k);
+        v = ici_fetch(restorer_map, k);
         ici_decref(k);
     }
     return (restorer_t *)v;

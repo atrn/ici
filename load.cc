@@ -57,7 +57,7 @@ ici_outermost_writeable_struct()
     outer = NULL;
     for (ows = ici_objwsupof(ici_vs.a_top[-1]); ows != NULL; ows = ows->o_super)
     {
-        if (ici_objof(ows)->o_flags & ICI_O_ATOM)
+        if (ows->o_flags & ICI_O_ATOM)
             continue;
         if (!ici_isstruct(ows))
             continue;
@@ -108,7 +108,7 @@ f_load(...)
 
     if (ici_typecheck("o", &name))
         return 1;
-    if (!ici_isstring(ici_objof(name)))
+    if (!ici_isstring(name))
         return ici_argerror(0);
     /*
      * Find the outer-most writeable scope. This is where the new name
@@ -222,7 +222,7 @@ f_load(...)
             {
                 goto fail;
             }
-            result = ici_objof(externs);
+            result = externs;
             if (ici_assign(outer, name, externs))
             {
                 goto fail;
@@ -381,7 +381,7 @@ push_path_elements(ici_array_t *a, const char *path)
          */
         for (e = a->a_base; e < a->a_top; ++e)
         {
-            if (*e == ici_objof(s))
+            if (*e == s)
             {
                 goto skip;
             }
@@ -398,7 +398,7 @@ push_path_elements(ici_array_t *a, const char *path)
             ici_decref(s);
             return 1;
         }
-        *a->a_top++ = ici_objof(s);
+        *a->a_top++ = s;
     skip:
         ici_decref(s);
     }

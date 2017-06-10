@@ -170,7 +170,7 @@ copy_set(ici_obj_t *o)
     memcpy(ns->s_slots, s->s_slots, s->s_nslots*sizeof(ici_obj_t *));
     ns->s_nels = s->s_nels;
     ns->s_nslots = s->s_nslots;
-    return ici_objof(ns);
+    return ns;
 
 fail:
     ici_decref(ns);
@@ -301,7 +301,7 @@ fetch_set(ici_obj_t *o, ici_obj_t *k)
     if (slot == NULL) {
         return ici_null;
     }
-    return ici_objof(ici_one);
+    return ici_one;
 }
 
 static int

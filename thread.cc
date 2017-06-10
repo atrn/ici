@@ -344,9 +344,9 @@ ici_thread_base(void *arg)
 
     ici_enter(x);
     n_ops = ici_os.a_top - ici_os.a_base;
-    if ((x->x_result = ici_evaluate(ici_objof(&ici_o_call), n_ops)) == NULL)
+    if ((x->x_result = ici_evaluate(&ici_o_call, n_ops)) == NULL)
     {
-        x->x_result = ici_objof(ici_str_get_nul_term(ici_error));
+        x->x_result = ici_str_get_nul_term(ici_error);
         x->x_state = ICI_XS_FAILED;
         fprintf(stderr, "Warning, uncaught error in sub-thread: %s\n", ici_error);
     }
@@ -355,7 +355,7 @@ ici_thread_base(void *arg)
         ici_decref(x->x_result);
         x->x_state = ICI_XS_RETURNED;
     }
-    ici_wakeup(ici_objof(x));
+    ici_wakeup(x);
     ici_decref(x);
     (void)ici_leave();
     return 0;
@@ -393,7 +393,7 @@ f_go(...)
      * Now push the number of actuals and the object to call on the
      * new operand stack.
      */
-    if ((*x->x_os->a_top = ici_objof(ici_int_new(ICI_NARGS() - 1))) == NULL)
+    if ((*x->x_os->a_top = ici_int_new(ICI_NARGS() - 1)) == NULL)
         goto fail;
     ici_decref(*x->x_os->a_top);
     ++x->x_os->a_top;
@@ -446,7 +446,7 @@ f_go(...)
     goto fail;
 # endif
 #endif
-    return ici_ret_with_decref(ici_objof(x));
+    return ici_ret_with_decref(x);
 
 fail:
     ici_decref(x);

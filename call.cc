@@ -82,7 +82,7 @@ ici_funcv(ici_obj_t *subject, ici_obj_t *callable, const char *types, va_list va
             break;
 
         case 'i':
-            if ((ici_os.a_top[arg] = ici_objof(ici_int_new(va_arg(va, long)))) == NULL)
+            if ((ici_os.a_top[arg] = ici_int_new(va_arg(va, long))) == NULL)
             {
                 goto fail;
             }
@@ -90,12 +90,12 @@ ici_funcv(ici_obj_t *subject, ici_obj_t *callable, const char *types, va_list va
             break;
 
         case 'q':
-            ici_os.a_top[arg] = ici_objof(&ici_o_quote);
+            ici_os.a_top[arg] = &ici_o_quote;
             --nargs;
             break;
 
         case 's':
-            if ((ici_os.a_top[arg] = ici_objof(ici_str_new_nul_term(va_arg(va, char *)))) == NULL)
+            if ((ici_os.a_top[arg] = ici_str_new_nul_term(va_arg(va, char *))) == NULL)
             {
                 goto fail;
             }
@@ -103,7 +103,7 @@ ici_funcv(ici_obj_t *subject, ici_obj_t *callable, const char *types, va_list va
             break;
 
         case 'f':
-            if ((ici_os.a_top[arg] = ici_objof(ici_float_new(va_arg(va, double)))) == NULL)
+            if ((ici_os.a_top[arg] = ici_float_new(va_arg(va, double))) == NULL)
             {
                 goto fail;
             }
@@ -124,7 +124,7 @@ ici_funcv(ici_obj_t *subject, ici_obj_t *callable, const char *types, va_list va
      * Push the number of actual args, followed by the function
      * itself onto the operand stack.
      */
-    if ((*ici_os.a_top = ici_objof(ici_int_new(nargs))) == NULL)
+    if ((*ici_os.a_top = ici_int_new(nargs)) == NULL)
     {
         goto fail;
     }
@@ -138,7 +138,7 @@ ici_funcv(ici_obj_t *subject, ici_obj_t *callable, const char *types, va_list va
 
     os_depth = (ici_os.a_top - ici_os.a_base) - os_depth;
     call_op = subject != NULL ? &ici_o_method_call : &ici_o_call;
-    if ((ret_obj = ici_evaluate(ici_objof(call_op), os_depth)) == NULL)
+    if ((ret_obj = ici_evaluate(call_op, os_depth)) == NULL)
     {
         goto fail;
     }
@@ -295,7 +295,7 @@ ici_method(ici_obj_t *inst, ici_str_t *mname, const char *types, ...)
     int         result;
 
     va_start(va, types);
-    result = ici_funcv(inst, ici_objof(mname), types, va);
+    result = ici_funcv(inst, mname, types, va);
     va_end(va);
     return result;
 }

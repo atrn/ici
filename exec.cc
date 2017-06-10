@@ -169,7 +169,7 @@ fetch_exec(ici_obj_t *o, ici_obj_t *k)
         {
             ici_decref(s);
         }
-        return ici_objof(s);
+        return s;
     }
     if (k == SSO(result))
     {
@@ -308,7 +308,7 @@ ici_engine_stack_check()
         }
         while (pcs->a_top < pcs->a_limit)
         {
-            if ((*pcs->a_top = ici_objof(ici_new_pc())) == NULL)
+            if ((*pcs->a_top = ici_new_pc()) == NULL)
             {
                 return 1;
             }
@@ -357,7 +357,7 @@ ici_evaluate(ici_obj_t *code, int n_operands)
 
 #define FETCH(s, k)                                     	\
     (                                                           \
-        ici_isstring(ici_objof(k))                              \
+        ici_isstring(k)                                         \
         	&& ici_stringof(k)->s_struct == ici_structof(s) \
         	&& ici_stringof(k)->s_vsver == ici_vsver        \
         ? ici_stringof(k)->s_slot->sl_value                     \
@@ -391,7 +391,7 @@ ici_evaluate(ici_obj_t *code, int n_operands)
     frame.c_catcher = NULL;
     frame.c_odepth = (ici_os.a_top - ici_os.a_base) - n_operands;
     frame.c_vdepth = ici_vs.a_top - ici_vs.a_base;
-    *ici_xs.a_top++ = ici_objof(&frame);
+    *ici_xs.a_top++ = &frame;
 
     if (ici_isarray(code))
     {
@@ -711,7 +711,7 @@ ici_evaluate(ici_obj_t *code, int n_operands)
                             ici_set_error("\"class\" evaluated to %s in :^ operation", ici_objname(n1, o));
                             goto fail;
                         }
-                        if ((t = ici_objof(ici_objwsupof(o)->o_super)) == NULL)
+                        if ((t = ici_objwsupof(o)->o_super) == NULL)
                         {
                             ici_set_error("class has no super class in :^ operation");
                             goto fail;
@@ -742,9 +742,9 @@ ici_evaluate(ici_obj_t *code, int n_operands)
                                 long nargs = ici_intof(ici_os.a_top[-3])->i_value;
                                 
                                 ++ici_os.a_top;
-                                ici_os.a_top[-1] = ici_objof(SS(unknown_method));
+                                ici_os.a_top[-1] = SS(unknown_method);
                                 ici_os.a_top[-2] = ici_os.a_top[-3];
-                                if ((ici_os.a_top[-3] = ici_objof(ici_int_new(nargs + 1))) == NULL)
+                                if ((ici_os.a_top[-3] = ici_int_new(nargs + 1)) == NULL)
                                 {
                                     goto fail;
                                 }
@@ -762,7 +762,7 @@ ici_evaluate(ici_obj_t *code, int n_operands)
                             goto fail;
                         }
                         --ici_os.a_top;
-                        ici_os.a_top[-1] = ici_objof(m);
+                        ici_os.a_top[-1] = m;
                         ici_decref(m);
                         goto stable_stacks_continue;
                     }
@@ -929,7 +929,7 @@ ici_evaluate(ici_obj_t *code, int n_operands)
                     &&
                     ici_isstring(ici_os.a_top[-2])
                     &&
-                    (ici_objof(ici_os.a_top[-2])->o_flags & ICI_S_LOOKASIDE_IS_ATOM) == 0
+                    (ici_os.a_top[-2]->o_flags & ICI_S_LOOKASIDE_IS_ATOM) == 0
                 )
                 {
                     ici_stringof(ici_os.a_top[-2])->s_slot->sl_value = ici_os.a_top[-1];
@@ -1121,9 +1121,9 @@ ici_evaluate(ici_obj_t *code, int n_operands)
                         }
                         else if
                         (
-                            s[-1] == ici_objof(&ici_o_looper)
+                            s[-1] == &ici_o_looper
                             ||
-                            s[-1] == ici_objof(&ici_o_switcher)
+                            s[-1] == &ici_o_switcher
                         )
                         {
                             ici_xs.a_top = s - 2;
@@ -1160,7 +1160,7 @@ ici_evaluate(ici_obj_t *code, int n_operands)
                      * This is the old behaviour of ICI 4.0.3 and before
                      * where the value was reduced to 0 or 1 exactly.
                      *
-                     * ici_os.a_top[-2] = ici_objof(c ? ici_one : ici_zero);
+                     * ici_os.a_top[-2] = c ? ici_one : ici_zero;
                      */
                     --ici_os.a_top;
                 }
@@ -1188,7 +1188,7 @@ ici_evaluate(ici_obj_t *code, int n_operands)
                                 ici_exec_count = 1;
                             }
                         }
-                        if (s[-1] == ici_objof(&ici_o_looper) || isforall(s[-1]))
+                        if (s[-1] == &ici_o_looper || isforall(s[-1]))
                         {
                             ici_xs.a_top = s;
                             goto stable_stacks_continue;
@@ -1233,7 +1233,7 @@ ici_evaluate(ici_obj_t *code, int n_operands)
             case ICI_OP_LOOP:
                 o = *ici_pcof(ici_xs.a_top[-1])->pc_next++;
                 *ici_xs.a_top++ = o;
-                *ici_xs.a_top++ = ici_objof(&ici_o_looper);
+                *ici_xs.a_top++ = &ici_o_looper;
                 ici_get_pc(ici_arrayof(o), ici_xs.a_top);
                 ++ici_xs.a_top;
                 break;
@@ -1268,7 +1268,7 @@ ici_evaluate(ici_obj_t *code, int n_operands)
 
                     if ((sl = ici_find_raw_slot(ici_structof(ici_os.a_top[-1]), ici_os.a_top[-3]))->sl_key == NULL)
                     {
-                        if ((sl = ici_find_raw_slot(ici_structof(ici_os.a_top[-1]), ici_objof(&ici_o_mark)))->sl_key == NULL)
+                        if ((sl = ici_find_raw_slot(ici_structof(ici_os.a_top[-1]), &ici_o_mark))->sl_key == NULL)
                         {
                             /*
                              * No matching case, no default. Pop everything off and
@@ -1279,7 +1279,7 @@ ici_evaluate(ici_obj_t *code, int n_operands)
                         }
                     }
                     *ici_xs.a_top++ = ici_null;
-                    *ici_xs.a_top++ = ici_objof(&ici_o_switcher);
+                    *ici_xs.a_top++ = &ici_o_switcher;
                     ici_get_pc(ici_arrayof(ici_os.a_top[-2]), ici_xs.a_top);
                     ici_pcof(*ici_xs.a_top)->pc_next += ici_intof(sl->sl_value)->i_value;
                     ++ici_xs.a_top;
@@ -1354,11 +1354,11 @@ ici_evaluate(ici_obj_t *code, int n_operands)
             }
             for (;;)
             {
-                if ((c = ici_unwind()) == NULL || ici_objof(c)->o_flags & CF_EVAL_BASE)
+                if ((c = ici_unwind()) == NULL || c->o_flags & CF_EVAL_BASE)
                 {
                     goto badfail;
                 }
-                if (ici_objof(c)->o_flags & CF_CRIT_SECT)
+                if (c->o_flags & CF_CRIT_SECT)
                 {
                     // --ici_exec->x_critsect;
 		    __sync_fetch_and_sub(&ici_exec->x_critsect, 1);
@@ -1423,8 +1423,8 @@ ici_evaluate(ici_obj_t *code, int n_operands)
 ici_obj_t *
 ici_eval(ici_str_t *name)
 {
-    assert(ici_isstring(ici_objof(name)));
-    return ici_evaluate(ici_objof(name), 0);
+    assert(ici_isstring(name));
+    return ici_evaluate(name, 0);
 }
 
 type_t  exec_type =

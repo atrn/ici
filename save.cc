@@ -157,7 +157,7 @@ save_regexp(ici_archive_t *ar, ici_obj_t *obj)
     int options;
 
     ici_pcre_info(re->r_re, &options, NULL);
-    return save_object_name(ar, obj) || write32(ar, options) || save_string(ar, ici_objof(re->r_pat));
+    return save_object_name(ar, obj) || write32(ar, options) || save_string(ar, re->r_pat);
 }
 
 // mem
@@ -255,20 +255,20 @@ save_func(ici_archive_t *ar, ici_obj_t *obj)
         return write32(ar, nchars) || writef(ar, cf->cf_name, nchars);
     }
 
-    if (save_object_name(ar, obj) || ici_archive_save(ar, ici_objof(f->f_code)) || ici_archive_save(ar, ici_objof(f->f_args)))
+    if (save_object_name(ar, obj) || ici_archive_save(ar, f->f_code) || ici_archive_save(ar, f->f_args))
         return 1;
-    if ((autos = ici_structof(ici_typeof(f->f_autos)->t_copy(ici_objof(f->f_autos)))) == NULL)
+    if ((autos = ici_structof(ici_typeof(f->f_autos)->t_copy(f->f_autos))) == NULL)
         return 1;
     autos->o_super = NULL;
     ici_struct_unassign(autos, SSO(_func_));
-    if (ici_archive_save(ar, ici_objof(autos)))
+    if (ici_archive_save(ar, autos))
     {
         ici_decref(autos);
         return 1;
     }
     ici_decref(autos);
 
-    return ici_archive_save(ar, ici_objof(f->f_name)) || writel(ar, f->f_nautos);
+    return ici_archive_save(ar, f->f_name) || writel(ar, f->f_nautos);
 }
 
 // src
@@ -276,7 +276,7 @@ save_func(ici_archive_t *ar, ici_obj_t *obj)
 static int
 save_src(ici_archive_t *ar, ici_obj_t *obj)
 {
-    return writel(ar, ici_srcof(obj)->s_lineno) || ici_archive_save(ar, ici_objof(ici_srcof(obj)->s_filename));
+    return writel(ar, ici_srcof(obj)->s_lineno) || ici_archive_save(ar, ici_srcof(obj)->s_filename);
 }
 
 // op
@@ -346,7 +346,7 @@ new_saver(int (*fn)(ici_archive_t *, ici_obj_t *))
         ici_rego(saver);
     }
 
-    return ici_objof(saver);
+    return saver;
 }
 
 static ici_struct_t *saver_map = NULL;
@@ -430,7 +430,7 @@ ici_archive_save(ici_archive_t *ar, ici_obj_t *obj)
     {
         return save_object_ref(ar, obj);
     }
-    saver = ici_fetch(ici_objof(saver_map), ici_objof(tname(obj)));
+    saver = ici_fetch(saver_map, tname(obj));
     fn = saver == ici_null ? save_error : saverof(saver)->s_fn;
     return save_obj(ar, obj) || (*fn)(ar, obj);
 }

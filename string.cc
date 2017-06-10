@@ -94,7 +94,7 @@ ici_str_new(const char *p, int nchars)
 #       if ICI_KEEP_STRING_HASH
             proto.s.s_hash = 0;
 #       endif
-        if ((s = ici_stringof(ici_atom_probe2(ici_objof(&proto.s), &po))) != NULL)
+        if ((s = ici_stringof(ici_atom_probe2(&proto.s, &po))) != NULL)
         {
             ici_incref(s);
             return s;
@@ -130,7 +130,7 @@ ici_str_new(const char *p, int nchars)
         s->s_hash = 0;
 #   endif
     ici_rego(s);
-    return ici_stringof(ici_atom(ici_objof(s), 1));
+    return ici_stringof(ici_atom(s, 1));
 }
 
 /*
@@ -234,7 +234,7 @@ ici_str_need_size(ici_str_t *s, int n)
 
     if ((s->o_flags & (ICI_O_ATOM|ICI_S_SEP_ALLOC)) != ICI_S_SEP_ALLOC)
     {
-        return ici_set_error("attempt to modify an atomic string %s", ici_objname(n1, ici_objof(s)));
+        return ici_set_error("attempt to modify an atomic string %s", ici_objname(n1, s));
     }
     if (s->s_u.su_nalloc >= n + 1)
     {
@@ -314,7 +314,7 @@ copy_string(ici_obj_t *o)
     ns->s_nchars = ici_stringof(o)->s_nchars;
     memcpy(ns->s_chars, ici_stringof(o)->s_chars, ns->s_nchars);
     ns->s_chars[ns->s_nchars] = '\0';
-    return ici_objof(ns);
+    return ns;
 }
 
 /*
@@ -385,11 +385,11 @@ fetch_string(ici_obj_t *o, ici_obj_t *k)
     }
     if ((i = (int)ici_intof(k)->i_value) < 0 || i >= ici_stringof(o)->s_nchars)
     {
-        k = ici_objof(ici_str_new("", 0));
+        k = ici_str_new("", 0);
     }
     else
     {
-        k = ici_objof(ici_str_new(&ici_stringof(o)->s_chars[i], 1));
+        k = ici_str_new(&ici_stringof(o)->s_chars[i], 1);
     }
     if (k != NULL)
     {

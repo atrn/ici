@@ -22,7 +22,7 @@ ici_float_new(double v)
     static ici_float_t   proto;
 
     proto.f_value = v;
-    if ((f = ici_floatof(ici_atom_probe2(ici_objof(&proto), &po))) != NULL)
+    if ((f = ici_floatof(ici_atom_probe2(&proto, &po))) != NULL)
     {
         ici_incref(f);
         return f;

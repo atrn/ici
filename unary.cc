@@ -25,9 +25,9 @@ ici_op_unary()
     {
     case t_subtype(T_EXCLAM):
         if (ici_isfalse(ici_os.a_top[-1]))
-            ici_os.a_top[-1] = ici_objof(ici_one);
+            ici_os.a_top[-1] = ici_one;
         else
-            ici_os.a_top[-1] = ici_objof(ici_zero);
+            ici_os.a_top[-1] = ici_zero;
         --ici_xs.a_top;
         return 0;
 
@@ -36,7 +36,7 @@ ici_op_unary()
             goto fail;
         if ((i = ici_int_new(~ici_intof(ici_os.a_top[-1])->i_value)) == NULL)
             return 1;
-        ici_os.a_top[-1] = ici_objof(i);
+        ici_os.a_top[-1] = i;
         ici_decref(i);
         --ici_xs.a_top;
         return 0;

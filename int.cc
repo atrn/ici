@@ -69,7 +69,7 @@ ici_int_new(long i)
     ici_obj_t           *o;
     ici_obj_t           **po;
 
-    if ((i & ~ICI_SMALL_INT_MASK) == 0 && (o = ici_objof(ici_small_ints[i])) != NULL)
+    if ((i & ~ICI_SMALL_INT_MASK) == 0 && (o = ici_small_ints[i]) != NULL)
     {
         ici_incref(o);
         return ici_intof(o);
@@ -88,7 +88,7 @@ ici_int_new(long i)
         }
     }
     ++ici_supress_collect;
-    if ((o = ici_objof(ici_talloc(ici_int_t))) == NULL)
+    if ((o = ici_talloc(ici_int_t)) == NULL)
     {
         --ici_supress_collect;
         return NULL;

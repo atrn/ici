@@ -142,7 +142,7 @@ ici_archive_start(ici_file_t *file, ici_objwsup_t *scope)
 inline static ici_obj_t *
 make_key(ici_obj_t *obj)
 {
-    return ici_objof(ici_int_new((long)obj));
+    return ici_int_new((long)obj);
 }
 
 int

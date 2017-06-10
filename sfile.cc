@@ -147,7 +147,7 @@ reattach_string_buffer(charbuf_t *sb)
     {
 	ici_str_t *s = ici_stringof(sb->cb_ref);
 	s->s_hash = 0;
-	ici_hash_string(ici_objof(s));
+	ici_hash_string(s);
     }
 #endif
 }

@@ -62,7 +62,7 @@ ici_new_op(int (*func)(), int ecode, int code)
     proto.op_func = func;
     proto.op_code = code;
     proto.op_ecode = ecode;
-    if ((o = ici_opof(ici_atom_probe2(ici_objof(&proto), &po))) != NULL)
+    if ((o = ici_opof(ici_atom_probe2(&proto, &po))) != NULL)
     {
         ici_incref(o);
         return o;

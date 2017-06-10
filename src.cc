@@ -41,7 +41,7 @@ static ici_obj_t *
 fetch_src(ici_obj_t *o, ici_obj_t *k)
 {
     if (k == SSO(file))
-        return ici_objof(ici_srcof(o)->s_filename);
+        return ici_srcof(o)->s_filename;
     if (k == SSO(line))
     {
         ici_int_t   *io;
@@ -49,7 +49,7 @@ fetch_src(ici_obj_t *o, ici_obj_t *k)
         if ((io = ici_int_new(ici_srcof(o)->s_lineno)) == NULL)
             return NULL;
         ici_decref(io);
-        return ici_objof(io);
+        return io;
     }
     return ici_fetch_fail(o, k);
 }

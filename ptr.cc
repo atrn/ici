@@ -56,13 +56,13 @@ hash_ptr(ici_obj_t *o)
 static ici_obj_t *
 fetch_ptr(ici_obj_t *o, ici_obj_t *k)
 {
-    if (k == ici_objof(ici_zero))
+    if (k == ici_zero)
         return ici_fetch(ici_ptrof(o)->p_aggr, ici_ptrof(o)->p_key);
     if (!ici_isint(k) || !ici_isint(ici_ptrof(o)->p_key))
         return ici_fetch_fail(o, k);
-    if (ici_ptrof(o)->p_key == ici_objof(ici_zero))
+    if (ici_ptrof(o)->p_key == ici_zero)
         ici_incref(k);
-    else if ((k = ici_objof(ici_int_new(ici_intof(k)->i_value + ici_intof(ici_ptrof(o)->p_key)->i_value)))
+    else if ((k = ici_int_new(ici_intof(k)->i_value + ici_intof(ici_ptrof(o)->p_key)->i_value))
             == NULL)
         return NULL;
     o = ici_fetch(ici_ptrof(o)->p_aggr, k);
@@ -79,13 +79,13 @@ fetch_ptr(ici_obj_t *o, ici_obj_t *k)
 static int
 assign_ptr(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v)
 {
-    if (k == ici_objof(ici_zero))
+    if (k == ici_zero)
         return ici_assign(ici_ptrof(o)->p_aggr, ici_ptrof(o)->p_key, v);
     if (!ici_isint(k) || !ici_isint(ici_ptrof(o)->p_key))
         return ici_assign_fail(o, k, v);
-    if (ici_ptrof(o)->p_key == ici_objof(ici_zero))
+    if (ici_ptrof(o)->p_key == ici_zero)
         ici_incref(k);
-    else if ((k = ici_objof(ici_int_new(ici_intof(k)->i_value + ici_intof(ici_ptrof(o)->p_key)->i_value)))
+    else if ((k = ici_int_new(ici_intof(k)->i_value + ici_intof(ici_ptrof(o)->p_key)->i_value))
             == NULL)
         return 1;
     if (ici_assign(ici_ptrof(o)->p_aggr, k, v))
@@ -113,14 +113,14 @@ call_ptr(ici_obj_t *o, ici_obj_t *subject)
      * Replace ourselves on the operand stack with 'self' (our aggr) and
      * push on the new object being called.
      */
-    if ((ici_os.a_top[-1] = ici_objof(ici_int_new(ICI_NARGS() + 1))) == NULL)
+    if ((ici_os.a_top[-1] = ici_int_new(ICI_NARGS() + 1)) == NULL)
         return 1;
     ici_decref(ici_os.a_top[-1]);
     ici_os.a_top[-2] = ici_ptrof(o)->p_aggr;
     if (ici_stk_push_chk(&ici_os, 1))
         return 1;
     *ici_os.a_top++ = f;
-    ici_xs.a_top[-1] = ici_objof(&ici_o_call);
+    ici_xs.a_top[-1] = &ici_o_call;
     /*
      * Then behave as if the target had been called. Should this do the
      * debug hooks? Assume not for now.
@@ -170,7 +170,7 @@ ici_op_mkptr()
 {
     ici_obj_t  *o;
 
-    if ((o = ici_objof(ici_ptr_new(ici_os.a_top[-2], ici_os.a_top[-1]))) == NULL)
+    if ((o = ici_ptr_new(ici_os.a_top[-2], ici_os.a_top[-1])) == NULL)
         return 1;
     ici_os.a_top[-2] = o;
     ici_decref(o);
@@ -188,7 +188,7 @@ ici_op_openptr()
     ici_ptr_t  *p;
     char                n[30];
 
-    if (!ici_isptr(ici_objof(p = ici_ptrof(ici_os.a_top[-1]))))
+    if (!ici_isptr(p = ici_ptrof(ici_os.a_top[-1])))
     {
         return ici_set_error("pointer required, but %s given", ici_objname(n, ici_os.a_top[-1]));
     }
@@ -208,7 +208,7 @@ ici_op_fetch()
     ici_obj_t  *o;
     char                n[30];
 
-    if (!ici_isptr(ici_objof(p = ici_ptrof(ici_os.a_top[-1]))))
+    if (!ici_isptr(p = ici_ptrof(ici_os.a_top[-1])))
     {
         return ici_set_error("pointer required, but %s given", ici_objname(n, ici_os.a_top[-1]));
     }

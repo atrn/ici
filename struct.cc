@@ -87,7 +87,7 @@ mark_struct(ici_obj_t *o)
 
     } while
     (
-        (o = ici_objof(ici_structof(o)->o_super)) != NULL
+        (o = ici_structof(o)->o_super) != NULL
         &&
         (o->o_flags & ICI_O_MARK) == 0
     );
@@ -274,7 +274,7 @@ copy_struct(ici_obj_t *o)
     {
         ++ici_vsver;
     }
-    return ici_objof(ns);
+    return ns;
 
 fail:
     ici_decref(ns);
@@ -419,7 +419,7 @@ fetch_super_struct(ici_obj_t *o, ici_obj_t *k, ici_obj_t **v, ici_struct_t *b)
                 sl = ici_structof(o)->s_slots + ici_structof(o)->s_nslots - 1;
             }
         }
-        if ((o = ici_objof(ici_structof(o)->o_super)) == NULL)
+        if ((o = ici_structof(o)->o_super) == NULL)
         {
             return 0;
         }
@@ -528,7 +528,7 @@ assign_super_struct(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v, ici_struct_t *b)
 		}
             }
         }
-        if ((o = ici_objof(ici_structof(o)->o_super)) == NULL)
+        if ((o = ici_structof(o)->o_super) == NULL)
 	{
             return 0;
 	}

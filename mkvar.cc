@@ -41,19 +41,19 @@ ici_set_val(ici_objwsup_t *s, ici_str_t *name, int type, void *vp)
     switch (type)
     {
     case 'i':
-        o = ici_objof(ici_int_new(*(long *)vp));
+        o = ici_int_new(*(long *)vp);
         break;
 
     case 'f':
-        o = ici_objof(ici_float_new(*(double *)vp));
+        o = ici_float_new(*(double *)vp);
         break;
         
     case 's':
-        o = ici_objof(ici_str_new_nul_term((char *)vp));
+        o = ici_str_new_nul_term((char *)vp);
         break;
 
     case 'u':
-        o = ici_objof(ici_file_new((char *)vp, &ici_stdio_ftype, name, NULL));
+        o = ici_file_new((char *)vp, &ici_stdio_ftype, name, NULL);
         o->o_flags |= ICI_F_NOCLOSE;
         break;
 
@@ -68,7 +68,7 @@ ici_set_val(ici_objwsup_t *s, ici_str_t *name, int type, void *vp)
 
     if (o == NULL)
         return 1;
-    i = assign_base(s, ici_objof(name), o);
+    i = assign_base(s, name, o);
     ici_decref(o);
     return i;
 }
@@ -99,7 +99,7 @@ ici_assign_float(ici_obj_t *o, ici_obj_t *k, double v)
 
     if ((f = ici_float_new(v)) == NULL)
         return 1;
-    if (ici_assign(o, k, ici_objof(f)))
+    if (ici_assign(o, k, f))
         return 1;
     return 0;
 }

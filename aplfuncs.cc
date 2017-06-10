@@ -73,7 +73,7 @@ buildxx(ici_obj_t **r, ici_obj_t **dnext, struct context *c)
         switch (c->c_option)
         {
         case 'i':
-            if ((*r = ici_objof(ici_int_new(c->c_ccount))) == NULL)
+            if ((*r = ici_int_new(c->c_ccount)) == NULL)
                 return 1;
             c->c_ccount += c->c_cstep;
             break;
@@ -144,7 +144,7 @@ buildxx(ici_obj_t **r, ici_obj_t **dnext, struct context *c)
             ++a->a_top;
             ici_decref(a->a_top[-1]);
         }
-        *r = ici_objof(a);
+        *r = a;
     }
     else if (ici_isarray(*dnext))
     {
@@ -175,7 +175,7 @@ buildxx(ici_obj_t **r, ici_obj_t **dnext, struct context *c)
             }
             ici_decref(o);
         }
-        *r = ici_objof(s);
+        *r = s;
     }
     else
     {

@@ -107,9 +107,9 @@ mark_profilecall(ici_obj_t *o)
     pf = ici_profilecallof(o);
     return sizeof(ici_profilecall_t)
            +
-           ici_mark(ici_objof(pf->pc_calls))
+           ici_mark(pf->pc_calls)
            +
-           (pf->pc_calledby == NULL ? 0 : ici_mark(ici_objof(pf->pc_calledby)));
+           (pf->pc_calledby == NULL ? 0 : ici_mark(pf->pc_calledby));
 }
 
 /*
@@ -251,7 +251,7 @@ ici_profile_call(ici_func_t *f)
 
     /* Has this function been called from the current function before? */
     assert(ici_prof_cur_call != NULL);
-    if (ici_isnull(ici_objof(pc = ici_profilecallof(ici_fetch(ici_prof_cur_call->pc_calls, f)))))
+    if (ici_isnull(pc = ici_profilecallof(ici_fetch(ici_prof_cur_call->pc_calls, f))))
     {
         /* No, create a new record. */
         pc = ici_profilecall_new(ici_prof_cur_call);
@@ -259,7 +259,7 @@ ici_profile_call(ici_func_t *f)
         ici_decref(pc);
 
         /* Add it to the calling function. */
-        ici_assign(ici_prof_cur_call->pc_calls, f, ici_objof(pc));
+        ici_assign(ici_prof_cur_call->pc_calls, f, pc);
     }
 
     /* Switch context to the new function and remember when we entered it. */

@@ -44,13 +44,13 @@ mark_func(ici_obj_t *o)
     o->o_flags |= ICI_O_MARK;
     mem = sizeof(ici_func_t);
     if (ici_funcof(o)->f_code != NULL)
-        mem += ici_mark(ici_objof(ici_funcof(o)->f_code));
+        mem += ici_mark(ici_funcof(o)->f_code);
     if (ici_funcof(o)->f_args != NULL)
-        mem += ici_mark(ici_objof(ici_funcof(o)->f_args));
+        mem += ici_mark(ici_funcof(o)->f_args);
     if (ici_funcof(o)->f_autos != NULL)
-        mem += ici_mark(ici_objof(ici_funcof(o)->f_autos));
+        mem += ici_mark(ici_funcof(o)->f_autos);
     if (ici_funcof(o)->f_name != NULL)
-        mem += ici_mark(ici_objof(ici_funcof(o)->f_name));
+        mem += ici_mark(ici_funcof(o)->f_name);
     return mem;
 }
 
@@ -115,15 +115,15 @@ fetch_func(ici_obj_t *o, ici_obj_t *k)
     r = NULL;
     if (k == SSO(vars))
     {
-        r = ici_objof(ici_funcof(o)->f_autos);
+        r = ici_funcof(o)->f_autos;
     }
     else if (k == SSO(args))
     {
-        r = ici_objof(ici_funcof(o)->f_args);
+        r = ici_funcof(o)->f_args;
     }
     else if (k == SSO(name))
     {
-        r = ici_objof(ici_funcof(o)->f_name);
+        r = ici_funcof(o)->f_name;
     }
     if (r == NULL && ici_error == NULL)
     {
@@ -167,7 +167,7 @@ ici_op_return()
      */
     if
     (
-        ici_objof(SS(_func_)->s_struct) == ici_vs.a_top[-1]
+        SS(_func_)->s_struct == ici_vs.a_top[-1]
         &&
         SS(_func_)->s_vsver == ici_vsver
         &&
@@ -224,7 +224,7 @@ call_func(ici_obj_t *o, ici_obj_t *subject)
     }
 #endif
 
-    d = ici_structof(copy(ici_objof(f->f_autos)));
+    d = ici_structof(copy(f->f_autos));
     if (UNLIKELY(d == NULL))
     {
         goto fail;
@@ -314,7 +314,7 @@ call_func(ici_obj_t *o, ici_obj_t *subject)
 	    {
 		*va->a_top++ = *ap--;
 	    }
-	    sl->sl_value = ici_objof(va);
+	    sl->sl_value = va;
 	    ici_decref(va);
 	}
     }
@@ -324,12 +324,12 @@ call_func(ici_obj_t *o, ici_obj_t *subject)
      * That way, after the function returns, it will cause the current
      * source marker to be reset to the correct value.
      */
-    ici_xs.a_top[-1] = ici_objof(ici_exec->x_src);
+    ici_xs.a_top[-1] = ici_exec->x_src;
 
-    *ici_xs.a_top++ = ici_objof(&ici_o_mark);
+    *ici_xs.a_top++ = &ici_o_mark;
     ici_get_pc(f->f_code, ici_xs.a_top);
     ++ici_xs.a_top;
-    *ici_vs.a_top++ = ici_objof(d);
+    *ici_vs.a_top++ = d;
     ici_decref(d);
     ici_os.a_top -= ICI_NARGS() + 2;
     return 0;

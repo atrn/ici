@@ -102,11 +102,11 @@ call_signal_handler(ici_obj_t *func, int signo)
         return 1;
     if ((isigno = ici_int_new(signo)) == NULL)
         return 1;
-    *ici_os.a_top++ = ici_objof(isigno);
+    *ici_os.a_top++ = isigno;
     ici_decref(isigno);
-    *ici_os.a_top++ = ici_objof(ici_one); /* One argument. */
+    *ici_os.a_top++ = ici_one; /* One argument. */
     *ici_os.a_top++ = func;
-    if ((ret_obj = ici_evaluate(ici_objof(&ici_o_call), 3)) == NULL)
+    if ((ret_obj = ici_evaluate(&ici_o_call, 3)) == NULL)
         goto fail;
     ici_decref(ret_obj);
     return 0;
@@ -359,14 +359,14 @@ f_signal(...)
         return ici_argcount(2);
     }
 
-    if (ici_isstring(ici_objof(sigo)))
+    if (ici_isstring(sigo))
     {
         if ((signo = signam_to_signo(ici_stringof(sigo)->s_chars)) == 0)
         {
             return ici_set_error("invalid signal name");
         }
     }
-    else if (ici_isint(ici_objof(sigo)))
+    else if (ici_isint(sigo))
     {
         signo = ici_intof(sigo)->i_value;
         if (signo < 1 || signo > NSIG)

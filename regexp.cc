@@ -61,9 +61,9 @@ ici_regexp_new(ici_str_t *s, int flags)
     ICI_OBJ_SET_TFNZ(r, ICI_TC_REGEXP, 0, 1, 0);
     r->r_re  = re;
     r->r_rex = rex;
-    r->r_pat = ici_stringof(ici_atom(ici_objof(s), 0));
+    r->r_pat = ici_stringof(ici_atom(s, 0));
     ici_rego(r);
-    return ici_regexpof(ici_atom(ici_objof(r), 1));
+    return ici_regexpof(ici_atom(r, 1));
 
 fail:
     if (rex != NULL)
@@ -128,7 +128,7 @@ static ici_obj_t *
 fetch_regexp(ici_obj_t *o, ici_obj_t *k)
 {
     if (k == SSO(pattern))
-        return ici_objof(ici_regexpof(o)->r_pat);
+        return ici_regexpof(o)->r_pat;
     if (k == SSO(options))
     {
         int         options;
@@ -138,7 +138,7 @@ fetch_regexp(ici_obj_t *o, ici_obj_t *k)
         if ((io = ici_int_new(options)) == NULL)
             return NULL;
         ici_decref(io);
-        return ici_objof(io);
+        return io;
     }
     return ici_fetch_fail(o, k);
 }

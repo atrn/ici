@@ -833,14 +833,14 @@ bughunt_incref(ici_obj_t *o)
     {
         printf("incref traceobj(%d)\n", o->o_tcode);
     }
-    if ((unsigned char)ici_objof(o)->o_nrefs == (unsigned char)0x7F)
+    if ((unsigned char)o->o_nrefs == (unsigned char)0x7F)
     {
         printf("Oops: ref count overflow\n");
         abort();
     }
-    if (++ici_objof(o)->o_nrefs > 50)
+    if (++o->o_nrefs > 50)
     {
-        printf("Warning: nrefs %d > 10\n", ici_objof(o)->o_nrefs);
+        printf("Warning: nrefs %d > 10\n", o->o_nrefs);
         fflush(stdout);
     }
 }
