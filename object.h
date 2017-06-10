@@ -15,17 +15,15 @@ namespace ici
  */
 
 /*
- * types[] is the map from the small integer type codes found in the
+ * types[] is the "map" from the small integer type codes found in the
  * o_tcode field of every object header, to a type structure (below) that
  * characterises that type of object.  Standard core data types have standard
  * positions (see ICI_TC_* defines below).  Other types are registered at run-time
  * by calls to ici_register_type() and are given the next available slot.
  * ici_object_t's o_tcode is one byte so we're limited to 256 distinct types.
  */
-
-constexpr size_t MAX_TYPES = 256;
-
-extern DLI type_t   *types[MAX_TYPES];
+constexpr size_t        max_types = 256;
+extern DLI type_t *     types[max_types];
 
 /*
  * Every object has a header. In the header the o_tcode (type code) field

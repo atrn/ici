@@ -68,7 +68,7 @@ extern type_t       restorer_type;
 extern type_t       saver_type;
 extern type_t       channel_type;
 
-type_t      *types[MAX_TYPES] =
+type_t      *types[max_types] =
 {
     NULL,
     &pc_type,
@@ -171,7 +171,7 @@ ici_objname(char p[ICI_OBJNAMEZ], ici_obj_t *o)
 int
 ici_register_type(type_t *t)
 {
-    if (ici_ntypes == MAX_TYPES)
+    if (ici_ntypes == max_types)
     {
         ici_set_error("too many primitive types");
         return 0;
