@@ -7,6 +7,9 @@
 #include "file.h"
 #include "str.h"
 
+namespace ici
+{
+
 /*
  * ici_set_val(scope, name, typespec, value)
  *
@@ -171,3 +174,5 @@ ici_cmkvar(ici_objwsup_t *scope, const char *name, int type, void *vp)
     ici_decref(s);
     return i;
 }
+
+} // namespace ici

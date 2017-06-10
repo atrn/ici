@@ -2,6 +2,9 @@
 #include "fwd.h"
 #include "error.h"
 
+namespace ici
+{
+
 int
 ici_set_error(const char *fmt, ...)
 {
@@ -14,3 +17,5 @@ ici_set_error(const char *fmt, ...)
     ici_error = msg;
     return 1;
 }
+
+} // namespace ici

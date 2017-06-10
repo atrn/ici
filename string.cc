@@ -8,6 +8,9 @@
 #include "primes.h"
 #include "forall.h"
 
+namespace ici
+{
+
 /*
  * How many bytes of memory we need for a string of n chars (single
  * allocation).
@@ -492,3 +495,5 @@ ici_type_t  ici_string_type =
     NULL,
     forall_string
 };
+
+} // namespace ici

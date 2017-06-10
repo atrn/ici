@@ -8,6 +8,9 @@
 #include "pcre/pcre.h"
 #include "archive.h"
 
+namespace ici
+{
+
 #define	INITIAL_ATOMSZ  (1024) /* Must be power of two. */
 #define INITIAL_OBJS    (4096)
 
@@ -217,3 +220,5 @@ ici_interface_check(unsigned long mver, unsigned long bver, char const *name)
         ICI_VER_RELEASE);
 
 }
+
+} // namespace ici

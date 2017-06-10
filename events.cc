@@ -1,12 +1,19 @@
 #define ICI_CORE
 #include "fwd.h"
-#include "str.h"
+
 #ifndef NOEVENTS
 #include "exec.h"
+#include "str.h"
 #include "func.h"
 
 #ifdef  _WIN32
 #include <windows.h>
+#endif
+
+namespace ici
+{
+
+#ifdef  _WIN32
 /*
  * Win32 specific event processing.
  */
@@ -43,7 +50,10 @@ f_eventloop()
 
 ici_cfunc_t ici_event_cfuncs[] =
 {
-    ICI_DEFINE_CFUNC(    eventloop,       f_eventloop),
+    ICI_DEFINE_CFUNC(eventloop, f_eventloop),
     ICI_CFUNCS_END
 };
+
+} // namespace ici
+
 #endif /* NOEVENTS */

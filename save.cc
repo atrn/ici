@@ -22,6 +22,9 @@
 
 #include <netinet/in.h>
 
+namespace ici
+{
+
 static int ici_archive_save(ici_archive_t *ar, ici_obj_t *obj);
 
 /*
@@ -484,3 +487,5 @@ ici_archive_f_save(...)
 
     return failed ? failed : ici_null_ret();
 }
+
+} // namespace ici

@@ -7,6 +7,9 @@
 #include "object.h"
 #endif
 
+namespace ici
+{
+
 /*
  * The following portion of this file exports to ici.h. --ici.h-start--
  */
@@ -22,29 +25,6 @@
  * in one day.
  */
 #define ICI_KEEP_STRING_HASH 1
-
-/*
- * The ici_str_object struct is the common 'header' structure used for
- * both dynamic (ici_str) and static (sstring) string objects.
- *
- * Dynamic strings are use allocated memory and partipate in garbage
- * collection and are "normal" ICI objects. Static strings use
- * statically allocated memory and do NOT registered with the
- * collector. They are used for, small, well known strings such
- * language keywords, the names of builtin functions and methods and
- * struct fields and so forth.
- */
-struct ici_str_object : ici_obj
-{
-    ici_struct_t    *s_struct;      /* Where we were last found on the vs. */
-    ici_sslot_t     *s_slot;        /* And our slot within that struct. */
-    long            s_vsver;        /* The vs version at that time (the slot is only valid when versions match). */
-#   if ICI_KEEP_STRING_HASH
-    unsigned long   s_hash;         /* String hash code or 0 if not yet computed */
-#   endif
-    int             s_nchars;       /* Number of characters - does NOT include an added NUL (for C compatibility) */
-    char            *s_chars;       /* Pointer to first character of string, immediately followed by others. */
-};
 
 struct ici_str : ici_obj
 {
@@ -185,9 +165,10 @@ struct sstring : ici_obj
 
 #define SS(name)         ((ici_str_t *)&ici_ss_##name)
 #define SSO(name)        ((ici_obj_t *)&ici_ss_##name)
-
 #define ici_str_char_at(s,i) ((s)->s_chars[i])
 
 #endif /* ICI_CORE */
+
+} // namespace ici
 
 #endif /* ICI_STRING_H */

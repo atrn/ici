@@ -7,6 +7,9 @@
 
 #include <pthread.h>
 
+namespace ici
+{
+    
 typedef struct
 {
     unsigned int    sem_count;
@@ -22,5 +25,7 @@ int ici_sem_wait(ici_sem_t *sem);
 int ici_sem_post(ici_sem_t *sem);
 
 #endif
+
+} // namespace ici
 
 #endif /* #ifndef ICI_SEMAPHORE_H */

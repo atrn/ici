@@ -7,6 +7,9 @@
 #include "object.h"
 #endif
 
+namespace ici
+{
+
 /*
  * The following portion of this file exports to ici.h. --ici.h-start--
  */
@@ -130,4 +133,7 @@ extern ici_op_t         ici_o_waitfor;
 /*
  * End of ici.h export. --ici.h-end--
  */
+
+} // namespace ici
+
 #endif /* ICI_OP_H */

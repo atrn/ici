@@ -3,6 +3,9 @@
 #include "src.h"
 #include "str.h"
 
+namespace ici
+{
+
 /*
  * Mark this and referenced unmarked objects, return memory costs.
  * See comments on t_mark() in object.h.
@@ -73,3 +76,5 @@ ici_type_t  ici_src_type =
     ici_fetch_fail,
     "src"
 };
+
+} // namespace ici

@@ -1,6 +1,9 @@
 #define ICI_CORE
 #include "fwd.h"
 
+namespace ici
+{
+
 /*
  * Return an argv style array of pointers to each of the elemnts of
  * str where each element is delimited by delim.  The return'ed array has
@@ -72,3 +75,5 @@ ici_ssmash(char *str, char *delims)
     ptrs[i] = NULL;
     return ptrs;
 }
+
+} // namespace ici

@@ -76,6 +76,9 @@
 #include <errno.h>
 #include <math.h>
 
+namespace ici
+{
+
 /*
  * ICI version number. Note that this occurs in a string in conf.c too.
  *
@@ -459,15 +462,17 @@ extern int              ici_atomsz;
 
 extern DLI ici_ftype_t  ici_parse_ftype;
 
+#if !defined(ICI_HAS_BSD_STRUCT_TM)
+extern int              ici_set_timezone_vals(ici_struct_t *);
+#endif
+
+} // namespace ici
+
 #include "alloc.h"
 
 #if defined(_WIN32) && !defined(NDEBUG)
 #define _CRTDBG_MAP_ALLOC
 #include <crtdbg.h>
-#endif
-
-#if !defined(ICI_HAS_BSD_STRUCT_TM)
-extern int              ici_set_timezone_vals(ici_struct_t *);
 #endif
 
 #endif /* ICI_FWD_H */

@@ -17,6 +17,9 @@
 #include "src.h"
 #include <errno.h>
 
+namespace ici
+{
+
 /*
  * Some commonly used strings.
  */
@@ -2881,3 +2884,5 @@ ICI_DEFINE_CFUNCS(parse)
     ICI_DEFINE_CFUNC(rejectchar,   f_rejectchar),
     ICI_CFUNCS_END
 };
+
+} // namespace ici

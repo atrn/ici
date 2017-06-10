@@ -2,6 +2,9 @@
 #include "fwd.h"
 #include "exec.h"
 
+namespace ici
+{
+
 /*
  * Stub functions for the debugging interface.
  */
@@ -87,3 +90,5 @@ ici_debug_t ici_debug_stubs =
 };
 
 ici_debug_t *ici_debug = &ici_debug_stubs;
+
+} // namespace ici

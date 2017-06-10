@@ -8,6 +8,9 @@
 #endif
 #include "str.h"
 
+namespace ici
+{
+
 /*
  * The following portion of this file exports to ici.h. --ici.h-start--
  */
@@ -194,5 +197,7 @@ union fn {
 #define ICI_DEFINE_CFUNC2(NAME, FUNC, ARG1, ARG2) {(const char *)SS(NAME), (FUNC), (void *)(ARG1), (void *)(ARG2)}
 
 #define ICI_DEFINE_METHOD(NAME, FUNC) {(const char *)SS(NAME), (int (*)(...))(FUNC)}
+
+} // namespace ici
 
 #endif /* ICI_CFUNC_H */

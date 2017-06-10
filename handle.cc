@@ -11,6 +11,9 @@
 #include "int.h"
 #include "struct.h"
 
+namespace ici
+{
+
 /*
  * Format a human readable version of the object in less than 30 chars.
  */
@@ -618,3 +621,5 @@ ici_type_t  ici_handle_type =
     assign_base_handle,
     fetch_base_handle
 };
+
+} // namespace ici

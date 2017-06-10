@@ -7,6 +7,9 @@
 #include <jemalloc/jemalloc.h>
 #endif
 
+namespace ici
+{
+
 /*
  * Define this to 1 to prevent the use of fast free lists.  All allocations will go
  * to the native malloc.  Can be very useful to set, along with ALLCOLLECT in
@@ -134,5 +137,7 @@ static inline void ici_tfree_n(void *p, size_t list, size_t n)
     while (0)
 
 #endif  /* ICI_ALLALLOC */
+
+} // namespace ici
 
 #endif /* ICI_ALLOC_H */

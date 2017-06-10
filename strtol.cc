@@ -2,6 +2,9 @@
 #include "fwd.h"
 #include <ctype.h>
 
+namespace ici
+{
+
 /*
  * ici_strtol
  *
@@ -35,3 +38,5 @@ ici_strtol(char const *s, char **ptr, int base)
        *ptr = (char *)((eptr == s) ? start : eptr);
     return minus ? -(long)v : (long)v;
 }
+
+} // namespace ici

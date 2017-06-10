@@ -51,6 +51,9 @@
 #include "struct.h"
 #include "op.h"
 
+namespace ici
+{
+
 typedef int int_func();
 static int_func *op_funcs[7];
 
@@ -236,3 +239,5 @@ ICI_DEFINE_CFUNCS(save_restore)
     ICI_DEFINE_CFUNC(restore, ici_archive_f_restore),
     ICI_CFUNCS_END
 };
+
+} // namespace ici

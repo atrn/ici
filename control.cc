@@ -9,6 +9,9 @@
 #include "forall.h"
 #include "catch.h"
 
+namespace ici
+{
+
 /*
  * self => array looper &array[2] (xs)
  * array => - (os)
@@ -48,3 +51,5 @@ ici_op_t    ici_o_waitfor       = {ICI_OP_WAITFOR};
 ici_op_t    ici_o_rewind        = {ICI_OP_REWIND};
 ici_op_t    ici_o_end           = {ICI_OP_ENDCODE};
 
+
+} // namespace ici

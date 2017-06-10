@@ -3,6 +3,10 @@
 #ifndef ICI_HANDLE_H
 #define ICI_HANDLE_H
 
+namespace ici
+{
+
+
 /*
  * The following portion of this file exports to ici.h. --ici.h-start--
  */
@@ -140,5 +144,7 @@ struct ici_name_id
 /*
  * End of ici.h export. --ici.h-end--
  */
+
+} // namespace ici
 
 #endif /* ICI_HANDLE_H */

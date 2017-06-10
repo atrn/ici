@@ -13,6 +13,9 @@
 #include "object.h"
 #endif
 
+namespace ici
+{
+
 int ici_archive_init(void);
 int ici_init_restorer_map(void);
 int ici_init_saver_map(void);
@@ -59,5 +62,7 @@ void            ici_archive_stop(ici_archive_t *ar);
 /*
  * End of ici.h export. --ici.h-end--
  */
+
+} // namespace ici
 
 #endif

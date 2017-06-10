@@ -3,6 +3,9 @@
 #include "int.h"
 #include "primes.h"
 
+namespace ici
+{
+
 ici_int_t                   *ici_small_ints[ICI_SMALL_INT_COUNT];
 
 /*
@@ -109,3 +112,5 @@ ici_type_t  ici_int_type =
     ici_fetch_fail,
     "int"
 };
+
+} // namespace ici

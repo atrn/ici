@@ -1,6 +1,7 @@
 #define ICI_CORE
 #include "fwd.h"
 #include "struct.h"
+#include "str.h"
 #include "ptr.h"
 #include "null.h"
 #include "exec.h"
@@ -8,10 +9,12 @@
 #include "op.h"
 #include "int.h"
 #include "buf.h"
-#include "str.h"
 #include "pc.h"
 #include "primes.h"
 #include "forall.h"
+
+namespace ici
+{
 
 /*
  * Generation number of look-up look-asides.  All strings that hold a look-up
@@ -747,3 +750,5 @@ ici_op_t    ici_o_coloncaret    = {ICI_OP_COLONCARET};
 ici_op_t    ici_o_dot           = {ICI_OP_DOT};
 ici_op_t    ici_o_dotkeep       = {ICI_OP_DOTKEEP};
 ici_op_t    ici_o_dotrkeep      = {ICI_OP_DOTRKEEP};
+
+} // namespace ici

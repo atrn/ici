@@ -7,6 +7,9 @@
 #include "buf.h"
 #include "null.h"
 
+namespace ici
+{
+
 static int
 attempted(const char *what, const char *towhat)
 {
@@ -55,3 +58,5 @@ ici_op_unary(void)
         return attempted("<unknown unary operator>", ici_typeof(ici_os.a_top[-1])->t_name);
     }
 }
+
+} // namespace ici

@@ -4,6 +4,9 @@
 #include "exec.h"
 #include "primes.h"
 
+namespace ici
+{
+
 /*
  * Mark this and referenced unmarked objects, return memory costs.
  * See comments on t_mark() in object.h.
@@ -88,3 +91,5 @@ ici_type_t  ici_op_type =
     ici_fetch_fail,
     "op"
 };
+
+} // namespace ici

@@ -2,6 +2,9 @@
 #include "fwd.h"
 #include "str.h"
 
+namespace ici
+{
+
 /*
  * Include sstring.h to define static string objects (with 1 ref count
  * and a pesudo size of 1 in o_leafz).
@@ -35,3 +38,5 @@ ici_init_sstrings(void)
         return 0;
     return ici_set_error("failed to setup static strings");
 }
+
+} // namespace ici

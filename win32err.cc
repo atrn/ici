@@ -5,6 +5,9 @@
 #ifdef  _WIN32
 #include <windows.h>
 
+namespace ici
+{
+
 /*
  * Windows only.  Convert the current Win32 error (that is, the value of
  * 'GetLastError()') into an ICI error message and sets ici_error to point to
@@ -28,4 +31,7 @@ ici_get_last_win32_error(void)
     );
     return ici_set_error("%s", ici_buf);
 }
+
+} // namespace ici
+
 #endif /* _WIN32 */

@@ -2,6 +2,9 @@
 #include "fwd.h"
 #include "buf.h"
 
+namespace ici
+{
+
 char    *ici_buf;       /* #define'd to buf in buf.h. */
 int     ici_bufz;       /* 1 less than actual allocation. */
 
@@ -29,3 +32,5 @@ ici_growbuf(int n)
     ici_bufz = n - 1;
     return 0;
 }
+
+} // namespace ici

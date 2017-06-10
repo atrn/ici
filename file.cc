@@ -9,6 +9,9 @@
 #include "int.h"
 #include "null.h"
 
+namespace ici
+{
+
 /*
  * Returns 0 if these objects are eq, else non-zero.
  * See the comments on t_cmp() in object.h.
@@ -177,3 +180,5 @@ ici_type_t  ici_file_type =
     fetch_file,
     "file"
 };
+
+} // namespace ici

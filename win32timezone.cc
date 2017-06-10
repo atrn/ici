@@ -6,6 +6,9 @@
 #ifdef  _WIN32
 #include <windows.h>
 
+namespace ici
+{
+
 static char *
 convert(WCHAR *s)
 {
@@ -67,5 +70,7 @@ ici_set_timezone_vals(ici_struct_t *s)
     }
     return 0;
 }
+
+} // namespace ici
 
 #endif /* _WIN32 */

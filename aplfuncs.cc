@@ -9,6 +9,9 @@
 #include "op.h"
 #include "array.h"
 
+namespace ici
+{
+
 /*
  * This structure holds the recursion-independent parameters for the recursive
  * buildxx() function.
@@ -261,3 +264,5 @@ ICI_DEFINE_CFUNCS(apl)
     ICI_DEFINE_CFUNC(build, f_build),
     ICI_CFUNCS_END
 };
+
+} // namespace ici

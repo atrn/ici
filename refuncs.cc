@@ -15,6 +15,9 @@
 
 #include "pcre/pcre.h"
 
+namespace ici
+{
+
 static int
 f_regexp(...)
 {
@@ -635,3 +638,5 @@ ICI_DEFINE_CFUNCS(re)
     ICI_DEFINE_CFUNC(smash,        f_smash),
     ICI_CFUNCS_END
 };
+
+} // namespace ici

@@ -3,6 +3,9 @@
 #ifndef ICI_WRAP_H
 #define ICI_WRAP_H
 
+namespace ici
+{
+
 /*
  * The following portion of this file exports to ici.h. --ici.h-start--
  */
@@ -16,4 +19,7 @@ struct ici_wrap
 /*
  * End of ici.h export. --ici.h-end--
  */
+
+} // namespace ici
+
 #endif

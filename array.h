@@ -11,6 +11,9 @@
 #include "object.h"
 #endif
 
+namespace ici
+{
+
 /*
  * The following portion of this file exports to ici.h. --ici.h-start--
  */
@@ -145,6 +148,8 @@ struct ici_array : ici_obj
  */
 #define ici_anext(a, e) ((e) + 1 == (a)->a_limit && (a)->a_limit != (a)->a_top \
                             ? (a)->a_base : (e) + 1)
+
+} // namespace ici
 
  /*
  * End of ici.h export. --ici.h-end--

@@ -4,6 +4,9 @@
 
 #include <semaphore.h>
 
+namespace ici
+{
+
 #ifdef ICI_USE_POSIX_THREADS
 
 int
@@ -85,3 +88,5 @@ ici_sem_post(ici_sem_t *sem)
 }
 
 #endif /* ICI_USE_POSIX_THREADS */
+
+} // namespace ici

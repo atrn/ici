@@ -7,6 +7,9 @@
 #include "object.h"
 #endif
 
+namespace ici
+{
+
 /*
  * The following portion of this file exports to ici.h. --ici.h-start--
  */
@@ -45,5 +48,7 @@ struct ici_float : ici_obj
 #else
 #define DBL_BIT_CMP(a, b) (memcmp(a, b, sizeof (double)) == 0)
 #endif
+
+} // namespace ici
 
 #endif /* ICI_FLOAT_H */

@@ -5,6 +5,9 @@
 #include "re.h"
 #include "wrap.h"
 
+namespace ici
+{
+
 static ici_wrap_t       *wraps;
 
 /*
@@ -160,3 +163,5 @@ ici_uninit(void)
         printf("%d/%d %f\n", miss, attempt, (float)miss/attempt);
     }*/
 }
+
+} // namespace ici

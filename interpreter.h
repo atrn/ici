@@ -6,6 +6,9 @@
 #include "array.h"
 #include "alloc.h"
 
+namespace ici
+{
+
 class ici_interpreter_t
 {
 private:
@@ -38,3 +41,5 @@ private:
 
         int                     ici_exec_count;
 };
+
+} // namespace ici

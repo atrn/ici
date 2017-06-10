@@ -9,6 +9,9 @@
 
 #include <errno.h>
 
+namespace ici
+{
+
 #ifdef ICI_USE_WIN32_THREADS
 HANDLE                  ici_mutex;
 #endif
@@ -506,3 +509,5 @@ ICI_DEFINE_CFUNCS(thread)
     ICI_DEFINE_CFUNC(wakeup,        f_wakeup),
     ICI_CFUNCS_END
 };
+
+} // namespace ici

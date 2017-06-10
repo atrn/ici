@@ -9,6 +9,9 @@
 #include "null.h"
 #include "catch.h"
 
+namespace ici
+{
+
 /*
  * This function is a variation on 'ici_func()'. See that function for details
  * on the meaning of the 'types' argument.
@@ -337,3 +340,5 @@ ici_call(ici_str_t *func_name, const char *types, ...)
     va_end(va);
     return result;
 }
+
+} // namespace ici

@@ -39,6 +39,9 @@
 #include <unistd.h>
 #include <pthread.h>
 
+namespace ici
+{
+
 /* CRC-32C (iSCSI) polynomial in reversed bit order. */
 #define POLY 0x82f63b78
 
@@ -335,6 +338,8 @@ uint32_t crc32c(uint32_t crc, const void *buf, size_t len)
     SSE42(sse42);
     return sse42 ? crc32c_hw(crc, buf, len) : crc32c_sw(crc, buf, len);
 }
+
+} // namespace ici
 
 #ifdef TEST
 

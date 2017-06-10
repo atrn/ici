@@ -2,6 +2,9 @@
 #include "fwd.h"
 #include "func.h"
 
+namespace ici
+{
+
 extern ici_cfunc_t  ici_std_cfuncs[];
 extern ici_cfunc_t  ici_save_restore_cfuncs[];
 extern ici_cfunc_t  ici_re_cfuncs[];
@@ -93,3 +96,5 @@ char ici_version_string[] =
 char ici_version_string[] = "@(#)ICI 4.2.0";
 
 #endif
+
+} // namespace ici

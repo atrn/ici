@@ -21,6 +21,9 @@
 #include "primes.h"
 #include <signal.h>
 
+namespace ici
+{
+
 /*
  * List of all active execution structures.
  */
@@ -1437,3 +1440,5 @@ ici_type_t  ici_exec_type =
 };
 
 ici_op_t    ici_o_quote         = {ICI_OP_QUOTE};
+
+} // namespace ici

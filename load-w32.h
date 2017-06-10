@@ -5,6 +5,9 @@
 
 #include <windows.h>
 
+namespace ici
+{
+
 typedef void    *dll_t;
 
 #define valid_dll(dll)  ((dll) != NULL)
@@ -43,5 +46,7 @@ static void
 dlclose(dll_t hinst)
 {
 }
+
+} // namespace ici
 
 #endif /* ICI_LOAD_W32_H */

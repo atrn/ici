@@ -5,6 +5,9 @@
 #include "mem.h"
 #include "buf.h"
 
+namespace ici
+{
+
 /*
  * This structure is used wherever a character buffer in memory is treated as
  * an ICI file object.  Two related file types reference this structure:
@@ -307,3 +310,5 @@ ici_open_charbuf(char *data, int size, ici_obj_t *ref, int readonly)
         ici_tfree(cb, charbuf_t);
     return f;
 }
+
+} // namespace ici

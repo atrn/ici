@@ -8,6 +8,9 @@
 #include "primes.h"
 #include "cfunc.h"
 
+namespace ici
+{
+
 /*
  * Mark this and referenced unmarked objects, return memory costs.
  * See comments on t_mark() in object.h.
@@ -233,3 +236,5 @@ ici_type_t  ici_ptr_type =
 ici_op_t    ici_o_mkptr         = {ici_op_mkptr};
 ici_op_t    ici_o_openptr       = {ici_op_openptr};
 ici_op_t    ici_o_fetch         = {ici_op_fetch};
+
+} // namespace ici

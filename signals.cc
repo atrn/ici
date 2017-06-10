@@ -43,6 +43,9 @@
 #include <string.h>
 #endif
 
+namespace ici
+{
+
 /*
  * ici_signals_pending
  *
@@ -471,3 +474,5 @@ ICI_DEFINE_CFUNCS(signals)
     ICI_DEFINE_CFUNC(signam,   f_signam),
     ICI_CFUNCS_END
 };
+
+} // namespace ici

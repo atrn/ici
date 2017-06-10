@@ -8,6 +8,9 @@
 #include <io.h>
 #endif
 
+namespace ici
+{
+
 /*
  * Search for the given file called 'name', with the optional extension 'ext',
  * on our path (that is, the current value of 'path' in the current scope).
@@ -50,3 +53,5 @@ ici_find_on_path(char name[FILENAME_MAX], const char *ext)
     }
     return 0;
 }
+
+} // namespace ici

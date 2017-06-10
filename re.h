@@ -17,6 +17,9 @@ typedef void pcre_extra;
 #define ICI_PCRE_TYPES_DEFINED
 #endif
 
+namespace ici
+{
+
 struct ici_regexp : ici_obj
 {
     pcre        *r_re;
@@ -43,5 +46,7 @@ int ici_pcre
 /*
  * End of ici.h export. --ici.h-end--
  */
+
+} // namespace ici
 
 #endif

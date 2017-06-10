@@ -10,6 +10,9 @@
 #include "op.h"
 #include "func.h"
 
+namespace ici
+{
+
 /*
  * Unwind the execution stack until a catcher is found.  Then unwind
  * the scope and operand stacks to the matching depth (but only if it is).
@@ -115,3 +118,5 @@ ici_type_t  ici_catch_type =
 };
 
 ici_op_t    ici_o_onerror       = {ici_op_onerror};
+
+} // namespace ici

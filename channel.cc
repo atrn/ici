@@ -64,6 +64,9 @@
 
 #include "channel.h"
 
+namespace ici
+{
+
 static unsigned long
 mark_channel(ici_obj_t *o)
 {
@@ -322,3 +325,5 @@ ICI_DEFINE_CFUNCS(channel)
     ICI_DEFINE_CFUNC(alt,       f_alt),
     ICI_CFUNCS_END
 };
+
+} // namespace ici

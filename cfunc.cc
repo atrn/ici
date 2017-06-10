@@ -54,6 +54,9 @@
 #include <dirent.h>
 #endif
 
+namespace ici
+{
+
 extern int stdio_getc(void *);
 
 /*
@@ -4336,3 +4339,5 @@ ICI_DEFINE_CFUNCS(std)
     ICI_DEFINE_CFUNC(putenv,    f_putenv),
     ICI_CFUNCS_END
 };
+
+} // namespace ici

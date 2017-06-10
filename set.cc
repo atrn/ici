@@ -10,6 +10,9 @@
 
 #define SET_HASHINDEX(k, s) (ICI_PTR_HASH(k) & ((s)->s_nslots - 1))
 
+namespace ici
+{
+
 /*
  * Find the set slot which does, or should, contain the key k.
  */
@@ -389,3 +392,5 @@ ici_set_ispropersubset(ici_set_t *a, ici_set_t *b) /* a is a proper subset of b 
 {
     return a->s_nels < b->s_nels && ici_set_issubset(a, b);
 }
+
+} // namespace ici

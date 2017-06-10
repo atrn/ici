@@ -2,6 +2,10 @@
 
 #ifndef ICI_BUF_H
 #define ICI_BUF_H
+
+namespace ici
+{
+
 /*
  * The following portion of this file exports to ici.h. --ici.h-start--
  */
@@ -26,5 +30,7 @@ extern int      ici_growbuf(int);
  * We use buf as an abbreviation for ici_buf in the core.
  */
 #define buf     ici_buf
+
+} // namespace ici
 
 #endif /* ICI_BUF_H */

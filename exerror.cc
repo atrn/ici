@@ -3,6 +3,9 @@
 #include "str.h"
 #include "buf.h"
 
+namespace ici
+{
+
 /*
  * Expand the current error string (assumed non-NULL) to include more
  * information.  But only if it seems not to contain it already.  Zero
@@ -46,3 +49,5 @@ ici_expand_error(int lineno, ici_str_t *fname)
     ici_nfree(s, z);
     ici_error = buf;
 }
+
+} // namespace ici

@@ -16,6 +16,9 @@
 #include "profile.h"
 #endif
 
+namespace ici
+{
+
 static void
 objname_cfunc(ici_obj_t *o, char p[ICI_OBJNAMEZ])
 {
@@ -246,3 +249,5 @@ ici_type_t  ici_cfunc_type =
     objname_cfunc,
     call_cfunc
 };
+
+} // namespace ici

@@ -2,6 +2,10 @@
 
 #ifndef ICI_CATCH_H
 #define ICI_CATCH_H
+
+namespace ici
+{
+
 /*
  * catch.h - ICI catch objects. Catch objects are never accesible to ICI
  * programs (and must never be). They mark a point on the execution stack
@@ -37,5 +41,7 @@ struct ici_catch : ici_obj
 /*
  * End of ici.h export. --ici.h-end--
  */
+
+} // namespace ici
 
 #endif /* ICI_CATCH_H */

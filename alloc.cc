@@ -5,6 +5,9 @@
 #include <jemalloc/jemalloc.h>
 #endif
 
+namespace ici
+{
+
 /*
  * The amount of memory we currently have allocated, and a limit.
  * When we reach the limit, a garbage collection is triggered (which
@@ -293,3 +296,5 @@ ici_drop_all_small_allocations(void)
     }
 #endif /* ICI_ALLALLOC */
 }
+
+} // namespace ici

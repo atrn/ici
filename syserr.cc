@@ -3,6 +3,9 @@
 #include "buf.h"
 #include <errno.h>
 
+namespace ici
+{
+
 /*
  * Convert the current errno (that is, the standard C global error code) into
  * an ICI error message based on the standard C 'strerror' function.  Returns
@@ -34,3 +37,5 @@ ici_get_last_errno(const char *dothis, const char *tothis)
         return ici_set_error("failed to %s %s: %s", dothis, tothis, e);
     return ici_set_error("%s: %s", tothis, e);
 }
+
+} // namespace ici

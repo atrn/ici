@@ -14,6 +14,9 @@
 #include "array.h"
 #include "method.h"
 
+namespace ici
+{
+
 /*
  * Return 0 if o (the subject object argument supplied to C implemented
  * methods) is present (indicating a method call was made) and is an
@@ -121,3 +124,5 @@ ICI_DEFINE_CFUNCS(oo)
     ICI_DEFINE_METHOD(unknown_method,   m_unknown_method),
     ICI_CFUNCS_END
 };
+
+} // namespace ici

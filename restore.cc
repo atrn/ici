@@ -36,6 +36,9 @@
 
 #include <netinet/in.h>
 
+namespace ici
+{
+
 static ici_obj_t *restore(ici_archive_t *);
 
 static int
@@ -895,3 +898,5 @@ ici_archive_f_restore(...)
 
     return obj == NULL ? 1 : ici_ret_with_decref(obj);
 }
+
+} // namespace ici

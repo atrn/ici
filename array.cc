@@ -12,6 +12,9 @@
 #include "buf.h"
 #include "primes.h"
 
+namespace ici
+{
+
 /*
  * Function to do the hard work for the macro ici_stk_push_chk().
  * See array.h. This reallocates the array buffer.
@@ -763,3 +766,5 @@ ici_type_t  ici_array_type =
 };
 
 ici_op_t    ici_o_mklvalue      = {ici_op_mklvalue};
+
+} // namespace ici

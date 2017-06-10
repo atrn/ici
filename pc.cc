@@ -2,6 +2,9 @@
 #include "exec.h"
 #include "pc.h"
 
+namespace ici
+{
+
 /*
  * Mark this and referenced unmarked objects, return memory costs.
  * See comments on t_mark() in object.h.
@@ -54,3 +57,5 @@ ici_type_t  ici_pc_type =
     ici_fetch_fail,
     "pc"
 };
+
+} // namespace ici

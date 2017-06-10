@@ -13,6 +13,9 @@
 #include "profile.h"
 #endif
 
+namespace ici
+{
+
 /*
  * An optional main entry point to the ICI interpreter.  'ici_main' handles a
  * complete interpreter life-cycle based on the given arguments.  A command
@@ -368,3 +371,5 @@ fail:
     ici_uninit();
     return 1;
 }
+
+} // namespace ici

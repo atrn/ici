@@ -6,6 +6,10 @@
 #ifndef ICI_OBJECT_H
 #include "object.h"
 #endif
+
+namespace ici
+{
+
 /*
  * The following portion of this file exports to ici.h. --ici.h-start--
  */
@@ -36,5 +40,7 @@ struct ici_src : ici_obj
 /*
  * End of ici.h export. --ici.h-end--
  */
+
+} // namespace ici
 
 #endif /* ICI_SRC_H */

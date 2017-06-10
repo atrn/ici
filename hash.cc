@@ -1,6 +1,9 @@
 #include <stddef.h>
 #include <stdint.h>
 
+namespace ici
+{
+
 #if defined(ICI_USE_SF_HASH)
 
 #define get16bits(d) ((((uint32_t)(((const uint8_t *)(d))[1])) << 8) + (uint32_t)(((const uint8_t *)(d))[0]))
@@ -91,3 +94,5 @@ ici_murmur_hash(const unsigned char * data, int len, unsigned int h)
     return h;
 }
 #endif
+
+} // namespace ici

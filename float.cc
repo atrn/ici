@@ -4,6 +4,9 @@
 #include "primes.h"
 #include <assert.h>
 
+namespace ici
+{
+
 /*
  * Return an ICI float object corresponding to the given value 'v'.  Note that
  * floats are intrinsically atomic.  The returned object will have had its
@@ -123,3 +126,5 @@ ici_type_t  ici_float_type =
     ici_fetch_fail,
     "float"
 };
+
+} // namespace ici

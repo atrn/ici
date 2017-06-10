@@ -6,6 +6,9 @@
 #include "buf.h"
 #include "func.h"
 
+namespace ici
+{
+
 static                  int push_path_elements(ici_array_t *a, const char *path); /* Forward. */
 #define PUSH(A, B)      if (push_path_elements((A), (B))) return 1
 
@@ -436,3 +439,5 @@ ici_cfunc_t ici_load_cfuncs[] =
     ICI_DEFINE_CFUNC(load, f_load),
     ICI_CFUNCS_END
 };
+
+} // namespace ici

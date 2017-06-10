@@ -10,6 +10,9 @@
 #include "profile.h"
 #endif
 
+namespace ici
+{
+
 static void
 objname_method(ici_obj_t *o, char p[ICI_OBJNAMEZ])
 {
@@ -114,3 +117,5 @@ ici_type_t  ici_method_type =
     objname_method,
     call_method
 };
+
+} // namespace ici

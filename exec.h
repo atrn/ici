@@ -29,6 +29,9 @@
 #include <semaphore.h>
 #endif /* ICI_USE_POSIX_THREADS */
 
+namespace ici
+{
+
 union ici_ostemp
 {
     ici_int_t   i;
@@ -204,5 +207,7 @@ struct ici_debug
     (*(xs) = ici_exec->x_pc_closet->a_base[(xs) - ici_xs.a_base], \
     ici_pcof(*(xs))->pc_code = code, \
     ici_pcof(*(xs))->pc_next = ici_pcof(*(xs))->pc_code->a_base)
+
+} // namespace ici
 
 #endif /* ICI_EXEC_H */

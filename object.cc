@@ -11,6 +11,9 @@
 
 #include <limits.h>
 
+namespace ici
+{
+
 /*
  * The following define is useful during debug and testing. It will
  * cause every call to an allocation function to garbage collect.
@@ -919,3 +922,5 @@ ici_assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v)
 
 #endif
 
+
+} // namespace ici

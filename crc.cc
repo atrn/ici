@@ -1,6 +1,9 @@
 #define ICI_CORE
 #include "fwd.h"
 
+namespace ici
+{
+
 #ifdef ICI_SW_CRC
 /*
  * Constants for use in the ici_crc() below. It is also indexed directly by
@@ -74,3 +77,5 @@ ici_crc(unsigned long crc, unsigned char const *p, ptrdiff_t n)
     return crc;
 #endif
 }
+
+} // namespace ici

@@ -12,6 +12,9 @@
 #include "re.h"
 #include "set.h"
 
+namespace ici
+{
+
 /*
  * binop.c
  *
@@ -93,3 +96,5 @@ fail:
     return 1;
 }
 #endif
+
+} // namespace ici

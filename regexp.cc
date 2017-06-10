@@ -12,6 +12,9 @@
 #endif
 #include "pcre/internal.h"
 
+namespace ici
+{
+
 /*
  * Called when the above regexp routines detect an error.
  * Space for the offsets to matched sub-expressions in regexps and a global
@@ -188,3 +191,5 @@ ici_type_t  ici_regexp_type =
     fetch_regexp,
     "regexp"
 };
+
+} // namespace ici

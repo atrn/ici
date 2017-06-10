@@ -7,6 +7,9 @@
 #include "int.h"
 #include "str.h"
 
+namespace ici
+{
+
 /*
  * A cache of binary opperators created by new_binop.
  */
@@ -851,3 +854,5 @@ ici_uninit_compile()
         }
     }
 }
+
+} // namespace ici

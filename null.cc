@@ -2,6 +2,9 @@
 #include "fwd.h"
 #include "null.h"
 
+namespace ici
+{
+
 /*
  * Mark this and referenced unmarked objects, return memory costs.
  * See comments on t_mark() in object.h.
@@ -26,3 +29,5 @@ ici_type_t  ici_null_type =
 };
 
 ici_null_t  ici_o_null; //  = {ICI_TC_NULL, ICI_O_ATOM, 1, 0};
+
+} // namespace ici

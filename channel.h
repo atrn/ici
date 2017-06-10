@@ -7,6 +7,9 @@
 #include "object.h"
 #endif
 
+namespace ici
+{
+
 /*
  * This --struct-- forms part of the --ici-api--.
  */
@@ -24,5 +27,7 @@ typedef struct ici_channel ici_channel_t;
 /*
  * End of ici.h export. --ici.h-end--
  */
+
+} // namespace ici
 
 #endif

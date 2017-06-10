@@ -7,6 +7,9 @@
 #include "fwd.h"
 #endif
 
+namespace ici
+{
+
 /*
  * The following portion of this file exports to ici.h. --ici.h-start--
  */
@@ -648,5 +651,7 @@ extern void             bughunt_rego(ici_obj_t *);
 #   define ici_incref(o) bughunt_incref(ici_objof(o))
 #   define ici_decref(o) bughunt_decref(ici_objof(o))
 #endif
+
+} // namespace ici
 
 #endif /* ICI_OBJECT_H */

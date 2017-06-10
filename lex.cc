@@ -7,6 +7,9 @@
 #include "str.h"
 #include "array.h"
 
+namespace ici
+{
+
 /*
  * Set this to non-zero to stop the recording of file and line number
  * information as code is parsed.  There is nothing in the interpreter core
@@ -825,3 +828,5 @@ ici_ftype_t ici_parse_ftype =
     pf_eof,
     pf_wfail    /* write */
 };
+
+} // namespace ici

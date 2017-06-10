@@ -7,6 +7,9 @@
 #include "object.h"
 #endif
 
+namespace ici
+{
+
 typedef struct
 {
     int         t_what;         /* See TM_* and T_* below. */
@@ -164,5 +167,7 @@ struct expr
     expr_t      *e_arg[2];
     ici_obj_t   *e_obj;
 };
+
+} // namespace ici
 
 #endif  /* ICI_PARSE_H */

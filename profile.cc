@@ -42,6 +42,9 @@
 #include <mmsystem.h>
 #endif
 
+namespace ici
+{
+
 /*
  * Set to true by an ICI call to 'profile()'
  */
@@ -387,3 +390,5 @@ ICI_DEFINE_CFUNCS(profile)
 };
 
 #endif
+
+} // namespace ici

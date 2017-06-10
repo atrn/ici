@@ -7,6 +7,9 @@
 #include "object.h"
 #endif
 
+namespace ici
+{
+
 /*
  * The following portion of this file exports to ici.h. --ici.h-start--
  */
@@ -33,5 +36,7 @@ constexpr int ICI_SMALL_INT_COUNT = 1024;
 constexpr int ICI_SMALL_INT_MASK  = 0x3FF;
 
 extern ici_int_t *ici_small_ints[ICI_SMALL_INT_COUNT];
+
+} // namespace ici
 
 #endif /* ICI_INT_H */
