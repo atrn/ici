@@ -741,7 +741,7 @@ forall_array(ici_obj_t *o)
     return 0;
 }
 
-ici_type_t  ici_array_type =
+type_t  array_type =
 {
     mark_array,
     free_array,

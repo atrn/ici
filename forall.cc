@@ -109,7 +109,7 @@ ici_exec_forall()
     }
 }
 
-ici_type_t  ici_forall_type =
+type_t  forall_type =
 {
     mark_forall,
     free_forall,

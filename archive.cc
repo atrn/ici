@@ -84,7 +84,7 @@ free_archive(ici_obj_t *o)
     ici_tfree(o, ici_archive_t);
 }
 
-ici_type_t ici_archive_type =
+type_t archive_type =
 {
     mark_archive,
     free_archive,

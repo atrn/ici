@@ -219,7 +219,7 @@ ici_op_fetch()
     return 0;
 }
 
-ici_type_t  ici_ptr_type =
+type_t  ptr_type =
 {
     mark_ptr,
     free_ptr,

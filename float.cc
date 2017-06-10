@@ -115,7 +115,7 @@ hash_float(ici_obj_t *o)
     return h;
 }
 
-ici_type_t  ici_float_type =
+type_t  float_type =
 {
     mark_float,
     free_float,

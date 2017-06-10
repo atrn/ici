@@ -340,7 +340,7 @@ forall_set(ici_obj_t *o)
     return -1;
 }
 
-ici_type_t  ici_set_type =
+type_t  set_type =
 {
     mark_set,
     free_set,

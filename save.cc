@@ -322,8 +322,7 @@ free_saver(ici_obj_t *o)
     ici_tfree(o, saver_t);
 }
 
-ici_type_t
-ici_saver_type =
+type_t saver_type =
 {
     mark_saver,
     free_saver,

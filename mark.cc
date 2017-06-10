@@ -16,7 +16,7 @@ mark_mark(ici_obj_t *o)
     return sizeof(ici_mark_t);
 }
 
-ici_type_t  ici_mark_type =
+type_t  mark_type =
 {
     mark_mark,
     NULL,

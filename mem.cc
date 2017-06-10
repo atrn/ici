@@ -152,7 +152,7 @@ free_mem(ici_obj_t *o)
     ici_tfree(o, ici_mem_t);
 }
 
-ici_type_t  ici_mem_type =
+type_t  mem_type =
 {
     mark_mem,
     free_mem,

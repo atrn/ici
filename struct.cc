@@ -720,7 +720,7 @@ forall_struct(ici_obj_t *o)
     return -1;
 }
 
-ici_type_t  ici_struct_type =
+type_t  struct_type =
 {
     mark_struct,
     free_struct,

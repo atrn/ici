@@ -1427,7 +1427,7 @@ ici_eval(ici_str_t *name)
     return ici_evaluate(ici_objof(name), 0);
 }
 
-ici_type_t  ici_exec_type =
+type_t  exec_type =
 {
     mark_exec,
     free_exec,

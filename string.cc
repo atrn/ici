@@ -472,7 +472,7 @@ forall_string(ici_obj_t *o)
     return 0;
 }
 
-ici_type_t  ici_string_type =
+type_t  string_type =
 {
     mark_string,
     free_string,

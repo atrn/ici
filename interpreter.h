@@ -23,7 +23,7 @@ private:
         char                    *ici_buf;       /* #define'd to buf in buf.h. */
         int                     ici_bufz;       /* 1 less than actual allocation. */
         char                    *ici_error;
-        ici_type_t              *ici_types[ICI_MAX_TYPES];
+        type_t                  *ici_types[ICI_MAX_TYPES];
         ici_obj_t               **ici_objs;         /* List of all objects. */
         ici_obj_t               **ici_objs_limit;   /* First element we can't use in list. */
         ici_obj_t               **ici_objs_top;     /* Next unused element in list. */

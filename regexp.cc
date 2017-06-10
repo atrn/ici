@@ -180,7 +180,7 @@ int ici_pcre_exec_simple(ici_regexp_t *r, ici_str_t *s)
      );
 }
 
-ici_type_t  ici_regexp_type =
+type_t  regexp_type =
 {
     mark_regexp,
     free_regexp,

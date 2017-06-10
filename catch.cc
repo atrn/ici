@@ -105,7 +105,7 @@ ici_op_onerror()
     return 0;
 }
 
-ici_type_t  ici_catch_type =
+type_t  catch_type =
 {
     mark_catch,
     free_catch,

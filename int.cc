@@ -101,7 +101,7 @@ ici_int_new(long i)
     return ici_intof(o);
 }
 
-ici_type_t  ici_int_type =
+type_t  int_type =
 {
     mark_int,
     free_int,

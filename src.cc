@@ -65,7 +65,7 @@ free_src(ici_obj_t *o)
     ici_tfree(o, ici_src_t);
 }
 
-ici_type_t  ici_src_type =
+type_t  src_type =
 {
     mark_src,
     free_src,

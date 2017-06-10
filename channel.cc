@@ -110,7 +110,7 @@ fetch_base_channel(ici_obj_t *o, ici_obj_t *k)
     return ici_fetch(ici_objwsupof(o)->o_super, k);
 }
 
-ici_type_t ici_channel_type =
+type_t channel_type =
 {
     mark_channel,
     free_channel,

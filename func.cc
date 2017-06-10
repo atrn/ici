@@ -342,7 +342,7 @@ fail:
     return 1;
 }
 
-ici_type_t  ici_func_type =
+type_t  func_type =
 {
     mark_func,
     free_func,

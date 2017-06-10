@@ -38,72 +38,72 @@ char            *ici_error;
  * core. NB: The positions of these must exactly match the ICI_TC_* defines
  * in object.h.
  */
-extern ici_type_t       ici_archive_type;
-extern ici_type_t       ici_array_type;
-extern ici_type_t       ici_catch_type;
-extern ici_type_t       ici_exec_type;
-extern ici_type_t       ici_set_type;
-extern ici_type_t       ici_struct_type;
-extern ici_type_t       ici_float_type;
-extern ici_type_t       ici_file_type;
-extern ici_type_t       ici_func_type;
-extern ici_type_t       ici_cfunc_type;
-extern ici_type_t       ici_method_type;
-extern ici_type_t       ici_forall_type;
-extern ici_type_t       ici_int_type;
-extern ici_type_t       ici_mark_type;
-extern ici_type_t       ici_null_type;
-extern ici_type_t       ici_op_type;
-extern ici_type_t       ici_pc_type;
-extern ici_type_t       ici_ptr_type;
-extern ici_type_t       ici_regexp_type;
-extern ici_type_t       ici_src_type;
-extern ici_type_t       ici_string_type;
-extern ici_type_t       ici_parse_type;
-extern ici_type_t       ici_ostemp_type;
-extern ici_type_t       ici_handle_type;
-extern ici_type_t       ici_profilecall_type;
-extern ici_type_t       ici_mem_type;
-extern ici_type_t       ici_restorer_type;
-extern ici_type_t       ici_saver_type;
-extern ici_type_t       ici_channel_type;
+extern type_t       archive_type;
+extern type_t       array_type;
+extern type_t       catch_type;
+extern type_t       exec_type;
+extern type_t       set_type;
+extern type_t       struct_type;
+extern type_t       float_type;
+extern type_t       file_type;
+extern type_t       func_type;
+extern type_t       cfunc_type;
+extern type_t       method_type;
+extern type_t       forall_type;
+extern type_t       int_type;
+extern type_t       mark_type;
+extern type_t       null_type;
+extern type_t       op_type;
+extern type_t       pc_type;
+extern type_t       ptr_type;
+extern type_t       regexp_type;
+extern type_t       src_type;
+extern type_t       string_type;
+extern type_t       parse_type;
+extern type_t       ostemp_type;
+extern type_t       handle_type;
+extern type_t       profilecall_type;
+extern type_t       mem_type;
+extern type_t       restorer_type;
+extern type_t       saver_type;
+extern type_t       channel_type;
 
-ici_type_t      *ici_types[ICI_MAX_TYPES] =
+type_t      *ici_types[ICI_MAX_TYPES] =
 {
     NULL,
-    &ici_pc_type,
-    &ici_src_type,
-    &ici_parse_type,
-    &ici_op_type,
-    &ici_string_type,
-    &ici_catch_type,
-    &ici_forall_type,
-    &ici_int_type,
-    &ici_float_type,
-    &ici_regexp_type,
-    &ici_ptr_type,
-    &ici_array_type,
-    &ici_struct_type,
-    &ici_set_type,
-    &ici_exec_type,
-    &ici_file_type,
-    &ici_func_type,
-    &ici_cfunc_type,
-    &ici_method_type,
-    &ici_mark_type,
-    &ici_null_type,
-    &ici_handle_type,
-    &ici_mem_type,
+    &pc_type,
+    &src_type,
+    &parse_type,
+    &op_type,
+    &string_type,
+    &catch_type,
+    &forall_type,
+    &int_type,
+    &float_type,
+    &regexp_type,
+    &ptr_type,
+    &array_type,
+    &struct_type,
+    &set_type,
+    &exec_type,
+    &file_type,
+    &func_type,
+    &cfunc_type,
+    &method_type,
+    &mark_type,
+    &null_type,
+    &handle_type,
+    &mem_type,
 #ifndef NOPROFILE
-    &ici_profilecall_type,
+    &profilecall_type,
 #else
     NULL,
 #endif
-    &ici_archive_type,
+    &archive_type,
     NULL, // ICI_TC_REF
-    &ici_restorer_type,
-    &ici_saver_type,
-    &ici_channel_type
+    &restorer_type,
+    &saver_type,
+    &channel_type
 };
 
 static int              ici_ntypes = ICI_TC_MAX_CORE + 1;
@@ -158,7 +158,7 @@ ici_objname(char p[ICI_OBJNAMEZ], ici_obj_t *o)
 }
 
 /*
- * Register a new 'ici_type_t' structure and return a new small int type code
+ * Register a new 'type_t' structure and return a new small int type code
  * to use in the header of objects of that type. The pointer 't' passed to
  * this function is retained and assumed to remain valid indefinetly
  * (it is normally a statically initialised structure).
@@ -169,7 +169,7 @@ ici_objname(char p[ICI_OBJNAMEZ], ici_obj_t *o)
  * This --func-- forms part of the --ici-api--.
  */
 int
-ici_register_type(ici_type_t *t)
+ici_register_type(type_t *t)
 {
     if (ici_ntypes == ICI_MAX_TYPES)
     {
@@ -182,7 +182,7 @@ ici_register_type(ici_type_t *t)
 
 /*
  * This is a convenience function which can be used directly as the 't_copy'
- * entry in a type's 'ici_type_t' struction if object of this type are
+ * entry in a type's 'type_t' struction if object of this type are
  * intrinsically unique (i.e.  are one-to-one with the memory they occupy, and
  * can't be merged) or intrinsically atomic (i.e.  are one-to-one with their
  * value, are are always merged).  An object type would be instrinsically
@@ -204,7 +204,7 @@ ici_copy_simple(ici_obj_t *o)
 
 /*
  * This is a convenience function which can be used directly as the 't_assign'
- * entry in a type's 'ici_type_t' struction if the type doesn't support
+ * entry in a type's 'type_t' struction if the type doesn't support
  * asignment.  It sets 'ici_error' to a message of the form:
  *
  *  attempt to set %s keyed by %s to %s
@@ -229,7 +229,7 @@ ici_assign_fail(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v)
 
 /*
  * This is a convenience function which can be used directly as the 't_fetch'
- * entry in a type's 'ici_type_t' struction if the type doesn't support
+ * entry in a type's 'type_t' struction if the type doesn't support
  * fetching.  It sets 'ici_error' to a message of the form:
  *
  *  attempt to read %s keyed by %
@@ -253,7 +253,7 @@ ici_fetch_fail(ici_obj_t *o, ici_obj_t *k)
 
 /*
  * This is a convenience function which can be used directly as the 't_cmp'
- * entry in a type's 'ici_type_t' struction if object of this type are
+ * entry in a type's 'type_t' struction if object of this type are
  * intrinsically unique.  That is, the object is one-to-one with the memory
  * allocated to hold it.  An object type would be instrinsically unique if you
  * didn't want to support comparison that considered the contents, and/or
@@ -272,7 +272,7 @@ ici_cmp_unique(ici_obj_t *o1, ici_obj_t *o2)
 
 /*
  * This is a convenience function which can be used directly as the 't_hash'
- * entry in a type's 'ici_type_t' struction if object of this type are
+ * entry in a type's 'type_t' struction if object of this type are
  * intrinsically unique.  That is, the object is one-to-one with the memory
  * allocated to hold it.  An object type would be instrinsically unique if you
  * didn't want to support comparison that considered the contents, and/or
@@ -371,7 +371,7 @@ ici_grow_atoms(ptrdiff_t newz)
  * This is achieved by looking for an object of equal value in the
  * 'atom pool'. The atom pool is a hash table of all atoms. The object's
  * 't_hash' and 't_cmp' functions will be used it this lookup process
- * (from this object's 'ici_type_t' struct).
+ * (from this object's 'type_t' struct).
  * 
  * If an existing atomic form of the object is found in the atom pool,
  * it is returned.

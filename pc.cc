@@ -46,7 +46,7 @@ free_pc(ici_obj_t *o)
     ici_tfree(o, ici_pc_t);
 }
 
-ici_type_t  ici_pc_type =
+type_t  pc_type =
 {
     mark_pc,
     free_pc,

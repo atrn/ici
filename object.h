@@ -23,7 +23,7 @@ namespace ici
  * ici_object_t's o_tcode is one byte so we're limited to 256 distinct types.
  */
 constexpr int ICI_MAX_TYPES = 256;
-extern DLI ici_type_t   *ici_types[ICI_MAX_TYPES];
+extern DLI type_t   *ici_types[ICI_MAX_TYPES];
 
 /*
  * Every object has a header. In the header the o_tcode (type code) field
@@ -38,7 +38,7 @@ extern DLI ici_type_t   *ici_types[ICI_MAX_TYPES];
  *
  * This --struct-- forms part of the --ici-api--.
  */
-struct ici_type
+struct type
 {
     unsigned long       (*t_mark)               (ici_obj_t *);
     void                (*t_free)               (ici_obj_t *);
@@ -437,7 +437,7 @@ struct ici_obj
  *                      atomic form of all objects of the same type with
  *                      the same value. Any attempt to change an object
  *                      in a way that would change its value with respect
- *                      to the 't_cmp()' function (see 'ici_type_t') must
+ *                      to the 't_cmp()' function (see 'type_t') must
  *                      check for this flag and fail the attempt if it is
  *                      set.
  *

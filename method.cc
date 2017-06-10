@@ -104,7 +104,7 @@ call_method(ici_obj_t *o, ici_obj_t *subject)
     return (*ici_typeof(m->m_callable)->t_call)(m->m_callable, m->m_subject);
 }
 
-ici_type_t  ici_method_type =
+type_t  method_type =
 {
     mark_method,
     free_method,

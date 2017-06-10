@@ -16,7 +16,7 @@ mark_null(ici_obj_t *o)
     return sizeof(ici_null_t);
 }
 
-ici_type_t  ici_null_type =
+type_t  null_type =
 {
     mark_null,
     NULL,

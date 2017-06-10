@@ -695,7 +695,7 @@ free_restorer(ici_obj_t *o)
     ici_tfree(o, restorer_t);
 }
 
-ici_type_t ici_restorer_type =
+type_t restorer_type =
 {
     mark_restorer,
     free_restorer,

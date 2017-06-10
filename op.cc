@@ -80,7 +80,7 @@ ici_new_op(int (*func)(), int ecode, int code)
     return o;
 }
 
-ici_type_t  ici_op_type =
+type_t  op_type =
 {
     mark_op,
     free_op,

@@ -2688,7 +2688,7 @@ free_parse(ici_obj_t *o)
     ici_tfree(o, ici_parse_t);
 }
 
-ici_type_t  ici_parse_type =
+type_t  parse_type =
 {
     mark_parse,
     free_parse,

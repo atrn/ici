@@ -236,7 +236,7 @@ call_cfunc(ici_obj_t *o, ici_obj_t *subject)
     return (*ici_cfuncof(o)->cf_cfunc)(subject);
 }
 
-ici_type_t  ici_cfunc_type =
+type_t  cfunc_type =
 {
     mark_cfunc,
     free_cfunc,

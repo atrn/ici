@@ -128,7 +128,7 @@ free_profilecall(ici_obj_t *o)
  * since I really only need it to be an ICI type so I can store it in a
  * ici_struct_t.
  */
-ici_type_t ici_profilecall_type =
+type_t profilecall_type =
 {
     mark_profilecall,
     free_profilecall,

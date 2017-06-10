@@ -603,7 +603,7 @@ fail:
 }
 
 
-ici_type_t  ici_handle_type =
+type_t  handle_type =
 {
     mark_handle,
     free_handle,

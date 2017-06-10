@@ -169,7 +169,7 @@ mark_file(ici_obj_t *o)
     return mem;
 }
 
-ici_type_t  ici_file_type =
+type_t  file_type =
 {
     mark_file,
     free_file,
