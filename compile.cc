@@ -47,9 +47,9 @@ new_binop(int op, int why)
      * an in-line switch in exec(). The other case is when that blows
      * your compiler away and it is seperated out as a function.
      */
-    o = ici_objof(ici_new_op(NULL, why == FOR_TEMP ? ICI_OP_BINOP_FOR_TEMP : ICI_OP_BINOP, op));
+    o = ici_new_op(NULL, why == FOR_TEMP ? ICI_OP_BINOP_FOR_TEMP : ICI_OP_BINOP, op);
 #else
-    o = ici_objof(ici_new_op(ici_op_binop, 0, op));
+    o = ici_new_op(ici_op_binop, 0, op);
 #endif
     if (o == NULL)
     {
@@ -117,7 +117,7 @@ ici_compile_expr(ici_array_t *a, expr_t *e, int why)
                 ici_decref(a1);
                 return 1;
             }
-            *a1->a_top++ = ici_objof(&ici_o_end);
+            *a1->a_top++ = &ici_o_end;
             if ((a2 = ici_array_new(0)) == NULL)
             {
                 ici_decref(a1);
@@ -136,10 +136,10 @@ ici_compile_expr(ici_array_t *a, expr_t *e, int why)
                 ici_decref(a2);
                 return 1;
             }
-            *a2->a_top++ = ici_objof(&ici_o_end);
-            *a->a_top++ = ici_objof(&ici_o_ifelse);
-            *a->a_top++ = ici_objof(a1);
-            *a->a_top++ = ici_objof(a2);
+            *a2->a_top++ = &ici_o_end;
+            *a->a_top++ = &ici_o_ifelse;
+            *a->a_top++ = a1;
+            *a->a_top++ = a2;
             ici_decref(a1);
             ici_decref(a2);
             return 0;
@@ -158,7 +158,7 @@ ici_compile_expr(ici_array_t *a, expr_t *e, int why)
             {
                 return 1;
             }
-            if ((*a->a_top = ici_objof(ici_new_op(NULL, ICI_OP_SWAP, NOTTEMP(why)))) == NULL)
+            if ((*a->a_top = ici_new_op(NULL, ICI_OP_SWAP, NOTTEMP(why))) == NULL)
             {
                 return 1;
             }
@@ -177,7 +177,7 @@ ici_compile_expr(ici_array_t *a, expr_t *e, int why)
                 {
                     return 1;
                 }
-                *a->a_top++ = ici_objof(&ici_o_quote);
+                *a->a_top++ = &ici_o_quote;
                 *a->a_top++ = e->e_arg[0]->e_obj;
                 if (ici_compile_expr(a, e->e_arg[1], FOR_VALUE))
                 {
@@ -187,7 +187,7 @@ ici_compile_expr(ici_array_t *a, expr_t *e, int why)
                 {
                     return 1;
                 }
-                if ((*a->a_top = ici_objof(ici_new_op(NULL, ICI_OP_ASSIGNLOCALVAR, NOTTEMP(why)))) == NULL)
+                if ((*a->a_top = ici_new_op(NULL, ICI_OP_ASSIGNLOCALVAR, NOTTEMP(why))) == NULL)
                 {
                     return 1;
                 }
@@ -205,7 +205,7 @@ ici_compile_expr(ici_array_t *a, expr_t *e, int why)
                 {
                     return 1;
                 }
-                if ((*a->a_top = ici_objof(ici_new_op(NULL, ICI_OP_ASSIGN_TO_NAME, NOTTEMP(why)))) == NULL)
+                if ((*a->a_top = ici_new_op(NULL, ICI_OP_ASSIGN_TO_NAME, NOTTEMP(why))) == NULL)
                 {
                     return 1;
                 }
@@ -226,7 +226,7 @@ ici_compile_expr(ici_array_t *a, expr_t *e, int why)
             {
                 return 1;
             }
-            if ((*a->a_top = ici_objof(ici_new_op(NULL, e->e_what == T_EQ ? ICI_OP_ASSIGN : ICI_OP_ASSIGNLOCAL, NOTTEMP(why)))) == NULL)
+            if ((*a->a_top = ici_new_op(NULL, e->e_what == T_EQ ? ICI_OP_ASSIGN : ICI_OP_ASSIGNLOCAL, NOTTEMP(why))) == NULL)
             {
                 return 1;
             }
@@ -247,7 +247,7 @@ ici_compile_expr(ici_array_t *a, expr_t *e, int why)
             {
                 return 1;
             }
-            *a->a_top++ = ici_objof(&ici_o_dotkeep);
+            *a->a_top++ = &ici_o_dotkeep;
             if (ici_compile_expr(a, e->e_arg[1], FOR_TEMP))
             {
                 return 1;
@@ -261,7 +261,7 @@ ici_compile_expr(ici_array_t *a, expr_t *e, int why)
                 return 1;
             }
             ++a->a_top;
-            if ((*a->a_top = ici_objof(ici_new_op(NULL, ICI_OP_ASSIGN, NOTTEMP(why)))) == NULL)
+            if ((*a->a_top = ici_new_op(NULL, ICI_OP_ASSIGN, NOTTEMP(why))) == NULL)
             {
                 return 1;
             }
@@ -297,13 +297,13 @@ ici_compile_expr(ici_array_t *a, expr_t *e, int why)
                 ici_decref(a1);
                 return 1;
             }
-            *a1->a_top++ = ici_objof(&ici_o_end);
-            *a->a_top++ = ici_objof(a1);
+            *a1->a_top++ = &ici_o_end;
+            *a->a_top++ = a1;
             ici_decref(a1);
-            *a->a_top++ = ici_objof(e->e_what == T_ANDAND ? &ici_o_andand : &ici_o_barbar);
+            *a->a_top++ = e->e_what == T_ANDAND ? &ici_o_andand : &ici_o_barbar;
             if (why == FOR_EFFECT)
             {
-                *a->a_top++ = ici_objof(&ici_o_pop);
+                *a->a_top++ = &ici_o_pop;
             }
             return 0;
         }
@@ -374,8 +374,8 @@ ici_compile_expr(ici_array_t *a, expr_t *e, int why)
                     ici_decref(a1);
                     return 1;
                 }
-                *a1->a_top++ = ici_objof(&ici_o_end);
-                if ((e->e_obj = ici_evaluate(ici_objof(a1), 0)) == NULL)
+                *a1->a_top++ = &ici_o_end;
+                if ((e->e_obj = ici_evaluate(a1, 0)) == NULL)
                 {
                     ici_decref(a1);
                     return 1;
@@ -395,7 +395,7 @@ ici_compile_expr(ici_array_t *a, expr_t *e, int why)
             {
                 if (ici_isstring(e->e_obj))
                 {
-                    *a->a_top++ = ici_objof(&ici_o_quote);
+                    *a->a_top++ = &ici_o_quote;
                 }
                 *a->a_top++ = e->e_obj;
             }
@@ -404,7 +404,7 @@ ici_compile_expr(ici_array_t *a, expr_t *e, int why)
         case T_NAME:
             if (why == FOR_LVALUE)
             {
-                *a->a_top++ = ici_objof(&ici_o_namelvalue);
+                *a->a_top++ = &ici_o_namelvalue;
             }
             *a->a_top++ = e->e_obj;
             if (why == FOR_EFFECT)
@@ -414,7 +414,7 @@ ici_compile_expr(ici_array_t *a, expr_t *e, int why)
                  * they can have the side-effect of loading a module. But we
                  * then have to pop the value.
                  */
-                *a->a_top++ = ici_objof(&ici_o_pop);
+                *a->a_top++ = &ici_o_pop;
             }
             return 0;
 
@@ -445,14 +445,14 @@ ici_compile_expr(ici_array_t *a, expr_t *e, int why)
                 {
                     return 1;
                 }
-                *a->a_top++ = ici_objof(&ici_o_dotrkeep);
-                *a->a_top++ = ici_objof(ici_one);
+                *a->a_top++ = &ici_o_dotrkeep;
+                *a->a_top++ = ici_one;
                 if ((*a->a_top = new_binop(e->e_what == T_PLUSPLUS ? T_PLUS : T_MINUS, FOR_VALUE)) == NULL)
                 {
                     return 1;
                 }
                 ++a->a_top;
-                if ((*a->a_top = ici_objof(ici_new_op(NULL, ICI_OP_ASSIGN, FOR_EFFECT))) == NULL)
+                if ((*a->a_top = ici_new_op(NULL, ICI_OP_ASSIGN, FOR_EFFECT)) == NULL)
                 {
                     return 1;
                 }
@@ -473,14 +473,14 @@ ici_compile_expr(ici_array_t *a, expr_t *e, int why)
                 {
                     return 1;
                 }
-                *a->a_top++ = ici_objof(&ici_o_dotkeep);
-                *a->a_top++ = ici_objof(ici_one);
+                *a->a_top++ = &ici_o_dotkeep;
+                *a->a_top++ = ici_one;
                 if ((*a->a_top = new_binop(e->e_what == T_PLUSPLUS ? T_PLUS : T_MINUS, FOR_VALUE)) == NULL)
                 {
                     return 1;
                 }
                 ++a->a_top;
-                if ((*a->a_top = ici_objof(ici_new_op(NULL, ICI_OP_ASSIGN, NOTTEMP(why)))) == NULL)
+                if ((*a->a_top = ici_new_op(NULL, ICI_OP_ASSIGN, NOTTEMP(why))) == NULL)
                 {
                     return 1;
                 }
@@ -499,7 +499,7 @@ ici_compile_expr(ici_array_t *a, expr_t *e, int why)
             {
                 return ici_compile_expr(a, e->e_arg[0], FOR_EFFECT);
             }
-            *a->a_top++ = ici_objof(ici_zero);
+            *a->a_top++ = ici_zero;
             if (ici_compile_expr(a, e->e_arg[0], NOTLV(why)))
             {
                 return 1;
@@ -535,7 +535,7 @@ ici_compile_expr(ici_array_t *a, expr_t *e, int why)
             {
                 return 1;
             }
-            if ((*a->a_top = ici_objof(ici_new_op(ici_op_unary, 0, t_subtype(e->e_what)))) == NULL)
+            if ((*a->a_top = ici_new_op(ici_op_unary, 0, t_subtype(e->e_what))) == NULL)
             {
                 return 1;
             }
@@ -556,7 +556,7 @@ ici_compile_expr(ici_array_t *a, expr_t *e, int why)
             {
                 return 1;
             }
-            if ((*a->a_top = ici_objof(ici_new_op(NULL, ICI_OP_AT, 0))) == NULL)
+            if ((*a->a_top = ici_new_op(NULL, ICI_OP_AT, 0)) == NULL)
             {
                 return 1;
             }
@@ -577,7 +577,7 @@ ici_compile_expr(ici_array_t *a, expr_t *e, int why)
             {
                 return 1;
             }
-            *a->a_top++ = ici_objof(&ici_o_mkptr);
+            *a->a_top++ = &ici_o_mkptr;
             break;
 
         case T_ASTERIX: /* Unary. */
@@ -595,12 +595,12 @@ ici_compile_expr(ici_array_t *a, expr_t *e, int why)
             }
             if (why == FOR_LVALUE)
             {
-                *a->a_top++ = ici_objof(&ici_o_openptr);
+                *a->a_top++ = &ici_o_openptr;
                 return 0;
             }
             else
             {
-                *a->a_top++ = ici_objof(&ici_o_fetch);
+                *a->a_top++ = &ici_o_fetch;
             }
             break;
 
@@ -625,7 +625,7 @@ ici_compile_expr(ici_array_t *a, expr_t *e, int why)
             {
                 return 0;
             }
-            *a->a_top++ = ici_objof(&ici_o_dot);
+            *a->a_top++ = &ici_o_dot;
             break;
 
         case T_PRIMARYCOLON:
@@ -650,15 +650,12 @@ ici_compile_expr(ici_array_t *a, expr_t *e, int why)
             {
                 return 1;
             }
-            *a->a_top = ici_objof
-            (
-                ici_new_op
+            *a->a_top = ici_new_op
                 (
                     NULL,
                     ICI_OP_COLON,
                     e->e_what == T_COLONCARET ? OPC_COLON_CARET : 0
-                )
-            );
+                );
             if (*a->a_top == NULL)
             {
                 return 1;
@@ -678,7 +675,7 @@ ici_compile_expr(ici_array_t *a, expr_t *e, int why)
                 {
                     return 1;
                 }
-                *a->a_top++ = ici_objof(&ici_o_fetch);
+                *a->a_top++ = &ici_o_fetch;
             }
             goto dot2;
         case T_DOT:
@@ -703,7 +700,7 @@ ici_compile_expr(ici_array_t *a, expr_t *e, int why)
             {
                 return 1;
             }
-            *a->a_top++ = ici_objof(&ici_o_dot);
+            *a->a_top++ = &ici_o_dot;
             break;
 
         case T_BINAT:
@@ -727,7 +724,7 @@ ici_compile_expr(ici_array_t *a, expr_t *e, int why)
             {
                 return 1;
             }
-            *a->a_top++ = ici_objof(&ici_o_mkptr);
+            *a->a_top++ = &ici_o_mkptr;
             break;
 
         case T_ONROUND: /* Function call. */
@@ -752,7 +749,7 @@ ici_compile_expr(ici_array_t *a, expr_t *e, int why)
                 {
                     return 1;
                 }
-                if ((*a->a_top = ici_objof(ici_int_new(nargs))) == NULL)
+                if ((*a->a_top = ici_int_new(nargs)) == NULL)
                 {
                     return 1;
                 }
@@ -787,11 +784,11 @@ ici_compile_expr(ici_array_t *a, expr_t *e, int why)
                     }
                     if (e->e_arg[0]->e_what == T_COLONCARET)
                     {
-                        *a->a_top++ = ici_objof(&ici_o_super_call);
+                        *a->a_top++ = &ici_o_super_call;
                     }
                     else
                     {
-                        *a->a_top++ = ici_objof(&ici_o_method_call);
+                        *a->a_top++ = &ici_o_method_call;
                     }
                 }
                 else
@@ -808,11 +805,11 @@ ici_compile_expr(ici_array_t *a, expr_t *e, int why)
                     {
                         return 1;
                     }
-                    *a->a_top++ = ici_objof(&ici_o_call);
+                    *a->a_top++ = &ici_o_call;
                 }
                 if (why == FOR_EFFECT)
                 {
-                    *a->a_top++ = ici_objof(&ici_o_pop);
+                    *a->a_top++ = &ici_o_pop;
                 }
             }
             break;
@@ -824,7 +821,7 @@ ici_compile_expr(ici_array_t *a, expr_t *e, int why)
         {
             return 1;
         }
-        *a->a_top++ = ici_objof(&ici_o_mklvalue);
+        *a->a_top++ = &ici_o_mklvalue;
     }
     return 0;
 

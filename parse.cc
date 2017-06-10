@@ -232,7 +232,7 @@ ident_list(ici_parse_t *p)
         if (next(p, NULL) != T_COMMA)
         {
             reject(p);
-            return ici_arrayof(ici_atom(ici_objof(a), 1));
+            return ici_arrayof(ici_atom(a, 1));
         }
     }
 
@@ -283,7 +283,7 @@ function(ici_parse_t *p, ici_str_t *name)
         goto fail;
     }
     ici_decref(f->f_autos);
-    if (ici_assign(f->f_autos, SS(_func_), ici_objof(f)))
+    if (ici_assign(f->f_autos, SS(_func_), f))
     {
         goto fail;
     }
@@ -306,7 +306,7 @@ function(ici_parse_t *p, ici_str_t *name)
     }
     f->f_code = ici_arrayof(p->p_got.t_obj);
     ici_decref(f->f_code);
-    if (f->f_code->a_top[-1] == ici_objof(&ici_o_end))
+    if (f->f_code->a_top[-1] == &ici_o_end)
     {
         --f->f_code->a_top;
     }
@@ -315,14 +315,14 @@ function(ici_parse_t *p, ici_str_t *name)
         goto fail;
     }
     *f->f_code->a_top++ = ici_null;
-    *f->f_code->a_top++ = ici_objof(&ici_o_return);
-    *f->f_code->a_top++ = ici_objof(&ici_o_end);
+    *f->f_code->a_top++ = &ici_o_return;
+    *f->f_code->a_top++ = &ici_o_end;
 #   if DISASSEMBLE
         printf("%s()\n", name == NULL ? "?" : name->s_chars);
         disassemble(4, f->f_code);
 #   endif
-    f->f_autos = ici_structof(ici_atom(ici_objof(f->f_autos), 2));
-    p->p_got.t_obj = ici_atom(ici_objof(f), 1);
+    f->f_autos = ici_structof(ici_atom(f->f_autos, 2));
+    p->p_got.t_obj = ici_atom(f, 1);
     p->p_func = saved_func;
     return 1;
 
@@ -483,8 +483,8 @@ compound_statement(ici_parse_t *p, ici_struct_t *sw)
     {
         goto fail;
     }
-    *a->a_top++ = ici_objof(&ici_o_end);
-    p->p_got.t_obj = ici_objof(a);
+    *a->a_top++ = &ici_o_end;
+    p->p_got.t_obj = a;
     return 1;
 
 fail:
@@ -571,7 +571,7 @@ primary(ici_parse_t *p, expr_t **ep, int exclude)
     {
     case T_INT:
         e->e_what = T_INT;
-        if ((e->e_obj = ici_objof(ici_int_new(p->p_got.t_int))) == NULL)
+        if ((e->e_obj = ici_int_new(p->p_got.t_int)) == NULL)
         {
             goto fail;
         }
@@ -579,7 +579,7 @@ primary(ici_parse_t *p, expr_t **ep, int exclude)
 
     case T_FLOAT:
         e->e_what = T_FLOAT;
-        if ((e->e_obj = ici_objof(ici_float_new(p->p_got.t_float))) == NULL)
+        if ((e->e_obj = ici_float_new(p->p_got.t_float)) == NULL)
         {
             goto fail;
         }
@@ -616,7 +616,7 @@ primary(ici_parse_t *p, expr_t **ep, int exclude)
             ici_decref(o);
             this = T_NONE; /* Take ownership of obj. */
             ici_decref(p->p_got.t_obj);
-            if ((o = ici_objof(ici_str_new(buf, i))) == NULL)
+            if ((o = ici_str_new(buf, i)) == NULL)
             {
                 goto fail;
             }
@@ -625,7 +625,7 @@ primary(ici_parse_t *p, expr_t **ep, int exclude)
         reject(p);
         if (token == T_REGEXP)
         {
-            e->e_obj = ici_objof(ici_regexp_new(ici_stringof(o), 0));
+            e->e_obj = ici_regexp_new(ici_stringof(o), 0);
             ici_decref(o);
             if (e->e_obj == NULL)
             {
@@ -650,7 +650,7 @@ primary(ici_parse_t *p, expr_t **ep, int exclude)
         {
             e->e_what = T_INT;
             ici_decref(p->p_got.t_obj);
-            e->e_obj = ici_objof(ici_zero);
+            e->e_obj = ici_zero;
             ici_incref(e->e_obj);
             break;
         }
@@ -658,7 +658,7 @@ primary(ici_parse_t *p, expr_t **ep, int exclude)
         {
             e->e_what = T_INT;
             ici_decref(p->p_got.t_obj);
-            e->e_obj = ici_objof(ici_one);
+            e->e_obj = ici_one;
             ici_incref(e->e_obj);
             break;
         }
@@ -723,7 +723,7 @@ primary(ici_parse_t *p, expr_t **ep, int exclude)
                 goto fail;
             }
             e->e_what = T_CONST;
-            e->e_obj = ici_objof(a);
+            e->e_obj = a;
         }
         else if
         (
@@ -826,10 +826,10 @@ primary(ici_parse_t *p, expr_t **ep, int exclude)
                     goto fail;
                 }
                 autos->o_super = ici_objwsupof(d);
-                *ici_vs.a_top++ = ici_objof(autos);
+                *ici_vs.a_top++ = autos;
                 ici_decref(autos);
                 ++p->p_module_depth;
-                o = ici_evaluate(ici_objof(p), 0);
+                o = ici_evaluate(p, 0);
                 --p->p_module_depth;
                 --ici_vs.a_top;
                 if (o == NULL)
@@ -839,7 +839,7 @@ primary(ici_parse_t *p, expr_t **ep, int exclude)
                 }
                 ici_decref(o);
                 e->e_what = T_CONST;
-                e->e_obj = ici_objof(d);
+                e->e_obj = d;
                 break;
             }
             if (name == SSO(class))
@@ -861,7 +861,7 @@ primary(ici_parse_t *p, expr_t **ep, int exclude)
                     ici_decref(d);
                     goto fail;
                 }
-                *ici_vs.a_top++ = ici_objof(autos);
+                *ici_vs.a_top++ = autos;
                 ici_decref(autos);
             }
             for (;;)
@@ -966,7 +966,7 @@ primary(ici_parse_t *p, expr_t **ep, int exclude)
                 --ici_vs.a_top;
             }
             e->e_what = T_CONST;
-            e->e_obj = ici_objof(d);
+            e->e_obj = d;
         }
         else if (p->p_got.t_obj == SSO(set))
         {
@@ -1007,7 +1007,7 @@ primary(ici_parse_t *p, expr_t **ep, int exclude)
                 goto fail;
             }
             e->e_what = T_CONST;
-            e->e_obj = ici_objof(s);
+            e->e_obj = s;
         }
         else if (p->p_got.t_obj == SSO(func))
         {
@@ -1053,7 +1053,7 @@ primary(ici_parse_t *p, expr_t **ep, int exclude)
                     goto fail_user_parse;
                 }
             }
-            f = ici_file_new(ici_objof(p), &ici_parse_ftype, p->p_file->f_name, ici_objof(p));
+            f = ici_file_new(p, &ici_parse_ftype, p->p_file->f_name, p);
             if (f == NULL)
                 goto fail_user_parse;
             ici_incref(c);
@@ -1533,10 +1533,10 @@ const_expression(ici_parse_t *p, ici_obj_t **po, int exclude)
     {
         goto fail;
     }
-    *a->a_top++ = ici_objof(&ici_o_end);
+    *a->a_top++ = &ici_o_end;
     free_expr(e);
     e = NULL;
-    if ((*po = ici_evaluate(ici_objof(a), 0)) == NULL)
+    if ((*po = ici_evaluate(a, 0)) == NULL)
     {
         goto fail;
     }
@@ -1812,15 +1812,15 @@ statement(ici_parse_t *p, ici_array_t *a, ici_struct_t *sw, const char *m, int e
             }
             if (a2 != NULL)
             {
-                *a->a_top++ = ici_objof(&ici_o_ifelse);
-                *a->a_top++ = ici_objof(a1);
-                *a->a_top++ = ici_objof(a2);
+                *a->a_top++ = &ici_o_ifelse;
+                *a->a_top++ = a1;
+                *a->a_top++ = a2;
                 ici_decref(a2);
             }
             else
             {
-                *a->a_top++ = ici_objof(&ici_o_if);
-                *a->a_top++ = ici_objof(a1);
+                *a->a_top++ = &ici_o_if;
+                *a->a_top++ = a1;
             }
             ici_decref(a1);
             break;
@@ -1842,7 +1842,7 @@ statement(ici_parse_t *p, ici_array_t *a, ici_struct_t *sw, const char *m, int e
                 ici_decref(a1);
                 return -1;
             }
-            *a1->a_top++ = ici_objof(&ici_o_ifnotbreak);
+            *a1->a_top++ = &ici_o_ifnotbreak;
             {
                 int rc;
                 increment_break_continue_depth(p);
@@ -1859,14 +1859,14 @@ statement(ici_parse_t *p, ici_array_t *a, ici_struct_t *sw, const char *m, int e
                 ici_decref(a1);
                 return -1;
             }
-            *a1->a_top++ = ici_objof(&ici_o_rewind);
+            *a1->a_top++ = &ici_o_rewind;
             if (ici_stk_push_chk(a, 2))
             {
                 ici_decref(a1);
                 return -1;
             }
-            *a->a_top++ = ici_objof(&ici_o_loop);
-            *a->a_top++ = ici_objof(a1);
+            *a->a_top++ = &ici_o_loop;
+            *a->a_top++ = a1;
             ici_decref(a1);
             break;
         }
@@ -1918,16 +1918,16 @@ statement(ici_parse_t *p, ici_array_t *a, ici_struct_t *sw, const char *m, int e
                 ici_decref(a1);
                 return -1;
             }
-            *a1->a_top++ = ici_objof(&ici_o_ifnotbreak);
-            *a1->a_top++ = ici_objof(&ici_o_rewind);
+            *a1->a_top++ = &ici_o_ifnotbreak;
+            *a1->a_top++ = &ici_o_rewind;
 
             if (ici_stk_push_chk(a, 2))
             {
                 ici_decref(a1);
                 return -1;
             }
-            *a->a_top++ = ici_objof(&ici_o_loop);
-            *a->a_top++ = ici_objof(a1);
+            *a->a_top++ = &ici_o_loop;
+            *a->a_top++ = a1;
             ici_decref(a1);
             break;
         }
@@ -2011,9 +2011,9 @@ statement(ici_parse_t *p, ici_array_t *a, ici_struct_t *sw, const char *m, int e
                 ici_decref(a1);
                 return -1;
             }
-            *a->a_top++ = ici_objof(a1);
+            *a->a_top++ = a1;
             ici_decref(a1);
-            if ((*a->a_top = ici_objof(ici_new_op(ici_op_forall, 0, 0))) == NULL)
+            if ((*a->a_top = ici_new_op(ici_op_forall, 0, 0)) == NULL)
             {
                 return -1;
             }
@@ -2084,7 +2084,7 @@ statement(ici_parse_t *p, ici_array_t *a, ici_struct_t *sw, const char *m, int e
                     ici_decref(a1);
                     return -1;
                 }
-                *a1->a_top++ = ici_objof(&ici_o_ifnotbreak);
+                *a1->a_top++ = &ici_o_ifnotbreak;
             }
             if (next(p, a1) != T_OFFROUND)
             {
@@ -2108,15 +2108,15 @@ statement(ici_parse_t *p, ici_array_t *a, ici_struct_t *sw, const char *m, int e
                 ici_decref(a1);
                 return -1;
             }
-            *a1->a_top++ = ici_objof(&ici_o_rewind);
+            *a1->a_top++ = &ici_o_rewind;
             if (ici_stk_push_chk(a, 2))
             {
                 ici_decref(a1);
                 return -1;
             }
-            *a->a_top++ = ici_objof(a1);
+            *a->a_top++ = a1;
             ici_decref(a1);
-            if ((*a->a_top = ici_objof(ici_new_op(ici_op_for, 0, stepz))) == NULL)
+            if ((*a->a_top = ici_new_op(ici_op_for, 0, stepz)) == NULL)
             {
                 return -1;
             }
@@ -2157,8 +2157,8 @@ statement(ici_parse_t *p, ici_array_t *a, ici_struct_t *sw, const char *m, int e
             }
             *a->a_top++ = p->p_got.t_obj;
             ici_decref(p->p_got.t_obj);
-            *a->a_top++ = ici_objof(d);
-            *a->a_top++ = ici_objof(&ici_o_switch);
+            *a->a_top++ = d;
+            *a->a_top++ = &ici_o_switch;
             ici_decref(d);
             break;
         }
@@ -2178,7 +2178,7 @@ statement(ici_parse_t *p, ici_array_t *a, ici_struct_t *sw, const char *m, int e
             {
                 return -1;
             }
-            *a->a_top++ = ici_objof(&ici_o_break);
+            *a->a_top++ = &ici_o_break;
             break;
 
         }
@@ -2198,7 +2198,7 @@ statement(ici_parse_t *p, ici_array_t *a, ici_struct_t *sw, const char *m, int e
             {
                 return -1;
             }
-            *a->a_top++ = ici_objof(&ici_o_continue);
+            *a->a_top++ = &ici_o_continue;
             break;
         }
         if (p->p_got.t_obj == SSO(return))
@@ -2227,7 +2227,7 @@ statement(ici_parse_t *p, ici_array_t *a, ici_struct_t *sw, const char *m, int e
 	    {
                 return -1;
 	    }
-            *a->a_top++ = ici_objof(&ici_o_return);
+            *a->a_top++ = &ici_o_return;
             break;
         }
         if (p->p_got.t_obj == SSO(try))
@@ -2266,9 +2266,9 @@ statement(ici_parse_t *p, ici_array_t *a, ici_struct_t *sw, const char *m, int e
                 ici_decref(a2);
                 return -1;
             }
-            *a->a_top++ = ici_objof(a1);
-            *a->a_top++ = ici_objof(a2);
-            *a->a_top++ = ici_objof(&ici_o_onerror);
+            *a->a_top++ = a1;
+            *a->a_top++ = a2;
+            *a->a_top++ = &ici_o_onerror;
             ici_decref(a1);
             ici_decref(a2);
             break;
@@ -2288,13 +2288,13 @@ statement(ici_parse_t *p, ici_array_t *a, ici_struct_t *sw, const char *m, int e
             {
                 return -1;
             }
-            *a->a_top++ = ici_objof(a1);
+            *a->a_top++ = a1;
             ici_decref(a1);
             if (statement(p, a1, NULL, "critsect", 1) == -1)
             {
                 return -1;
             }
-            *a->a_top++ = ici_objof(&ici_o_critsect);
+            *a->a_top++ = &ici_o_critsect;
             break;
         }
         if (p->p_got.t_obj == SSO(waitfor))
@@ -2316,9 +2316,9 @@ statement(ici_parse_t *p, ici_array_t *a, ici_struct_t *sw, const char *m, int e
             {
                 return -1;
             }
-            *a->a_top++ = ici_objof(a1);
+            *a->a_top++ = a1;
             ici_decref(a1);
-            *a->a_top++ = ici_objof(&ici_o_critsect);
+            *a->a_top++ = &ici_o_critsect;
             /*
              * Start a new code array (a2) and establish it as the body of
              * a loop.
@@ -2331,8 +2331,8 @@ statement(ici_parse_t *p, ici_array_t *a, ici_struct_t *sw, const char *m, int e
             {
                 return -1;
             }
-            *a1->a_top++ = ici_objof(&ici_o_loop);
-            *a1->a_top++ = ici_objof(a2);
+            *a1->a_top++ = &ici_o_loop;
+            *a1->a_top++ = a2;
             ici_decref(a2);
             /*
              * Into the new code array (a1, the body of the loop) we build:
@@ -2355,7 +2355,7 @@ statement(ici_parse_t *p, ici_array_t *a, ici_struct_t *sw, const char *m, int e
             {
                 return -1;
             }
-            *a2->a_top++ = ici_objof(&ici_o_ifbreak);
+            *a2->a_top++ = &ici_o_ifbreak;
             if (next(p, a2) != T_SEMICOLON)
             {
                 reject(p);
@@ -2370,8 +2370,8 @@ statement(ici_parse_t *p, ici_array_t *a, ici_struct_t *sw, const char *m, int e
             {
                 return -1;
             }
-            *a2->a_top++ = ici_objof(&ici_o_waitfor);
-            *a2->a_top++ = ici_objof(&ici_o_rewind);
+            *a2->a_top++ = &ici_o_waitfor;
+            *a2->a_top++ = &ici_o_rewind;
             /*
              * After we break out of the loop, we execute the statement,
              * but it is still on top of the critical section. After the
@@ -2427,7 +2427,7 @@ statement(ici_parse_t *p, ici_array_t *a, ici_struct_t *sw, const char *m, int e
         {
             return -1;
         }
-        *a->a_top++ = ici_objof(&ici_o_end);
+        *a->a_top++ = &ici_o_end;
     }
     return 1;
 
@@ -2460,8 +2460,8 @@ ici_parse(ici_file_t *f, ici_objwsup_t *s)
         return -1;
     }
 
-    *ici_vs.a_top++ = ici_objof(s);
-    if ((o = ici_evaluate(ici_objof(p), 0)) == NULL)
+    *ici_vs.a_top++ = s;
+    if ((o = ici_evaluate(p, 0)) == NULL)
     {
         --ici_vs.a_top;
         ici_decref(p);
@@ -2775,7 +2775,7 @@ f_parseopen(...)
 	ici_decref(parse);
 	return 1;
     }
-    return ici_ret_with_decref(ici_objof(p));
+    return ici_ret_with_decref(p);
 }
 
 static int
@@ -2866,12 +2866,12 @@ f_rejectchar(...)
         ici_argerror(0);
         return 1;
     }
-    if (!ici_isstring(ici_objof(s)) || s->s_nchars != 1)
+    if (!ici_isstring(s) || s->s_nchars != 1)
     {
         return ici_argerror(1);
     }
     (*f->f_type->ft_ungetch)(s->s_chars[0], f->f_file);
-    return ici_ret_no_decref(ici_objof(s));
+    return ici_ret_no_decref(s);
 }
 
 ICI_DEFINE_CFUNCS(parse)

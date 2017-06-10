@@ -51,7 +51,7 @@ static ici_obj_t *
 fetch_cfunc(ici_obj_t *o, ici_obj_t *k)
 {
     if (k == SSO(name))
-        return ici_objof(ici_str_get_nul_term(ici_cfuncof(o)->cf_name));
+        return ici_str_get_nul_term(ici_cfuncof(o)->cf_name);
     return ici_null;
 }
 

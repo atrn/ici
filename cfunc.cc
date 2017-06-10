@@ -171,7 +171,7 @@ ici_typecheck(const char *types, ...)
         {
             if (!ici_isptr(*ap))
                 goto fail;
-            if ((o = ici_fetch(*ap, ici_objof(ici_zero))) == NULL)
+            if ((o = ici_fetch(*ap, ici_zero)) == NULL)
                 goto fail;
             tcode += 'a' - 'A';
         }
@@ -342,7 +342,7 @@ ici_retcheck(const char *types, ...)
             break;
 
         case 'i':
-            if ((s = ici_objof(ici_int_new(*(long *)ptr))) == NULL)
+            if ((s = ici_int_new(*(long *)ptr)) == NULL)
                 goto ret1;
             if (ici_assign(o, ici_zero, s))
                 goto ret1;
@@ -350,7 +350,7 @@ ici_retcheck(const char *types, ...)
             break;
 
         case 's':
-            if ((s = ici_objof(ici_str_new_nul_term(*(char **)ptr))) == NULL)
+            if ((s = ici_str_new_nul_term(*(char **)ptr)) == NULL)
                 goto ret1;
             if (ici_assign(o, ici_zero, s))
                 goto ret1;
@@ -358,7 +358,7 @@ ici_retcheck(const char *types, ...)
             break;
 
         case 'f':
-            if ((s = ici_objof(ici_float_new(*(double *)ptr))) == NULL)
+            if ((s = ici_float_new(*(double *)ptr)) == NULL)
                 goto ret1;
             if (ici_assign(o, ici_zero, s))
                 goto ret1;
@@ -521,7 +521,7 @@ ici_argcount2(int m, int n)
  * This is suitable for using as a return from an intrinsic function
  * as say:
  *
- *      return ici_ret_with_decref(ici_objof(ici_int_new(2)));
+ *      return ici_ret_with_decref(ici_int_new(2));
  *
  * (Although see ici_int_ret().) If the object you wish to return does
  * not have an extra reference, use ici_ret_no_decref().
@@ -575,7 +575,7 @@ ici_ret_no_decref(ici_obj_t *o)
 int
 ici_int_ret(long ret)
 {
-    return ici_ret_with_decref(ici_objof(ici_int_new(ret)));
+    return ici_ret_with_decref(ici_int_new(ret));
 }
 
 /*
@@ -589,7 +589,7 @@ ici_int_ret(long ret)
 int
 ici_float_ret(double ret)
 {
-    return ici_ret_with_decref(ici_objof(ici_float_new(ret)));
+    return ici_ret_with_decref(ici_float_new(ret));
 }
 
 /*
@@ -601,7 +601,7 @@ ici_float_ret(double ret)
 int
 ici_str_ret(const char *str)
 {
-    return ici_ret_with_decref(ici_objof(ici_str_new_nul_term(str)));
+    return ici_ret_with_decref(ici_str_new_nul_term(str));
 }
 
 static ici_obj_t *
@@ -765,7 +765,7 @@ f_array(...)
         return 1;
     for (o = ICI_ARGS(); nargs > 0; --nargs)
         *a->a_top++ = *o--;
-    return ici_ret_with_decref(ici_objof(a));
+    return ici_ret_with_decref(a);
 }
 
 static int
@@ -784,7 +784,7 @@ f_struct()
         super = ici_objwsupof(*o);
         if (!ici_hassuper(super) && !ici_isnull(super))
             return ici_argerror(0);
-        if (ici_isnull(ici_objof(super)))
+        if (ici_isnull(super))
             super = NULL;
         --nargs;
         --o;
@@ -800,7 +800,7 @@ f_struct()
         }
     }
     s->o_super = super;
-    return ici_ret_with_decref(ici_objof(s));
+    return ici_ret_with_decref(s);
 }
 
 static int
@@ -820,7 +820,7 @@ f_set()
             return 1;
         }
     }
-    return ici_ret_with_decref(ici_objof(s));
+    return ici_ret_with_decref(s);
 }
 
 static int
@@ -862,7 +862,7 @@ f_keys()
         return ici_argerror(0);
     }
 
-    return ici_ret_with_decref(ici_objof(k));
+    return ici_ret_with_decref(k);
 }
 
 static int
@@ -881,10 +881,10 @@ f_typeof()
     if (ICI_NARGS() != 1)
         return ici_argcount(1);
     if (ici_ishandle(ICI_ARG(0)))
-        return ici_ret_no_decref(ici_objof(ici_handleof(ICI_ARG(0))->h_name));
+        return ici_ret_no_decref(ici_handleof(ICI_ARG(0))->h_name);
     if (ici_typeof(ICI_ARG(0))->t_ici_name == NULL)
         ici_typeof(ICI_ARG(0))->t_ici_name = ici_str_new_nul_term(ici_typeof(ICI_ARG(0))->t_name);
-    return ici_ret_no_decref(ici_objof(ici_typeof(ICI_ARG(0))->t_ici_name));
+    return ici_ret_no_decref(ici_typeof(ICI_ARG(0))->t_ici_name);
 }
 
 static int
@@ -1016,7 +1016,7 @@ f_string()
     else if (ici_isfloat(o))
         sprintf(buf, "%g", ici_floatof(o)->f_value);
     else if (ici_isregexp(o))
-        return ici_ret_no_decref(ici_objof(ici_regexpof(o)->r_pat));
+        return ici_ret_no_decref(ici_regexpof(o)->r_pat);
     else
         sprintf(buf, "<%s>", ici_typeof(o)->t_name);
     return ici_str_ret(buf);
@@ -1031,8 +1031,8 @@ f_eq()
     if (ici_typecheck("oo", &o1, &o2))
         return 1;
     if (o1 == o2)
-        return ici_ret_no_decref(ici_objof(ici_one));
-    return ici_ret_no_decref(ici_objof(ici_zero));
+        return ici_ret_no_decref(ici_one);
+    return ici_ret_no_decref(ici_zero);
 }
 
 static int
@@ -1161,7 +1161,7 @@ f_parse()
 
     if (ici_isstring(o))
         ici_decref(f);
-    return ici_ret_with_decref(ici_objof(a));
+    return ici_ret_with_decref(a);
 
 fail:
     if (ici_isstring(o))
@@ -1195,7 +1195,7 @@ f_include()
     default:
         return ici_argcount(2);
     }
-    if (!ici_isstring(ici_objof(filename)))
+    if (!ici_isstring(filename))
         return ici_argerror(0);
 #ifndef NODEBUGGING
     ici_debug_ignore_errors();
@@ -1226,7 +1226,7 @@ f_include()
     rc = ici_parse(f, ici_objwsupof(a));
     ici_call(SS(close), "o", f);
     ici_decref(f);
-    return rc < 0 ? 1 : ici_ret_no_decref(ici_objof(a));
+    return rc < 0 ? 1 : ici_ret_no_decref(a);
 }
 #endif
 
@@ -1298,11 +1298,11 @@ f_call()
     /*
      * Push the count of actual args and the target function.
      */
-    ici_os.a_top[-2] = ici_objof(nargso);
+    ici_os.a_top[-2] = nargso;
     ici_decref(nargso);
     ici_os.a_top[-1] = func;
     ici_decref(func);
-    ici_xs.a_top[-1] = ici_objof(&ici_o_call);
+    ici_xs.a_top[-1] = &ici_o_call;
     /*
      * Very special return. Drops back into the execution loop with
      * the call on the execution stack.
@@ -1378,7 +1378,7 @@ f_vstack()
     int                 depth;
 
     if (ICI_NARGS() == 0)
-        return ici_ret_with_decref(copy(ici_objof(&ici_vs)));
+        return ici_ret_with_decref(copy(&ici_vs));
 
     if (!ici_isint(ICI_ARG(0)))
         return ici_argerror(0);
@@ -1398,7 +1398,7 @@ f_tochar()
     if (ici_typecheck("i", &i))
         return 1;
     buf[0] = (unsigned char)i;
-    return ici_ret_with_decref(ici_objof(ici_str_new(buf, 1)));
+    return ici_ret_with_decref(ici_str_new(buf, 1));
 }
 
 static int
@@ -1490,7 +1490,7 @@ f_interval()
 
     if (o->o_tcode == ICI_TC_STRING)
     {
-        return ici_ret_with_decref(ici_objof(ici_str_new(s->s_chars + start, (int)length)));
+        return ici_ret_with_decref(ici_str_new(s->s_chars + start, (int)length));
     }
     else
     {
@@ -1498,7 +1498,7 @@ f_interval()
             return 1;
         ici_array_gather(a1->a_base, a, start, length);
         a1->a_top += length;
-        return ici_ret_with_decref(ici_objof(a1));
+        return ici_ret_with_decref(a1);
     }
 }
 
@@ -1516,7 +1516,7 @@ f_explode()
         return 1;
     while (--i >= 0)
     {
-        if ((*x->a_top = ici_objof(ici_int_new(*s++ & 0xFFL))) == NULL)
+        if ((*x->a_top = ici_int_new(*s++ & 0xFFL)) == NULL)
         {
             ici_decref(x);
             return 1;
@@ -1524,7 +1524,7 @@ f_explode()
         ici_decref(*x->a_top);
         ++x->a_top;
     }
-    return ici_ret_with_decref(ici_objof(x));
+    return ici_ret_with_decref(x);
 }
 
 static int
@@ -1569,9 +1569,9 @@ f_implode()
             break;
         }
     }
-    if ((s = ici_stringof(ici_atom(ici_objof(s), 1))) == NULL)
+    if ((s = ici_stringof(ici_atom(s, 1))) == NULL)
         return 1;
-    return ici_ret_with_decref(ici_objof(s));
+    return ici_ret_with_decref(s);
 }
 
 static int
@@ -1597,7 +1597,7 @@ f_sopen()
     if ((f = ici_open_charbuf(str, ici_stringof(ICI_ARG(0))->s_nchars, ICI_ARG(0), readonly)) == NULL)
         return 1;
     f->f_name = SS(empty_string);
-    return ici_ret_with_decref(ici_objof(f));
+    return ici_ret_with_decref(f);
 }
 
 static int
@@ -1624,10 +1624,10 @@ f_mopen()
     {
         return ici_set_error("memory object must have access size of 1 to be opened");
     }
-    if ((f = ici_open_charbuf((char *)mem->m_base, (int)mem->m_length, ici_objof(mem), readonly)) == NULL)
+    if ((f = ici_open_charbuf((char *)mem->m_base, (int)mem->m_length, mem, readonly)) == NULL)
         return 1;
     f->f_name = SS(empty_string);
-    return ici_ret_with_decref(ici_objof(f));
+    return ici_ret_with_decref(f);
 }
 
 int
@@ -1895,7 +1895,7 @@ ici_f_sprintf()
         if ((file = ici_need_stdout()) == NULL)
             return 1;
     case 2: /* fprintf */
-        if (ici_objof(file)->o_flags & ICI_F_CLOSED)
+        if (file->o_flags & ICI_F_CLOSED)
         {
             return ici_set_error("write to closed file");
         }
@@ -1925,7 +1925,7 @@ ici_f_sprintf()
         return ici_int_ret((long)i);
 
     default: /* sprintf */
-        return ici_ret_with_decref(ici_objof(ici_str_new(buf, i)));
+        return ici_ret_with_decref(ici_str_new(buf, i));
     }
 
 type:
@@ -1949,11 +1949,11 @@ f_currentfile()
         if (ici_isparse(*o))
         {
             if (raw)
-                return ici_ret_no_decref(ici_objof(ici_parseof(*o)->p_file));
+                return ici_ret_no_decref(ici_parseof(*o)->p_file);
             f = ici_file_new(*o, &ici_parse_ftype, ici_parseof(*o)->p_file->f_name, *o);
             if (f == NULL)
                 return 1;
-            return ici_ret_with_decref(ici_objof(f));
+            return ici_ret_with_decref(f);
         }
     }
     return ici_null_ret();
@@ -2049,22 +2049,22 @@ super_loop(ici_objwsup_t *base)
      */
     for (s = base; s != NULL; s = s->o_super)
     {
-        if (ici_objof(s)->o_flags & ICI_O_MARK)
+        if (s->o_flags & ICI_O_MARK)
         {
             /*
              * A loop. Clear all the ICI_O_MARK flags we set and set error.
              */
-            for (s = base; ici_objof(s)->o_flags & ICI_O_MARK; s = s->o_super)
-                ici_objof(s)->o_flags &= ~ICI_O_MARK;
+            for (s = base; s->o_flags & ICI_O_MARK; s = s->o_super)
+                s->o_flags &= ~ICI_O_MARK;
             return ici_set_error("cycle in struct super chain");
         }
-        ici_objof(s)->o_flags |= ICI_O_MARK;
+        s->o_flags |= ICI_O_MARK;
     }
     /*
      * No loop. Clear all the ICI_O_MARK flags we set.
      */
     for (s = base; s != NULL; s = s->o_super)
-        ici_objof(s)->o_flags &= ~ICI_O_MARK;
+        s->o_flags &= ~ICI_O_MARK;
     return 0;
 }
 
@@ -2082,7 +2082,7 @@ f_super()
     newsuper = oldsuper = o->o_super;
     if (ICI_NARGS() >= 2)
     {
-        if (ici_objof(o)->o_flags & ICI_O_ATOM)
+        if (o->o_flags & ICI_O_ATOM)
         {
             return ici_set_error("attempt to set super of an atomic struct");
         }
@@ -2102,7 +2102,7 @@ f_super()
     }
     if (oldsuper == NULL)
         return ici_null_ret();
-    return ici_ret_no_decref(ici_objof(oldsuper));
+    return ici_ret_no_decref(oldsuper);
 }
 
 static int
@@ -2116,7 +2116,7 @@ f_scope()
         if (ici_typecheck("d", &ici_vs.a_top[-1]))
             return 1;
     }
-    return ici_ret_no_decref(ici_objof(s));
+    return ici_ret_no_decref(s);
 }
 
 static int
@@ -2127,9 +2127,9 @@ f_isatom()
     if (ici_typecheck("o", &o))
         return 1;
     if (o->o_flags & ICI_O_ATOM)
-        return ici_ret_no_decref(ici_objof(ici_one));
+        return ici_ret_no_decref(ici_one);
     else
-        return ici_ret_no_decref(ici_objof(ici_zero));
+        return ici_ret_no_decref(ici_zero);
 }
 
 static int
@@ -2166,7 +2166,7 @@ f_alloc()
     if ((p = (char *)ici_alloc((size_t)length * accessz)) == NULL)
         return 1;
     memset(p, 0, (size_t)length * accessz);
-    return ici_ret_with_decref(ici_objof(ici_mem_new(p, (unsigned long)length, accessz, ici_free)));
+    return ici_ret_with_decref(ici_mem_new(p, (unsigned long)length, accessz, ici_free));
 }
 
 #ifndef NOMEM
@@ -2197,7 +2197,7 @@ f_mem()
     }
     else
         accessz = 1;
-    return ici_ret_with_decref(ici_objof(ici_mem_new((char *)base, (unsigned long)length, accessz, NULL)));
+    return ici_ret_with_decref(ici_mem_new((char *)base, (unsigned long)length, accessz, NULL));
 }
 #endif
 
@@ -2266,7 +2266,7 @@ f_waitfor()
     int                 i;
 
     if (ICI_NARGS() == 0)
-        return ici_ret_no_decref(ici_objof(ici_zero));
+        return ici_ret_no_decref(ici_zero);
     tv = NULL;
     nfds = 0;
     FD_ZERO(&readfds);
@@ -2324,7 +2324,7 @@ f_waitfor()
 
     case 0:
         ici_signals_blocking_syscall(0);
-        return ici_ret_no_decref(ici_objof(ici_zero));
+        return ici_ret_no_decref(ici_zero);
     }
     ici_signals_blocking_syscall(0);
     for (nargs = ICI_NARGS(), e = ICI_ARGS(); nargs > 0; --nargs, --e)
@@ -2392,7 +2392,7 @@ f_gettoken()
             return ici_argerror(0);
         else
             f = ici_fileof(fo);
-        if (!ici_isstring(ici_objof(s)))
+        if (!ici_isstring(s))
             return ici_argerror(1);
         seps = (unsigned char *)s->s_chars;
         nseps = s->s_nchars;
@@ -2434,7 +2434,7 @@ f_gettoken()
 
     if ((s = ici_str_new(buf, j)) == NULL)
         return 1;
-    return ici_ret_with_decref(ici_objof(s));
+    return ici_ret_with_decref(s);
 }
 
 /*
@@ -2459,7 +2459,7 @@ fast_gettokens(const char *str, const char *delims)
             (
                 ici_stk_push_chk(a, 1)
                 ||
-                (*a->a_top = ici_objof(ici_str_new(cp, k))) == NULL
+                (*a->a_top = ici_str_new(cp, k)) == NULL
             )
             {
                 ici_decref(a);
@@ -2477,7 +2477,7 @@ fast_gettokens(const char *str, const char *delims)
         ici_decref(a);
         return ici_null_ret();
     }
-    return ici_ret_with_decref(ici_objof(a));
+    return ici_ret_with_decref(a);
 }
 
 static int
@@ -2535,7 +2535,7 @@ f_gettokens()
     case 4:
         if (ici_typecheck("oo*", &fo, &s))
             return 1;
-        if (ICI_NARGS() == 2 && ici_isstring(fo) && ici_isstring(ici_objof(s)))
+        if (ICI_NARGS() == 2 && ici_isstring(fo) && ici_isstring(s))
         {
             return fast_gettokens(ici_stringof(fo)->s_chars, ici_stringof(s)->s_chars);
         }
@@ -2549,7 +2549,7 @@ f_gettokens()
             return ici_argerror(0);
         else
             f = ici_fileof(fo);
-        if (ici_isint(ici_objof(s)))
+        if (ici_isint(s))
         {
             ici_obj_t *so = s;
             sep = (unsigned char)ici_intof(so)->i_value;
@@ -2557,7 +2557,7 @@ f_gettokens()
             seps = (unsigned char *)&sep;
             nseps = 1;
         }
-        else if (ici_isstring(ici_objof(s)))
+        else if (ici_isstring(s))
         {
             seps = (unsigned char *)s->s_chars;
             nseps = s->s_nchars;
@@ -2660,14 +2660,14 @@ f_gettokens()
                 ici_decref(a);
                 return ici_null_ret();
             }
-            return ici_ret_with_decref(ici_objof(a));
+            return ici_ret_with_decref(a);
 
         case (S_IDLE << 8) + W_TERM:
             if (!hardsep)
             {
                 if (loose_it)
                     ici_decref(f);
-                return ici_ret_with_decref(ici_objof(a));
+                return ici_ret_with_decref(a);
             }
             j = 0;
         case (S_INTOK << 8) + W_EOF:
@@ -2676,11 +2676,11 @@ f_gettokens()
                 goto fail;
             if ((s = ici_str_new(buf, j)) == NULL)
                 goto fail;
-            *a->a_top++ = ici_objof(s);
+            *a->a_top++ = s;
             if (loose_it)
                 ici_decref(f);
             ici_decref(s);
-            return ici_ret_with_decref(ici_objof(a));
+            return ici_ret_with_decref(a);
 
         case (S_IDLE << 8) + W_SEP:
             if (!hardsep)
@@ -2691,7 +2691,7 @@ f_gettokens()
                 goto fail;
             if ((s = ici_str_new(buf, j)) == NULL)
                 goto fail;
-            *a->a_top++ = ici_objof(s);
+            *a->a_top++ = s;
             ici_decref(s);
             if (hardsep)
             {
@@ -2707,7 +2707,7 @@ f_gettokens()
                 goto fail;
             if ((s = ici_str_new(buf, j)) == NULL)
                 goto fail;
-            *a->a_top++ = ici_objof(s);
+            *a->a_top++ = s;
             ici_decref(s);
         case (S_IDLE << 8) + W_DELIM:
             if (ici_stk_push_chk(a, 1))
@@ -2715,7 +2715,7 @@ f_gettokens()
             buf[0] = c;
             if ((s = ici_str_new(buf, 1)) == NULL)
                 goto fail;
-            *a->a_top++ = ici_objof(s);
+            *a->a_top++ = s;
             ici_decref(s);
             j = 0;
             state = S_IDLE;
@@ -2801,7 +2801,7 @@ f_sort()
     default:
         return ici_argcount(2);
     }
-    if (ici_objof(a)->o_flags & ICI_O_ATOM)
+    if (a->o_flags & ICI_O_ATOM)
     {
         return ici_set_error("attempt to sort an atomic array");
     }
@@ -2900,7 +2900,7 @@ f_sort()
             }
         }
     }
-    return ici_ret_no_decref(ici_objof(a));
+    return ici_ret_no_decref(a);
 
 fail:
     return 1;
@@ -3011,7 +3011,7 @@ f_calendar()
             ici_decref(s);
             return 1;
         }
-        return ici_ret_with_decref(ici_objof(s));
+        return ici_ret_with_decref(s);
     }
     else if (ici_isstruct(ICI_ARG(0)))
     {
@@ -3020,25 +3020,25 @@ f_calendar()
 
         memset(&tm, 0, sizeof tm);
         s = ici_objwsupof(ICI_ARG(0));
-        if (ici_fetch_num(ici_objof(s), SSO(second), &d))
+        if (ici_fetch_num(s, SSO(second), &d))
             return 1;
         tm.tm_sec = (int)d;
-        if (ici_fetch_int(ici_objof(s), SSO(minute), &l))
+        if (ici_fetch_int(s, SSO(minute), &l))
             return 1;
         tm.tm_min = l;
-        if (ici_fetch_int(ici_objof(s), SSO(hour), &l))
+        if (ici_fetch_int(s, SSO(hour), &l))
             return 1;
         tm.tm_hour = l;
-        if (ici_fetch_int(ici_objof(s), SSO(day), &l))
+        if (ici_fetch_int(s, SSO(day), &l))
             return 1;
         tm.tm_mday = l;
-        if (ici_fetch_int(ici_objof(s), SSO(month), &l))
+        if (ici_fetch_int(s, SSO(month), &l))
             return 1;
         tm.tm_mon = l;
-        if (ici_fetch_int(ici_objof(s), SSO(year), &l))
+        if (ici_fetch_int(s, SSO(year), &l))
             return 1;
         tm.tm_year = l - 1900;
-        if (ici_fetch_int(ici_objof(s), SSO(isdst), &l))
+        if (ici_fetch_int(s, SSO(isdst), &l))
             tm.tm_isdst = -1;
         else
             tm.tm_isdst = l;
@@ -3146,7 +3146,7 @@ f_version()
         (ici_ver_cache = ici_str_new_nul_term(ici_version_string)) == NULL
     )
         return 1;
-    return ici_ret_no_decref(ici_objof(ici_ver_cache));
+    return ici_ret_no_decref(ici_ver_cache);
 }
 
 static int
@@ -3174,7 +3174,7 @@ f_strbuf()
         memcpy(s->s_chars, is->s_chars, n);
         s->s_nchars = n;
     }
-    return ici_ret_with_decref(ici_objof(s));
+    return ici_ret_with_decref(s);
 }
 
 static int
@@ -3210,7 +3210,7 @@ f_strcat()
     for (i = si, z = sz; i < n; ++i)
     {
         s2 = ici_stringof(ICI_ARG(i));
-        if (!ici_isstring(ici_objof(s2)))
+        if (!ici_isstring(s2))
             return ici_argerror(i);
         z += s2->s_nchars;
     }
@@ -3225,7 +3225,7 @@ f_strcat()
     if (s1->s_nchars < z)
         s1->s_nchars = z;
     s1->s_chars[s1->s_nchars] = '\0';
-    return ici_ret_no_decref(ici_objof(s1));
+    return ici_ret_no_decref(s1);
 }
 
 static int
@@ -3247,7 +3247,7 @@ f_which()
         {
             if (ici_find_raw_slot(ici_structof(s), k)->sl_key == k)
 	    {
-                return ici_ret_no_decref(ici_objof(s));
+                return ici_ret_no_decref(s);
 	    }
         }
         else
@@ -3263,7 +3263,7 @@ f_which()
             switch (r)
             {
             case -1: return 1;
-            case  1: return ici_ret_no_decref(ici_objof(s));
+            case  1: return ici_ret_no_decref(s);
             }
         }
         s = s->o_super;
@@ -3403,7 +3403,7 @@ f_getchar()
         return ici_null_ret();
     }
     buf[0] = c;
-    return ici_ret_with_decref(ici_objof(ici_str_new(buf, 1)));
+    return ici_ret_with_decref(ici_str_new(buf, 1));
 }
 
 static int
@@ -3492,7 +3492,7 @@ f_getline()
     free(b);
     if (str == NULL)
         return 1;
-    return ici_ret_with_decref(ici_objof(str));
+    return ici_ret_with_decref(str);
 
 nomem:
     return ici_set_error("ran out of memory");
@@ -3527,8 +3527,7 @@ f_getfile()
         if (!ici_isfile(f))
         {
             char    n1[ICI_OBJNAMEZ];
-            ici_set_error("getfile() given %s instead of a file",
-                ici_objname(n1, ici_objof(f)));
+            ici_set_error("getfile() given %s instead of a file", ici_objname(n1, f));
             goto finish;
         }
     }
@@ -3572,7 +3571,7 @@ finish:
         ici_call(SS(close), "o", f);
         ici_decref(f);
     }
-    return ici_ret_with_decref(ici_objof(str));
+    return ici_ret_with_decref(str);
 }
 
 static int
@@ -3607,7 +3606,7 @@ f_puts()
         if ((f = ici_need_stdout()) == NULL)
             return 1;
     }
-    if (!ici_isstring(ici_objof(s)))
+    if (!ici_isstring(s))
         return ici_argerror(0);
     if (f->f_type->ft_flags & FT_NOMUTEX)
         x = ici_leave();
@@ -3686,7 +3685,7 @@ f_fopen()
         fclose(stream);
         return 1;
     }
-    return ici_ret_with_decref(ici_objof(f));
+    return ici_ret_with_decref(f);
 }
 
 static int
@@ -3745,7 +3744,7 @@ f_popen()
         pclose(stream);
         return 1;
     }
-    return ici_ret_with_decref(ici_objof(f));
+    return ici_ret_with_decref(f);
 }
 
 static int
@@ -4063,12 +4062,12 @@ f_dir()
                 closedir(dir);
                 goto fail;
             }
-            *a->a_top++ = ici_objof(s);
+            *a->a_top++ = s;
             ici_decref(s);
         }
     }
     closedir(dir);
-    return ici_ret_with_decref(ici_objof(a));
+    return ici_ret_with_decref(a);
 
 #undef  FILES
 #undef  DIRS
