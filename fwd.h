@@ -215,7 +215,7 @@ typedef struct ici_ptr          ici_ptr_t;
 typedef struct ici_regexp       ici_regexp_t;
 typedef struct ici_src          ici_src_t;
 typedef struct ici_str          ici_str_t;
-typedef struct type             type_t;
+typedef class type              type_t;
 typedef struct ici_wrap         ici_wrap_t;
 typedef struct ici_ftype        ici_ftype_t;
 typedef struct ici_forall       ici_forall_t;

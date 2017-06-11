@@ -56,61 +56,6 @@ ici_find_raw_slot(ici_struct_t *s, ici_obj_t *k)
 }
 
 /*
- * Mark this and referenced unmarked objects, return memory costs.
- * See comments on t_mark() in object.h.
- */
-static unsigned long
-mark_struct(ici_obj_t *o)
-{
-    ici_sslot_t *sl;
-    long                mem;
-
-    do /* Merge tail recursion on o_super. */
-    {
-        o->o_flags |= ICI_O_MARK;
-        mem = sizeof(ici_struct_t) + ici_structof(o)->s_nslots * sizeof(ici_sslot_t);
-        if (ici_structof(o)->s_nels != 0)
-        {
-            for
-            (
-                sl = &ici_structof(o)->s_slots[ici_structof(o)->s_nslots - 1];
-                sl >= ici_structof(o)->s_slots;
-                --sl
-            )
-            {
-                if (sl->sl_key != NULL)
-                    mem += ici_mark(sl->sl_key);
-                if (sl->sl_value != NULL)
-                    mem += ici_mark(sl->sl_value);
-            }
-        }
-
-    } while
-    (
-        (o = ici_structof(o)->o_super) != NULL
-        &&
-        (o->o_flags & ICI_O_MARK) == 0
-    );
-
-    return mem;
-}
-
-/*
- * Free this object and associated memory (but not other objects).
- * See the comments on t_free() in object.h.
- */
-static void
-free_struct(ici_obj_t *o)
-{
-    if (ici_structof(o)->s_slots != NULL)
-    {
-        ici_nfree(ici_structof(o)->s_slots, ici_structof(o)->s_nslots * sizeof(ici_sslot_t));
-    }
-    ici_tfree(o, ici_struct_t);
-    ++ici_vsver;
-}
-
-/*
  * Return a new ICI struct object. The returned struct has been increfed.
  * Returns NULL on error, usual conventions.
  *
@@ -142,73 +87,9 @@ ici_struct_new()
 }
 
 /*
- * Returns 0 if these objects are equal, else non-zero.
- * See the comments on t_cmp() in object.h.
- */
-static int
-cmp_struct(ici_obj_t *o1, ici_obj_t *o2)
-{
-    int        i;
-    ici_sslot_t *sl1;
-    ici_sslot_t *sl2;
-
-    if (ici_structof(o1) == ici_structof(o2))
-    {
-        return 0;
-    }
-    if (ici_structof(o1)->s_nels != ici_structof(o2)->s_nels)
-    {
-        return 1;
-    }
-    if (ici_structof(o1)->o_super != ici_structof(o2)->o_super)
-    {
-        return 1;
-    }
-    sl1 = ici_structof(o1)->s_slots;
-    i = ici_structof(o1)->s_nslots;
-    while (--i >= 0)
-    {
-        if (sl1->sl_key != NULL)
-        {
-            sl2 = ici_find_raw_slot(ici_structof(o2), sl1->sl_key);
-            if (sl1->sl_key != sl2->sl_key || sl1->sl_value != sl2->sl_value)
-	    {
-                return 1;
-	    }
-        }
-        ++sl1;
-    }
-    return 0;
-}
-
-/*
  * Return a hash sensitive to the value of the object.
  * See the comment on t_hash() in object.h
  */
-static unsigned long
-hash_struct(ici_obj_t *o)
-{
-    int                         i;
-    unsigned long               hk;
-    unsigned long               hv;
-    ici_sslot_t                 *sl;
-
-    hk = 0;
-    hv = 0;
-    sl = ici_structof(o)->s_slots;
-    i = ici_structof(o)->s_nels;
-    /*
-     * This assumes NULL will become zero when cast to unsigned long.
-     */
-    while (--i >= 0)
-    {
-        hk += (unsigned long)sl->sl_key >> 4;
-        hv += (unsigned long)sl->sl_value >> 4;
-        ++sl;
-    }
-    return hv * STRUCT_PRIME_0 + hk * STRUCT_PRIME_1 + STRUCT_PRIME_2;
-}
-
 /*
  * Invalidate the lookup lookaside of any string keyed entries in
  * this struct. This can be done for small structs as an alternative
@@ -238,48 +119,6 @@ ici_invalidate_struct_lookaside(ici_struct_t *s)
     }
 }
 
-/*
- * Return a copy of the given object, or NULL on error.
- * See the comment on t_copy() in object.h.
- */
-static ici_obj_t *
-copy_struct(ici_obj_t *o)
-{
-    ici_struct_t    *s;
-    ici_struct_t    *ns;
-
-    s = ici_structof(o);
-    if ((ns = (ici_struct_t *)ici_talloc(ici_struct_t)) == NULL)
-    {
-        return NULL;
-    }
-    ICI_OBJ_SET_TFNZ(ns, ICI_TC_STRUCT, ICI_O_SUPER, 1, 0);
-    ns->o_super = s->o_super;
-    ns->s_nels = 0;
-    ns->s_nslots = 0;
-    ns->s_slots = NULL;
-    ici_rego(ns);
-    if ((ns->s_slots = (ici_sslot_t*)ici_nalloc(s->s_nslots * sizeof(ici_sslot_t))) == NULL)
-    {
-        goto fail;
-    }
-    memcpy((char *)ns->s_slots, (char *)s->s_slots, s->s_nslots*sizeof(ici_sslot_t));
-    ns->s_nels = s->s_nels;
-    ns->s_nslots = s->s_nslots;
-    if (ns->s_nslots <= 64)
-    {
-        ici_invalidate_struct_lookaside(ns);
-    }
-    else
-    {
-        ++ici_vsver;
-    }
-    return ns;
-
-fail:
-    ici_decref(ns);
-    return NULL;
-}
 
 /*
  * Grow the struct s so that it has twice as many slots.
@@ -429,319 +268,467 @@ fetch_super_struct(ici_obj_t *o, ici_obj_t *k, ici_obj_t **v, ici_struct_t *b)
     return ici_fetch_super(o, k, v, b);
 }
 
-/*
- * Return the object at key k of the obejct o, or NULL on error.
- * See the comment on t_fetch in object.h.
- */
-static ici_obj_t *
-fetch_struct(ici_obj_t *o, ici_obj_t *k)
+class struct_type : public type
 {
-    ici_obj_t           *v;
+public:
+    struct_type() : type("struct") {}
+    bool has_forall() const override { return true; }
 
-    if
-    (
-        ici_isstring(k)
-        &&
-        ici_stringof(k)->s_struct == ici_structof(o)
-        &&
-        ici_stringof(k)->s_vsver == ici_vsver
-    )
+    /*
+     * Mark this and referenced unmarked objects, return memory costs.
+     * See comments on t_mark() in object.h.
+     */
+    unsigned long
+    mark(ici_obj_t *o) override
     {
-        assert(fetch_super_struct(o, k, &v, NULL) == 1);
-        assert(ici_stringof(k)->s_slot->sl_value == v);
-        return ici_stringof(k)->s_slot->sl_value;
-    }
-    switch (fetch_super_struct(o, k, &v, ici_structof(o)))
-    {
-    case -1: return NULL;               /* Error. */
-    case  1: return v;                  /* Found. */
-    }
-    return ici_null;                    /* Not found. */
-}
+        ici_sslot_t *sl;
+        long                mem;
 
-static ici_obj_t *
-fetch_base_struct(ici_obj_t *o, ici_obj_t *k)
-{
-    ici_sslot_t         *sl;
-
-    sl = ici_find_raw_slot(ici_structof(o), k);
-    if (sl->sl_key == NULL)
-    {
-        return ici_null;
-    }
-    if (ici_isstring(k))
-    {
-        ici_stringof(k)->s_vsver = ici_vsver;
-        ici_stringof(k)->s_struct = ici_structof(o);
-        ici_stringof(k)->s_slot = sl;
-        if (o->isatom())
+        do /* Merge tail recursion on o_super. */
         {
-            k->o_flags |= ICI_S_LOOKASIDE_IS_ATOM;
+            o->o_flags |= ICI_O_MARK;
+            mem = sizeof(ici_struct_t) + ici_structof(o)->s_nslots * sizeof(ici_sslot_t);
+            if (ici_structof(o)->s_nels != 0)
+            {
+                for
+                (
+                    sl = &ici_structof(o)->s_slots[ici_structof(o)->s_nslots - 1];
+                    sl >= ici_structof(o)->s_slots;
+                    --sl
+                )
+                {
+                    if (sl->sl_key != NULL)
+                        mem += ici_mark(sl->sl_key);
+                    if (sl->sl_value != NULL)
+                        mem += ici_mark(sl->sl_value);
+                }
+            }
+
+        } while
+            (
+                (o = ici_structof(o)->o_super) != NULL
+                &&
+                (o->o_flags & ICI_O_MARK) == 0
+            );
+
+        return mem;
+    }
+
+    /*
+     * Free this object and associated memory (but not other objects).
+     * See the comments on t_free() in object.h.
+     */
+    void
+    free(ici_obj_t *o) override
+    {
+        if (ici_structof(o)->s_slots != NULL)
+        {
+            ici_nfree(ici_structof(o)->s_slots, ici_structof(o)->s_nslots * sizeof(ici_sslot_t));
+        }
+        ici_tfree(o, ici_struct_t);
+        ++ici_vsver;
+    }
+
+    unsigned long
+    hash(ici_obj_t *o) override
+    {
+        int                         i;
+        unsigned long               hk;
+        unsigned long               hv;
+        ici_sslot_t                 *sl;
+
+        hk = 0;
+        hv = 0;
+        sl = ici_structof(o)->s_slots;
+        i = ici_structof(o)->s_nels;
+        /*
+         * This assumes NULL will become zero when cast to unsigned long.
+         */
+        while (--i >= 0)
+        {
+            hk += (unsigned long)sl->sl_key >> 4;
+            hv += (unsigned long)sl->sl_value >> 4;
+            ++sl;
+        }
+        return hv * STRUCT_PRIME_0 + hk * STRUCT_PRIME_1 + STRUCT_PRIME_2;
+    }
+
+    /*
+     * Returns 0 if these objects are equal, else non-zero.
+     * See the comments on t_cmp() in object.h.
+     */
+    int
+    cmp(ici_obj_t *o1, ici_obj_t *o2) override
+    {
+        int        i;
+        ici_sslot_t *sl1;
+        ici_sslot_t *sl2;
+
+        if (ici_structof(o1) == ici_structof(o2))
+        {
+            return 0;
+        }
+        if (ici_structof(o1)->s_nels != ici_structof(o2)->s_nels)
+        {
+            return 1;
+        }
+        if (ici_structof(o1)->o_super != ici_structof(o2)->o_super)
+        {
+            return 1;
+        }
+        sl1 = ici_structof(o1)->s_slots;
+        i = ici_structof(o1)->s_nslots;
+        while (--i >= 0)
+        {
+            if (sl1->sl_key != NULL)
+            {
+                sl2 = ici_find_raw_slot(ici_structof(o2), sl1->sl_key);
+                if (sl1->sl_key != sl2->sl_key || sl1->sl_value != sl2->sl_value)
+                {
+                    return 1;
+                }
+            }
+            ++sl1;
+        }
+        return 0;
+    }
+
+
+    /*
+     * Return a copy of the given object, or NULL on error.
+     * See the comment on t_copy() in object.h.
+     */
+    ici_obj_t *
+    copy(ici_obj_t *o) override
+    {
+        ici_struct_t    *s;
+        ici_struct_t    *ns;
+
+        s = ici_structof(o);
+        if ((ns = (ici_struct_t *)ici_talloc(ici_struct_t)) == NULL)
+        {
+            return NULL;
+        }
+        ICI_OBJ_SET_TFNZ(ns, ICI_TC_STRUCT, ICI_O_SUPER, 1, 0);
+        ns->o_super = s->o_super;
+        ns->s_nels = 0;
+        ns->s_nslots = 0;
+        ns->s_slots = NULL;
+        ici_rego(ns);
+        if ((ns->s_slots = (ici_sslot_t*)ici_nalloc(s->s_nslots * sizeof(ici_sslot_t))) == NULL)
+        {
+            goto fail;
+        }
+        memcpy((char *)ns->s_slots, (char *)s->s_slots, s->s_nslots*sizeof(ici_sslot_t));
+        ns->s_nels = s->s_nels;
+        ns->s_nslots = s->s_nslots;
+        if (ns->s_nslots <= 64)
+        {
+            ici_invalidate_struct_lookaside(ns);
         }
         else
         {
-            k->o_flags &= ~ICI_S_LOOKASIDE_IS_ATOM;
+            ++ici_vsver;
         }
+        return ns;
+
+    fail:
+        ici_decref(ns);
+        return NULL;
     }
-    return sl->sl_value;
-}
 
-/*
- * Do an assignment where we are the super of some other object that
- * is trying to satisfy an assign. Don't regard the item k as being
- * present unless it really is. Return -1 on error, 0 if not found
- * and 1 if the assignment was completed.
- *
- * If 0 is returned, no struct may have been modified during the
- * operation of this function.
- *
- * If not NULL, b is a struct that was the base element of this
- * assignment. This is used to mantain the lookup lookaside mechanism.
- */
-static int
-assign_super_struct(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v, ici_struct_t *b)
-{
-    ici_sslot_t         *sl;
 
-    do
+    /*
+     * Do an assignment where we are the super of some other object that
+     * is trying to satisfy an assign. Don't regard the item k as being
+     * present unless it really is. Return -1 on error, 0 if not found
+     * and 1 if the assignment was completed.
+     *
+     * If 0 is returned, no struct may have been modified during the
+     * operation of this function.
+     *
+     * If not NULL, b is a struct that was the base element of this
+     * assignment. This is used to mantain the lookup lookaside mechanism.
+     */
+    int
+    assign_super(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v, ici_struct_t *b) override
     {
-        if (!o->isatom())
+        ici_sslot_t         *sl;
+
+        do
         {
-            sl = &ici_structof(o)->s_slots[HASHINDEX(k, ici_structof(o))];
-            while (sl->sl_key != NULL)
+            if (!o->isatom())
             {
-                if (sl->sl_key == k)
+                sl = &ici_structof(o)->s_slots[HASHINDEX(k, ici_structof(o))];
+                while (sl->sl_key != NULL)
                 {
-                    sl->sl_value = v;
-                    if (b != NULL && ici_isstring(k))
+                    if (sl->sl_key == k)
                     {
-                        ici_stringof(k)->s_vsver = ici_vsver;
-                        ici_stringof(k)->s_struct = b;
-                        ici_stringof(k)->s_slot = sl;
-                        k->o_flags &= ~ICI_S_LOOKASIDE_IS_ATOM;
+                        sl->sl_value = v;
+                        if (b != NULL && ici_isstring(k))
+                        {
+                            ici_stringof(k)->s_vsver = ici_vsver;
+                            ici_stringof(k)->s_struct = b;
+                            ici_stringof(k)->s_slot = sl;
+                            k->o_flags &= ~ICI_S_LOOKASIDE_IS_ATOM;
+                        }
+                        return 1;
                     }
-                    return 1;
+                    if (--sl < ici_structof(o)->s_slots)
+                    {
+                        sl = ici_structof(o)->s_slots + ici_structof(o)->s_nslots - 1;
+                    }
                 }
-                if (--sl < ici_structof(o)->s_slots)
-		{
-                    sl = ici_structof(o)->s_slots + ici_structof(o)->s_nslots - 1;
-		}
             }
-        }
-        if ((o = ici_structof(o)->o_super) == NULL)
-	{
-            return 0;
-	}
-
-    } while (ici_isstruct(o)); /* Merge tail recursion. */
-
-    return ici_assign_super(o, k, v, b);
-}
-
-/*
- * Set the value of key k in the struct s to the value v.  Will add the
- * entry if necessary and grow the struct if necessary.  Returns 1 on
- * failure, else 0.
- * See the comment on t_assign() in object.h.
- */
-static int
-assign_struct(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v)
-{
-    ici_sslot_t         *sl;
-
-    if
-    (
-        ici_isstring(k)
-        &&
-        ici_stringof(k)->s_struct == ici_structof(o)
-        &&
-        ici_stringof(k)->s_vsver == ici_vsver
-        &&
-        (k->o_flags & ICI_S_LOOKASIDE_IS_ATOM) == 0
-    )
-    {
-#ifndef NDEBUG
-        ici_obj_t       *av;
-        assert(fetch_super_struct(o, k, &av, NULL) == 1);
-        assert(ici_stringof(k)->s_slot->sl_value == av);
-#endif
-        ici_stringof(k)->s_slot->sl_value = v;
-        return 0;
-    }
-    /*
-     * Look for it in the base struct.
-     */
-    sl = &ici_structof(o)->s_slots[HASHINDEX(k, ici_structof(o))];
-    while (sl->sl_key != NULL)
-    {
-        if (sl->sl_key == k)
-        {
-            if (o->isatom())
+            if ((o = ici_structof(o)->o_super) == NULL)
             {
-                return ici_set_error("attempt to modify an atomic struct");
+                return 0;
             }
-            goto do_assign;
-        }
-        if (--sl < ici_structof(o)->s_slots)
-            sl = ici_structof(o)->s_slots + ici_structof(o)->s_nslots - 1;
+
+        } while (ici_isstruct(o)); /* Merge tail recursion. */
+
+        return ici_assign_super(o, k, v, b);
     }
-    if (ici_structof(o)->o_super != NULL)
-    {
-        switch (ici_assign_super(ici_structof(o)->o_super, k, v, ici_structof(o)))
-        {
-        case -1: return 1; /* Error. */
-        case 1:  return 0; /* Done. */
-        }
-    }
+
     /*
-     * Not found. Assign into base struct. We still have sl from above.
+     * Set the value of key k in the struct s to the value v.  Will add the
+     * entry if necessary and grow the struct if necessary.  Returns 1 on
+     * failure, else 0.
+     * See the comment on t_assign() in object.h.
      */
-    if (o->isatom())
+    int
+    assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v) override
     {
-        return ici_set_error("attempt to modify an atomic struct");
-    }
-    if (ici_structof(o)->s_nels >= ici_structof(o)->s_nslots - ici_structof(o)->s_nslots / 4)
-    {
+        ici_sslot_t         *sl;
+
+        if
+        (
+            ici_isstring(k)
+            &&
+            ici_stringof(k)->s_struct == ici_structof(o)
+            &&
+            ici_stringof(k)->s_vsver == ici_vsver
+            &&
+            (k->o_flags & ICI_S_LOOKASIDE_IS_ATOM) == 0
+        )
+        {
+#ifndef NDEBUG
+            ici_obj_t       *av;
+            assert(fetch_super_struct(o, k, &av, NULL) == 1);
+            assert(ici_stringof(k)->s_slot->sl_value == av);
+#endif
+            ici_stringof(k)->s_slot->sl_value = v;
+            return 0;
+        }
         /*
-         * This struct is 75% full.  Grow it.
-         */
-        if (grow_struct(ici_structof(o)))
-            return 1;
-        /*
-         * Re-find our empty slot.
+         * Look for it in the base struct.
          */
         sl = &ici_structof(o)->s_slots[HASHINDEX(k, ici_structof(o))];
         while (sl->sl_key != NULL)
         {
+            if (sl->sl_key == k)
+            {
+                if (o->isatom())
+                {
+                    return ici_set_error("attempt to modify an atomic struct");
+                }
+                goto do_assign;
+            }
             if (--sl < ici_structof(o)->s_slots)
                 sl = ici_structof(o)->s_slots + ici_structof(o)->s_nslots - 1;
         }
-    }
-    ++ici_structof(o)->s_nels;
-    sl->sl_key = k;
-do_assign:
-    sl->sl_value = v;
-    if (ici_isstring(k))
-    {
-        ici_stringof(k)->s_vsver = ici_vsver;
-        ici_stringof(k)->s_struct = ici_structof(o);
-        ici_stringof(k)->s_slot = sl;
-        k->o_flags &= ~ICI_S_LOOKASIDE_IS_ATOM;
-    }
-    return 0;
-}
-
-/*
- * Assign a value into a key of a struct, but ignore the super chain.
- * That is, always assign into the lowest level. Usual error coventions.
- */
-static int
-assign_base_struct(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v)
-{
-    ici_struct_t      	*s = ici_structof(o);
-    ici_sslot_t         *sl;
-    int                 tqfull;
-
-    if (UNLIKELY(o->isatom()))
-    {
-        return ici_set_error("attempt to modify an atomic struct");
-    }
-    sl = ici_find_raw_slot(s, k);
-    if (sl->sl_key != NULL)
-    {
-        goto do_assign;
-    }
-    /*
-     * Not found. Assign into base struct. We still have sl from above.
-     */
-    tqfull = s->s_nels >= s->s_nslots - s->s_nslots / 4;
-    if (UNLIKELY(tqfull))
-    {
+        if (ici_structof(o)->o_super != NULL)
+        {
+            switch (ici_assign_super(ici_structof(o)->o_super, k, v, ici_structof(o)))
+            {
+            case -1: return 1; /* Error. */
+            case 1:  return 0; /* Done. */
+            }
+        }
         /*
-         * This struct is 75% full.  Grow it.
+         * Not found. Assign into base struct. We still have sl from above.
          */
-        if (UNLIKELY(grow_struct(s)))
-	{
-            return 1;
-	}
-        /*
-         * Re-find out empty slot.
-         */
-        sl = &s->s_slots[HASHINDEX(k, s)];
-        while (LIKELY(sl->sl_key != NULL))
+        if (o->isatom())
         {
-	    --sl;
-            if (UNLIKELY(sl < s->s_slots))
-	    {
-                sl = s->s_slots + s->s_nslots - 1;
-	    }
+            return ici_set_error("attempt to modify an atomic struct");
         }
-    }
-    ++s->s_nels;
-    sl->sl_key = k;
-do_assign:
-    sl->sl_value = v;
-    if (LIKELY(ici_isstring(k)))
-    {
-        ici_stringof(k)->s_vsver = ici_vsver;
-        ici_stringof(k)->s_struct = s;
-        ici_stringof(k)->s_slot = sl;
-        k->o_flags &= ~ICI_S_LOOKASIDE_IS_ATOM;
-    }
-    return 0;
-}
-
-static int
-forall_struct(ici_obj_t *o)
-{
-    ici_forall_t        *fa = forallof(o);
-    ici_struct_t        *s  = ici_structof(fa->fa_aggr);
-
-    while (++fa->fa_index < s->s_nslots)
-    {
-        ici_sslot_t     *sl = &s->s_slots[fa->fa_index];
-
-        if (sl->sl_key == NULL)
+        if (ici_structof(o)->s_nels >= ici_structof(o)->s_nslots - ici_structof(o)->s_nslots / 4)
         {
-            continue;
-        }
-        if (fa->fa_vaggr != ici_null)
-        {
-            if (ici_assign(fa->fa_vaggr, fa->fa_vkey, sl->sl_value))
+            /*
+             * This struct is 75% full.  Grow it.
+             */
+            if (grow_struct(ici_structof(o)))
                 return 1;
+            /*
+             * Re-find our empty slot.
+             */
+            sl = &ici_structof(o)->s_slots[HASHINDEX(k, ici_structof(o))];
+            while (sl->sl_key != NULL)
+            {
+                if (--sl < ici_structof(o)->s_slots)
+                    sl = ici_structof(o)->s_slots + ici_structof(o)->s_nslots - 1;
+            }
         }
-        if (fa->fa_kaggr != ici_null)
+        ++ici_structof(o)->s_nels;
+        sl->sl_key = k;
+    do_assign:
+        sl->sl_value = v;
+        if (ici_isstring(k))
         {
-            if (ici_assign(fa->fa_kaggr, fa->fa_kkey, sl->sl_key))
-                return 1;
+            ici_stringof(k)->s_vsver = ici_vsver;
+            ici_stringof(k)->s_struct = ici_structof(o);
+            ici_stringof(k)->s_slot = sl;
+            k->o_flags &= ~ICI_S_LOOKASIDE_IS_ATOM;
         }
         return 0;
     }
-    return -1;
-}
 
-type_t  struct_type =
-{
-    mark_struct,
-    free_struct,
-    hash_struct,
-    cmp_struct,
-    copy_struct,
-    assign_struct,
-    fetch_struct,
-    "struct",
-    NULL,
-    NULL,
-    NULL,
-    assign_super_struct,
-    fetch_super_struct,
-    assign_base_struct,
-    fetch_base_struct,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    forall_struct
+    /*
+     * Assign a value into a key of a struct, but ignore the super chain.
+     * That is, always assign into the lowest level. Usual error coventions.
+     */
+    int
+    assign_base(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v) override
+    {
+        ici_struct_t      	*s = ici_structof(o);
+        ici_sslot_t         *sl;
+        int                 tqfull;
+
+        if (UNLIKELY(o->isatom()))
+        {
+            return ici_set_error("attempt to modify an atomic struct");
+        }
+        sl = ici_find_raw_slot(s, k);
+        if (sl->sl_key != NULL)
+        {
+            goto do_assign;
+        }
+        /*
+         * Not found. Assign into base struct. We still have sl from above.
+         */
+        tqfull = s->s_nels >= s->s_nslots - s->s_nslots / 4;
+        if (UNLIKELY(tqfull))
+        {
+            /*
+             * This struct is 75% full.  Grow it.
+             */
+            if (UNLIKELY(grow_struct(s)))
+            {
+                return 1;
+            }
+            /*
+             * Re-find out empty slot.
+             */
+            sl = &s->s_slots[HASHINDEX(k, s)];
+            while (LIKELY(sl->sl_key != NULL))
+            {
+                --sl;
+                if (UNLIKELY(sl < s->s_slots))
+                {
+                    sl = s->s_slots + s->s_nslots - 1;
+                }
+            }
+        }
+        ++s->s_nels;
+        sl->sl_key = k;
+    do_assign:
+        sl->sl_value = v;
+        if (LIKELY(ici_isstring(k)))
+        {
+            ici_stringof(k)->s_vsver = ici_vsver;
+            ici_stringof(k)->s_struct = s;
+            ici_stringof(k)->s_slot = sl;
+            k->o_flags &= ~ICI_S_LOOKASIDE_IS_ATOM;
+        }
+        return 0;
+    }
+
+    int
+    forall(ici_obj_t *o) override
+    {
+        ici_forall_t        *fa = forallof(o);
+        ici_struct_t        *s  = ici_structof(fa->fa_aggr);
+
+        while (++fa->fa_index < s->s_nslots)
+        {
+            ici_sslot_t     *sl = &s->s_slots[fa->fa_index];
+
+            if (sl->sl_key == NULL)
+            {
+                continue;
+            }
+            if (fa->fa_vaggr != ici_null)
+            {
+                if (ici_assign(fa->fa_vaggr, fa->fa_vkey, sl->sl_value))
+                    return 1;
+            }
+            if (fa->fa_kaggr != ici_null)
+            {
+                if (ici_assign(fa->fa_kaggr, fa->fa_kkey, sl->sl_key))
+                    return 1;
+            }
+            return 0;
+        }
+        return -1;
+    }
+
+    /*
+     * Return the object at key k of the obejct o, or NULL on error.
+     * See the comment on t_fetch in object.h.
+     */
+    ici_obj_t *
+    fetch(ici_obj_t *o, ici_obj_t *k) override
+    {
+        ici_obj_t           *v;
+
+        if
+        (
+            ici_isstring(k)
+            &&
+            ici_stringof(k)->s_struct == ici_structof(o)
+            &&
+            ici_stringof(k)->s_vsver == ici_vsver
+        )
+        {
+            assert(fetch_super_struct(o, k, &v, NULL) == 1);
+            assert(ici_stringof(k)->s_slot->sl_value == v);
+            return ici_stringof(k)->s_slot->sl_value;
+        }
+        switch (fetch_super_struct(o, k, &v, ici_structof(o)))
+        {
+        case -1: return NULL;               /* Error. */
+        case  1: return v;                  /* Found. */
+        }
+        return ici_null;                    /* Not found. */
+    }
+
+    ici_obj_t *
+    fetch_base(ici_obj_t *o, ici_obj_t *k) override
+    {
+        ici_sslot_t         *sl;
+
+        sl = ici_find_raw_slot(ici_structof(o), k);
+        if (sl->sl_key == NULL)
+        {
+            return ici_null;
+        }
+        if (ici_isstring(k))
+        {
+            ici_stringof(k)->s_vsver = ici_vsver;
+            ici_stringof(k)->s_struct = ici_structof(o);
+            ici_stringof(k)->s_slot = sl;
+            if (o->isatom())
+            {
+                k->o_flags |= ICI_S_LOOKASIDE_IS_ATOM;
+            }
+            else
+            {
+                k->o_flags &= ~ICI_S_LOOKASIDE_IS_ATOM;
+            }
+        }
+        return sl->sl_value;
+    }
+
 };
 
 ici_op_t    ici_o_namelvalue    = {ICI_OP_NAMELVALUE};

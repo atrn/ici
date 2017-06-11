@@ -11,12 +11,19 @@
 namespace ici
 {
 
+class ptr_type : public type
+{
+public:
+    ptr_type() : type("ptr") {}
+
+    bool has_call() const override { return true; }
+
 /*
  * Mark this and referenced unmarked objects, return memory costs.
  * See comments on t_mark() in object.h.
  */
-static unsigned long
-mark_ptr(ici_obj_t *o)
+unsigned long
+mark(ici_obj_t *o) override
 {
     o->o_flags |= ICI_O_MARK;
     return sizeof(ici_ptr_t) + ici_mark(ici_ptrof(o)->p_aggr) + ici_mark(ici_ptrof(o)->p_key);
@@ -26,8 +33,8 @@ mark_ptr(ici_obj_t *o)
  * Returns 0 if these objects are equal, else non-zero.
  * See the comments on t_cmp() in object.h.
  */
-static int
-cmp_ptr(ici_obj_t *o1, ici_obj_t *o2)
+int
+cmp(ici_obj_t *o1, ici_obj_t *o2) override
 {
     return ici_ptrof(o1)->p_aggr != ici_ptrof(o2)->p_aggr
         || ici_ptrof(o1)->p_key != ici_ptrof(o2)->p_key;
@@ -37,8 +44,8 @@ cmp_ptr(ici_obj_t *o1, ici_obj_t *o2)
  * Return a hash sensitive to the value of the object.
  * See the comment on t_hash() in object.h
  */
-static unsigned long
-hash_ptr(ici_obj_t *o)
+unsigned long
+hash(ici_obj_t *o) override
 {
     return (unsigned long)ici_ptrof(o)->p_aggr * PTR_PRIME_0
         + (unsigned long)ici_ptrof(o)->p_key * PTR_PRIME_1;
@@ -53,8 +60,8 @@ hash_ptr(ici_obj_t *o)
  * of course the key must be an integer too.  The final key is the sum of the
  * two keys.  But if the key is zero, just do *ptr.
  */
-static ici_obj_t *
-fetch_ptr(ici_obj_t *o, ici_obj_t *k)
+ici_obj_t *
+fetch(ici_obj_t *o, ici_obj_t *k) override
 {
     if (k == ici_zero)
         return ici_fetch(ici_ptrof(o)->p_aggr, ici_ptrof(o)->p_key);
@@ -76,8 +83,8 @@ fetch_ptr(ici_obj_t *o, ici_obj_t *k)
  *
  * See above comment.
  */
-static int
-assign_ptr(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v)
+int
+assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v) override
 {
     if (k == ici_zero)
         return ici_assign(ici_ptrof(o)->p_aggr, ici_ptrof(o)->p_key, v);
@@ -97,14 +104,13 @@ assign_ptr(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v)
     return 0;
 }
 
-static int
-call_ptr(ici_obj_t *o, ici_obj_t *subject)
+int call(ici_obj_t *o, ici_obj_t *subject) override
 {
     ici_obj_t   *f;
 
     if ((f = ici_fetch(ici_ptrof(o)->p_aggr, ici_ptrof(o)->p_key)) == NULL)
         return 1;
-    if (ici_typeof(f)->t_call == NULL)
+    if (!ici_typeof(f)->has_call())
     {
         char    n1[30];
         return ici_set_error("attempt to call a ptr pointing to %s", ici_objname(n1, o));
@@ -125,9 +131,21 @@ call_ptr(ici_obj_t *o, ici_obj_t *subject)
      * Then behave as if the target had been called. Should this do the
      * debug hooks? Assume not for now.
      */
-    return (*ici_typeof(f)->t_call)(f, NULL);
+    return ici_typeof(f)->call(f, NULL);
 }
 
+/*
+ * Free this object and associated memory (but not other objects).
+ * See the comments on t_free() in object.h.
+ */
+void
+free(ici_obj_t *o) override
+{
+    ici_tfree(o, ici_ptr_t);
+}
+
+};
+    
 /*
  * Return a new ICI pointer object. The pointer will point to the element
  * keyed by 'k' in the object 'a'.
@@ -151,17 +169,6 @@ ici_ptr_new(ici_obj_t *a, ici_obj_t *k)
     ici_rego(p);
     return p;
 }
-
-/*
- * Free this object and associated memory (but not other objects).
- * See the comments on t_free() in object.h.
- */
-static void
-free_ptr(ici_obj_t *o)
-{
-    ici_tfree(o, ici_ptr_t);
-}
-
 /*
  * aggr key => ptr
  */
@@ -218,20 +225,6 @@ ici_op_fetch()
     --ici_xs.a_top;
     return 0;
 }
-
-type_t  ptr_type =
-{
-    mark_ptr,
-    free_ptr,
-    hash_ptr,
-    cmp_ptr,
-    ici_copy_simple,
-    assign_ptr,
-    fetch_ptr,
-    "ptr",
-    NULL,
-    call_ptr,
-};
 
 ici_op_t    ici_o_mkptr         = {ici_op_mkptr};
 ici_op_t    ici_o_openptr       = {ici_op_openptr};

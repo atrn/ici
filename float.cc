@@ -38,93 +38,67 @@ ici_float_new(double v)
     return f;
 }
 
-/*
- * Mark this and referenced unmarked objects, return memory costs.
- * See comments on t_mark() in object.h.
- */
-static unsigned long
-mark_float(ici_obj_t *o)
+class float_type : public type
 {
-    o->o_flags |= ICI_O_MARK;
-    return sizeof(ici_float_t);
-}
+public:
+    float_type() : type("float") {}
 
-/*
- * Returns 0 if these objects are eq, else non-zero.
- * See the comments on t_cmp() in object.h.
- */
-static int
-cmp_float(ici_obj_t *o1, ici_obj_t *o2)
-{
-    assert(sizeof(double) == 2 * sizeof(int32_t));
-    return !DBL_BIT_CMP(&ici_floatof(o1)->f_value, &ici_floatof(o2)->f_value);
-}
-
-/*
- * Free this object and associated memory (but not other objects).
- * See the comments on t_free() in object.h.
- */
-static void
-free_float(ici_obj_t *o)
-{
-    ici_tfree(o, ici_float_t);
-}
-
-/*
- * Return a hash sensitive to the value of the object.
- * See the comment on t_hash() in object.h
- */
-static unsigned long
-hash_float(ici_obj_t *o)
-{
-    unsigned long       h;
-    int                 i;
-
-    h = FLOAT_PRIME;
-    /*
-     * We assume that the compiler will decide this constant expression
-     * at compile time and not actually make a run-time decision about
-     * which bit of code to run.
-     *
-     * WARNING: there is an in-line expansion of this in binop.h.
-     */
-    if (sizeof ici_floatof(o)->f_value == 2 * sizeof(unsigned long))
+    unsigned long mark(ici_obj_t *o) override
     {
+        o->o_flags |= ICI_O_MARK;
+        return sizeof (ici_float_t);
+    }
+
+    void free(ici_obj_t *o) override
+    {
+        ici_tfree(o, ici_float_t);
+    }
+
+    int cmp(ici_obj_t *o1, ici_obj_t *o2) override
+    {
+        assert(sizeof(double) == 2 * sizeof(int32_t));
+        return !DBL_BIT_CMP(&ici_floatof(o1)->f_value, &ici_floatof(o2)->f_value);
+    }
+
+    unsigned long hash(ici_obj_t *o) override
+    {
+        unsigned long       h;
+        int                 i;
+
+        h = FLOAT_PRIME;
         /*
-         * The little dance of getting the address of the double into
-         * a pointer to ulong via void * is brought to you by the
-         * aliasing rules of ISO C.
+         * We assume that the compiler will decide this constant expression
+         * at compile time and not actually make a run-time decision about
+         * which bit of code to run.
+         *
+         * WARNING: there is an in-line expansion of this in binop.h.
          */
-        void            *vp;
-        unsigned long   *p;
+        if (sizeof ici_floatof(o)->f_value == 2 * sizeof(unsigned long))
+        {
+            /*
+             * The little dance of getting the address of the double into
+             * a pointer to ulong via void * is brought to you by the
+             * aliasing rules of ISO C.
+             */
+            void            *vp;
+            unsigned long   *p;
 
-        vp = &ici_floatof(o)->f_value;
-        p = (unsigned long *)vp;
-        h += p[0] + p[1] * 31;
-        h ^= (h >> 12) ^ (h >> 24);
+            vp = &ici_floatof(o)->f_value;
+            p = (unsigned long *)vp;
+            h += p[0] + p[1] * 31;
+            h ^= (h >> 12) ^ (h >> 24);
+        }
+        else
+        {
+            unsigned char   *p;
+
+            p = (unsigned char *)&ici_floatof(o)->f_value;
+            i = sizeof(ici_floatof(o)->f_value);
+            while (--i >= 0)
+                h = *p++ + h * 31;
+        }
+        return h;
     }
-    else
-    {
-        unsigned char   *p;
-
-        p = (unsigned char *)&ici_floatof(o)->f_value;
-        i = sizeof(ici_floatof(o)->f_value);
-        while (--i >= 0)
-            h = *p++ + h * 31;
-    }
-    return h;
-}
-
-type_t  float_type =
-{
-    mark_float,
-    free_float,
-    hash_float,
-    cmp_float,
-    ici_copy_simple,
-    ici_assign_fail,
-    ici_fetch_fail,
-    "float"
 };
 
 } // namespace ici

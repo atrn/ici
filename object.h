@@ -38,43 +38,58 @@ extern DLI type_t *     types[max_types];
  *
  * This --struct-- forms part of the --ici-api--.
  */
-struct type
+class type
 {
-    inline unsigned long        mark(ici_obj_t *o) { return t_mark(o); }
-    inline void                 free(ici_obj_t *o) { t_free(o); }
-    inline unsigned long        hash(ici_obj_t *o) { return t_hash(o); }
-    inline int                  cmp(ici_obj_t *a, ici_obj_t *b) { return t_cmp(a, b); }
-    inline ici_obj_t *          copy(ici_obj_t *o) { return t_copy(o); }
-    inline int                  assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v) { return t_assign(o, k, v); }
-    inline ici_obj_t *          fetch(ici_obj_t *o, ici_obj_t *k) { return t_fetch(o, k); }
-    inline int                  assign_super(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v, ici_struct_t *b) { return t_assign_super(o, k, v, b); }
-    inline int                  fetch_super(ici_obj_t *o, ici_obj_t *k, ici_obj_t **pv, ici_struct_t *b) { return t_fetch_super(o, k, pv, b); }
-    inline int                  assign_base(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v) { return t_assign_base(o, k, v); }
-    inline ici_obj_t   *        fetch_base(ici_obj_t *o, ici_obj_t *k) { return t_fetch_base(o, k); }
-    inline ici_obj_t   *        fetch_method(ici_obj_t *o, ici_obj_t *n) { return t_fetch_method(o, n); }
-    inline int                  forall_step(ici_obj_t *o) { return t_forall_step(o); }
+protected:
+    explicit type(const char *name)
+        : name(name)
+        , _name(nullptr)
+    {}
 
-    unsigned long       (*t_mark)               (ici_obj_t *);
-    void                (*t_free)               (ici_obj_t *);
-    unsigned long       (*t_hash)               (ici_obj_t *);
-    int                 (*t_cmp)                (ici_obj_t *, ici_obj_t *);
-    ici_obj_t	*       (*t_copy)               (ici_obj_t *);
-    int                 (*t_assign)             (ici_obj_t *, ici_obj_t *, ici_obj_t *);
-    ici_obj_t   *       (*t_fetch)              (ici_obj_t *, ici_obj_t *);
-    const char  *       t_name;
-    void                (*t_objname)            (ici_obj_t *, char [ICI_OBJNAMEZ]);
-    int                 (*t_call)               (ici_obj_t *, ici_obj_t *);
-    ici_str_t   *       t_ici_name;
-    int                 (*t_assign_super)       (ici_obj_t *, ici_obj_t *, ici_obj_t *, ici_struct_t *);
-    int                 (*t_fetch_super)        (ici_obj_t *, ici_obj_t *, ici_obj_t **, ici_struct_t *);
-    int                 (*t_assign_base)        (ici_obj_t *, ici_obj_t *, ici_obj_t *);
-    ici_obj_t   *       (*t_fetch_base)         (ici_obj_t *, ici_obj_t *);
-    ici_obj_t   *       (*t_fetch_method)       (ici_obj_t *, ici_obj_t *);
-    void        *       t_reserved2;   /* Must be zero. */
-    void        *       t_reserved3;   /* Must be zero. */
-    void        *       t_reserved4;   /* Must be zero. */
-    int                 (*t_forall_step)        (ici_obj_t *);
+public:
+    const char * const  name;
+
+public:
+    virtual ~type() {}
+
+    virtual bool                has_fetch_method() const;
+    virtual bool                has_forall() const;
+    virtual bool                has_objname() const;
+    virtual bool                has_call() const;
+
+    virtual unsigned long       mark(ici_obj_t *o) = 0;
+    virtual void                free(ici_obj_t *o) = 0;
+
+    virtual unsigned long       hash(ici_obj_t *o); // hash_unique
+    virtual int                 cmp(ici_obj_t *a, ici_obj_t *b); // cmp_unique
+    virtual ici_obj_t *         copy(ici_obj_t *o); // copy_simple
+
+    virtual int                 assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v); // assign_fail { return t_assign(o, k, v); }
+    virtual ici_obj_t *         fetch(ici_obj_t *o, ici_obj_t *k); // fetch_fail  { return t_fetch(o, k); }
+
+    virtual int                 assign_super(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v, ici_struct_t *b); // { return t_assign_super(o, k, v, b); }
+    virtual int                 fetch_super(ici_obj_t *o, ici_obj_t *k, ici_obj_t **pv, ici_struct_t *b); // { return t_fetch_super(o, k, pv, b); }
+    virtual int                 assign_base(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v); // { return t_assign_base(o, k, v); }
+    virtual ici_obj_t   *       fetch_base(ici_obj_t *o, ici_obj_t *k) ; // { return t_fetch_base(o, k); }
+
+    virtual ici_obj_t   *       fetch_method(ici_obj_t *o, ici_obj_t *n); // { return t_fetch_method(o, n); }
+    virtual int                 call(ici_obj_t *, ici_obj_t *);
+
+    virtual int                 forall(ici_obj_t *o); // { return t_forall_step(o); }
+
+    virtual void                objname(ici_obj_t *, char [ICI_OBJNAMEZ]);
+
+    ici_str_t *                 ici_name() {
+        if (_name == nullptr) {
+            _name = ici_str_new_nul_term(name);
+        }
+        return _name;
+    }
+
+private:
+    ici_str_t *         _name;
 };
+
 /*
  * t_mark(o)            Must sets the ICI_O_MARK flag in o->o_flags of this object
  *                      and all objects referenced by this one which don't

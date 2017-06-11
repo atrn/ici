@@ -9,51 +9,6 @@ namespace ici
 ici_int_t                   *ici_small_ints[ICI_SMALL_INT_COUNT];
 
 /*
- * Mark this and referenced unmarked objects, return memory costs.
- * See comments on t_mark() in object.h.
- */
-static unsigned long
-mark_int(ici_obj_t *o)
-{
-    o->o_flags |= ICI_O_MARK;
-    return sizeof(ici_int_t);
-}
-
-/*
- * Returns 0 if these objects are equal, else non-zero.
- * See the comments on t_cmp() in object.h.
- */
-static int
-cmp_int(ici_obj_t *o1, ici_obj_t *o2)
-{
-    return ici_intof(o1)->i_value != ici_intof(o2)->i_value;
-}
-
-/*
- * Return a hash sensitive to the value of the object.
- * See the comment on t_hash() in object.h
- */
-static unsigned long
-hash_int(ici_obj_t *o)
-{
-    /*
-     * There are in-line versions of this in object.c and binop.h.
-     */
-    return (unsigned long)ici_intof(o)->i_value * INT_PRIME;
-}
-
-/*
- * Free this object and associated memory (but not other objects).
- * See the comments on t_free() in object.h.
- */
-static void
-free_int(ici_obj_t *o)
-{
-    ici_tfree(o, ici_int_t);
-}
-
-
-/*
  * Return the int object with the value 'v'.  The returned object has had its
  * ref count incremented.  Returns NULL on error, usual convention.  Note that
  * ints are intrinsically atomic, so if the given integer already exists, it
@@ -101,16 +56,55 @@ ici_int_new(long i)
     return ici_intof(o);
 }
 
-type_t  int_type =
+class int_type : public type
 {
-    mark_int,
-    free_int,
-    hash_int,
-    cmp_int,
-    ici_copy_simple,
-    ici_assign_fail,
-    ici_fetch_fail,
-    "int"
+public:
+    int_type() : type("int") {}
+
+    /*
+     * Mark this and referenced unmarked objects, return memory costs.
+     * See comments on t_mark() in object.h.
+     */
+    unsigned long
+    mark(ici_obj_t *o) override
+    {
+        o->o_flags |= ICI_O_MARK;
+        return sizeof(ici_int_t);
+    }
+
+    /*
+     * Returns 0 if these objects are equal, else non-zero.
+     * See the comments on t_cmp() in object.h.
+     */
+    int
+    cmp(ici_obj_t *o1, ici_obj_t *o2) override
+    {
+        return ici_intof(o1)->i_value != ici_intof(o2)->i_value;
+    }
+
+    /*
+     * Return a hash sensitive to the value of the object.
+     * See the comment on t_hash() in object.h
+     */
+    unsigned long
+    hash(ici_obj_t *o) override
+    {
+        /*
+         * There are in-line versions of this in object.c and binop.h.
+         */
+        return (unsigned long)ici_intof(o)->i_value * INT_PRIME;
+    }
+
+    /*
+     * Free this object and associated memory (but not other objects).
+     * See the comments on t_free() in object.h.
+     */
+    void free(ici_obj_t *o) override
+    {
+        ici_tfree(o, ici_int_t);
+    }
+
+
 };
 
 } // namespace ici

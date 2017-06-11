@@ -94,52 +94,40 @@ char ici_prof_outfile[512] = "";
 #endif
 
 
-/*
- * Mark this and referenced unmarked objects, return memory costs.
- * See comments on t_mark() in object.h.
- */
-static unsigned long
-mark_profilecall(ici_obj_t *o)
+class profilecall_type : public type
 {
-    ici_profilecall_t *pf;
+public:
+    profilecall_type() : type("profile call") {}
 
-    o->o_flags |= ICI_O_MARK;
-    pf = ici_profilecallof(o);
-    return sizeof(ici_profilecall_t)
-           +
-           ici_mark(pf->pc_calls)
-           +
-           (pf->pc_calledby == NULL ? 0 : ici_mark(pf->pc_calledby));
-}
+    /*
+     * Mark this and referenced unmarked objects, return memory costs.
+     * See comments on t_mark() in object.h.
+     */
+    unsigned long
+    mark(ici_obj_t *o) override
+    {
+        ici_profilecall_t *pf;
 
-/*
- * Free this object and associated memory (but not other objects).
- * See the comments on t_free() in object.h.
- */
-static void
-free_profilecall(ici_obj_t *o)
-{
-    ici_tfree(o, ici_profilecall_t);
-}
+        o->o_flags |= ICI_O_MARK;
+        pf = ici_profilecallof(o);
+        return sizeof(ici_profilecall_t)
+        +
+        ici_mark(pf->pc_calls)
+        +
+        (pf->pc_calledby == NULL ? 0 : ici_mark(pf->pc_calledby));
+    }
 
+    /*
+     * Free this object and associated memory (but not other objects).
+     * See the comments on t_free() in object.h.
+     */
+    void
+    free(ici_obj_t *o) override
+    {
+        ici_tfree(o, ici_profilecall_t);
+    }
 
-/*
- * I must admit that I'm being a bit half-hearted about defining this type
- * since I really only need it to be an ICI type so I can store it in a
- * ici_struct_t.
- */
-type_t profilecall_type =
-{
-    mark_profilecall,
-    free_profilecall,
-    ici_hash_unique,
-    ici_cmp_unique,
-    ici_copy_simple,
-    ici_assign_fail,
-    ici_fetch_fail,
-    "profile call"
 };
-
 
 /*
  * Parameters:

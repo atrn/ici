@@ -15,24 +15,6 @@ namespace ici
  * Mark this and referenced unmarked objects, return memory costs.
  * See comments on t_mark() in object.h.
  */
-static unsigned long
-mark_forall(ici_obj_t *o)
-{
-    int        i;
-    unsigned long       mem;
-
-    o->o_flags |= ICI_O_MARK;
-    mem = sizeof(ici_forall_t);
-    for (i = 0; i < (int)nels(forallof(o)->fa_objs); ++i)
-    {
-        if (forallof(o)->fa_objs[i] != NULL)
-        {
-            mem += ici_mark(forallof(o)->fa_objs[i]);
-        }
-    }
-    return mem;
-}
-
 /*
  * va vk ka kk aggr code        => (os)
  *                              => forall (xs)
@@ -66,16 +48,6 @@ ici_op_forall()
 }
 
 /*
- * Free this object and associated memory (but not other objects).
- * See the comments on t_free() in object.h.
- */
-static void
-free_forall(ici_obj_t *o)
-{
-    ici_tfree(o, ici_forall_t);
-}
-
-/*
  * forall => forall pc (xs)
  *  OR
  * forall => (xs)
@@ -84,16 +56,16 @@ int
 ici_exec_forall()
 {
     ici_forall_t        *fa;
-    int                 (*step)(ici_obj_t *);
+    type_t              *t;
 
     fa = forallof(ici_xs.a_top[-1]);
-    step = ici_typeof(fa->fa_aggr)->t_forall_step;
-    if (step == NULL)
+    t = ici_typeof(fa->fa_aggr);
+    if (!t->has_forall())
     {
         char n[ICI_OBJNAMEZ+1];
         return ici_set_error("attempt to forall over %s", ici_objname(n, fa->fa_aggr));
     }
-    switch (step(fa))
+    switch (t->forall(fa))
     {
     case 0:
         ici_get_pc(ici_arrayof(fa->fa_code), ici_xs.a_top);
@@ -109,16 +81,32 @@ ici_exec_forall()
     }
 }
 
-type_t  forall_type =
+class forall_type : public type
 {
-    mark_forall,
-    free_forall,
-    ici_hash_unique,
-    ici_cmp_unique,
-    ici_copy_simple,
-    ici_assign_fail,
-    ici_fetch_fail,
-    "forall"
+public:
+    forall_type() : type("forall") {}
+
+    unsigned long mark(ici_obj_t *o) override
+    {
+        int        i;
+        unsigned long       mem;
+
+        o->o_flags |= ICI_O_MARK;
+        mem = sizeof(ici_forall_t);
+        for (i = 0; i < (int)nels(forallof(o)->fa_objs); ++i)
+        {
+            if (forallof(o)->fa_objs[i] != NULL)
+            {
+                mem += ici_mark(forallof(o)->fa_objs[i]);
+            }
+        }
+        return mem;
+    }
+
+    void free(ici_obj_t *o) override
+    {
+        ici_tfree(o, ici_forall_t);
+    }
 };
 
 } // namespace ici

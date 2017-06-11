@@ -6,19 +6,6 @@ namespace ici
 {
 
 /*
- * Mark this and referenced unmarked objects, return memory costs.
- * See comments on t_mark() in object.h.
- */
-static unsigned long
-mark_pc(ici_obj_t *o)
-{
-    o->o_flags |= ICI_O_MARK;
-    if (ici_pcof(o)->pc_code != NULL)
-        return sizeof(ici_pc_t) + ici_mark(ici_pcof(o)->pc_code);
-    return sizeof(ici_pc_t);
-}
-
-/*
  * Return a new pc object.
  *
  * NOTE: pc's come back ready-decref'ed.
@@ -36,26 +23,33 @@ ici_new_pc()
     return pc;
 }
 
-/*
- * Free this object and associated memory (but not other objects).
- * See the comments on t_free() in object.h.
- */
-static void
-free_pc(ici_obj_t *o)
+class pc_type : public type
 {
-    ici_tfree(o, ici_pc_t);
-}
+public:
+    pc_type() : type("pc") {}
 
-type_t  pc_type =
-{
-    mark_pc,
-    free_pc,
-    ici_hash_unique,
-    ici_cmp_unique,
-    ici_copy_simple,
-    ici_assign_fail,
-    ici_fetch_fail,
-    "pc"
+    /*
+     * Mark this and referenced unmarked objects, return memory costs.
+     * See comments on t_mark() in object.h.
+     */
+    unsigned long
+    mark(ici_obj_t *o) override
+    {
+        o->o_flags |= ICI_O_MARK;
+        if (ici_pcof(o)->pc_code != NULL)
+            return sizeof(ici_pc_t) + ici_mark(ici_pcof(o)->pc_code);
+        return sizeof(ici_pc_t);
+    }
+
+    /*
+     * Free this object and associated memory (but not other objects).
+     * See the comments on t_free() in object.h.
+     */
+    void free(ici_obj_t *o) override
+    {
+        ici_tfree(o, ici_pc_t);
+    }
+
 };
 
 } // namespace ici

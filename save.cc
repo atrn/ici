@@ -257,7 +257,7 @@ save_func(ici_archive_t *ar, ici_obj_t *obj)
 
     if (save_object_name(ar, obj) || ici_archive_save(ar, f->f_code) || ici_archive_save(ar, f->f_args))
         return 1;
-    if ((autos = ici_structof(ici_typeof(f->f_autos)->t_copy(f->f_autos))) == NULL)
+    if ((autos = ici_structof(ici_typeof(f->f_autos)->copy(f->f_autos))) == NULL)
         return 1;
     autos->o_super = NULL;
     ici_struct_unassign(autos, SSO(_func_));
@@ -309,29 +309,24 @@ saverof(ici_obj_t *obj)
     return (saver_t *)obj;
 }
 
-static unsigned long
-mark_saver(ici_obj_t *o)
+class saver_type : public type
+{
+public:
+    saver_type() : type("saver") {}
+
+unsigned long
+mark(ici_obj_t *o) override
 {
     o->o_flags |= ICI_O_MARK;
     return sizeof (saver_t);
 }
 
-static void
-free_saver(ici_obj_t *o)
+void
+free(ici_obj_t *o) override
 {
     ici_tfree(o, saver_t);
 }
 
-type_t saver_type =
-{
-    mark_saver,
-    free_saver,
-    ici_hash_unique,
-    ici_cmp_unique,
-    ici_copy_simple,
-    ici_assign_fail,
-    ici_fetch_fail,
-    "saver"
 };
 
 static ici_obj_t *
@@ -406,17 +401,13 @@ fail:
 static ici_str_t *
 tname(ici_obj_t *o)
 {
-    if (ici_typeof(o)->t_ici_name == NULL)
-    {
-        ici_typeof(o)->t_ici_name = ici_str_new_nul_term(ici_typeof(o)->t_name);
-    }
-    return ici_typeof(o)->t_ici_name;
+    return ici_typeof(o)->ici_name();
 }
 
 static int
 save_error(ici_archive_t *, ici_obj_t *obj)
 {
-    return ici_set_error("%s: unable to save type", ici_typeof(obj)->t_name);
+    return ici_set_error("%s: unable to save type", ici_typeof(obj)->name);
 }
 
 

@@ -9,23 +9,20 @@ namespace ici
  * Mark this and referenced unmarked objects, return memory costs.
  * See comments on t_mark() in object.h.
  */
-static unsigned long
-mark_null(ici_obj_t *o)
+class null_type : public type
 {
-    o->o_flags |= ICI_O_MARK;
-    return sizeof(ici_null_t);
-}
+public:
+    null_type() : type("null") {}
 
-type_t  null_type =
-{
-    mark_null,
-    NULL,
-    ici_hash_unique,
-    ici_cmp_unique,
-    ici_copy_simple,
-    ici_assign_fail,
-    ici_fetch_fail,
-    "NULL"
+    unsigned long mark(ici_obj_t *o) override
+    {
+        o->o_flags |= ICI_O_MARK;
+        return sizeof (ici_null_t);
+    }
+
+    void free(ici_obj_t *o) override
+    {
+    }
 };
 
 ici_null_t  ici_o_null;

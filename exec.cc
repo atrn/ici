@@ -95,114 +95,6 @@ sigisempty(sigset_t *s)
 #endif
 
 /*
- * Mark this and referenced unmarked objects, return memory costs.
- * See comments on t_mark() in object.h.
- */
-static unsigned long
-mark_exec(ici_obj_t *o)
-{
-    ici_exec_t          *x;
-
-    o->o_flags |= ICI_O_MARK;
-    x = ici_execof(o);
-    return sizeof(ici_exec_t)
-       + (x->x_xs != NULL ? ici_mark(x->x_xs) : 0)
-       + (x->x_os != NULL ? ici_mark(x->x_os) : 0)
-       + (x->x_vs != NULL ? ici_mark(x->x_vs) : 0)
-       + ici_mark(x->x_src)
-       + (x->x_pc_closet != NULL ? ici_mark(x->x_pc_closet) : 0)
-       + (x->x_os_temp_cache != NULL ? ici_mark(x->x_os_temp_cache) : 0)
-       + (x->x_waitfor != NULL ? ici_mark(x->x_waitfor) : 0)
-       + (x->x_result != NULL ? ici_mark(x->x_result) : 0)
-       + (x->x_error != NULL ? strlen(x->x_error) + 1: 0);
-}
-
-static void
-free_exec(ici_obj_t *o)
-{
-    ici_exec_t          *x;
-    ici_exec_t          **xp;
-
-    for (xp = &ici_execs; (x = *xp) != NULL; xp = &x->x_next)
-    {
-        if (x == ici_execof(o))
-        {
-            *xp = x->x_next;
-            break;
-        }
-    }
-    assert(x != NULL);
-#ifdef ICI_USE_WIN32_THREADS
-    if (x->x_thread_handle != NULL)
-    {
-        CloseHandle(x->x_thread_handle);
-    }
-#endif
-#ifdef ICI_USE_POSIX_THREADS
-    (void)sem_destroy(&x->x_semaphore);
-#endif
-    if (x->x_error != NULL)
-    {
-        free(x->x_error); /* It came from strdup() so use free directly */
-    }
-    ici_tfree(o, ici_exec_t);
-}
-
-/*
- * Return the object at key k of the object o, or NULL on error.
- * See the comment on t_fetch in object.h.
- */
-static ici_obj_t *
-fetch_exec(ici_obj_t *o, ici_obj_t *k)
-{
-    ici_exec_t          *x;
-
-    x = ici_execof(o);
-    if (k == SSO(error))
-    {
-        if (x->x_error == NULL)
-        {
-            return ici_null;
-        }
-        ici_str_t *s = ici_str_new_nul_term(x->x_error);
-        if (s != NULL)
-        {
-            ici_decref(s);
-        }
-        return s;
-    }
-    if (k == SSO(result))
-    {
-        switch (x->x_state)
-        {
-        case ICI_XS_ACTIVE:
-            return ici_null;
-
-        case ICI_XS_RETURNED:
-            return x->x_result;
-
-        case ICI_XS_FAILED:
-            ici_set_error("%s", x->x_result == NULL  ? "failed" : ici_stringof(x->x_result)->s_chars);
-            return NULL;
-
-        default:
-            assert(0);
-        }
-    }
-    else if (k == SSO(status))
-    {
-        switch (x->x_state)
-        {
-        case ICI_XS_ACTIVE:     return SSO(active);
-        case ICI_XS_RETURNED:   return SSO(finished);
-        case ICI_XS_FAILED:     return SSO(failed);
-        default:                assert(0);
-        }
-    }
-    return ici_null;
-}
-
-/*
  * Create and return a pointer to a new ICI execution context.
  * On return, all stacks (execution, operand and variable) are empty.
  * Returns NULL on failure, in which case error has been set.
@@ -717,9 +609,9 @@ ici_evaluate(ici_obj_t *code, int n_operands)
                             goto fail;
                         }
                     }
-                    if (ici_typeof(t)->t_fetch_method != NULL)
+                    if (ici_typeof(t)->has_fetch_method())
                     {
-                        if ((o = (*ici_typeof(t)->t_fetch_method)(t, ici_os.a_top[-1])) == NULL)
+                        if ((o = ici_typeof(t)->fetch_method(t, ici_os.a_top[-1])) == NULL)
                         {
                             goto fail;
                         }
@@ -782,7 +674,7 @@ ici_evaluate(ici_obj_t *code, int n_operands)
                 *ici_xs.a_top++ = o;        /* Restore to formal state. */
                 o = NULL;                   /* No subject object. */
             do_call:
-                if (UNLIKELY(ici_typeof(ici_os.a_top[-1])->t_call == NULL))
+                if (UNLIKELY(!ici_typeof(ici_os.a_top[-1])->has_call()))
                 {
                     char    n1[30];
 
@@ -797,7 +689,7 @@ ici_evaluate(ici_obj_t *code, int n_operands)
 		{
                     ici_debug->idbg_fncall(ici_os.a_top[-1], ICI_ARGS(), ICI_NARGS());
 		}
-                if ((*ici_typeof(ici_os.a_top[-1])->t_call)(ici_os.a_top[-1], o))
+                if (ici_typeof(ici_os.a_top[-1])->call(ici_os.a_top[-1], o))
                 {
                     if (o != NULL)
                     {
@@ -1427,16 +1319,108 @@ ici_eval(ici_str_t *name)
     return ici_evaluate(name, 0);
 }
 
-type_t  exec_type =
+class exec_type : public type
 {
-    mark_exec,
-    free_exec,
-    ici_hash_unique,
-    ici_cmp_unique,
-    ici_copy_simple,
-    ici_assign_fail,
-    fetch_exec,
-    "exec"
+public:
+    exec_type() : type("exec") {}
+
+    unsigned long mark(ici_obj_t *o) override
+    {
+        ici_exec_t          *x;
+
+        o->o_flags |= ICI_O_MARK;
+        x = ici_execof(o);
+        return sizeof(ici_exec_t)
+        + (x->x_xs != NULL ? ici_mark(x->x_xs) : 0)
+        + (x->x_os != NULL ? ici_mark(x->x_os) : 0)
+        + (x->x_vs != NULL ? ici_mark(x->x_vs) : 0)
+        + ici_mark(x->x_src)
+        + (x->x_pc_closet != NULL ? ici_mark(x->x_pc_closet) : 0)
+        + (x->x_os_temp_cache != NULL ? ici_mark(x->x_os_temp_cache) : 0)
+        + (x->x_waitfor != NULL ? ici_mark(x->x_waitfor) : 0)
+        + (x->x_result != NULL ? ici_mark(x->x_result) : 0)
+        + (x->x_error != NULL ? strlen(x->x_error) + 1: 0);
+    }
+
+    void free(ici_obj_t *o) override
+    {
+        ici_exec_t          *x;
+        ici_exec_t          **xp;
+
+        for (xp = &ici_execs; (x = *xp) != NULL; xp = &x->x_next)
+        {
+            if (x == ici_execof(o))
+            {
+                *xp = x->x_next;
+                break;
+            }
+        }
+        assert(x != NULL);
+#ifdef ICI_USE_WIN32_THREADS
+        if (x->x_thread_handle != NULL)
+        {
+            CloseHandle(x->x_thread_handle);
+        }
+#endif
+#ifdef ICI_USE_POSIX_THREADS
+        (void)sem_destroy(&x->x_semaphore);
+#endif
+        if (x->x_error != NULL)
+        {
+            ::free(x->x_error); /* It came from strdup() so use free directly */
+        }
+        ici_tfree(o, ici_exec_t);
+    }
+
+    ici_obj_t *fetch(ici_obj_t *o, ici_obj_t *k) override
+    {
+        ici_exec_t          *x;
+
+        x = ici_execof(o);
+        if (k == SSO(error))
+        {
+            if (x->x_error == NULL)
+            {
+                return ici_null;
+            }
+            ici_str_t *s = ici_str_new_nul_term(x->x_error);
+            if (s != NULL)
+            {
+                ici_decref(s);
+            }
+            return s;
+        }
+        if (k == SSO(result))
+        {
+            switch (x->x_state)
+            {
+            case ICI_XS_ACTIVE:
+                return ici_null;
+
+            case ICI_XS_RETURNED:
+                return x->x_result;
+
+            case ICI_XS_FAILED:
+                ici_set_error("%s", x->x_result == NULL  ? "failed" : ici_stringof(x->x_result)->s_chars);
+                return NULL;
+
+            default:
+                assert(0);
+            }
+        }
+        else if (k == SSO(status))
+        {
+            switch (x->x_state)
+            {
+            case ICI_XS_ACTIVE:     return SSO(active);
+            case ICI_XS_RETURNED:   return SSO(finished);
+            case ICI_XS_FAILED:     return SSO(failed);
+            default:                assert(0);
+            }
+        }
+        return ici_null;
+    }
+
 };
 
 ici_op_t    ici_o_quote         = {ICI_OP_QUOTE};

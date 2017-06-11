@@ -680,29 +680,22 @@ struct restorer : ici_obj
 
 typedef struct restorer restorer_t;
 
-static unsigned long
-mark_restorer(ici_obj_t *o)
+class restorer_type : public type
 {
-    o->o_flags |= ICI_O_MARK;
-    return sizeof (restorer_t);
-}
+public:
+    restorer_type() : type("restorer") {}
 
-static void
-free_restorer(ici_obj_t *o)
-{
-    ici_tfree(o, restorer_t);
-}
+    unsigned long mark(ici_obj_t *o) override
+    {
+        o->o_flags |= ICI_O_MARK;
+        return sizeof (restorer_t);
+    }
 
-type_t restorer_type =
-{
-    mark_restorer,
-    free_restorer,
-    ici_hash_unique,
-    ici_cmp_unique,
-    ici_copy_simple,
-    ici_assign_fail,
-    ici_fetch_fail,
-    "restorer"
+    void free(ici_obj_t *o) override
+    {
+        ici_tfree(o, restorer_t);
+    }
+
 };
 
 static restorer_t *

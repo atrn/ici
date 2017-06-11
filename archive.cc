@@ -67,33 +67,23 @@ archive_of(ici_obj_t *o)
     return (ici_archive_t *)(o);
 }
 
-static unsigned long
-mark_archive(ici_obj_t *o)
+class archive_type : public type
 {
-    ici_archive_t *s = archive_of(o);
-    o->o_flags |= ICI_O_MARK;
-    return sizeof *s
-        + ici_mark(s->a_file)
-        + ici_mark(s->a_sent)
-        + ici_mark(s->a_scope);
-}
+public:
+    archive_type() : type("archive") {}
 
-static void
-free_archive(ici_obj_t *o)
-{
-    ici_tfree(o, ici_archive_t);
-}
+    virtual unsigned long mark(ici_obj_t *o) override {
+        ici_archive_t *ar = archive_of(o);
+        o->o_flags |= ICI_O_MARK;
+        return sizeof *ar
+            + ici_mark(ar->a_file)
+            + ici_mark(ar->a_sent)
+            + ici_mark(ar->a_scope);
+    }
 
-type_t archive_type =
-{
-    mark_archive,
-    free_archive,
-    ici_hash_unique,
-    ici_cmp_unique,
-    ici_copy_simple,
-    ici_assign_fail,
-    ici_fetch_fail,
-    "archive"
+    virtual void free(ici_obj_t *o) override {
+        ici_tfree(o, ici_archive_t);
+    }
 };
 
 int ici_archive_init()

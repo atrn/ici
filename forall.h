@@ -25,8 +25,9 @@ struct ici_forall : ici_obj
 #define fa_kaggr        fa_objs[4]
 #define fa_kkey         fa_objs[5]
 
-#define forallof(o)     ((ici_forall_t *)o)
-#define isforall(o)     ((o)->o_tcode == ICI_TC_FORALL)
+inline ici_forall_t *forallof(ici_obj_t *o) { return static_cast<ici_forall_t *>(o); }
+inline bool isforall(ici_obj_t *o) { return o->isa(ICI_TC_FORALL); }
+
 /*
  * End of ici.h export. --ici.h-end--
  */

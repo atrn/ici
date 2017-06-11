@@ -18,6 +18,46 @@ namespace ici
 #define STR_ALLOCZ(n)   ((n) + sizeof (ici_str_t) - sizeof (int))
 // (offsetof(ici_str_t, s_u) + (n) + 1)
 
+int (ici_str_char_at)(ici_str_t *s, int index)
+{
+    return index < 0 || index >= s->s_nchars ? 0 : s->s_chars[index];
+}
+
+    /*
+     * Return a hash sensitive to the value of the object.
+     * See the comment on t_hash() in object.h
+     */
+    unsigned long
+    ici_hash_string(ici_obj_t *o)
+    {
+        unsigned long       h;
+
+#   if ICI_KEEP_STRING_HASH
+        if (ici_stringof(o)->s_hash != 0)
+        {
+            return ici_stringof(o)->s_hash;
+        }
+#   endif
+
+#   if defined(ICI_USE_SF_HASH)
+        {
+            extern uint32_t ici_superfast_hash(const char *, int);
+            h = STR_PRIME_0 * ici_superfast_hash(ici_stringof(o)->s_chars, ici_stringof(o)->s_nchars);
+        }
+#   elif defined(ICI_USE_MURMUR_HASH)
+        {
+            unsigned int ici_murmur_hash(const unsigned char * data, int len, unsigned int h);
+            h = STR_PRIME_0 * ici_murmur_hash((const unsigned char *)ici_stringof(o)->s_chars, ici_stringof(o)->s_nchars, 0);
+        }
+#   else
+	h = ici_crc(STR_PRIME_0, (const unsigned char *)ici_stringof(o)->s_chars, ici_stringof(o)->s_nchars);
+#   endif
+#   if ICI_KEEP_STRING_HASH
+        ici_stringof(o)->s_hash = h;
+#   endif
+        return h;
+    }
+
 /*
  * Allocate a new string object (single allocation) large enough to hold
  * nchars characters, and register it with the garbage collector.  Note: This
@@ -92,7 +132,7 @@ ici_str_new(const char *p, int nchars)
         memcpy(proto.s.s_chars, p, nchars);
         proto.s.s_chars[nchars] = '\0';
 #       if ICI_KEEP_STRING_HASH
-            proto.s.s_hash = 0;
+        proto.s.s_hash = 0;
 #       endif
         if ((s = ici_stringof(ici_atom_probe2(&proto.s, &po))) != NULL)
         {
@@ -127,7 +167,7 @@ ici_str_new(const char *p, int nchars)
     memcpy(s->s_chars, p, nchars);
     s->s_chars[nchars] = '\0';
 #   if ICI_KEEP_STRING_HASH
-        s->s_hash = 0;
+    s->s_hash = 0;
 #   endif
     ici_rego(s);
     return ici_stringof(ici_atom(s, 1));
@@ -253,247 +293,201 @@ ici_str_need_size(ici_str_t *s, int n)
     return 0;
 }
 
-/*
- * Mark this and referenced unmarked objects, return memory costs.
- * See comments on t_mark() in object.h.
- */
-static unsigned long
-mark_string(ici_obj_t *o)
+class string_type : public type
 {
-    o->o_flags |= ICI_O_MARK;
-    if (o->o_flags & ICI_S_SEP_ALLOC)
-    {
-        return sizeof(ici_str_t) + ici_stringof(o)->s_u.su_nalloc;
-    }
-    else
-    {
-        return STR_ALLOCZ(ici_stringof(o)->s_nchars);
-    }
-}
+public:
+    string_type() : type("string") {}
 
-/*
- * Returns 0 if these objects are equal, else non-zero.
- * See the comments on t_cmp() in object.h.
- */
-static int
-cmp_string(ici_obj_t *o1, ici_obj_t *o2)
-{
-    if (ici_stringof(o1)->s_nchars != ici_stringof(o2)->s_nchars)
+    /*
+     * Mark this and referenced unmarked objects, return memory costs.
+     * See comments on t_mark() in object.h.
+     */
+    unsigned long
+    mark(ici_obj_t *o) override
     {
-        return 1;
+        o->o_flags |= ICI_O_MARK;
+        if (o->o_flags & ICI_S_SEP_ALLOC)
+        {
+            return sizeof(ici_str_t) + ici_stringof(o)->s_u.su_nalloc;
+        }
+        else
+        {
+            return STR_ALLOCZ(ici_stringof(o)->s_nchars);
+        }
     }
-    if (ici_stringof(o1)->s_nchars == 0)
-    {
-	return 0;
-    }
-    if (ici_stringof(o1)->s_chars[0] != ici_stringof(o2)->s_chars[0])
-    {
-        return 1;
-    }
-    return memcmp
-    (
-        ici_stringof(o1)->s_chars,
-        ici_stringof(o2)->s_chars,
-        ici_stringof(o1)->s_nchars
-    );
-}
 
-/*
- * Return a copy of the given object, or NULL on error.
- * See the comment on t_copy() in object.h.
- */
-static ici_obj_t *
-copy_string(ici_obj_t *o)
-{
-    ici_str_t           *ns;
-
-    if ((ns = ici_str_buf_new(ici_stringof(o)->s_nchars + 1)) == NULL)
+    /*
+     * Returns 0 if these objects are equal, else non-zero.
+     * See the comments on t_cmp() in object.h.
+     */
+    int
+    cmp(ici_obj_t *o1, ici_obj_t *o2) override
     {
-        return NULL;
-    }
-    ns->s_nchars = ici_stringof(o)->s_nchars;
-    memcpy(ns->s_chars, ici_stringof(o)->s_chars, ns->s_nchars);
-    ns->s_chars[ns->s_nchars] = '\0';
-    return ns;
-}
-
-/*
- * Free this object and associated memory (but not other objects).
- * See the comments on t_free() in object.h.
- */
-static void
-free_string(ici_obj_t *o)
-{
-    if (o->o_flags & ICI_S_SEP_ALLOC)
-    {
-        ici_nfree(ici_stringof(o)->s_chars, ici_stringof(o)->s_u.su_nalloc);
-        ici_tfree(o, ici_str_t);
-    }
-    else
-    {
-        ici_nfree(o, STR_ALLOCZ(ici_stringof(o)->s_nchars));
-    }
-}
-
-/*
- * Return a hash sensitive to the value of the object.
- * See the comment on t_hash() in object.h
- */
-unsigned long
-ici_hash_string(ici_obj_t *o)
-{
-    unsigned long       h;
-
-#   if ICI_KEEP_STRING_HASH
-    if (ici_stringof(o)->s_hash != 0)
-    {
-        return ici_stringof(o)->s_hash;
-    }
-#   endif
-
-#   if defined(ICI_USE_SF_HASH)
-    {
-        extern uint32_t ici_superfast_hash(const char *, int);
-        h = STR_PRIME_0 * ici_superfast_hash(ici_stringof(o)->s_chars, ici_stringof(o)->s_nchars);
-    }
-#   elif defined(ICI_USE_MURMUR_HASH)
-    {
-	unsigned int ici_murmur_hash(const unsigned char * data, int len, unsigned int h);
-        h = STR_PRIME_0 * ici_murmur_hash((const unsigned char *)ici_stringof(o)->s_chars, ici_stringof(o)->s_nchars, 0);
-    }
-#   else
-	h = ici_crc(STR_PRIME_0, (const unsigned char *)ici_stringof(o)->s_chars, ici_stringof(o)->s_nchars);
-#   endif
-#   if ICI_KEEP_STRING_HASH
-        ici_stringof(o)->s_hash = h;
-#   endif
-    return h;
-}
-
-/*
- * Return the object at key k of the obejct o, or NULL on error.
- * See the comment on t_fetch in object.h.
- */
-static ici_obj_t *
-fetch_string(ici_obj_t *o, ici_obj_t *k)
-{
-    int        i;
-
-    if (!ici_isint(k))
-    {
-        return ici_fetch_fail(o, k);
-    }
-    if ((i = (int)ici_intof(k)->i_value) < 0 || i >= ici_stringof(o)->s_nchars)
-    {
-        k = ici_str_new("", 0);
-    }
-    else
-    {
-        k = ici_str_new(&ici_stringof(o)->s_chars[i], 1);
-    }
-    if (k != NULL)
-    {
-        ici_decref(k);
-    }
-    return k;
-}
-
-/*
- * Assign to key k of the object o the value v. Return 1 on error, else 0.
- * See the comment on t_assign() in object.h.
- *
- * The key k must be a positive integer. The string will attempt to grow
- * to accomodate the new index as necessary.
- */
-static int
-assign_string(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v)
-{
-    long        i;
-    long        n;
-    ici_str_t   *s;
-
-    if (o->isatom())
-    {
-        return ici_set_error("attempt to assign to an atomic string");
-    }
-    if (!ici_isint(k) || !ici_isint(v))
-        return ici_assign_fail(o, k, v);
-    i = ici_intof(k)->i_value;
-    if (i < 0)
-    {
-        return ici_set_error("attempt to assign to negative string index");
-    }
-    s = ici_stringof(o);
-    if (ici_str_need_size(s, i + 1))
-        return 1;
-    for (n = s->s_nchars; n < i; ++n)
-        s->s_chars[n] = ' ';
-    s->s_chars[i] = (char)ici_intof(v)->i_value;
-    if (s->s_nchars < ++i)
-    {
-        s->s_nchars = i;
-        s->s_chars[i] = '\0';
-    }
-    return 0;
-}
-
-int
-(ici_str_char_at)(ici_str_t *s, int index)
-{
-    return index < 0 || index >= s->s_nchars ? 0 : s->s_chars[index];
-}
-
-static int
-forall_string(ici_obj_t *o)
-{
-    ici_forall_t *fa = forallof(o);
-    ici_str_t  *s;
-    ici_int_t  *i;
-
-    s = ici_stringof(fa->fa_aggr);
-    if (++fa->fa_index >= s->s_nchars)
-        return -1;
-    if (fa->fa_vaggr != ici_null)
-    {
-        if ((s = ici_str_new(&s->s_chars[fa->fa_index], 1)) == NULL)
+        if (ici_stringof(o1)->s_nchars != ici_stringof(o2)->s_nchars)
+        {
             return 1;
-        if (ici_assign(fa->fa_vaggr, fa->fa_vkey, s))
+        }
+        if (ici_stringof(o1)->s_nchars == 0)
+        {
+            return 0;
+        }
+        if (ici_stringof(o1)->s_chars[0] != ici_stringof(o2)->s_chars[0])
+        {
             return 1;
-        ici_decref(s);
+        }
+        return memcmp
+        (
+            ici_stringof(o1)->s_chars,
+            ici_stringof(o2)->s_chars,
+            ici_stringof(o1)->s_nchars
+        );
     }
-    if (fa->fa_kaggr != ici_null)
-    {
-        if ((i = ici_int_new((long)fa->fa_index)) == NULL)
-            return 1;
-        if (ici_assign(fa->fa_kaggr, fa->fa_kkey, i))
-            return 1;
-        ici_decref(i);
-    }
-    return 0;
-}
 
-type_t  string_type =
-{
-    mark_string,
-    free_string,
-    ici_hash_string,
-    cmp_string,
-    copy_string,
-    assign_string,
-    fetch_string,
-    "string",
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    forall_string
+    /*
+     * Return a copy of the given object, or NULL on error.
+     * See the comment on t_copy() in object.h.
+     */
+    ici_obj_t *
+    copy(ici_obj_t *o) override
+    {
+        ici_str_t           *ns;
+
+        if ((ns = ici_str_buf_new(ici_stringof(o)->s_nchars + 1)) == NULL)
+        {
+            return NULL;
+        }
+        ns->s_nchars = ici_stringof(o)->s_nchars;
+        memcpy(ns->s_chars, ici_stringof(o)->s_chars, ns->s_nchars);
+        ns->s_chars[ns->s_nchars] = '\0';
+        return ns;
+    }
+
+    /*
+     * Free this object and associated memory (but not other objects).
+     * See the comments on t_free() in object.h.
+     */
+    void
+    free(ici_obj_t *o) override
+    {
+        if (o->o_flags & ICI_S_SEP_ALLOC)
+        {
+            ici_nfree(ici_stringof(o)->s_chars, ici_stringof(o)->s_u.su_nalloc);
+            ici_tfree(o, ici_str_t);
+        }
+        else
+        {
+            ici_nfree(o, STR_ALLOCZ(ici_stringof(o)->s_nchars));
+        }
+    }
+
+    /*
+     * Return a hash sensitive to the value of the object.
+     * See the comment on t_hash() in object.h
+     */
+    unsigned long
+    hash(ici_obj_t *o) override
+    {
+        return ici_hash_string(o);
+    }
+
+    /*
+     * Return the object at key k of the obejct o, or NULL on error.
+     * See the comment on t_fetch in object.h.
+     */
+    ici_obj_t *
+    fetch(ici_obj_t *o, ici_obj_t *k) override
+    {
+        int        i;
+
+        if (!ici_isint(k))
+        {
+            return ici_fetch_fail(o, k);
+        }
+        if ((i = (int)ici_intof(k)->i_value) < 0 || i >= ici_stringof(o)->s_nchars)
+        {
+            k = ici_str_new("", 0);
+        }
+        else
+        {
+            k = ici_str_new(&ici_stringof(o)->s_chars[i], 1);
+        }
+        if (k != NULL)
+        {
+            ici_decref(k);
+        }
+        return k;
+    }
+
+    /*
+     * Assign to key k of the object o the value v. Return 1 on error, else 0.
+     * See the comment on t_assign() in object.h.
+     *
+     * The key k must be a positive integer. The string will attempt to grow
+     * to accomodate the new index as necessary.
+     */
+    int
+    assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v) override
+    {
+        long        i;
+        long        n;
+        ici_str_t   *s;
+
+        if (o->isatom())
+        {
+            return ici_set_error("attempt to assign to an atomic string");
+        }
+        if (!ici_isint(k) || !ici_isint(v))
+            return ici_assign_fail(o, k, v);
+        i = ici_intof(k)->i_value;
+        if (i < 0)
+        {
+            return ici_set_error("attempt to assign to negative string index");
+        }
+        s = ici_stringof(o);
+        if (ici_str_need_size(s, i + 1))
+            return 1;
+        for (n = s->s_nchars; n < i; ++n)
+            s->s_chars[n] = ' ';
+        s->s_chars[i] = (char)ici_intof(v)->i_value;
+        if (s->s_nchars < ++i)
+        {
+            s->s_nchars = i;
+            s->s_chars[i] = '\0';
+        }
+        return 0;
+    }
+
+    int
+    forall(ici_obj_t *o) override
+    {
+        ici_forall_t *fa = forallof(o);
+        ici_str_t  *s;
+        ici_int_t  *i;
+
+        s = ici_stringof(fa->fa_aggr);
+        if (++fa->fa_index >= s->s_nchars)
+            return -1;
+        if (fa->fa_vaggr != ici_null)
+        {
+            if ((s = ici_str_new(&s->s_chars[fa->fa_index], 1)) == NULL)
+                return 1;
+            if (ici_assign(fa->fa_vaggr, fa->fa_vkey, s))
+                return 1;
+            ici_decref(s);
+        }
+        if (fa->fa_kaggr != ici_null)
+        {
+            if ((i = ici_int_new((long)fa->fa_index)) == NULL)
+                return 1;
+            if (ici_assign(fa->fa_kaggr, fa->fa_kkey, i))
+                return 1;
+            ici_decref(i);
+        }
+        return 0;
+    }
+
+    bool has_forall() const override { return true; }
+
 };
 
 } // namespace ici

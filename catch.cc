@@ -40,22 +40,6 @@ ici_unwind()
 }
 
 /*
- * Mark this and referenced unmarked objects, return memory costs.
- * See comments on t_mark() in object.h.
- */
-static unsigned long
-mark_catch(ici_obj_t *o)
-{
-    unsigned long       mem;
-
-    o->o_flags |= ICI_O_MARK;
-    mem = sizeof(ici_catch_t);
-    if (ici_catchof(o)->c_catcher != NULL)
-        mem += ici_mark(ici_catchof(o)->c_catcher);
-    return mem;
-}
-
-/*
  * Return a new catch object with the given catcher object and
  * corresponding to the operand and variable stack depths given.
  * The catcher, o, may be NULL.
@@ -79,17 +63,6 @@ ici_new_catch(ici_obj_t *o, int odepth, int vdepth, int flags)
 }
 
 /*
- * Free this object and associated memory (but not other objects).
- * See the comments on t_free() in object.h.
- */
-static void
-free_catch(ici_obj_t *o)
-{
-    assert((o->o_flags & CF_EVAL_BASE) == 0);
-    ici_tfree(o, ici_catch_t);
-}
-
-/*
  * runner handler       => catcher (os)
  *                      => catcher pc (xs)
  *                      => catcher (vs)
@@ -105,16 +78,28 @@ ici_op_onerror()
     return 0;
 }
 
-type_t  catch_type =
+class catch_type : public type
 {
-    mark_catch,
-    free_catch,
-    ici_hash_unique,
-    ici_cmp_unique,
-    ici_copy_simple,
-    ici_assign_fail,
-    ici_fetch_fail,
-    "catch"
+public:
+    catch_type() : type("catch") {}
+
+    unsigned long mark(ici_obj_t *o) override
+    {
+        unsigned long       mem;
+
+        o->o_flags |= ICI_O_MARK;
+        mem = sizeof(ici_catch_t);
+        if (ici_catchof(o)->c_catcher != NULL)
+            mem += ici_mark(ici_catchof(o)->c_catcher);
+        return mem;
+    }
+
+    void free(ici_obj_t *o) override
+    {
+        assert((o->o_flags & CF_EVAL_BASE) == 0);
+        ici_tfree(o, ici_catch_t);
+    }
+
 };
 
 ici_op_t    ici_o_onerror       = {ici_op_onerror};

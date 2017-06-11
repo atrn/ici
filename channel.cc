@@ -67,66 +67,26 @@
 namespace ici
 {
 
-static unsigned long
-mark_channel(ici_obj_t *o)
+class channel_type : public type
 {
-    unsigned long mem = sizeof (ici_channel_t);
-    o->o_flags |= ICI_O_MARK;
-    mem += ici_mark(ici_objwsupof(o)->o_super);
-    mem += ici_mark(ici_channelof(o)->c_q);
-    if (ici_channelof(o)->c_altobj != NULL)
-	mem += ici_mark(ici_channelof(o)->c_altobj);
-    return mem;
-}
+public:
+    channel_type() : type("channel") {}
 
-static void
-free_channel(ici_obj_t *o)
-{
-    ici_tfree(o, ici_channel_t);
-}
+    unsigned long mark(ici_obj_t *o) override
+    {
+        unsigned long mem = sizeof (ici_channel_t);
+        o->o_flags |= ICI_O_MARK;
+        mem += ici_mark(ici_objwsupof(o)->o_super);
+        mem += ici_mark(ici_channelof(o)->c_q);
+        if (ici_channelof(o)->c_altobj != NULL)
+            mem += ici_mark(ici_channelof(o)->c_altobj);
+        return mem;
+    }
 
-static int
-assign_super_channel(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v, ici_struct_t *b)
-{
-    return ici_assign_fail(o, k, v);
-}
-
-static int
-fetch_super_channel(ici_obj_t *o, ici_obj_t *k, ici_obj_t **v, ici_struct_t *b)
-{
-    *v = ici_fetch(ici_objwsupof(o)->o_super, k);
-    return *v == NULL;
-}
-
-static int
-assign_base_channel(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v)
-{
-    return ici_assign_fail(o, k, v);
-}
-
-static ici_obj_t *
-fetch_base_channel(ici_obj_t *o, ici_obj_t *k)
-{
-    return ici_fetch(ici_objwsupof(o)->o_super, k);
-}
-
-type_t channel_type =
-{
-    mark_channel,
-    free_channel,
-    ici_hash_unique,
-    ici_cmp_unique,
-    ici_copy_simple,
-    ici_assign_fail,
-    fetch_base_channel,
-    "channel",
-    NULL,
-    NULL,
-    NULL,
-    assign_super_channel,
-    fetch_super_channel,
-    assign_base_channel,
-    fetch_base_channel
+    void free(ici_obj_t *o) override
+    {
+        ici_tfree(o, ici_channel_t);
+    }
 };
 
 

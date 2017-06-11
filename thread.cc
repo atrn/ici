@@ -371,7 +371,7 @@ f_go(...)
     ici_exec_t          *x;
     int                 i;
 
-    if (ICI_NARGS() < 1 || ici_typeof(ICI_ARG(0))->t_call == NULL)
+    if (ICI_NARGS() < 1 || !ici_typeof(ICI_ARG(0))->has_call())
         return ici_argerror(0);
 
     if ((x = ici_new_exec()) == NULL)

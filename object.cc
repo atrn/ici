@@ -121,7 +121,75 @@ int             ici_atomsz;     /* Number of slots in hash table. */
 int             ici_natoms;     /* Number of atomic objects. */
 
 int             ici_supress_collect;
-int		        ici_ncollects;	/* Number of ici_collect() calls */
+int		ici_ncollects;	/* Number of ici_collect() calls */
+
+//================================================================
+//
+// class type
+
+unsigned long type::hash(ici_obj_t *o) {
+    return ici_hash_unique(o);
+}
+
+int type::cmp(ici_obj_t *o1, ici_obj_t *o2) {
+    return ici_cmp_unique(o1, o2);
+}
+
+ici_obj_t *type::copy(ici_obj_t *o) {
+    return ici_copy_simple(o);
+}
+
+int type::assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v) {
+    return ici_assign_fail(o, k, v);
+}
+
+ici_obj_t * type::fetch(ici_obj_t *o, ici_obj_t *k) {
+    return ici_fetch_fail(k, v);
+}
+
+int type::assign_super(ici_obj_t *o, ici_obj_t *k, ici_obj_t *pv, ici_struct_t *) {
+    return ici_assign_fail(o, k, *pv);
+}
+
+int type::fetch_super(ici_obj_t *o, ici_obj_t *k, ici_struct_t *) {
+    return ici_fetch_fail(k, v);
+}
+
+int type::assign_base(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v) {
+    return assign(o, k, v);
+}
+
+ici_obj_t *
+type::fetch_base(ici_obj_t *o, ici_obj_t *k) {
+    return fetch(o, k);
+}
+
+bool type::has_fetch_method() const {
+    return false;
+}
+
+ici_obj_t *type::fetch_method(ici_obj_t *o, ici_obj_t *n) {
+    return nullptr;
+}
+
+int type::forall(ici_obj_t *o) {
+    return 1;
+}
+
+bool type::has_objname() const {
+    return false;
+}
+
+void type::objname(ici_obj_t *, char n[ICI_OBJNAMEZ]) {
+}
+
+int type::call(ici_obj_t *, ici_obj_t *) {
+    return nullptr;
+}
+
+bool type::has_call() const {
+    return false;
+}
 
 /*
  * Format a human readable version of the object 'o' into the buffer
@@ -133,9 +201,9 @@ int		        ici_ncollects;	/* Number of ici_collect() calls */
 char *
 ici_objname(char p[ICI_OBJNAMEZ], ici_obj_t *o)
 {
-    if (ici_typeof(o)->t_objname != NULL)
+    if (ici_typeof(o)->has_objname())
     {
-        (*ici_typeof(o)->t_objname)(o, p);
+        ici_typeof(o)->objname(o, p);
         return p;
     }
 
@@ -150,10 +218,10 @@ ici_objname(char p[ICI_OBJNAMEZ], ici_obj_t *o)
         sprintf(p, "%ld", ici_intof(o)->i_value);
     else if (ici_isfloat(o))
         sprintf(p, "%g", ici_floatof(o)->f_value);
-    else if (strchr("aeiou", ici_typeof(o)->t_name[0]) != NULL)
-        sprintf(p, "an %s", ici_typeof(o)->t_name);
+    else if (strchr("aeiou", ici_typeof(o)->name[0]) != NULL)
+        sprintf(p, "an %s", ici_typeof(o)->name);
     else
-        sprintf(p, "a %s", ici_typeof(o)->t_name);
+        sprintf(p, "a %s", ici_typeof(o)->name);
     return p;
 }
 
@@ -293,7 +361,7 @@ ici_hash_unique(ici_obj_t *o)
 #define hash(o)									\
 (										\
  (o)->o_tcode == ICI_TC_INT ? (unsigned long)ici_intof(o)->i_value * INT_PRIME	\
- : (*ici_typeof(o)->t_hash)(o)							\
+ : ici_typeof(o)->hash(o)							\
 )
 
 /*
@@ -880,44 +948,44 @@ ici_mark(ici_obj_t *o)
 {
     if (o->o_flags & ICI_O_MARK)
         return 0L;
-    return (*ici_typeof(o)->t_mark)(o);
+    return ici_typeof(o)->mark(o);
 }
 
 void
 freeo(ici_obj_t *o)
 {
-    (*ici_typeof(o)->t_free)(o);
+    ici_typeof(o)->free(o);
 }
 
 #undef hash
 unsigned long
 hash(ici_obj_t *o)
 {
-    return (*ici_typeof(o)->t_hash)(o);
+    return ici_typeof(o)->hash(o);
 }
 
 int
 cmp(ici_obj_t *o1, ici_obj_t *o2)
 {
-    return (*ici_typeof(o1)->t_cmp)(o1, o2);
+    return ici_typeof(o1)->cmp(o1, o2);
 }
 
 ici_obj_t *
 copy(ici_obj_t *o)
 {
-    return (*ici_typeof(o)->t_copy)(o);
+    return ici_typeof(o)->copy(o);
 }
 
 ici_obj_t *
 ici_fetch(ici_obj_t *o, ici_obj_t *k)
 {
-    return (*ici_typeof(o)->t_fetch)(o, k);
+    return ici_typeof(o)->fetch(o, k);
 }
 
 int
 ici_assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v)
 {
-    return (*ici_typeof(o)->t_assign)(o, k, v);
+    return ici_typeof(o)->assign(o, k, v);
 }
 
 #endif

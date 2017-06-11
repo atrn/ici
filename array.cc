@@ -504,199 +504,6 @@ ici_array_new(ptrdiff_t n)
 }
 
 /*
- * Mark this and referenced unmarked objects, return memory costs.
- * See comments on t_mark() in object.h.
- */
-static unsigned long
-mark_array(ici_obj_t *o)
-{
-    ici_obj_t           **e;
-    unsigned long       mem;
-
-    o->o_flags |= ICI_O_MARK;
-    if (ici_arrayof(o)->a_base == NULL)
-    {
-        return sizeof(ici_array_t);
-    }
-    mem = sizeof(ici_array_t)
-        + (ici_arrayof(o)->a_limit - ici_arrayof(o)->a_base) * sizeof(ici_obj_t *);
-    if (ici_arrayof(o)->a_bot <= ici_arrayof(o)->a_top)
-    {
-        for (e = ici_arrayof(o)->a_bot; e < ici_arrayof(o)->a_top; ++e)
-        {
-            mem += ici_mark(*e);
-        }
-    }
-    else
-    {
-        for (e = ici_arrayof(o)->a_base; e < ici_arrayof(o)->a_top; ++e)
-        {
-            mem += ici_mark(*e);
-        }
-        for (e = ici_arrayof(o)->a_bot; e < ici_arrayof(o)->a_limit; ++e)
-        {
-            mem += ici_mark(*e);
-        }
-    }
-    return mem;
-}
-
-/*
- * Free this object and associated memory (but not other objects).
- * See the comments on t_free() in object.h.
- */
-static void
-free_array(ici_obj_t *o)
-{
-    if (ici_arrayof(o)->a_base != NULL)
-    {
-        ici_nfree
-        (
-            ici_arrayof(o)->a_base,
-            (ici_arrayof(o)->a_limit - ici_arrayof(o)->a_base) * sizeof(ici_obj_t *)
-        );
-    }
-    ici_tfree(o, ici_array_t);
-}
-
-/*
- * Returns 0 if these objects are equal, else non-zero.
- * See the comments on t_cmp() in object.h.
- */
-static int
-cmp_array(ici_obj_t *o1, ici_obj_t *o2)
-{
-    ptrdiff_t           i;
-    ptrdiff_t           n1;
-    ptrdiff_t           n2;
-    ici_obj_t           **e1;
-    ici_obj_t           **e2;
-
-    if (o1 == o2)
-    {
-        return 0;
-    }
-    n1 = ici_array_nels(ici_arrayof(o1));
-    n2 = ici_array_nels(ici_arrayof(o2));
-    if (n1 != n2)
-    {
-        return 1;
-    }
-    for (i = 0; i < n1; i += n2)
-    {
-        n2 = n1;
-        e1 = ici_array_span(ici_arrayof(o1), i, &n2);
-        e2 = ici_array_span(ici_arrayof(o2), i, &n2);
-        if (memcmp(e1, e2, n2 * sizeof(ici_obj_t *)))
-        {
-            return 1;
-        }
-    }
-    return 0;
-}
-
-/*
- * Return a copy of the given object, or NULL on error.
- * See the comment on t_copy() in object.h.
- */
-static ici_obj_t *
-copy_array(ici_obj_t *o)
-{
-    ici_array_t         *na;
-    ptrdiff_t           n;
-
-    n = ici_array_nels(ici_arrayof(o));
-    if ((na = ici_array_new(n)) == NULL)
-    {
-        return NULL;
-    }
-    ici_array_gather(na->a_top, ici_arrayof(o), 0, n);
-    na->a_top += n;
-    return na;
-}
-
-/*
- * Return a hash sensitive to the value of the object.
- * See the comment on t_hash() in object.h
- */
-static unsigned long
-hash_array(ici_obj_t *o)
-{
-    unsigned long       h;
-    ici_obj_t           **e;
-    ptrdiff_t           n;
-    ptrdiff_t           m;
-    ptrdiff_t           i;
-
-    h = ARRAY_PRIME;
-    n = ici_array_nels(ici_arrayof(o));
-    for (i = 0; i < n; )
-    {
-        m = n;
-        e = ici_array_span(ici_arrayof(o), i, &m);
-        i += m;
-        while (--m >= 0)
-        {
-            h += ICI_PTR_HASH(*e);
-            ++e;
-            h >>= 1;
-        }
-    }
-    return h;
-}
-
-/*
- * Assign to key k of the object o the value v. Return 1 on error, else 0.
- * See the comment on t_assign() in object.h.
- *
- * The key k must be a positive integer. The array will attempt to grow
- * to accomodate the new index as necessary.
- */
-static int
-assign_array(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v)
-{
-    long        i;
-    ici_obj_t   **e;
-
-    if (o->isatom())
-    {
-        return ici_set_error("attempt to assign to an atomic array");
-    }
-    if (!ici_isint(k))
-    {
-        return ici_assign_fail(o, k, v);
-    }
-    i = ici_intof(k)->i_value;
-    if (i < 0)
-    {
-        return ici_set_error("attempt to assign to negative array index");
-    }
-    if ((e = ici_array_find_slot(ici_arrayof(o), i)) == NULL)
-    {
-        return 1;
-    }
-    *e = v;
-    return 0;
-}
-
-/*
- * Return the object at key k of the obejct o, or NULL on error.
- * See the comment on t_fetch in object.h.
- *
- * The key k must be an integer. Reading non existing keys results in
- * an NULL value (not an error).
- */
-static ici_obj_t *
-fetch_array(ici_obj_t *o, ici_obj_t *k)
-{
-    if (!ici_isint(k))
-    {
-        return ici_fetch_fail(o, k);
-    }
-    return ici_array_get(ici_arrayof(o), ici_intof(k)->i_value);
-}
-
-/*
  * obj => array 0 (the array contains the obj)
  */
 int
@@ -716,54 +523,189 @@ ici_op_mklvalue()
     return 0;
 }
 
-static int
-forall_array(ici_obj_t *o)
-{
-    ici_forall_t *fa = forallof(o);
-    ici_array_t    *a;
-    ici_int_t  *i;
+// array_type
 
-    a = ici_arrayof(fa->fa_aggr);
-    if (++fa->fa_index >= ici_array_nels(a))
-        return -1;
-    if (fa->fa_vaggr != ici_null)
-    {
-        if (ici_assign(fa->fa_vaggr, fa->fa_vkey, ici_array_get(a, fa->fa_index)))
-            return 1;
-    }
-    if (fa->fa_kaggr != ici_null)
-    {
-        if ((i = ici_int_new((long)fa->fa_index)) == NULL)
-            return 1;
-        if (ici_assign(fa->fa_kaggr, fa->fa_kkey, i))
-            return 1;
-        ici_decref(i);
-    }
-    return 0;
-}
-
-type_t  array_type =
+class array_type : public type
 {
-    mark_array,
-    free_array,
-    hash_array,
-    cmp_array,
-    copy_array,
-    assign_array,
-    fetch_array,
-    "array",
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    forall_array
+    array_type() : type("array") {}
+
+    virtual unsigned long mark(ici_obj_t *o) override {
+        ici_obj_t           **e;
+        unsigned long       mem;
+
+        o->o_flags |= ICI_O_MARK;
+        if (ici_arrayof(o)->a_base == NULL)
+        {
+            return sizeof(ici_array_t);
+        }
+        mem = sizeof(ici_array_t)
+        + (ici_arrayof(o)->a_limit - ici_arrayof(o)->a_base) * sizeof(ici_obj_t *);
+        if (ici_arrayof(o)->a_bot <= ici_arrayof(o)->a_top)
+        {
+            for (e = ici_arrayof(o)->a_bot; e < ici_arrayof(o)->a_top; ++e)
+            {
+                mem += ici_mark(*e);
+            }
+        }
+        else
+        {
+            for (e = ici_arrayof(o)->a_base; e < ici_arrayof(o)->a_top; ++e)
+            {
+                mem += ici_mark(*e);
+            }
+            for (e = ici_arrayof(o)->a_bot; e < ici_arrayof(o)->a_limit; ++e)
+            {
+                mem += ici_mark(*e);
+            }
+        }
+        return mem;
+    }
+
+    void free(ici_obj_t *o) override
+    {
+        if (ici_arrayof(o)->a_base != NULL)
+        {
+            ici_nfree
+            (
+                ici_arrayof(o)->a_base,
+                (ici_arrayof(o)->a_limit - ici_arrayof(o)->a_base) * sizeof(ici_obj_t *)
+            );
+        }
+        ici_tfree(o, ici_array_t);
+    }
+
+    unsigned long hash(ici_obj_t *o) override
+    {
+        unsigned long       h;
+        ici_obj_t           **e;
+        ptrdiff_t           n;
+        ptrdiff_t           m;
+        ptrdiff_t           i;
+
+        h = ARRAY_PRIME;
+        n = ici_array_nels(ici_arrayof(o));
+        for (i = 0; i < n; )
+        {
+            m = n;
+            e = ici_array_span(ici_arrayof(o), i, &m);
+            i += m;
+            while (--m >= 0)
+            {
+                h += ICI_PTR_HASH(*e);
+                ++e;
+                h >>= 1;
+            }
+        }
+        return h;
+    }
+
+    int cmp(ici_obj_t *o1, ici_obj_t *o2) override
+    {
+        ptrdiff_t           i;
+        ptrdiff_t           n1;
+        ptrdiff_t           n2;
+        ici_obj_t           **e1;
+        ici_obj_t           **e2;
+
+        if (o1 == o2)
+        {
+            return 0;
+        }
+        n1 = ici_array_nels(ici_arrayof(o1));
+        n2 = ici_array_nels(ici_arrayof(o2));
+        if (n1 != n2)
+        {
+            return 1;
+        }
+        for (i = 0; i < n1; i += n2)
+        {
+            n2 = n1;
+            e1 = ici_array_span(ici_arrayof(o1), i, &n2);
+            e2 = ici_array_span(ici_arrayof(o2), i, &n2);
+            if (memcmp(e1, e2, n2 * sizeof(ici_obj_t *)))
+            {
+                return 1;
+            }
+        }
+        return 0;
+    }
+
+    ici_obj_t * copy(ici_obj_t *o) override
+    {
+        ici_array_t         *na;
+        ptrdiff_t           n;
+
+        n = ici_array_nels(ici_arrayof(o));
+        if ((na = ici_array_new(n)) == NULL)
+        {
+            return NULL;
+        }
+        ici_array_gather(na->a_top, ici_arrayof(o), 0, n);
+        na->a_top += n;
+        return na;
+    }
+
+    int assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v) override
+    {
+        long        i;
+        ici_obj_t   **e;
+
+        if (o->isatom())
+        {
+            return ici_set_error("attempt to assign to an atomic array");
+        }
+        if (!ici_isint(k))
+        {
+            return ici_assign_fail(o, k, v);
+        }
+        i = ici_intof(k)->i_value;
+        if (i < 0)
+        {
+            return ici_set_error("attempt to assign to negative array index");
+        }
+        if ((e = ici_array_find_slot(ici_arrayof(o), i)) == NULL)
+        {
+            return 1;
+        }
+        *e = v;
+        return 0;
+    }
+
+    ici_obj_t *fetch(ici_obj_t *o, ici_obj_t *k) override
+    {
+        if (!ici_isint(k))
+        {
+            return ici_fetch_fail(o, k);
+        }
+        return ici_array_get(ici_arrayof(o), ici_intof(k)->i_value);
+    }
+
+    bool has_forall() const override { return true; }
+
+    int forall(ici_obj_t *o) override
+    {
+        ici_forall_t *fa = forallof(o);
+        ici_array_t    *a;
+        ici_int_t  *i;
+
+        a = ici_arrayof(fa->fa_aggr);
+        if (++fa->fa_index >= ici_array_nels(a))
+            return -1;
+        if (fa->fa_vaggr != ici_null)
+        {
+            if (ici_assign(fa->fa_vaggr, fa->fa_vkey, ici_array_get(a, fa->fa_index)))
+                return 1;
+        }
+        if (fa->fa_kaggr != ici_null)
+        {
+            if ((i = ici_int_new((long)fa->fa_index)) == NULL)
+                return 1;
+            if (ici_assign(fa->fa_kaggr, fa->fa_kkey, i))
+                return 1;
+            ici_decref(i);
+        }
+        return 0;
+    }
 };
 
 ici_op_t    ici_o_mklvalue      = {ici_op_mklvalue};

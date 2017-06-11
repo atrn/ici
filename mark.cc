@@ -5,27 +5,24 @@
 namespace ici
 {
 
-/*
- * Mark this and referenced unmarked objects, return memory costs.
- * See comments on t_mark() in object.h.
- */
-static unsigned long
-mark_mark(ici_obj_t *o)
+class mark_type : public type
 {
-    o->o_flags |= ICI_O_MARK;
-    return sizeof(ici_mark_t);
-}
+public:
+    mark_type() : type("mark") {}
 
-type_t  mark_type =
-{
-    mark_mark,
-    NULL,
-    ici_hash_unique,
-    ici_cmp_unique,
-    ici_copy_simple,
-    ici_assign_fail,
-    ici_fetch_fail,
-    "mark"
+    /*
+     * Mark this and referenced unmarked objects, return memory costs.
+     * See comments on t_mark() in object.h.
+     */
+    unsigned long mark(ici_obj_t *o) override
+    {
+        o->o_flags |= ICI_O_MARK;
+        return sizeof (ici_mark_t);
+    }
+
+    void free(ici_obj_t *) override
+    {
+    }
 };
 
 ici_mark_t  ici_o_mark;

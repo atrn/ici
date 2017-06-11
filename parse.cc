@@ -133,9 +133,9 @@ disassemble(int indent, ici_array_t *a)
  */
 #if defined ICI_INLINE_PARSER_CODE
 
-#define next(p, a)  (p->p_ungot.t_what != T_NONE \
-                    ? (p->p_got=p->p_ungot, p->p_ungot.t_what=T_NONE, this) \
-                    : ici_lex(p, a))
+#define next(p, a)  (p->p_ungot.t_what != T_NONE                        \
+                     ? (p->p_got=p->p_ungot, p->p_ungot.t_what=T_NONE, this) \
+                     : ici_lex(p, a))
 
 #define reject(p) (p->p_ungot = p->p_got, this = T_NONE)
 
@@ -236,7 +236,7 @@ ident_list(ici_parse_t *p)
         }
     }
 
-fail:
+ fail:
     ici_decref(a);
     return NULL;
 }
@@ -318,15 +318,15 @@ function(ici_parse_t *p, ici_str_t *name)
     *f->f_code->a_top++ = &ici_o_return;
     *f->f_code->a_top++ = &ici_o_end;
 #   if DISASSEMBLE
-        printf("%s()\n", name == NULL ? "?" : name->s_chars);
-        disassemble(4, f->f_code);
+    printf("%s()\n", name == NULL ? "?" : name->s_chars);
+    disassemble(4, f->f_code);
 #   endif
     f->f_autos = ici_structof(ici_atom(f->f_autos, 2));
     p->p_got.t_obj = ici_atom(f, 1);
     p->p_func = saved_func;
     return 1;
 
-fail:
+ fail:
     if (a != NULL)
     {
         ici_decref(a);
@@ -429,7 +429,7 @@ data_def(ici_parse_t *p, ici_objwsup_t *ows)
         goto fail;
     }
 
-fail:
+ fail:
     if (n != NULL)
     {
         ici_decref(n);
@@ -487,7 +487,7 @@ compound_statement(ici_parse_t *p, ici_struct_t *sw)
     p->p_got.t_obj = a;
     return 1;
 
-fail:
+ fail:
     if (a != NULL)
     {
         ici_decref(a);
@@ -756,9 +756,9 @@ primary(ici_parse_t *p, expr_t **ep, int exclude)
                 if (!ici_hassuper(o))
                 {
                     ici_set_error("attempt to do [%s %c %s",
-                        ici_stringof(name)->s_chars,
-                        is_eq ? '=' : ':',
-                        ici_objname(n, o));
+                                  ici_stringof(name)->s_chars,
+                                  is_eq ? '=' : ':',
+                                  ici_objname(n, o));
                     ici_decref(o);
                     goto fail;
                 }
@@ -1041,7 +1041,7 @@ primary(ici_parse_t *p, expr_t **ep, int exclude)
             {
                 goto fail_user_parse;
             }
-            if (ici_typeof(o)->t_call != NULL)
+            if (ici_typeof(o)->has_call())
             {
                 c = o;
                 o = NULL;
@@ -1269,7 +1269,7 @@ primary(ici_parse_t *p, expr_t **ep, int exclude)
         }
     }
 
-fail:
+ fail:
     if (e != NULL)
     {
         if (e->e_obj != NULL)
@@ -1445,7 +1445,7 @@ expr(ici_parse_t *p, expr_t **ep, int exclude)
         {
         case 0:
             ici_set_error("\"expr %s\" %s %s",
-                ici_binop_name(t_subtype(e->e_what)), not_by, an_expression);
+                          ici_binop_name(t_subtype(e->e_what)), not_by, an_expression);
         case -1:
             ici_tfree(e, expr_t);
             return -1;
@@ -1475,7 +1475,7 @@ expression(ici_parse_t *p, ici_array_t *a, int why, int exclude)
     free_expr(e);
     return 1;
 
-fail:
+ fail:
     free_expr(e);
     return -1;
 }
@@ -1543,7 +1543,7 @@ const_expression(ici_parse_t *p, ici_obj_t **po, int exclude)
     ici_decref(a);
     return 1;
 
-fail:
+ fail:
     if (a != NULL)
     {
         ici_decref(a);
@@ -1578,7 +1578,7 @@ xx_brac_expr_brac(ici_parse_t *p, ici_array_t *a, const char *xx)
     }
     return 1;
 
-fail:
+ fail:
     ici_set_error("%s", buf);
     return -1;
 }
@@ -1690,7 +1690,7 @@ statement(ici_parse_t *p, ici_array_t *a, ici_struct_t *sw, const char *m, int e
             case -1: return -1;
             }
             stepz = a->a_top - a->a_bot;
-                if (stepz > 0 && ici_issrc(a->a_top[-1]))
+            if (stepz > 0 && ici_issrc(a->a_top[-1]))
             {
                 /*
                  * If the last thing in the code array is a source marker,
@@ -1700,7 +1700,7 @@ statement(ici_parse_t *p, ici_array_t *a, ici_struct_t *sw, const char *m, int e
                  * be trimmed off the array and the jump will land off the
                  * end.
                  */
-                    --stepz;
+                --stepz;
             }
             if ((i = ici_int_new((long)stepz)) == NULL)
             {
@@ -1746,7 +1746,7 @@ statement(ici_parse_t *p, ici_array_t *a, ici_struct_t *sw, const char *m, int e
                  * be trimmed off the array and the jump will land off the
                  * end.
                  */
-                    --stepz;
+                --stepz;
             }
             if ((i = ici_int_new((long)stepz)) == NULL)
             {
@@ -2431,7 +2431,7 @@ statement(ici_parse_t *p, ici_array_t *a, ici_struct_t *sw, const char *m, int e
     }
     return 1;
 
-none:
+ none:
     if (m != NULL)
     {
         ici_set_error("\"%s\" %s a reasonable statement", m, not_by);
@@ -2529,7 +2529,7 @@ ici_parse_file(const char *mname, char *file, ici_ftype_t *ftype)
     ici_decref(f);
     return 0;
 
-fail:
+ fail:
     if (f != NULL)
     {
         ici_decref(f);
@@ -2567,28 +2567,6 @@ ici_parse_fname(const char *fname)
     return r;
 }
 
-/*
- * Mark this and referenced unmarked objects, return memory costs.
- * See comments on t_mark() in object.h.
- */
-static unsigned long
-mark_parse(ici_obj_t *o)
-{
-    long        mem;
-
-    o->o_flags |= ICI_O_MARK;
-    mem = sizeof(ici_parse_t);
-    if (ici_parseof(o)->p_func != NULL)
-    {
-        mem += ici_mark(ici_parseof(o)->p_func);
-    }
-    if (ici_parseof(o)->p_file != NULL)
-    {
-        mem += ici_mark(ici_parseof(o)->p_file);
-    }
-    return mem;
-}
-
 int
 ici_parse_exec()
 {
@@ -2612,7 +2590,7 @@ ici_parse_exec()
                 continue;
             }
 #           if DISASSEMBLE
-                disassemble(4, a);
+            disassemble(4, a);
 #           endif
             ici_get_pc(a, ici_xs.a_top);
             ++ici_xs.a_top;
@@ -2669,35 +2647,52 @@ ici_new_parse(ici_file_t *f)
     return p;
 }
 
-/*
- * Free this object and associated memory (but not other objects).
- * See the comments on t_free() in object.h.
- */
-static void
-free_parse(ici_obj_t *o)
+class parse_type : public type
 {
-    if (ici_parseof(o)->p_got.t_what & TM_HASOBJ)
-    {
-        ici_decref(ici_parseof(o)->p_got.t_obj);
-    }
-    if (ici_parseof(o)->p_ungot.t_what & TM_HASOBJ)
-    {
-        ici_decref(ici_parseof(o)->p_ungot.t_obj);
-    }
-    ici_parseof(o)->p_ungot.t_what = T_NONE;
-    ici_tfree(o, ici_parse_t);
-}
+public:
+    parse_type() : type("parse") {}
 
-type_t  parse_type =
-{
-    mark_parse,
-    free_parse,
-    ici_hash_unique,
-    ici_cmp_unique,
-    ici_copy_simple,
-    ici_assign_fail,
-    ici_fetch_fail,
-    "parse"
+    /*
+     * Mark this and referenced unmarked objects, return memory costs.
+     * See comments on t_mark() in object.h.
+     */
+    unsigned long
+    mark(ici_obj_t *o) override
+    {
+        long        mem;
+
+        o->o_flags |= ICI_O_MARK;
+        mem = sizeof(ici_parse_t);
+        if (ici_parseof(o)->p_func != NULL)
+        {
+            mem += ici_mark(ici_parseof(o)->p_func);
+        }
+        if (ici_parseof(o)->p_file != NULL)
+        {
+            mem += ici_mark(ici_parseof(o)->p_file);
+        }
+        return mem;
+    }
+
+    /*
+     * Free this object and associated memory (but not other objects).
+     * See the comments on t_free() in object.h.
+     */
+    void
+    free(ici_obj_t *o) override
+    {
+        if (ici_parseof(o)->p_got.t_what & TM_HASOBJ)
+        {
+            ici_decref(ici_parseof(o)->p_got.t_obj);
+        }
+        if (ici_parseof(o)->p_ungot.t_what & TM_HASOBJ)
+        {
+            ici_decref(ici_parseof(o)->p_ungot.t_obj);
+        }
+        ici_parseof(o)->p_ungot.t_what = T_NONE;
+        ici_tfree(o, ici_parse_t);
+    }
+
 };
 
 const char *
@@ -2883,6 +2878,6 @@ ICI_DEFINE_CFUNCS(parse)
     ICI_DEFINE_CFUNC(rejecttoken,  f_rejecttoken),
     ICI_DEFINE_CFUNC(rejectchar,   f_rejectchar),
     ICI_CFUNCS_END
-};
+    };
 
 } // namespace ici
