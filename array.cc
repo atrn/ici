@@ -23,7 +23,7 @@ int
 ici_grow_stack(ici_array_t *a, ptrdiff_t n)
 {
     ici_obj_t  **e;
-    ptrdiff_t           oldz;
+    ptrdiff_t  oldz;
 
     /*
      * Users of arrays as stacks are supposed to know the origin and
@@ -31,6 +31,7 @@ ici_grow_stack(ici_array_t *a, ptrdiff_t n)
      */
     assert(!a->isatom());
     assert(a->a_bot == a->a_base);
+
     /*
      * We don't use realloc to ensure that memory exhaustion is
      * cleanly recovereable.

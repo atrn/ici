@@ -76,6 +76,7 @@ inline bool ici_isfile(ici_obj_t *o) { return o->isa(ICI_TC_FILE); }
 
 constexpr int ICI_F_CLOSED = 0x20;    /* File is closed. */
 constexpr int ICI_F_NOCLOSE = 0x40;    /* Don't close on object free. */
+
 /*
  * End of ici.h export. --ici.h-end--
  */
