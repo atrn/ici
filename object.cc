@@ -111,15 +111,16 @@ int		ici_ncollects;	/* Number of ici_collect() calls */
 // class type
 
 unsigned long type::hash(ici_obj_t *o) {
-    return ici_hash_unique(o);
+    return ICI_PTR_HASH(o);
 }
 
 int type::cmp(ici_obj_t *o1, ici_obj_t *o2) {
-    return ici_cmp_unique(o1, o2);
+    return o1 != o2;
 }
 
 ici_obj_t *type::copy(ici_obj_t *o) {
-    return ici_copy_simple(o);
+    o->incref();
+    return o;
 }
 
 int type::assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v) {
@@ -221,28 +222,6 @@ ici_register_type(type_t *t)
 }
 
 /*
- * This is a convenience function which can be used directly as the 't_copy'
- * entry in a type's 'type_t' struction if object of this type are
- * intrinsically unique (i.e.  are one-to-one with the memory they occupy, and
- * can't be merged) or intrinsically atomic (i.e.  are one-to-one with their
- * value, are are always merged).  An object type would be instrinsically
- * unique if you didn't want to support comparison that considered the
- * contents, and/or didn't want to support copying.  An intrinsically atomic
- * object type would also use this function because, by definition, if you
- * tried to copy the object, you'd just end up with the same one anyway.
- *
- * It increfs 'o', and returns it.
- *
- * This --func-- forms part of the --ici-api--.
- */
-ici_obj_t *
-ici_copy_simple(ici_obj_t *o)
-{
-    ici_incref(o);
-    return o;
-}
-
-/*
  * This is a convenience function which can be used directly as the 't_assign'
  * entry in a type's 'type_t' struction if the type doesn't support
  * asignment.  It sets 'ici_error' to a message of the form:
@@ -291,49 +270,11 @@ ici_fetch_fail(ici_obj_t *o, ici_obj_t *k)
     return NULL;
 }
 
-/*
- * This is a convenience function which can be used directly as the 't_cmp'
- * entry in a type's 'type_t' struction if object of this type are
- * intrinsically unique.  That is, the object is one-to-one with the memory
- * allocated to hold it.  An object type would be instrinsically unique if you
- * didn't want to support comparison that considered the contents, and/or
- * didn't want to support copying.  If you use this function you should almost
- * certainly also be using 'ici_hash_unique' and 'ici_copy_simple'.
- *
- * It returns 0 if the objects are the same object, else 1.
- *
- * This --func-- forms part of the --ici-api--.
- */
-int
-ici_cmp_unique(ici_obj_t *o1, ici_obj_t *o2)
-{
-    return o1 != o2;
-}
-
-/*
- * This is a convenience function which can be used directly as the 't_hash'
- * entry in a type's 'type_t' struction if object of this type are
- * intrinsically unique.  That is, the object is one-to-one with the memory
- * allocated to hold it.  An object type would be instrinsically unique if you
- * didn't want to support comparison that considered the contents, and/or
- * didn't want to support copying.  If you use this function you should almost
- * certainly also be using 'ici_cmp_unique' and 'ici_copy_simple'.
- *
- * It returns hash based on the address 'o'.
- *
- * This --func-- forms part of the --ici-api--.
- */
-unsigned long
-ici_hash_unique(ici_obj_t *o)
-{
-    return ICI_PTR_HASH(o);
-}
-
-#undef hash
-#define hash(o)									\
-(										\
- (o)->o_tcode == ICI_TC_INT ? (unsigned long)ici_intof(o)->i_value * INT_PRIME	\
- : ici_typeof(o)->hash(o)							\
+#define hash(o)                                                         \
+(                                                                       \
+    (o)->isa(ICI_TC_INT) ?                                              \
+        (unsigned long)ici_intof(o)->i_value * INT_PRIME                \
+        : (o)->hash()                                                   \
 )
 
 /*

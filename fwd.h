@@ -263,7 +263,6 @@ extern int                      ici_exec_count;
 
 
 extern ici_obj_t                *ici_atom_probe(ici_obj_t *o);
-extern ici_obj_t                *ici_copy_simple(ici_obj_t *);
 extern ici_obj_t                *ici_fetch_fail(ici_obj_t *, ici_obj_t *);
 extern ici_obj_t                *ici_atom(ici_obj_t *, int);
 extern int                      ici_parse_file(const char *, char *, ici_ftype_t *);
@@ -284,8 +283,6 @@ extern ici_ptr_t                *ici_ptr_new(ici_obj_t *, ici_obj_t *);
 extern ici_regexp_t             *ici_regexp_new(ici_str_t *, int);
 extern int                      ici_assign_fail(ici_obj_t *, ici_obj_t *, ici_obj_t *);
 extern ici_file_t               *ici_open_charbuf(char *, int, ici_obj_t *, int);
-extern unsigned long            ici_hash_unique(ici_obj_t *);
-extern int                      ici_cmp_unique(ici_obj_t *, ici_obj_t *);
 extern int                      ici_get_last_errno(const char *, const char *);
 extern int                      ici_argcount(int);
 extern int                      ici_argcount2(int, int);

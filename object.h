@@ -91,7 +91,7 @@ public:
 };
 
 /*
- * t_mark(o)            Must sets the ICI_O_MARK flag in o->o_flags of this object
+ * mark(o)              Must set the ICI_O_MARK flag in o->o_flags of this object
  *                      and all objects referenced by this one which don't
  *                      already have ICI_O_MARK set.  Returns the approximate
  *                      memory cost of this and all other objects it sets the
@@ -101,7 +101,7 @@ public:
  *                      uncontrolled stack depth it can create).  This is only
  *                      used in the marking phase of garbage collection.
  *
- *                      The function ici_mark() calls the t_mark function of the
+ *                      The function ici_mark() calls the mark function of the
  *                      object (based on object type) if the ICI_O_MARK flag of
  *                      the object is clear, else it returns 0.  This is the
  *                      usual interface to an object's mark function.
@@ -110,20 +110,20 @@ public:
  *                      the ICI_O_MARK flag of the object they are being invoked
  *                      on is clear.
  *
- * t_free(o)            Must free the object o and all associated data, but not
+ * free(o)              Must free the object o and all associated data, but not
  *                      other objects which are referenced from it.  This is
  *                      only called from garbage collection.  Care should be
  *                      taken to remember that errors can occur during object
  *                      creation and that the free function might be asked to
  *                      free a partially allocated object.
  *
- * t_cmp(o1, o2)        Must compare o1 and o2 and return 0 if they are the
+ * cmp(o1, o2)          Must compare o1 and o2 and return 0 if they are the
  *                      same, else non zero.  This similarity is the basis for
  *                      merging objects into single atomic objects and the
  *                      implementation of the == operator.
  *
  *                      Currently only zero versus non-zero results are
- *                      significant.  However in future versions the t_cmp()
+ *                      significant.  However in future versions the cmp()
  *                      function may be generalised to return less than, equal
  *                      to, or greater than zero depending if 'o1' is less
  *                      than, equal to, or greater than 'o2'.  New
@@ -133,8 +133,7 @@ public:
  *                      intrinsically atomic (for example, objects which are
  *                      one-to-one with some other allocated data which they
  *                      alloc when the are created and free when they die).
- *                      For these objects the existing function
- *                      ici_cmp_unique() can be used as their implementation
+ *                      For these objects the defaultimplementation
  *                      of this function.
  *
  *                      It is very important in implementing this function not
@@ -144,20 +143,19 @@ public:
  *                      they all regard the same data fields as significant in
  *                      performing their operation.
  *
- * t_copy(o)            Must returns a copy of the given object.  This is the
+ * copy(o)              Must return a copy of the given object.  This is the
  *                      basis for the implementation of the copy() function.
  *                      On failure, NULL is returned and error is set.  The
  *                      returned object has been ici_incref'ed.  The returned
  *                      object should cmp() as being equal, but be a distinct
  *                      object for objects that are not intrinsically atomic.
  *
- *                      Intrinsically atomic objects may use the existing
- *                      function ici_copy_simple() as their implemenation of
- *                      this function.
+ *                      Intrinsically atomic objects may use the default
+ *                      implemenation of this function.
  *
  *                      Return NULL on failure, usual conventions.
  *
- * t_hash(o)            Must return an unsigned long hash which is sensitive
+ * hash(o)              Must return an unsigned long hash which is sensitive
  *                      to the value of the object.  Two objects which cmp()
  *                      equal should return the same hash.
  *
@@ -170,11 +168,10 @@ public:
  *                      intrinsically atomic (for example, objects which are
  *                      one-to-one with some other allocated data which they
  *                      alloc when the are created and free when they die).
- *                      For these objects the existing function
- *                      'ici_hash_unique()' can be used as their
- *                      implementation of this function.
+ *                      For these objects the default implementation of this
+ *                      function should be used.
  *
- * t_assign(o, k, v)    Must assign to key 'k' of the object 'o' the value
+ * assign(o, k, v)      Must assign to key 'k' of the object 'o' the value
  *                      'v'.  Return 1 on error, else 0.
  *
  *                      The existing function 'ici_assign_fail()' may be used
@@ -186,13 +183,13 @@ public:
  *                      Not that it is not necessarilly wrong for an
  *                      intrinsically atomic object to support some form of
  *                      assignment.  Only for the modified field to be
- *                      significant in a 't_cmp()' operation.  Objects which
+ *                      significant in a 'cmp()' operation.  Objects which
  *                      are intrinsically unique and atomic often support
  *                      assignments.
  *
  *                      Return non-zero on failure, usual conventions.
  *
- * t_fetch(o, k)        Fetch the value of key 'k' of the object 'o'.  Return
+ * fetch(o, k)          Fetch the value of key 'k' of the object 'o'.  Return
  *                      NULL on error.
  *              
  *                      Note that the returned object does not have any extra
@@ -211,22 +208,22 @@ public:
  *
  *                      Return NULL on failure, usual conventions.
  *
- * t_name               The name of this type. Use for the implementation of
+ * name                 The name of this type. Use for the implementation of
  *                      'typeof()' and in error messages.  But apart from that,
  *                      type names have no fundamental importance in the
  *                      langauge and need not even be unique.
  *
- * t_objname(o, p)      Must place a short (less than 30 chars) human readable
+ * objname(o, p)        Must place a short (less than 30 chars) human readable
  *                      representation of the object in the given buffer.
  *                      This is not intended as a basis for re-parsing or
  *                      serialisation.  It is just for diagnostics and debug.
- *                      An implementation of 't_objname()' must not allocate
+ *                      An implementation of 'objname()' must not allocate
  *                      memory or otherwise allow the garbage collector to
  *                      run.  It is often used to generate formatted failure
  *                      messages after an error has occured, but before
  *                      cleanup has completed.
  *
- * t_call(o, s)         Must call the object 'o'.  If the object does not
+ * call(o, s)           Must call the object 'o'.  If the object does not
  *                      support being called, this should be NULL.  If 's' is
  *                      non-NULL this is a method call and s is the subject
  *                      object of the call.  Return 1 on error, else 0.
@@ -238,11 +235,11 @@ public:
  *                      to be on top of the operand stack
  *                      (i.e. ici_os.a_top[-1])
  *
- * t_ici_name           A 'ici_str_t' copy of 't_name'. This is just a cached
- *                      version so that typeof() doesn't keep re-computing the
- *                      string.
+ * ici_name             Returns an 'ici_str_t' copy of 'name'. This is just a
+ *                      cached version so that typeof() doesn't keep re-computing
+ *                      the string.
  *
- * t_fetch_method       An optional alternative to the basic 't_fetch()' that
+ * fetch_method         An optional alternative to the basic 't_fetch()' that
  *                      will be called (if supplied) when doing a fetch for
  *                      the purpose of forming a method.  This is really only
  *                      a hack to support COM under Windows.  COM allows
@@ -256,7 +253,7 @@ public:
  *
  *                      Return NULL on failure, usual conventions.
  *
- * t_forall_step        An optional alternative to the predefined type
+ * forall_step          An optional alternative to the predefined type
  *                      support in the 'forall' statement
  *                      implementation.  This functions performs a
  *                      single step of a forall loop, either assigning
