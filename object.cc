@@ -191,7 +191,7 @@ int type::call(ici_obj_t *, ici_obj_t *) {
 char *
 ici_objname(char p[ICI_OBJNAMEZ], ici_obj_t *o)
 {
-    if (ici_typeof(o)->has_objname())
+    if (ici_typeof(o)->can_objname())
     {
         ici_typeof(o)->objname(o, p);
         return p;

@@ -66,7 +66,7 @@ int method_type::call(ici_obj_t *o, ici_obj_t *subject)
     ici_method_t        *m;
 
     m = ici_methodof(o);
-    if (!ici_typeof(m->m_callable)->has_call())
+    if (!ici_typeof(m->m_callable)->can_call())
     {
         char    n1[ICI_OBJNAMEZ];
         char    n2[ICI_OBJNAMEZ];

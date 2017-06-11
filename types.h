@@ -20,7 +20,7 @@ public:
 class array_type : public type
 {
  public:
-    array_type() : type("array", type::can_forall) {}
+    array_type() : type("array", type::has_forall) {}
 
     virtual unsigned long mark(ici_obj_t *o) override;
     virtual void free(ici_obj_t *o) override;
@@ -44,7 +44,7 @@ public:
 class cfunc_type : public type
 {
 public:
-    cfunc_type() : type("func", type::can_objname | type::can_call) {}
+    cfunc_type() : type("func", type::has_objname | type::has_call) {}
 
     virtual unsigned long mark(ici_obj_t *o) override;
     virtual void free(ici_obj_t *o) override;
@@ -106,7 +106,7 @@ public:
 class func_type : public type
 {
 public:
-    func_type() : type("func", type::can_objname | type::can_call) {}
+    func_type() : type("func", type::has_objname | type::has_call) {}
     
     unsigned long mark(ici_obj_t *o) override;
     void free(ici_obj_t *o) override;
@@ -120,7 +120,7 @@ public:
 class handle_type : public type
 {
 public:
-    handle_type() : type("handle", type::can_objname) {}
+    handle_type() : type("handle", type::has_objname) {}
 
     unsigned long mark(ici_obj_t *o) override;
     void free(ici_obj_t *o) override;
@@ -172,7 +172,7 @@ public:
 class method_type : public type
 {
 public:
-    method_type() : type("method", type::can_objname|type::can_call) {}
+    method_type() : type("method", type::has_objname|type::has_call) {}
 
     unsigned long mark(ici_obj_t *o) override;
     void free(ici_obj_t *o) override;
@@ -231,7 +231,7 @@ public:
 class ptr_type : public type
 {
 public:
-    ptr_type() : type("ptr", type::can_call) {}
+    ptr_type() : type("ptr", type::has_call) {}
 
     unsigned long mark(ici_obj_t *o) override;
     void free(ici_obj_t *o) override;
@@ -275,7 +275,7 @@ public:
 class set_type : public type
 {
 public:
-    set_type() : type("set", type::can_forall) {}
+    set_type() : type("set", type::has_forall) {}
 
     unsigned long mark(ici_obj_t *o) override;
     void free(ici_obj_t *o) override;
@@ -299,7 +299,7 @@ public:
 class string_type : public type
 {
 public:
-    string_type() : type("string", type::can_forall) {}
+    string_type() : type("string", type::has_forall) {}
 
     unsigned long mark(ici_obj_t *o) override;
     int cmp(ici_obj_t *o1, ici_obj_t *o2) override;
@@ -314,7 +314,7 @@ public:
 class struct_type : public type
 {
 public:
-    struct_type() : type("struct", type::can_forall) {}
+    struct_type() : type("struct", type::has_forall) {}
 
     unsigned long mark(ici_obj_t *o) override;
     void free(ici_obj_t *o) override;

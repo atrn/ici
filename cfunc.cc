@@ -732,7 +732,7 @@ f_coreici(ici_obj_t *s)
     ici_decref(c);
     if (f == NULL)
         return 1;
-    if (!ici_typeof(f)->has_call())
+    if (!ici_typeof(f)->can_call())
     {
         char    n1[30];
         return ici_set_error("attempt to call %s", ici_objname(n1, f));
@@ -2772,14 +2772,14 @@ f_sort()
     case 3:
         if (ici_typecheck("aoo", &a, &f, &uarg))
             return 1;
-        if (!ici_typeof(f)->has_call())
+        if (!ici_typeof(f)->can_call())
             return ici_argerror(1);
         break;
 
     case 2:
         if (ici_typecheck("ao", &a, &f))
             return 1;
-        if (!ici_typeof(f)->has_call())
+        if (!ici_typeof(f)->can_call())
             return ici_argerror(1);
         break;
 
@@ -2787,7 +2787,7 @@ f_sort()
         if (ici_typecheck("a", &a))
             return 1;
         f = ici_fetch(ici_vs.a_top[-1], SS(cmp));
-        if (!ici_typeof(f)->has_call())
+        if (!ici_typeof(f)->can_call())
         {
             return ici_set_error("no suitable cmp function in scope");
         }

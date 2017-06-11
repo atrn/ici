@@ -99,7 +99,7 @@ int ptr_type::call(ici_obj_t *o, ici_obj_t *subject)
 
     if ((f = ici_fetch(ici_ptrof(o)->p_aggr, ici_ptrof(o)->p_key)) == NULL)
         return 1;
-    if (!ici_typeof(f)->has_call())
+    if (!ici_typeof(f)->can_call())
     {
         char    n1[30];
         return ici_set_error("attempt to call a ptr pointing to %s", ici_objname(n1, o));

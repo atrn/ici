@@ -1042,7 +1042,7 @@ primary(ici_parse_t *p, expr_t **ep, int exclude)
             {
                 goto fail_user_parse;
             }
-            if (ici_typeof(o)->has_call())
+            if (ici_typeof(o)->can_call())
             {
                 c = o;
                 o = NULL;
