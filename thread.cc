@@ -7,6 +7,7 @@
 #include "op.h"
 #include "catch.h"
 
+#include <atomic>
 #include <errno.h>
 
 namespace ici
@@ -17,14 +18,12 @@ HANDLE                  ici_mutex;
 #endif
 
 #ifdef ICI_USE_POSIX_THREADS
-
 #include <pthread.h>
 
 pthread_mutex_t         ici_mutex;
-static pthread_mutex_t  n_active_threads_mutex;
 #endif
 
-long                    ici_n_active_threads;
+std::atomic<int>        ici_n_active_threads;
 
 /*
  * Leave code that uses ICI data. ICI data refers to *any* ICI objects
@@ -72,16 +71,11 @@ ici_leave()
         *x->x_xs = ici_xs;
         *x->x_vs = ici_vs;
         x->x_count = ici_exec_count;
+        --ici_n_active_threads;
 #ifdef ICI_USE_WIN32_THREADS
-        InterlockedDecrement(&ici_n_active_threads);
         ReleaseMutex(ici_mutex);
 #else
 # ifdef ICI_USE_POSIX_THREADS
-        if (pthread_mutex_lock(&n_active_threads_mutex) != 0)
-            abort();
-        --ici_n_active_threads;
-        if (pthread_mutex_unlock(&n_active_threads_mutex) != 0)
-            abort();
         if (pthread_mutex_unlock(&ici_mutex) != 0)
             abort();
 # else
@@ -118,16 +112,11 @@ ici_enter(ici_exec_t *x)
     // if (!x->x_critsect)
     if (!__sync_fetch_and_add(&x->x_critsect, 0))
     {
+        ++ici_n_active_threads;
 #ifdef ICI_USE_WIN32_THREADS
-        InterlockedIncrement(&ici_n_active_threads);
         WaitForSingleObject(ici_mutex, INFINITE);
 #else
 # ifdef ICI_USE_POSIX_THREADS
-        if (pthread_mutex_lock(&n_active_threads_mutex) != 0)
-            abort();
-        ++ici_n_active_threads;
-        if (pthread_mutex_unlock(&n_active_threads_mutex) != 0)
-            abort();
         if (pthread_mutex_lock(&ici_mutex) != 0)
             abort();
 # else
@@ -330,7 +319,7 @@ static
 DWORD WINAPI /* Ensure correct Win32 calling convention. */
 ici_thread_base(void *arg)
 {
-    ici_exec_t      *x = arg;
+    ici_exec_t      *x = (ici_exec_t *)arg;
 #endif
 
 #ifdef ICI_USE_POSIX_THREADS
@@ -489,13 +478,6 @@ ici_init_thread_stuff()
     {
         ici_get_last_errno("mutex", NULL);
         pthread_mutexattr_destroy(&mutex_attr);
-        return 1;
-    }
-    if ((errno = pthread_mutex_init(&n_active_threads_mutex, &mutex_attr)) != 0)
-    {
-        ici_get_last_errno("mutex", NULL);
-        pthread_mutexattr_destroy(&mutex_attr);
-        (void)pthread_mutex_destroy(&ici_mutex);
         return 1;
     }
     pthread_mutexattr_destroy(&mutex_attr);
