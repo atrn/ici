@@ -207,7 +207,7 @@ typedef struct ici_method       ici_method_t;
 typedef struct ici_int          ici_int_t;
 typedef struct ici_mark         ici_mark_t;
 typedef struct ici_null_t       ici_null_t;
-typedef struct ici_obj          ici_obj_t;
+typedef struct object           ici_obj_t;
 typedef struct ici_objwsup      ici_objwsup_t;
 typedef struct ici_op           ici_op_t;
 typedef struct ici_pc           ici_pc_t;

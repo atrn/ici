@@ -56,7 +56,7 @@ struct ici_ftype
  */
 constexpr int FT_NOMUTEX = 0x01;
 
-struct ici_file : ici_obj
+struct ici_file : object
 {
     void        *f_file;
     ici_ftype_t *f_type;

@@ -18,9 +18,9 @@ namespace ici
  *
  * This --struct-- forms part of the --ici-api--.
  */
-struct ici_int : ici_obj
+struct ici_int : object
 {
-    explicit ici_int(long v = 0) : ici_obj(ICI_TC_INT), i_value(v) {}
+    explicit ici_int(long v = 0) : object(ICI_TC_INT), i_value(v) {}
     long i_value;
 };
 

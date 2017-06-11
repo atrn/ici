@@ -27,7 +27,7 @@ union ici_ostemp
     ici_float_t f;
 };
 
-struct ici_exec : ici_obj
+struct ici_exec : object
 {
     ici_array_t *x_xs;
     ici_array_t *x_os;

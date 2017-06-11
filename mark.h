@@ -20,9 +20,9 @@ namespace ici
  * could give us. One use is as the 'label' on the default clause of
  * the struct that represents a switch statement.
  */
-struct ici_mark : ici_obj
+struct ici_mark : object
 {
-    ici_mark() : ici_obj(ICI_TC_MARK) {}
+    ici_mark() : object(ICI_TC_MARK) {}
 };
 
 inline ici_mark_t *ici_markof(ici_obj_t *o) { return static_cast<ici_mark_t *>(o); }

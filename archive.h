@@ -38,7 +38,7 @@ void ici_archive_byteswap(void *ptr, int sz);
 /*
  * An archiving session.
  */
-struct ici_archive : ici_obj
+struct ici_archive : object
 {
     /* The file used for saving or restoring */
     ici_file_t          *a_file;

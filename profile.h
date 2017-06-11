@@ -29,7 +29,7 @@ ici_profilecall_t *ici_profilecall_new(ici_profilecall_t *called_by);
  * of these.  If a function is called more than once from the same function
  * then the object is reused.
  */
-struct ici_profilecall : ici_obj
+struct ici_profilecall : object
 {
     ici_profilecall_t   *pc_calledby;
     ici_struct_t    *pc_calls;

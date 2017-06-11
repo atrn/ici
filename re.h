@@ -26,7 +26,7 @@ namespace ici
  * The following portion of this file exports to ici.h. --ici.h-start--
  */
 
-struct ici_regexp : ici_obj
+struct ici_regexp : object
 {
     pcre        *r_re;
     pcre_extra  *r_rex;

@@ -13,7 +13,7 @@ namespace ici
 /*
  * The following portion of this file exports to ici.h. --ici.h-start--
  */
-struct ici_method : ici_obj
+struct ici_method : object
 {
     ici_obj_t   *m_subject;
     ici_obj_t   *m_callable;

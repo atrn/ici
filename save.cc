@@ -297,7 +297,7 @@ save_op(ici_archive_t *ar, ici_obj_t *obj)
 // saver
 //
 
-struct saver : ici_obj
+struct saver : object
 {
     int (*s_fn)(ici_archive_t *, ici_obj_t *);
 };

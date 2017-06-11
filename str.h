@@ -26,9 +26,9 @@ namespace ici
  */
 #define ICI_KEEP_STRING_HASH 1
 
-struct ici_str : ici_obj
+struct ici_str : object
 {
-    ici_str() : ici_obj{ICI_TC_STRING} {}
+    ici_str() : object{ICI_TC_STRING} {}
 
     ici_struct_t    *s_struct;      /* Where we were last found on the vs. */
     ici_sslot_t     *s_slot;        /* And our slot. */
@@ -133,10 +133,10 @@ constexpr int ICI_S_SEP_ALLOC     = 0x40;
  */
 typedef struct sstring  sstring_t;
 
-struct sstring : ici_obj
+struct sstring : object
 {
     sstring(const char *cs)
-        : ici_obj(ICI_TC_STRING)
+        : object(ICI_TC_STRING)
         , s_struct(nullptr)
         , s_slot(nullptr)
 #if ICI_KEEP_STRING_HAS

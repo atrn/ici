@@ -23,7 +23,7 @@ namespace ici
  *
  * This --struct-- forms part of the --ici-api--.
  */
-struct ici_cfunc : ici_obj
+struct ici_cfunc : object
 {
     const char  *cf_name;
     int         (*cf_cfunc)(...);
@@ -31,7 +31,7 @@ struct ici_cfunc : ici_obj
     const void  *cf_arg2;
 
     ici_cfunc(bool) // sentinel for end of cfunc lists
-        : ici_obj{ICI_TC_CFUNC, 0, 0, 0}
+        : object{ICI_TC_CFUNC, 0, 0, 0}
         , cf_name(nullptr)
         , cf_cfunc(nullptr)
         , cf_arg1(nullptr)
@@ -40,7 +40,7 @@ struct ici_cfunc : ici_obj
 
     template <typename F>
     ici_cfunc(const char* name, F *f)
-        : ici_obj{ICI_TC_CFUNC, 0, 1, 0}
+        : object{ICI_TC_CFUNC, 0, 1, 0}
         , cf_name(name)
         , cf_cfunc(reinterpret_cast<int (*)(...)>(f))
         , cf_arg1(nullptr)
@@ -50,7 +50,7 @@ struct ici_cfunc : ici_obj
 
     template <typename F>
     ici_cfunc(const char* name, F *f, void *arg1)
-        : ici_obj{ICI_TC_CFUNC, 0, 1, 0}
+        : object{ICI_TC_CFUNC, 0, 1, 0}
         , cf_name(name)
         , cf_cfunc(reinterpret_cast<int (*)(...)>(f))
         , cf_arg1(arg1)
@@ -59,7 +59,7 @@ struct ici_cfunc : ici_obj
     }
 
     ici_cfunc(const char* name, int (*f)(), long arg1)
-        : ici_obj{ICI_TC_CFUNC, 0, 1, 0}
+        : object{ICI_TC_CFUNC, 0, 1, 0}
         , cf_name(name)
         , cf_cfunc(reinterpret_cast<int (*)(...)>(f))
         , cf_arg1((const void *)arg1)
@@ -68,7 +68,7 @@ struct ici_cfunc : ici_obj
     }
 
     ici_cfunc(const char* name, double (*f)(...), const char *arg1)
-        : ici_obj{ICI_TC_CFUNC, 0, 1, 0}
+        : object{ICI_TC_CFUNC, 0, 1, 0}
         , cf_name(name)
         , cf_cfunc(reinterpret_cast<int (*)(...)>(f))
         , cf_arg1(arg1)
@@ -78,7 +78,7 @@ struct ici_cfunc : ici_obj
 
     template <typename F>
     ici_cfunc(const char* name, F *f, void *arg1, void *arg2)
-        : ici_obj{ICI_TC_CFUNC, 0, 1, 0}
+        : object{ICI_TC_CFUNC, 0, 1, 0}
         , cf_name(name)
         , cf_cfunc(reinterpret_cast<int (*)(...)>(f))
         , cf_arg1(arg1)
@@ -92,7 +92,7 @@ struct ici_cfunc : ici_obj
  * 'ici_cfunc_t' objects are often declared staticly (in an array) when
  * setting up a group of C functions to be called from ICI. When doing
  * this, the macro 'ICI_CF_OBJ' can be used as the initialiser of the
- * 'ici_obj' header.
+ * 'object' header.
  *
  * The type has a well-known built-in type code of 'ICI_TC_CFUNC'.
  *

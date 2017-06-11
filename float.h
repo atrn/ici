@@ -19,9 +19,9 @@ namespace ici
  *
  * This --struct-- forms part of the --ici-api--.
  */
-struct ici_float : ici_obj
+struct ici_float : object
 {
-    ici_float(double v = 0.0) : ici_obj(ICI_TC_FLOAT), f_value(v) {}
+    ici_float(double v = 0.0) : object(ICI_TC_FLOAT), f_value(v) {}
     double      f_value;
 };
 #define ici_floatof(o)      (static_cast<ici_float_t *>(o))

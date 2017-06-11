@@ -13,7 +13,7 @@ namespace ici
 /*
  * The following portion of this file exports to ici.h. --ici.h-start--
  */
-struct ici_ptr : ici_obj
+struct ici_ptr : object
 {
     ici_obj_t   *p_aggr;        /* The aggregate which contains the object. */
     ici_obj_t   *p_key;         /* The key which references it. */

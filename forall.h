@@ -13,7 +13,7 @@ namespace ici
 /*
  * The following portion of this file exports to ici.h. --ici.h-start--
  */
-struct ici_forall : ici_obj
+struct ici_forall : object
 {
     int         fa_index;
     ici_obj_t   *fa_objs[6];

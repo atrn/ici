@@ -13,7 +13,7 @@ namespace ici
 /*
  * This --struct-- forms part of the --ici-api--.
  */
-struct ici_channel : ici_obj
+struct ici_channel : object
 {
     ici_array_t *       c_q;
     long                c_capacity;

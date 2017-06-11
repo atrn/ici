@@ -674,7 +674,7 @@ restore_ref(ici_archive_t *ar)
 
 // restorer
 
-struct restorer : ici_obj
+struct restorer : object
 {
     ici_obj_t *(*r_fn)(ici_archive_t *);
 };

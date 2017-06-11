@@ -306,16 +306,16 @@ constexpr int ICI_O_OLD   =	    0x10;    /* Has been through 1+ collects */
  *
  * This --struct-- forms part of the --ici-api--.
  */
-struct ici_obj
+struct object
 {
-    ici_obj()
+    object()
         : o_tcode(0)
         , o_flags(0)
         , o_nrefs(0)
         , o_leafz(0)
     {}
 
-    ici_obj(char tcode, char flags = 0, char nrefs = 1, char leafz = 0)
+    object(char tcode, char flags = 0, char nrefs = 1, char leafz = 0)
         : o_tcode(tcode)
         , o_flags(flags)
         , o_nrefs(nrefs)
@@ -408,10 +408,10 @@ inline type_t *ici_typeof(ici_obj_t *o) { return o->type(); }
  *
  * This --struct-- forms part of the --ici-api--.
  */
-struct ici_objwsup : ici_obj
+struct ici_objwsup : object
 {
     ici_objwsup(char tcode, char flags, char nrefs, char leafz)
-        : ici_obj(tcode, flags, nrefs, leafz)
+        : object(tcode, flags, nrefs, leafz)
         , o_super(nullptr)
     {}
 
