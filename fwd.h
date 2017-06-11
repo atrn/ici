@@ -179,7 +179,7 @@ namespace ici
  * to give a better indication that an ICI style error has occured which
  * should be propagated back. See events.c
  */
-#define ICI_EVENT_ERROR 0x7A41B291
+constexpr int ICI_EVENT_ERROR = 0x7A41B291;
 
 #ifndef nels
 #define nels(a)         (sizeof (a) / sizeof (a)[0])
@@ -188,7 +188,7 @@ namespace ici
 /*
  * Size of a char arrays used to hold formatted object names.
  */
-#define ICI_OBJNAMEZ    31
+constexpr int ICI_OBJNAMEZ = 31;
 
 /*
  * Standard types.
@@ -234,7 +234,7 @@ extern DLI ici_array_t          ici_xs;
 extern DLI ici_array_t          ici_os;
 extern DLI ici_array_t          ici_vs;
 extern DLI long                 ici_vsver;
-#define NSUBEXP                 (10)
+constexpr int NSUBEXP =         10;
 extern DLI int                  ici_re_bra[(NSUBEXP + 1) * 3];
 extern DLI int                  ici_re_nbra;
 extern DLI volatile int         ici_aborted;            /* See exec.c */

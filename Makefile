@@ -21,3 +21,4 @@ clean:
 
 anici.static:
 	@dcc $(srcs) etc/main.cc -o $@
+	./$@ mk-ici-h.ici $(conf)
