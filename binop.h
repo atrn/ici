@@ -565,7 +565,7 @@
             ici_sslot_t *sl;
             int        i;
 
-            if ((s = ici_structof(copy(o0))) == NULL)
+            if ((s = ici_structof(ici_copy(o0))) == NULL)
             {
                 FAIL();
             }
@@ -593,7 +593,7 @@
             ici_obj_t  **sl;
             int        i;
 
-            if ((s = ici_setof(copy(o0))) == NULL)
+            if ((s = ici_setof(ici_copy(o0))) == NULL)
             {
                 FAIL();
             }
@@ -621,7 +621,7 @@
             ici_obj_t  **sl;
             int        i;
 
-            if ((s = ici_setof(copy(o0))) == NULL)
+            if ((s = ici_setof(ici_copy(o0))) == NULL)
             {
                 FAIL();
             }
@@ -814,14 +814,14 @@
 	    MISMATCH();
 
         case t_subtype(T_EQEQ):
-            if (ici_typeof(o0) == ici_typeof(o1) && cmp(o0, o1) == 0)
+            if (ici_typeof(o0) == ici_typeof(o1) && ici_cmp(o0, o1) == 0)
             {
                 USE1();
             }
             USE0();
 
         case t_subtype(T_EXCLAMEQ):
-            if (!(ici_typeof(o0) == ici_typeof(o1) && cmp(o0, o1) == 0))
+            if (!(ici_typeof(o0) == ici_typeof(o1) && ici_cmp(o0, o1) == 0))
             {
                 USE1();
             }

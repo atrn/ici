@@ -198,7 +198,7 @@ int func_type::call(ici_obj_t *o, ici_obj_t *subject)
     }
 #endif
 
-    d = ici_structof(ici::copy(f->f_autos));
+    d = ici_structof(ici_copy(f->f_autos));
     if (UNLIKELY(d == NULL))
     {
         goto fail;

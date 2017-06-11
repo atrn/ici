@@ -869,10 +869,10 @@ static int
 f_copy(ici_obj_t *o)
 {
     if (o != NULL)
-        return ici_ret_with_decref(copy(o));
+        return ici_ret_with_decref(ici_copy(o));
     if (ICI_NARGS() != 1)
         return ici_argcount(1);
-    return ici_ret_with_decref(copy(ICI_ARG(0)));
+    return ici_ret_with_decref(ici_copy(ICI_ARG(0)));
 }
 
 static int
@@ -1376,7 +1376,7 @@ f_vstack()
     int                 depth;
 
     if (ICI_NARGS() == 0)
-        return ici_ret_with_decref(copy(&ici_vs));
+        return ici_ret_with_decref(ici_copy(&ici_vs));
 
     if (!ici_isint(ICI_ARG(0)))
         return ici_argerror(0);

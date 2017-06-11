@@ -79,8 +79,10 @@ public:
 
     virtual void                objname(ici_obj_t *, char [ICI_OBJNAMEZ]);
 
-    ici_str_t *                 ici_name() {
-        if (_name == nullptr) {
+    ici_str_t *                 ici_name()
+    {
+        if (_name == nullptr)
+        {
             _name = ici_str_new_nul_term(name);
         }
         return _name;
@@ -666,19 +668,19 @@ constexpr int ICI_TC_MAX_CORE =     29;
  */
 inline ici_obj_t *ici_object_cast(void *x) { return reinterpret_cast<ici_obj_t *>(x); }
 
-inline void freeo(ici_obj_t *o) {
+inline void ici_freeo(ici_obj_t *o) {
     return o->type()->free(o);
 }
 
-inline unsigned long hash(ici_obj_t *o) {
+inline unsigned long ici_hash(ici_obj_t *o) {
     return o->type()->hash(o);
 }
 
-inline int cmp(ici_obj_t *o1, ici_obj_t *o2) {
+inline int ici_cmp(ici_obj_t *o1, ici_obj_t *o2) {
     return o1->type()->cmp(o1, o2);
 }
 
-inline ici_obj_t *copy(ici_obj_t *o) {
+inline ici_obj_t *ici_copy(ici_obj_t *o) {
     return o->type()->copy(o);
 }
 

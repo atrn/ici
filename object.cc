@@ -479,7 +479,7 @@ ici_atom(ici_obj_t *o, int lone)
         --po < ici_atoms ? po = ici_atoms + ici_atomsz - 1 : NULL
     )
     {
-        if (o->o_tcode == (*po)->o_tcode && cmp(o, *po) == 0)
+        if (o->o_tcode == (*po)->o_tcode && ici_cmp(o, *po) == 0)
         {
             if (lone)
             {
@@ -496,7 +496,7 @@ ici_atom(ici_obj_t *o, int lone)
     if (!lone)
     {
         ++ici_supress_collect;
-        *po = copy(o);
+        *po = ici_copy(o);
         --ici_supress_collect;
         if (*po == NULL)
             return o;
@@ -533,7 +533,7 @@ ici_atom_probe2(ici_obj_t *o, ici_obj_t ***ppo)
         --po < ici_atoms ? po = ici_atoms + ici_atomsz - 1 : NULL
     )
     {
-        if (o->o_tcode == (*po)->o_tcode && cmp(o, *po) == 0)
+        if (o->o_tcode == (*po)->o_tcode && ici_cmp(o, *po) == 0)
             return *po;
     }
     if (ppo != NULL)
@@ -797,7 +797,7 @@ ici_collect()
         {
             if (((o = *a)->o_flags & ICI_O_MARK) == 0)
             {
-                freeo(o);
+                ici_freeo(o);
             }
             else
             {
@@ -819,7 +819,7 @@ ici_collect()
             {
                 if (!o->isatom() || unatom(o) == 0)
                 {
-                    freeo(o);
+                    ici_freeo(o);
                 }
             }
             else
@@ -947,54 +947,5 @@ bughunt_rego(ici_obj_t *o)
         ici_grow_objs(o);
 }
 #endif
-
-#if 0
-unsigned long
-ici_mark(ici_obj_t *o)
-{
-    if (o->o_flags & ICI_O_MARK)
-        return 0L;
-    return ici_typeof(o)->mark(o);
-}
-
-void
-freeo(ici_obj_t *o)
-{
-    ici_typeof(o)->free(o);
-}
-
-#undef hash
-unsigned long
-hash(ici_obj_t *o)
-{
-    return ici_typeof(o)->hash(o);
-}
-
-int
-cmp(ici_obj_t *o1, ici_obj_t *o2)
-{
-    return ici_typeof(o1)->cmp(o1, o2);
-}
-
-ici_obj_t *
-copy(ici_obj_t *o)
-{
-    return ici_typeof(o)->copy(o);
-}
-
-ici_obj_t *
-ici_fetch(ici_obj_t *o, ici_obj_t *k)
-{
-    return ici_typeof(o)->fetch(o, k);
-}
-
-int
-ici_assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v)
-{
-    return ici_typeof(o)->assign(o, k, v);
-}
-
-#endif
-
 
 } // namespace ici
