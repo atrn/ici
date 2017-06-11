@@ -225,8 +225,7 @@ ici_struct_unassign(ici_struct_t *s, ici_obj_t *k)
  * If not NULL, b is a struct that was the base element of this
  * fetch. This is used to mantain the lookup lookaside mechanism.
  */
-static int
-fetch_super_struct(ici_obj_t *o, ici_obj_t *k, ici_obj_t **v, ici_struct_t *b)
+int struct_type::fetch_super(ici_obj_t *o, ici_obj_t *k, ici_obj_t **v, ici_struct_t *b)
 {
     ici_sslot_t         *sl;
 
@@ -502,7 +501,7 @@ int struct_type::assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v)
     {
 #ifndef NDEBUG
         ici_obj_t       *av;
-        assert(fetch_super_struct(o, k, &av, NULL) == 1);
+        assert(fetch_super(o, k, &av, NULL) == 1);
         assert(ici_stringof(k)->s_slot->sl_value == av);
 #endif
         ici_stringof(k)->s_slot->sl_value = v;
@@ -675,11 +674,11 @@ ici_obj_t *struct_type::fetch(ici_obj_t *o, ici_obj_t *k)
         ici_stringof(k)->s_vsver == ici_vsver
     )
     {
-        assert(fetch_super_struct(o, k, &v, NULL) == 1);
+        assert(fetch_super(o, k, &v, NULL) == 1);
         assert(ici_stringof(k)->s_slot->sl_value == v);
         return ici_stringof(k)->s_slot->sl_value;
     }
-    switch (fetch_super_struct(o, k, &v, ici_structof(o)))
+    switch (fetch_super(o, k, &v, ici_structof(o)))
     {
     case -1: return NULL;               /* Error. */
     case  1: return v;                  /* Found. */

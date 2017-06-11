@@ -125,6 +125,7 @@ public:
     handle_type() : type("handle") {}
 
     bool has_objname() const override { return true; }
+    //    bool has_fetch_method() const;
 
     unsigned long mark(ici_obj_t *o) override;
     void free(ici_obj_t *o) override;
@@ -338,6 +339,7 @@ public:
     int forall(ici_obj_t *o) override;
     ici_obj_t *fetch(ici_obj_t *o, ici_obj_t *k) override;
     ici_obj_t *fetch_base(ici_obj_t *o, ici_obj_t *k) override;
+    int fetch_super(ici_obj_t *o, ici_obj_t *k, ici_obj_t **pv, ici_struct_t *b) override;
 };
 
 } // namespace ici

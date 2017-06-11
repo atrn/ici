@@ -155,7 +155,7 @@ int regexp_type::cmp(ici_obj_t *o1, ici_obj_t *o2)
     int re2_options;
     pcre_info(ici_regexpof(o1)->r_re, &re1_options, NULL);
     pcre_info(ici_regexpof(o2)->r_re, &re2_options, NULL);
-    return re1_options != re2_options ? 1 : cmp(ici_regexpof(o1)->r_pat, ici_regexpof(o2)->r_pat);
+    return re1_options != re2_options ? 1 : ici::cmp(ici_regexpof(o1)->r_pat, ici_regexpof(o2)->r_pat);
 }
 
 ici_obj_t *regexp_type::fetch(ici_obj_t *o, ici_obj_t *k)
