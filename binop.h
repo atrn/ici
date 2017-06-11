@@ -407,14 +407,11 @@
         }
         else
         {
-            o = ici_objof
-                (
-                    ici_str_new
-                    (
-                        ici_stringof(o1)->s_chars + ici_re_bra[2],
-                        ici_re_bra[3] - ici_re_bra[2]
-                    )
-                );
+            o = ici_str_new
+            (
+                ici_stringof(o1)->s_chars + ici_re_bra[2],
+                ici_re_bra[3] - ici_re_bra[2]
+            );
             if (o == NULL)
             {
                 FAIL();
@@ -450,13 +447,10 @@
                 (
                     *ici_arrayof(o)->a_top
                     =
-                    ici_objof
+                    ici_str_new
                     (
-                        ici_str_new
-                        (
-                            ici_stringof(o1)->s_chars + ici_re_bra[i*2],
-                            ici_re_bra[(i * 2) + 1 ] - ici_re_bra[i * 2]
-                        )
+                        ici_stringof(o1)->s_chars + ici_re_bra[i*2],
+                        ici_re_bra[(i * 2) + 1 ] - ici_re_bra[i * 2]
                     )
                 )
                 ==

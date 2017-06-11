@@ -40,6 +40,14 @@ extern DLI type_t *     types[max_types];
  */
 struct type
 {
+    inline unsigned long        mark(ici_obj_t *o) { return t_mark(o); }
+    inline void                 free(ici_obj_t *o) { t_free(o); }
+    inline unsigned long        hash(ici_obj_t *o) { return t_hash(o); }
+    inline int                  cmp(ici_obj_t *a, ici_obj_t *b) { return t_cmp(a, b); }
+    inline ici_obj_t *          copy(ici_obj_t *o) { return t_copy(o); }
+    inline int                  assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v) { return t_assign(o, k, v); }
+    inline ici_obj_t *          fetch(ici_obj_t *o, ici_obj_t *k) { return t_fetch(o, k); }
+
     unsigned long       (*t_mark)               (ici_obj_t *);
     void                (*t_free)               (ici_obj_t *);
     unsigned long       (*t_hash)               (ici_obj_t *);
@@ -265,7 +273,7 @@ struct type
  *
  * This --macro-- forms part of the --ici-api--.
  */
-#define ici_fetch(o,k)      ((*ici_typeof(o)->t_fetch)((o), (k)))
+// #define ici_fetch(o,k)      ((*ici_typeof(o)->t_fetch)((o), (k)))
 
 /*
  * Assign the value 'v' to key 'k' of the object 'o'. This macro just calls
@@ -277,7 +285,7 @@ struct type
  *
  * This --macro-- forms part of the --ici-api--.
  */
-#define ici_assign(o,k,v)   ((*ici_typeof(o)->t_assign)((o), (k), (v)))
+//#define ici_assign(o,k,v)   ((*ici_typeof(o)->t_assign)((o), (k), (v)))
 
 /*
  * Assign the value 'v' to key 'k' of the object 'o', but only assign into
@@ -421,16 +429,8 @@ struct ici_obj
         return types[(size_t)o_tcode];
     }
 
-    inline size_t mark()
-    {
-        if (o_flags & ICI_O_MARK) {
-            return 0;
-        }
-        if (o_leafz != 0) {
-            o_flags |= ICI_O_MARK;
-            return o_leafz;
-        }
-        return type()->t_mark(this);
+    inline bool isatom() const noexcept {
+        return (o_flags & ICI_O_ATOM) != 0;
     }
 
     inline bool isa(char tcode) const noexcept {
@@ -440,6 +440,18 @@ struct ici_obj
     inline bool isa(type_t *type) const noexcept {
         return this->type() == type;
     }
+
+    inline size_t mark() {
+        if (o_flags & ICI_O_MARK) {
+            return 0;
+        }
+        if (o_leafz != 0) {
+            o_flags |= ICI_O_MARK;
+            return o_leafz;
+        }
+        return type()->mark(this);
+    }
+
 
     char        o_tcode;
     char        o_flags;
@@ -474,14 +486,6 @@ struct ici_obj
  *
  * --ici-api-- continued.
  */
-
-/*
- * ici_objof converts an arbitrary object pointer to its base ici_obj_t pointer.
- *
- * TODO: With C++ this disappears. All objects are "is-a ici_obj_t" so normal C++
- * rules suffice for the down cast to ici_obj_t. Hence the current definition.
- */
-#define ici_objof(x) (x)
 
 /*
  * Return a pointer to the 'ici_type_t' struct of the given object.
@@ -556,14 +560,17 @@ inline bool ici_hassuper(const ici_obj_t *o) { return (o->o_flags & ICI_O_SUPER)
  */
 inline size_t ici_mark(ici_obj_t *o)
 {
-    if (o->o_flags & ICI_O_MARK) {
-        return 0;
-    }
-    if (o->o_leafz != 0) {
-        o->o_flags |= ICI_O_MARK;
-        return o->o_leafz;
-    }
-    return ici_typeof(o)->t_mark(o);
+    return o->mark();
+}
+
+inline ici_obj_t *ici_fetch(ici_obj_t *o, ici_obj_t *k)
+{
+    return o->type()->fetch(o, k);
+}
+
+inline int ici_assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v)
+{
+    return o->type()->assign(o, k, v);
 }
 
 /*

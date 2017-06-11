@@ -29,7 +29,7 @@ ici_grow_stack(ici_array_t *a, ptrdiff_t n)
      * Users of arrays as stacks are supposed to know the origin and
      * history of the array. So we just assert it is not an atom.
      */
-    assert((a->o_flags & ICI_O_ATOM) == 0);
+    assert(!a->isatom());
     assert(a->a_bot == a->a_base);
     /*
      * We don't use realloc to ensure that memory exhaustion is
@@ -66,7 +66,7 @@ ici_fault_stack(ici_array_t *a, ptrdiff_t i)
      * Users of arrays as stacks are supposed to know the origin and
      * history of the array. So we just assert it is not an atom.
      */
-    assert((a->o_flags & ICI_O_ATOM) == 0);
+    assert(!a->isatom());
     ++i;
     i -= a->a_top - a->a_bot;
     if (ici_stk_push_chk(a, i))
@@ -204,7 +204,7 @@ ici_array_grow(ici_array_t *a)
 int
 ici_array_push(ici_array_t *a, ici_obj_t *o)
 {
-    if (a->o_flags & ICI_O_ATOM)
+    if (a->isatom())
     {
         return ici_set_error("attempt to push atomic array");
     }
@@ -266,7 +266,7 @@ ici_array_push(ici_array_t *a, ici_obj_t *o)
 int
 ici_array_rpush(ici_array_t *a, ici_obj_t *o)
 {
-    if (a->o_flags & ICI_O_ATOM)
+    if (a->isatom())
     {
         return ici_set_error("attempt to rpush atomic array");
     }
@@ -321,7 +321,7 @@ ici_array_rpush(ici_array_t *a, ici_obj_t *o)
 ici_obj_t *
 ici_array_pop(ici_array_t *a)
 {
-    if (a->o_flags & ICI_O_ATOM)
+    if (a->isatom())
     {
         ici_set_error("attempt to pop atomic array");
         return NULL;
@@ -368,7 +368,7 @@ ici_array_pop(ici_array_t *a)
 ici_obj_t *
 ici_array_rpop(ici_array_t *a)
 {
-    if (a->o_flags & ICI_O_ATOM)
+    if (a->isatom())
     {
         ici_set_error("attempt to rpop atomic array");
         return NULL;
@@ -428,7 +428,7 @@ ici_array_find_slot(ici_array_t *a, ptrdiff_t i)
          */
         return ici_array_span(a, i, NULL);
     }
-    if (a->o_flags & ICI_O_ATOM)
+    if (a->isatom())
     {
         ici_set_error("attempt to modify an atomic array");
         return NULL;
@@ -657,7 +657,7 @@ assign_array(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v)
     long        i;
     ici_obj_t   **e;
 
-    if (o->o_flags & ICI_O_ATOM)
+    if (o->isatom())
     {
         return ici_set_error("attempt to assign to an atomic array");
     }

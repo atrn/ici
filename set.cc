@@ -262,7 +262,7 @@ assign_set(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v)
 {
     ici_obj_t  **e;
 
-    if (o->o_flags & ICI_O_ATOM)
+    if (o->isatom())
     {
         return ici_set_error("attempt to modify an atomic set");
     }

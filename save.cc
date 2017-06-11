@@ -107,7 +107,7 @@ static int
 save_obj(ici_archive_t *ar, ici_obj_t *obj)
 {
     unsigned char code = obj->o_tcode & 0x1F;
-    if (obj->o_flags & ICI_O_ATOM)
+    if (obj->isatom())
         code |= ICI_ARCHIVE_ATOMIC;
     return writeb(ar, code);
 }

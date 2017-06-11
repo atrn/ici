@@ -396,7 +396,7 @@ ici_atom(ici_obj_t *o, int lone)
 
     assert(!(lone == 1 && o->o_nrefs == 0));
 
-    if (o->o_flags & ICI_O_ATOM)
+    if (o->isatom())
         return o;
     for
     (
@@ -641,7 +641,7 @@ ici_collect()
             {
                 if (*a == NULL)
                     continue;
-                assert((*a)->o_flags & ICI_O_ATOM);
+                assert((*a)->isatom());
                 assert(ici_atom_probe2(*a, NULL) == *a);
             }
         }
@@ -743,7 +743,7 @@ ici_collect()
         {
             if (((o = *a)->o_flags & ICI_O_MARK) == 0)
             {
-                if ((o->o_flags & ICI_O_ATOM) == 0 || unatom(o) == 0)
+                if (!o->isatom() || unatom(o) == 0)
                 {
                     freeo(o);
                 }

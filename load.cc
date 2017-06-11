@@ -57,7 +57,7 @@ ici_outermost_writeable_struct()
     outer = NULL;
     for (ows = ici_objwsupof(ici_vs.a_top[-1]); ows != NULL; ows = ows->o_super)
     {
-        if (ows->o_flags & ICI_O_ATOM)
+        if (ows->isatom())
             continue;
         if (!ici_isstruct(ows))
             continue;

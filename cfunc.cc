@@ -1990,7 +1990,7 @@ f_del()
         n = ici_array_nels(a);
         if (i < 0 || i >= n)
             return ici_null_ret();
-        if (s->o_flags & ICI_O_ATOM)
+        if (s->isatom())
         {
             return ici_set_error("attempt to modify to an atomic array");
         }
@@ -2082,7 +2082,7 @@ f_super()
     newsuper = oldsuper = o->o_super;
     if (ICI_NARGS() >= 2)
     {
-        if (o->o_flags & ICI_O_ATOM)
+        if (o->isatom())
         {
             return ici_set_error("attempt to set super of an atomic struct");
         }
@@ -2126,10 +2126,7 @@ f_isatom()
 
     if (ici_typecheck("o", &o))
         return 1;
-    if (o->o_flags & ICI_O_ATOM)
-        return ici_ret_no_decref(ici_one);
-    else
-        return ici_ret_no_decref(ici_zero);
+    return ici_ret_no_decref(o->isatom() ? ici_one : ici_zero);
 }
 
 static int
@@ -2801,7 +2798,7 @@ f_sort()
     default:
         return ici_argcount(2);
     }
-    if (a->o_flags & ICI_O_ATOM)
+    if (a->isatom())
     {
         return ici_set_error("attempt to sort an atomic array");
     }

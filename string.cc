@@ -412,7 +412,7 @@ assign_string(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v)
     long        n;
     ici_str_t   *s;
 
-    if (o->o_flags & ICI_O_ATOM)
+    if (o->isatom())
     {
         return ici_set_error("attempt to assign to an atomic string");
     }

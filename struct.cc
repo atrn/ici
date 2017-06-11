@@ -402,7 +402,7 @@ fetch_super_struct(ici_obj_t *o, ici_obj_t *k, ici_obj_t **v, ici_struct_t *b)
                     ici_stringof(k)->s_vsver = ici_vsver;
                     ici_stringof(k)->s_struct = b;
                     ici_stringof(k)->s_slot = sl;
-                    if (o->o_flags & ICI_O_ATOM)
+                    if (o->isatom())
                     {
                         k->o_flags |= ICI_S_LOOKASIDE_IS_ATOM;
                     }
@@ -474,7 +474,7 @@ fetch_base_struct(ici_obj_t *o, ici_obj_t *k)
         ici_stringof(k)->s_vsver = ici_vsver;
         ici_stringof(k)->s_struct = ici_structof(o);
         ici_stringof(k)->s_slot = sl;
-        if (o->o_flags & ICI_O_ATOM)
+        if (o->isatom())
         {
             k->o_flags |= ICI_S_LOOKASIDE_IS_ATOM;
         }
@@ -505,7 +505,7 @@ assign_super_struct(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v, ici_struct_t *b)
 
     do
     {
-        if ((o->o_flags & ICI_O_ATOM) == 0)
+        if (!o->isatom())
         {
             sl = &ici_structof(o)->s_slots[HASHINDEX(k, ici_structof(o))];
             while (sl->sl_key != NULL)
@@ -576,7 +576,7 @@ assign_struct(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v)
     {
         if (sl->sl_key == k)
         {
-            if (o->o_flags & ICI_O_ATOM)
+            if (o->isatom())
             {
                 return ici_set_error("attempt to modify an atomic struct");
             }
@@ -596,7 +596,7 @@ assign_struct(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v)
     /*
      * Not found. Assign into base struct. We still have sl from above.
      */
-    if (o->o_flags & ICI_O_ATOM)
+    if (o->isatom())
     {
         return ici_set_error("attempt to modify an atomic struct");
     }
@@ -642,7 +642,7 @@ assign_base_struct(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v)
     ici_sslot_t         *sl;
     int                 tqfull;
 
-    if (UNLIKELY(o->o_flags & ICI_O_ATOM))
+    if (UNLIKELY(o->isatom()))
     {
         return ici_set_error("attempt to modify an atomic struct");
     }

@@ -28,6 +28,6 @@ type_t  null_type =
     "NULL"
 };
 
-ici_null_t  ici_o_null; //  = {ICI_TC_NULL, ICI_O_ATOM, 1, 0};
+ici_null_t  ici_o_null;
 
 } // namespace ici
