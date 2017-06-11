@@ -8,6 +8,7 @@
 #include "null.h"
 #include "primes.h"
 #include "forall.h"
+#include "types.h"
 
 #define SET_HASHINDEX(k, s) (ICI_PTR_HASH(k) & ((s)->s_nslots - 1))
 
@@ -136,19 +137,11 @@ ici_set_unassign(ici_set_t *s, ici_obj_t *k)
     return 0;
 }
 
-class set_type : public type
-{
-public:
-    set_type() : type("set") {}
-
-    bool has_forall() const override { return true;}
-
 /*
  * Mark this and referenced unmarked objects, return memory costs.
  * See comments on t_mark() in object.h.
  */
-unsigned long
-mark(ici_obj_t *o) override
+unsigned long set_type::mark(ici_obj_t *o)
 {
     ici_obj_t  **e;
     long                mem;
@@ -174,8 +167,7 @@ mark(ici_obj_t *o) override
  * Free this object and associated memory (but not other objects).
  * See the comments on t_free() in object.h.
  */
-void
-free(ici_obj_t *o) override
+void set_type::free(ici_obj_t *o)
 {
     if (ici_setof(o)->s_slots != NULL)
         ici_nfree(ici_setof(o)->s_slots, ici_setof(o)->s_nslots * sizeof(ici_obj_t *));
@@ -186,8 +178,7 @@ free(ici_obj_t *o) override
  * Returns 0 if these objects are equal, else non-zero.
  * See the comments on t_cmp() in object.h.
  */
-int
-cmp(ici_obj_t *o1, ici_obj_t *o2) override
+int set_type::cmp(ici_obj_t *o1, ici_obj_t *o2)
 {
     int        i;
     ici_obj_t  **e;
@@ -211,8 +202,7 @@ cmp(ici_obj_t *o1, ici_obj_t *o2) override
  * Return a hash sensitive to the value of the object.
  * See the comment on t_hash() in object.h
  */
-unsigned long
-hash(ici_obj_t *o) override
+unsigned long set_type::hash(ici_obj_t *o)
 {
     int                         i;
     unsigned long               h;
@@ -233,8 +223,7 @@ hash(ici_obj_t *o) override
  * Return a copy of the given object, or NULL on error.
  * See the comment on t_copy() in object.h.
  */
-ici_obj_t *
-copy(ici_obj_t *o) override
+ici_obj_t * set_type::copy(ici_obj_t *o)
 {
     ici_set_t   *s;
     ici_set_t   *ns;
@@ -265,8 +254,7 @@ fail:
  *
  * Add or delete the key k from the set based on the value of v.
  */
-int
-assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v) override
+int set_type::assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v)
 {
     ici_obj_t  **e;
 
@@ -302,8 +290,7 @@ assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v) override
  * Return the object at key k of the obejct o, or NULL on error.
  * See the comment on t_fetch in object.h.
  */
-ici_obj_t *
-fetch(ici_obj_t *o, ici_obj_t *k) override
+ici_obj_t * set_type::fetch(ici_obj_t *o, ici_obj_t *k)
 {
     auto slot = *ici_find_set_slot(ici_setof(o), k);
     if (slot == NULL) {
@@ -312,8 +299,7 @@ fetch(ici_obj_t *o, ici_obj_t *k) override
     return ici_one;
 }
 
-int
-forall(ici_obj_t *o) override
+int set_type::forall(ici_obj_t *o)
 {
     ici_forall_t *fa = forallof(o);
     ici_set_t  *s;
@@ -352,8 +338,6 @@ forall(ici_obj_t *o) override
     }
     return -1;
 }
-
-};
 
 /*
  * Return 1 if a is a subset of b, else 0.

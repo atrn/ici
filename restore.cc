@@ -31,6 +31,7 @@
 #include "ptr.h"
 #include "op.h"
 #include "mark.h"
+#include "types.h"
 
 #include <assert.h>
 
@@ -680,23 +681,16 @@ struct restorer : ici_obj
 
 typedef struct restorer restorer_t;
 
-class restorer_type : public type
+unsigned long restorer_type::mark(ici_obj_t *o)
 {
-public:
-    restorer_type() : type("restorer") {}
+    o->o_flags |= ICI_O_MARK;
+    return sizeof (restorer_t);
+}
 
-    unsigned long mark(ici_obj_t *o) override
-    {
-        o->o_flags |= ICI_O_MARK;
-        return sizeof (restorer_t);
-    }
-
-    void free(ici_obj_t *o) override
-    {
-        ici_tfree(o, restorer_t);
-    }
-
-};
+void restorer_type::free(ici_obj_t *o)
+{
+    ici_tfree(o, restorer_t);
+}
 
 static restorer_t *
 restorer_new(ici_obj_t *(*fn)(ici_archive_t *))

@@ -60,19 +60,19 @@ public:
     virtual unsigned long       mark(ici_obj_t *o) = 0;
     virtual void                free(ici_obj_t *o) = 0;
 
-    virtual unsigned long       hash(ici_obj_t *o); // hash_unique
-    virtual int                 cmp(ici_obj_t *a, ici_obj_t *b); // cmp_unique
-    virtual ici_obj_t *         copy(ici_obj_t *o); // copy_simple
+    virtual unsigned long       hash(ici_obj_t *o);
+    virtual int                 cmp(ici_obj_t *a, ici_obj_t *b);
+    virtual ici_obj_t *         copy(ici_obj_t *o);
 
-    virtual int                 assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v); // assign_fail { return t_assign(o, k, v); }
-    virtual ici_obj_t *         fetch(ici_obj_t *o, ici_obj_t *k); // fetch_fail  { return t_fetch(o, k); }
+    virtual int                 assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v);
+    virtual ici_obj_t *         fetch(ici_obj_t *o, ici_obj_t *k);
 
-    virtual int                 assign_super(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v, ici_struct_t *b); // { return t_assign_super(o, k, v, b); }
-    virtual int                 fetch_super(ici_obj_t *o, ici_obj_t *k, ici_obj_t **pv, ici_struct_t *b); // { return t_fetch_super(o, k, pv, b); }
-    virtual int                 assign_base(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v); // { return t_assign_base(o, k, v); }
-    virtual ici_obj_t   *       fetch_base(ici_obj_t *o, ici_obj_t *k) ; // { return t_fetch_base(o, k); }
+    virtual int                 assign_super(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v, ici_struct_t *b);
+    virtual int                 fetch_super(ici_obj_t *o, ici_obj_t *k, ici_obj_t **pv, ici_struct_t *b);
+    virtual int                 assign_base(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v);
+    virtual ici_obj_t   *       fetch_base(ici_obj_t *o, ici_obj_t *k) ;
 
-    virtual ici_obj_t   *       fetch_method(ici_obj_t *o, ici_obj_t *n); // { return t_fetch_method(o, n); }
+    virtual ici_obj_t   *       fetch_method(ici_obj_t *o, ici_obj_t *n);
     virtual int                 call(ici_obj_t *, ici_obj_t *);
 
     virtual int                 forall(ici_obj_t *o); // { return t_forall_step(o); }

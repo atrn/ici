@@ -1,6 +1,7 @@
 #define ICI_CORE
 #include "exec.h"
 #include "pc.h"
+#include "types.h"
 
 namespace ici
 {
@@ -23,33 +24,25 @@ ici_new_pc()
     return pc;
 }
 
-class pc_type : public type
+/*
+ * Mark this and referenced unmarked objects, return memory costs.
+ * See comments on t_mark() in object.h.
+ */
+unsigned long pc_type::mark(ici_obj_t *o)
 {
-public:
-    pc_type() : type("pc") {}
+    o->o_flags |= ICI_O_MARK;
+    if (ici_pcof(o)->pc_code != NULL)
+        return sizeof(ici_pc_t) + ici_mark(ici_pcof(o)->pc_code);
+    return sizeof(ici_pc_t);
+}
 
-    /*
-     * Mark this and referenced unmarked objects, return memory costs.
-     * See comments on t_mark() in object.h.
-     */
-    unsigned long
-    mark(ici_obj_t *o) override
-    {
-        o->o_flags |= ICI_O_MARK;
-        if (ici_pcof(o)->pc_code != NULL)
-            return sizeof(ici_pc_t) + ici_mark(ici_pcof(o)->pc_code);
-        return sizeof(ici_pc_t);
-    }
-
-    /*
-     * Free this object and associated memory (but not other objects).
-     * See the comments on t_free() in object.h.
-     */
-    void free(ici_obj_t *o) override
-    {
-        ici_tfree(o, ici_pc_t);
-    }
-
-};
+/*
+ * Free this object and associated memory (but not other objects).
+ * See the comments on t_free() in object.h.
+ */
+void pc_type::free(ici_obj_t *o)
+{
+    ici_tfree(o, ici_pc_t);
+}
 
 } // namespace ici

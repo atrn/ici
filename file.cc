@@ -8,6 +8,7 @@
 #include "buf.h"
 #include "int.h"
 #include "null.h"
+#include "types.h"
 
 namespace ici
 {
@@ -103,61 +104,54 @@ ici_file_close(ici_file_t *f)
  * See comments on t_mark() in object.h.
  */
 
-class file_type : public type
+unsigned long file_type::mark(ici_obj_t *o)
 {
-public:
-    file_type() : type("file") {}
+    long        mem;
 
-    unsigned long mark(ici_obj_t *o) override
-    {
-        long        mem;
-
-        o->o_flags |= ICI_O_MARK;
-        mem = sizeof(ici_file_t);
-        if (ici_fileof(o)->f_name != NULL)
-            mem += ici_mark(ici_fileof(o)->f_name);
-        if (ici_fileof(o)->f_ref != NULL)
-            mem += ici_mark(ici_fileof(o)->f_ref);
-        return mem;
-    }
-
-    void free(ici_obj_t *o) override
-    {
-        if ((o->o_flags & ICI_F_CLOSED) == 0)
-        {
-            if (o->o_flags & ICI_F_NOCLOSE)
-                (*ici_fileof(o)->f_type->ft_flush)(ici_fileof(o)->f_file);
-            else
-                ici_file_close(ici_fileof(o));
-        }
-        ici_tfree(o, ici_file_t);
-    }
-
-    int cmp(ici_obj_t *o1, ici_obj_t *o2) override
-    {
-        return ici_fileof(o1)->f_file != ici_fileof(o2)->f_file
-        || ici_fileof(o1)->f_type != ici_fileof(o2)->f_type;
-    }
-
-    ici_obj_t * fetch(ici_obj_t *o, ici_obj_t *k) override
-    {
-        if (k == SSO(name))
-        {
-            if (ici_fileof(o)->f_name != NULL)
-                return ici_fileof(o)->f_name;
-            return ici_null;
-        }
-        if (ici_fileof(o)->f_type == &ici_parse_ftype && k == SSO(line))
-        {
-            ici_int_t   *l;
-
-            if ((l = ici_int_new(ici_parseof(ici_fileof(o)->f_file)->p_lineno)) != NULL)
-                ici_decref(l);
-            return l;
-        }
-        return ici_fetch_fail(o, k);
+    o->o_flags |= ICI_O_MARK;
+    mem = sizeof(ici_file_t);
+    if (ici_fileof(o)->f_name != NULL)
+        mem += ici_mark(ici_fileof(o)->f_name);
+    if (ici_fileof(o)->f_ref != NULL)
+        mem += ici_mark(ici_fileof(o)->f_ref);
+    return mem;
 }
 
-};
+void file_type::free(ici_obj_t *o)
+{
+    if ((o->o_flags & ICI_F_CLOSED) == 0)
+    {
+        if (o->o_flags & ICI_F_NOCLOSE)
+            (*ici_fileof(o)->f_type->ft_flush)(ici_fileof(o)->f_file);
+        else
+            ici_file_close(ici_fileof(o));
+    }
+    ici_tfree(o, ici_file_t);
+}
+
+int file_type::cmp(ici_obj_t *o1, ici_obj_t *o2)
+{
+    return ici_fileof(o1)->f_file != ici_fileof(o2)->f_file
+    || ici_fileof(o1)->f_type != ici_fileof(o2)->f_type;
+}
+
+ici_obj_t * file_type::fetch(ici_obj_t *o, ici_obj_t *k)
+{
+    if (k == SSO(name))
+    {
+        if (ici_fileof(o)->f_name != NULL)
+            return ici_fileof(o)->f_name;
+        return ici_null;
+    }
+    if (ici_fileof(o)->f_type == &ici_parse_ftype && k == SSO(line))
+    {
+        ici_int_t   *l;
+
+        if ((l = ici_int_new(ici_parseof(ici_fileof(o)->f_file)->p_lineno)) != NULL)
+            ici_decref(l);
+        return l;
+    }
+    return ici_fetch_fail(o, k);
+}
 
 } // namespace ici

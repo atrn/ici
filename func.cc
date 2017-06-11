@@ -13,6 +13,7 @@
 #include "mark.h"
 #include "null.h"
 #include "primes.h"
+#include "types.h"
 #ifndef NOPROFILE
 #include "profile.h"
 #endif
@@ -94,235 +95,226 @@ ici_op_return()
     return 0;
 }
 
-class func_type : public type
+unsigned long func_type::mark(ici_obj_t *o)
 {
-public:
-    func_type() : type("func") {}
-    
-    unsigned long mark(ici_obj_t *o) override
-    {
-        long        mem;
+    long        mem;
 
-        o->o_flags |= ICI_O_MARK;
-        mem = sizeof(ici_func_t);
-        if (ici_funcof(o)->f_code != NULL)
-            mem += ici_mark(ici_funcof(o)->f_code);
-        if (ici_funcof(o)->f_args != NULL)
-            mem += ici_mark(ici_funcof(o)->f_args);
-        if (ici_funcof(o)->f_autos != NULL)
-            mem += ici_mark(ici_funcof(o)->f_autos);
-        if (ici_funcof(o)->f_name != NULL)
-            mem += ici_mark(ici_funcof(o)->f_name);
-        return mem;
+    o->o_flags |= ICI_O_MARK;
+    mem = sizeof(ici_func_t);
+    if (ici_funcof(o)->f_code != NULL)
+        mem += ici_mark(ici_funcof(o)->f_code);
+    if (ici_funcof(o)->f_args != NULL)
+        mem += ici_mark(ici_funcof(o)->f_args);
+    if (ici_funcof(o)->f_autos != NULL)
+        mem += ici_mark(ici_funcof(o)->f_autos);
+    if (ici_funcof(o)->f_name != NULL)
+        mem += ici_mark(ici_funcof(o)->f_name);
+    return mem;
+}
+
+void func_type::free(ici_obj_t *o)
+{
+    ici_tfree(o, ici_func_t);
+}
+
+int func_type::cmp(ici_obj_t *o1, ici_obj_t *o2)
+{
+    return ici_funcof(o1)->f_code != ici_funcof(o2)->f_code
+    || ici_funcof(o1)->f_autos != ici_funcof(o2)->f_autos
+    || ici_funcof(o1)->f_args != ici_funcof(o2)->f_args
+    || ici_funcof(o1)->f_name != ici_funcof(o2)->f_name;
+}
+
+unsigned long func_type::hash(ici_obj_t *o)
+{
+    return (unsigned long)ici_funcof(o)->f_code * FUNC_PRIME;
+}
+
+ici_obj_t * func_type::fetch(ici_obj_t *o, ici_obj_t *k)
+{
+    ici_obj_t           *r;
+
+    ici_error = NULL;
+    r = NULL;
+    if (k == SSO(vars))
+    {
+        r = ici_funcof(o)->f_autos;
     }
-
-    void free(ici_obj_t *o) override
+    else if (k == SSO(args))
     {
-        ici_tfree(o, ici_func_t);
+        r = ici_funcof(o)->f_args;
     }
-
-    int cmp(ici_obj_t *o1, ici_obj_t *o2) override
+    else if (k == SSO(name))
     {
-        return ici_funcof(o1)->f_code != ici_funcof(o2)->f_code
-        || ici_funcof(o1)->f_autos != ici_funcof(o2)->f_autos
-        || ici_funcof(o1)->f_args != ici_funcof(o2)->f_args
-        || ici_funcof(o1)->f_name != ici_funcof(o2)->f_name;
+        r = ici_funcof(o)->f_name;
     }
-
-    unsigned long hash(ici_obj_t *o) override
+    if (r == NULL && ici_error == NULL)
     {
-        return (unsigned long)ici_funcof(o)->f_code * FUNC_PRIME;
+        r = ici_null;
     }
+    return r;
+}
 
-    ici_obj_t * fetch(ici_obj_t *o, ici_obj_t *k) override
-    {
-        ici_obj_t           *r;
+void func_type::objname(ici_obj_t *o, char p[ICI_OBJNAMEZ])
+{
+    ici_str_t   *s;
 
-        ici_error = NULL;
-        r = NULL;
-        if (k == SSO(vars))
-        {
-            r = ici_funcof(o)->f_autos;
-        }
-        else if (k == SSO(args))
-        {
-            r = ici_funcof(o)->f_args;
-        }
-        else if (k == SSO(name))
-        {
-            r = ici_funcof(o)->f_name;
-        }
-        if (r == NULL && ici_error == NULL)
-        {
-            r = ici_null;
-        }
-        return r;
-    }
-
-    bool has_objname() const override { return true; }
-    void objname(ici_obj_t *o, char p[ICI_OBJNAMEZ]) override
-    {
-        ici_str_t   *s;
-
-        s = ici_funcof(o)->f_name;
-        if (s->s_nchars > ICI_OBJNAMEZ - 2 - 1)
-            sprintf(p, "%.*s...()", ICI_OBJNAMEZ - 6, s->s_chars);
-        else
-            sprintf(p, "%s()", s->s_chars);
-    }
+    s = ici_funcof(o)->f_name;
+    if (s->s_nchars > ICI_OBJNAMEZ - 2 - 1)
+        sprintf(p, "%.*s...()", ICI_OBJNAMEZ - 6, s->s_chars);
+    else
+        sprintf(p, "%s()", s->s_chars);
+}
 
 
-    bool has_call() const override { return true; }
-    /*
-     * arg(N-1) .. arg1 arg0 nargs func     => (os) OR
-     * arg(N-1) .. arg1 arg0 nargs ptr      => (os) OR
-     * arg(N-1) .. arg1 arg0 nargs aggr key => (os) iff ICI_OP_AGGR_KEY_CALL
-     *                                => auto-struct  (vs)
-     *                      call      => mark pc      (xs)
-     *
-     * Calling a function pushes a structure for auto variables on the
-     * variable stack. It then pushes a mark and a pc starting at the first
-     * element of the code array on the execution stack. Any arguments are
-     * assigned to the corresponding formal argument names in the auto var
-     * structure.
-     */
-    int call(ici_obj_t *o, ici_obj_t *subject) override
-    {
-        ici_func_t *f;
-        ici_struct_t   *d;     /* The local variable structure. */
-        ici_obj_t  **ap;   /* Actual parameter. */
-        ici_obj_t  **fp;   /* Formal parameter. */
-        ici_sslot_t         *sl;
-        ici_array_t         *va;
-        int                 n;
+/*
+ * arg(N-1) .. arg1 arg0 nargs func     => (os) OR
+ * arg(N-1) .. arg1 arg0 nargs ptr      => (os) OR
+ * arg(N-1) .. arg1 arg0 nargs aggr key => (os) iff ICI_OP_AGGR_KEY_CALL
+ *                                => auto-struct  (vs)
+ *                      call      => mark pc      (xs)
+ *
+ * Calling a function pushes a structure for auto variables on the
+ * variable stack. It then pushes a mark and a pc starting at the first
+ * element of the code array on the execution stack. Any arguments are
+ * assigned to the corresponding formal argument names in the auto var
+ * structure.
+ */
+int func_type::call(ici_obj_t *o, ici_obj_t *subject)
+{
+    ici_func_t *f;
+    ici_struct_t   *d;     /* The local variable structure. */
+    ici_obj_t  **ap;   /* Actual parameter. */
+    ici_obj_t  **fp;   /* Formal parameter. */
+    ici_sslot_t         *sl;
+    ici_array_t         *va;
+    int                 n;
 
-        f = ici_funcof(o);
+    f = ici_funcof(o);
 #ifndef NOPROFILE
-        if (UNLIKELY(ici_profile_active))
-        {
-            ici_profile_call(f);
-        }
+    if (UNLIKELY(ici_profile_active))
+    {
+        ici_profile_call(f);
+    }
 #endif
 
-        d = ici_structof(copy(f->f_autos));
-        if (UNLIKELY(d == NULL))
+    d = ici_structof(copy(f->f_autos));
+    if (UNLIKELY(d == NULL))
+    {
+        goto fail;
+    }
+    if (UNLIKELY(subject != NULL))
+    {
+        /*
+         * This is a method call, that is, it has a subject object that
+         * becomes the scope.
+         */
+        if (UNLIKELY(!ici_hassuper(subject)))
+        {
+            char        n1[30];
+
+            ici_set_error("attempt to call method on %s", ici_objname(n1, subject));
+            goto fail;
+        }
+        ici_objwsupof(d)->o_super = ici_objwsupof(subject);
+        /*
+         * Set the special instantiation variables.
+         */
+        if (UNLIKELY(ici_assign_base(d, SSO(this), subject)))
         {
             goto fail;
         }
-        if (UNLIKELY(subject != NULL))
-        {
-            /*
-             * This is a method call, that is, it has a subject object that
-             * becomes the scope.
-             */
-            if (UNLIKELY(!ici_hassuper(subject)))
-            {
-                char        n1[30];
-
-                ici_set_error("attempt to call method on %s", ici_objname(n1, subject));
-                goto fail;
-            }
-            ici_objwsupof(d)->o_super = ici_objwsupof(subject);
-            /*
-             * Set the special instantiation variables.
-             */
-            if (UNLIKELY(ici_assign_base(d, SSO(this), subject)))
-            {
-                goto fail;
-            }
-            if
+        if
+        (
+            UNLIKELY
             (
-                UNLIKELY
-                (
-                    ici_objwsupof(f->f_autos)->o_super != NULL
-                    &&
-                    ici_assign_base(d, SSO(class), ici_objwsupof(f->f_autos)->o_super)
-                )
+                ici_objwsupof(f->f_autos)->o_super != NULL
+                &&
+                ici_assign_base(d, SSO(class), ici_objwsupof(f->f_autos)->o_super)
             )
-            {
-                goto fail;
-            }
-        }
-        n = ICI_NARGS(); /* Number of actual args. */
-        ap = ICI_ARGS();
-        if (LIKELY(f->f_args != NULL))
+        )
         {
-            /*
-             * There are explicit formal parameters.
-             */
-            fp = f->f_args->a_base;
-            /*
-             * Assign the actuals to the formals.
-             */
-            while (fp < f->f_args->a_top && n > 0)
-            {
-                assert(ici_isstring(*fp));
-                if (LIKELY(ici_stringof(*fp)->s_struct == d && ici_stringof(*fp)->s_vsver == ici_vsver))
-                {
-                    ici_stringof(*fp)->s_slot->sl_value = *ap;
-                }
-                else
-                {
-                    if (UNLIKELY(ici_assign(d, *fp, *ap)))
-                    {
-                        goto fail;
-                    }
-                }
-                ++fp;
-                --ap;
-                --n;
-            }
+            goto fail;
         }
-        va = NULL;
-        if (UNLIKELY(n > 0))
-        {
-            if
-            (
-                LIKELY
-                (
-                    (sl = ici_find_raw_slot(d, SSO(vargs))) != NULL
-                    &&
-                    (va = ici_array_new(n)) != NULL
-                )
-            )
-            {
-                /*
-                 * There are left-over actual parameters and a "vargs"
-                 * auto to put them in, and everything else looks good.
-                 */
-                while (--n >= 0)
-                {
-                    *va->a_top++ = *ap--;
-                }
-                sl->sl_value = va;
-                ici_decref(va);
-            }
-        }
-
+    }
+    n = ICI_NARGS(); /* Number of actual args. */
+    ap = ICI_ARGS();
+    if (LIKELY(f->f_args != NULL))
+    {
         /*
-         * we push the current source marker onto the execution stack.
-         * That way, after the function returns, it will cause the current
-         * source marker to be reset to the correct value.
+         * There are explicit formal parameters.
          */
-        ici_xs.a_top[-1] = ici_exec->x_src;
-
-        *ici_xs.a_top++ = &ici_o_mark;
-        ici_get_pc(f->f_code, ici_xs.a_top);
-        ++ici_xs.a_top;
-        *ici_vs.a_top++ = d;
-        ici_decref(d);
-        ici_os.a_top -= ICI_NARGS() + 2;
-        return 0;
-
-    fail:
-        if (d != NULL)
+        fp = f->f_args->a_base;
+        /*
+         * Assign the actuals to the formals.
+         */
+        while (fp < f->f_args->a_top && n > 0)
         {
-            ici_decref(d);
+            assert(ici_isstring(*fp));
+            if (LIKELY(ici_stringof(*fp)->s_struct == d && ici_stringof(*fp)->s_vsver == ici_vsver))
+            {
+                ici_stringof(*fp)->s_slot->sl_value = *ap;
+            }
+            else
+            {
+                if (UNLIKELY(ici_assign(d, *fp, *ap)))
+                {
+                    goto fail;
+                }
+            }
+            ++fp;
+            --ap;
+            --n;
         }
-        return 1;
+    }
+    va = NULL;
+    if (UNLIKELY(n > 0))
+    {
+        if
+        (
+            LIKELY
+            (
+                (sl = ici_find_raw_slot(d, SSO(vargs))) != NULL
+                &&
+                (va = ici_array_new(n)) != NULL
+            )
+        )
+        {
+            /*
+             * There are left-over actual parameters and a "vargs"
+             * auto to put them in, and everything else looks good.
+             */
+            while (--n >= 0)
+            {
+                *va->a_top++ = *ap--;
+            }
+            sl->sl_value = va;
+            ici_decref(va);
+        }
     }
 
-};
+    /*
+     * we push the current source marker onto the execution stack.
+     * That way, after the function returns, it will cause the current
+     * source marker to be reset to the correct value.
+     */
+    ici_xs.a_top[-1] = ici_exec->x_src;
+
+    *ici_xs.a_top++ = &ici_o_mark;
+    ici_get_pc(f->f_code, ici_xs.a_top);
+    ++ici_xs.a_top;
+    *ici_vs.a_top++ = d;
+    ici_decref(d);
+    ici_os.a_top -= ICI_NARGS() + 2;
+    return 0;
+
+ fail:
+    if (d != NULL)
+    {
+        ici_decref(d);
+    }
+    return 1;
+}
 
 ici_op_t    ici_o_return        = {ici_op_return};
 ici_op_t    ici_o_call          = {ICI_OP_CALL};

@@ -7,23 +7,16 @@
 #include "buf.h"
 #include "primes.h"
 #include "cfunc.h"
+#include "types.h"
 
 namespace ici
 {
-
-class ptr_type : public type
-{
-public:
-    ptr_type() : type("ptr") {}
-
-    bool has_call() const override { return true; }
 
 /*
  * Mark this and referenced unmarked objects, return memory costs.
  * See comments on t_mark() in object.h.
  */
-unsigned long
-mark(ici_obj_t *o) override
+unsigned long ptr_type::mark(ici_obj_t *o)
 {
     o->o_flags |= ICI_O_MARK;
     return sizeof(ici_ptr_t) + ici_mark(ici_ptrof(o)->p_aggr) + ici_mark(ici_ptrof(o)->p_key);
@@ -33,8 +26,7 @@ mark(ici_obj_t *o) override
  * Returns 0 if these objects are equal, else non-zero.
  * See the comments on t_cmp() in object.h.
  */
-int
-cmp(ici_obj_t *o1, ici_obj_t *o2) override
+int ptr_type::cmp(ici_obj_t *o1, ici_obj_t *o2)
 {
     return ici_ptrof(o1)->p_aggr != ici_ptrof(o2)->p_aggr
         || ici_ptrof(o1)->p_key != ici_ptrof(o2)->p_key;
@@ -44,8 +36,7 @@ cmp(ici_obj_t *o1, ici_obj_t *o2) override
  * Return a hash sensitive to the value of the object.
  * See the comment on t_hash() in object.h
  */
-unsigned long
-hash(ici_obj_t *o) override
+unsigned long ptr_type::hash(ici_obj_t *o)
 {
     return (unsigned long)ici_ptrof(o)->p_aggr * PTR_PRIME_0
         + (unsigned long)ici_ptrof(o)->p_key * PTR_PRIME_1;
@@ -60,8 +51,7 @@ hash(ici_obj_t *o) override
  * of course the key must be an integer too.  The final key is the sum of the
  * two keys.  But if the key is zero, just do *ptr.
  */
-ici_obj_t *
-fetch(ici_obj_t *o, ici_obj_t *k) override
+ici_obj_t * ptr_type::fetch(ici_obj_t *o, ici_obj_t *k)
 {
     if (k == ici_zero)
         return ici_fetch(ici_ptrof(o)->p_aggr, ici_ptrof(o)->p_key);
@@ -83,8 +73,7 @@ fetch(ici_obj_t *o, ici_obj_t *k) override
  *
  * See above comment.
  */
-int
-assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v) override
+int ptr_type::assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v)
 {
     if (k == ici_zero)
         return ici_assign(ici_ptrof(o)->p_aggr, ici_ptrof(o)->p_key, v);
@@ -104,7 +93,7 @@ assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v) override
     return 0;
 }
 
-int call(ici_obj_t *o, ici_obj_t *subject) override
+int ptr_type::call(ici_obj_t *o, ici_obj_t *subject)
 {
     ici_obj_t   *f;
 
@@ -138,14 +127,11 @@ int call(ici_obj_t *o, ici_obj_t *subject) override
  * Free this object and associated memory (but not other objects).
  * See the comments on t_free() in object.h.
  */
-void
-free(ici_obj_t *o) override
+void ptr_type::free(ici_obj_t *o)
 {
     ici_tfree(o, ici_ptr_t);
 }
 
-};
-    
 /*
  * Return a new ICI pointer object. The pointer will point to the element
  * keyed by 'k' in the object 'a'.

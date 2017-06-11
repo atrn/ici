@@ -16,6 +16,7 @@
 #ifndef NOPROFILE
 #include "profile.h"
 #endif
+#include "types.h"
 
 namespace ici
 {
@@ -158,75 +159,69 @@ call_cfunc_nodebug(ici_obj_t *o, ici_obj_t *subject)
 }
 #endif
 
-class cfunc_type : public type
+unsigned long cfunc_type::mark(ici_obj_t *o)
 {
-public:
-    cfunc_type() : type("func") {}
+    o->o_flags |= ICI_O_MARK;
+    return sizeof (ici_cfunc_t);
+}
 
-    unsigned long mark(ici_obj_t *o) override
-    {
-        o->o_flags |= ICI_O_MARK;
-        return sizeof (ici_cfunc_t);
-    }
+void cfunc_type::free(ici_obj_t *o)
+{
+    ici_tfree(o, ici_cfunc_t);
+}
 
-    void free(ici_obj_t *o) override
-    {
-        ici_tfree(o, ici_cfunc_t);
-    }
+ici_obj_t * cfunc_type::fetch(ici_obj_t *o, ici_obj_t *k)
+{
+    if (k == SSO(name))
+        return ici_str_get_nul_term(ici_cfuncof(o)->cf_name);
+    return ici_null;
+}
 
-    ici_obj_t * fetch(ici_obj_t *o, ici_obj_t *k) override
-    {
-        if (k == SSO(name))
-            return ici_str_get_nul_term(ici_cfuncof(o)->cf_name);
-        return ici_null;
-    }
+void cfunc_type::objname(ici_obj_t *o, char p[ICI_OBJNAMEZ])
+{
+    const char    *n;
+    n = ici_cfuncof(o)->cf_name;
+    if (strlen(n) > ICI_OBJNAMEZ - 2 - 1)
+        sprintf(p, "%.*s...()", ICI_OBJNAMEZ - 6, n);
+    else
+        sprintf(p, "%s()", n);
+}
 
-    void objname(ici_obj_t *o, char p[ICI_OBJNAMEZ]) override
-    {
-        const char    *n;
-        n = ici_cfuncof(o)->cf_name;
-        if (strlen(n) > ICI_OBJNAMEZ - 2 - 1)
-            sprintf(p, "%.*s...()", ICI_OBJNAMEZ - 6, n);
-        else
-            sprintf(p, "%s()", n);
-    }
-
-    int call(ici_obj_t *o, ici_obj_t *subject) override
-    {
-        if (UNLIKELY(ici_debug_active)
+int cfunc_type::call(ici_obj_t *o, ici_obj_t *subject)
+{
+    if (UNLIKELY(ici_debug_active)
 #ifndef NOPROFILE
-            ||
-            UNLIKELY(ici_profile_active)
+        ||
+        UNLIKELY(ici_profile_active)
 #endif  
-        )
-        {
-            ici_obj_t       **xt;
-            int             result;
+    )
+    {
+        ici_obj_t       **xt;
+        int             result;
 
-            /*
-             * Not all function calls that go stright to C code are complete
-             * function calls in the ICI sense. Some push stuff to execute on
-             * the ICI execution stack and the return will happen later by the
-             * usual return mechanism. Only those that come back with the
-             * execution stack at the same level are considered to be returning
-             * now.
-             */
-            xt = ici_xs.a_top - 1;
-            result = (*ici_cfuncof(o)->cf_cfunc)(subject);
-            if (xt != ici_xs.a_top)
-                return result;
-#ifndef NOPROFILE
-            if (ici_profile_active)
-                ici_profile_return();
-#endif
-            if (UNLIKELY(ici_debug_active))
-            {
-                ici_debug->idbg_fnresult(ici_os.a_top[-1]);
-            }
+        /*
+         * Not all function calls that go stright to C code are complete
+         * function calls in the ICI sense. Some push stuff to execute on
+         * the ICI execution stack and the return will happen later by the
+         * usual return mechanism. Only those that come back with the
+         * execution stack at the same level are considered to be returning
+         * now.
+         */
+        xt = ici_xs.a_top - 1;
+        result = (*ici_cfuncof(o)->cf_cfunc)(subject);
+        if (xt != ici_xs.a_top)
             return result;
+#ifndef NOPROFILE
+        if (ici_profile_active)
+            ici_profile_return();
+#endif
+        if (UNLIKELY(ici_debug_active))
+        {
+            ici_debug->idbg_fnresult(ici_os.a_top[-1]);
         }
-        return (*ici_cfuncof(o)->cf_cfunc)(subject);
+        return result;
     }
-};
+    return (*ici_cfuncof(o)->cf_cfunc)(subject);
+}
 
 } // namespace ici

@@ -18,6 +18,7 @@
 #include "struct.h"
 #include "set.h"
 #include "re.h"
+#include "types.h"
 #include "pcre/pcre.h"
 
 #include <netinet/in.h>
@@ -309,25 +310,16 @@ saverof(ici_obj_t *obj)
     return (saver_t *)obj;
 }
 
-class saver_type : public type
-{
-public:
-    saver_type() : type("saver") {}
-
-unsigned long
-mark(ici_obj_t *o) override
+unsigned long saver_type::mark(ici_obj_t *o)
 {
     o->o_flags |= ICI_O_MARK;
     return sizeof (saver_t);
 }
 
-void
-free(ici_obj_t *o) override
+void saver_type::free(ici_obj_t *o)
 {
     ici_tfree(o, saver_t);
 }
-
-};
 
 static ici_obj_t *
 new_saver(int (*fn)(ici_archive_t *, ici_obj_t *))

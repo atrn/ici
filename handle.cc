@@ -10,6 +10,7 @@
 #include "cfunc.h"
 #include "int.h"
 #include "struct.h"
+#include "types.h"
 
 namespace ici
 {
@@ -169,8 +170,8 @@ ici_handle_method_check(ici_obj_t *inst, ici_str_t *name, ici_handle_t **h, void
     if (ici_handleof(inst)->h_name != name)
     {
         return ici_set_error("attempt to apply method %s to %s",
-            ici_objname(n1, ici_os.a_top[-1]),
-            ici_objname(n2, inst));
+                             ici_objname(n1, ici_os.a_top[-1]),
+                             ici_objname(n2, inst));
     }
     if (h != NULL)
         *h = ici_handleof(inst);
@@ -197,8 +198,8 @@ ici_handle_method(ici_obj_t *inst)
     if (inst->o_flags & ICI_H_CLOSED)
     {
         return ici_set_error("attempt to apply method %s to %s which is dead",
-            ici_objname(n1, ici_os.a_top[-1]),
-            ici_objname(n2, inst));
+                             ici_objname(n1, ici_os.a_top[-1]),
+                             ici_objname(n2, inst));
     }
     r = NULL;
     id = (long)ici_cfuncof(ici_os.a_top[-1])->cf_arg1;
@@ -207,8 +208,8 @@ ici_handle_method(ici_obj_t *inst)
     if (r == NULL)
     {
         return ici_set_error("attempt to apply method %s to %s",
-            ici_objname(n1, ici_os.a_top[-1]),
-            ici_objname(n2, inst));
+                             ici_objname(n1, ici_os.a_top[-1]),
+                             ici_objname(n2, inst));
     }
     return ici_ret_no_decref(r);
 }
@@ -286,7 +287,7 @@ ici_make_handle_member_map(ici_name_id_t *ni)
     }
     return m;
 
-fail:
+ fail:
     if (n != NULL)
         ici_decref(n);
     if (id != NULL)
@@ -296,290 +297,282 @@ fail:
 }
 
 
-class handle_type : public type
+void handle_type::objname(ici_obj_t *o, char p[ICI_OBJNAMEZ])
 {
-public:
-    handle_type() : type("handle") {}
-
-    bool has_objname() const override { return true; }
-    void objname(ici_obj_t *o, char p[ICI_OBJNAMEZ]) override
+    if (ici_handleof(o)->h_name == NULL)
+        strcpy(p, "handle");
+    else
     {
-        if (ici_handleof(o)->h_name == NULL)
-            strcpy(p, "handle");
+        if (ici_handleof(o)->h_name->s_nchars > ICI_OBJNAMEZ - 1)
+            sprintf(p, "%.*s...", ICI_OBJNAMEZ - 4, ici_handleof(o)->h_name->s_chars);
         else
-        {
-            if (ici_handleof(o)->h_name->s_nchars > ICI_OBJNAMEZ - 1)
-                sprintf(p, "%.*s...", ICI_OBJNAMEZ - 4, ici_handleof(o)->h_name->s_chars);
-            else
-                sprintf(p, "%s", ici_handleof(o)->h_name->s_chars);
-        }
+            sprintf(p, "%s", ici_handleof(o)->h_name->s_chars);
     }
+}
 
-    unsigned long
-    mark(ici_obj_t *o) override
+unsigned long
+handle_type::mark(ici_obj_t *o)
+{
+    unsigned long       mem;
+
+    o->o_flags |= ICI_O_MARK;
+    mem = sizeof(ici_handle_t);
+    if (ici_objwsupof(o)->o_super != NULL)
+        mem += ici_mark(ici_objwsupof(o)->o_super);
+    if (ici_handleof(o)->h_name != NULL)
+        mem += ici_mark(ici_handleof(o)->h_name);
+    return mem;
+}
+
+int handle_type::cmp(ici_obj_t *o1, ici_obj_t *o2)
+{
+    return ici_handleof(o1)->h_ptr != ici_handleof(o2)->h_ptr
+    || ici_handleof(o1)->h_name != ici_handleof(o2)->h_name;
+}
+
+unsigned long handle_type::hash(ici_obj_t *o)
+{
+    return ICI_PTR_HASH(ici_handleof(o)->h_ptr)
+    ^ ICI_PTR_HASH(ici_handleof(o)->h_name);
+}
+
+ici_obj_t * handle_type::fetch(ici_obj_t *o, ici_obj_t *k)
+{
+    ici_handle_t        *h;
+    ici_obj_t           *r;
+
+    h = ici_handleof(o);
+    if (h->h_member_map != NULL && (o->o_flags & ICI_H_CLOSED) == 0)
     {
-        unsigned long       mem;
+        ici_obj_t       *id;
 
-        o->o_flags |= ICI_O_MARK;
-        mem = sizeof(ici_handle_t);
-        if (ici_objwsupof(o)->o_super != NULL)
-            mem += ici_mark(ici_objwsupof(o)->o_super);
-        if (ici_handleof(o)->h_name != NULL)
-            mem += ici_mark(ici_handleof(o)->h_name);
-        return mem;
-    }
-
-    int cmp(ici_obj_t *o1, ici_obj_t *o2) override
-    {
-        return ici_handleof(o1)->h_ptr != ici_handleof(o2)->h_ptr
-        || ici_handleof(o1)->h_name != ici_handleof(o2)->h_name;
-    }
-
-    unsigned long hash(ici_obj_t *o) override
-    {
-        return ICI_PTR_HASH(ici_handleof(o)->h_ptr)
-        ^ ICI_PTR_HASH(ici_handleof(o)->h_name);
-    }
-
-    ici_obj_t * fetch(ici_obj_t *o, ici_obj_t *k) override
-    {
-        ici_handle_t        *h;
-        ici_obj_t           *r;
-
-        h = ici_handleof(o);
-        if (h->h_member_map != NULL && (o->o_flags & ICI_H_CLOSED) == 0)
-        {
-            ici_obj_t       *id;
-
-            if ((id = ici_fetch(h->h_member_map, k)) == NULL)
-                return NULL;
-            if (ici_iscfunc(id))
-                return id;
-            if (ici_isint(id))
-            {
-                r = NULL;
-                if ((*h->h_member_intf)(h->h_ptr, ici_intof(id)->i_value, NULL, &r))
-                    return NULL;
-                if (r != NULL)
-                    return r;
-            }
-        }
-        if (h->h_general_intf != NULL)
+        if ((id = ici_fetch(h->h_member_map, k)) == NULL)
+            return NULL;
+        if (ici_iscfunc(id))
+            return id;
+        if (ici_isint(id))
         {
             r = NULL;
-            if ((*h->h_general_intf)(h, k, NULL, &r))
+            if ((*h->h_member_intf)(h->h_ptr, ici_intof(id)->i_value, NULL, &r))
                 return NULL;
             if (r != NULL)
                 return r;
         }
-        if (!ici_hassuper(o) || ici_handleof(o)->o_super == NULL)
-            return ici_fetch_fail(o, k);
-        return ici_fetch(ici_handleof(o)->o_super, k);
     }
-
-    /*
-     * Do a fetch where we are the super of some other object that is
-     * trying to satisfy a fetch. Don't regard the item k as being present
-     * unless it really is. Return -1 on error, 0 if it was not found,
-     * and 1 if was found. If found, the value is stored in *v.
-     *
-     * If not NULL, b is a struct that was the base element of this
-     * assignment. This is used to mantain the lookup lookaside mechanism.
-     */
-    int fetch_super(ici_obj_t *o, ici_obj_t *k, ici_obj_t **v, ici_struct_t *b) override
+    if (h->h_general_intf != NULL)
     {
-        if (!ici_hassuper(o))
-        {
-            ici_fetch_fail(o, k);
-            return 1;
-        }
-        if (ici_handleof(o)->o_super == NULL)
-            return 0;
-        return ici_fetch_super(ici_handleof(o)->o_super, k, v, b);
-    }
-
-    ici_obj_t * fetch_base(ici_obj_t *o, ici_obj_t *k) override
-    {
-        ici_handle_t        *h;
-        ici_obj_t           *r;
-
-        h = ici_handleof(o);
-        if (h->h_member_map != NULL && (o->o_flags & ICI_H_CLOSED) == 0)
-        {
-            ici_obj_t       *id;
-
-            if ((id = ici_fetch(h->h_member_map, k)) == NULL)
-                return NULL;
-            if (ici_iscfunc(id))
-                return id;
-            if (ici_isint(id))
-            {
-                r = NULL;
-                if ((*h->h_member_intf)(h->h_ptr, ici_intof(id)->i_value, NULL, &r))
-                    return NULL;
-                if (r != NULL)
-                    return r;
-            }
-        }
-        if (h->h_general_intf != NULL)
-        {
-            r = NULL;
-            if ((*h->h_general_intf)(h, k, NULL, &r))
-                return NULL;
-            if (r != NULL)
-                return r;
-        }
-        if (!ici_hassuper(o))
-            return ici_fetch_fail(o, k);
-        if ((o->o_flags & ICI_H_HAS_PRIV_STRUCT) == 0)
-            return ici_null;
-        return ici_fetch_base(h->o_super, k);
-    }
-
-    /*
-     * Assign a value into a key of object o, but ignore the super chain.
-     * That is, always assign into the lowest level. Usual error coventions.
-     */
-    int assign_base(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v) override
-    {
-        ici_handle_t        *h;
-        ici_obj_t           *r;
-
-        h = ici_handleof(o);
-        if (h->h_member_map != NULL && (o->o_flags & ICI_H_CLOSED) == 0)
-        {
-            ici_obj_t       *id;
-
-            if ((id = ici_fetch(h->h_member_map, k)) == NULL)
-                return 1;
-            if (ici_isint(id))
-            {
-                r = NULL;
-                if ((*h->h_member_intf)(h->h_ptr, ici_intof(id)->i_value, v, &r))
-                    return 1;
-                if (r != NULL)
-                    return 0;
-            }
-        }
-        if (h->h_general_intf != NULL)
-        {
-            r = NULL;
-            if ((*h->h_general_intf)(h, k, v, &r))
-                return 1;
-            if (r != NULL)
-                return 0;
-        }
-        if (!ici_hassuper(o))
-            return ici_assign_fail(o, k, v);
-        if ((o->o_flags & ICI_H_HAS_PRIV_STRUCT) == 0)
-        {
-            ici_objwsup_t   *s;
-
-            /*
-             * We don't yet have a private struct to hold our values.
-             * Give ourselves one.
-             *
-             * This operation disturbs the struct-lookup lookaside mechanism.
-             * We invalidate all existing entries by incrementing ici_vsver.
-             */
-            if ((s = ici_objwsupof(ici_struct_new())) == NULL)
-                return 1;
-            s->o_super = ici_objwsupof(o)->o_super;
-            ici_objwsupof(o)->o_super = s;
-            ++ici_vsver;
-            o->o_flags |= ICI_H_HAS_PRIV_STRUCT;
-        }
-        return ici_assign_base(ici_objwsupof(o)->o_super, k, v);
-    }
-
-    /*
-     * Assign to key k of the object o the value v. Return 1 on error, else 0.
-     * See the comment on t_assign() in object.h.
-     */
-    int assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v) override
-    {
-        ici_handle_t        *h;
-        ici_obj_t           *r;
-
-        h = ici_handleof(o);
         r = NULL;
-        if (h->h_member_map != NULL && (o->o_flags & ICI_H_CLOSED) == 0)
-        {
-            ici_obj_t       *id;
+        if ((*h->h_general_intf)(h, k, NULL, &r))
+            return NULL;
+        if (r != NULL)
+            return r;
+    }
+    if (!ici_hassuper(o) || ici_handleof(o)->o_super == NULL)
+        return ici_fetch_fail(o, k);
+    return ici_fetch(ici_handleof(o)->o_super, k);
+}
 
-            if ((id = ici_fetch(h->h_member_map, k)) == NULL)
-                return 1;
-            if (ici_isint(id))
-            {
-                if ((*h->h_member_intf)(h->h_ptr, ici_intof(id)->i_value, v, &r))
-                    return 1;
-                if (r != NULL)
-                    return 0;
-            }
-        }
-        if (h->h_general_intf != NULL)
+/*
+ * Do a fetch where we are the super of some other object that is
+ * trying to satisfy a fetch. Don't regard the item k as being present
+ * unless it really is. Return -1 on error, 0 if it was not found,
+ * and 1 if was found. If found, the value is stored in *v.
+ *
+ * If not NULL, b is a struct that was the base element of this
+ * assignment. This is used to mantain the lookup lookaside mechanism.
+ */
+int handle_type::fetch_super(ici_obj_t *o, ici_obj_t *k, ici_obj_t **v, ici_struct_t *b)
+{
+    if (!ici_hassuper(o))
+    {
+        ici_fetch_fail(o, k);
+        return 1;
+    }
+    if (ici_handleof(o)->o_super == NULL)
+        return 0;
+    return ici_fetch_super(ici_handleof(o)->o_super, k, v, b);
+}
+
+ici_obj_t * handle_type::fetch_base(ici_obj_t *o, ici_obj_t *k)
+{
+    ici_handle_t        *h;
+    ici_obj_t           *r;
+
+    h = ici_handleof(o);
+    if (h->h_member_map != NULL && (o->o_flags & ICI_H_CLOSED) == 0)
+    {
+        ici_obj_t       *id;
+
+        if ((id = ici_fetch(h->h_member_map, k)) == NULL)
+            return NULL;
+        if (ici_iscfunc(id))
+            return id;
+        if (ici_isint(id))
         {
             r = NULL;
-            if ((*h->h_general_intf)(h, k, v, &r))
+            if ((*h->h_member_intf)(h->h_ptr, ici_intof(id)->i_value, NULL, &r))
+                return NULL;
+            if (r != NULL)
+                return r;
+        }
+    }
+    if (h->h_general_intf != NULL)
+    {
+        r = NULL;
+        if ((*h->h_general_intf)(h, k, NULL, &r))
+            return NULL;
+        if (r != NULL)
+            return r;
+    }
+    if (!ici_hassuper(o))
+        return ici_fetch_fail(o, k);
+    if ((o->o_flags & ICI_H_HAS_PRIV_STRUCT) == 0)
+        return ici_null;
+    return ici_fetch_base(h->o_super, k);
+}
+
+/*
+ * Assign a value into a key of object o, but ignore the super chain.
+ * That is, always assign into the lowest level. Usual error coventions.
+ */
+int handle_type::assign_base(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v)
+{
+    ici_handle_t        *h;
+    ici_obj_t           *r;
+
+    h = ici_handleof(o);
+    if (h->h_member_map != NULL && (o->o_flags & ICI_H_CLOSED) == 0)
+    {
+        ici_obj_t       *id;
+
+        if ((id = ici_fetch(h->h_member_map, k)) == NULL)
+            return 1;
+        if (ici_isint(id))
+        {
+            r = NULL;
+            if ((*h->h_member_intf)(h->h_ptr, ici_intof(id)->i_value, v, &r))
                 return 1;
             if (r != NULL)
                 return 0;
         }
-        if (!ici_hassuper(o))
-            return ici_assign_fail(o, k, v);
-        if (o->o_flags & ICI_H_HAS_PRIV_STRUCT)
-            return ici_assign(h->o_super, k, v);
-        /*
-         * We don't have a base struct of our own yet. Try the super.
-         */
-        if (ici_handleof(o)->o_super != NULL)
-        {
-            switch (ici_assign_super(h->o_super, k, v, NULL))
-            {
-            case -1: return 1;
-            case 1:  return 0;
-            }
-        }
-        /*
-         * We failed to assign the value to a super, and we haven't yet got
-         * a private struct. Assign it to the base. This will create our
-         * private struct.
-         */
-        return assign_base(o, k, v);
     }
-
-    /*
-     * Do an assignment where we are the super of some other object that
-     * is trying to satisfy an assign. Don't regard the item k as being
-     * present unless it really is. Return -1 on error, 0 if not found
-     * and 1 if the assignment was completed.
-     *
-     * If 0 is returned, nothing has been modified during the
-     * operation of this function.
-     *
-     * If not NULL, b is a struct that was the base element of this
-     * assignment. This is used to mantain the lookup lookaside mechanism.
-     */
-    int assign_super(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v, ici_struct_t *b) override
+    if (h->h_general_intf != NULL)
     {
-        if (!ici_hassuper(o))
-            return ici_assign_fail(o, k, v);
-        if (ici_handleof(o)->o_super == NULL)
+        r = NULL;
+        if ((*h->h_general_intf)(h, k, v, &r))
+            return 1;
+        if (r != NULL)
             return 0;
-        return ici_assign_super(ici_handleof(o)->o_super, k, v, b);
     }
-
-    /*
-     * Free this object and associated memory (but not other objects).
-     * See the comments on t_free() in object.h.
-     */
-    void free(ici_obj_t *o) override
+    if (!ici_hassuper(o))
+        return ici_assign_fail(o, k, v);
+    if ((o->o_flags & ICI_H_HAS_PRIV_STRUCT) == 0)
     {
-        if (ici_handleof(o)->h_pre_free != NULL)
-            (*ici_handleof(o)->h_pre_free)(ici_handleof(o));
-        ici_tfree(o, ici_handle_t);
-    }
+        ici_objwsup_t   *s;
 
-};
+        /*
+         * We don't yet have a private struct to hold our values.
+         * Give ourselves one.
+         *
+         * This operation disturbs the struct-lookup lookaside mechanism.
+         * We invalidate all existing entries by incrementing ici_vsver.
+         */
+        if ((s = ici_objwsupof(ici_struct_new())) == NULL)
+            return 1;
+        s->o_super = ici_objwsupof(o)->o_super;
+        ici_objwsupof(o)->o_super = s;
+        ++ici_vsver;
+        o->o_flags |= ICI_H_HAS_PRIV_STRUCT;
+    }
+    return ici_assign_base(ici_objwsupof(o)->o_super, k, v);
+}
+
+/*
+ * Assign to key k of the object o the value v. Return 1 on error, else 0.
+ * See the comment on t_assign() in object.h.
+ */
+int handle_type::assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v)
+{
+    ici_handle_t        *h;
+    ici_obj_t           *r;
+
+    h = ici_handleof(o);
+    r = NULL;
+    if (h->h_member_map != NULL && (o->o_flags & ICI_H_CLOSED) == 0)
+    {
+        ici_obj_t       *id;
+
+        if ((id = ici_fetch(h->h_member_map, k)) == NULL)
+            return 1;
+        if (ici_isint(id))
+        {
+            if ((*h->h_member_intf)(h->h_ptr, ici_intof(id)->i_value, v, &r))
+                return 1;
+            if (r != NULL)
+                return 0;
+        }
+    }
+    if (h->h_general_intf != NULL)
+    {
+        r = NULL;
+        if ((*h->h_general_intf)(h, k, v, &r))
+            return 1;
+        if (r != NULL)
+            return 0;
+    }
+    if (!ici_hassuper(o))
+        return ici_assign_fail(o, k, v);
+    if (o->o_flags & ICI_H_HAS_PRIV_STRUCT)
+        return ici_assign(h->o_super, k, v);
+    /*
+     * We don't have a base struct of our own yet. Try the super.
+     */
+    if (ici_handleof(o)->o_super != NULL)
+    {
+        switch (ici_assign_super(h->o_super, k, v, NULL))
+        {
+        case -1: return 1;
+        case 1:  return 0;
+        }
+    }
+    /*
+     * We failed to assign the value to a super, and we haven't yet got
+     * a private struct. Assign it to the base. This will create our
+     * private struct.
+     */
+    return assign_base(o, k, v);
+}
+
+/*
+ * Do an assignment where we are the super of some other object that
+ * is trying to satisfy an assign. Don't regard the item k as being
+ * present unless it really is. Return -1 on error, 0 if not found
+ * and 1 if the assignment was completed.
+ *
+ * If 0 is returned, nothing has been modified during the
+ * operation of this function.
+ *
+ * If not NULL, b is a struct that was the base element of this
+ * assignment. This is used to mantain the lookup lookaside mechanism.
+ */
+int handle_type::assign_super(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v, ici_struct_t *b)
+{
+    if (!ici_hassuper(o))
+        return ici_assign_fail(o, k, v);
+    if (ici_handleof(o)->o_super == NULL)
+        return 0;
+    return ici_assign_super(ici_handleof(o)->o_super, k, v, b);
+}
+
+/*
+ * Free this object and associated memory (but not other objects).
+ * See the comments on t_free() in object.h.
+ */
+void handle_type::free(ici_obj_t *o)
+{
+    if (ici_handleof(o)->h_pre_free != NULL)
+        (*ici_handleof(o)->h_pre_free)(ici_handleof(o));
+    ici_tfree(o, ici_handle_t);
+}
 
 } // namespace ici

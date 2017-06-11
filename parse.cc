@@ -15,6 +15,7 @@
 #include "mark.h"
 #include "pc.h"
 #include "src.h"
+#include "types.h"
 #include <errno.h>
 
 namespace ici
@@ -2647,53 +2648,44 @@ ici_new_parse(ici_file_t *f)
     return p;
 }
 
-class parse_type : public type
-{
-public:
-    parse_type() : type("parse") {}
-
     /*
      * Mark this and referenced unmarked objects, return memory costs.
      * See comments on t_mark() in object.h.
      */
-    unsigned long
-    mark(ici_obj_t *o) override
+unsigned long parse_type::mark(ici_obj_t *o)
+{
+    long        mem;
+
+    o->o_flags |= ICI_O_MARK;
+    mem = sizeof(ici_parse_t);
+    if (ici_parseof(o)->p_func != NULL)
     {
-        long        mem;
-
-        o->o_flags |= ICI_O_MARK;
-        mem = sizeof(ici_parse_t);
-        if (ici_parseof(o)->p_func != NULL)
-        {
-            mem += ici_mark(ici_parseof(o)->p_func);
-        }
-        if (ici_parseof(o)->p_file != NULL)
-        {
-            mem += ici_mark(ici_parseof(o)->p_file);
-        }
-        return mem;
+        mem += ici_mark(ici_parseof(o)->p_func);
     }
-
-    /*
-     * Free this object and associated memory (but not other objects).
-     * See the comments on t_free() in object.h.
-     */
-    void
-    free(ici_obj_t *o) override
+    if (ici_parseof(o)->p_file != NULL)
     {
-        if (ici_parseof(o)->p_got.t_what & TM_HASOBJ)
-        {
-            ici_decref(ici_parseof(o)->p_got.t_obj);
-        }
-        if (ici_parseof(o)->p_ungot.t_what & TM_HASOBJ)
-        {
-            ici_decref(ici_parseof(o)->p_ungot.t_obj);
-        }
-        ici_parseof(o)->p_ungot.t_what = T_NONE;
-        ici_tfree(o, ici_parse_t);
+        mem += ici_mark(ici_parseof(o)->p_file);
     }
+    return mem;
+}
 
-};
+/*
+ * Free this object and associated memory (but not other objects).
+ * See the comments on t_free() in object.h.
+ */
+void parse_type::free(ici_obj_t *o)
+{
+    if (ici_parseof(o)->p_got.t_what & TM_HASOBJ)
+    {
+        ici_decref(ici_parseof(o)->p_got.t_obj);
+    }
+    if (ici_parseof(o)->p_ungot.t_what & TM_HASOBJ)
+    {
+        ici_decref(ici_parseof(o)->p_ungot.t_obj);
+    }
+    ici_parseof(o)->p_ungot.t_what = T_NONE;
+    ici_tfree(o, ici_parse_t);
+}
 
 const char *
 ici_token_name(int t)

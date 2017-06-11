@@ -6,6 +6,7 @@
 #include "int.h"
 #include "null.h"
 #include "str.h"
+#include "types.h"
 
 /*
  * TODO: add close() support
@@ -67,27 +68,21 @@
 namespace ici
 {
 
-class channel_type : public type
+unsigned long channel_type::mark(ici_obj_t *o)
 {
-public:
-    channel_type() : type("channel") {}
+    unsigned long mem = sizeof (ici_channel_t);
+    o->o_flags |= ICI_O_MARK;
+    mem += ici_mark(ici_objwsupof(o)->o_super);
+    mem += ici_mark(ici_channelof(o)->c_q);
+    if (ici_channelof(o)->c_altobj != NULL)
+        mem += ici_mark(ici_channelof(o)->c_altobj);
+    return mem;
+}
 
-    unsigned long mark(ici_obj_t *o) override
-    {
-        unsigned long mem = sizeof (ici_channel_t);
-        o->o_flags |= ICI_O_MARK;
-        mem += ici_mark(ici_objwsupof(o)->o_super);
-        mem += ici_mark(ici_channelof(o)->c_q);
-        if (ici_channelof(o)->c_altobj != NULL)
-            mem += ici_mark(ici_channelof(o)->c_altobj);
-        return mem;
-    }
-
-    void free(ici_obj_t *o) override
-    {
-        ici_tfree(o, ici_channel_t);
-    }
-};
+void channel_type::free(ici_obj_t *o)
+{
+    ici_tfree(o, ici_channel_t);
+}
 
 
 /*

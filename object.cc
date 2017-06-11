@@ -8,6 +8,7 @@
 #include "pc.h"
 #include "profile.h"
 #include "primes.h"
+#include "types.h"
 
 #include <limits.h>
 
@@ -38,72 +39,72 @@ char            *ici_error;
  * core. NB: The positions of these must exactly match the ICI_TC_* defines
  * in object.h.
  */
-extern type_t       archive_type;
-extern type_t       array_type;
-extern type_t       catch_type;
-extern type_t       exec_type;
-extern type_t       set_type;
-extern type_t       struct_type;
-extern type_t       float_type;
-extern type_t       file_type;
-extern type_t       func_type;
-extern type_t       cfunc_type;
-extern type_t       method_type;
-extern type_t       forall_type;
-extern type_t       int_type;
-extern type_t       mark_type;
-extern type_t       null_type;
-extern type_t       op_type;
-extern type_t       pc_type;
-extern type_t       ptr_type;
-extern type_t       regexp_type;
-extern type_t       src_type;
-extern type_t       string_type;
-extern type_t       parse_type;
-extern type_t       ostemp_type;
-extern type_t       handle_type;
-extern type_t       profilecall_type;
-extern type_t       mem_type;
-extern type_t       restorer_type;
-extern type_t       saver_type;
-extern type_t       channel_type;
+// extern type_t       archive_type;
+// extern type_t       array_type;
+// extern type_t       catch_type;
+// extern type_t       exec_type;
+// extern type_t       set_type;
+// extern type_t       struct_type;
+// extern type_t       float_type;
+// extern type_t       file_type;
+// extern type_t       func_type;
+// extern type_t       cfunc_type;
+// extern type_t       method_type;
+// extern type_t       forall_type;
+// extern type_t       int_type;
+// extern type_t       mark_type;
+// extern type_t       null_type;
+// extern type_t       op_type;
+// extern type_t       pc_type;
+// extern type_t       ptr_type;
+// extern type_t       regexp_type;
+// extern type_t       src_type;
+// extern type_t       string_type;
+// extern type_t       parse_type;
+// extern type_t       ostemp_type;
+// extern type_t       handle_type;
+// extern type_t       profilecall_type;
+// extern type_t       mem_type;
+// extern type_t       restorer_type;
+// extern type_t       saver_type;
+// extern type_t       channel_type;
 
 type_t      *types[max_types] =
 {
     NULL,
-    &pc_type,
-    &src_type,
-    &parse_type,
-    &op_type,
-    &string_type,
-    &catch_type,
-    &forall_type,
-    &int_type,
-    &float_type,
-    &regexp_type,
-    &ptr_type,
-    &array_type,
-    &struct_type,
-    &set_type,
-    &exec_type,
-    &file_type,
-    &func_type,
-    &cfunc_type,
-    &method_type,
-    &mark_type,
-    &null_type,
-    &handle_type,
-    &mem_type,
+    new pc_type,
+    new src_type,
+    new parse_type,
+    new op_type,
+    new string_type,
+    new catch_type,
+    new forall_type,
+    new int_type,
+    new float_type,
+    new regexp_type,
+    new ptr_type,
+    new array_type,
+    new struct_type,
+    new set_type,
+    new exec_type,
+    new file_type,
+    new func_type,
+    new cfunc_type,
+    new method_type,
+    new mark_type,
+    new null_type,
+    new handle_type,
+    new mem_type,
 #ifndef NOPROFILE
-    &profilecall_type,
+    new profilecall_type,
 #else
     NULL,
 #endif
-    &archive_type,
+    new archive_type,
     NULL, // ICI_TC_REF
-    &restorer_type,
-    &saver_type,
-    &channel_type
+    new restorer_type,
+    new saver_type,
+    new channel_type
 };
 
 static int              ici_ntypes = ICI_TC_MAX_CORE + 1;
@@ -144,15 +145,16 @@ int type::assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v) {
 }
 
 ici_obj_t * type::fetch(ici_obj_t *o, ici_obj_t *k) {
-    return ici_fetch_fail(k, v);
+    return ici_fetch_fail(o, k);
 }
 
-int type::assign_super(ici_obj_t *o, ici_obj_t *k, ici_obj_t *pv, ici_struct_t *) {
-    return ici_assign_fail(o, k, *pv);
+int type::assign_super(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v, ici_struct_t *) {
+    return ici_assign_fail(o, k, v);
 }
 
-int type::fetch_super(ici_obj_t *o, ici_obj_t *k, ici_struct_t *) {
-    return ici_fetch_fail(k, v);
+int type::fetch_super(ici_obj_t *o, ici_obj_t *k, ici_obj_t **pv, ici_struct_t *) {
+    *pv = ici_fetch_fail(o, k);
+    return 1;
 }
 
 int type::assign_base(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v) {
@@ -184,10 +186,14 @@ void type::objname(ici_obj_t *, char n[ICI_OBJNAMEZ]) {
 }
 
 int type::call(ici_obj_t *, ici_obj_t *) {
-    return nullptr;
+    return 1;
 }
 
 bool type::has_call() const {
+    return false;
+}
+
+bool type::has_forall() const {
     return false;
 }
 

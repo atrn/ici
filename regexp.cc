@@ -6,6 +6,7 @@
 #include "op.h"
 #include "buf.h"
 #include "primes.h"
+#include "types.h"
 
 #ifndef ICI
 #define ICI /* Cause PCRE's internal.h to add special stuff for ICI */
@@ -110,82 +111,69 @@ int ici_pcre_exec_simple(ici_regexp_t *r, ici_str_t *s)
     );
 }
 
-class regexp_type : public type
+/*
+ * Mark this and referenced unmarked objects, return memory costs.
+ * See comments on t_mark() in object.h.
+ */
+unsigned long regexp_type::mark(ici_obj_t *o)
 {
-public:
-    regexp_type() : type("regexp") {}
+    o->o_flags |= ICI_O_MARK;
+    return sizeof(ici_regexp_t) + ici_mark(ici_regexpof(o)->r_pat) + ((real_pcre *)ici_regexpof(o)->r_re)->size;
+}
 
+/*
+ * Free this object and associated memory (but not other objects).
+ * See the comments on t_free() in object.h.
+ */
+void regexp_type::free(ici_obj_t *o)
+{
+    if (ici_regexpof(o)->r_rex != NULL)
+        ici_free(ici_regexpof(o)->r_rex);
+    ici_free(ici_regexpof(o)->r_re);
+    ici_tfree(o, ici_regexp_t);
+}
 
-    /*
-     * Mark this and referenced unmarked objects, return memory costs.
-     * See comments on t_mark() in object.h.
-     */
-    unsigned long
-    mark(ici_obj_t *o) override
+/*
+ * Return a hash sensitive to the value of the object.
+ * See the comment on t_hash() in object.h
+ */
+unsigned long regexp_type::hash(ici_obj_t *o)
+{
+    /* static unsigned long     primes[] = {0xBF8D, 0x9A4F, 0x1C81, 0x6DDB}; */
+    int re_options;
+    pcre_info(ici_regexpof(o)->r_re, &re_options, NULL);
+    return ((unsigned long)ici_regexpof(o)->r_pat + re_options) * 0x9A4F;
+}
+
+/*
+ * Returns 0 if these objects are equal, else non-zero.
+ * See the comments on t_cmp() in object.h.
+ */
+int regexp_type::cmp(ici_obj_t *o1, ici_obj_t *o2)
+{
+    int re1_options;
+    int re2_options;
+    pcre_info(ici_regexpof(o1)->r_re, &re1_options, NULL);
+    pcre_info(ici_regexpof(o2)->r_re, &re2_options, NULL);
+    return re1_options != re2_options ? 1 : cmp(ici_regexpof(o1)->r_pat, ici_regexpof(o2)->r_pat);
+}
+
+ici_obj_t *regexp_type::fetch(ici_obj_t *o, ici_obj_t *k)
+{
+    if (k == SSO(pattern))
+        return ici_regexpof(o)->r_pat;
+    if (k == SSO(options))
     {
-        o->o_flags |= ICI_O_MARK;
-        return sizeof(ici_regexp_t) + ici_mark(ici_regexpof(o)->r_pat) + ((real_pcre *)ici_regexpof(o)->r_re)->size;
+        int         options;
+        ici_int_t   *io;
+
+        pcre_info(ici_regexpof(o)->r_re, &options, NULL);
+        if ((io = ici_int_new(options)) == NULL)
+            return NULL;
+        ici_decref(io);
+        return io;
     }
-
-    /*
-     * Free this object and associated memory (but not other objects).
-     * See the comments on t_free() in object.h.
-     */
-    void
-    free(ici_obj_t *o) override
-    {
-        if (ici_regexpof(o)->r_rex != NULL)
-            ici_free(ici_regexpof(o)->r_rex);
-        ici_free(ici_regexpof(o)->r_re);
-        ici_tfree(o, ici_regexp_t);
-    }
-
-    /*
-     * Return a hash sensitive to the value of the object.
-     * See the comment on t_hash() in object.h
-     */
-    unsigned long
-    hash(ici_obj_t *o) override
-    {
-        /* static unsigned long     primes[] = {0xBF8D, 0x9A4F, 0x1C81, 0x6DDB}; */
-        int re_options;
-        pcre_info(ici_regexpof(o)->r_re, &re_options, NULL);
-        return ((unsigned long)ici_regexpof(o)->r_pat + re_options) * 0x9A4F;
-    }
-
-    /*
-     * Returns 0 if these objects are equal, else non-zero.
-     * See the comments on t_cmp() in object.h.
-     */
-    int
-    cmp(ici_obj_t *o1, ici_obj_t *o2) override
-    {
-        int re1_options;
-        int re2_options;
-        pcre_info(ici_regexpof(o1)->r_re, &re1_options, NULL);
-        pcre_info(ici_regexpof(o2)->r_re, &re2_options, NULL);
-        return re1_options != re2_options ? 1 : cmp(ici_regexpof(o1)->r_pat, ici_regexpof(o2)->r_pat);
-    }
-
-    ici_obj_t *
-    fetch(ici_obj_t *o, ici_obj_t *k) override
-    {
-        if (k == SSO(pattern))
-            return ici_regexpof(o)->r_pat;
-        if (k == SSO(options))
-        {
-            int         options;
-            ici_int_t   *io;
-
-            pcre_info(ici_regexpof(o)->r_re, &options, NULL);
-            if ((io = ici_int_new(options)) == NULL)
-                return NULL;
-            ici_decref(io);
-            return io;
-        }
-        return ici_fetch_fail(o, k);
-    }
-
-};
+    return ici_fetch_fail(o, k);
+}
 
 } // namespace ici

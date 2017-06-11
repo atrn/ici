@@ -5,6 +5,7 @@
 #include "buf.h"
 #include "null.h"
 #include "primes.h"
+#include "types.h"
 
 namespace ici
 {
@@ -41,104 +42,98 @@ ici_mem_new(void *base, size_t length, int accessz, void (*free_func)(void *))
  * See the comments on t_free() in object.h.
  */
 
-class mem_type : public type
+unsigned long mem_type::mark(ici_obj_t *o)
 {
-public:
-    mem_type() : type("mem") {}
+    o->o_flags |= ICI_O_MARK;
+    return sizeof(ici_mem_t);
+}
 
-    unsigned long mark(ici_obj_t *o) override
+/*
+ * Returns 0 if these objects are equal, else non-zero.
+ * See the comments on t_cmp() in object.h.
+ */
+int mem_type::cmp(ici_obj_t *o1, ici_obj_t *o2)
+{
+    return ici_memof(o1)->m_base != ici_memof(o2)->m_base
+    || ici_memof(o1)->m_length != ici_memof(o2)->m_length
+    || ici_memof(o1)->m_accessz != ici_memof(o2)->m_accessz
+    || ici_memof(o1)->m_free != ici_memof(o2)->m_free;
+}
+
+/*
+ * Return a hash sensitive to the value of the object.
+ * See the comment on t_hash() in object.h
+ */
+unsigned long mem_type::hash(ici_obj_t *o)
+{
+    return (unsigned long)ici_memof(o)->m_base * MEM_PRIME_0
+    + (unsigned long)ici_memof(o)->m_length * MEM_PRIME_1
+    + (unsigned long)ici_memof(o)->m_accessz * MEM_PRIME_2;
+}
+
+void mem_type::free(ici_obj_t *o)
+{
+    if (ici_memof(o)->m_free != NULL)
     {
-        o->o_flags |= ICI_O_MARK;
-        return sizeof(ici_mem_t);
+        (*ici_memof(o)->m_free)(ici_memof(o)->m_base);
     }
+    ici_tfree(o, ici_mem_t);
+}
 
-    /*
-     * Returns 0 if these objects are equal, else non-zero.
-     * See the comments on t_cmp() in object.h.
-     */
-    int cmp(ici_obj_t *o1, ici_obj_t *o2) override
+int mem_type::assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v)
+{
+    long       i;
+
+    if (!ici_isint(k) || !ici_isint(v))
+        return ici_assign_fail(o, k, v);
+    i = ici_intof(k)->i_value;
+    if (i < 0 || i >= (long)ici_memof(o)->m_length)
     {
-        return ici_memof(o1)->m_base != ici_memof(o2)->m_base
-        || ici_memof(o1)->m_length != ici_memof(o2)->m_length
-        || ici_memof(o1)->m_accessz != ici_memof(o2)->m_accessz
-        || ici_memof(o1)->m_free != ici_memof(o2)->m_free;
+        return ici_set_error("attempt to write at mem index %ld\n", i);
     }
-
-    /*
-     * Return a hash sensitive to the value of the object.
-     * See the comment on t_hash() in object.h
-     */
-    unsigned long hash(ici_obj_t *o) override
+    switch (ici_memof(o)->m_accessz)
     {
-        return (unsigned long)ici_memof(o)->m_base * MEM_PRIME_0
-        + (unsigned long)ici_memof(o)->m_length * MEM_PRIME_1
-        + (unsigned long)ici_memof(o)->m_accessz * MEM_PRIME_2;
-    }
+    case 1:
+        ((unsigned char *)ici_memof(o)->m_base)[i] = (unsigned char)ici_intof(v)->i_value;
+        break;
 
-    void free(ici_obj_t *o) override
+    case 2:
+        ((unsigned short *)ici_memof(o)->m_base)[i] = (unsigned short)ici_intof(v)->i_value;
+        break;
+
+    case 4:
+        ((int *)ici_memof(o)->m_base)[i] = (int)ici_intof(v)->i_value;
+        break;
+    }
+    return 0;
+}
+
+ici_obj_t * mem_type::fetch(ici_obj_t *o, ici_obj_t *k)
+{
+    long        i;
+
+    if (!ici_isint(k))
+        return ici_fetch_fail(o, k);
+    i = ici_intof(k)->i_value;
+    if (i < 0 || i >= (long)ici_memof(o)->m_length)
+        return ici_null;
+    switch (ici_memof(o)->m_accessz)
     {
-        if (ici_memof(o)->m_free != NULL)
-        {
-            (*ici_memof(o)->m_free)(ici_memof(o)->m_base);
-        }
-        ici_tfree(o, ici_mem_t);
+    case 1:
+        i = ((unsigned char *)ici_memof(o)->m_base)[i];
+        break;
+
+    case 2:
+        i = ((unsigned short *)ici_memof(o)->m_base)[i];
+        break;
+
+    case 4:
+        i = ((int *)ici_memof(o)->m_base)[i];
+        break;
     }
-
-    int assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v) override
-    {
-        long       i;
-
-        if (!ici_isint(k) || !ici_isint(v))
-            return ici_assign_fail(o, k, v);
-        i = ici_intof(k)->i_value;
-        if (i < 0 || i >= (long)ici_memof(o)->m_length)
-        {
-            return ici_set_error("attempt to write at mem index %ld\n", i);
-        }
-        switch (ici_memof(o)->m_accessz)
-        {
-        case 1:
-            ((unsigned char *)ici_memof(o)->m_base)[i] = (unsigned char)ici_intof(v)->i_value;
-            break;
-
-        case 2:
-            ((unsigned short *)ici_memof(o)->m_base)[i] = (unsigned short)ici_intof(v)->i_value;
-            break;
-
-        case 4:
-            ((int *)ici_memof(o)->m_base)[i] = (int)ici_intof(v)->i_value;
-            break;
-        }
-        return 0;
-    }
-
-    ici_obj_t * fetch(ici_obj_t *o, ici_obj_t *k) override
-    {
-        long        i;
-
-        if (!ici_isint(k))
-            return ici_fetch_fail(o, k);
-        i = ici_intof(k)->i_value;
-        if (i < 0 || i >= (long)ici_memof(o)->m_length)
-            return ici_null;
-        switch (ici_memof(o)->m_accessz)
-        {
-        case 1:
-            i = ((unsigned char *)ici_memof(o)->m_base)[i];
-            break;
-
-        case 2:
-            i = ((unsigned short *)ici_memof(o)->m_base)[i];
-            break;
-
-        case 4:
-            i = ((int *)ici_memof(o)->m_base)[i];
-            break;
-        }
-        o = ici_int_new(i);
-        ici_decref(o);
-        return o;
-    }
-};
+    o = ici_int_new(i);
+    ici_decref(o);
+    return o;
+}
 
 } // namespace ici

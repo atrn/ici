@@ -11,6 +11,7 @@
 #include "null.h"
 #include "buf.h"
 #include "primes.h"
+#include "types.h"
 
 namespace ici
 {
@@ -525,188 +526,181 @@ ici_op_mklvalue()
 
 // array_type
 
-class array_type : public type
+unsigned long array_type::mark(ici_obj_t *o) {
+    ici_obj_t           **e;
+    unsigned long       mem;
+
+    o->o_flags |= ICI_O_MARK;
+    if (ici_arrayof(o)->a_base == NULL)
+    {
+        return sizeof(ici_array_t);
+    }
+    mem = sizeof(ici_array_t)
+    + (ici_arrayof(o)->a_limit - ici_arrayof(o)->a_base) * sizeof(ici_obj_t *);
+    if (ici_arrayof(o)->a_bot <= ici_arrayof(o)->a_top)
+    {
+        for (e = ici_arrayof(o)->a_bot; e < ici_arrayof(o)->a_top; ++e)
+        {
+            mem += ici_mark(*e);
+        }
+    }
+    else
+    {
+        for (e = ici_arrayof(o)->a_base; e < ici_arrayof(o)->a_top; ++e)
+        {
+            mem += ici_mark(*e);
+        }
+        for (e = ici_arrayof(o)->a_bot; e < ici_arrayof(o)->a_limit; ++e)
+        {
+            mem += ici_mark(*e);
+        }
+    }
+    return mem;
+}
+
+void array_type::free(ici_obj_t *o)
 {
-    array_type() : type("array") {}
-
-    virtual unsigned long mark(ici_obj_t *o) override {
-        ici_obj_t           **e;
-        unsigned long       mem;
-
-        o->o_flags |= ICI_O_MARK;
-        if (ici_arrayof(o)->a_base == NULL)
-        {
-            return sizeof(ici_array_t);
-        }
-        mem = sizeof(ici_array_t)
-        + (ici_arrayof(o)->a_limit - ici_arrayof(o)->a_base) * sizeof(ici_obj_t *);
-        if (ici_arrayof(o)->a_bot <= ici_arrayof(o)->a_top)
-        {
-            for (e = ici_arrayof(o)->a_bot; e < ici_arrayof(o)->a_top; ++e)
-            {
-                mem += ici_mark(*e);
-            }
-        }
-        else
-        {
-            for (e = ici_arrayof(o)->a_base; e < ici_arrayof(o)->a_top; ++e)
-            {
-                mem += ici_mark(*e);
-            }
-            for (e = ici_arrayof(o)->a_bot; e < ici_arrayof(o)->a_limit; ++e)
-            {
-                mem += ici_mark(*e);
-            }
-        }
-        return mem;
-    }
-
-    void free(ici_obj_t *o) override
+    if (ici_arrayof(o)->a_base != NULL)
     {
-        if (ici_arrayof(o)->a_base != NULL)
-        {
-            ici_nfree
-            (
-                ici_arrayof(o)->a_base,
-                (ici_arrayof(o)->a_limit - ici_arrayof(o)->a_base) * sizeof(ici_obj_t *)
-            );
-        }
-        ici_tfree(o, ici_array_t);
+        ici_nfree
+        (
+            ici_arrayof(o)->a_base,
+            (ici_arrayof(o)->a_limit - ici_arrayof(o)->a_base) * sizeof(ici_obj_t *)
+        );
     }
+    ici_tfree(o, ici_array_t);
+}
 
-    unsigned long hash(ici_obj_t *o) override
+unsigned long array_type::hash(ici_obj_t *o)
+{
+    unsigned long       h;
+    ici_obj_t           **e;
+    ptrdiff_t           n;
+    ptrdiff_t           m;
+    ptrdiff_t           i;
+
+    h = ARRAY_PRIME;
+    n = ici_array_nels(ici_arrayof(o));
+    for (i = 0; i < n; )
     {
-        unsigned long       h;
-        ici_obj_t           **e;
-        ptrdiff_t           n;
-        ptrdiff_t           m;
-        ptrdiff_t           i;
-
-        h = ARRAY_PRIME;
-        n = ici_array_nels(ici_arrayof(o));
-        for (i = 0; i < n; )
+        m = n;
+        e = ici_array_span(ici_arrayof(o), i, &m);
+        i += m;
+        while (--m >= 0)
         {
-            m = n;
-            e = ici_array_span(ici_arrayof(o), i, &m);
-            i += m;
-            while (--m >= 0)
-            {
-                h += ICI_PTR_HASH(*e);
-                ++e;
-                h >>= 1;
-            }
+            h += ICI_PTR_HASH(*e);
+            ++e;
+            h >>= 1;
         }
-        return h;
     }
+    return h;
+}
 
-    int cmp(ici_obj_t *o1, ici_obj_t *o2) override
+int array_type::cmp(ici_obj_t *o1, ici_obj_t *o2)
+{
+    ptrdiff_t           i;
+    ptrdiff_t           n1;
+    ptrdiff_t           n2;
+    ici_obj_t           **e1;
+    ici_obj_t           **e2;
+
+    if (o1 == o2)
     {
-        ptrdiff_t           i;
-        ptrdiff_t           n1;
-        ptrdiff_t           n2;
-        ici_obj_t           **e1;
-        ici_obj_t           **e2;
-
-        if (o1 == o2)
-        {
-            return 0;
-        }
-        n1 = ici_array_nels(ici_arrayof(o1));
-        n2 = ici_array_nels(ici_arrayof(o2));
-        if (n1 != n2)
+        return 0;
+    }
+    n1 = ici_array_nels(ici_arrayof(o1));
+    n2 = ici_array_nels(ici_arrayof(o2));
+    if (n1 != n2)
+    {
+        return 1;
+    }
+    for (i = 0; i < n1; i += n2)
+    {
+        n2 = n1;
+        e1 = ici_array_span(ici_arrayof(o1), i, &n2);
+        e2 = ici_array_span(ici_arrayof(o2), i, &n2);
+        if (memcmp(e1, e2, n2 * sizeof(ici_obj_t *)))
         {
             return 1;
         }
-        for (i = 0; i < n1; i += n2)
-        {
-            n2 = n1;
-            e1 = ici_array_span(ici_arrayof(o1), i, &n2);
-            e2 = ici_array_span(ici_arrayof(o2), i, &n2);
-            if (memcmp(e1, e2, n2 * sizeof(ici_obj_t *)))
-            {
-                return 1;
-            }
-        }
-        return 0;
     }
+    return 0;
+}
 
-    ici_obj_t * copy(ici_obj_t *o) override
+ici_obj_t * array_type::copy(ici_obj_t *o)
+{
+    ici_array_t         *na;
+    ptrdiff_t           n;
+
+    n = ici_array_nels(ici_arrayof(o));
+    if ((na = ici_array_new(n)) == NULL)
     {
-        ici_array_t         *na;
-        ptrdiff_t           n;
-
-        n = ici_array_nels(ici_arrayof(o));
-        if ((na = ici_array_new(n)) == NULL)
-        {
-            return NULL;
-        }
-        ici_array_gather(na->a_top, ici_arrayof(o), 0, n);
-        na->a_top += n;
-        return na;
+        return NULL;
     }
+    ici_array_gather(na->a_top, ici_arrayof(o), 0, n);
+    na->a_top += n;
+    return na;
+}
 
-    int assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v) override
+int array_type::assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v)
+{
+    long        i;
+    ici_obj_t   **e;
+
+    if (o->isatom())
     {
-        long        i;
-        ici_obj_t   **e;
+        return ici_set_error("attempt to assign to an atomic array");
+    }
+    if (!ici_isint(k))
+    {
+        return ici_assign_fail(o, k, v);
+    }
+    i = ici_intof(k)->i_value;
+    if (i < 0)
+    {
+        return ici_set_error("attempt to assign to negative array index");
+    }
+    if ((e = ici_array_find_slot(ici_arrayof(o), i)) == NULL)
+    {
+        return 1;
+    }
+    *e = v;
+    return 0;
+}
 
-        if (o->isatom())
-        {
-            return ici_set_error("attempt to assign to an atomic array");
-        }
-        if (!ici_isint(k))
-        {
-            return ici_assign_fail(o, k, v);
-        }
-        i = ici_intof(k)->i_value;
-        if (i < 0)
-        {
-            return ici_set_error("attempt to assign to negative array index");
-        }
-        if ((e = ici_array_find_slot(ici_arrayof(o), i)) == NULL)
-        {
+ici_obj_t *array_type::fetch(ici_obj_t *o, ici_obj_t *k)
+{
+    if (!ici_isint(k))
+    {
+        return ici_fetch_fail(o, k);
+    }
+    return ici_array_get(ici_arrayof(o), ici_intof(k)->i_value);
+}
+
+int array_type::forall(ici_obj_t *o)
+{
+    ici_forall_t *fa = forallof(o);
+    ici_array_t    *a;
+    ici_int_t  *i;
+
+    a = ici_arrayof(fa->fa_aggr);
+    if (++fa->fa_index >= ici_array_nels(a))
+        return -1;
+    if (fa->fa_vaggr != ici_null)
+    {
+        if (ici_assign(fa->fa_vaggr, fa->fa_vkey, ici_array_get(a, fa->fa_index)))
             return 1;
-        }
-        *e = v;
-        return 0;
     }
-
-    ici_obj_t *fetch(ici_obj_t *o, ici_obj_t *k) override
+    if (fa->fa_kaggr != ici_null)
     {
-        if (!ici_isint(k))
-        {
-            return ici_fetch_fail(o, k);
-        }
-        return ici_array_get(ici_arrayof(o), ici_intof(k)->i_value);
+        if ((i = ici_int_new((long)fa->fa_index)) == NULL)
+            return 1;
+        if (ici_assign(fa->fa_kaggr, fa->fa_kkey, i))
+            return 1;
+        ici_decref(i);
     }
-
-    bool has_forall() const override { return true; }
-
-    int forall(ici_obj_t *o) override
-    {
-        ici_forall_t *fa = forallof(o);
-        ici_array_t    *a;
-        ici_int_t  *i;
-
-        a = ici_arrayof(fa->fa_aggr);
-        if (++fa->fa_index >= ici_array_nels(a))
-            return -1;
-        if (fa->fa_vaggr != ici_null)
-        {
-            if (ici_assign(fa->fa_vaggr, fa->fa_vkey, ici_array_get(a, fa->fa_index)))
-                return 1;
-        }
-        if (fa->fa_kaggr != ici_null)
-        {
-            if ((i = ici_int_new((long)fa->fa_index)) == NULL)
-                return 1;
-            if (ici_assign(fa->fa_kaggr, fa->fa_kkey, i))
-                return 1;
-            ici_decref(i);
-        }
-        return 0;
-    }
-};
+    return 0;
+}
 
 ici_op_t    ici_o_mklvalue      = {ici_op_mklvalue};
 

@@ -2,6 +2,7 @@
 #include "fwd.h"
 #include "int.h"
 #include "primes.h"
+#include "types.h"
 
 namespace ici
 {
@@ -56,55 +57,44 @@ ici_int_new(long i)
     return ici_intof(o);
 }
 
-class int_type : public type
+/*
+ * Mark this and referenced unmarked objects, return memory costs.
+ * See comments on t_mark() in object.h.
+ */
+unsigned long  int_type::mark(ici_obj_t *o)
 {
-public:
-    int_type() : type("int") {}
+    o->o_flags |= ICI_O_MARK;
+    return sizeof(ici_int_t);
+}
 
+/*
+ * Returns 0 if these objects are equal, else non-zero.
+ * See the comments on t_cmp() in object.h.
+ */
+int int_type::cmp(ici_obj_t *o1, ici_obj_t *o2)
+{
+    return ici_intof(o1)->i_value != ici_intof(o2)->i_value;
+}
+
+/*
+ * Return a hash sensitive to the value of the object.
+ * See the comment on t_hash() in object.h
+ */
+unsigned long int_type::hash(ici_obj_t *o)
+{
     /*
-     * Mark this and referenced unmarked objects, return memory costs.
-     * See comments on t_mark() in object.h.
+     * There are in-line versions of this in object.c and binop.h.
      */
-    unsigned long
-    mark(ici_obj_t *o) override
-    {
-        o->o_flags |= ICI_O_MARK;
-        return sizeof(ici_int_t);
-    }
+    return (unsigned long)ici_intof(o)->i_value * INT_PRIME;
+}
 
-    /*
-     * Returns 0 if these objects are equal, else non-zero.
-     * See the comments on t_cmp() in object.h.
-     */
-    int
-    cmp(ici_obj_t *o1, ici_obj_t *o2) override
-    {
-        return ici_intof(o1)->i_value != ici_intof(o2)->i_value;
-    }
-
-    /*
-     * Return a hash sensitive to the value of the object.
-     * See the comment on t_hash() in object.h
-     */
-    unsigned long
-    hash(ici_obj_t *o) override
-    {
-        /*
-         * There are in-line versions of this in object.c and binop.h.
-         */
-        return (unsigned long)ici_intof(o)->i_value * INT_PRIME;
-    }
-
-    /*
-     * Free this object and associated memory (but not other objects).
-     * See the comments on t_free() in object.h.
-     */
-    void free(ici_obj_t *o) override
-    {
-        ici_tfree(o, ici_int_t);
-    }
-
-
-};
+/*
+ * Free this object and associated memory (but not other objects).
+ * See the comments on t_free() in object.h.
+ */
+void int_type::free(ici_obj_t *o)
+{
+    ici_tfree(o, ici_int_t);
+}
 
 } // namespace ici

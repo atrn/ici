@@ -9,6 +9,7 @@
 #include "catch.h"
 #include "op.h"
 #include "func.h"
+#include "types.h"
 
 namespace ici
 {
@@ -78,29 +79,22 @@ ici_op_onerror()
     return 0;
 }
 
-class catch_type : public type
+unsigned long catch_type::mark(ici_obj_t *o)
 {
-public:
-    catch_type() : type("catch") {}
+    unsigned long       mem;
 
-    unsigned long mark(ici_obj_t *o) override
-    {
-        unsigned long       mem;
+    o->o_flags |= ICI_O_MARK;
+    mem = sizeof(ici_catch_t);
+    if (ici_catchof(o)->c_catcher != NULL)
+        mem += ici_mark(ici_catchof(o)->c_catcher);
+    return mem;
+}
 
-        o->o_flags |= ICI_O_MARK;
-        mem = sizeof(ici_catch_t);
-        if (ici_catchof(o)->c_catcher != NULL)
-            mem += ici_mark(ici_catchof(o)->c_catcher);
-        return mem;
-    }
-
-    void free(ici_obj_t *o) override
-    {
-        assert((o->o_flags & CF_EVAL_BASE) == 0);
-        ici_tfree(o, ici_catch_t);
-    }
-
-};
+void catch_type::free(ici_obj_t *o)
+{
+    assert((o->o_flags & CF_EVAL_BASE) == 0);
+    ici_tfree(o, ici_catch_t);
+}
 
 ici_op_t    ici_o_onerror       = {ici_op_onerror};
 

@@ -50,6 +50,7 @@
 #include "file.h"
 #include "struct.h"
 #include "op.h"
+#include "types.h"
 
 namespace ici
 {
@@ -67,12 +68,7 @@ archive_of(ici_obj_t *o)
     return (ici_archive_t *)(o);
 }
 
-class archive_type : public type
-{
-public:
-    archive_type() : type("archive") {}
-
-    virtual unsigned long mark(ici_obj_t *o) override {
+unsigned long archive_type::mark(ici_obj_t *o) {
         ici_archive_t *ar = archive_of(o);
         o->o_flags |= ICI_O_MARK;
         return sizeof *ar
@@ -81,10 +77,9 @@ public:
             + ici_mark(ar->a_scope);
     }
 
-    virtual void free(ici_obj_t *o) override {
-        ici_tfree(o, ici_archive_t);
-    }
-};
+void archive_type::free(ici_obj_t *o) {
+    ici_tfree(o, ici_archive_t);
+}
 
 int ici_archive_init()
 {

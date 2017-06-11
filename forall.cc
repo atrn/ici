@@ -7,6 +7,7 @@
 #include "str.h"
 #include "buf.h"
 #include "null.h"
+#include "types.h"
 
 namespace ici
 {
@@ -81,32 +82,26 @@ ici_exec_forall()
     }
 }
 
-class forall_type : public type
+unsigned long forall_type::mark(ici_obj_t *o)
 {
-public:
-    forall_type() : type("forall") {}
+    int        i;
+    unsigned long       mem;
 
-    unsigned long mark(ici_obj_t *o) override
+    o->o_flags |= ICI_O_MARK;
+    mem = sizeof(ici_forall_t);
+    for (i = 0; i < (int)nels(forallof(o)->fa_objs); ++i)
     {
-        int        i;
-        unsigned long       mem;
-
-        o->o_flags |= ICI_O_MARK;
-        mem = sizeof(ici_forall_t);
-        for (i = 0; i < (int)nels(forallof(o)->fa_objs); ++i)
+        if (forallof(o)->fa_objs[i] != NULL)
         {
-            if (forallof(o)->fa_objs[i] != NULL)
-            {
-                mem += ici_mark(forallof(o)->fa_objs[i]);
-            }
+            mem += ici_mark(forallof(o)->fa_objs[i]);
         }
-        return mem;
     }
+    return mem;
+}
 
-    void free(ici_obj_t *o) override
-    {
-        ici_tfree(o, ici_forall_t);
-    }
-};
+void forall_type::free(ici_obj_t *o)
+{
+    ici_tfree(o, ici_forall_t);
+}
 
 } // namespace ici
