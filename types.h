@@ -13,8 +13,8 @@ class archive_type : public type
 public:
     archive_type() : type("archive") {}
 
-    virtual unsigned long mark(ici_obj_t *o) override;
-    virtual void free(ici_obj_t *o) override;
+    unsigned long mark(ici_obj_t *o) override;
+    void free(ici_obj_t *o) override;
 };
 
 class array_type : public type
@@ -22,14 +22,14 @@ class array_type : public type
  public:
     array_type() : type("array", type::has_forall) {}
 
-    virtual unsigned long mark(ici_obj_t *o) override;
-    virtual void free(ici_obj_t *o) override;
-    virtual unsigned long hash(ici_obj_t *o) override;
-    virtual int cmp(ici_obj_t *o1, ici_obj_t *o2) override;
-    virtual ici_obj_t * copy(ici_obj_t *o) override;
-    virtual int assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v) override;
-    virtual ici_obj_t *fetch(ici_obj_t *o, ici_obj_t *k) override;
-    virtual int forall(ici_obj_t *o) override;
+    unsigned long mark(ici_obj_t *o) override;
+    void free(ici_obj_t *o) override;
+    unsigned long hash(ici_obj_t *o) override;
+    int cmp(ici_obj_t *o1, ici_obj_t *o2) override;
+    ici_obj_t * copy(ici_obj_t *o) override;
+    int assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v) override;
+    ici_obj_t *fetch(ici_obj_t *o, ici_obj_t *k) override;
+    int forall(ici_obj_t *o) override;
 };
 
 class catch_type : public type
@@ -37,8 +37,8 @@ class catch_type : public type
 public:
     catch_type() : type("catch") {}
 
-    virtual unsigned long mark(ici_obj_t *o) override;
-    virtual void free(ici_obj_t *o) override;
+    unsigned long mark(ici_obj_t *o) override;
+    void free(ici_obj_t *o) override;
 };
 
 class cfunc_type : public type
@@ -46,11 +46,11 @@ class cfunc_type : public type
 public:
     cfunc_type() : type("func", type::has_objname | type::has_call) {}
 
-    virtual unsigned long mark(ici_obj_t *o) override;
-    virtual void free(ici_obj_t *o) override;
-    virtual ici_obj_t * fetch(ici_obj_t *o, ici_obj_t *k) override;
-    virtual void objname(ici_obj_t *o, char p[ICI_OBJNAMEZ]) override;
-    virtual int call(ici_obj_t *o, ici_obj_t *subject) override;
+    unsigned long mark(ici_obj_t *o) override;
+    void free(ici_obj_t *o) override;
+    ici_obj_t * fetch(ici_obj_t *o, ici_obj_t *k) override;
+    void objname(ici_obj_t *o, char p[ICI_OBJNAMEZ]) override;
+    int call(ici_obj_t *o, ici_obj_t *subject) override;
 };
 
 class channel_type : public type
@@ -77,10 +77,10 @@ class file_type : public type
 public:
     file_type() : type("file") {}
 
-    virtual unsigned long mark(ici_obj_t *o) override;
-    virtual void free(ici_obj_t *o) override;
-    virtual int cmp(ici_obj_t *o1, ici_obj_t *o2) override;
-    virtual ici_obj_t * fetch(ici_obj_t *o, ici_obj_t *k) override;
+    unsigned long mark(ici_obj_t *o) override;
+    void free(ici_obj_t *o) override;
+    int cmp(ici_obj_t *o1, ici_obj_t *o2) override;
+    ici_obj_t * fetch(ici_obj_t *o, ici_obj_t *k) override;
 };
 
 class float_type : public type
