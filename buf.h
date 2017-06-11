@@ -3,12 +3,17 @@
 #ifndef ICI_BUF_H
 #define ICI_BUF_H
 
+#include "fwd.h"
+
 namespace ici
 {
 
 /*
  * The following portion of this file exports to ici.h. --ici.h-start--
  */
+
+extern int      ici_growbuf(int);
+
 /*
  * Ensure that 'ici_buf' points to enough memory to hold index 'n' (plus
  * room for a nul char at the end). Returns 0 on success, else 1 and
@@ -16,11 +21,9 @@ namespace ici
  *
  * See also: 'The error return convention'.
  *
- * This --macro-- forms part of the --ici-api--.
+ * This --function-- forms part of the --ici-api--.
  */
-#define ici_chkbuf(n)       (ici_bufz > (int)(n) ? 0 : ici_growbuf(n))
-
-extern int      ici_growbuf(int);
+inline int ici_chkbuf(int n) { return ici_bufz > n ? 0 : ici_growbuf(n); }
 
 /*
  * End of ici.h export. --ici.h-end--
