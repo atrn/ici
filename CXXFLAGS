@@ -4,7 +4,7 @@
 #
 
 -std=c++14
--Wall
+-Wall -Wextra -Wno-missing-field-initializers -Wno-unused-parameter
 -I.
 
 # On MacOS we need this.
