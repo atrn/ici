@@ -46,6 +46,13 @@ public:
     static constexpr int has_objname      = 1<<2;
     static constexpr int has_call         = 1<<3;
 
+public:
+    const char * const  name;
+
+private:
+    const int           _flags;
+    mutable ici_str_t * _name;
+
 protected:
     explicit type(const char *name, int flags = 0)
         : name(name)
@@ -54,50 +61,32 @@ protected:
     {}
 
 public:
-    const char * const  name;
-
-public:
-    virtual ~type() {}
-
-    bool can_fetch_method() const { return _flags & has_fetch_method; }
-    bool can_forall() const { return _flags & has_forall; }
-    bool can_objname() const { return _flags & has_objname; }
-    bool can_call() const { return _flags & has_call; }
+    inline bool can_fetch_method() const { return _flags & has_fetch_method; }
+    inline bool can_forall() const       { return _flags & has_forall; }
+    inline bool can_objname() const      { return _flags & has_objname; }
+    inline bool can_call() const         { return _flags & has_call; }
 
     virtual unsigned long       mark(ici_obj_t *o) = 0;
     virtual void                free(ici_obj_t *o) = 0;
-
     virtual unsigned long       hash(ici_obj_t *o);
     virtual int                 cmp(ici_obj_t *a, ici_obj_t *b);
     virtual ici_obj_t *         copy(ici_obj_t *o);
-
     virtual int                 assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v);
     virtual ici_obj_t *         fetch(ici_obj_t *o, ici_obj_t *k);
-
     virtual int                 assign_super(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v, ici_struct_t *b);
     virtual int                 fetch_super(ici_obj_t *o, ici_obj_t *k, ici_obj_t **pv, ici_struct_t *b);
     virtual int                 assign_base(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v);
     virtual ici_obj_t   *       fetch_base(ici_obj_t *o, ici_obj_t *k) ;
-
     virtual ici_obj_t   *       fetch_method(ici_obj_t *o, ici_obj_t *n);
     virtual int                 call(ici_obj_t *, ici_obj_t *);
-
-    virtual int                 forall(ici_obj_t *o); // { return t_forall_step(o); }
-
+    virtual int                 forall(ici_obj_t *o);
     virtual void                objname(ici_obj_t *, char [ICI_OBJNAMEZ]);
 
-    ici_str_t *                 ici_name()
+    ici_str_t *                 ici_name() const
     {
-        if (_name == nullptr)
-        {
-            _name = ici_str_new_nul_term(name);
-        }
+        if (_name == nullptr) _name = ici_str_new_nul_term(name);
         return _name;
     }
-
-private:
-    const int           _flags;
-    ici_str_t *         _name;
 };
 
 /*
@@ -357,12 +346,68 @@ struct object
         return type()->mark(this);
     }
 
+    inline void free() {
+        type()->free(this);
+    }
+
     inline void incref() {
         ++o_nrefs;
     }
 
     inline void decref() {
         --o_nrefs;
+    }
+
+    inline unsigned long hash() {
+        return type()->hash(this);
+    }
+
+    inline int cmp(ici_obj_t *that) {
+        return type()->cmp(this, that);
+    }
+
+    inline ici_obj_t *copy() {
+        return type()->copy(this);
+    }
+
+    inline int assign(ici_obj_t *k, ici_obj_t *v) {
+        return type()->assign(this, k, v);
+    }
+
+    inline ici_obj_t *fetch(ici_obj_t *k) {
+        return type()->fetch(this, k);
+    }
+
+    inline int assign_super(ici_obj_t *k, ici_obj_t *v, ici_struct_t *b) {
+        return type()->assign_super(this, k, v, b);
+    }
+    
+    inline int fetch_super(ici_obj_t *k, ici_obj_t **pv, ici_struct_t *b) {
+        return type()->fetch_super(this, k, pv, b);
+    }
+
+    inline int assign_base(ici_obj_t *k, ici_obj_t *v) {
+        return type()->assign_base(this, k, v);
+    }
+
+    inline ici_obj_t *fetch_base(ici_obj_t *k) {
+        return type()->fetch_base(this, k);
+    }
+
+    inline ici_obj_t *fetch_method(ici_obj_t *n) {
+        return type()->fetch_method(this, n);
+    }
+
+    inline int call(ici_obj_t *o) {
+        return type()->call(this, o);
+    }
+
+    inline int forall() {
+        return type()->forall(this);
+    }
+    
+    inline void objname(char n[ICI_OBJNAMEZ]) {
+        type()->objname(this, n);
     }
 
     char        o_tcode;
@@ -492,7 +537,7 @@ inline size_t ici_mark(ici_obj_t *o) {
  * This --function-- forms part of the --ici-api--.
  */
 inline ici_obj_t *ici_fetch(ici_obj_t *o, ici_obj_t *k) {
-    return o->type()->fetch(o, k);
+    return o->fetch(k);
 }
 
 /*
@@ -506,7 +551,7 @@ inline ici_obj_t *ici_fetch(ici_obj_t *o, ici_obj_t *k) {
  * This --function-- forms part of the --ici-api--.
  */
 inline int ici_assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v) {
-    return o->type()->assign(o, k, v);
+    return o->assign(k, v);
 }
 
 /*
@@ -521,7 +566,7 @@ inline int ici_assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v) {
  * This --macro-- forms part of the --ici-api--.
  */
 inline int ici_assign_base(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v) {
-    return o->type()->assign_base(o, k, v);
+    return o->assign_base(k, v);
 }
 
 /*
@@ -533,7 +578,7 @@ inline int ici_assign_base(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v) {
  * This --macro-- forms part of the --ici-api--.
  */
 inline ici_obj_t *ici_fetch_base(ici_obj_t *o, ici_obj_t *k) {
-    return o->type()->fetch_base(o, k);
+    return o->fetch_base(k);
 }
 
 
@@ -554,7 +599,7 @@ inline ici_obj_t *ici_fetch_base(ici_obj_t *o, ici_obj_t *k) {
  * This --macro-- forms part of the --ici-api--.
  */
 inline int ici_fetch_super(ici_obj_t *o, ici_obj_t *k, ici_obj_t **v, ici_struct_t *b) {
-    return o->type()->fetch_super(o, k, v, b);
+    return o->fetch_super(k, v, b);
 }
 
 /*
@@ -573,7 +618,7 @@ inline int ici_fetch_super(ici_obj_t *o, ici_obj_t *k, ici_obj_t **v, ici_struct
  * This --macro-- forms part of the --ici-api--.
  */
 inline int ici_assign_super(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v, ici_struct_t *b) {
-    return o->type()->assign_super(o, k, v, b);
+    return o->assign_super(k, v, b);
 }
 
 /*
@@ -674,22 +719,24 @@ constexpr int ICI_TC_MAX_CORE =     29;
 /*
  * Forced cast of some pointer (e.g. ostemp union type)
  */
-inline ici_obj_t *ici_object_cast(void *x) { return reinterpret_cast<ici_obj_t *>(x); }
+inline ici_obj_t *ici_object_cast(void *x) {
+    return reinterpret_cast<ici_obj_t *>(x);
+}
 
 inline void ici_freeo(ici_obj_t *o) {
-    return o->type()->free(o);
+    return o->free();
 }
 
 inline unsigned long ici_hash(ici_obj_t *o) {
-    return o->type()->hash(o);
+    return o->hash();
 }
 
 inline int ici_cmp(ici_obj_t *o1, ici_obj_t *o2) {
-    return o1->type()->cmp(o1, o2);
+    return o1->cmp(o2);
 }
 
 inline ici_obj_t *ici_copy(ici_obj_t *o) {
-    return o->type()->copy(o);
+    return o->copy();
 }
 
 #ifndef BUGHUNT
