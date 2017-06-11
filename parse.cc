@@ -402,9 +402,9 @@ data_def(ici_parse_t *p, ici_objwsup_t *ows)
          * Assign to the new variable if it doesn't appear to exist
          * or has an explicit initialisation.
          */
-        if (hasinit || fetch_base(ows, n) == ici_null)
+        if (hasinit || ici_fetch_base(ows, n) == ici_null)
         {
-            if (assign_base(ows, n, o))
+            if (ici_assign_base(ows, n, o))
             {
                 goto fail;
             }
@@ -925,7 +925,7 @@ primary(ici_parse_t *p, expr_t **ep, int exclude)
                         ici_decref(n);
                         goto fail;
                     }
-                    if (assign_base(d, n, o))
+                    if (ici_assign_base(d, n, o))
                     {
                         goto fail;
                     }

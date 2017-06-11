@@ -47,6 +47,12 @@ struct type
     inline ici_obj_t *          copy(ici_obj_t *o) { return t_copy(o); }
     inline int                  assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v) { return t_assign(o, k, v); }
     inline ici_obj_t *          fetch(ici_obj_t *o, ici_obj_t *k) { return t_fetch(o, k); }
+    inline int                  assign_super(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v, ici_struct_t *b) { return t_assign_super(o, k, v, b); }
+    inline int                  fetch_super(ici_obj_t *o, ici_obj_t *k, ici_obj_t **pv, ici_struct_t *b) { return t_fetch_super(o, k, pv, b); }
+    inline int                  assign_base(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v) { return t_assign_base(o, k, v); }
+    inline ici_obj_t   *        fetch_base(ici_obj_t *o, ici_obj_t *k) { return t_fetch_base(o, k); }
+    inline ici_obj_t   *        fetch_method(ici_obj_t *o, ici_obj_t *n) { return t_fetch_method(o, n); }
+    inline int                  forall_step(ici_obj_t *o) { return t_forall_step(o); }
 
     unsigned long       (*t_mark)               (ici_obj_t *);
     void                (*t_free)               (ici_obj_t *);
@@ -80,7 +86,7 @@ struct type
  *                      uncontrolled stack depth it can create).  This is only
  *                      used in the marking phase of garbage collection.
  *
- *                      The macro ici_mark() calls the t_mark function of the
+ *                      The function ici_mark() calls the t_mark function of the
  *                      object (based on object type) if the ICI_O_MARK flag of
  *                      the object is clear, else it returns 0.  This is the
  *                      usual interface to an object's mark function.
@@ -254,132 +260,6 @@ struct type
  */
 
 /*
- * Macros to perform the operation on the object.
- */
-
-/*
- * Fetch the value of the key 'k' from the object 'o'.  This macro just calls
- * the particular object's 't_fetch()' function.
- *
- * Note that the returned object does not have any extra reference count;
- * however, in some circumstances it may not have any garbage collector
- * visible references to it.  That is, it may be vunerable to a garbage
- * collection if it is not either incref()ed or hooked into a referenced
- * object immediately.  Callers are responsible for taking care.
- *
- * Note that the argument 'o' is subject to multiple expansions.
- *
- * Returns NULL on failure, usual conventions.
- *
- * This --macro-- forms part of the --ici-api--.
- */
-// #define ici_fetch(o,k)      ((*ici_typeof(o)->t_fetch)((o), (k)))
-
-/*
- * Assign the value 'v' to key 'k' of the object 'o'. This macro just calls
- * the particular object's 't_assign()' function.
- *
- * Note that the argument 'o' is subject to multiple expansions.
- *
- * Returns non-zero on error, usual conventions.
- *
- * This --macro-- forms part of the --ici-api--.
- */
-//#define ici_assign(o,k,v)   ((*ici_typeof(o)->t_assign)((o), (k), (v)))
-
-/*
- * Assign the value 'v' to key 'k' of the object 'o', but only assign into
- * the base object, even if there is a super chain. This may only be called
- * on objects that support supers.
- *
- * Note that the argument 'o' is subject to multiple expansions.
- *
- * Returns non-zero on error, usual conventions.
- *
- * This --macro-- forms part of the --ici-api--.
- */
-#define ici_assign_base(o,k,v) ((*ici_typeof(o)->t_assign_base)((o), (k), (v)))
-/*
- * This version retained for backwards compatibility.
- */
-#define assign_base(o,k,v) ((*ici_typeof(o)->t_assign_base)((o), (k), (v)))
-
-/*
- * Fetch the value of the key 'k' from the object 'o', but only consider
- * the base object, even if there is a super chain. See the notes on
- * 'ici_fetch()', which also apply here. The object 'o' *must* be one that
- * supports super types (such as a 'struct' or a 'handle').
- *
- * This --macro-- forms part of the --ici-api--.
- */
-#define ici_fetch_base(o,k) ((*ici_typeof(o)->t_fetch_base)((o), (k)))
-/*
- * This version retained for backwards compatibility.
- */
-#define fetch_base(o,k) ((*ici_typeof(o)->t_fetch_base)((o), (k)))
-
-/*
- * Fetch the value of the key 'k' from 'o' and store it through 'v', but only
- * if the item 'k' is already an element of 'o' or one of its supers.  See the
- * notes on 'ici_fetch()', which also apply here.  The object 'o' *must* be
- * one that supports supers (such as a 'struct' or a 'handle').
- *
- * This function is used internally in fetches up the super chain (thus the
- * name).  In this context the argument 'b' indicates the base struct of the
- * fetch and is used to maintain the internal lookup look-aside mechanism.  If
- * not used in this manner, 'b' should be supplied as NULL.
- *
- * Return -1 on error, 0 if it was not found, and 1 if it was found.  If
- * found, the value is stored in *v.
- *
- * This --macro-- forms part of the --ici-api--.
- */
-#define ici_fetch_super(o,k,v,b) ((*ici_typeof(o)->t_fetch_super)((o), (k), (v), (b)))
-
-/*
- * Assign the value 'v' at the key 'k' of the object 'o', but only if the key
- * 'k' is already an element of 'o' or one of its supers.  The object 'o'
- * *must* be one that supports supers (such as a 'struct' or a 'handle').
- *
- * This function is used internally in assignments up the super chain (thus
- * the name).  In this context the argument 'b' indicates the base struct of
- * the assign and is used to maintain the internal lookup look-aside
- * mechanism.  If not used in this manner, 'b' should be supplied as NULL.
- *
- * Return -1 on error, 0 if it was not found, and 1 if the assignment was
- * completed.
- *
- * This --macro-- forms part of the --ici-api--.
- */
-#define ici_assign_super(o,k,v,b) ((*ici_typeof(o)->t_assign_super)((o), (k), (v), (b)))
-
-/*
- * Increment the object 'o's reference count.  References from ordinary
- * machine data objects (ie.  variables and stuff, not other objects) are
- * invisible to the garbage collector.  These refs must be accounted for if
- * there is a possibility of garbage collection.  Note that most routines that
- * make objects (new_*(), copy() etc...) return objects with 1 ref.  The
- * caller is expected to ici_decref() it when they attach it into wherever it
- * is going.
- *
- * This --macro-- forms part of the --ici-api--.
- */
-#define ici_incref(o)       (++(o)->o_nrefs)
-
-/*
- * Decrement the object 'o's reference count.  References from ordinary
- * machine data objects (ie.  variables and stuff, not other objects) are
- * invisible to the garbage collector.  These refs must be accounted for if
- * there is a possibility of garbage collection.  Note that most routines that
- * make objects (new_*(), copy() etc...) return objects with 1 ref.  The
- * caller is expected to ici_decref() it when they attach it into wherever it
- * is going.
- *
- * This --macro-- forms part of the --ici-api--.
- */
-#define ici_decref(o)       (--(o)->o_nrefs)
-
-/*
  * The generic flags that may appear in the lower 4 bits of o_flags are:
  *
  * ICI_O_MARK               The garbage collection mark flag.
@@ -452,6 +332,13 @@ struct ici_obj
         return type()->mark(this);
     }
 
+    inline void incref() {
+        ++o_nrefs;
+    }
+
+    inline void decref() {
+        --o_nrefs;
+    }
 
     char        o_tcode;
     char        o_flags;
@@ -490,9 +377,9 @@ struct ici_obj
 /*
  * Return a pointer to the 'ici_type_t' struct of the given object.
  *
- * This --macro-- forms part of the --ici-api--.
+ * This --function-- forms part of the --ici-api--.
  */
-#define ici_typeof(o)      ((o)->type())
+inline type_t *ici_typeof(ici_obj_t *o) { return o->type(); }
 
 /*
  * "Object with super." This is a specialised header for all objects that
@@ -537,13 +424,14 @@ inline bool ici_hassuper(const ici_obj_t *o) { return (o->o_flags & ICI_O_SUPER)
  * the first thing done after allocating a new bit of memory to hold an ICI
  * object.
  *
- * This --macro-- forms part of the --ici-api--.
+ * This --function-- forms part of the --ici-api--.
  */
-#define ICI_OBJ_SET_TFNZ(o, tcode, flags, nrefs, leafz) \
-    ((o)->o_tcode = (tcode),                            \
-     (o)->o_flags = (flags),                            \
-     (o)->o_nrefs = (nrefs),                            \
-     (o)->o_leafz = (leafz))
+inline void ICI_OBJ_SET_TFNZ(ici_obj_t *o, char tcode, char flags, char nrefs, char leafz) {
+    o->o_tcode = tcode;
+    o->o_flags = flags;
+    o->o_nrefs = nrefs;
+    o->o_leafz = leafz;
+}
 /*
  * I was really hoping that most compilers would reduce the above to a
  * single word write. Especially as they are all constants most of the
@@ -558,19 +446,139 @@ inline bool ici_hassuper(const ici_obj_t *o) { return (o->o_flags & ICI_O_SUPER)
  * The o_leafz field of an object tells us it doesn't reference any other objects
  * and is of small (ie o_leafz) size.
  */
-inline size_t ici_mark(ici_obj_t *o)
-{
+inline size_t ici_mark(ici_obj_t *o) {
     return o->mark();
 }
 
-inline ici_obj_t *ici_fetch(ici_obj_t *o, ici_obj_t *k)
-{
+/*
+ * Fetch the value of the key 'k' from the object 'o'.  This macro just calls
+ * the particular object's 't_fetch()' function.
+ *
+ * Note that the returned object does not have any extra reference count;
+ * however, in some circumstances it may not have any garbage collector
+ * visible references to it.  That is, it may be vunerable to a garbage
+ * collection if it is not either incref()ed or hooked into a referenced
+ * object immediately.  Callers are responsible for taking care.
+ *
+ * Note that the argument 'o' is subject to multiple expansions.
+ *
+ * Returns NULL on failure, usual conventions.
+ *
+ * This --function-- forms part of the --ici-api--.
+ */
+inline ici_obj_t *ici_fetch(ici_obj_t *o, ici_obj_t *k) {
     return o->type()->fetch(o, k);
 }
 
-inline int ici_assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v)
-{
+/*
+ * Assign the value 'v' to key 'k' of the object 'o'. This macro just calls
+ * the particular object's 't_assign()' function.
+ *
+ * Note that the argument 'o' is subject to multiple expansions.
+ *
+ * Returns non-zero on error, usual conventions.
+ *
+ * This --function-- forms part of the --ici-api--.
+ */
+inline int ici_assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v) {
     return o->type()->assign(o, k, v);
+}
+
+/*
+ * Assign the value 'v' to key 'k' of the object 'o', but only assign into
+ * the base object, even if there is a super chain. This may only be called
+ * on objects that support supers.
+ *
+ * Note that the argument 'o' is subject to multiple expansions.
+ *
+ * Returns non-zero on error, usual conventions.
+ *
+ * This --macro-- forms part of the --ici-api--.
+ */
+inline int ici_assign_base(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v) {
+    return o->type()->assign_base(o, k, v);
+}
+
+/*
+ * Fetch the value of the key 'k' from the object 'o', but only consider
+ * the base object, even if there is a super chain. See the notes on
+ * 'ici_fetch()', which also apply here. The object 'o' *must* be one that
+ * supports super types (such as a 'struct' or a 'handle').
+ *
+ * This --macro-- forms part of the --ici-api--.
+ */
+inline ici_obj_t *ici_fetch_base(ici_obj_t *o, ici_obj_t *k) {
+    return o->type()->fetch_base(o, k);
+}
+
+
+/*
+ * Fetch the value of the key 'k' from 'o' and store it through 'v', but only
+ * if the item 'k' is already an element of 'o' or one of its supers.  See the
+ * notes on 'ici_fetch()', which also apply here.  The object 'o' *must* be
+ * one that supports supers (such as a 'struct' or a 'handle').
+ *
+ * This function is used internally in fetches up the super chain (thus the
+ * name).  In this context the argument 'b' indicates the base struct of the
+ * fetch and is used to maintain the internal lookup look-aside mechanism.  If
+ * not used in this manner, 'b' should be supplied as NULL.
+ *
+ * Return -1 on error, 0 if it was not found, and 1 if it was found.  If
+ * found, the value is stored in *v.
+ *
+ * This --macro-- forms part of the --ici-api--.
+ */
+inline int ici_fetch_super(ici_obj_t *o, ici_obj_t *k, ici_obj_t **v, ici_struct_t *b) {
+    return o->type()->fetch_super(o, k, v, b);
+}
+
+/*
+ * Assign the value 'v' at the key 'k' of the object 'o', but only if the key
+ * 'k' is already an element of 'o' or one of its supers.  The object 'o'
+ * *must* be one that supports supers (such as a 'struct' or a 'handle').
+ *
+ * This function is used internally in assignments up the super chain (thus
+ * the name).  In this context the argument 'b' indicates the base struct of
+ * the assign and is used to maintain the internal lookup look-aside
+ * mechanism.  If not used in this manner, 'b' should be supplied as NULL.
+ *
+ * Return -1 on error, 0 if it was not found, and 1 if the assignment was
+ * completed.
+ *
+ * This --macro-- forms part of the --ici-api--.
+ */
+inline int ici_assign_super(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v, ici_struct_t *b) {
+    return o->type()->assign_super(o, k, v, b);
+}
+
+/*
+ * Increment the object 'o's reference count.  References from ordinary
+ * machine data objects (ie.  variables and stuff, not other objects) are
+ * invisible to the garbage collector.  These refs must be accounted for if
+ * there is a possibility of garbage collection.  Note that most routines that
+ * make objects (new_*(), copy() etc...) return objects with 1 ref.  The
+ * caller is expected to ici_decref() it when they attach it into wherever it
+ * is going.
+ *
+ * This --macro-- forms part of the --ici-api--.
+ */
+inline void ici_incref(ici_obj_t *o) {
+    return o->incref();
+}
+
+/*
+ * Decrement the object 'o's reference count.  References from ordinary
+ * machine data objects (ie.  variables and stuff, not other objects) are
+ * invisible to the garbage collector.  These refs must be accounted for if
+ * there is a possibility of garbage collection.  Note that most routines that
+ * make objects (new_*(), copy() etc...) return objects with 1 ref.  The
+ * caller is expected to ici_decref() it when they attach it into wherever it
+ * is going.
+ *
+ * This --macro-- forms part of the --ici-api--.
+ */
+inline void ici_decref(ici_obj_t *o) {
+    return o->decref();
 }
 
 /*
@@ -589,49 +597,48 @@ inline int ici_assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v)
  *
  * This --macro-- forms part of the --ici-api--.
  */
-#define ici_rego(o)     ici_rego_work(o)
+#define ici_rego(o) ici_rego_work(o)
 
 /*
  * The o_tcode field is a small int. These are the "well known" core
  * language types. See comments on o_tcode above and types above.
  */
-#define ICI_TC_OTHER        0
-#define ICI_TC_PC           1
-#define ICI_TC_SRC          2
-#define ICI_TC_PARSE        3
-#define ICI_TC_OP           4
-#define ICI_TC_STRING       5
-#define ICI_TC_CATCH        6
-#define ICI_TC_FORALL       7
-#define ICI_TC_INT          8
-#define ICI_TC_FLOAT        9
-#define ICI_TC_REGEXP       10
-#define ICI_TC_PTR          11
-#define ICI_TC_ARRAY        12
-#define ICI_TC_STRUCT       13
-#define ICI_TC_SET          14
+constexpr int ICI_TC_OTHER =        0;
+constexpr int ICI_TC_PC =           1;
+constexpr int ICI_TC_SRC =          2;
+constexpr int ICI_TC_PARSE =        3;
+constexpr int ICI_TC_OP =           4;
+constexpr int ICI_TC_STRING =       5;
+constexpr int ICI_TC_CATCH =        6;
+constexpr int ICI_TC_FORALL =       7;
+constexpr int ICI_TC_INT =          8;
+constexpr int ICI_TC_FLOAT =        9;
+constexpr int ICI_TC_REGEXP =       10;
+constexpr int ICI_TC_PTR =          11;
+constexpr int ICI_TC_ARRAY =        12;
+constexpr int ICI_TC_STRUCT =       13;
+constexpr int ICI_TC_SET =          14;
+constexpr int ICI_TC_MAX_BINOP =    14; /* Max of 15 for binary op args. */
 
-#define ICI_TC_MAX_BINOP    14 /* Max of 15 for binary op args. */
-
-#define ICI_TC_EXEC         15
-#define ICI_TC_FILE         16
-#define ICI_TC_FUNC         17
-#define ICI_TC_CFUNC        18
-#define ICI_TC_METHOD       19
-#define ICI_TC_MARK         20
-#define ICI_TC_NULL         21
-#define ICI_TC_HANDLE       22
-#define ICI_TC_MEM          23
-#define ICI_TC_PROFILECALL  24
-#define ICI_TC_ARCHIVE      25
+constexpr int ICI_TC_EXEC =         15;
+constexpr int ICI_TC_FILE =         16;
+constexpr int ICI_TC_FUNC =         17;
+constexpr int ICI_TC_CFUNC =        18;
+constexpr int ICI_TC_METHOD =       19;
+constexpr int ICI_TC_MARK =         20;
+constexpr int ICI_TC_NULL =         21;
+constexpr int ICI_TC_HANDLE =       22;
+constexpr int ICI_TC_MEM =          23;
+constexpr int ICI_TC_PROFILECALL =  24;
+constexpr int ICI_TC_ARCHIVE =      25;
 /* TC_REF is a special type code reserved for use in the
    serialization protocol to indicate a reference to previously
    transmitted object. */
-#define ICI_TC_REF          26
-#define ICI_TC_RESTORER     27
-#define ICI_TC_SAVER        28
-#define ICI_TC_CHANNEL      29
-#define ICI_TC_MAX_CORE     29
+constexpr int ICI_TC_REF =          26;
+constexpr int ICI_TC_RESTORER =     27;
+constexpr int ICI_TC_SAVER =        28;
+constexpr int ICI_TC_CHANNEL =      29;
+constexpr int ICI_TC_MAX_CORE =     29;
 
 #define ICI_TRI(a,b,t)      (((((a) << 4) + b) << 6) + t_subtype(t))
 
@@ -642,42 +649,66 @@ inline int ici_assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v)
 /*
  * Forced cast of some pointer (e.g. ostemp union type)
  */
-#define ici_object_cast(x) ((ici_obj_t *)(x))
+inline ici_obj_t *ici_object_cast(void *x) { return reinterpret_cast<ici_obj_t *>(x); }
 
-#define freeo(o)        ((*ici_typeof(o)->t_free)(o))
-#define hash(o)         ((*ici_typeof(o)->t_hash)(o))
-#define cmp(o1,o2)      ((*ici_typeof(o1)->t_cmp)((o1), (o2)))
-#define copy(o)         ((*ici_typeof(o)->t_copy)(o))
+inline void freeo(ici_obj_t *o) {
+    return o->type()->free(o);
+}
+
+inline unsigned long hash(ici_obj_t *o) {
+    return o->type()->hash(o);
+}
+
+inline int cmp(ici_obj_t *o1, ici_obj_t *o2) {
+    return o1->type()->cmp(o1, o2);
+}
+
+inline ici_obj_t *copy(ici_obj_t *o) {
+    return o->type()->copy(o);
+}
 
 #ifndef BUGHUNT
-
 /*
- * In the core we use a macro for ici_rego.
+ * In the core we use an inline function for ici_rego.
  */
-#undef  ici_rego
-#define ici_rego(o)     (ici_objs_top < ici_objs_limit \
-                         ? (void)(*ici_objs_top++ = (o))        \
-                            : ici_grow_objs(o))
+inline void ici_rego_core(ici_obj_t *o) {
+    if (ici_objs_top < ici_objs_limit) {
+        *ici_objs_top++ = o;
+    } else {
+        ici_grow_objs(o);
+    }
+}
+#undef ici_rego
+#define ici_rego(o) ici_rego_core(o)
+
 #else
+/*
+ * Or if BUGHUNT is enabled we use a bug hunting version for ici_rego.
+ */
 #undef  ici_rego
 extern void  bughunt_rego(ici_obj_t *);
 #define ici_rego(o) bughunt_rego(o)
 #endif
 
-#define ICI_STORE_ATOM_AND_COUNT(po, s)         \
-    ((*(po) = (s)),                             \
-     ((++ici_natoms > ici_atomsz / 2) ?         \
-      ici_grow_atoms(ici_atomsz * 2), 0 : 0))
+
+inline void ICI_STORE_ATOM_AND_COUNT(ici_obj_t **po, ici_obj_t *s) {
+    *po = s;
+    if (++ici_natoms > ici_atomsz / 2) {
+        ici_grow_atoms(ici_atomsz * 2);
+    }
+}
 
 inline long ici_atom_hash_index(long h)  { return h & (ici_atomsz - 1); }
 
+
 #ifdef BUGHUNT
-#   undef ici_incref
-#   undef ici_decref
-    void bughunt_incref(ici_obj_t *o);
-    void bughunt_decref(ici_obj_t *o);
-#   define ici_incref(o) bughunt_incref(o)
-#   define ici_decref(o) bughunt_decref(o)
+/*
+ * Override incref/decref when bughunting.
+ */
+void bughunt_incref(ici_obj_t *o);
+void bughunt_decref(ici_obj_t *o);
+#define ici_incref(o) bughunt_incref(o)
+#define ici_decref(o) bughunt_decref(o)
 #endif
 
 } // namespace ici

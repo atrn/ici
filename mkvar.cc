@@ -68,7 +68,7 @@ ici_set_val(ici_objwsup_t *s, ici_str_t *name, int type, void *vp)
 
     if (o == NULL)
         return 1;
-    i = assign_base(s, name, o);
+    i = ici_assign_base(s, name, o);
     ici_decref(o);
     return i;
 }

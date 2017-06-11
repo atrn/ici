@@ -286,7 +286,7 @@ fetch_base_handle(ici_obj_t *o, ici_obj_t *k)
         return ici_fetch_fail(o, k);
     if ((o->o_flags & ICI_H_HAS_PRIV_STRUCT) == 0)
         return ici_null;
-    return fetch_base(h->o_super, k);
+    return ici_fetch_base(h->o_super, k);
 }
 
 /*
@@ -343,7 +343,7 @@ assign_base_handle(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v)
         ++ici_vsver;
         o->o_flags |= ICI_H_HAS_PRIV_STRUCT;
     }
-    return assign_base(ici_objwsupof(o)->o_super, k, v);
+    return ici_assign_base(ici_objwsupof(o)->o_super, k, v);
 }
 
 /*

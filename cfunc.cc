@@ -728,7 +728,7 @@ f_coreici(ici_obj_t *s)
     /*
      * Fetch the real function from that module and verify it is callable.
      */
-    f = fetch_base(c, (ici_obj_t *)ICI_CF_ARG1());
+    f = ici_fetch_base(c, (ici_obj_t *)ICI_CF_ARG1());
     ici_decref(c);
     if (f == NULL)
         return 1;
@@ -2226,7 +2226,7 @@ f_assign()
     }
     if (ici_hassuper(s))
     {
-        if (assign_base(s, k, v))
+        if (ici_assign_base(s, k, v))
             return 1;
     }
     else
@@ -2246,7 +2246,7 @@ f_fetch()
     if (ici_typecheck("oo", &s, &k))
         return 1;
     if (ici_hassuper(s))
-        return ici_ret_no_decref(fetch_base(s, k));
+        return ici_ret_no_decref(ici_fetch_base(s, k));
     return ici_ret_no_decref(ici_fetch(s, k));
 }
 

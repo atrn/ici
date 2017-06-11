@@ -246,7 +246,7 @@ call_func(ici_obj_t *o, ici_obj_t *subject)
         /*
          * Set the special instantiation variables.
          */
-        if (UNLIKELY(assign_base(d, SSO(this), subject)))
+        if (UNLIKELY(ici_assign_base(d, SSO(this), subject)))
 	{
             goto fail;
 	}
@@ -256,7 +256,7 @@ call_func(ici_obj_t *o, ici_obj_t *subject)
 	    (
 		ici_objwsupof(f->f_autos)->o_super != NULL
 		&&
-		assign_base(d, SSO(class), ici_objwsupof(f->f_autos)->o_super)
+		ici_assign_base(d, SSO(class), ici_objwsupof(f->f_autos)->o_super)
 	    )
         )
 	{

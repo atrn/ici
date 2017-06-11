@@ -884,7 +884,7 @@ ici_evaluate(ici_obj_t *code, int n_operands)
                  *                => value (os, for value)
                  *                => aggr key (os, for lvalue)
                  */
-                if (assign_base(ici_vs.a_top[-1], ici_os.a_top[-2],ici_os.a_top[-1]))
+                if (ici_assign_base(ici_vs.a_top[-1], ici_os.a_top[-2],ici_os.a_top[-1]))
                 {
                     goto fail;
                 }
@@ -949,7 +949,7 @@ ici_evaluate(ici_obj_t *code, int n_operands)
                  */
                 if (ici_hassuper(ici_os.a_top[-3]))
                 {
-                    if (assign_base(ici_os.a_top[-3], ici_os.a_top[-2], ici_os.a_top[-1]))
+                    if (ici_assign_base(ici_os.a_top[-3], ici_os.a_top[-2], ici_os.a_top[-1]))
                     {
                         goto fail;
                     }

@@ -124,7 +124,7 @@ ici_assign_cfuncs(ici_objwsup_t *s, ici_cfunc_t *cf)
             if ((n = ici_str_new_nul_term(cf->cf_name)) == NULL)
                 return 1;
         }
-        if (assign_base(s, n, cf))
+        if (ici_assign_base(s, n, cf))
         {
             ici_decref(n);
             return 1;
