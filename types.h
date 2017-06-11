@@ -12,6 +12,7 @@ class archive_type : public type
 {
 public:
     archive_type() : type("archive") {}
+
     virtual unsigned long mark(ici_obj_t *o) override;
     virtual void free(ici_obj_t *o) override;
 };
@@ -36,6 +37,7 @@ class catch_type : public type
 {
 public:
     catch_type() : type("catch") {}
+
     virtual unsigned long mark(ici_obj_t *o) override;
     virtual void free(ici_obj_t *o) override;
 };
@@ -59,6 +61,7 @@ class channel_type : public type
 {
 public:
     channel_type() : type("channel") {}
+
     unsigned long mark(ici_obj_t *o) override;
     void free(ici_obj_t *o) override;
 };
@@ -88,6 +91,7 @@ class float_type : public type
 {
 public:
     float_type() : type("float") {}
+
     unsigned long mark(ici_obj_t *o) override;
     void free(ici_obj_t *o) override;
     int cmp(ici_obj_t *o1, ici_obj_t *o2) override;
@@ -98,6 +102,7 @@ class forall_type : public type
 {
 public:
     forall_type() : type("forall") {}
+
     unsigned long mark(ici_obj_t *o) override;
     void free(ici_obj_t *o) override;
 };
@@ -125,7 +130,6 @@ public:
     handle_type() : type("handle") {}
 
     bool has_objname() const override { return true; }
-    //    bool has_fetch_method() const;
 
     unsigned long mark(ici_obj_t *o) override;
     void free(ici_obj_t *o) override;
@@ -156,6 +160,7 @@ class mark_type : public type
 {
 public:
     mark_type() : type("mark") {}
+
     unsigned long mark(ici_obj_t *o) override;
     void free(ici_obj_t *) override;
 };
@@ -212,6 +217,7 @@ class parse_type : public type
 {
 public:
     parse_type() : type("parse") {}
+
     unsigned long mark(ici_obj_t *o) override;
     void free(ici_obj_t *o) override;
 };
@@ -266,6 +272,7 @@ class restorer_type : public type
 {
 public:
     restorer_type() : type("restorer") {}
+
     unsigned long mark(ici_obj_t *o) override;
     void free(ici_obj_t *o) override;
 };
