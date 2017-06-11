@@ -13,7 +13,7 @@ namespace ici
 /*
  * The following portion of this file exports to ici.h. --ici.h-start--
  */
-struct ici_set : object
+struct set : object
 {
     int         s_nels;         /* How many slots used. */
     int         s_nslots;       /* How many slots allocated. */

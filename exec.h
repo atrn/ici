@@ -27,7 +27,7 @@ union ici_ostemp
     ici_float_t f;
 };
 
-struct ici_exec : object
+struct exec : object
 {
     ici_array_t *x_xs;
     ici_array_t *x_os;
@@ -181,7 +181,7 @@ enum
  *
  * This --struct-- forms part of the --ici-api--.
  */
-struct ici_debug
+struct debug
 {
     void    (*idbg_error)(char *, ici_src_t *);
     void    (*idbg_fncall)(ici_obj_t *, ici_obj_t **, int);

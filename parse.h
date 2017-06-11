@@ -27,7 +27,7 @@ typedef struct
 #define t_float tu.tu_float
 #define t_obj   tu.tu_obj
 
-struct ici_parse : object
+struct parse : object
 {
     ici_file_t  *p_file;
     int         p_lineno;       /* Diagnostic information. */

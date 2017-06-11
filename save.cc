@@ -216,7 +216,7 @@ save_struct(ici_archive_t *ar, ici_obj_t *obj)
 {
     ici_struct_t *s = ici_structof(obj);
     ici_obj_t *super = ici_objwsupof(s)->o_super;
-    struct ici_sslot *sl;
+    struct sslot *sl;
     if (super == nullptr) {
         super = ici_null;
     }

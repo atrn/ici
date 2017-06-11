@@ -44,7 +44,7 @@ ici_op_return()
 
     if (UNLIKELY(ici_debug_active))
     {
-        ici_debug->idbg_fnresult(ici_os.a_top[-1]);
+        debugfunc->idbg_fnresult(ici_os.a_top[-1]);
     }
 
     x = ici_xs.a_top - 1;

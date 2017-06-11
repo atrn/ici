@@ -217,7 +217,7 @@ int cfunc_type::call(ici_obj_t *o, ici_obj_t *subject)
 #endif
         if (UNLIKELY(ici_debug_active))
         {
-            ici_debug->idbg_fnresult(ici_os.a_top[-1]);
+            debugfunc->idbg_fnresult(ici_os.a_top[-1]);
         }
         return result;
     }

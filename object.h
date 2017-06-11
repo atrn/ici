@@ -408,14 +408,14 @@ inline type_t *ici_typeof(ici_obj_t *o) { return o->type(); }
  *
  * This --struct-- forms part of the --ici-api--.
  */
-struct ici_objwsup : object
+struct objwsup : object
 {
-    ici_objwsup(char tcode, char flags, char nrefs, char leafz)
+    objwsup(char tcode, char flags, char nrefs, char leafz)
         : object(tcode, flags, nrefs, leafz)
         , o_super(nullptr)
     {}
 
-    ici_objwsup_t   *o_super;
+    objwsup *o_super;
 };
 
 inline ici_objwsup_t *ici_objwsupof(ici_obj_t *o) { return static_cast<ici_objwsup_t *>(o); }

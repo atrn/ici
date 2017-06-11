@@ -26,9 +26,9 @@ namespace ici
  */
 #define ICI_KEEP_STRING_HASH 1
 
-struct ici_str : object
+struct str : object
 {
-    ici_str() : object{ICI_TC_STRING} {}
+    str() : object{ICI_TC_STRING} {}
 
     ici_struct_t    *s_struct;      /* Where we were last found on the vs. */
     ici_sslot_t     *s_slot;        /* And our slot. */

@@ -21,9 +21,9 @@ namespace ici
  *
  * This --struct-- forms part of the --ici-api--.
  */
-struct ici_src : object
+struct src : object
 {
-    ici_src() : object(ICI_TC_SRC), s_lineno(0), s_filename(nullptr) {}
+    src() : object(ICI_TC_SRC), s_lineno(0), s_filename(nullptr) {}
     int         s_lineno;
     ici_str_t   *s_filename;
 };

@@ -13,7 +13,7 @@ namespace ici
 /*
  * The following portion of this file exports to ici.h. --ici.h-start--
  */
-struct ici_func : object
+struct func : object
 {
     ici_array_t     *f_code;    /* The code of this function, atom. */
     ici_array_t     *f_args;    /* Array of argument names. */

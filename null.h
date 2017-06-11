@@ -13,9 +13,9 @@ namespace ici
 /*
  * The following portion of this file exports to ici.h. --ici.h-start--
  */
-struct ici_null_t : object
+struct null : object
 {
-    ici_null_t() : object{ICI_TC_NULL, ICI_O_ATOM, 1, 0} {}
+    null() : object{ICI_TC_NULL, ICI_O_ATOM, 1, 0} {}
 };
 
 inline ici_null_t *ici_nullof(ici_obj_t *o) { return static_cast<ici_null_t *>(o); }

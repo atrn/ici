@@ -13,7 +13,7 @@ namespace ici
 /*
  * The following portion of this file exports to ici.h. --ici.h-start--
  */
-struct ici_pc : object
+struct pc : object
 {
     ici_array_t *pc_code;
     ici_obj_t   **pc_next;

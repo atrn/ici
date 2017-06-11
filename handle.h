@@ -91,15 +91,15 @@ namespace ici
  *
  * This --struct-- forms part of the --ici-api--.
  */
-struct ici_handle : ici_objwsup
+struct handle : objwsup
 {
-    ici_handle() : ici_objwsup{ICI_TC_HANDLE, 0, 1, 0}
-                 , h_ptr(nullptr)
-                 , h_name(nullptr)
-                 , h_pre_free(nullptr)
-                 , h_member_map(nullptr)
-                 , h_member_intf(nullptr)
-                 , h_general_intf(nullptr)
+    handle() : objwsup{ICI_TC_HANDLE, 0, 1, 0}
+             , h_ptr(nullptr)
+             , h_name(nullptr)
+             , h_pre_free(nullptr)
+             , h_member_map(nullptr)
+             , h_member_intf(nullptr)
+             , h_general_intf(nullptr)
     {}
 
     void            *h_ptr;
@@ -135,7 +135,7 @@ constexpr int ICI_H_HAS_PRIV_STRUCT = 0x40;
  *                      super the creator originally supplied).
  */
 
-struct ici_name_id
+struct name_id
 {
     char    *ni_name;
     long    ni_id;

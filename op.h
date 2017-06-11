@@ -13,18 +13,18 @@ namespace ici
 /*
  * The following portion of this file exports to ici.h. --ici.h-start--
  */
-struct ici_op : object
+struct op : object
 {
-    ici_op() : object(ICI_TC_OP) {}
+    op() : object(ICI_TC_OP) {}
 
-    ici_op(int (*func)())
+    op(int (*func)())
         : object(ICI_TC_OP)
         , op_func(func)
         , op_ecode(0)
         , op_code(0)
     {}
 
-    ici_op(int ecode, int code = 0)
+    op(int ecode, int code = 0)
         : object(ICI_TC_OP)
         , op_func(nullptr)
         , op_ecode(ecode)

@@ -14,13 +14,13 @@ namespace ici
  * The following portion of this file exports to ici.h. --ici.h-start--
  */
 
-struct ici_sslot
+struct sslot
 {
     ici_obj_t   *sl_key;
     ici_obj_t   *sl_value;
 };
 
-struct ici_struct : ici_objwsup
+struct ici_struct : objwsup
 {
     int         s_nels;         /* How many slots used. */
     int         s_nslots;       /* How many slots allocated. */

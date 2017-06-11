@@ -26,7 +26,7 @@ namespace ici
  *
  * This --struct-- forms part of the --ici-api--.
  */
-struct ici_ftype
+struct ftype
 {
     int         ft_flags;
     int         (*ft_getch)(void *);
@@ -56,7 +56,7 @@ struct ici_ftype
  */
 constexpr int FT_NOMUTEX = 0x01;
 
-struct ici_file : object
+struct file : object
 {
     void        *f_file;
     ici_ftype_t *f_type;

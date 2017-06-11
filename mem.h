@@ -13,7 +13,7 @@ namespace ici
 /*
  * The following portion of this file exports to ici.h. --ici.h-start--
  */
-struct ici_mem : object
+struct mem : object
 {
     void                *m_base;
     size_t              m_length;       /* In m_accessz units. */

@@ -18,7 +18,7 @@ namespace ici
 #include "object.h"
 #endif
 
-struct ici_catch : object
+struct catcher : object
 {
     ici_obj_t   *c_catcher;
     short       c_odepth;       /* Operand stack depth. */

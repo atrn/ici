@@ -391,7 +391,7 @@ ici_evaluate(ici_obj_t *code, int n_operands)
             if (UNLIKELY(ici_debug_active))
             {
                 *ici_xs.a_top++ = o; /* Restore formal state. */
-                ici_debug->idbg_src(ici_srcof(o));
+                debugfunc->idbg_src(ici_srcof(o));
                 --ici_xs.a_top;
                 continue;
             }
@@ -688,7 +688,7 @@ ici_evaluate(ici_obj_t *code, int n_operands)
                 }
                 if (UNLIKELY(ici_debug_active))
 		{
-                    ici_debug->idbg_fncall(ici_os.a_top[-1], ICI_ARGS(), ICI_NARGS());
+                    debugfunc->idbg_fncall(ici_os.a_top[-1], ICI_ARGS(), ICI_NARGS());
 		}
                 if (ici_typeof(ici_os.a_top[-1])->call(ici_os.a_top[-1], o))
                 {
@@ -1288,7 +1288,7 @@ ici_evaluate(ici_obj_t *code, int n_operands)
              */
             if (UNLIKELY(ici_debug_active && !ici_debug_ign_err))
 	    {
-                ici_debug->idbg_error(ici_error, ici_exec->x_src);
+                debugfunc->idbg_error(ici_error, ici_exec->x_src);
 	    }
 #endif
             ici_expand_error(ici_exec->x_src->s_lineno, ici_exec->x_src->s_filename);

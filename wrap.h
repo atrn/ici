@@ -10,7 +10,7 @@ namespace ici
  * The following portion of this file exports to ici.h. --ici.h-start--
  */
 
-struct ici_wrap
+struct wrap
 {
     ici_wrap_t  *w_next;
     void        (*w_func)();

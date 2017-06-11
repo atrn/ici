@@ -23,14 +23,14 @@ namespace ici
  *
  * This --struct-- forms part of the --ici-api--.
  */
-struct ici_cfunc : object
+struct cfunc : object
 {
     const char  *cf_name;
     int         (*cf_cfunc)(...);
     const void  *cf_arg1;
     const void  *cf_arg2;
 
-    ici_cfunc(bool) // sentinel for end of cfunc lists
+    cfunc(bool) // sentinel for end of cfunc lists
         : object{ICI_TC_CFUNC, 0, 0, 0}
         , cf_name(nullptr)
         , cf_cfunc(nullptr)
@@ -39,7 +39,7 @@ struct ici_cfunc : object
     {}
 
     template <typename F>
-    ici_cfunc(const char* name, F *f)
+    cfunc(const char* name, F *f)
         : object{ICI_TC_CFUNC, 0, 1, 0}
         , cf_name(name)
         , cf_cfunc(reinterpret_cast<int (*)(...)>(f))
@@ -49,7 +49,7 @@ struct ici_cfunc : object
     }
 
     template <typename F>
-    ici_cfunc(const char* name, F *f, void *arg1)
+    cfunc(const char* name, F *f, void *arg1)
         : object{ICI_TC_CFUNC, 0, 1, 0}
         , cf_name(name)
         , cf_cfunc(reinterpret_cast<int (*)(...)>(f))
@@ -58,7 +58,7 @@ struct ici_cfunc : object
     {
     }
 
-    ici_cfunc(const char* name, int (*f)(), long arg1)
+    cfunc(const char* name, int (*f)(), long arg1)
         : object{ICI_TC_CFUNC, 0, 1, 0}
         , cf_name(name)
         , cf_cfunc(reinterpret_cast<int (*)(...)>(f))
@@ -67,7 +67,7 @@ struct ici_cfunc : object
     {
     }
 
-    ici_cfunc(const char* name, double (*f)(...), const char *arg1)
+    cfunc(const char* name, double (*f)(...), const char *arg1)
         : object{ICI_TC_CFUNC, 0, 1, 0}
         , cf_name(name)
         , cf_cfunc(reinterpret_cast<int (*)(...)>(f))
@@ -77,7 +77,7 @@ struct ici_cfunc : object
     }
 
     template <typename F>
-    ici_cfunc(const char* name, F *f, void *arg1, void *arg2)
+    cfunc(const char* name, F *f, void *arg1, void *arg2)
         : object{ICI_TC_CFUNC, 0, 1, 0}
         , cf_name(name)
         , cf_cfunc(reinterpret_cast<int (*)(...)>(f))
