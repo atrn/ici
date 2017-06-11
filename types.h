@@ -184,7 +184,7 @@ public:
 class null_type : public type
 {
 public:
-    null_type() : type("null") {}
+    null_type() : type("NULL") {}
 
     unsigned long mark(ici_obj_t *o) override;
     void free(ici_obj_t *o) override;

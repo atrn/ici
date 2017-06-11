@@ -1136,8 +1136,8 @@ if (error == NULL)
 
 a := tmpname();
 stdout := fopen(a, "w");
-put("Hello\n");
-put("world.\n");
+puts("Hello\n");
+puts("world.\n");
 flush();
 close(stdout);
 stdin := fopen(a, "r");
@@ -1150,8 +1150,8 @@ remove(a);
 
 a := tmpname();
 b := fopen(a, "wb");
-put("Hello\n", b);
-put("world.\n", b);
+puts("Hello\n", b);
+puts("world.\n", b);
 flush(b);
 close(b);
 b := fopen(a, "r");
@@ -1198,8 +1198,8 @@ tstdir(0, "2 arg match", #(?i)tst#, "d");
 
 a := tmpname();
 b := fopen(a, "wb");
-put("Hello\n", b);
-put("world.\n", b);
+puts("Hello\n", b);
+puts("world.\n", b);
 close(b);
 c := tmpname();
 rename(a, c);
@@ -1266,7 +1266,7 @@ if (getchar(a) != NULL)
 if (!eof(a))
     fail("failed to detect eof on string");
 
-error = NULL; try put("x", a); onerror;
+error = NULL; try puts("x", a); onerror;
 if (error == NULL)
     fail("failed to fail on write to string file");
 

@@ -149,7 +149,7 @@ error = NULL; try a[-1] = 2; onerror; if (error == NULL)
 a := strbuf();
 s := sopen(a, "r+");
 printf(s, "printf ");
-put("put", s);
+puts("put", s);
 if (a != "printf put")
     fail("failed to write to mutable string");
 seek(s, 0, 0);
@@ -158,14 +158,14 @@ if (getfile(s) != "printf put")
 
 m := mopen(alloc(20, 1), "r+");
 printf(m, "printf ");
-put("put", m);
+puts("put", m);
 seek(m, 0, 0);
 if (gettoken(m, "\0") != "printf put")
     fail("failed to read data written to mem object");
 seek(m, 20 - 5, 0);
-put("write", m);
+puts("write", m);
 seek(m, 20 - 4, 0);
-error = NULL; try put("write", m); onerror;
+error = NULL; try puts("write", m); onerror;
 if (error == NULL)
     fail("failed to fail on write past end of mem object");
 seek(m, 0, 0);
