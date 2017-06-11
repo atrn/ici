@@ -40,9 +40,16 @@ extern DLI type_t *     types[max_types];
  */
 class type
 {
+public:
+    static constexpr int can_fetch_method = 1<<0;
+    static constexpr int can_forall       = 1<<1;
+    static constexpr int can_objname      = 1<<2;
+    static constexpr int can_call         = 1<<3;
+
 protected:
-    explicit type(const char *name)
+    explicit type(const char *name, int flags = 0)
         : name(name)
+        , _flags(flags)
         , _name(nullptr)
     {}
 
@@ -52,10 +59,10 @@ public:
 public:
     virtual ~type() {}
 
-    virtual bool                has_fetch_method() const;
-    virtual bool                has_forall() const;
-    virtual bool                has_objname() const;
-    virtual bool                has_call() const;
+    bool has_fetch_method() const { return _flags & can_fetch_method; }
+    bool has_forall() const { return _flags & can_forall; }
+    bool has_objname() const { return _flags & can_objname; }
+    bool has_call() const { return _flags & can_call; }
 
     virtual unsigned long       mark(ici_obj_t *o) = 0;
     virtual void                free(ici_obj_t *o) = 0;
@@ -89,6 +96,7 @@ public:
     }
 
 private:
+    const int           _flags;
     ici_str_t *         _name;
 };
 

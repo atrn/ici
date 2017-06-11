@@ -166,10 +166,6 @@ type::fetch_base(ici_obj_t *o, ici_obj_t *k) {
     return fetch(o, k);
 }
 
-bool type::has_fetch_method() const {
-    return false;
-}
-
 ici_obj_t *type::fetch_method(ici_obj_t *o, ici_obj_t *n) {
     return nullptr;
 }
@@ -178,23 +174,11 @@ int type::forall(ici_obj_t *o) {
     return 1;
 }
 
-bool type::has_objname() const {
-    return false;
-}
-
 void type::objname(ici_obj_t *, char n[ICI_OBJNAMEZ]) {
 }
 
 int type::call(ici_obj_t *, ici_obj_t *) {
     return 1;
-}
-
-bool type::has_call() const {
-    return false;
-}
-
-bool type::has_forall() const {
-    return false;
 }
 
 /*
