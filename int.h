@@ -20,7 +20,12 @@ namespace ici
  */
 struct ici_int : object
 {
-    explicit ici_int(long v = 0) : object(ICI_TC_INT), i_value(v) {}
+    explicit ici_int(long v = 0)
+        : object(ICI_TC_INT)
+        , i_value(v)
+    {
+    }
+
     long i_value;
 };
 
@@ -31,6 +36,9 @@ inline bool ici_isint(ici_obj_t *o) { return o->isa(ICI_TC_INT); }
  * End of ici.h export. --ici.h-end--
  */
 
+/*
+ * So-called "small" integers are pre-created.
+ */
 constexpr int ICI_SMALL_INT_COUNT = 1024;
 constexpr int ICI_SMALL_INT_MASK  = 0x3FF;
 

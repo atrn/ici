@@ -416,7 +416,7 @@ ici_array_rpop(ici_array_t *a)
  *
  * This --func-- forms part of the --ici-api--.
  */
-extern ici_obj_t **
+ici_obj_t **
 ici_array_find_slot(ici_array_t *a, ptrdiff_t i)
 {
     ptrdiff_t           n;

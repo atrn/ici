@@ -68,9 +68,9 @@
 {
     ici_obj_t  *o0;
     ici_obj_t  *o1;
-    long       i;
-    double              f;
-    int                 can_temp;
+    long        i;
+    double      f;
+    bool        can_temp;
 
 #define SWAP()          (o = o0, o0 = o1, o1 = o)
 

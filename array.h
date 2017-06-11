@@ -38,7 +38,7 @@ namespace ici
  * stacks (never had rpop() or rpush() done) and ones that are queues
  * (may, possibly, have had rpop() or rpush() done).
  *
- * Now, if an array is still a stack, you can use the functions (macros):
+ * Now, if an array is still a stack, you can use the functions:
  *
  *     ici_stk_push_chk(a, n)
  *     ici_stk_pop_chk(a, n)
@@ -82,6 +82,19 @@ struct array : object
     ici_obj_t   **a_bot;    /* The first used slot. */
     ici_obj_t   **a_base;   /* The base of allocation. */
     ici_obj_t   **a_limit;  /* Allocation limit, first one you can't use. */
+
+#if 0
+    int grow_stack(ptrdiff_t n);
+    int fault_stack(ptrdiff_t i);
+    ptrdiff_t nels();
+    ici_obj_t **span(int i, ptrdiff_t *np);
+    int grow();
+    int push(ici_obj_t *o);
+    int rpush(ici_obj_t *o);
+    ici_obj_t *pop();
+    ici_obj_t **find_slot(ptrdiff_t i);
+    ici_obj_t *get(ptrdiff_t i);
+#endif
 };
 
 inline ici_array_t *ici_arrayof(ici_obj_t *o)   { return static_cast<ici_array_t *>(o); }
@@ -92,25 +105,26 @@ inline bool ici_isarray(ici_obj_t *o)           { return o->isa(ICI_TC_ARRAY); }
  * reallocate array memory to get more room. Return non-zero on failure,
  * usual conventions.
  *
- * This macro can only be used where the array has never had elements
- * rpush()ed or rpop()ed. See the discussion on
- * 'Accessing ICI array object from C' before using.
+ * This function can only be used where the array has never had
+ * elements rpush()ed or rpop()ed. See the discussion on 'Accessing
+ * ICI array object from C' before using.
  *
- * This --macro-- forms part of the --ici-ap--.
+ * This --function-- forms part of the --ici-ap--.
  */
-#define ici_stk_push_chk(a, n) \
-                ((a)->a_limit - (a)->a_top < (n) ? ici_grow_stack((a), (n)) : 0)
+inline int ici_stk_push_chk(ici_array_t *a, ptrdiff_t n) {
+    return a->a_limit - a->a_top < n ? ici_grow_stack(a, n) : 0;
+}
 
 /*
  * Ensure that the stack a has i as a valid index.  Will grow and NULL fill
  * as necessary. Return non-zero on failure, usual conventions.
  */
-#define ici_stk_probe(a, i) ((a)->a_top - (a)->a_bot <= (i) \
-                ? ici_fault_stack((a), (i)) \
-                : 0)
+inline int ici_stk_probe(ici_array_t *a, ptrdiff_t i) {
+    return a->a_top - a->a_bot <= i ? ici_fault_stack(a, i) : 0;
+}
 
 /*
- * A macro to assist in doing for loops over the elements of an array.
+ * A function to assist in doing for loops over the elements of an array.
  * Use as:
  *
  *  ici_array_t  *a;
@@ -118,13 +132,14 @@ inline bool ici_isarray(ici_obj_t *o)           { return o->isa(ICI_TC_ARRAY); }
  *  for (e = ici_astart(a); e != ici_alimit(a); e = ici_anext(a, e))
  *      ...
  *
- * This --macro-- forms part of the --ici-api--.
+ * This --function-- forms part of the --ici-api--.
  */
-#define ici_astart(a)   ((a)->a_bot == (a)->a_limit && (a)->a_bot != (a)->a_top \
-                            ? (a)->a_base : (a)->a_bot)
+inline ici_obj_t **ici_astart(ici_array_t *a) {
+    return a->a_bot == a->a_limit && a->a_bot != a->a_top ? a->a_base : a->a_bot;
+}
 
 /*
- * A macro to assist in doing for loops over the elements of an array.
+ * A function to assist in doing for loops over the elements of an array.
  * Use as:
  *
  *  ici_array_t  *a;
@@ -132,12 +147,14 @@ inline bool ici_isarray(ici_obj_t *o)           { return o->isa(ICI_TC_ARRAY); }
  *  for (e = ici_astart(a); e != ici_alimit(a); e = ici_anext(a, e))
  *      ...
  *
- * This --macro-- forms part of the --ici-api--.
+ * This --function-- forms part of the --ici-api--.
  */
-#define ici_alimit(a)   ((a)->a_top)
+inline ici_obj_t **ici_alimit(ici_array_t *a) {
+    return a->a_top;
+}
 
 /*
- * A macro to assist in doing for loops over the elements of an array.
+ * A funcion to assist in doing for loops over the elements of an array.
  * Use as:
  *
  *  ici_array_t  *a;
@@ -145,10 +162,11 @@ inline bool ici_isarray(ici_obj_t *o)           { return o->isa(ICI_TC_ARRAY); }
  *  for (e = ici_astart(a); e != ici_alimit(a); e = ici_anext(a, e))
  *      ...
  *
- * This --macro-- forms part of the --ici-api--.
+ * This --function-- forms part of the --ici-api--.
  */
-#define ici_anext(a, e) ((e) + 1 == (a)->a_limit && (a)->a_limit != (a)->a_top \
-                            ? (a)->a_base : (e) + 1)
+inline ici_obj_t **ici_anext(ici_array_t *a, ici_obj_t **e) {
+    return e + 1 == a->a_limit && a->a_limit != a->a_top ? a->a_base : e + 1;
+}
 
  /*
  * End of ici.h export. --ici.h-end--

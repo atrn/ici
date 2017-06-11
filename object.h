@@ -58,7 +58,8 @@ protected:
         : name(name)
         , _flags(flags)
         , _name(nullptr)
-    {}
+    {
+    }
 
 public:
     inline bool can_fetch_method() const { return _flags & has_fetch_method; }

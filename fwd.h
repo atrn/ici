@@ -84,21 +84,18 @@ namespace ici
  *
  * ANICI uses a major version of 5 and the word 'ANICI' in the string.
  */
-#define ICI_VER_MAJOR   5
-#define ICI_VER_MINOR   0
-#define ICI_VER_RELEASE 0
+constexpr int ICI_VER_MAJOR   = 5;
+constexpr int ICI_VER_MINOR   = 0;
+constexpr int ICI_VER_RELEASE = 0;
 
 /*
  * The ICI version number composed into an 8.8.16 unsigned long for simple
  * comparisons. The components of this are also available as 'ICI_VER_MAJOR',
  * 'ICI_VER_MINOR', and 'ICI_VER_RELEASE'.
  *
- * This --macro-- forms part of the --ici-api--.
+ * This --constant-- forms part of the --ici-api--.
  */
-#define ICI_VER \
-    (((unsigned long)ICI_VER_MAJOR << 24) \
-    | ((unsigned long)ICI_VER_MINOR << 16) \
-    | ICI_VER_RELEASE)
+constexpr unsigned long ICI_VER = (((unsigned long)ICI_VER_MAJOR << 24) | ((unsigned long)ICI_VER_MINOR << 16) | ICI_VER_RELEASE);
 
 /*
  * The oldet version number for which the binary interface for seperately
@@ -106,9 +103,9 @@ namespace ici
  * the exernal interface changes in a way that could break already compiled
  * modules. We aim to never to do that again. See 'ici_interface_check()'.
  *
- * This --macro-- forms part of the --ici-api--.
+ * This --constant-- forms part of the --ici-api--.
  */
-#define ICI_BACK_COMPAT_VER ((5UL << 24) | (0UL << 16) | 0)
+constexpr unsigned long ICI_BACK_COMPAT_VER = (5UL << 24) | (0UL << 16) | 0;
 
 /*
  * DLI is defined in some configurations (Windows, in the conf include file)
@@ -165,9 +162,8 @@ namespace ici
  * if it wasn't, this is what we use.
  */
 #ifndef ICI_PTR_HASH
-#define ICI_PTR_HASH(p) \
-     (ici_crc_table[((size_t)(p) >>  4) & 0xFF] \
-    ^ ici_crc_table[((size_t)(p) >> 12) & 0xFF])
+#define ICI_PTR_HASH(p) (ici_crc_table[((size_t)(p) >>  4) & 0xFF] ^ ici_crc_table[((size_t)(p) >> 12) & 0xFF])
+
 /*
  * This is an alternative that avoids looking up the crc table.
 #define ICI_PTR_HASH(p) (((unsigned long)(p) >> 12) * 31 ^ ((unsigned long)(p) >> 4) * 17)
@@ -328,15 +324,19 @@ extern ici_handle_t             *ici_handle_new(void *, ici_str_t *, ici_objwsup
 extern ici_handle_t             *ici_handle_probe(void *, ici_str_t *);
 extern int                      ici_register_type(type_t *t);
 extern void                     ici_rego_work(ici_obj_t *o);
+
+extern void                     ici_array_gather(ici_obj_t **, ici_array_t *, ptrdiff_t, ptrdiff_t);
+
 extern ptrdiff_t                ici_array_nels(ici_array_t *);
 extern int                      ici_grow_stack(ici_array_t *, ptrdiff_t);
 extern int                      ici_fault_stack(ici_array_t *, ptrdiff_t);
-extern void                     ici_array_gather(ici_obj_t **, ici_array_t *, ptrdiff_t, ptrdiff_t);
 extern int                      ici_array_push(ici_array_t *, ici_obj_t *);
 extern int                      ici_array_rpush(ici_array_t *, ici_obj_t *);
 extern ici_obj_t                *ici_array_pop(ici_array_t *);
 extern ici_obj_t                *ici_array_rpop(ici_array_t *);
 extern ici_obj_t                *ici_array_get(ici_array_t *, ptrdiff_t);
+extern ici_obj_t                **ici_array_find_slot(ici_array_t *, ptrdiff_t);
+
 extern void                     ici_invalidate_struct_lookaside(ici_struct_t *);
 extern int                      ici_engine_stack_check();
 extern void                     ici_atexit(void (*)(), ici_wrap_t *);
@@ -351,7 +351,6 @@ extern int                      ici_parse(ici_file_t *, ici_objwsup_t *);
 extern ici_obj_t                *ici_eval(ici_str_t *);
 extern ici_obj_t                *ici_make_handle_member_map(ici_name_id_t *);
 extern int                      ici_parse_fname(const char *);
-extern ici_obj_t                **ici_array_find_slot(ici_array_t *, ptrdiff_t);
 extern ici_exec_t               *ici_leave();
 extern void                     ici_enter(ici_exec_t *);
 extern void                     ici_yield();
@@ -447,7 +446,6 @@ extern int              ici_init_path(ici_objwsup_t *externs);
 extern int              ici_find_on_path(char [FILENAME_MAX], const char *);
 extern int              ici_init_sstrings();
 extern void             ici_drop_all_small_allocations();
-// extern void             ici_get_pc(ici_array_t *code, ici_obj_t **xs);
 extern ici_objwsup_t    *ici_outermost_writeable_struct();
 extern ici_cfunc_t      *ici_cfunc_new(const char *, int (*)(...), void *, void *);
 extern int              ici_str_char_at(ici_str_t *, int);

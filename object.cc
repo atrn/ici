@@ -35,76 +35,58 @@ namespace ici
 char            *ici_error;
 
 /*
+ * This template function creates a "Myer singleton" for some T, which
+ * we use for creating the instances of the various xxxx_type classes
+ * to initialize the types[] array.
+ */
+template <typename T>
+inline type *instance_of()
+{
+    static T value;
+    return &value;
+}
+
+/*
  * The array of known types. Initialised with the types known to the
  * core. NB: The positions of these must exactly match the ICI_TC_* defines
  * in object.h.
  */
-// extern type_t       archive_type;
-// extern type_t       array_type;
-// extern type_t       catch_type;
-// extern type_t       exec_type;
-// extern type_t       set_type;
-// extern type_t       struct_type;
-// extern type_t       float_type;
-// extern type_t       file_type;
-// extern type_t       func_type;
-// extern type_t       cfunc_type;
-// extern type_t       method_type;
-// extern type_t       forall_type;
-// extern type_t       int_type;
-// extern type_t       mark_type;
-// extern type_t       null_type;
-// extern type_t       op_type;
-// extern type_t       pc_type;
-// extern type_t       ptr_type;
-// extern type_t       regexp_type;
-// extern type_t       src_type;
-// extern type_t       string_type;
-// extern type_t       parse_type;
-// extern type_t       ostemp_type;
-// extern type_t       handle_type;
-// extern type_t       profilecall_type;
-// extern type_t       mem_type;
-// extern type_t       restorer_type;
-// extern type_t       saver_type;
-// extern type_t       channel_type;
-
 type_t      *types[max_types] =
 {
-    NULL,
-    new pc_type,
-    new src_type,
-    new parse_type,
-    new op_type,
-    new string_type,
-    new catch_type,
-    new forall_type,
-    new int_type,
-    new float_type,
-    new regexp_type,
-    new ptr_type,
-    new array_type,
-    new struct_type,
-    new set_type,
-    new exec_type,
-    new file_type,
-    new func_type,
-    new cfunc_type,
-    new method_type,
-    new mark_type,
-    new null_type,
-    new handle_type,
-    new mem_type,
+    nullptr,
+    instance_of<pc_type>(),
+    instance_of<src_type>(),
+    instance_of<parse_type>(),
+    instance_of<op_type>(),
+    instance_of<string_type>(),
+    instance_of<catch_type>(),
+    instance_of<forall_type>(),
+    instance_of<int_type>(),
+    instance_of<float_type>(),
+    instance_of<regexp_type>(),
+    instance_of<ptr_type>(),
+    instance_of<array_type>(),
+    instance_of<struct_type>(),
+    instance_of<set_type>(),
+    instance_of<exec_type>(),
+    instance_of<file_type>(),
+    instance_of<func_type>(),
+    instance_of<cfunc_type>(),
+    instance_of<method_type>(),
+    instance_of<mark_type>(),
+    instance_of<null_type>(),
+    instance_of<handle_type>(),
+    instance_of<mem_type>(),
 #ifndef NOPROFILE
-    new profilecall_type,
+    instance_of<profilecall_type>(),
 #else
-    NULL,
+    nullptr,
 #endif
-    new archive_type,
-    NULL, // ICI_TC_REF
-    new restorer_type,
-    new saver_type,
-    new channel_type
+    instance_of<archive_type>(),
+    nullptr, // ICI_TC_REF is special, a reserved type code
+    instance_of<restorer_type>(),
+    instance_of<saver_type>(),
+    instance_of<channel_type>()
 };
 
 static int              ici_ntypes = ICI_TC_MAX_CORE + 1;
