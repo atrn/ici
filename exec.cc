@@ -76,24 +76,14 @@ volatile int    ici_aborted;
 int             ici_evaluate_recursion_limit = 50;
 
 
-#if defined(__sun) || defined(__FreeBSD__) || defined(__linux__)
-static inline int
-sigisempty(sigset_t *s)
+inline bool isempty(const sigset_t *s)
 {
-    char *sptr = (char *)s;
-    char *eptr;
-    for (eptr = sptr + sizeof (sigset_t); sptr < eptr; ++sptr)
-    {
+    const char *sptr = (char *)s;
+    for (const char *eptr = sptr + sizeof (sigset_t); sptr < eptr; ++sptr)
         if (*sptr != 0)
-        {
-            return 0;
-        }
-    }
-    return 1;
+            return false;
+    return true;
 }
-#else
-# define sigisempty(s) (*(s))
-#endif
 
 /*
  * Create and return a pointer to a new ICI execution context.
@@ -329,7 +319,7 @@ ici_evaluate(ici_obj_t *code, int n_operands)
 	 */
         {
             sigset_t *p = (sigset_t *)(void *)&ici_signals_pending;
-            if (UNLIKELY(!sigisempty(p)))
+            if (UNLIKELY(!isempty(p)))
 	    {
                 ici_signals_invoke_handlers();
 	    }
