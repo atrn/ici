@@ -38,11 +38,6 @@ struct achunk
 };
 
 /*
- * Temporary pointer used in the ici_talloc/ici_tfree macros.
- */
-char                    *ici_fltmp;
-
-/*
  * The base pointers of our four fast free lists.
  */
 char                    *ici_flists[4];
