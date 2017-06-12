@@ -56,6 +56,11 @@ int float_type::cmp(ici_obj_t *o1, ici_obj_t *o2)
     return !DBL_BIT_CMP(&ici_floatof(o1)->f_value, &ici_floatof(o2)->f_value);
 }
 
+unsigned long float_type::hash(ici_obj_t *o)
+{
+    return ici_hash_float(ici_floatof(o)->f_value);
+}
+
 unsigned long ici_hash_float(double v)
 {
     unsigned long       h;
@@ -94,49 +99,6 @@ unsigned long ici_hash_float(double v)
             h = *p++ + h * 31;
     }
     return h;
-}
-
-unsigned long float_type::hash(ici_obj_t *o)
-{
-    return ici_hash_float(ici_floatof(o)->f_value);
-#if 0
-    unsigned long       h;
-    int                 i;
-
-    h = FLOAT_PRIME;
-    /*
-     * We assume that the compiler will decide this constant expression
-     * at compile time and not actually make a run-time decision about
-     * which bit of code to run.
-     *
-     * WARNING: there is an in-line expansion of this in binop.h.
-     */
-    if (sizeof ici_floatof(o)->f_value == 2 * sizeof(int32_t))
-    {
-        /*
-         * The little dance of getting the address of the double into
-         * a pointer to ulong via void * is brought to you by the
-         * aliasing rules of ISO C.
-         */
-        void            *vp;
-        int32_t         *p;
-
-        vp = &ici_floatof(o)->f_value;
-        p = (int32_t *)vp;
-        h += p[0] + p[1] * 31;
-        h ^= (h >> 12) ^ (h >> 24);
-    }
-    else
-    {
-        unsigned char   *p;
-
-        p = (unsigned char *)&ici_floatof(o)->f_value;
-        i = sizeof(ici_floatof(o)->f_value);
-        while (--i >= 0)
-            h = *p++ + h * 31;
-    }
-    return h;
-#endif
 }
 
 } // namespace ici

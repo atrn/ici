@@ -96,6 +96,6 @@ void catch_type::free(ici_obj_t *o)
     ici_tfree(o, ici_catch_t);
 }
 
-ici_op_t    ici_o_onerror       = {ici_op_onerror};
+ici_op_t    ici_o_onerror{ici_op_onerror};
 
 } // namespace ici

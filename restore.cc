@@ -750,6 +750,12 @@ fetch_restorer(int key)
     return (restorer_t *)v;
 }
 
+void
+ici_uninit_restorer_map()
+{
+    ici_decref(restorer_map);
+}
+
 int
 ici_init_restorer_map()
 {

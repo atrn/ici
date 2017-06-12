@@ -338,6 +338,12 @@ new_saver(int (*fn)(ici_archive_t *, ici_obj_t *))
 
 static ici_struct_t *saver_map = NULL;
 
+void
+ici_uninit_saver_map()
+{
+    ici_decref(saver_map);
+}
+
 int
 ici_init_saver_map()
 {

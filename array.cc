@@ -702,6 +702,6 @@ int array_type::forall(ici_obj_t *o)
     return 0;
 }
 
-ici_op_t    ici_o_mklvalue      = {ici_op_mklvalue};
+ici_op_t    ici_o_mklvalue{ici_op_mklvalue};
 
 } // namespace ici

@@ -3,6 +3,7 @@
 #include "exec.h"
 #include "str.h"
 #include "re.h"
+#include "archive.h"
 #include "wrap.h"
 
 namespace ici
@@ -67,6 +68,8 @@ ici_uninit()
         (*wraps->w_func)();
         wraps = wraps->w_next;
     }
+
+    ici_archive_uninit();
 
     /*
      * Clean up ICI variables used by various bits of ICI.

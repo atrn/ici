@@ -97,6 +97,12 @@ int ici_archive_init()
     return ici_init_restorer_map();
 }
 
+void ici_archive_uninit()
+{
+    ici_uninit_saver_map();
+    ici_uninit_restorer_map();
+}
+
 static ici_archive_t *
 new_archive(ici_file_t *file, ici_objwsup_t *scope)
 {

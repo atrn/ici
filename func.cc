@@ -316,9 +316,9 @@ int func_type::call(ici_obj_t *o, ici_obj_t *subject)
     return 1;
 }
 
-ici_op_t    ici_o_return        = {ici_op_return};
-ici_op_t    ici_o_call          = {ICI_OP_CALL};
-ici_op_t    ici_o_method_call   = {ICI_OP_METHOD_CALL};
-ici_op_t    ici_o_super_call    = {ICI_OP_SUPER_CALL};
+ici_op_t    ici_o_return{ici_op_return};
+ici_op_t    ici_o_call{ICI_OP_CALL};
+ici_op_t    ici_o_method_call{ICI_OP_METHOD_CALL};
+ici_op_t    ici_o_super_call{ICI_OP_SUPER_CALL};
 
 } // namespace ici

@@ -4,16 +4,17 @@
 #
 
 -std=c++14
--Wall -Wextra -Wno-missing-field-initializers -Wno-unused-parameter
--I.
+-Wall
 
-# RELEASE CONFIGURATION
-# Ofast and Oz seem to work best, in that order
+#-Wextra
+#-Wno-missing-field-initializers
+#-Wno-unused-parameter
+
+# RELEASE - Ofast and Oz seem to be best
 -DNDEBUG
 -Ofast -Oz
 
-# DEBUG CONFIGURATION
-# pcre uses DEBUG, ICI !NDEBUG
-#-DDEBUG
-#-UNDEBUG
+# DEBUG (pcre uses DEBUG, ICI !NDEBUG)
 #-g -O0
+#-UNDEBUG
+#-DDEBUG

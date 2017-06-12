@@ -1387,6 +1387,6 @@ ici_obj_t *exec_type::fetch(ici_obj_t *o, ici_obj_t *k)
     return ici_null;
 }
 
-ici_op_t    ici_o_quote         = {ICI_OP_QUOTE};
+ici_op_t    ici_o_quote{ICI_OP_QUOTE};
 
 } // namespace ici

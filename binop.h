@@ -918,10 +918,10 @@ usef:
             --po < ici_atoms ? po = ici_atoms + ici_atomsz - 1 : NULL
         )
         {
-#if 0
-            if (ici_isfloat(o) && DBL_BIT_CMP(&ici_floatof(o)->f_value, &v.f))
-#else
+#if 1
             if (ici_isfloat(o) && DBL_BIT_CMP(&ici_floatof(o)->f_value, &f))
+#else
+            if (ici_isfloat(o) && DBL_BIT_CMP(&ici_floatof(o)->f_value, &v.f))
 #endif
             {
                 USEo();

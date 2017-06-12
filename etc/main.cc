@@ -1,4 +1,4 @@
-#include "fwd.h"
+#include "../fwd.h"
 
 int
 main(int argc, char *argv[])

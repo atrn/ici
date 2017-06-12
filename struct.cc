@@ -714,11 +714,11 @@ ici_obj_t *struct_type::fetch_base(ici_obj_t *o, ici_obj_t *k)
     return sl->sl_value;
 }
 
-ici_op_t    ici_o_namelvalue    = {ICI_OP_NAMELVALUE};
-ici_op_t    ici_o_colon         = {ICI_OP_COLON};
-ici_op_t    ici_o_coloncaret    = {ICI_OP_COLONCARET};
-ici_op_t    ici_o_dot           = {ICI_OP_DOT};
-ici_op_t    ici_o_dotkeep       = {ICI_OP_DOTKEEP};
-ici_op_t    ici_o_dotrkeep      = {ICI_OP_DOTRKEEP};
+ici_op_t    ici_o_namelvalue{ICI_OP_NAMELVALUE};
+ici_op_t    ici_o_colon{ICI_OP_COLON};
+ici_op_t    ici_o_coloncaret{ICI_OP_COLONCARET};
+ici_op_t    ici_o_dot{ICI_OP_DOT};
+ici_op_t    ici_o_dotkeep{ICI_OP_DOTKEEP};
+ici_op_t    ici_o_dotrkeep{ICI_OP_DOTRKEEP};
 
 } // namespace ici

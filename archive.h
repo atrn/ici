@@ -17,8 +17,11 @@ namespace ici
 {
 
 int ici_archive_init();
+void ici_archive_uninit();
 int ici_init_restorer_map();
+void ici_uninit_restorer_map();
 int ici_init_saver_map();
+void ici_uninit_saver_map();
 int ici_archive_f_save(...);
 int ici_archive_f_restore(...);
 int ici_archive_op_func_code(int (*fn)());
