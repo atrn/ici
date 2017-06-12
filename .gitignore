@@ -6,3 +6,4 @@
 *.dylib
 /.dcc/
 /anici.static
+/test/serialization/*.dat

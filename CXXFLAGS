@@ -3,12 +3,7 @@
 # This file is read by dcc (gitlab.com/atrn/dcc).
 #
 
--std=c++14
--Wall
-
-#-Wextra
-#-Wno-missing-field-initializers
-#-Wno-unused-parameter
+-std=c++14 -Wall
 
 # RELEASE - Ofast and Oz seem to be best
 -DNDEBUG
