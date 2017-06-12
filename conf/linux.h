@@ -13,7 +13,6 @@
  * End of ici.h export. --ici.h-end--
  */
 
-#define ICI_USE_POSIX_THREADS
 #define ICI_HAS_BSD_STRUCT_TM
 
 /*

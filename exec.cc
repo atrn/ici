@@ -131,23 +131,8 @@ ici_new_exec()
         goto fail;
     }
     ici_decref(x->x_os_temp_cache);
-#ifdef ICI_USE_STD_THREADS
     x->x_semaphore = new std::condition_variable;
     x->x_thread_handle = nullptr;
-#endif
-#ifdef ICI_USE_WIN32_THREADS
-    if ((x->x_semaphore = CreateSemaphore(NULL, 0, 10000, NULL)) == NULL)
-    {
-        ici_get_last_win32_error();
-        goto fail;
-    }
-#endif
-#ifdef ICI_USE_POSIX_THREADS
-    if (sem_init(&x->x_semaphore, 0, 0) == -1)
-    {
-        goto fail;
-    }
-#endif
     x->x_state = ICI_XS_ACTIVE;
     x->x_count = 100;
     x->x_n_engine_recurse = 0;
@@ -1346,19 +1331,8 @@ void exec_type::free(ici_obj_t *o)
         }
     }
     assert(x != NULL);
-#ifdef ICI_USE_STD_THREADS
     delete x->x_semaphore;
     delete x->x_thread_handle;
-#endif
-#ifdef ICI_USE_WIN32_THREADS
-    if (x->x_thread_handle != NULL)
-    {
-        CloseHandle(x->x_thread_handle);
-    }
-#endif
-#ifdef ICI_USE_POSIX_THREADS
-    (void)sem_destroy(&x->x_semaphore);
-#endif
     if (x->x_error != NULL)
     {
         ::free(x->x_error); /* It came from strdup() so use free directly */

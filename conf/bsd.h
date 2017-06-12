@@ -5,7 +5,6 @@
 #include <math.h>
 
 #define NOEVENTS
-#define ICI_USE_POSIX_THREADS
 #define ICI_HAS_BSD_STRUCT_TM
 #define CONFIG_STR "BSD UNIX"
 

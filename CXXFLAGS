@@ -7,9 +7,6 @@
 -Wall -Wextra -Wno-missing-field-initializers -Wno-unused-parameter
 -I.
 
-# On MacOS we need this.
--Imacos
-
 # RELEASE CONFIGURATION
 # Ofast and Oz seem to work best, in that order
 -DNDEBUG

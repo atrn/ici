@@ -4,7 +4,7 @@
 
 conf?= conf/macos.h
 
-srcs=  *.cc macos/*.cc pcre/*.cc
+srcs=  *.cc pcre/*.cc
 hdrs=  $(shell ls *.h|grep -v anici\\.h)
 
 all: anici.h

@@ -16,19 +16,7 @@
 namespace ici
 {
 
-#ifdef ICI_USE_STD_THREADS
 std::mutex              ici_mutex;
-#endif
-
-#ifdef ICI_USE_WIN32_THREADS
-HANDLE                  ici_mutex;
-#endif
-
-#ifdef ICI_USE_POSIX_THREADS
-#include <pthread.h>
-pthread_mutex_t         ici_mutex;
-#endif
-
 std::atomic<int>        ici_n_active_threads;
 
 /*
@@ -89,23 +77,8 @@ ici_leave2(bool unlock)
         --ici_n_active_threads;
         if (unlock)
         {
-#ifdef ICI_USE_STD_THREADS
             ici_mutex.unlock();
-#endif
-#ifdef ICI_USE_WIN32_THREADS
-            ReleaseMutex(ici_mutex);
-#else
-# ifdef ICI_USE_POSIX_THREADS
-            if (pthread_mutex_unlock(&ici_mutex) != 0)
-                abort();
-# else
         }
-        /*
-         * It is ok to do ici_leave in implementations with
-         * no thread support.
-         */
-# endif
-#endif
     }
     return x;
 }
@@ -134,22 +107,7 @@ ici_enter(ici_exec_t *x)
     if (!__sync_fetch_and_add(&x->x_critsect, 0))
     {
         ++ici_n_active_threads;
-#ifdef ICI_USE_STD_THREADS
         ici_mutex.lock();
-#endif
-#ifdef ICI_USE_WIN32_THREADS
-        WaitForSingleObject(ici_mutex, INFINITE);
-#else
-# ifdef ICI_USE_POSIX_THREADS
-        if (pthread_mutex_lock(&ici_mutex) != 0)
-            abort();
-# else
-        /*
-         * It is ok to do ici_enter in implementations with
-         * no thread support.
-         */
-# endif
-#endif
         if (x != ici_exec)
         {
             /*
@@ -201,28 +159,9 @@ ici_yield()
         *x->x_xs = ici_xs;
         *x->x_vs = ici_vs;
         x->x_count = ici_exec_count;
-#ifdef ICI_USE_STD_THREADS
         ici_mutex.unlock();
         std::this_thread::yield();
         ici_mutex.lock();
-#endif
-#ifdef ICI_USE_WIN32_THREADS
-        ReleaseMutex(ici_mutex);
-        WaitForSingleObject(ici_mutex, INFINITE);
-#else
-# ifdef ICI_USE_POSIX_THREADS
-        if (pthread_mutex_unlock(&ici_mutex) != 0)
-            abort();
-        sched_yield();
-        if (pthread_mutex_lock(&ici_mutex) != 0)
-            abort();
-# else
-        /*
-         * It is ok to do ici_yield in implementations with
-         * no thread support.
-         */
-# endif
-#endif
         if (x != ici_exec)
         {
             /*
@@ -274,8 +213,6 @@ ici_waitfor(ici_obj_t *o)
 
     e = NULL;
     ici_exec->x_waitfor = o;
-
-#ifdef ICI_USE_STD_THREADS
     x = ici_leave2(false);
     {
         std::unique_lock<std::mutex> u(ici_mutex, std::adopt_lock);
@@ -283,29 +220,6 @@ ici_waitfor(ici_obj_t *o)
         x->x_semaphore->wait(u);
         // u's dtor unlocks ici_mutex
     }
-#endif
-
-#ifndef ICI_USE_STD_THREADS
-    x = ici_leave();
-#endif
-#ifdef ICI_USE_WIN32_THREADS
-    /*
-     * At this point an ici_wakeup() may happen even before we get
-     * into the wait. But it's OK because it doesn't matter if the
-     * semaphore is incremented before or after we wait, it will
-     * still fall out.
-     */
-    if (WaitForSingleObject(x->x_semaphore, INFINITE) == WAIT_FAILED)
-        e = "wait failed";
-#else
-# ifdef ICI_USE_POSIX_THREADS
-    if (sem_wait(&x->x_semaphore) == -1)
-        e = "wait failed";
-# else
-    e = "attempt to wait in waitfor, but no thread support";
-# endif
-#endif
-
     ici_enter(x);
     if (e != NULL)
     {
@@ -330,28 +244,13 @@ ici_wakeup(ici_obj_t *o)
         if (x->x_waitfor == o)
         {
             x->x_waitfor = NULL;
-#ifdef ICI_USE_STD_THREADS
             x->x_semaphore->notify_all();
-#endif
-#ifdef ICI_USE_WIN32_THREADS
-            ReleaseSemaphore(x->x_semaphore, 1, NULL);
-#else
-# ifdef ICI_USE_POSIX_THREADS
-            sem_post(&x->x_semaphore);
-# else
-            /*
-             * It is ok to do wakeup calls in implementations
-             * with no thread support.
-             */
-# endif
-#endif
         }
     }
     return 0;
 }
 
 
-#if defined(ICI_USE_STD_THREADS) || defined(ICI_USE_WIN32_THREADS) || defined(ICI_USE_POSIX_THREADS)
 /*
  * Entry point for a new thread. The passed argument is the pointer
  * to the execution context (ici_exec_t *). It has one ref count that is
@@ -359,28 +258,9 @@ ici_wakeup(ici_obj_t *o)
  * of the new context has the ICI function to be called configured on
  * it.
  */
-static
-
-#ifdef ICI_USE_STD_THREADS
-void ici_thread_base(void *arg)
+static void ici_thread_base(void *arg)
 {
     ici_exec_t      *x = (ici_exec_t *)arg;
-#endif
-    
-#ifdef ICI_USE_WIN32_THREADS
-DWORD WINAPI /* Ensure correct Win32 calling convention. */
-ici_thread_base(void *arg)
-{
-    ici_exec_t      *x = (ici_exec_t *)arg;
-#endif
-
-#ifdef ICI_USE_POSIX_THREADS
-void *
-ici_thread_base(void *arg)
-{
-    ici_exec_t      *x = (ici_exec_t *)arg;
-#endif
-
     int                 n_ops;
 
     ici_enter(x);
@@ -399,11 +279,7 @@ ici_thread_base(void *arg)
     ici_wakeup(x);
     ici_decref(x);
     (void)ici_leave();
-#ifndef ICI_USE_STD_THREADS
-    return 0;
-#endif
 }
-#endif /* #if defined(ICI_USE_STD_THREADS) || defined(ICI_USE_WIN32_THREADS) || defined(ICI_USE_POSIX_THREADS) */
 
 /*
  * From ICI: exec = go(callable, arg1, arg2, ...)
@@ -446,58 +322,12 @@ f_go(...)
      * it's own reference.
      */
     ici_incref(x);
-#ifdef ICI_USE_STD_THREADS
     {
         // TODO: try/catch
         auto t = new std::thread([x]() { ici_thread_base(x); });
         x->x_thread_handle = t;
         t->detach();
     }
-#else
-# ifdef ICI_USE_WIN32_THREADS
-    {
-        HANDLE          thread_h;
-        unsigned long   thread_id;
-
-        thread_h = CreateThread(NULL, 1024, ici_thread_base, x, 0, &thread_id);
-        if (thread_h == NULL)
-        {
-            ici_get_last_win32_error();
-            ici_decref(x); /* The ref the thread was going to own. */
-            goto fail;
-        }
-        x->x_thread_handle = thread_h;
-    }
-# else
-#  ifdef ICI_USE_POSIX_THREADS
-    {
-        pthread_attr_t thread_attr;
-        if
-        (
-            (errno = pthread_attr_init(&thread_attr)) != 0
-            ||
-            (errno = pthread_attr_setdetachstate(&thread_attr, PTHREAD_CREATE_DETACHED)) != 0
-        )
-        {
-            ici_get_last_errno("create thread", NULL);
-            ici_decref(x);
-            goto fail;
-        }
-        if ((errno = pthread_create(&x->x_thread_handle, &thread_attr, ici_thread_base, x)) != 0)
-        {
-            ici_get_last_errno("create thread", NULL);
-            pthread_attr_destroy(&thread_attr);
-            ici_decref(x);
-            goto fail;
-        }
-        pthread_attr_destroy(&thread_attr);
-    }
-#  else
-    ici_set_error("this implementation does not support thread creation");
-    goto fail;
-#  endif
-# endif
-#endif
     return ici_ret_with_decref(x);
 
 fail:
@@ -523,30 +353,6 @@ f_wakeup(...)
 int
 ici_init_thread_stuff()
 {
-#ifdef ICI_STD_THREADS
-#endif
-#ifdef ICI_USE_WIN32_THREADS
-    if ((ici_mutex = CreateMutex(NULL, 0, NULL)) == NULL)
-        return ici_get_last_win32_error();
-#endif
-#ifdef ICI_USE_POSIX_THREADS
-    pthread_mutexattr_t mutex_attr;
-
-    if ((errno = pthread_mutexattr_init(&mutex_attr)) != 0)
-    {
-        ici_get_last_errno("mutex", NULL);
-        return 1;
-    }
-    if (pthread_mutexattr_settype(&mutex_attr, PTHREAD_MUTEX_RECURSIVE) != 0)
-        abort();
-    if ((errno = pthread_mutex_init(&ici_mutex, &mutex_attr)) != 0)
-    {
-        ici_get_last_errno("mutex", NULL);
-        pthread_mutexattr_destroy(&mutex_attr);
-        return 1;
-    }
-    pthread_mutexattr_destroy(&mutex_attr);
-#endif
     return 0;
 }
 

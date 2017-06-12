@@ -49,7 +49,6 @@ int ici_get_last_win32_error(void);
  * End of ici.h export. --ici.h-end--
  */
 
-#define ICI_USE_WIN32_THREADS
 /*
  * Mentioned in the version string.
  */

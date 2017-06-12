@@ -12,8 +12,6 @@
 #define NOEVENTS        /* Event loop and associated processing. */
 #undef  NOPROFILE       /* Profiler, see profile.c. */
 
-#define ICI_USE_POSIX_THREADS
-
 /*
  * ICI_CORE is defined by core language files, as opposed to builds of
  * extension libraries that are including the same include files but are

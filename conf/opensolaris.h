@@ -12,8 +12,6 @@
 #define NOEVENTS        /* Event loop and associated processing. */
 #undef  NOPROFILE       /* Profiler, see profile.c. */
 
-#define ICI_USE_POSIX_THREADS
-
 #define CONFIG_STR      "OpenSolaris"
 
 #endif /*ICI_CONF_H*/

@@ -13,18 +13,6 @@
 #define PREFIX          "/opt/anici/"
 #endif
 #define ICI_DLL_EXT     ".dylib"
-#define ICI_USE_STD_THREADS
-
-#ifdef ICI_USE_POSIX_THREADS
-
-#define sem_t ici_sem_t
-#define sem_init ici_sem_init
-#define sem_destroy ici_sem_destroy
-#define sem_wait ici_sem_wait
-#define sem_post ici_sem_post
-
-#include <pthread.h>
-#endif
 
 #include <crt_externs.h>
 #define environ *_NSGetEnviron()

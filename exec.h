@@ -9,20 +9,8 @@
 #include "null.h"
 #include "float.h"
 
-#ifdef ICI_USE_STD_THREADS
 #include <thread>
 #include <condition_variable>
-#endif
-
-#ifdef ICI_USE_WIN32_THREADS
-#include <windows.h>
-#endif
-
-#ifdef ICI_USE_POSIX_THREADS
-#include <sched.h>
-#include <pthread.h>
-#include <semaphore.h>
-#endif
 
 namespace ici
 {
@@ -49,18 +37,8 @@ struct exec : object
     ici_obj_t   *x_waitfor;
     int         x_state;
     ici_obj_t   *x_result;
-#ifdef ICI_USE_STD_THREADS
     std::condition_variable *x_semaphore;
     std::thread *x_thread_handle;
-#endif
-#ifdef ICI_USE_WIN32_THREADS
-    HANDLE      x_semaphore;
-    HANDLE      x_thread_handle;
-#endif
-#ifdef ICI_USE_POSIX_THREADS
-    sem_t       x_semaphore;
-    pthread_t   x_thread_handle;
-#endif
     char        *x_error;
 };
 
