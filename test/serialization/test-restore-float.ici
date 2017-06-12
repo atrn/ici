@@ -1,5 +1,5 @@
 file = fopen("test-save-float.ici.dat");
-o = serialisation.restore(file);
+o = restore(file);
 close(file);
 if (typeof(o) != "float")
     fail("restore failed: restored a " + typeof(o));

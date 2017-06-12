@@ -1,5 +1,5 @@
 file = fopen("test-save-set.ici.dat");
-o = serialisation.restore(file);
+o = restore(file);
 close(file);
 if (typeof(o) != "set")
     fail("restore failed: " + typeof(o));

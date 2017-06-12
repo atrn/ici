@@ -1,5 +1,5 @@
 file := fopen(basename(argv[0]) + ".dat", "w");
 aggr := array(0, 1, 2, 3, 4, 5, 6, 7);
 p := &aggr[1];
-serialisation.save(file, p);
+save(file, p);
 close(file);

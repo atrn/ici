@@ -1,4 +1,4 @@
-static
+local
 xdeepcopy(o, ss, depth)
 {
     auto depth = 0;
@@ -36,7 +36,7 @@ xdeepcopy(o, ss, depth)
 
 s := xdeepcopy(scope(), set());
 
-static
+local
 prep(s)
 {
     if (s)
@@ -48,5 +48,5 @@ prep(s)
 
 prep(s);
 file := fopen("test-save-scope.ici.dat", "w");
-serialisation.save(file, s);
+save(file, s);
 close(file);

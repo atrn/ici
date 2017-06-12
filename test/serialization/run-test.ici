@@ -1,7 +1,8 @@
-static ici(prog)
+local run(prog)
 {
-    if (system("anici " + prog) != 0)
-	fail(prog + ": failed");
+    cmd := sprintf("DYLD_LIBRARY_PATH=%s anici %s", getenv("DYLD_LIBRARY_PATH"), prog);
+    if ((status = system(cmd)) != 0)
+	fail(sprintf("%s: failed, exit status %d", cmd, status));
 }
 
 re := #test-save-(.*)\.ici$#;
@@ -12,8 +13,8 @@ forall (save_test in save_files)
     restore_test := "test-restore-" + test_name + ".ici";
     printf("%s .. ", test_name); flush();
 
-    ici(save_test);
-    ici(restore_test);
+    run(save_test);
+    run(restore_test);
 
     printf("passed\n");
 }

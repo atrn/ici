@@ -1,5 +1,5 @@
 file := fopen("test-save-cyclic-array.ici.dat");
-a := serialisation.restore(file);
+a := restore(file);
 close(file);
 
 if (nels(a) != 1)
