@@ -1,0 +1,9 @@
+export floateq(a, b) {
+    return abs(b - a) < 1e-16;
+}
+
+export failure() {
+    var vargs = [array];
+    fail(call(sprintf, vargs));
+}
+       
