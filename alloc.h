@@ -44,9 +44,9 @@ extern void             ici_free(void *);
  * Note that 'ici_tfree()' also requires to know the type of the object
  * being freed.
  *
- * This --macro-- forms part of the --ici-api--.
+ * This --func-- forms part of the --ici-api--.
  */
-#define ici_talloc(t)   ((t *)(ici_nalloc(sizeof(t))))
+template <typename T> T *ici_talloc() { return (T *)ici_nalloc(sizeof (T)); }
 
 /*
  * Free the object 'o' which was allocated by a call to 'ici_talloc()' with
@@ -54,8 +54,8 @@ extern void             ici_free(void *);
  *
  * This --macro-- forms part of the --ici-api--.
  */
-
 #define ici_tfree(p, t) ici_nfree((p), sizeof(t))
+// template <typename T> void ici_tfree(T *p) { ici_nfree(p, sizeof (T)); }
 
 /*
  * End of ici.h export. --ici.h-end--
@@ -87,9 +87,9 @@ extern void             ici_free(void *);
  * fast free lists?
  */
 #define ICI_FLOK(n)     ((n) <= 64)
-#define ICI_TFLOK(t)	ICI_FLOK(sizeof(t))
+#define ICI_TFLOK(t)	ICI_FLOK(sizeof (t))
 
-static inline void *ici_talloc_n(char *p, size_t index, size_t n)
+inline void *ici_talloc_n(char *p, size_t index, size_t n)
 {
     ici_flists[index] = *(char **)p;
     ici_mem += n;
@@ -102,39 +102,39 @@ static inline void *ici_talloc_n(char *p, size_t index, size_t n)
  * pop a block off the correct fast free list, but call the function if the
  * list is empty.
  */
-#   undef  ici_talloc
-#   define ici_talloc(t)					    	\
-    (								    	\
-        ICI_TFLOK(t) && (ici_fltmp = ici_flists[ICI_FLIST(t)]) != NULL	\
-        ?								\
-        (t *)ici_talloc_n(ici_fltmp, ICI_FLIST(t), sizeof(t))           \
-        :								\
-        (t *)ici_nalloc(sizeof(t))                                      \
-    )
+template <typename T>
+inline T *ici_talloc_core()
+{
+    char *fl;
+    if (ICI_TFLOK(T) && (fl = ici_flists[ICI_FLIST(T)]) != NULL)
+    {
+        return (T *)ici_talloc_n(fl, ICI_FLIST(T), sizeof (T));
+    }
+    return (T *)ici_nalloc(sizeof (T));
+}
+
+#  undef  ici_talloc
+#  define ici_talloc(t) ici_talloc_core<t>()
 
 /* tfree */
 
-#   undef ici_tfree
-static inline void ici_tfree_n(void *p, size_t list, size_t n)
+inline void ici_tfree_n(void *p, size_t list, size_t n)
 {
     *(char **)(p) = ici_flists[list];
     ici_flists[list] = (char *)(p);
     ici_mem -= n;
 }
 
-#   define ici_tfree(p, t)				\
-    do							\
-    {							\
-	if (ICI_TFLOK(t))				\
-	{						\
-	    ici_tfree_n(p, ICI_FLIST(t), sizeof(t));	\
-	}					 	\
-        else						\
-	{						\
-	    ici_nfree((p), sizeof(t));			\
-	}					 	\
-    }							\
-    while (0)
+template <typename T> inline void ici_tfree_core(void *p)
+{
+    if (ICI_TFLOK(T))
+        ici_tfree_n(p, ICI_FLIST(T), sizeof (T));
+    else
+        ici_nfree(p, sizeof (T));
+}
+
+#  undef  ici_tfree
+#  define ici_tfree(p,t) ici_tfree_core<t>(p)
 
 #endif  /* ICI_ALLALLOC */
 

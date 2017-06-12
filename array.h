@@ -109,7 +109,7 @@ inline bool ici_isarray(ici_obj_t *o)           { return o->isa(ICI_TC_ARRAY); }
  * elements rpush()ed or rpop()ed. See the discussion on 'Accessing
  * ICI array object from C' before using.
  *
- * This --function-- forms part of the --ici-ap--.
+ * This --func-- forms part of the --ici-ap--.
  */
 inline int ici_stk_push_chk(ici_array_t *a, ptrdiff_t n) {
     return a->a_limit - a->a_top < n ? ici_grow_stack(a, n) : 0;
@@ -132,7 +132,7 @@ inline int ici_stk_probe(ici_array_t *a, ptrdiff_t i) {
  *  for (e = ici_astart(a); e != ici_alimit(a); e = ici_anext(a, e))
  *      ...
  *
- * This --function-- forms part of the --ici-api--.
+ * This --func-- forms part of the --ici-api--.
  */
 inline ici_obj_t **ici_astart(ici_array_t *a) {
     return a->a_bot == a->a_limit && a->a_bot != a->a_top ? a->a_base : a->a_bot;
@@ -147,7 +147,7 @@ inline ici_obj_t **ici_astart(ici_array_t *a) {
  *  for (e = ici_astart(a); e != ici_alimit(a); e = ici_anext(a, e))
  *      ...
  *
- * This --function-- forms part of the --ici-api--.
+ * This --func-- forms part of the --ici-api--.
  */
 inline ici_obj_t **ici_alimit(ici_array_t *a) {
     return a->a_top;
@@ -162,7 +162,7 @@ inline ici_obj_t **ici_alimit(ici_array_t *a) {
  *  for (e = ici_astart(a); e != ici_alimit(a); e = ici_anext(a, e))
  *      ...
  *
- * This --function-- forms part of the --ici-api--.
+ * This --func-- forms part of the --ici-api--.
  */
 inline ici_obj_t **ici_anext(ici_array_t *a, ici_obj_t **e) {
     return e + 1 == a->a_limit && a->a_limit != a->a_top ? a->a_base : e + 1;

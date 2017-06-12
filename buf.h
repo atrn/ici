@@ -21,7 +21,7 @@ extern int      ici_growbuf(int);
  *
  * See also: 'The error return convention'.
  *
- * This --function-- forms part of the --ici-api--.
+ * This --func-- forms part of the --ici-api--.
  */
 inline int ici_chkbuf(int n) { return ici_bufz > n ? 0 : ici_growbuf(n); }
 

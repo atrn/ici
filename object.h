@@ -445,7 +445,7 @@ struct object
 /*
  * Return a pointer to the 'ici_type_t' struct of the given object.
  *
- * This --function-- forms part of the --ici-api--.
+ * This --func-- forms part of the --ici-api--.
  */
 inline type_t *ici_typeof(ici_obj_t *o) { return o->type(); }
 
@@ -492,7 +492,7 @@ inline bool ici_hassuper(const ici_obj_t *o) { return (o->o_flags & ICI_O_SUPER)
  * the first thing done after allocating a new bit of memory to hold an ICI
  * object.
  *
- * This --function-- forms part of the --ici-api--.
+ * This --func-- forms part of the --ici-api--.
  */
 inline void ICI_OBJ_SET_TFNZ(ici_obj_t *o, char tcode, char flags, char nrefs, char leafz) {
     o->o_tcode = tcode;
@@ -532,7 +532,7 @@ inline size_t ici_mark(ici_obj_t *o) {
  *
  * Returns NULL on failure, usual conventions.
  *
- * This --function-- forms part of the --ici-api--.
+ * This --func-- forms part of the --ici-api--.
  */
 inline ici_obj_t *ici_fetch(ici_obj_t *o, ici_obj_t *k) {
     return o->fetch(k);
@@ -546,7 +546,7 @@ inline ici_obj_t *ici_fetch(ici_obj_t *o, ici_obj_t *k) {
  *
  * Returns non-zero on error, usual conventions.
  *
- * This --function-- forms part of the --ici-api--.
+ * This --func-- forms part of the --ici-api--.
  */
 inline int ici_assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v) {
     return o->assign(k, v);
