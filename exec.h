@@ -9,7 +9,6 @@
 #include "null.h"
 #include "float.h"
 
-#include <thread>
 #include <condition_variable>
 
 namespace ici
@@ -38,7 +37,6 @@ struct exec : object
     int         x_state;
     ici_obj_t   *x_result;
     std::condition_variable *x_semaphore;
-    std::thread *x_thread_handle;
     char        *x_error;
 };
 

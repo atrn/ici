@@ -132,7 +132,6 @@ ici_new_exec()
     }
     ici_decref(x->x_os_temp_cache);
     x->x_semaphore = new std::condition_variable;
-    x->x_thread_handle = nullptr;
     x->x_state = ICI_XS_ACTIVE;
     x->x_count = 100;
     x->x_n_engine_recurse = 0;
@@ -1332,7 +1331,6 @@ void exec_type::free(ici_obj_t *o)
     }
     assert(x != NULL);
     delete x->x_semaphore;
-    delete x->x_thread_handle;
     if (x->x_error != NULL)
     {
         ::free(x->x_error); /* It came from strdup() so use free directly */

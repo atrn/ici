@@ -25,23 +25,11 @@ namespace ici
 #define ALLCOLLECT      0       /* Collect on every alloc call. */
 
 /*
- * The global error message pointer. The ICI error return convention
- * dictacts that the originator of an error sets this to point to a
- * short human readable string, in addition to returning the functions
- * error condition. See 'The error return convention' for more details.
- *
- * This --variable-- forms part of the --ici-api--.
+ * This template function creates a "Myer singleton" for some T and
+ * returns its address. We use to create the instances of the various
+ * type classes when initializing the types[] array.
  */
-char            *ici_error;
-
-/*
- * This template function creates a "Myer singleton" for some T, which
- * we use for creating the instances of the various xxxx_type classes
- * to initialize the types[] array.
- */
-template <typename T>
-inline type *instance_of()
-{
+template <typename T> inline type *instance_of() {
     static T value;
     return &value;
 }

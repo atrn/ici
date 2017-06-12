@@ -31,7 +31,9 @@ long    ici_vsver   = 1;
 /*
  * Hash a pointer to get the initial position in a struct has table.
  */
-#define HASHINDEX(k, s)  (ICI_PTR_HASH(k) & ((s)->s_nslots - 1))
+inline size_t HASHINDEX(ici_obj_t *k, ici_struct_t *s) {
+    return ICI_PTR_HASH(k) & (s->s_nslots - 1);
+}
 
 /*
  * Find the struct slot which does, or should, contain the key k.  Does

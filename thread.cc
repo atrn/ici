@@ -213,7 +213,7 @@ ici_waitfor(ici_obj_t *o)
 
     e = NULL;
     ici_exec->x_waitfor = o;
-    x = ici_leave2(false);
+    x = ici_leave2(false); // leave ici_mutex locked
     {
         std::unique_lock<std::mutex> u(ici_mutex, std::adopt_lock);
         assert(u.owns_lock());
@@ -324,9 +324,8 @@ f_go(...)
     ici_incref(x);
     {
         // TODO: try/catch
-        auto t = new std::thread([x]() { ici_thread_base(x); });
-        x->x_thread_handle = t;
-        t->detach();
+        std::thread t([x]() { ici_thread_base(x); });
+        t.detach();
     }
     return ici_ret_with_decref(x);
 
