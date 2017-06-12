@@ -1,0 +1,32 @@
+# -*- mode:makefile -*-
+#
+# More normal makefile using GNU make and BSD mkdep
+#
+
+.PHONY: all lib clean depend
+
+CXX=            c++ -std=c++14
+CXXFLAGS=       -Wall -DNDEBUG -O2
+
+uname=		$(shell uname|tr A-Z a-z)
+conf?=		conf/$(uname).h
+
+srcs=		$(shell echo *.cc)
+objs=		$(srcs:.cc=.o)
+hdrs=		$(shell ls *.h|grep -v anici\\.h)
+
+all:		anici.h
+
+anici.h:	anici $(hdrs) mk-ici-h.ici
+	./anici mk-ici-h.ici $(conf)
+
+anici:		$(objs)
+	$(CXX) $(CXXFLAGS) etc/main.cc $(objs) -o $@
+
+clean:
+	rm -f anici anici.h $(objs) .depend
+
+depend:
+	MKDEP_CPP="$(CXX) -E" mkdep $(CXXFLAGS) $(srcs)
+
+-include .depend

@@ -1,7 +1,7 @@
 local
 xdeepcopy(o, ss, depth)
 {
-    auto depth = 0;
+    var depth = 0;
 
     v := k := NULL;
     switch (typeof(o))

@@ -174,7 +174,7 @@ static ici_obj_t *
 restore_string(ici_archive_t *ar)
 {
     ici_str_t *s;
-    int len;
+    long len;
     ici_obj_t *name;
     ici_obj_t *obj;
 
@@ -182,7 +182,7 @@ restore_string(ici_archive_t *ar)
     {
         return NULL;
     }
-    if (read32(ar, &len))
+    if (readl(ar, &len))
     {
         return NULL;
     }
@@ -285,7 +285,7 @@ restore_mem(ici_archive_t *ar)
 static ici_obj_t *
 restore_array(ici_archive_t *ar)
 {
-    int n;
+    long n;
     ici_array_t *a;
     ici_obj_t *name;
 
@@ -293,7 +293,7 @@ restore_array(ici_archive_t *ar)
     {
         return NULL;
     }
-    if (read32(ar, &n))
+    if (readl(ar, &n))
     {
         return NULL;
     }
@@ -336,8 +336,8 @@ static ici_obj_t *
 restore_set(ici_archive_t *ar)
 {
     ici_set_t *s;
-    int n;
-    int i;
+    long n;
+    long i;
     ici_obj_t *name;
 
     if (restore_object_name(ar, &name))
@@ -352,7 +352,7 @@ restore_set(ici_archive_t *ar)
     {
         goto fail;
     }
-    if (read32(ar, &n))
+    if (readl(ar, &n))
     {
         goto fail1;
     }
@@ -388,8 +388,8 @@ restore_struct(ici_archive_t *ar)
 {
     ici_struct_t *s;
     ici_obj_t *super;
-    int n;
-    int i;
+    long n;
+    long i;
     ici_obj_t *name;
 
     if (restore_object_name(ar, &name))
@@ -414,7 +414,7 @@ restore_struct(ici_archive_t *ar)
         ici_decref(super);
     }
 
-    if (read32(ar, &n))
+    if (readl(ar, &n))
     {
         goto fail1;
     }
@@ -484,7 +484,7 @@ restore_func(ici_archive_t *ar)
     ici_obj_t *args = NULL;
     ici_obj_t *autos = NULL;
     ici_obj_t *name = NULL;
-    int nautos;
+    long nautos;
     ici_func_t *fn;
     ici_obj_t *oname;
 
@@ -508,7 +508,7 @@ restore_func(ici_archive_t *ar)
     {
         goto fail;
     }
-    if (read32(ar, &nautos))
+    if (readl(ar, &nautos))
     {
         goto fail;
     }
@@ -578,11 +578,11 @@ restore_op(ici_archive_t *ar)
 static ici_obj_t *
 restore_src(ici_archive_t *ar)
 {
-    int line;
+    long line;
     ici_obj_t *result;
     ici_obj_t *filename;
 
-    if (read32(ar, &line))
+    if (readl(ar, &line))
     {
         return NULL;
     }

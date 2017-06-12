@@ -20,7 +20,7 @@
 #    if defined(_WINDOWS)
 #        define CONFIG_FILE "conf/windows.h"
 #    elif defined(__MACH__) && defined(__APPLE__)
-#        define CONFIG_FILE "conf/macos.h"
+#        define CONFIG_FILE "conf/darwin.h"
 #    elif defined(__linux__)
 #        define CONFIG_FILE "conf/linux.h"
 #    elif defined(__bsd__)

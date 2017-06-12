@@ -19,8 +19,8 @@ o = restore(file);
 close(file);
 if (typeof(o) != "array")
     fail("restore failed: restored a " + typeof(o));
-if (nels(o) != N)
-    fail(sprintf("restore failed: nels == %d", nels(o)));
+if (len(o) != N)
+    fail(sprintf("restore failed: nels == %d", len(o)));
 
 if (typeof(o[0]) != "array")
     fail("restore failed: element 0: " + typeof(o[0]));

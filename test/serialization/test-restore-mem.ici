@@ -3,7 +3,7 @@ o = restore(file);
 close(file);
 if (typeof(o) != "mem")
     fail("restore failed: restored a " + typeof(o));
-if (nels(o) != 1)
+if (len(o) != 1)
     fail("restore failed: restored too few elements in mem object");
 if (o[0] != 37)
     fail("restore failed: restored mem object has wrong value: " + string(o[0]));

@@ -3,7 +3,7 @@ o = restore(file);
 close(file);
 if (typeof(o) != "set")
     fail("restore failed: " + typeof(o));
-if (nels(o) != 2)
-    fail("restore failed, wrong nels");
+if (len(o) != 2)
+    fail("restore failed, wrong len");
 if (!o["."] || ! o[".."])
     fail("restore failed, elements bad");

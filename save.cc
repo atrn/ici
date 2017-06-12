@@ -48,9 +48,9 @@ writeb(ici_archive_t *ar, unsigned char abyte)
 
 inline
 static int
-write32(ici_archive_t *ar, int aword)
+write32(ici_archive_t *ar, int32_t aword)
 {
-    int swapped = htonl(aword);
+    int32_t swapped = htonl(aword);
     return writef(ar, &swapped, sizeof swapped);
 }
 
@@ -286,11 +286,11 @@ static int
 save_op(ici_archive_t *ar, ici_obj_t *obj)
 {
     return
-        writel(ar, ici_archive_op_func_code(ici_opof(obj)->op_func))
+        write32(ar, ici_archive_op_func_code(ici_opof(obj)->op_func))
         ||
-        writel(ar, ici_opof(obj)->op_ecode)
+        write32(ar, ici_opof(obj)->op_ecode)
         ||
-        writel(ar, ici_opof(obj)->op_code);
+        write32(ar, ici_opof(obj)->op_code);
 }
 
 //
