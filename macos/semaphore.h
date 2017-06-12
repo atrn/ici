@@ -24,8 +24,8 @@ int ici_sem_destroy(ici_sem_t *sem);
 int ici_sem_wait(ici_sem_t *sem);
 int ici_sem_post(ici_sem_t *sem);
 
-#endif
-
 } // namespace ici
+
+#endif /* ICI_USE_POSIX_THREADS */
 
 #endif /* #ifndef ICI_SEMAPHORE_H */

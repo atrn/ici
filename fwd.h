@@ -412,6 +412,7 @@ extern ici_op_t         *ici_new_op(int (*)(), int, int);
 extern ici_pc_t         *ici_new_pc();
 extern ici_catch_t      *ici_unwind();
 extern void             ici_collect();
+extern unsigned long    ici_hash_float(double);
 extern unsigned long    ici_hash_string(ici_obj_t *);
 extern int              ici_op_binop();
 extern int              ici_op_onerror();

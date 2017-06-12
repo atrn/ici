@@ -889,22 +889,28 @@ usef:
      */
     {
         ici_obj_t               **po;
+        unsigned long           h;
+
+#if 1
+        h = ici_hash_float(f);
+#else
         union
         {
             double              f;
             int32_t             l[2];
         }
             v;
-        unsigned long           h;
 
         /*
          * If this assert fails, we should switch back to a an explicit call
          * to hash_float().
          */
-        assert(sizeof ici_floatof(o)->f_value == 2 * sizeof(unsigned long));
+        assert(sizeof ici_floatof(o)->f_value == 2 * sizeof(int32_t));
         v.f = f;
         h = FLOAT_PRIME + v.l[0] + v.l[1] * 31;
         h ^= (h >> 12) ^ (h >> 24);
+#endif
+
         for
         (
             po = &ici_atoms[ici_atom_hash_index(h)];
@@ -912,7 +918,11 @@ usef:
             --po < ici_atoms ? po = ici_atoms + ici_atomsz - 1 : NULL
         )
         {
+#if 0
             if (ici_isfloat(o) && DBL_BIT_CMP(&ici_floatof(o)->f_value, &v.f))
+#else
+            if (ici_isfloat(o) && DBL_BIT_CMP(&ici_floatof(o)->f_value, &f))
+#endif
             {
                 USEo();
             }
@@ -926,7 +936,7 @@ usef:
         ICI_OBJ_SET_TFNZ(o, ICI_TC_FLOAT, ICI_O_ATOM, 1, sizeof(ici_float_t));
         ici_floatof(o)->f_value = f;
         ici_rego(o);
-        assert(h == hash(o));
+        assert(h == ici_hash(o));
         --ici_supress_collect;
         ICI_STORE_ATOM_AND_COUNT(po, o);
         LOOSEo();

@@ -131,6 +131,10 @@ ici_new_exec()
         goto fail;
     }
     ici_decref(x->x_os_temp_cache);
+#ifdef ICI_USE_STD_THREADS
+    x->x_semaphore = new std::condition_variable;
+    x->x_thread_handle = nullptr;
+#endif
 #ifdef ICI_USE_WIN32_THREADS
     if ((x->x_semaphore = CreateSemaphore(NULL, 0, 10000, NULL)) == NULL)
     {
@@ -1342,6 +1346,10 @@ void exec_type::free(ici_obj_t *o)
         }
     }
     assert(x != NULL);
+#ifdef ICI_USE_STD_THREADS
+    delete x->x_semaphore;
+    delete x->x_thread_handle;
+#endif
 #ifdef ICI_USE_WIN32_THREADS
     if (x->x_thread_handle != NULL)
     {

@@ -4,10 +4,10 @@
 
 #include <semaphore.h>
 
+#ifdef ICI_USE_POSIX_THREADS
+
 namespace ici
 {
-
-#ifdef ICI_USE_POSIX_THREADS
 
 int
 ici_sem_init(ici_sem_t *sem, int pshared, unsigned int count)
@@ -87,6 +87,6 @@ ici_sem_post(ici_sem_t *sem)
     return pthread_mutex_unlock(&sem->sem_mutex);
 }
 
-#endif /* ICI_USE_POSIX_THREADS */
-
 } // namespace ici
+
+#endif /* ICI_USE_POSIX_THREADS */
