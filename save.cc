@@ -19,7 +19,7 @@
 #include "set.h"
 #include "re.h"
 #include "types.h"
-#include "pcre/pcre.h"
+#include "pcre.h"
 
 #include <netinet/in.h>
 

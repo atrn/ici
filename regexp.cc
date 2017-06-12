@@ -11,7 +11,7 @@
 #ifndef ICI
 #define ICI /* Cause PCRE's internal.h to add special stuff for ICI */
 #endif
-#include "pcre/internal.h"
+#include "internal.h"
 
 namespace ici
 {

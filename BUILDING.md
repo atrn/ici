@@ -25,8 +25,4 @@ Building a static version of anici is trivial. On current POSIX
 systems the following command builds a static anici executable
 that includes the interpreter.
 
-    c++ -std=c++14 -I. -UNDEBUG *.cc pcre/*.cc etc/main.cc -o anici
-
-Or, on MacOS,
-
-    c++ -std=c++14 -I. -Imacos -UNDEBUG *.cc pcre/*.cc etc/main.cc macos/*.cc -o anici
+    c++ -std=c++14 -I. -UNDEBUG *.cc etc/main.cc -o anici

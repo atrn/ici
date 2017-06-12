@@ -81,7 +81,7 @@ ici_binop_name(int op)
 
 #ifdef  BINOPFUNC
 
-#include "pcre/pcre.h"
+#include "pcre.h"
 
 /*
  * See the comment in binop.h.

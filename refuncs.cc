@@ -13,7 +13,7 @@
 #include <stdio.h>
 #include <ctype.h>
 
-#include "pcre/pcre.h"
+#include "pcre.h"
 
 namespace ici
 {

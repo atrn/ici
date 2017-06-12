@@ -25,7 +25,7 @@
 #include "mem.h"
 #include "handle.h"
 #include "channel.h"
-#include "pcre/pcre.h"
+#include "pcre.h"
 
 #include <stdio.h>
 #include <limits.h>

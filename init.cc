@@ -5,7 +5,7 @@
 #include "struct.h"
 #include "exec.h"
 #include "str.h"
-#include "pcre/pcre.h"
+#include "pcre.h"
 #include "archive.h"
 
 namespace ici
