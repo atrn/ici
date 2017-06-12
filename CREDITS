@@ -1,3 +1,9 @@
+The anici changes are all by Andy Newman <an@atrn.org>
+
+- language changes
+- conversion to C++
+- std::threads etc...
+
 Tim Long is ICI's principle author and creator,
 
     Tim Long <timl@research.canon.com.au>

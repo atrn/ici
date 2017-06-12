@@ -7,9 +7,9 @@ conf?= conf/macos.h
 srcs=  *.cc
 hdrs=  $(shell ls *.h|grep -v anici\\.h)
 
-all: anici.h
+all:	anici.h
 
-anici.h : anici $(hdrs) mk-ici-h.ici
+anici.h: anici $(hdrs) mk-ici-h.ici
 	./anici mk-ici-h.ici $(conf)
 
 anici: lib; @dcc etc/main.cc -o anici -L. -lanici
