@@ -31,7 +31,7 @@ anici:		libanici.so
 	$(CXX) $(CXXFLAGS) etc/main.cc libanici.so -o $@
 
 clean:
-	rm -f anici anici.h $(objs) .depend
+	rm -f anici libanici.so anici.h $(objs) .depend
 
 depend:
 	MKDEP_CPP="$(CXX) -E" mkdep $(CXXFLAGS) $(srcs)
