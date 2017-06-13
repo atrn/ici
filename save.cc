@@ -48,6 +48,14 @@ writeb(ici_archive_t *ar, unsigned char abyte)
 
 inline
 static int
+write16(ici_archive_t *ar, int16_t hword)
+{
+    int16_t swapped = htons(hword);
+    return writef(ar, &swapped, sizeof swapped);
+}
+
+inline
+static int
 write32(ici_archive_t *ar, int32_t aword)
 {
     int32_t swapped = htonl(aword);
@@ -168,8 +176,8 @@ save_mem(ici_archive_t *ar, ici_obj_t *obj)
 {
     ici_mem_t *m = ici_memof(obj);
     return save_object_name(ar, obj)
-           || write32(ar, m->m_length)
-           || write32(ar, m->m_accessz)
+           || writel(ar, m->m_length)
+           || write16(ar, m->m_accessz)
            || writef(ar, m->m_base, m->m_length * m->m_accessz);
 }
 
@@ -253,7 +261,7 @@ save_func(ici_archive_t *ar, ici_obj_t *obj)
     {
         ici_cfunc_t *cf = ici_cfuncof(obj);
         int nchars = strlen(cf->cf_name);
-        return write32(ar, nchars) || writef(ar, cf->cf_name, nchars);
+        return write16(ar, nchars) || writef(ar, cf->cf_name, nchars);
     }
 
     if (save_object_name(ar, obj) || ici_archive_save(ar, f->f_code) || ici_archive_save(ar, f->f_args))
@@ -286,11 +294,11 @@ static int
 save_op(ici_archive_t *ar, ici_obj_t *obj)
 {
     return
-        write32(ar, ici_archive_op_func_code(ici_opof(obj)->op_func))
+        write16(ar, ici_archive_op_func_code(ici_opof(obj)->op_func))
         ||
-        write32(ar, ici_opof(obj)->op_ecode)
+        write16(ar, ici_opof(obj)->op_ecode)
         ||
-        write32(ar, ici_opof(obj)->op_code);
+        write16(ar, ici_opof(obj)->op_code);
 }
 
 //

@@ -70,9 +70,22 @@ read8(ici_archive_t *ar, char *abyte)
 
 inline
 static int
-read32(ici_archive_t *ar, int *aword)
+read16(ici_archive_t *ar, int16_t *hword)
 {
-    int tmp;
+    int16_t tmp;
+    if (readf(ar, &tmp, sizeof tmp))
+    {
+    	return 1;
+    }
+    *hword = ntohs(tmp);
+    return 0;
+}
+
+inline
+static int
+read32(ici_archive_t *ar, int32_t *aword)
+{
+    int32_t tmp;
     if (readf(ar, &tmp, sizeof tmp))
     {
     	return 1;
@@ -253,14 +266,14 @@ restore_regexp(ici_archive_t *ar)
 static ici_obj_t *
 restore_mem(ici_archive_t *ar)
 {
-    int len;
-    int accessz;
+    long len;
+    int16_t accessz;
     long sz;
     void *p;
     ici_mem_t *m = 0;
     ici_obj_t *name;
 
-    if (restore_object_name(ar, &name) || read32(ar, &len) || read32(ar, &accessz))
+    if (restore_object_name(ar, &name) || readl(ar, &len) || read16(ar, &accessz))
     {
         return NULL;
     }
@@ -556,17 +569,17 @@ fail:
 static ici_obj_t *
 restore_op(ici_archive_t *ar)
 {
-    int op_func_code;
-    int op_ecode;
-    int op_code;
+    int16_t op_func_code;
+    int16_t op_ecode;
+    int16_t op_code;
 
     if
     (
-        read32(ar, &op_func_code)
+        read16(ar, &op_func_code)
         ||
-        read32(ar, &op_ecode)
+        read16(ar, &op_ecode)
         ||
-        read32(ar, &op_code)
+        read16(ar, &op_code)
     )
     {
         return 0;
@@ -610,13 +623,13 @@ restore_src(ici_archive_t *ar)
 static ici_obj_t *
 restore_cfunc(ici_archive_t *ar)
 {
-    int namelen;
+    int16_t namelen;
     char space[32];
     char *buf;
     ici_str_t *func_name;
     ici_obj_t *fn;
 
-    if (read32(ar, &namelen))
+    if (read16(ar, &namelen))
     {
         return 0;
     }
