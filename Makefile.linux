@@ -19,7 +19,7 @@ libs=		-ldl -lpthread
 all:		anici.h
 
 anici.h:	anici $(hdrs) mk-ici-h.ici
-	./anici mk-ici-h.ici $(conf)
+	LD_LIBRARY_PATH=`pwd` ./anici mk-ici-h.ici $(conf)
 
 libanici.so : $(objs)
 	$(CXX) $(CXXFLAGS) -shared $(objs) -o $@ $(libs)

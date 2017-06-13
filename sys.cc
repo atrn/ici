@@ -39,7 +39,7 @@
 #define NO_ACCT
 #endif
 
-#if defined(linux)
+#if defined(__linux__)
 #include <sys/signal.h>
 #include <ulimit.h>
 #endif
@@ -58,7 +58,7 @@
 #include <sys/resource.h>
 #endif
 
-#if defined(linux) && !defined(MAXPATHLEN)
+#if defined(__linux__) && !defined(MAXPATHLEN)
 #include <sys/param.h>
 #endif
 
@@ -177,7 +177,7 @@ namespace ici
 int
 ici_sys_vars_init(ici::objwsup *scp)
 {
-    int         i;
+    size_t      i;
 
 #define VALOF(x) { #x , x }
     static struct
@@ -2411,7 +2411,7 @@ ICI_DEFINE_CFUNCS(sys)
 #ifndef ICI_SYS_NOFLOCK
     ICI_DEFINE_CFUNC(flock,   ici_sys_flock),
 #endif
-#if !defined(linux) && !defined(BSD4_4) && !defined(__CYGWIN__)
+#if !defined(__linux__) && !defined(BSD4_4) && !defined(__CYGWIN__)
     /*
      * int = lockf(fd, cmd, len)
      *
@@ -2422,7 +2422,7 @@ ICI_DEFINE_CFUNCS(sys)
      * This --topic-- forms part of the --ici-sys-- documentation.
      */
     ICI_DEFINE_CFUNC2(lockf,   ici_sys_simple, lockf,  "iii"),
-#endif /* linux */
+#endif /* __linux__ */
 #if !defined(BSD4_4) && !defined(__CYGWIN__)
     /*
      * ulimit(int, int)

@@ -1106,7 +1106,7 @@ static int
 sockopt(char *opt, int *level)
 {
     int code;
-    int i;
+    size_t i;
 
     static struct
     {
