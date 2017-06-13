@@ -9,8 +9,9 @@ local ack(x, y)
 }
 
 x := go(ack, 2, 3);
-waitfor (x.result != NULL; x)
+waitfor (x.result != NULL; x) {
     ;
+}
 if (x.result != 9)
     fail("incorrect result from func in other thread");
 

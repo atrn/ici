@@ -1,8 +1,6 @@
 #ifndef ICI_CONF_H
 #define ICI_CONF_H
 
-#define ICI_NO_OLD_NAMES
-
 /*
  * The following portion of this file exports to ici.h. --ici.h-start--
  */
@@ -23,7 +21,9 @@
 /*
  * To have GNU libc enable various things we need to...
  */
+#ifndef _GNU_SOURCE
 #define _GNU_SOURCE
+#endif
 
 #define  UNLIKELY(X) __builtin_expect((X), 0)
 #define  LIKELY(X)   __builtin_expect((X), 1)

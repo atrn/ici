@@ -54,6 +54,14 @@
 #include <dirent.h>
 #endif
 
+#ifndef environ
+    /*
+     * environ is sometimes mapped to be a function, so only extern it
+     * if it is not already defined.
+     */
+    extern char         **environ;
+#endif
+
 namespace ici
 {
 
@@ -3281,13 +3289,6 @@ ici_uninit_cfunc()
 {
 }
 
-static double
-x_floor(double arg)
-{
-	return floor(arg);
-}
-
-
 int stdio_getc(void *file)
 {
     return fgetc((FILE *)file);
@@ -4126,14 +4127,6 @@ f_getcwd()
     return ici_str_ret(buf);
 }
 
-#ifndef environ
-    /*
-     * environ is sometimes mapped to be a function, so only extern it
-     * if it is not already defined.
-     */
-    extern char         **environ;
-#endif
-
 /*
  * Return the value of an environment variable.
  */
@@ -4220,6 +4213,24 @@ f_putenv()
     return ici_null_ret();
 }
 
+namespace {
+    double xsin(double a) { return sin(a); }
+    double xcos(double a) { return cos(a); }
+    double xtan(double a) { return tan(a); }
+    double xasin(double a) { return asin(a); }
+    double xacos(double a) { return acos(a); }
+    double xatan(double a) { return atan(a); }
+    double xatan2(double a, double b) { return atan2(a, b); }
+    double xexp(double a) { return exp(a); }
+    double xlog(double a) { return log(a); }
+    double xlog10(double a) { return log10(a); }
+    double xpow(double a, double b) { return pow(a, b); }
+    double xsqrt(double a) { return sqrt(a); }
+    double xfloor(double a) { return floor(a); }
+    double xceil(double a) { return ceil(a); }
+    double xfmod(double a, double b) { return fmod(a, b); }
+}
+
 ICI_DEFINE_CFUNCS(std)
 {
     ICI_DEFINE_CFUNC(array,        f_array),
@@ -4264,21 +4275,21 @@ ICI_DEFINE_CFUNCS(std)
     ICI_DEFINE_CFUNC(assign,       f_assign),
     ICI_DEFINE_CFUNC(fetch,        f_fetch),
     ICI_DEFINE_CFUNC(abs,          f_abs),
-    ICI_DEFINE_CFUNC2(sin,         f_math, sin,     "f=n"),
-    ICI_DEFINE_CFUNC2(cos,         f_math, cos,     "f=n"),
-    ICI_DEFINE_CFUNC2(tan,         f_math, tan,     "f=n"),
-    ICI_DEFINE_CFUNC2(asin,        f_math, asin,    "f=n"),
-    ICI_DEFINE_CFUNC2(acos,        f_math, acos,    "f=n"),
-    ICI_DEFINE_CFUNC2(atan,        f_math, atan,    "f=n"),
-    ICI_DEFINE_CFUNC2(atan2,       f_math, atan2,   "f=nn"),
-    ICI_DEFINE_CFUNC2(exp,         f_math, exp,     "f=n"),
-    ICI_DEFINE_CFUNC2(log,         f_math, log,     "f=n"),
-    ICI_DEFINE_CFUNC2(log10,       f_math, log10,   "f=n"),
-    ICI_DEFINE_CFUNC2(pow,         f_math, pow,     "f=nn"),
-    ICI_DEFINE_CFUNC2(sqrt,        f_math, sqrt,    "f=n"),
-    ICI_DEFINE_CFUNC2(floor,       f_math, x_floor, "f=n"),
-    ICI_DEFINE_CFUNC2(ceil,        f_math, ceil,    "f=n"),
-    ICI_DEFINE_CFUNC2(fmod,        f_math, fmod,    "f=nn"),
+    ICI_DEFINE_CFUNC2(sin,         f_math, xsin,    "f=n"),
+    ICI_DEFINE_CFUNC2(cos,         f_math, xcos,    "f=n"),
+    ICI_DEFINE_CFUNC2(tan,         f_math, xtan,    "f=n"),
+    ICI_DEFINE_CFUNC2(asin,        f_math, xasin,   "f=n"),
+    ICI_DEFINE_CFUNC2(acos,        f_math, xacos,   "f=n"),
+    ICI_DEFINE_CFUNC2(atan,        f_math, xatan,   "f=n"),
+    ICI_DEFINE_CFUNC2(atan2,       f_math, xatan2,  "f=nn"),
+    ICI_DEFINE_CFUNC2(exp,         f_math, xexp,    "f=n"),
+    ICI_DEFINE_CFUNC2(log,         f_math, xlog,    "f=n"),
+    ICI_DEFINE_CFUNC2(log10,       f_math, xlog10,  "f=n"),
+    ICI_DEFINE_CFUNC2(pow,         f_math, xpow,    "f=nn"),
+    ICI_DEFINE_CFUNC2(sqrt,        f_math, xsqrt,   "f=n"),
+    ICI_DEFINE_CFUNC2(floor,       f_math, xfloor,  "f=n"),
+    ICI_DEFINE_CFUNC2(ceil,        f_math, xceil,   "f=n"),
+    ICI_DEFINE_CFUNC2(fmod,        f_math, xfmod,   "f=nn"),
     ICI_DEFINE_CFUNC(waitfor,      f_waitfor),
     ICI_DEFINE_CFUNC(top,          f_top),
 #ifdef ICI_F_INCLUDE

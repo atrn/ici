@@ -104,10 +104,13 @@ inline void *ici_talloc_n(char *p, size_t index, size_t n)
 template <typename T>
 inline T *ici_talloc_core()
 {
-    char *fl;
-    if (ICI_TFLOK(T) && (fl = ici_flists[ICI_FLIST(T)]) != NULL)
+    if (ICI_TFLOK(T))
     {
-        return (T *)ici_talloc_n(fl, ICI_FLIST(T), sizeof (T));
+	char *fl = ici_flists[ICI_FLIST(T)];
+	if (fl != NULL)
+	{
+	    return (T *)ici_talloc_n(fl, ICI_FLIST(T), sizeof (T));
+	}
     }
     return (T *)ici_nalloc(sizeof (T));
 }

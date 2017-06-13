@@ -52,8 +52,20 @@
 #include "op.h"
 #include "types.h"
 
+#include <netinet/in.h>
+
 namespace ici
 {
+
+#ifndef htonll
+long long htonll(long long v)
+{
+  assert(sizeof (long long) == 8);
+  uint32_t msw = v >> 32ull;
+  uint32_t lsw = v & ((1ull<<32)-1);
+  return (long long)htonl(msw) | ((long long)htonl(lsw) << 32ull);
+}
+#endif
 
 typedef int int_func();
 static int_func *op_funcs[7];

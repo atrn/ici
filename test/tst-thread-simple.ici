@@ -1,0 +1,19 @@
+/*
+ * We use Ackerman's function to do work.
+ */
+local ack(x, y)
+{
+    return x > 0
+        ? ack(x - 1, y > 0 ? ack(x, y - 1) : 1)
+        : y + 1;
+}
+
+puts("Calling ack() asynchronously\n");
+x := go(ack, 2, 3);
+puts("Waiting for ack() result\n");
+waitfor (x.result != NULL; x) {
+    puts("Woken up waiting for ack() result\n");
+}
+if (x.result != 9)
+    fail("incorrect result from func in other thread\n");
+puts("Got correct result from other thread\n");
