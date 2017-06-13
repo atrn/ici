@@ -34,7 +34,7 @@ int (*ici_archive_op_func(int))();
 /*
  * The bit of the tcode set when the object is atomic.
  */
-#define ICI_ARCHIVE_ATOMIC 0x80
+constexpr int ICI_ARCHIVE_ATOMIC = 0x80;
 
 void ici_archive_byteswap(void *ptr, int sz);
 
@@ -44,11 +44,11 @@ void ici_archive_byteswap(void *ptr, int sz);
 struct ici_archive : object
 {
     /* The file used for saving or restoring */
-    ici_file_t          *a_file;
-    /* Used to remember which objects have been sent - maps object address, an int, to object */
-    ici_struct_t        *a_sent;
+    ici_file_t *        a_file;
+    /* Remembers which objects have been sent - maps object address as ints to object */
+    ici_struct_t *      a_sent;
     /* The scope at the time of archive creation */
-    ici_objwsup_t	    *a_scope;
+    ici_objwsup_t *     a_scope;
 };
 
 /*
