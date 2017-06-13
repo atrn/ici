@@ -58,12 +58,12 @@ ici_obj_t * ptr_type::fetch(ici_obj_t *o, ici_obj_t *k)
     if (!ici_isint(k) || !ici_isint(ici_ptrof(o)->p_key))
         return ici_fetch_fail(o, k);
     if (ici_ptrof(o)->p_key == ici_zero)
-        ici_incref(k);
+        k->incref();
     else if ((k = ici_int_new(ici_intof(k)->i_value + ici_intof(ici_ptrof(o)->p_key)->i_value))
             == NULL)
         return NULL;
     o = ici_fetch(ici_ptrof(o)->p_aggr, k);
-    ici_decref(k);
+    k->decref();
     return o;
 }
 
@@ -80,16 +80,16 @@ int ptr_type::assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v)
     if (!ici_isint(k) || !ici_isint(ici_ptrof(o)->p_key))
         return ici_assign_fail(o, k, v);
     if (ici_ptrof(o)->p_key == ici_zero)
-        ici_incref(k);
+        k->incref();
     else if ((k = ici_int_new(ici_intof(k)->i_value + ici_intof(ici_ptrof(o)->p_key)->i_value))
             == NULL)
         return 1;
     if (ici_assign(ici_ptrof(o)->p_aggr, k, v))
     {
-        ici_decref(k);
+        k->decref();
         return 1;
     }
-    ici_decref(k);
+    k->decref();
     return 0;
 }
 
@@ -110,7 +110,7 @@ int ptr_type::call(ici_obj_t *o, ici_obj_t *subject)
      */
     if ((ici_os.a_top[-1] = ici_int_new(ICI_NARGS() + 1)) == NULL)
         return 1;
-    ici_decref(ici_os.a_top[-1]);
+    (ici_os.a_top[-1])->decref();
     ici_os.a_top[-2] = ici_ptrof(o)->p_aggr;
     if (ici_stk_push_chk(&ici_os, 1))
         return 1;
@@ -166,7 +166,7 @@ ici_op_mkptr()
     if ((o = ici_ptr_new(ici_os.a_top[-2], ici_os.a_top[-1])) == NULL)
         return 1;
     ici_os.a_top[-2] = o;
-    ici_decref(o);
+    o->decref();
     --ici_os.a_top;
     --ici_xs.a_top;
     return 0;

@@ -127,7 +127,7 @@ new_archive(ici_file_t *file, ici_objwsup_t *scope)
             ici_tfree(ar, ici_archive_t);
             return NULL;
         }
-	ici_decref(ar->a_sent);
+	ar->a_sent->decref();
         ar->a_file = file;
 	ar->a_scope = scope;
         ici_rego(ar);
@@ -157,7 +157,7 @@ ici_archive_insert(ici_archive_t *ar, ici_obj_t *key, ici_obj_t *val)
     if ((k = make_key(key)) != NULL)
     {
         failed = ici_assign(ar->a_sent, k, val);
-        ici_decref(k);
+        k->decref();
     }
     return failed;
 }
@@ -170,7 +170,7 @@ ici_archive_uninsert(ici_archive_t *ar, ici_obj_t *key)
     if ((k = make_key(key)) != NULL)
     {
         ici_struct_unassign(ar->a_sent, k);
-        ici_decref(k);
+        k->decref();
     }
 }
 
@@ -183,7 +183,7 @@ ici_archive_lookup(ici_archive_t *ar, ici_obj_t *obj)
     if ((k = make_key(obj)) != NULL)
     {
         v = ici_fetch(ar->a_sent, k);
-        ici_decref(k);
+        k->decref();
     }
     return v == ici_null ? NULL : v;
 }
@@ -191,7 +191,7 @@ ici_archive_lookup(ici_archive_t *ar, ici_obj_t *obj)
 void
 ici_archive_stop(ici_archive_t *ar)
 {
-    ici_decref(ar);
+    ar->decref();
 }
 
 int ici_archive_op_func_code(int_func *fn)

@@ -42,7 +42,7 @@
 #define LOOSEo()				\
     do						\
     {						\
-	ici_decref(o);				\
+	o->decref();				\
 	ici_os.a_top[-2] = o;			\
 	--ici_os.a_top;				\
 	goto continue_with_same_pc;		\
@@ -459,7 +459,7 @@
             {
                 FAIL();
             }
-            ici_decref(*ici_arrayof(o)->a_top);
+            (*ici_arrayof(o)->a_top)->decref();
             ++ici_arrayof(o)->a_top;
         }
         LOOSEo();
@@ -484,7 +484,7 @@
             {
                 FAIL();
             }
-            ici_decref(i);
+            i->decref();
         }
         LOOSEo();
         
@@ -512,7 +512,7 @@
             {
                 FAIL();
             }
-            ici_decref(i);
+            i->decref();
         }
         LOOSEo();
 
@@ -578,7 +578,7 @@
                 }
                 if (ici_assign(s, sl->sl_key, sl->sl_value))
                 {
-                    ici_decref(s);
+                    s->decref();
                     FAIL();
                 }
             }
@@ -606,7 +606,7 @@
                 }
                 if (ici_assign(s, *sl, ici_one))
                 {
-                    ici_decref(s);
+                    s->decref();
                     FAIL();
                 }
             }
@@ -634,7 +634,7 @@
                 }
                 if (ici_assign(s, *sl, ici_null))
                 {
-                    ici_decref(s);
+                    s->decref();
                     FAIL();
                 }
             }
@@ -671,7 +671,7 @@
                     ici_assign(s, *sl, ici_one)
                 )
                 {
-                    ici_decref(s);
+                    s->decref();
                     FAIL();
                 }
             }
@@ -1004,12 +1004,12 @@ usei:
 
 #ifdef BINOPFUNC
 looseo:
-    ici_decref(o);
+    o->decref();
 useo:
     ici_os.a_top[-2] = o;
 done:
 #else // non-binop func version does not 'goto' the labels above
-    ici_decref(o);
+    o->decref();
     ici_os.a_top[-2] = o;
 #endif
     --ici_os.a_top;

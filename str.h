@@ -113,7 +113,7 @@ constexpr int ICI_S_SEP_ALLOC     = 0x40;
 #endif
 #define ICISO(name)             (ICIS(name))
 #define ICI_STR_MAKE(name, str) (ICIS(name) = ici_str_new_nul_term(str)) == NULL ||
-#define ICI_STR_REL(name, str)  ici_decref(ICIS(name));
+#define ICI_STR_REL(name, str)  (ICIS(name))->decref();
 #define ICI_STR                 ICI_STR_NORM
 /*
  * End of ici.h export. --ici.h-end--

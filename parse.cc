@@ -395,7 +395,7 @@ data_def(ici_parse_t *p, ici_objwsup_t *ows)
 
         default:
             o = ici_null;
-            ici_incref(o);
+            o->incref();
             reject(p);
         }
 
@@ -652,7 +652,7 @@ primary(ici_parse_t *p, expr_t **ep, int exclude)
             e->e_what = T_INT;
             ici_decref(p->p_got.t_obj);
             e->e_obj = ici_zero;
-            ici_incref(e->e_obj);
+            e->e_obj->incref();
             break;
         }
         if (p->p_got.t_obj == SSO(_true_))
@@ -660,7 +660,7 @@ primary(ici_parse_t *p, expr_t **ep, int exclude)
             e->e_what = T_INT;
             ici_decref(p->p_got.t_obj);
             e->e_obj = ici_one;
-            ici_incref(e->e_obj);
+            e->e_obj->incref();
             break;
         }
         e->e_what = T_NAME;
@@ -916,7 +916,7 @@ primary(ici_parse_t *p, expr_t **ep, int exclude)
                     {
                         reject(p);
                         o = ici_null;
-                        ici_incref(o);
+                        o->incref();
                     }
                     else
                     {
@@ -1057,7 +1057,7 @@ primary(ici_parse_t *p, expr_t **ep, int exclude)
             f = ici_file_new(p, &ici_parse_ftype, p->p_file->f_name, p);
             if (f == NULL)
                 goto fail_user_parse;
-            ici_incref(c);
+            c->incref();
             if (ici_func(c, "o=o", &n, f))
             {
                 goto fail_user_parse;
@@ -1518,7 +1518,7 @@ const_expression(ici_parse_t *p, ici_obj_t **po, int exclude)
     case T_CONST:
         *po = e->e_obj;
     simple:
-        ici_incref(*po);
+        (*po)->incref();
         free_expr(e);
         return 1;
     }

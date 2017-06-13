@@ -112,7 +112,7 @@ ici_init()
     {
         return 1;
     }
-    ici_decref(externs);
+    externs->decref();
     if ((x = ici_new_exec()) == NULL)
     {
         return 1;
@@ -126,7 +126,7 @@ ici_init()
         return 1;
     }
     *ici_vs.a_top++ = scope;
-    ici_decref(scope);
+    scope->decref();
     if (ici_init_path(externs))
     {
         return 1;

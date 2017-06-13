@@ -137,7 +137,7 @@ ici_str_new(const char *p, int nchars)
 #       endif
         if ((s = ici_stringof(ici_atom_probe2(&proto.s, &po))) != NULL)
         {
-            ici_incref(s);
+            s->incref();
             return s;
         }
         ++ici_supress_collect;
@@ -217,7 +217,7 @@ ici_str_get_nul_term(const char *p)
     {
         return NULL;
     }
-    ici_decref(s);
+    s->decref();
     return s;
 }
 
@@ -403,7 +403,7 @@ ici_obj_t *string_type::fetch(ici_obj_t *o, ici_obj_t *k)
     }
     if (k != NULL)
     {
-        ici_decref(k);
+        k->decref();
     }
     return k;
 }
@@ -461,7 +461,7 @@ int string_type::forall(ici_obj_t *o)
             return 1;
         if (ici_assign(fa->fa_vaggr, fa->fa_vkey, s))
             return 1;
-        ici_decref(s);
+        s->decref();
     }
     if (fa->fa_kaggr != ici_null)
     {
@@ -469,7 +469,7 @@ int string_type::forall(ici_obj_t *o)
             return 1;
         if (ici_assign(fa->fa_kaggr, fa->fa_kkey, i))
             return 1;
-        ici_decref(i);
+        i->decref();
     }
     return 0;
 }

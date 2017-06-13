@@ -86,7 +86,7 @@ ici_funcv(ici_obj_t *subject, ici_obj_t *callable, const char *types, va_list va
             {
                 goto fail;
             }
-            ici_decref(ici_os.a_top[arg]);
+            ici_os.a_top[arg]->decref();
             break;
 
         case 'q':
@@ -99,7 +99,7 @@ ici_funcv(ici_obj_t *subject, ici_obj_t *callable, const char *types, va_list va
             {
                 goto fail;
             }
-            ici_decref(ici_os.a_top[arg]);
+            ici_os.a_top[arg]->decref();
             break;
 
         case 'f':
@@ -107,7 +107,7 @@ ici_funcv(ici_obj_t *subject, ici_obj_t *callable, const char *types, va_list va
             {
                 goto fail;
             }
-            ici_decref(ici_os.a_top[arg]);
+            ici_os.a_top[arg]->decref();
             break;
 
         default:
@@ -128,7 +128,7 @@ ici_funcv(ici_obj_t *subject, ici_obj_t *callable, const char *types, va_list va
     {
         goto fail;
     }
-    ici_decref(*ici_os.a_top);
+    (*ici_os.a_top)->decref();
     ++ici_os.a_top;
     if (subject != NULL)
     {
@@ -146,7 +146,7 @@ ici_funcv(ici_obj_t *subject, ici_obj_t *callable, const char *types, va_list va
     switch (ret_type)
     {
     case '\0':
-        ici_decref(ret_obj);
+        ret_obj->decref();
         break;
 
     case 'o':
@@ -159,7 +159,7 @@ ici_funcv(ici_obj_t *subject, ici_obj_t *callable, const char *types, va_list va
             goto typeclash;
         }
         *(long *)ret_ptr = ici_intof(ret_obj)->i_value;
-        ici_decref(ret_obj);
+        ret_obj->decref();
         break;
 
     case 'f':
@@ -168,7 +168,7 @@ ici_funcv(ici_obj_t *subject, ici_obj_t *callable, const char *types, va_list va
             goto typeclash;
         }
         *(double *)ret_ptr = ici_floatof(ret_obj)->f_value;
-        ici_decref(ret_obj);
+        ret_obj->decref();
         break;
 
     case 's':
@@ -177,12 +177,12 @@ ici_funcv(ici_obj_t *subject, ici_obj_t *callable, const char *types, va_list va
             goto typeclash;
         }
         *(char **)ret_ptr = ici_stringof(ret_obj)->s_chars;
-        ici_decref(ret_obj);
+        ret_obj->decref();
         break;
 
     default:
     typeclash:
-        ici_decref(ret_obj);
+        ret_obj->decref();
         ici_set_error("incorrect return type");
         goto fail;
     }

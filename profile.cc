@@ -137,7 +137,7 @@ ici_profilecall_new(ici_profilecall_t *called_by)
      *
      *    if ((g = atom_gob(gob)) != NULL)
      *    {
-     *        ici_incref(g);
+     *        g->incref();
      *        return g;
      *    }
      */

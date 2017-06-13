@@ -424,7 +424,7 @@ ici_obj_t *struct_type::copy(ici_obj_t *o)
     return ns;
 
  fail:
-    ici_decref(ns);
+    ns->decref();
     return NULL;
 }
 

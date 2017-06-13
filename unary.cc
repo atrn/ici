@@ -37,7 +37,7 @@ ici_op_unary()
         if ((i = ici_int_new(~ici_intof(ici_os.a_top[-1])->i_value)) == NULL)
             return 1;
         ici_os.a_top[-1] = i;
-        ici_decref(i);
+        i->decref();
         --ici_xs.a_top;
         return 0;
 

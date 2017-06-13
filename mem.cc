@@ -132,7 +132,7 @@ ici_obj_t * mem_type::fetch(ici_obj_t *o, ici_obj_t *k)
         break;
     }
     o = ici_int_new(i);
-    ici_decref(o);
+    o->decref();
     return o;
 }
 

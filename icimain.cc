@@ -197,7 +197,7 @@ main(int argc, char *argv[])
             ici_set_val(ici_objwsupof(ici_vs.a_top[-1])->o_super, SS(argc), 'i', &l)
         )
             goto fail;
-        ici_decref(av);
+        av->decref();
         av = NULL;
     }
 
@@ -260,7 +260,7 @@ main(int argc, char *argv[])
                     f->f_name = SS(empty_string);
                     if (ici_parse(f, ici_objwsupof(ici_vs.a_top[-1])) < 0)
                         goto fail;
-                    ici_decref(f);
+                    f->decref();
                     break;
 
                 case 'l':
@@ -356,7 +356,7 @@ usage:
         fprintf(stderr, "See 'The ICI Programming Language' (ici.pdf from ici.sf.net).\n");
     }
     if (av != NULL)
-        ici_decref(av);
+        av->decref();
     ici_uninit();
     ici_set_error("invalid command line arguments");
     return !help;

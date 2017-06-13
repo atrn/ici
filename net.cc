@@ -851,7 +851,7 @@ ici_net_select()
         ici_obj_t        *o;
 
         o = ici_fetch(result, SS(read));
-        ici_incref(o);
+        o->incref();
         ici_decref(result);
         return ici_ret_with_decref(o);
     }
@@ -1370,7 +1370,7 @@ ici_net_hostname()
             return ici_get_last_errno("net.gethostname", NULL);
         if ((hostname = ici_str_new_nul_term(name_buf)) == NULL)
             return 1;
-        ici_incref(hostname);
+        hostname->incref();
     }
     return ici_ret_no_decref((ici_obj_t *)ici_stringof(hostname));
 }
@@ -1734,7 +1734,7 @@ skt_open(ici_handle_t *s, const char *mode)
     if ((sf = ici_talloc(skt_file_t)) != NULL)
     {
         sf->sf_socket = s;
-        ici_incref(sf->sf_socket);
+        sf->sf_socket->incref();
         sf->sf_pbchar = EOF;
         sf->sf_bufp = sf->sf_buf;
         sf->sf_nbuf = 0;

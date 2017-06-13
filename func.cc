@@ -289,7 +289,7 @@ int func_type::call(ici_obj_t *o, ici_obj_t *subject)
                 *va->a_top++ = *ap--;
             }
             sl->sl_value = va;
-            ici_decref(va);
+            va->decref();
         }
     }
 
@@ -304,14 +304,14 @@ int func_type::call(ici_obj_t *o, ici_obj_t *subject)
     ici_get_pc(f->f_code, ici_xs.a_top);
     ++ici_xs.a_top;
     *ici_vs.a_top++ = d;
-    ici_decref(d);
+    d->decref();
     ici_os.a_top -= ICI_NARGS() + 2;
     return 0;
 
  fail:
     if (d != NULL)
     {
-        ici_decref(d);
+        d->decref();
     }
     return 1;
 }

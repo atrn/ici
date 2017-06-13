@@ -27,7 +27,7 @@ ici_int_new(long i)
 
     if ((i & ~ICI_SMALL_INT_MASK) == 0 && (o = ici_small_ints[i]) != NULL)
     {
-        ici_incref(o);
+        o->incref();
         return ici_intof(o);
     }
     for
@@ -39,7 +39,7 @@ ici_int_new(long i)
     {
         if (ici_isint(o) && ici_intof(o)->i_value == i)
         {
-            ici_incref(o);
+            o->incref();
             return ici_intof(o);
         }
     }

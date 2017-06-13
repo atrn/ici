@@ -348,6 +348,17 @@ struct object
         type()->free(this);
     }
 
+    /*
+     * Increment the object 'o's reference count.  References from ordinary
+     * machine data objects (ie.  variables and stuff, not other objects) are
+     * invisible to the garbage collector.  These refs must be accounted for if
+     * there is a possibility of garbage collection.  Note that most routines that
+     * make objects (new_*(), copy() etc...) return objects with 1 ref.  The
+     * caller is expected to decref() it when they attach it into wherever it
+     * is going.
+     *
+     * This --func-- forms part of the --ici-api--.
+     */
     inline void incref() {
         ++o_nrefs;
     }
@@ -617,21 +628,6 @@ inline int ici_fetch_super(ici_obj_t *o, ici_obj_t *k, ici_obj_t **v, ici_struct
  */
 inline int ici_assign_super(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v, ici_struct_t *b) {
     return o->assign_super(k, v, b);
-}
-
-/*
- * Increment the object 'o's reference count.  References from ordinary
- * machine data objects (ie.  variables and stuff, not other objects) are
- * invisible to the garbage collector.  These refs must be accounted for if
- * there is a possibility of garbage collection.  Note that most routines that
- * make objects (new_*(), copy() etc...) return objects with 1 ref.  The
- * caller is expected to ici_decref() it when they attach it into wherever it
- * is going.
- *
- * This --macro-- forms part of the --ici-api--.
- */
-inline void ici_incref(ici_obj_t *o) {
-    return o->incref();
 }
 
 /*

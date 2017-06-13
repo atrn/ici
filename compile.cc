@@ -114,13 +114,13 @@ ici_compile_expr(ici_array_t *a, expr_t *e, int why)
             }
             if (ici_compile_expr(a1, e->e_arg[1]->e_arg[0], why) || ici_stk_push_chk(a1, 1))
             {
-                ici_decref(a1);
+                a1->decref();
                 return 1;
             }
             *a1->a_top++ = &ici_o_end;
             if ((a2 = ici_array_new(0)) == NULL)
             {
-                ici_decref(a1);
+                a1->decref();
                 return 1;
             }
             if
@@ -132,16 +132,16 @@ ici_compile_expr(ici_array_t *a, expr_t *e, int why)
                 ici_stk_push_chk(a, 3)
             )
             {
-                ici_decref(a1);
-                ici_decref(a2);
+                a1->decref();
+                a2->decref();
                 return 1;
             }
             *a2->a_top++ = &ici_o_end;
             *a->a_top++ = &ici_o_ifelse;
             *a->a_top++ = a1;
             *a->a_top++ = a2;
-            ici_decref(a1);
-            ici_decref(a2);
+            a1->decref();
+            a2->decref();
             return 0;
         }
         if (e->e_what == T_LESSEQGRT)
@@ -162,7 +162,7 @@ ici_compile_expr(ici_array_t *a, expr_t *e, int why)
             {
                 return 1;
             }
-            ici_decref(*a->a_top);
+            (*a->a_top)->decref();
             a->a_top++;
             return 0;
         }
@@ -191,7 +191,7 @@ ici_compile_expr(ici_array_t *a, expr_t *e, int why)
                 {
                     return 1;
                 }
-                ici_decref(*a->a_top);
+                (*a->a_top)->decref();
                 a->a_top++;
                 return 0;
             }
@@ -209,7 +209,7 @@ ici_compile_expr(ici_array_t *a, expr_t *e, int why)
                 {
                     return 1;
                 }
-                ici_decref(*a->a_top);
+                (*a->a_top)->decref();
                 ++a->a_top;
                 *a->a_top++ = e->e_arg[0]->e_obj;
                 return 0;
@@ -230,7 +230,7 @@ ici_compile_expr(ici_array_t *a, expr_t *e, int why)
             {
                 return 1;
             }
-            ici_decref(*a->a_top);
+            (*a->a_top)->decref();
             a->a_top++;
             return 0;
         }
@@ -265,7 +265,7 @@ ici_compile_expr(ici_array_t *a, expr_t *e, int why)
             {
                 return 1;
             }
-            ici_decref(*a->a_top);
+            (*a->a_top)->decref();
             a->a_top++;
             return 0;
         }
@@ -294,12 +294,12 @@ ici_compile_expr(ici_array_t *a, expr_t *e, int why)
                 ici_stk_push_chk(a, 3)
             )
             {
-                ici_decref(a1);
+                a1->decref();
                 return 1;
             }
             *a1->a_top++ = &ici_o_end;
             *a->a_top++ = a1;
-            ici_decref(a1);
+            a1->decref();
             *a->a_top++ = e->e_what == T_ANDAND ? &ici_o_andand : &ici_o_barbar;
             if (why == FOR_EFFECT)
             {
@@ -371,16 +371,16 @@ ici_compile_expr(ici_array_t *a, expr_t *e, int why)
                     ici_stk_push_chk(a1, 1)
                 )
                 {
-                    ici_decref(a1);
+                    a1->decref();
                     return 1;
                 }
                 *a1->a_top++ = &ici_o_end;
                 if ((e->e_obj = ici_evaluate(a1, 0)) == NULL)
                 {
-                    ici_decref(a1);
+                    a1->decref();
                     return 1;
                 }
-                ici_decref(a1);
+                a1->decref();
             }
             /* Fall through. */
         case T_INT:
@@ -456,7 +456,7 @@ ici_compile_expr(ici_array_t *a, expr_t *e, int why)
                 {
                     return 1;
                 }
-                ici_decref(*a->a_top);
+                (*a->a_top)->decref();
                 a->a_top++;
             }
             else
@@ -484,7 +484,7 @@ ici_compile_expr(ici_array_t *a, expr_t *e, int why)
                 {
                     return 1;
                 }
-                ici_decref(*a->a_top);
+                (*a->a_top)->decref();
                 a->a_top++;
                 return 0;
             }
@@ -539,7 +539,7 @@ ici_compile_expr(ici_array_t *a, expr_t *e, int why)
             {
                 return 1;
             }
-            ici_decref(*a->a_top);
+            (*a->a_top)->decref();
             ++a->a_top;
             break;
 
@@ -560,7 +560,7 @@ ici_compile_expr(ici_array_t *a, expr_t *e, int why)
             {
                 return 1;
             }
-            ici_decref(*a->a_top);
+            (*a->a_top)->decref();
             ++a->a_top;
             break;
 
@@ -660,7 +660,7 @@ ici_compile_expr(ici_array_t *a, expr_t *e, int why)
             {
                 return 1;
             }
-            ici_decref(*a->a_top);
+            (*a->a_top)->decref();
             a->a_top++;
             break;
 
@@ -753,7 +753,7 @@ ici_compile_expr(ici_array_t *a, expr_t *e, int why)
                 {
                     return 1;
                 }
-                ici_decref(*a->a_top);
+                (*a->a_top)->decref();
                 ++a->a_top;
                 if
                 (
@@ -841,12 +841,12 @@ ici_uninit_compile()
     {
         if (binops[i] != NULL)
         {
-            ici_decref(binops[i]);
+            binops[i]->decref();
             binops[i] = NULL;
         }
         if (binops_temps[i] != NULL)
         {
-            ici_decref(binops_temps[i]);
+            binops_temps[i]->decref();
             binops_temps[i] = NULL;
         }
     }

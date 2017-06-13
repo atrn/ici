@@ -81,7 +81,7 @@ get(ici_parse_t *p, ici_array_t *a)
         {
             if ((*a->a_top = ici_src_new(p->p_lineno, p->p_file->f_name)) != NULL)
             {
-                ici_decref(*a->a_top);
+                (*a->a_top)->decref();
                 ++a->a_top;
             }
         }
@@ -129,7 +129,7 @@ ici_lex(ici_parse_t *p, ici_array_t *a)
          * parser is always well behaved and consumes tokens completely before
          * getting the next one.
          */
-        ici_decref(p->p_got.t_obj);
+        (p->p_got.t_obj)->decref();
         p->p_got.t_what = T_NONE;
     }
 

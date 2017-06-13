@@ -148,7 +148,7 @@ ici_obj_t * file_type::fetch(ici_obj_t *o, ici_obj_t *k)
         ici_int_t   *l;
 
         if ((l = ici_int_new(ici_parseof(ici_fileof(o)->f_file)->p_lineno)) != NULL)
-            ici_decref(l);
+            l->decref();
         return l;
     }
     return ici_fetch_fail(o, k);

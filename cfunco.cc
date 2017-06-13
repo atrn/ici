@@ -73,10 +73,10 @@ ici_assign_cfuncs(ici_objwsup_t *s, ici_cfunc_t *cf)
         }
         if (ici_assign_base(s, cf->cf_name, cf))
         {
-            ici_decref(cf->cf_name);
+            cf->cf_name->decref();
             return 1;
         }
-        ici_decref(cf->cf_name);
+        cf->cf_name->decref();
         ++cf;
     }
     return 0;
@@ -116,7 +116,7 @@ ici_class_new(ici_cfunc_t *cf, ici_objwsup_t *super)
         return NULL;
     if (ici_assign_cfuncs(s, cf))
     {
-        ici_decref(s);
+        s->decref();
         return NULL;
     }
     if (super == NULL && (super = ici_outermost_writeable_struct()) == NULL)

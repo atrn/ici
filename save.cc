@@ -271,10 +271,10 @@ save_func(ici_archive_t *ar, ici_obj_t *obj)
     ici_struct_unassign(autos, SSO(_func_));
     if (ici_archive_save(ar, autos))
     {
-        ici_decref(autos);
+        autos->decref();
         return 1;
     }
-    ici_decref(autos);
+    autos->decref();
 
     return ici_archive_save(ar, f->f_name) || writel(ar, f->f_nautos);
 }
@@ -348,7 +348,7 @@ static ici_struct_t *saver_map = NULL;
 void
 ici_uninit_saver_map()
 {
-    ici_decref(saver_map);
+    saver_map->decref();
 }
 
 int
@@ -390,15 +390,15 @@ ici_init_saver_map()
             goto fail;
         if (ici_assign(saver_map, fns[i].name, saver))
         {
-            ici_decref(saver);
+            saver->decref();
             goto fail;
         }
-        ici_decref(saver);
+        saver->decref();
     }
     return 0;
 
 fail:
-    ici_decref(saver_map);
+    saver_map->decref();
     saver_map = NULL;
     return 1;
 }

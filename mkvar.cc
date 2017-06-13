@@ -59,7 +59,7 @@ ici_set_val(ici_objwsup_t *s, ici_str_t *name, int type, void *vp)
 
     case 'o':
         o = (ici_obj_t *)vp;
-        ici_incref(o); /* so can ici_decref(o) below */
+        o->incref(); /* so can decref below */
         break;
 
     default:
@@ -69,7 +69,7 @@ ici_set_val(ici_objwsup_t *s, ici_str_t *name, int type, void *vp)
     if (o == NULL)
         return 1;
     i = ici_assign_base(s, name, o);
-    ici_decref(o);
+    o->decref();
     return i;
 }
 
@@ -171,7 +171,7 @@ ici_cmkvar(ici_objwsup_t *scope, const char *name, int type, void *vp)
     if ((s = ici_str_new_nul_term(name)) == NULL)
         return 1;
     i = ici_set_val(scope, s, type, vp);
-    ici_decref(s);
+    s->decref();
     return i;
 }
 

@@ -103,12 +103,12 @@ call_signal_handler(ici_obj_t *func, int signo)
     if ((isigno = ici_int_new(signo)) == NULL)
         return 1;
     *ici_os.a_top++ = isigno;
-    ici_decref(isigno);
+    isigno->decref();
     *ici_os.a_top++ = ici_one; /* One argument. */
     *ici_os.a_top++ = func;
     if ((ret_obj = ici_evaluate(&ici_o_call, 3)) == NULL)
         goto fail;
-    ici_decref(ret_obj);
+    ret_obj->decref();
     return 0;
 
 fail:
@@ -410,7 +410,7 @@ f_signal(...)
     else if (ici_isfunc(handlero) || ici_ismethod(handlero))
     {
         signal_handler[signo_to_index(signo)] = handlero;
-        ici_incref(handlero);
+        handlero->incref();
         handler = ici_signal_handler;
     }
     else

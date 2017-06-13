@@ -867,15 +867,15 @@ static int ici_sys_stat()
     if ((s = ici_struct_new()) == NULL)
         return 1;
 #define SETFIELD(x)                                     \
-    if ((o = ici_int_new(statb.st_ ##x)) == NULL)      \
+    if ((o = ici_int_new(statb.st_ ##x)) == NULL)       \
         goto fail;                                      \
     else if (ici_assign(s, SSO(x), o))                  \
     {                                                   \
-        ici_decref(o);                                  \
+        o->decref();                                    \
         goto fail;                                      \
     }                                                   \
     else                                                \
-        ici_decref(o)
+        o->decref()
 
     SETFIELD(dev);
     SETFIELD(ino);
@@ -898,7 +898,7 @@ static int ici_sys_stat()
     return ici_ret_with_decref(s);
 
  fail:
-    ici_decref(s);
+    s->decref();
     return 1;
 }
 
@@ -931,15 +931,15 @@ static int ici_sys_lstat()
     if ((s = ici_struct_new()) == NULL)
         return 1;
 #define SETFIELD(x)                                     \
-    if ((o = ici_int_new(statb.st_ ##x)) == NULL)      \
+    if ((o = ici_int_new(statb.st_ ##x)) == NULL)       \
         goto fail;                                      \
     else if (ici_assign(s, SSO(x), o))                  \
     {                                                   \
-        ici_decref(o);                                  \
+        o->decref();                                    \
         goto fail;                                      \
     }                                                   \
     else                                                \
-        ici_decref(o)
+        o->decref()
 
     SETFIELD(dev);
     SETFIELD(ino);
@@ -960,7 +960,7 @@ static int ici_sys_lstat()
     return ici_ret_with_decref(s);
 
  fail:
-    ici_decref(s);
+    s->decref();
     return 1;
 }
 #endif
@@ -1018,25 +1018,25 @@ assign_timeval(ici_struct_t *s, ici_str_t *k, struct timeval *tv)
         goto fail;
     if (ici_assign(ss, SSO(usec), i))
     {
-        ici_decref(i);
+        i->decref();
         goto fail;
     }
-    ici_decref(i);
+    i->decref();
     if ((i = ici_int_new(tv->tv_sec)) == NULL)
         goto fail;
     if (ici_assign(ss, SSO(sec), i))
     {
-        ici_decref(i);
+        i->decref();
         goto fail;
     }
-    ici_decref(i);
+    i->decref();
     if (k != NULL && ici_assign(s, k, ss))
         goto fail;
     return 0;
 
  fail:
     if (k != NULL)
-        ici_decref(ss);
+        ss->decref();
     return 1;
 }
 
@@ -1093,7 +1093,7 @@ static int ici_sys_getitimer()
         assign_timeval(s, SS(value), &value.it_value)
     )
     {
-        ici_decref(s);
+        s->decref();
         return 1;
     }
     return ici_ret_with_decref(s);
@@ -1178,7 +1178,7 @@ static int ici_sys_setitimer()
         assign_timeval(s, SS(value), &ovalue.it_value)
     )
     {
-        ici_decref(s);
+        s->decref();
         return 1;
     }
     return ici_ret_with_decref(s);
@@ -1209,7 +1209,7 @@ static int ici_sys_gettimeofday()
         return 1;
     if (assign_timeval(s, NULL, &tv))
     {
-        ici_decref(s);
+        s->decref();
         return 1;
     }
     return ici_ret_with_decref(s);
@@ -1273,21 +1273,21 @@ static int ici_sys_pipe()
         return 1;
     if (pipe(pfd) == -1)
     {
-        ici_decref(a);
+        a->decref();
         return sys_ret(-1);
     }
     if ((fd = ici_int_new(pfd[0])) == NULL)
         goto fail;
     *a->a_top++ = fd;
-    ici_decref(fd);
+    fd->decref();
     if ((fd = ici_int_new(pfd[1])) == NULL)
         goto fail;
     *a->a_top++ = fd;
-    ici_decref(fd);
+    fd->decref();
     return ici_ret_with_decref(a);
 
  fail:
-    ici_decref(a);
+    a->decref();
     close(pfd[0]);
     close(pfd[1]);
     return 1;
@@ -1616,22 +1616,22 @@ static int ici_sys_wait()
         goto fail;
     if (ici_assign(s, SSO(pid), i))
     {
-        ici_decref(i);
+        i->decref();
         goto fail;
     }
-    ici_decref(i);
+    i->decref();
     if ((i = ici_int_new(status)) == NULL)
         goto fail;
     if (ici_assign(s, SSO(status), i))
     {
-        ici_decref(i);
+        i->decref();
         goto fail;
     }
-    ici_decref(i);
+    i->decref();
     return ici_ret_with_decref(s);
 
  fail:
-    ici_decref(s);
+    s->decref();
     return 1;
 #endif /* _WIN32 */
 }
@@ -1705,7 +1705,7 @@ static int ici_sys_passwd()
 
         if (ici_stk_push_chk(a, 1) || (s = password_struct(pwent)) == NULL)
         {
-            ici_decref(a);
+            a->decref();
             return 1;
         }
         *a->a_top++ = s;
@@ -1726,26 +1726,26 @@ password_struct(struct passwd *pwent)
     {
 
 #define SET_INT_FIELD(x)                                \
-        if ((o = ici_int_new(pwent->pw_ ##x)) == NULL) \
+        if ((o = ici_int_new(pwent->pw_ ##x)) == NULL)  \
             goto fail;                                  \
         else if (ici_assign(d, SSO(x), o))              \
         {                                               \
-            ici_decref(o);                              \
+            o->decref();                                \
             goto fail;                                  \
         }                                               \
         else                                            \
-            ici_decref(o)
+            o->decref()
 
 #define SET_STR_FIELD(x)                                                \
         if ((o = ici_str_new_nul_term(pwent->pw_ ##x)) == NULL)        \
             goto fail;                                                  \
         else if (ici_assign(d, SSO(x), o))                              \
         {                                                               \
-        ici_decref(o);                                                  \
-        goto fail;                                                      \
-    }                                                                   \
+            o->decref();                                                \
+            goto fail;                                                  \
+        }                                                               \
         else                                                            \
-            ici_decref(o)
+            o->decref()
 
         SET_STR_FIELD(name);
         SET_STR_FIELD(passwd);
@@ -1762,7 +1762,7 @@ password_struct(struct passwd *pwent)
     return d;
 
  fail:
-    ici_decref(d);
+    d->decref();
     return NULL;
 }
 
@@ -2013,22 +2013,22 @@ static int ici_sys_getrlimit()
         goto fail;
     if (ici_assign(limit, SSO(cur), iv))
     {
-        ici_decref(iv);
+        iv->decref();
         goto fail;
     }
-    ici_decref(iv);
+    iv->decref();
     if ((iv = ici_int_new(rlimit.rlim_max)) == NULL)
         goto fail;
     if (ici_assign(limit, SSO(max), iv))
     {
-        ici_decref(iv);
+        iv->decref();
         goto fail;
     }
-    ici_decref(iv);
+    iv->decref();
     return ici_ret_with_decref(limit);
 
  fail:
-    ici_decref(limit);
+    limit->decref();
     return 1;
 }
 

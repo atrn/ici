@@ -402,7 +402,7 @@ ici_atom(ici_obj_t *o, int lone)
     if (++ici_natoms > ici_atomsz / 2)
         ici_grow_atoms(ici_atomsz * 2);
     if (!lone)
-        ici_decref(o);
+        o->decref();
     return o;
 }
 

@@ -86,13 +86,13 @@ buildxx(ici_obj_t **r, ici_obj_t **dnext, struct context *c)
                     ici_objname(n1, *c->c_cnext));
             }
             *r = ici_array_get(ici_arrayof(*c->c_cnext), c->c_ccount);
-            ici_incref(*r);
+            (*r)->incref();
             c->c_cnext += c->c_cstep;
             break;
 
         default:
             *r = *c->c_cnext;
-            ici_incref(*r);
+            (*r)->incref();
             c->c_cnext += c->c_cstep;
         }
         switch (c->c_option)
@@ -138,11 +138,11 @@ buildxx(ici_obj_t **r, ici_obj_t **dnext, struct context *c)
         {
             if (buildxx(a->a_top, dnext + c->c_dstep, c))
             {
-                ici_decref(a);
+                a->decref();
                 return 1;
             }
             ++a->a_top;
-            ici_decref(a->a_top[-1]);
+            a->a_top[-1]->decref();
         }
         *r = a;
     }
@@ -165,15 +165,15 @@ buildxx(ici_obj_t **r, ici_obj_t **dnext, struct context *c)
         {
             if (buildxx(&o, dnext + c->c_dstep, c))
             {
-                ici_decref(s);
+                s->decref();
                 return 1;
             }
             if (ici_assign(s, *e, o))
             {
-                ici_decref(s);
+                s->decref();
                 return 1;
             }
-            ici_decref(o);
+            o->decref();
         }
         *r = s;
     }

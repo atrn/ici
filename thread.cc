@@ -67,9 +67,9 @@ ici_leave2(bool unlock)
          * Restore the copies of our stack arrays that are cached
          * in static locations back to the execution context.
          */
-        ici_decref(&ici_os);
-        ici_decref(&ici_xs);
-        ici_decref(&ici_vs);
+        ici_os.decref();
+        ici_xs.decref();
+        ici_vs.decref();
         *x->x_os = ici_os;
         *x->x_xs = ici_xs;
         *x->x_vs = ici_vs;
@@ -125,9 +125,9 @@ ici_enter(ici_exec_t *x)
         x->x_os->a_base = NULL;
         x->x_xs->a_base = NULL;
         x->x_vs->a_base = NULL;
-        ici_incref(&ici_os);
-        ici_incref(&ici_xs);
-        ici_incref(&ici_vs);
+        ici_os.incref();
+        ici_xs.incref();
+        ici_vs.incref();
     }
 }
 
@@ -152,9 +152,9 @@ ici_yield()
     // if (ici_n_active_threads > 1 && x->x_critsect == 0)
     if (ici_n_active_threads > 1 && __sync_fetch_and_add(&x->x_critsect, 0) == 0)
     {
-        ici_decref(&ici_os);
-        ici_decref(&ici_xs);
-        ici_decref(&ici_vs);
+        ici_os.decref();
+        ici_xs.decref();
+        ici_vs.decref();
         *x->x_os = ici_os;
         *x->x_xs = ici_xs;
         *x->x_vs = ici_vs;
@@ -179,9 +179,9 @@ ici_yield()
         x->x_os->a_base = NULL;
         x->x_xs->a_base = NULL;
         x->x_vs->a_base = NULL;
-        ici_incref(&ici_os);
-        ici_incref(&ici_xs);
-        ici_incref(&ici_vs);
+        ici_os.incref();
+        ici_xs.incref();
+        ici_vs.incref();
     }
 }
 
@@ -273,11 +273,11 @@ static void ici_thread_base(void *arg)
     }
     else
     {
-        ici_decref(x->x_result);
+        x->x_result->decref();
         x->x_state = ICI_XS_RETURNED;
     }
     ici_wakeup(x);
-    ici_decref(x);
+    x->decref();
     (void)ici_leave();
 }
 
@@ -314,14 +314,14 @@ f_go(...)
      */
     if ((*x->x_os->a_top = ici_int_new(ICI_NARGS() - 1)) == NULL)
         goto fail;
-    ici_decref(*x->x_os->a_top);
+    (*x->x_os->a_top)->decref();
     ++x->x_os->a_top;
     *x->x_os->a_top++ = ICI_ARG(0);
     /*
      * Create the native machine thread. We ici_incref x to give the new thread
      * it's own reference.
      */
-    ici_incref(x);
+    x->incref();
     {
         // TODO: try/catch
         std::thread t([x]() { ici_thread_base(x); });
@@ -330,7 +330,7 @@ f_go(...)
     return ici_ret_with_decref(x);
 
 fail:
-    ici_decref(x);
+    x->decref();
     return 1;
 }
 

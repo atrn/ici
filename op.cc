@@ -20,7 +20,7 @@ ici_new_op(int (*func)(), int ecode, int code)
     proto.op_ecode = ecode;
     if ((o = ici_opof(ici_atom_probe2(&proto, &po))) != NULL)
     {
-        ici_incref(o);
+        o->incref();
         return o;
     }
     ++ici_supress_collect;

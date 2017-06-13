@@ -76,13 +76,13 @@ ici_uninit()
      */
     for (i = 0; i < (int)nels(ici_small_ints); ++i)
     {
-        ici_decref(ici_small_ints[i]);
+        ici_small_ints[i]->decref();
         ici_small_ints[i] = NULL;
     }
     if (ici_ver_cache != NULL)
-        ici_decref(ici_ver_cache);
+        ici_ver_cache->decref();
     if (ici_smash_default_re != NULL)
-        ici_decref(ici_smash_default_re);
+        ici_smash_default_re->decref();
 
     /* Call uninitialisation functions for compulsory bits of ICI. */
     ici_uninit_compile();
@@ -128,9 +128,9 @@ ici_uninit()
     ici_nfree(ici_xs.a_base, (ici_xs.a_limit - ici_xs.a_base) * sizeof(ici_obj_t *));
 
 #if 1 && !defined(NDEBUG)
-    ici_decref(&ici_vs);
-    ici_decref(&ici_os);
-    ici_decref(&ici_xs);
+    ici_vs.decref();
+    ici_os.decref();
+    ici_xs.decref();
     {
         extern void ici_dump_refs();
 

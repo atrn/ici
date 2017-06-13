@@ -446,7 +446,7 @@ ici_evaluate(ici_obj_t *code, int n_operands)
                     *ici_xs.a_top++ = o; /* Temp restore formal state. */
                     {
                         ici_src_t *src = ici_exec->x_src;
-                        ici_incref(src);
+                        src->incref();
                         if (ici_func(f, "o", o))
                         {
                             ici_decref(src);
@@ -505,7 +505,7 @@ ici_evaluate(ici_obj_t *code, int n_operands)
                 {
                     o = ici_null;
                 }
-                ici_incref(o);
+                o->incref();
                 ici_unwind();
                 --ici_exec->x_n_engine_recurse;
                 return o;
@@ -645,7 +645,7 @@ ici_evaluate(ici_obj_t *code, int n_operands)
                     --ici_os.a_top;
                     ici_os.a_top[-1] = o;  /* The callable object. */
                     o = o1;
-                    ici_incref(o);
+                    o->incref();
                     goto do_call;
                 }
 
@@ -864,13 +864,13 @@ ici_evaluate(ici_obj_t *code, int n_operands)
                     {
                         goto fail;
                     }
-                    ici_incref(v1);
+                    v1->incref();
                     if ((v2 = ici_fetch(ici_os.a_top[-2], ici_os.a_top[-1])) == NULL)
                     {
                         ici_decref(v1);
                         goto fail;
                     }
-                    ici_incref(v2);
+                    v2->incref();
                     if (ici_assign(ici_os.a_top[-2], ici_os.a_top[-1], v1))
                     {
                         ici_decref(v1);
@@ -1238,7 +1238,7 @@ ici_evaluate(ici_obj_t *code, int n_operands)
                 }
                 break;
             }
-            ici_incref(c);
+            c->incref();
             if
             (
                 ici_set_val(ici_objwsupof(ici_vs.a_top[-1]), SS(error), 's', ici_error)

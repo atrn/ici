@@ -519,7 +519,7 @@ ici_op_mklvalue()
     *a->a_top++ = ici_os.a_top[-1];
     ici_os.a_top[-1] = a;
     *ici_os.a_top++ = ici_zero;
-    ici_decref(a);
+    a->decref();
     --ici_xs.a_top;
     return 0;
 }
@@ -697,7 +697,7 @@ int array_type::forall(ici_obj_t *o)
             return 1;
         if (ici_assign(fa->fa_kaggr, fa->fa_kkey, i))
             return 1;
-        ici_decref(i);
+        i->decref();
     }
     return 0;
 }

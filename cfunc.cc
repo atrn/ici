@@ -354,7 +354,7 @@ ici_retcheck(const char *types, ...)
                 goto ret1;
             if (ici_assign(o, ici_zero, s))
                 goto ret1;
-            ici_decref(s);
+            s->decref();
             break;
 
         case 's':
@@ -362,7 +362,7 @@ ici_retcheck(const char *types, ...)
                 goto ret1;
             if (ici_assign(o, ici_zero, s))
                 goto ret1;
-            ici_decref(s);
+            s->decref();
             break;
 
         case 'f':
@@ -370,7 +370,7 @@ ici_retcheck(const char *types, ...)
                 goto ret1;
             if (ici_assign(o, ici_zero, s))
                 goto ret1;
-            ici_decref(s);
+            s->decref();
             break;
 
         case 'd':
@@ -543,7 +543,7 @@ ici_ret_with_decref(ici_obj_t *o)
         return 1;
     ici_os.a_top -= ICI_NARGS() + 1;
     ici_os.a_top[-1] = o;
-    ici_decref(o);
+    o->decref();
     --ici_xs.a_top;
     return 0;
 }
@@ -737,7 +737,7 @@ f_coreici(ici_obj_t *s)
      * Fetch the real function from that module and verify it is callable.
      */
     f = ici_fetch_base(c, (ici_obj_t *)ICI_CF_ARG1());
-    ici_decref(c);
+    c->decref();
     if (f == NULL)
         return 1;
     if (!ici_typeof(f)->can_call())
@@ -803,7 +803,7 @@ f_struct()
     {
         if (ici_assign(s, o[0], o[-1]))
         {
-            ici_decref(s);
+            s->decref();
             return 1;
         }
     }
@@ -824,7 +824,7 @@ f_set()
     {
         if (ici_assign(s, *o, ici_one))
         {
-            ici_decref(s);
+            s->decref();
             return 1;
         }
     }
@@ -1131,17 +1131,17 @@ f_parse()
             return 1;
         if ((a->o_super = ici_objwsupof(s = ici_struct_new())) == NULL)
         {
-            ici_decref(a);
+            a->decref();
             return 1;
         }
-        ici_decref(s);
+        s->decref();
         s->o_super = ici_objwsupof(ici_vs.a_top[-1])->o_super;
         break;
 
     default:
         if (ici_typecheck("od", &o, &a))
             return 1;
-        ici_incref(a);
+        a->incref();
         break;
     }
 
@@ -1149,7 +1149,7 @@ f_parse()
     {
         if ((f = ici_sopen(ici_stringof(o)->s_chars, ici_stringof(o)->s_nchars, o)) == NULL)
         {
-            ici_decref(a);
+            a->decref();
             return 1;
         }
         f->f_name = SS(empty_string);
@@ -1158,7 +1158,7 @@ f_parse()
         f = ici_fileof(o);
     else
     {
-        ici_decref(a);
+        a->decref();
         return ici_argerror(0);
     }
 
@@ -1166,13 +1166,13 @@ f_parse()
         goto fail;
 
     if (ici_isstring(o))
-        ici_decref(f);
+        f->decref();
     return ici_ret_with_decref(a);
 
 fail:
     if (ici_isstring(o))
-        ici_decref(f);
-    ici_decref(a);
+        f->decref();
+    a->decref();
     return 1;
 }
 
@@ -1229,7 +1229,7 @@ static int f_include()
 #endif
     rc = ici_parse(f, ici_objwsupof(a));
     ici_call(SS(close), "o", f);
-    ici_decref(f);
+    f->decref();
     return rc < 0 ? 1 : ici_ret_no_decref(a);
 }
 
@@ -1261,7 +1261,7 @@ f_call()
         naargs = ici_array_nels(aa);
     nargs = naargs + ICI_NARGS() - 2;
     func = ICI_ARG(0);
-    ici_incref(func);
+    func->incref();
     /*
      * On the operand stack, we have...
      *    [aa] [argn]...[arg2] [arg1] [func] [nargs] [us] [    ]
@@ -1302,9 +1302,9 @@ f_call()
      * Push the count of actual args and the target function.
      */
     ici_os.a_top[-2] = nargso;
-    ici_decref(nargso);
+    nargso->decref();
     ici_os.a_top[-1] = func;
-    ici_decref(func);
+    func->decref();
     ici_xs.a_top[-1] = &ici_o_call;
     /*
      * Very special return. Drops back into the execution loop with
@@ -1313,9 +1313,9 @@ f_call()
     return 0;
 
 fail:
-    ici_decref(func);
+    func->decref();
     if (nargso != NULL)
-        ici_decref(nargso);
+        nargso->decref();
     return 1;
 }
 
@@ -1521,10 +1521,10 @@ f_explode()
     {
         if ((*x->a_top = ici_int_new(*s++ & 0xFFL)) == NULL)
         {
-            ici_decref(x);
+            x->decref();
             return 1;
         }
-        ici_decref(*x->a_top);
+        (*x->a_top)->decref();
         ++x->a_top;
     }
     return ici_ret_with_decref(x);
@@ -2371,7 +2371,7 @@ f_gettoken()
         {
             if ((f = ici_sopen(ici_stringof(fo)->s_chars, ici_stringof(fo)->s_nchars, fo)) == NULL)
                 return 1;
-            ici_decref(f);
+            f->decref();
         }
         else if (!ici_isfile(fo))
             return ici_argerror(0);
@@ -2386,7 +2386,7 @@ f_gettoken()
         {
             if ((f = ici_sopen(ici_stringof(fo)->s_chars, ici_stringof(fo)->s_nchars, fo)) == NULL)
                 return 1;
-            ici_decref(f);
+            f->decref();
         }
         else if (!ici_isfile(fo))
             return ici_argerror(0);
@@ -2462,10 +2462,10 @@ fast_gettokens(const char *str, const char *delims)
                 (*a->a_top = ici_str_new(cp, k)) == NULL
             )
             {
-                ici_decref(a);
+                a->decref();
                 return 1;
             }
-            ici_decref(*a->a_top);
+            (*a->a_top)->decref();
             ++a->a_top;
             if (*(cp += k))
                 cp++;
@@ -2474,7 +2474,7 @@ fast_gettokens(const char *str, const char *delims)
     }
     if (a->a_top == a->a_base)
     {
-        ici_decref(a);
+        a->decref();
         return ici_null_ret();
     }
     return ici_ret_with_decref(a);
@@ -2565,7 +2565,7 @@ f_gettokens()
         else
         {
             if (loose_it)
-                ici_decref(f);
+                f->decref();
             return ici_argerror(1);
         }
         if (ICI_NARGS() > 2)
@@ -2573,7 +2573,7 @@ f_gettokens()
             if (!ici_isstring(ICI_ARG(2)))
             {
                 if (loose_it)
-                    ici_decref(f);
+                    f->decref();
                 return ici_argerror(2);
             }
             terms = (unsigned char *)ici_stringof(ICI_ARG(2))->s_chars;
@@ -2583,7 +2583,7 @@ f_gettokens()
                 if (!ici_isstring(ICI_ARG(3)))
                 {
                     if (loose_it)
-                        ici_decref(f);
+                        f->decref();
                     return ici_argerror(3);
                 }
                 delims = (unsigned char *)ici_stringof(ICI_ARG(3))->s_chars;
@@ -2654,10 +2654,10 @@ f_gettokens()
         {
         case (S_IDLE << 8) + W_EOF:
             if (loose_it)
-                ici_decref(f);
+                f->decref();
             if (a->a_top == a->a_base)
             {
-                ici_decref(a);
+                a->decref();
                 return ici_null_ret();
             }
             return ici_ret_with_decref(a);
@@ -2666,7 +2666,7 @@ f_gettokens()
             if (!hardsep)
             {
                 if (loose_it)
-                    ici_decref(f);
+                    f->decref();
                 return ici_ret_with_decref(a);
             }
             j = 0;
@@ -2678,8 +2678,8 @@ f_gettokens()
                 goto fail;
             *a->a_top++ = s;
             if (loose_it)
-                ici_decref(f);
-            ici_decref(s);
+                f->decref();
+            s->decref();
             return ici_ret_with_decref(a);
 
         case (S_IDLE << 8) + W_SEP:
@@ -2692,7 +2692,7 @@ f_gettokens()
             if ((s = ici_str_new(buf, j)) == NULL)
                 goto fail;
             *a->a_top++ = s;
-            ici_decref(s);
+            s->decref();
             if (hardsep)
             {
                 j = 0;
@@ -2708,7 +2708,7 @@ f_gettokens()
             if ((s = ici_str_new(buf, j)) == NULL)
                 goto fail;
             *a->a_top++ = s;
-            ici_decref(s);
+            s->decref();
         case (S_IDLE << 8) + W_DELIM:
             if (ici_stk_push_chk(a, 1))
                 goto fail;
@@ -2716,7 +2716,7 @@ f_gettokens()
             if ((s = ici_str_new(buf, 1)) == NULL)
                 goto fail;
             *a->a_top++ = s;
-            ici_decref(s);
+            s->decref();
             j = 0;
             state = S_IDLE;
             break;
@@ -2733,9 +2733,9 @@ f_gettokens()
 
 fail:
     if (loose_it)
-        ici_decref(f);
+        f->decref();
     if (a != NULL)
-        ici_decref(a);
+        a->decref();
     return 1;
 }
 
@@ -3008,7 +3008,7 @@ f_calendar()
 #endif
         )
         {
-            ici_decref(s);
+            s->decref();
             return 1;
         }
         return ici_ret_with_decref(s);
@@ -3562,7 +3562,7 @@ finish:
     if (must_close)
     {
         ici_call(SS(close), "o", f);
-        ici_decref(f);
+        f->decref();
     }
     return ici_ret_with_decref(str);
 }
@@ -4051,12 +4051,12 @@ f_dir()
             )
             {
                 if (s != NULL)
-                    ici_decref(s);
+                    s->decref();
                 closedir(dir);
                 goto fail;
             }
             *a->a_top++ = s;
-            ici_decref(s);
+            s->decref();
         }
     }
     closedir(dir);
@@ -4067,7 +4067,7 @@ f_dir()
 #undef  OTHERS
 
 fail:
-    ici_decref(a);
+    a->decref();
     return 1;
 }
 
