@@ -58,7 +58,7 @@
 #include <sys/resource.h>
 #endif
 
-#if defined(__linux__) && !defined(MAXPATHLEN)
+#if !defined(MAXPATHLEN)
 #include <sys/param.h>
 #endif
 
@@ -66,12 +66,12 @@
 #define SETPGRP_0_ARGS
 #endif
 
-#if defined BSD4_4 && !defined __APPLE__
+#if defined BSD && !defined __APPLE__
 #define SETPGRP_2_ARGS
 #endif
 
-#if defined(__linux__) && defined(BSD4_4)
-#error __linux__ or BSD4_4 for setpgrp(), not both
+#if defined(__linux__) && defined(BSD)
+#error __linux__ or BSD for setpgrp(), not both
 #endif
 
 #ifndef _WIN32
@@ -2405,7 +2405,7 @@ ICI_DEFINE_CFUNCS(sys)
 #ifndef ICI_SYS_NOFLOCK
     ICI_DEFINE_CFUNC(flock,   ici_sys_flock),
 #endif
-#if !defined(__linux__) && !defined(BSD4_4) && !defined(__CYGWIN__)
+#if !defined(__linux__) && !defined(BSD) && !defined(__CYGWIN__)
     /*
      * int = lockf(fd, cmd, len)
      *
@@ -2417,7 +2417,7 @@ ICI_DEFINE_CFUNCS(sys)
      */
     ICI_DEFINE_CFUNC2(lockf,   ici_sys_simple, lockf,  "iii"),
 #endif /* __linux__ */
-#if !defined(BSD4_4) && !defined(__CYGWIN__)
+#if !defined(__FreeBSD__) && !defined(__CYGWIN__) && !defined(__APPLE__)
     /*
      * ulimit(int, int)
      *
