@@ -1176,9 +1176,7 @@ fail:
     return 1;
 }
 
-#ifdef ICI_F_INCLUDE
-static int
-f_include()
+static int f_include()
 {
     ici_str_t   *filename;
     ici_struct_t    *a;
@@ -1234,7 +1232,6 @@ f_include()
     ici_decref(f);
     return rc < 0 ? 1 : ici_ret_no_decref(a);
 }
-#endif
 
 static int
 f_call()
@@ -4292,9 +4289,7 @@ ICI_DEFINE_CFUNCS(std)
     ICI_DEFINE_CFUNC2(fmod,        f_math, xfmod,   "f=nn"),
     ICI_DEFINE_CFUNC(waitfor,      f_waitfor),
     ICI_DEFINE_CFUNC(top,          f_top),
-#ifdef ICI_F_INCLUDE
     ICI_DEFINE_CFUNC(include,      f_include),
-#endif
     ICI_DEFINE_CFUNC(sort,         f_sort),
     ICI_DEFINE_CFUNC(reclaim,      f_reclaim),
     ICI_DEFINE_CFUNC(now,          f_now),
