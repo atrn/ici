@@ -170,7 +170,7 @@ ici_obj_t *regexp_type::fetch(ici_obj_t *o, ici_obj_t *k)
         pcre_info(ici_regexpof(o)->r_re, &options, NULL);
         if ((io = ici_int_new(options)) == NULL)
             return NULL;
-        ici_decref(io);
+        io->decref();
         return io;
     }
     return ici_fetch_fail(o, k);

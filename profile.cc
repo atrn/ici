@@ -157,7 +157,7 @@ ici_profilecall_new(ici_profilecall_t *called_by)
         ici_tfree(pc, ici_profilecall_t);
         return NULL;
     }
-    ici_decref(pc->pc_calls);
+    pc->pc_calls->decref();
     pc->pc_total = 0;
     pc->pc_laststart = 0;
     pc->pc_call_count = 0;
@@ -235,7 +235,7 @@ ici_profile_call(ici_func_t *f)
         /* No, create a new record. */
         pc = ici_profilecall_new(ici_prof_cur_call);
         assert(pc != NULL);
-        ici_decref(pc);
+        pc->decref();
 
         /* Add it to the calling function. */
         ici_assign(ici_prof_cur_call->pc_calls, f, pc);
@@ -346,7 +346,7 @@ ici_profile_return()
             }
 
             /* No more profiling. */
-            ici_decref(ici_prof_cur_call);
+            ici_prof_cur_call->decref();
             ici_prof_cur_call = NULL;
             ici_profile_active = 0;
         }

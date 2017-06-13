@@ -200,7 +200,7 @@ do_smash
             if ((ns = ici_stringof(ici_atom(ns, 1))) == NULL)
                 goto fail;
             *a->a_top++ = ns;
-            ici_decref(ns);
+            ns->decref();
         }
     }
     if (include_remainder && s != se)
@@ -214,13 +214,13 @@ do_smash
         if ((ns = ici_str_new(s, se - s)) == NULL)
             goto fail;
         *a->a_top++ = ns;
-        ici_decref(ns);
+        ns->decref();
     }
     return a;
 
 fail:
     if (a != NULL)
-        ici_decref(a);
+        a->decref();
     return NULL;
 }
 
@@ -422,14 +422,14 @@ f_sub(...)
     else if (rc == (ici_str_t*)-1)
     {
         if (ici_regexpof(o) != re)
-            ici_decref(re);
+            re->decref();
         return 1;
     }
     else
-        ici_decref(rc);
+        rc->decref();
 
     if (ici_regexpof(o) != re)
-        ici_decref(re);
+        re->decref();
 
     return ici_ret_no_decref(rc);
 }
@@ -484,16 +484,16 @@ f_gsub(...)
     }
     if ((ns = ici_stringof(ici_atom(ns, 1))) == NULL)
         goto fail;
-    ici_decref(a);
+    a->decref();
     if (!ici_isregexp(ICI_ARG(1)))
-        ici_decref(re);
+        re->decref();
     return ici_ret_with_decref(ns);
 
 fail:
     if (a != NULL)
-        ici_decref(a);
+        a->decref();
     if (!ici_isregexp(ICI_ARG(1)))
-        ici_decref(re);
+        re->decref();
     return 1;
 }
 
@@ -548,7 +548,7 @@ f_old_smash()
 
 fail:
     if (sa != NULL)
-        ici_decref(sa);
+        sa->decref();
     ici_free((char *)strs);
     return 1;
 }

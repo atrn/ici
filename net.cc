@@ -679,11 +679,11 @@ select_add_result
     }
     if (ici_assign(result, key, rset))
         goto fail;
-    ici_decref(rset);
+    rset->decref();
     return 0;
 
 fail:
-    ici_decref(rset);
+    rset->decref();
     return 1;
 }
 
@@ -838,10 +838,10 @@ ici_net_select()
             goto fail;
         if (ici_assign(result, SS(n), nobj))
         {
-            ici_decref(nobj);
+            nobj->decref();
             goto fail;
         }
-        ici_decref(nobj);
+        nobj->decref();
     }
     if (select_add_result(result, SS(read), rset, rfds, &n))
         goto fail;
@@ -852,7 +852,7 @@ ici_net_select()
 
         o = ici_fetch(result, SS(read));
         o->incref();
-        ici_decref(result);
+        result->decref();
         return ici_ret_with_decref(o);
     }
     if (select_add_result(result, SS(write), wset, wfds, &n))
@@ -862,7 +862,7 @@ ici_net_select()
     return ici_ret_with_decref(result);
 
 fail:
-    ici_decref(result);
+    result->decref();
     return 1;
 }
 
@@ -988,26 +988,26 @@ ici_net_recvfrom()
     msg = NULL;
     if (ici_assign(result, SS(msg), s))
     {
-        ici_decref(s);
+        s->decref();
         goto fail;
     }
-    ici_decref(s);
+    s->decref();
     if ((s = ici_str_new_nul_term(unparse_addr(&addr))) == NULL)
     {
         goto fail;
     }
     if (ici_assign(result, SS(addr), s))
     {
-        ici_decref(s);
+        s->decref();
         goto fail;
     }
-    ici_decref(s);
+    s->decref();
     return ici_ret_with_decref(result);
 
 fail:
     if (msg != NULL)
         ici_nfree(msg, len + 1);
-    ici_decref(result);
+    result->decref();
     return 1;
 }
 
@@ -1666,7 +1666,7 @@ skt_fclose(void *u)
 
     if (sf->sf_flags & SF_WRITE)
         rc = skt_flush(sf);
-    ici_decref(sf->sf_socket);
+    sf->sf_socket->decref();
     ici_tfree(sf, skt_file_t);
     return rc;
 }
@@ -1823,19 +1823,19 @@ ici_net_socketpair()
         goto fail1;
     if ((s = new_netsocket(sv[0])) == NULL)
     {
-        ici_decref(a);
+        a->decref();
         goto fail1;
     }
     *a->a_top++ = s;
-    ici_decref(s);
+    s->decref();
     if ((s = new_netsocket(sv[1])) == NULL)
     {
         close(sv[1]);
-        ici_decref(a);
+        a->decref();
         goto fail;
     }
     *a->a_top++ = s;
-    ici_decref(s);
+    s->decref();
     return ici_ret_with_decref(a);
 
 fail1:

@@ -294,6 +294,14 @@ constexpr int ICI_O_TEMP  =         0x04;    /* Is a re-usable temp (flag for as
 constexpr int ICI_O_SUPER =         0x08;    /* Has super (is ici_objwsup_t derived). */
 constexpr int ICI_O_OLD   =	    0x10;    /* Has been through 1+ collects */
 
+#ifdef BUGHUNT
+/*
+ * Override incref/decref when bughunting.
+ */
+void bughunt_incref(ici_obj_t *o);
+void bughunt_decref(ici_obj_t *o);
+#endif
+
 /*
  * This is the universal header of all objects.  Each object includes this as
  * its first element.  In the real structures associated with each object type the type
@@ -360,11 +368,30 @@ struct object
      * This --func-- forms part of the --ici-api--.
      */
     inline void incref() {
+#ifdef BUGHUNT
+        bughunt_incref(this);
+#else
         ++o_nrefs;
+#endif
     }
 
+    /*
+     * Decrement the object 'o's reference count.  References from ordinary
+     * machine data objects (ie.  variables and stuff, not other objects) are
+     * invisible to the garbage collector.  These refs must be accounted for if
+     * there is a possibility of garbage collection.  Note that most routines that
+     * make objects (new_*(), copy() etc...) return objects with 1 ref.  The
+     * caller is expected to decref() it when they attach it into wherever it
+     * is going.
+     *
+     * This --func-- forms part of the --ici-api--.
+     */
     inline void decref() {
+#ifdef BUGHUNT
+        bughunt_decref(this);
+#else
         --o_nrefs;
+#endif
     }
 
     inline unsigned long hash() {
@@ -631,21 +658,6 @@ inline int ici_assign_super(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v, ici_struct
 }
 
 /*
- * Decrement the object 'o's reference count.  References from ordinary
- * machine data objects (ie.  variables and stuff, not other objects) are
- * invisible to the garbage collector.  These refs must be accounted for if
- * there is a possibility of garbage collection.  Note that most routines that
- * make objects (new_*(), copy() etc...) return objects with 1 ref.  The
- * caller is expected to ici_decref() it when they attach it into wherever it
- * is going.
- *
- * This --macro-- forms part of the --ici-api--.
- */
-inline void ici_decref(ici_obj_t *o) {
-    return o->decref();
-}
-
-/*
  * Register the object 'o' with the garbage collector.  Object that are
  * registered with the garbage collector can get collected.  This is typically
  * done after allocaton and initialisation of basic fields when making a new
@@ -765,17 +777,6 @@ inline void ICI_STORE_ATOM_AND_COUNT(ici_obj_t **po, ici_obj_t *s) {
 }
 
 inline long ici_atom_hash_index(long h)  { return h & (ici_atomsz - 1); }
-
-
-#ifdef BUGHUNT
-/*
- * Override incref/decref when bughunting.
- */
-void bughunt_incref(ici_obj_t *o);
-void bughunt_decref(ici_obj_t *o);
-#define ici_incref(o) bughunt_incref(o)
-#define ici_decref(o) bughunt_decref(o)
-#endif
 
 } // namespace ici
 

@@ -200,7 +200,7 @@ f_load(...)
             goto fail;
         }
         file = ici_file_new((char *)stream, &ici_stdio_ftype, fn, NULL);
-        ici_decref(fn);
+        fn->decref();
         if (file == NULL)
         {
             fclose(stream);
@@ -215,7 +215,7 @@ f_load(...)
             goto fail;
         }
         autos->o_super = ici_objwsupof(statics);
-        ici_decref(statics);
+        statics->decref();
         if (externs == NULL)
         {
             if ((externs = ici_struct_new()) == NULL)
@@ -235,8 +235,8 @@ f_load(...)
             goto fail;
         }
         ici_file_close(file);
-        ici_decref(autos);
-        ici_decref(file);
+        autos->decref();
+        file->decref();
     }
     if (result == NULL)
     {
@@ -253,11 +253,11 @@ f_load(...)
 
 fail:
     if (file != NULL)
-        ici_decref(file);
+        file->decref();
     if (autos != NULL)
-        ici_decref(autos);
+        autos->decref();
     if (result != NULL)
-        ici_decref(result);
+        result->decref();
     return 1;
 }
 
@@ -395,12 +395,12 @@ push_path_elements(ici_array_t *a, const char *path)
         }
         if (ici_stk_push_chk(a, 1))
         {
-            ici_decref(s);
+            s->decref();
             return 1;
         }
         *a->a_top++ = s;
     skip:
-        ici_decref(s);
+        s->decref();
     }
     return 0;
 }
@@ -421,7 +421,7 @@ ici_init_path(ici_objwsup_t *externs)
         return 1;
     }
     r = ici_assign_base(externs, SSO(path), a);
-    ici_decref(a);
+    a->decref();
     if (r)
     {
         return 1;

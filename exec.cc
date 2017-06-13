@@ -110,27 +110,27 @@ ici_new_exec()
     {
         goto fail;
     }
-    ici_decref(x->x_xs);
+    x->x_xs->decref();
     if ((x->x_os = ici_array_new(80)) == NULL)
     {
         goto fail;
     }
-    ici_decref(x->x_os);
+    x->x_os->decref();
     if ((x->x_vs = ici_array_new(80)) == NULL)
     {
         goto fail;
     }
-    ici_decref(x->x_vs);
+    x->x_vs->decref();
     if ((x->x_pc_closet = ici_array_new(80)) == NULL)
     {
         goto fail;
     }
-    ici_decref(x->x_pc_closet);
+    x->x_pc_closet->decref();
     if ((x->x_os_temp_cache = ici_array_new(80)) == NULL)
     {
         goto fail;
     }
-    ici_decref(x->x_os_temp_cache);
+    x->x_os_temp_cache->decref();
     x->x_semaphore = new std::condition_variable;
     x->x_state = ICI_XS_ACTIVE;
     x->x_count = 100;
@@ -449,11 +449,11 @@ ici_evaluate(ici_obj_t *code, int n_operands)
                         src->incref();
                         if (ici_func(f, "o", o))
                         {
-                            ici_decref(src);
+                            src->decref();
                             goto fail;
                         }
                         ici_exec->x_src = src;
-                        ici_decref(src);
+                        src->decref();
                     }
                     --ici_xs.a_top;
                     switch
@@ -619,7 +619,7 @@ ici_evaluate(ici_obj_t *code, int n_operands)
                                 {
                                     goto fail;
                                 }
-                                ici_decref(ici_os.a_top[-3]);
+                                ici_os.a_top[-3]->decref();
                                 ici_os.a_top[-4] = nam;
                             }
                         }
@@ -634,7 +634,7 @@ ici_evaluate(ici_obj_t *code, int n_operands)
                         }
                         --ici_os.a_top;
                         ici_os.a_top[-1] = m;
-                        ici_decref(m);
+                        m->decref();
                         goto stable_stacks_continue;
                     }
                     /*
@@ -660,7 +660,7 @@ ici_evaluate(ici_obj_t *code, int n_operands)
                     ici_set_error("attempt to call %s", ici_objname(n1, ici_os.a_top[-1]));
                     if (o != NULL)
                     {
-                        ici_decref(o);
+                        o->decref();
                     }
                     goto fail;
                 }
@@ -672,13 +672,13 @@ ici_evaluate(ici_obj_t *code, int n_operands)
                 {
                     if (o != NULL)
                     {
-                        ici_decref(o);
+                        o->decref();
                     }
                     goto fail;
                 }
                 if (o != NULL)
                 {
-                    ici_decref(o);
+                    o->decref();
                 }
                 continue;
 
@@ -867,20 +867,20 @@ ici_evaluate(ici_obj_t *code, int n_operands)
                     v1->incref();
                     if ((v2 = ici_fetch(ici_os.a_top[-2], ici_os.a_top[-1])) == NULL)
                     {
-                        ici_decref(v1);
+                        v1->decref();
                         goto fail;
                     }
                     v2->incref();
                     if (ici_assign(ici_os.a_top[-2], ici_os.a_top[-1], v1))
                     {
-                        ici_decref(v1);
-                        ici_decref(v2);
+                        v1->decref();
+                        v2->decref();
                         goto fail;
                     }
                     if (ici_assign(ici_os.a_top[-4], ici_os.a_top[-3], v2))
                     {
-                        ici_decref(v1);
-                        ici_decref(v2);
+                        v1->decref();
+                        v2->decref();
                         goto fail;
                     }
                     switch (ici_opof(o)->op_code)
@@ -898,8 +898,8 @@ ici_evaluate(ici_obj_t *code, int n_operands)
                         ici_os.a_top -= 2;
                         break;
                     }
-                    ici_decref(v1);
-                    ici_decref(v2);
+                    v1->decref();
+                    v2->decref();
                 }
                 continue;
 
@@ -1248,12 +1248,12 @@ ici_evaluate(ici_obj_t *code, int n_operands)
                 ici_set_val(ici_objwsupof(ici_vs.a_top[-1]), SS(errorfile), 'o', ici_exec->x_src->s_filename)
             )
             {
-                ici_decref(c);
+                c->decref();
                 goto badfail;
             }
             ici_get_pc(ici_arrayof(c->c_catcher), ici_xs.a_top);
             ++ici_xs.a_top;
-            ici_decref(c);
+            c->decref();
             continue;
 
         badfail:
@@ -1352,7 +1352,7 @@ ici_obj_t *exec_type::fetch(ici_obj_t *o, ici_obj_t *k)
         ici_str_t *s = ici_str_new_nul_term(x->x_error);
         if (s != NULL)
         {
-            ici_decref(s);
+            s->decref();
         }
         return s;
     }
