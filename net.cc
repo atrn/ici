@@ -1882,28 +1882,20 @@ ici_net_shutdown()
     return ici_ret_no_decref(skt);
 }
 
-static int
-ici_net_netinit()
+int ici_net_init()
 {
 #ifdef  USE_WINSOCK
+    WSADATA             wsadata;
+    if (WSAStartup(MAKEWORD(1, 1), &wsadata))
     {
-        WSADATA             wsadata;
-
-        if (WSAStartup(MAKEWORD(1, 1), &wsadata))
-        {
-            /*
-             * Can't use GetLastError() on WSAStartup() failure.
-             */
-            return ici_set_error("failed to initialise Windows socket");
-        }
+        return ici_set_error("failed to initialise Windows socket");
     }
 #endif
-    return ici_null_ret();
+    return 0;
 }
 
 ICI_DEFINE_CFUNCS(net)
 {
-    ICI_DEFINE_CFUNC(netinit, ici_net_netinit),
     ICI_DEFINE_CFUNC(socket, ici_net_socket),
     ICI_DEFINE_CFUNC(closesocket, ici_net_close),
     ICI_DEFINE_CFUNC(listen, ici_net_listen),

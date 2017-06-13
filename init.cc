@@ -34,6 +34,9 @@ extern ici_cfunc_t  *ici_funcs[];
 int
 ici_init()
 {
+    extern int ici_sys_init(objwsup *);
+    extern int ici_net_init();
+
     ici_cfunc_t         **cfp;
     ici_struct_t        *scope;
     ici_objwsup_t       *externs;
@@ -137,6 +140,14 @@ ici_init()
         {
             return 1;
         }
+    }
+    if (ici_sys_init(scope->o_super))
+    {
+        return 1;
+    }
+    if (ici_net_init())
+    {
+        return 1;
     }
     if (ici_archive_init())
     {
