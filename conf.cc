@@ -16,6 +16,7 @@ extern ici_cfunc_t  ici_sys_cfuncs[];
 extern ici_cfunc_t  ici_signals_cfuncs[];
 extern ici_cfunc_t  ici_thread_cfuncs[];
 extern ici_cfunc_t  ici_channel_cfuncs[];
+extern ici_cfunc_t  ici_net_cfuncs[];
 #ifndef NOEVENTS
 extern ici_cfunc_t  ici_event_cfuncs[];
 #endif
@@ -38,6 +39,7 @@ ici_cfunc_t *ici_funcs[] =
     ici_signals_cfuncs,
     ici_thread_cfuncs,
     ici_sys_cfuncs,
+    ici_net_cfuncs,
     ici_channel_cfuncs,
 #ifndef NODEBUGGING
     ici_debug_cfuncs,
