@@ -174,18 +174,12 @@ namespace ici
 /*
  * Create pre-defined variables to replace C's #define's.
  */
-int
-ici_sys_vars_init(ici::objwsup *scp)
+int ici_sys_init(ici::objwsup *scp)
 {
     size_t      i;
 
 #define VALOF(x) { #x , x }
-    static struct
-    {
-        const char *    name;
-        long            val;
-    }
-    var[] =
+    static struct { const char *name; long val; } var[] =
     {
         VALOF(O_RDONLY),
         VALOF(O_WRONLY),
