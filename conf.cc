@@ -12,19 +12,19 @@ extern ici_cfunc_t  ici_oo_cfuncs[];
 extern ici_cfunc_t  ici_apl_cfuncs[];
 extern ici_cfunc_t  ici_load_cfuncs[];
 extern ici_cfunc_t  ici_parse_cfuncs[];
-
+extern ici_cfunc_t  ici_sys_cfuncs[];
+extern ici_cfunc_t  ici_signals_cfuncs[];
+extern ici_cfunc_t  ici_thread_cfuncs[];
+extern ici_cfunc_t  ici_channel_cfuncs[];
 #ifndef NOEVENTS
 extern ici_cfunc_t  ici_event_cfuncs[];
 #endif
 #ifndef NOPROFILE
 extern ici_cfunc_t  ici_profile_cfuncs[];
 #endif
-extern ici_cfunc_t  ici_signals_cfuncs[];
 #ifndef NODEBUGGING
 extern ici_cfunc_t  ici_debug_cfuncs[];
 #endif
-extern ici_cfunc_t  ici_thread_cfuncs[];
-extern ici_cfunc_t  ici_channel_cfuncs[];
 
 ici_cfunc_t *ici_funcs[] =
 {
@@ -35,6 +35,10 @@ ici_cfunc_t *ici_funcs[] =
     ici_apl_cfuncs,
     ici_load_cfuncs,
     ici_parse_cfuncs,
+    ici_signals_cfuncs,
+    ici_thread_cfuncs,
+    ici_sys_cfuncs,
+    ici_channel_cfuncs,
 #ifndef NODEBUGGING
     ici_debug_cfuncs,
 #endif
@@ -44,9 +48,6 @@ ici_cfunc_t *ici_funcs[] =
 #ifndef NOPROFILE
     ici_profile_cfuncs,
 #endif
-    ici_signals_cfuncs,
-    ici_thread_cfuncs,
-    ici_channel_cfuncs,
     NULL
 };
 
