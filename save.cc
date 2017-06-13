@@ -260,8 +260,7 @@ save_func(ici_archive_t *ar, ici_obj_t *obj)
     if (obj->o_tcode == ICI_TC_CFUNC)
     {
         ici_cfunc_t *cf = ici_cfuncof(obj);
-        int nchars = strlen(cf->cf_name);
-        return write16(ar, nchars) || writef(ar, cf->cf_name, nchars);
+        return write16(ar, cf->cf_name->s_nchars) || writef(ar, cf->cf_name->s_chars, cf->cf_name->s_nchars);
     }
 
     if (save_object_name(ar, obj) || ici_archive_save(ar, f->f_code) || ici_archive_save(ar, f->f_args))

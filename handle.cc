@@ -253,7 +253,7 @@ ici_obj_t *
 ici_make_handle_member_map(ici_name_id_t *ni)
 {
     ici_obj_t           *m;
-    ici_obj_t           *n;
+    ici_str_t           *n;
     ici_obj_t           *id;
 
     if ((m = ici_struct_new()) == NULL)
@@ -267,7 +267,7 @@ ici_make_handle_member_map(ici_name_id_t *ni)
         {
             id = (ici_obj_t *)ici_cfunc_new
             (
-                ni->ni_name,
+                n,
                 (int (*)(...))(ici_handle_method),
                 (void *)(ni->ni_id & ~ICI_H_METHOD),
                 NULL

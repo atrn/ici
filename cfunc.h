@@ -25,7 +25,7 @@ namespace ici
  */
 struct cfunc : object
 {
-    const char  *cf_name;
+    ici_str_t * cf_name;
     int         (*cf_cfunc)(...);
     const void  *cf_arg1;
     const void  *cf_arg2;
@@ -39,7 +39,7 @@ struct cfunc : object
     {}
 
     template <typename F>
-    cfunc(const char* name, F *f)
+    cfunc(ici_str_t *name, F *f)
         : object{ICI_TC_CFUNC, 0, 1, 0}
         , cf_name(name)
         , cf_cfunc(reinterpret_cast<int (*)(...)>(f))
@@ -49,7 +49,7 @@ struct cfunc : object
     }
 
     template <typename F>
-    cfunc(const char* name, F *f, void *arg1)
+    cfunc(ici_str_t *name, F *f, void *arg1)
         : object{ICI_TC_CFUNC, 0, 1, 0}
         , cf_name(name)
         , cf_cfunc(reinterpret_cast<int (*)(...)>(f))
@@ -58,7 +58,7 @@ struct cfunc : object
     {
     }
 
-    cfunc(const char* name, int (*f)(), long arg1)
+    cfunc(ici_str_t *name, int (*f)(), long arg1)
         : object{ICI_TC_CFUNC, 0, 1, 0}
         , cf_name(name)
         , cf_cfunc(reinterpret_cast<int (*)(...)>(f))
@@ -67,7 +67,7 @@ struct cfunc : object
     {
     }
 
-    cfunc(const char* name, double (*f)(...), const char *arg1)
+    cfunc(ici_str_t *name, double (*f)(...), const char *arg1)
         : object{ICI_TC_CFUNC, 0, 1, 0}
         , cf_name(name)
         , cf_cfunc(reinterpret_cast<int (*)(...)>(f))
@@ -77,7 +77,7 @@ struct cfunc : object
     }
 
     template <typename F>
-    cfunc(const char* name, F *f, void *arg1, void *arg2)
+    cfunc(ici_str_t *name, F *f, void *arg1, void *arg2)
         : object{ICI_TC_CFUNC, 0, 1, 0}
         , cf_name(name)
         , cf_cfunc(reinterpret_cast<int (*)(...)>(f))
@@ -192,14 +192,14 @@ inline bool ici_iscfunc(ici_obj_t *o) { return o->isa(ICI_TC_CFUNC); }
 /*
  * Macros to define cfuncs. Use the one for the number of arguments.
  */
-#define ICI_DEFINE_CFUNC(NAME, FUNC) {(const char *)SS(NAME), (FUNC)}
-#define ICI_DEFINE_CFUNC1(NAME, FUNC, ARG) {(const char *)SS(NAME), (FUNC), (void *)(ARG)}
-#define ICI_DEFINE_CFUNC2(NAME, FUNC, ARG1, ARG2) {(const char *)SS(NAME), (FUNC), (void *)(ARG1), (void *)(ARG2)}
+#define ICI_DEFINE_CFUNC(NAME, FUNC) {SS(NAME), (FUNC)}
+#define ICI_DEFINE_CFUNC1(NAME, FUNC, ARG) {SS(NAME), (FUNC), (void *)(ARG)}
+#define ICI_DEFINE_CFUNC2(NAME, FUNC, ARG1, ARG2) {SS(NAME), (FUNC), (void *)(ARG1), (void *)(ARG2)}
 
 /*
  * Macros to define methods within a cfuncs array.
  */
-#define ICI_DEFINE_METHOD(NAME, FUNC) {(const char *)SS(NAME), (int (*)(...))(FUNC)}
+#define ICI_DEFINE_METHOD(NAME, FUNC) {SS(NAME), (int (*)(...))(FUNC)}
 
 } // namespace ici
 

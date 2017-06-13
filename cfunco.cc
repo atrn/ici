@@ -29,7 +29,7 @@ namespace ici
  * refernce of 1.
  */
 ici_cfunc_t *
-ici_cfunc_new(const char *name, int (*func)(...), void *arg1, void *arg2)
+ici_cfunc_new(ici_str_t *name, int (*func)(...), void *arg1, void *arg2)
 {
     ici_cfunc_t         *cf;
 
@@ -63,38 +63,20 @@ ici_cfunc_new(const char *name, int (*func)(...), void *arg1, void *arg2)
 int
 ici_assign_cfuncs(ici_objwsup_t *s, ici_cfunc_t *cf)
 {
-    ici_str_t   *n;
-
     while (cf->cf_name != NULL)
     {
-        assert(cf->o_tcode == ICI_TC_CFUNC);
-        if (cf->cf_name[0] == ICI_TC_STRING)
+        /* ### should be a decref here? ### */
+        assert(ici_fetch_base(s, cf->cf_name) == ici_null);
+        if (ici_fetch_base(s, cf->cf_name) != ici_null)
         {
-            /*
-             * Temporary migration hack while we change over
-             * to using static strings in these initialisations
-             * in the ICI core.
-             */
-            n = (ici_str_t *)cf->cf_name;
-            cf->cf_name = n->s_chars;
-            /* ### should be a decref here? ### */
+            fprintf(stderr, "WARNING: duplicate builtin function '%s'\n", cf->cf_name->s_chars);
         }
-        else
+        if (ici_assign_base(s, cf->cf_name, cf))
         {
-            if ((n = ici_str_new_nul_term(cf->cf_name)) == NULL)
-                return 1;
-        }
-        assert(ici_fetch_base(s, n) == ici_null);
-        if (ici_fetch_base(s, n) != ici_null)
-        {
-            fprintf(stderr, "WARNING: duplicate builtin function '%s'\n", n->s_chars);
-        }
-        if (ici_assign_base(s, n, cf))
-        {
-            ici_decref(n);
+            ici_decref(cf->cf_name);
             return 1;
         }
-        ici_decref(n);
+        ici_decref(cf->cf_name);
         ++cf;
     }
     return 0;
@@ -167,7 +149,7 @@ call_cfunc_nodebug(ici_obj_t *o, ici_obj_t *subject)
 unsigned long cfunc_type::mark(ici_obj_t *o)
 {
     o->o_flags |= ICI_O_MARK;
-    return sizeof (ici_cfunc_t);
+    return sizeof (ici_cfunc_t) + ici_mark(ici_cfuncof(o)->cf_name);
 }
 
 void cfunc_type::free(ici_obj_t *o)
@@ -178,14 +160,14 @@ void cfunc_type::free(ici_obj_t *o)
 ici_obj_t * cfunc_type::fetch(ici_obj_t *o, ici_obj_t *k)
 {
     if (k == SSO(name))
-        return ici_str_get_nul_term(ici_cfuncof(o)->cf_name);
+        return ici_cfuncof(o)->cf_name;
     return ici_null;
 }
 
 void cfunc_type::objname(ici_obj_t *o, char p[ICI_OBJNAMEZ])
 {
     const char    *n;
-    n = ici_cfuncof(o)->cf_name;
+    n = ici_cfuncof(o)->cf_name->s_chars;
     if (strlen(n) > ICI_OBJNAMEZ - 2 - 1)
         sprintf(p, "%.*s...()", ICI_OBJNAMEZ - 6, n);
     else

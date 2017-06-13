@@ -445,7 +445,7 @@ extern int              ici_find_on_path(char [FILENAME_MAX], const char *);
 extern int              ici_init_sstrings();
 extern void             ici_drop_all_small_allocations();
 extern ici_objwsup_t    *ici_outermost_writeable_struct();
-extern ici_cfunc_t      *ici_cfunc_new(const char *, int (*)(...), void *, void *);
+extern ici_cfunc_t      *ici_cfunc_new(ici_str_t *, int (*)(...), void *, void *);
 extern int              ici_str_char_at(ici_str_t *, int);
 
 extern ici_obj_t        **ici_objs;
