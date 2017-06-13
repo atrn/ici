@@ -2,22 +2,13 @@
 /*
  * System calls and related
  *
- * The ICI 'sys' module provides raw access to many UNIX system calls and some
- * other useful C library functions.  Not all system calls are supported and
- * some are incompletely supported (e.g., signal).  Most system call
- * functions return integers, zero if the call succeeded.  Errors are reported
- * using ICI's usual error handling ("system calls" will never return the -1
- * error return value).  If an error is raised by a system call the value of
- * 'error' in the error handler will be the error message (as returned by the
- * ANSI C strerror() function).
- * 
- * To assist in the use of system calls, the 'sys' module holds various
- * defines for flags and other values used when calling the system calls.
- * These variables are equivalent to the macros used in C.  Not all systems
- * support all these variables.  If the C header files do not define a value
- * then the 'sys' module will not pre-define the variable.
- *
- * This --intro-- and --synopsis-- are part of --ici-sys-- documentation.
+ * Not all system calls are supported and some are incompletely
+ * supported.  Most system call functions return integers, zero if the
+ * call succeeded.  Errors are reported using ICI's usual error
+ * handling ("system calls" will never return the -1 error return
+ * value).  If an error is raised by a system call the value of
+ * 'error' in the error handler will be the error message (as returned
+ * by the ANSI C strerror() function for the errno set by the call).
  */
 
 #include "fwd.h"
@@ -37,7 +28,6 @@
 #include <errno.h>
 #include <signal.h>
 
-
 #ifndef _WIN32
 #include <unistd.h>
 #include <sys/wait.h>
@@ -55,13 +45,13 @@
 #endif
 
 #ifdef _WIN32
-# define        ICI_SYS_NOPASSWD
-# define        ICI_SYS_NOFLOCK
-# define        ICI_SYS_NORLIMITS
+#define        ICI_SYS_NOPASSWD
+#define        ICI_SYS_NOFLOCK
+#define        ICI_SYS_NORLIMITS
 #endif
 
 #ifndef ICI_SYS_NOPASSWD
-# include <pwd.h>
+#include <pwd.h>
 #endif
 
 #ifndef ICI_SYS_NORLIMITS
@@ -85,9 +75,9 @@
 #endif
 
 #ifndef _WIN32
-# ifndef ICI_SYS_NOFLOCK
-#  include <sys/file.h>
-# endif
+#ifndef ICI_SYS_NOFLOCK
+#include <sys/file.h>
+#endif
 #endif
 
 #ifdef _WIN32
@@ -112,68 +102,68 @@
  *
  * Values for open's flags parameter:
  *
- *  sys.O_RDONLY
- *  sys.O_WRONLY
- *  sys.O_RDWR
- *  sys.O_APPEND
- *  sys.O_CREAT
- *  sys.O_TRUNC
- *  sys.O_EXCL
- *  sys.O_SYNC
- *  sys.O_NDELAY
- *  sys.O_NONBLOCK
- *  sys.O_BINARY        (Win32 only)
+ *  O_RDONLY
+ *  O_WRONLY
+ *  O_RDWR
+ *  O_APPEND
+ *  O_CREAT
+ *  O_TRUNC
+ *  O_EXCL
+ *  O_SYNC
+ *  O_NDELAY
+ *  O_NONBLOCK
+ *  O_BINARY        (Win32 only)
  *
  * Values for access's mode parameter:
  *
- *  sys.R_OK
- *  sys.W_OK
- *  sys.X_OK
- *  sys.F_OK
+ *  R_OK
+ *  W_OK
+ *  X_OK
+ *  F_OK
  *
  * Values for lseek's whence parameter:
  *
- *  sys.SEEK_SET
- *  sys.SEEK_CUR
- *  sys.SEEK_END
+ *  SEEK_SET
+ *  SEEK_CUR
+ *  SEEK_END
  *
  * Values for flock's op parameter:
  *
- *  sys.LOCK_SH
- *  sys.LOCK_EX
- *  sys.LOCK_NB
- *  sys.LOCK_UN
+ *  LOCK_SH
+ *  LOCK_EX
+ *  LOCK_NB
+ *  LOCK_UN
  *
  * Values for spawn's mode parameter:
  *
- *  sys._P_WAIT
- *  sys._P_NOWAIT
+ *  _P_WAIT
+ *  _P_NOWAIT
  *
  * Values returned by stat:
  *
- *  sys.S_IFMT
- *  sys.S_IFCHR
- *  sys.S_IFDIR
- *  sys.S_IFREG
- *  sys.S_IREAD
- *  sys.S_IWRITE
- *  sys.S_IEXEC
- *  sys.S_IFIFO
- *  sys.S_IFBLK
- *  sys.S_IFLNK
- *  sys.S_IFSOCK
- *  sys.S_ISUID
- *  sys.S_ISGID
- *  sys.S_ISVTX
- *  sys.S_IRUSR
- *  sys.S_IWUSR
- *  sys.S_IXUSR
- *  sys.S_IRGRP
- *  sys.S_IWGRP
- *  sys.S_IXGRP
- *  sys.S_IROTH
- *  sys.S_IWOTH
- *  sys.S_IXOTH
+ *  S_IFMT
+ *  S_IFCHR
+ *  S_IFDIR
+ *  S_IFREG
+ *  S_IREAD
+ *  S_IWRITE
+ *  S_IEXEC
+ *  S_IFIFO
+ *  S_IFBLK
+ *  S_IFLNK
+ *  S_IFSOCK
+ *  S_ISUID
+ *  S_ISGID
+ *  S_ISVTX
+ *  S_IRUSR
+ *  S_IWUSR
+ *  S_IXUSR
+ *  S_IRGRP
+ *  S_IWGRP
+ *  S_IXGRP
+ *  S_IROTH
+ *  S_IWOTH
+ *  S_IXOTH
  *
  * This --intro-- forms part of the --ici-sys-- documentation.
  */
@@ -189,7 +179,7 @@ ici_sys_vars_init(ici::objwsup *scp)
 {
     int         i;
 
-#define VALOF(x) { # x , x }
+#define VALOF(x) { #x , x }
     static struct
     {
         const char *    name;
@@ -213,9 +203,7 @@ ici_sys_vars_init(ici::objwsup *scp)
 #ifdef O_NDELAY         /* WINDOWS doesn't have O_NDELAY */
         VALOF(O_NDELAY),
 #endif
-#ifdef O_NONBLOCK       /* NeXT doesn't have O_NONBLOCK */
         VALOF(O_NONBLOCK),
-#endif
         VALOF(R_OK),
         VALOF(W_OK),
 #ifdef X_OK             /* WINDOWS doesn't have X_OK */
@@ -304,7 +292,7 @@ static int ici_sys_simple()
 }
 
 /*
- * int = sys.open(pathname, int [, int])
+ * int = open(pathname, int [, int])
  *
  * Open the named file for reading or writing depending upon the value of the
  * second parameter, flags, and return a file descriptor.  The second
@@ -359,7 +347,7 @@ not_on_win32(const char *s)
 #endif
 
 /*
- * file = sys.fdopen(int [, openmode])
+ * file = fdopen(int [, openmode])
  *
  * Open a file descriptor as an (ICI) file object. This is analogous
  * to fopen, sopen, mopen, popen, net.sktopen, etc... The openmode is a
@@ -407,9 +395,9 @@ static int ici_sys_fdopen()
 }
 
 /*
- * sys.close(int)
+ * _close(int)
  *
- * Close a file descriptor. Also supported on WIN32 platforms.
+ * Close a file descriptor.
  *
  * This --topic-- forms part of the --ici-sys-- documentation.
  */
@@ -436,7 +424,7 @@ static int ici_sys_close()
             !ici_isint(fd1 = ici_array_get(a, 1))
         )
         {
-            ici_set_error("invalid fd array passed to sys.close");
+            ici_set_error("invalid fd array passed to _close");
             return 1;
         }
         rc = close(ici_intof(fd0)->i_value);
@@ -483,7 +471,7 @@ struct_to_flock(ici_struct_t *d, struct flock *flock)
         flock->l_type = ici_intof(o)->i_value;
     else
     {
-bad_lock_type:
+    bad_lock_type:
         ici_set_error("invalid lock type");
         return 1;
     }
@@ -496,7 +484,7 @@ bad_lock_type:
 #endif  /* _WIN32 */
 
 /*
- * int = sys.fcntl(fd, what [, arg])
+ * int = fcntl(fd, what [, arg])
  *
  * Invoke the 'fcntl(2)' (file control) function.  The action taken depends on
  * the value of 'what', which must be one of the following strings (which map
@@ -607,13 +595,13 @@ static int ici_sys_fcntl()
     else
         return ici_argerror(1);
     r = fcntl(fd, iwhat, iarg);
-ret:
+ ret:
     return sys_ret(r);
 #endif /* _WIN32 */
 }
 
 /*
- * int = sys.fileno(file)
+ * int = fileno(file)
  *
  * Return the underlying file descriptor of a file opened with 'fopen' or
  * 'popen'.
@@ -629,10 +617,10 @@ static int ici_sys_fileno()
     if
     (
         f->f_type != &ici_stdio_ftype
-#       ifndef NOPIPES
-            &&
-            f->f_type != &ici_popen_ftype
-#       endif
+#ifndef NOPIPES
+        &&
+        f->f_type != &ici_popen_ftype
+#endif
     )
     {
         ici_set_error("attempt to obtain file descriptor of non-stdio file");
@@ -642,7 +630,7 @@ static int ici_sys_fileno()
 }
 
 /*
- * sys.mkdir(pathname, int)
+ * mkdir(pathname, int)
  *
  * Create a directory with the specified mode.  Supported on Win32 platforms.
  *
@@ -674,7 +662,7 @@ static int ici_sys_mkdir()
 }
 
 /*
- * sys.mkfifo(path, mode)
+ * mkfifo(path, mode)
  *
  * Make a "named pipe" with the given mode (an int).
  * Not supported on Win32.
@@ -698,7 +686,7 @@ static int ici_sys_mkfifo()
 }
 
 /*
- * string = sys.read(fd, len)
+ * string = read(fd, len)
  *
  * Read up to 'len' bytes from the given file descriptor using 'read(2)',
  * and return the result as a string.
@@ -739,7 +727,7 @@ static int ici_sys_read()
 }
 
 /*
- * int = sys.write(fd, string|mem [, len)
+ * int = write(fd, string|mem [, len)
  *
  * Write a string or mem object to the given file descriptor using
  * 'write(2)'. If 'len' is given, and it is less than the size in
@@ -782,7 +770,7 @@ static int ici_sys_write()
 }
 
 /*
- * sys.symlink(oldpath, newpath)
+ * symlink(oldpath, newpath)
  *
  * Creates a symbolic link 'newpath' that referes to 'oldpath'.
  * Not supported on Win32.
@@ -805,7 +793,7 @@ static int ici_sys_symlink()
 }
 
 /*
- * string = sys.readlink(path)
+ * string = readlink(path)
  *
  * Return and return the contents of a symbolic link 'path'.
  * Not supported on Win32.
@@ -829,7 +817,7 @@ static int ici_sys_readlink()
 }
 
 /*
- * struct = sys.stat(pathname|int|file)
+ * struct = stat(pathname|int|file)
  *
  * Obtain information on the named file system object, file descriptor or file
  * underlying an ici file object and return a struct containing that
@@ -878,15 +866,15 @@ static int ici_sys_stat()
         return sys_ret(rc);
     if ((s = ici_struct_new()) == NULL)
         return 1;
-#define SETFIELD(x)                                             \
-    if ((o = ici_int_new(statb.st_ ## x)) == NULL)              \
-        goto fail;                                              \
-    else if (ici_assign(s, SSO(x), o))                          \
-    {                                                           \
-        ici_decref(o);                                          \
-        goto fail;                                              \
-    }                                                           \
-    else                                                        \
+#define SETFIELD(x)                                     \
+    if ((o = ici_int_new(statb.st_ ##x)) == NULL)      \
+        goto fail;                                      \
+    else if (ici_assign(s, SSO(x), o))                  \
+    {                                                   \
+        ici_decref(o);                                  \
+        goto fail;                                      \
+    }                                                   \
+    else                                                \
         ici_decref(o)
 
     SETFIELD(dev);
@@ -909,16 +897,16 @@ static int ici_sys_stat()
 
     return ici_ret_with_decref(s);
 
-fail:
+ fail:
     ici_decref(s);
     return 1;
 }
 
 #ifndef _WIN32
 /*
- * struct = sys.lstat(pathname)
+ * struct = lstat(pathname)
  *
- * Same as 'sys.stat' except the argument must be a string, and if it refers
+ * Same as 'stat' except the argument must be a string, and if it refers
  * to a symbolic link, information on the link is returned rather than the
  * file it refers to. Not supported in Win32 platforms.
  *
@@ -942,15 +930,15 @@ static int ici_sys_lstat()
         return sys_ret(rc);
     if ((s = ici_struct_new()) == NULL)
         return 1;
-#define SETFIELD(x)                                             \
-    if ((o = ici_int_new(statb.st_ ## x)) == NULL)              \
-        goto fail;                                              \
-    else if (ici_assign(s, SSO(x), o))                          \
-    {                                                           \
-        ici_decref(o);                                          \
-        goto fail;                                              \
-    }                                                           \
-    else                                                        \
+#define SETFIELD(x)                                     \
+    if ((o = ici_int_new(statb.st_ ##x)) == NULL)      \
+        goto fail;                                      \
+    else if (ici_assign(s, SSO(x), o))                  \
+    {                                                   \
+        ici_decref(o);                                  \
+        goto fail;                                      \
+    }                                                   \
+    else                                                \
         ici_decref(o)
 
     SETFIELD(dev);
@@ -971,14 +959,14 @@ static int ici_sys_lstat()
 
     return ici_ret_with_decref(s);
 
-fail:
+ fail:
     ici_decref(s);
     return 1;
 }
 #endif
 
 /*
- * string = sys.ctime(int)
+ * string = ctime(int)
  *
  * Convert a time value (see time, below) to a string of the form
  *
@@ -1000,7 +988,7 @@ static int ici_sys_ctime()
 }
 
 /*
- * int = sys.time()
+ * int = time()
  *
  * Return the time since 00:00:00 GMT, Jan.  1, 1970, measured in seconds.
  * Note that ICI ints are signed 32 bit quantities, but routines in the 'sys'
@@ -1046,14 +1034,14 @@ assign_timeval(ici_struct_t *s, ici_str_t *k, struct timeval *tv)
         goto fail;
     return 0;
 
-fail:
+ fail:
     if (k != NULL)
         ici_decref(ss);
     return 1;
 }
 
 /*
- * struct = sys.getitimer(which)
+ * struct = getitimer(which)
  *
  * Invokes 'getitimer(2)' where 'which' is a string with one of the
  * values:
@@ -1134,11 +1122,11 @@ fetch_timeval(ici_obj_t *s, struct timeval *tv)
 }
 
 /*
- * struct = sys.setitimer([which ,] struct)
+ * struct = setitimer([which ,] struct)
  *
- * Sets the interval timer named by 'which' (see 'sys.getitimer'), or
+ * Sets the interval timer named by 'which' (see 'getitimer'), or
  * 'ITIMER_VIRTUAL' by default to the values given in the struct parameter.
- * These are a time value as described in 'sys.getitimer'.  Returns the old
+ * These are a time value as described in 'getitimer'.  Returns the old
  * value of the timer.
  *
  * Not supported on Win32 platforms.
@@ -1195,16 +1183,16 @@ static int ici_sys_setitimer()
     }
     return ici_ret_with_decref(s);
 
-invalid_itimerval:
+ invalid_itimerval:
     ici_set_error("invalid itimer struct");
     return 1;
 }
 
 /*
- * struct = sys.gettimeofday()
+ * struct = gettimeofday()
  *
  * Returns the result of 'gettimeofday(2)' as a struct as described
- * in 'sys.getitimer'.
+ * in 'getitimer'.
  *
  * Not supported on Win32 platforms.
  *
@@ -1230,13 +1218,13 @@ static int ici_sys_gettimeofday()
 
 
 /*
- * int = sys.access(string [, int])
+ * int = access(string [, int])
  *
  * Call the 'access(2)' function to determine the accessibility of a file.
  * The first parameter is the pathname of the file system object to be tested.
  * The second, optional, parameter is the mode (a bitwise combination of
- * 'sys.R_OK', 'sys.W_OK' and 'sys.X_OK' or the special value, 'sys.F_OK').
- * If mode is not passed 'sys.F_OK' is assumed.  Access returns 0 if the file
+ * 'R_OK', 'W_OK' and 'X_OK' or the special value, 'F_OK').
+ * If mode is not passed 'F_OK' is assumed.  Access returns 0 if the file
  * system object is accessible, else it fails.
  *
  * Supported on Win32 platforms.
@@ -1265,7 +1253,7 @@ static int ici_sys_access()
 }
 
 /*
- * array = sys.pipe()
+ * array = pipe()
  *
  * Create a pipe and return an array containing two, integer, file descriptors
  * used to refer to the input and output endpoints of the pipe.
@@ -1298,7 +1286,7 @@ static int ici_sys_pipe()
     ici_decref(fd);
     return ici_ret_with_decref(a);
 
-fail:
+ fail:
     ici_decref(a);
     close(pfd[0]);
     close(pfd[1]);
@@ -1307,7 +1295,7 @@ fail:
 }
 
 /*
- * int = sys.creat(pathname, mode)
+ * int = creat(pathname, mode)
  *
  * Create a new ordinary file with the given pathname and mode (permissions
  * etc.) and return the file descriptor, open for writing, for the file.
@@ -1330,7 +1318,7 @@ static int ici_sys_creat()
 }
 
 /*
- * int = sys.dup(int [, int])
+ * int = dup(int [, int])
  *
  * Duplicate a file descriptor by calling 'dup(2)' or 'dup2(2)' and return a new
  * descriptor.  If only a single parameter is passed 'dup(2)' is called
@@ -1370,7 +1358,7 @@ static int ici_sys_dup()
 }
 
 /*
- * sys.exec(pathname, array|string...)
+ * exec(pathname, array|string...)
  *
  * Execute a new program in the current process.  The first parameter to
  * 'exec' is the pathname of an executable file (the program).  The remaining
@@ -1457,7 +1445,7 @@ static int ici_sys_exec()
 
 #ifdef _WIN32
 /*
- * int = sys.spawn([mode, ] string, array|string...)
+ * int = spawn([mode, ] string, array|string...)
  *
  * Spawn a sub-process.  The parameters, other than mode, are as for exec -
  * the string is the name of the executable and the remaining parameters form
@@ -1473,9 +1461,9 @@ static int ici_sys_exec()
  * This --topic-- forms part of the --ici-sys-- documentation.
  */
 /*
- * int = sys.spawnp([mode, ] string, array|string...)
+ * int = spawnp([mode, ] string, array|string...)
  *
- * As for 'sys.spawn' except it will search the directories listed in the PATH
+ * As for 'spawn' except it will search the directories listed in the PATH
  * environment variable for the executable program.
  *
  * This function is only available on Win32 platforms.
@@ -1502,7 +1490,7 @@ static int ici_sys_spawn()
                 char    **newp;                                         \
                 int      i;                                             \
                 maxargv += argc;                                        \
-                if ((newp = ici_alloc(maxargv * sizeof (char *))) == NULL)      \
+                if ((newp = ici_alloc(maxargv * sizeof (char *))) == NULL) \
                 {                                                       \
                     if (argv != sargv)                                  \
                         ici_free(argv);                                 \
@@ -1568,7 +1556,7 @@ static int ici_sys_spawn()
 #endif /* WIN32 */
 
 /*
- * int = sys.lseek(int, int [, int])
+ * int = lseek(int, int [, int])
  *
  * Set the read/write position for an open file.  The first parameter is the
  * file descriptor associated with the file system object, the second
@@ -1603,7 +1591,7 @@ static int ici_sys_lseek()
 }
 
 /*
- * struct = sys.wait()
+ * struct = wait()
  *
  * Wait for a child process to exit and return a struct containing the process
  * id (key of "pid") and the exit status (key of "status").
@@ -1615,15 +1603,11 @@ static int ici_sys_wait()
 #ifdef _WIN32
     return not_on_win32("wait");
 #else
-    int         pid;
-    ici_struct_t    *s;
-    ici_int_t       *i;
+    int                 pid;
+    ici_struct_t        *s;
+    ici_int_t           *i;
+    int                 status;
 
-#if NeXT
-    union wait  status;
-#else
-    int status;
-#endif
     if ((pid = wait(&status)) < 0)
         return sys_ret(-1);
     if ((s = ici_struct_new()) == NULL)
@@ -1636,13 +1620,8 @@ static int ici_sys_wait()
         goto fail;
     }
     ici_decref(i);
-#if NeXT
-    if ((i = ici_int_new(status.w_retcode)) == NULL)
-        goto fail;
-#else
     if ((i = ici_int_new(status)) == NULL)
         goto fail;
-#endif
     if (ici_assign(s, SSO(status), i))
     {
         ici_decref(i);
@@ -1651,7 +1630,7 @@ static int ici_sys_wait()
     ici_decref(i);
     return ici_ret_with_decref(s);
 
-fail:
+ fail:
     ici_decref(s);
     return 1;
 #endif /* _WIN32 */
@@ -1662,12 +1641,12 @@ fail:
 static ici_struct_t *password_struct(struct passwd *);
 
 /*
- * struct|array = sys.passwd([int | string])
+ * struct|array = passwd([int | string])
  *
- * The 'sys.passwd()' function accesses the Unix password file (which may or
+ * The 'passwd()' function accesses the Unix password file (which may or
  * may not be an actual file according to the local system configuration).
- * With no parameters 'sys.passwd()' returns an array of all password file
- * entries, each entry is a struct.  With a parameter 'sys.passwd()' returns
+ * With no parameters 'passwd()' returns an array of all password file
+ * entries, each entry is a struct.  With a parameter 'passwd()' returns
  * the entry for the specific user id., int parameter, or user name, string
  * parameter.  A password file entry is a struct with the following keys and
  * values:
@@ -1746,27 +1725,27 @@ password_struct(struct passwd *pwent)
     if ((d = ici_struct_new()) != NULL)
     {
 
-#define SET_INT_FIELD(x)                                        \
-    if ((o = ici_int_new(pwent->pw_ ## x)) == NULL)             \
-        goto fail;                                              \
-    else if (ici_assign(d, SSO(x), o))                          \
-    {                                                           \
-        ici_decref(o);                                          \
-        goto fail;                                              \
-    }                                                           \
-    else                                                        \
-        ici_decref(o)
+#define SET_INT_FIELD(x)                                \
+        if ((o = ici_int_new(pwent->pw_ ##x)) == NULL) \
+            goto fail;                                  \
+        else if (ici_assign(d, SSO(x), o))              \
+        {                                               \
+            ici_decref(o);                              \
+            goto fail;                                  \
+        }                                               \
+        else                                            \
+            ici_decref(o)
 
-#define SET_STR_FIELD(x)                                        \
-    if ((o = ici_str_new_nul_term(pwent->pw_ ## x)) == NULL)    \
-        goto fail;                                              \
-    else if (ici_assign(d, SSO(x), o))                          \
-    {                                                           \
-        ici_decref(o);                                          \
-        goto fail;                                              \
-    }                                                           \
-    else                                                        \
-        ici_decref(o)
+#define SET_STR_FIELD(x)                                                \
+        if ((o = ici_str_new_nul_term(pwent->pw_ ##x)) == NULL)        \
+            goto fail;                                                  \
+        else if (ici_assign(d, SSO(x), o))                              \
+        {                                                               \
+        ici_decref(o);                                                  \
+        goto fail;                                                      \
+    }                                                                   \
+        else                                                            \
+            ici_decref(o)
 
         SET_STR_FIELD(name);
         SET_STR_FIELD(passwd);
@@ -1782,13 +1761,13 @@ password_struct(struct passwd *pwent)
     }
     return d;
 
-fail:
+ fail:
     ici_decref(d);
     return NULL;
 }
 
 /*
- * string = sys.getpass([prompt])
+ * string = getpass([prompt])
  *
  * Use the 'getpass(3)' function to read a password (without echo).
  * 'prompt' is a string (if present).
@@ -1810,7 +1789,7 @@ static int ici_sys_getpass()
 }
 
 /*
- * sys.setpgrp()
+ * setpgrp()
  *
  * Set the process group.
  *
@@ -1853,7 +1832,7 @@ static int ici_sys_setpgrp()
 #ifndef ICI_SYS_NOFLOCK
 
 /*
- * sys.flock(fd, op)
+ * flock(fd, op)
  *
  * Invoke 'flock(2)' on the given file descriptor with the given operation.
  * See the introduction for values for 'op'.  Not available on some systems.
@@ -1898,7 +1877,7 @@ static int truncate(const char *path, long length)
 #endif
 
 /*
- * sys.truncate(int|string, len)
+ * truncate(int|string, len)
  *
  * Use 'truncate(2)' or 'ftrunctate(2)' to truncate a file to 'len'
  * bytes.
@@ -1941,28 +1920,28 @@ string_to_resource(ici_obj_t *what)
         return RLIMIT_DATA;
     if (what == SSO(fsize))
         return RLIMIT_FSIZE;
-#   if defined(RLIMIT_MEMLOCK)
+#if defined(RLIMIT_MEMLOCK)
     if (what == SSO(memlock))
         return RLIMIT_MEMLOCK;
-#   endif
+#endif
     if (what == SSO(nofile))
         return RLIMIT_NOFILE;
-#   if defined(RLIMIT_NPROC)
+#if defined(RLIMIT_NPROC)
     if (what == SSO(nproc))
         return RLIMIT_NPROC;
-#   endif
-#   if defined(RLIMIT_RSS)
+#endif
+#if defined(RLIMIT_RSS)
     if (what == SSO(rss))
         return RLIMIT_RSS;
-#   endif
+#endif
     if (what == SSO(stack))
         return RLIMIT_STACK;
 
 #if !(defined __MACH__ && defined __APPLE__)
-# define NO_RLIMIT_DBSIZE
+#define NO_RLIMIT_DBSIZE
 #endif
 #if __FreeBSD__ < 4
-# define NO_RLIMIT_SBSIZE
+#define NO_RLIMIT_SBSIZE
 #endif
 
 #ifndef NO_RLIMIT_SBSIZE
@@ -1973,7 +1952,7 @@ string_to_resource(ici_obj_t *what)
 }
 
 /*
- * struct = sys.getrlimit(resource)
+ * struct = getrlimit(resource)
  *
  * Use 'getrlimit(2)' to return th current and maximum values of
  * a set of system parameters identified by 'resource'. 'resource'
@@ -2048,16 +2027,16 @@ static int ici_sys_getrlimit()
     ici_decref(iv);
     return ici_ret_with_decref(limit);
 
-fail:
+ fail:
     ici_decref(limit);
     return 1;
 }
 
 /*
- * sys.setrlimit(resource, value)
+ * setrlimit(resource, value)
  *
  * Use 'setrlimit(2)' to set a resouce limit.  'resource' identifies which (as
- * per 'sys.getrlimit'.  'value' may be an int, the string "infinity", or a
+ * per 'getrlimit'.  'value' may be an int, the string "infinity", or a
  * struct ints in fields 'cur' and 'max'.
  *
  * Not supported on Win32.
@@ -2112,13 +2091,13 @@ static int ici_sys_setrlimit()
 
     return sys_ret(setrlimit(resource, &rlimit));
 
-fail:
+ fail:
     ici_set_error("invalid rlimit struct");
     return 1;
 }
 
 /*
- * sys.usleep(int)
+ * usleep(int)
  *
  * Suspend the process for the specified number of milliseconds.
  *
@@ -2152,7 +2131,7 @@ ICI_DEFINE_CFUNCS(sys)
     ICI_DEFINE_CFUNC1(exec,   ici_sys_exec, execv),
     ICI_DEFINE_CFUNC1(execp,  ici_sys_exec, execvp),
     /*
-     * sys.exit(int)
+     * _exit(int)
      *
      * Exit the current process returning an integer exit status to the
      * parent.  Supported on Win32 platforms.
@@ -2171,7 +2150,7 @@ ICI_DEFINE_CFUNCS(sys)
     ICI_DEFINE_CFUNC(read,    ici_sys_read),
     ICI_DEFINE_CFUNC(readlink,ici_sys_readlink),
     /*
-     * sys.rmdir(pathname)
+     * rmdir(pathname)
      *
      * Remove a directory. Supported on Win32 platforms.
      *
@@ -2182,7 +2161,7 @@ ICI_DEFINE_CFUNCS(sys)
     ICI_DEFINE_CFUNC(symlink, ici_sys_symlink),
     ICI_DEFINE_CFUNC(time,    ici_sys_time),
     /*
-     * sys.unlink(pathname)
+     * unlink(pathname)
      *
      * Unlink a file. Supported on WIN32 platforms.
      *
@@ -2192,293 +2171,271 @@ ICI_DEFINE_CFUNCS(sys)
     ICI_DEFINE_CFUNC2(unlink, ici_sys_simple, unlink, "s"),
     ICI_DEFINE_CFUNC(wait,    ici_sys_wait),
     ICI_DEFINE_CFUNC(write,   ici_sys_write),
-#   ifdef _WIN32
+#ifdef _WIN32
     ICI_DEFINE_CFUNC1(spawn,  ici_sys_spawn, spawnv),
     ICI_DEFINE_CFUNC1(spawnp, ici_sys_spawn, spawnvp),
-#   endif
-#   ifndef _WIN32
-        /* poll */
-        /* times */
-        /* uname */
-        /*
-         * sys.alarm(int)
-         * 
-         * Schedule a SIGALRM signal to be posted to the current process in
-         * the specified number of seconds.  If the parameter is zero any
-         * alarm is cancelled. Not supported on Win32.
-         *
-         * This --topic-- forms part of the --ici-sys-- documentation.
-         */
+#endif
+#ifndef _WIN32
+    /* poll */
+    /* times */
+    /* uname */
+    /*
+     * alarm(int)
+     * 
+     * Schedule a SIGALRM signal to be posted to the current process in
+     * the specified number of seconds.  If the parameter is zero any
+     * alarm is cancelled. Not supported on Win32.
+     *
+     * This --topic-- forms part of the --ici-sys-- documentation.
+     */
     ICI_DEFINE_CFUNC2(alarm,   ici_sys_simple, alarm,  "i"),
-        /*
-         * sys.chmod(pathname, int)
-         *
-         * Change the mode of a file system object. Not supported on Win32.
-         *
-         * This --topic-- forms part of the --ici-sys-- documentation.
-         */
+    /*
+     * chmod(pathname, int)
+     *
+     * Change the mode of a file system object. Not supported on Win32.
+     *
+     * This --topic-- forms part of the --ici-sys-- documentation.
+     */
     ICI_DEFINE_CFUNC2(chmod,   ici_sys_simple, chmod,  "si"),
-        /*
-         * sys.chown(pathname, uid, gid)
-         *
-         * Use 'chown(2)' to change the ownership of a file to new integer
-         * user and group indentifies. Not supported on Win32.
-         *
-         * This --topic-- forms part of the --ici-sys-- documentation.
-         */
+    /*
+     * chown(pathname, uid, gid)
+     *
+     * Use 'chown(2)' to change the ownership of a file to new integer
+     * user and group indentifies. Not supported on Win32.
+     *
+     * This --topic-- forms part of the --ici-sys-- documentation.
+     */
     ICI_DEFINE_CFUNC2(chown,   ici_sys_simple, chown,  "sii"),
-        /*
-         * sys.chroot(pathname)
-         *
-         * Change root directory for process. Not supported on Win32.
-         *
-         * This --topic-- forms part of the --ici-sys-- documentation.
-         */
+    /*
+     * chroot(pathname)
+     *
+     * Change root directory for process. Not supported on Win32.
+     *
+     * This --topic-- forms part of the --ici-sys-- documentation.
+     */
     ICI_DEFINE_CFUNC2(chroot,  ici_sys_simple, chroot, "s"),
-        /*
-         * int = sys.clock()
-         *
-         * Return the value of 'clock(2)'.  Not supported on Win32.
-         *
-         * This --topic-- forms part of the --ici-sys-- documentation.
-         */
+    /*
+     * int = clock()
+     *
+     * Return the value of 'clock(2)'.  Not supported on Win32.
+     *
+     * This --topic-- forms part of the --ici-sys-- documentation.
+     */
     ICI_DEFINE_CFUNC2(clock,   ici_sys_simple, clock,  ""),
-        /*
-         * int = sys.fork()
-         *
-         * Create a new process.  In the parent this returns the process
-         * identifier for the newly created process.  In the newly created
-         * process it returns zero. Not supported on Win32.
-         *
-         * This --topic-- forms part of the --ici-sys-- documentation.
-         */
+    /*
+     * int = fork()
+     *
+     * Create a new process.  In the parent this returns the process
+     * identifier for the newly created process.  In the newly created
+     * process it returns zero. Not supported on Win32.
+     *
+     * This --topic-- forms part of the --ici-sys-- documentation.
+     */
     ICI_DEFINE_CFUNC2(fork,    ici_sys_simple, fork,   ""),
-        /*
-         * int = sys.getegid()
-         *
-         * Get the effective group identifier of the owner of the current process.
-         * Not supported on Win32.
-         *
-         * This --topic-- forms part of the --ici-sys-- documentation.
-         */
+    /*
+     * int = getegid()
+     *
+     * Get the effective group identifier of the owner of the current process.
+     * Not supported on Win32.
+     *
+     * This --topic-- forms part of the --ici-sys-- documentation.
+     */
     ICI_DEFINE_CFUNC2(getegid, ici_sys_simple, getegid,""),
-        /*
-         * int = sys.geteuid()
-         *
-         * Get the effective user identifier of the owner of the current process.
-         * Not supported on Win32.
-         *
-         * This --topic-- forms part of the --ici-sys-- documentation.
-         */
+    /*
+     * int = geteuid()
+     *
+     * Get the effective user identifier of the owner of the current process.
+     * Not supported on Win32.
+     *
+     * This --topic-- forms part of the --ici-sys-- documentation.
+     */
     ICI_DEFINE_CFUNC2(geteuid, ici_sys_simple, geteuid,""),
-        /*
-         * int = sys.getgid()
-         *
-         * Get the real group identifier of the owner of the current process.
-         * Not supported on Win32.
-         *
-         * This --topic-- forms part of the --ici-sys-- documentation.
-         */
+    /*
+     * int = getgid()
+     *
+     * Get the real group identifier of the owner of the current process.
+     * Not supported on Win32.
+     *
+     * This --topic-- forms part of the --ici-sys-- documentation.
+     */
     ICI_DEFINE_CFUNC2(getgid,  ici_sys_simple, getgid, ""),
     ICI_DEFINE_CFUNC(getitimer,ici_sys_getitimer),
     ICI_DEFINE_CFUNC(getpass, ici_sys_getpass),
-        /*
-         * int = sys.getpgrp()
-         *
-         * Get the current process group identifier.  Not supported on Win32.
-         *
-         * This --topic-- forms part of the --ici-sys-- documentation.
-         */
+    /*
+     * int = getpgrp()
+     *
+     * Get the current process group identifier.  Not supported on Win32.
+     *
+     * This --topic-- forms part of the --ici-sys-- documentation.
+     */
     ICI_DEFINE_CFUNC2(getpgrp, ici_sys_simple, getpgrp,""),
-        /*
-         * int = sys.getpid()
-         *
-         * Get the process identifier for the current process.  Not supported
-         * on Win32.
-         *
-         * This --topic-- forms part of the --ici-sys-- documentation.
-         */
+    /*
+     * int = getpid()
+     *
+     * Get the process identifier for the current process.  Not supported
+     * on Win32.
+     *
+     * This --topic-- forms part of the --ici-sys-- documentation.
+     */
     ICI_DEFINE_CFUNC2(getpid,  ici_sys_simple, getpid, ""),
-        /*
-         * int = sys.getppid()
-         *
-         * Get the process identifier for the parent process.  Not supported
-         * on Win32.
-         *
-         * This --topic-- forms part of the --ici-sys-- documentation.
-         */
+    /*
+     * int = getppid()
+     *
+     * Get the process identifier for the parent process.  Not supported
+     * on Win32.
+     *
+     * This --topic-- forms part of the --ici-sys-- documentation.
+     */
     ICI_DEFINE_CFUNC2(getppid, ici_sys_simple, getppid,""),
     ICI_DEFINE_CFUNC(getrlimit,ici_sys_getrlimit),
     ICI_DEFINE_CFUNC(gettimeofday,ici_sys_gettimeofday),
-        /*
-         * int = sys.getuid()
-         *
-         * Get the real user identifier of the owner of the current process.
-         * Not supported on Win32.
-         *
-         * This --topic-- forms part of the --ici-sys-- documentation.
-         */
+    /*
+     * int = getuid()
+     *
+     * Get the real user identifier of the owner of the current process.
+     * Not supported on Win32.
+     *
+     * This --topic-- forms part of the --ici-sys-- documentation.
+     */
     ICI_DEFINE_CFUNC2(getuid,  ici_sys_simple, getuid, ""),
-        /*
-         * int = sys.isatty(fd)
-         *
-         * Returns 1 if the int 'fd' is the open file descriptor of a "tty".
-         * Not supported on Win32.
-         *
-         * This --topic-- forms part of the --ici-sys-- documentation.
-         */
+    /*
+     * int = isatty(fd)
+     *
+     * Returns 1 if the int 'fd' is the open file descriptor of a "tty".
+     * Not supported on Win32.
+     *
+     * This --topic-- forms part of the --ici-sys-- documentation.
+     */
     ICI_DEFINE_CFUNC2(isatty,  ici_sys_simple, isatty, "i"),
-        /*
-         * sys.kill(int, int)
-         *
-         * Post the signal specified by the second argument to the process
-         * with process ID given by the first argument.  Not supported on
-         * Win32.
-         *
-         * This --topic-- forms part of the --ici-sys-- documentation.
-         */
+    /*
+     * kill(int, int)
+     *
+     * Post the signal specified by the second argument to the process
+     * with process ID given by the first argument.  Not supported on
+     * Win32.
+     *
+     * This --topic-- forms part of the --ici-sys-- documentation.
+     */
     ICI_DEFINE_CFUNC2(kill,    ici_sys_simple, kill,   "ii"),
-        /*
-         * sys.link(oldpath, newpath)
-         *
-         * Create a link to an existing file.  Not supported on Win32.
-         *
-         * This --topic-- forms part of the --ici-sys-- documentation.
-         */
+    /*
+     * link(oldpath, newpath)
+     *
+     * Create a link to an existing file.  Not supported on Win32.
+     *
+     * This --topic-- forms part of the --ici-sys-- documentation.
+     */
     ICI_DEFINE_CFUNC2(link,    ici_sys_simple, link,   "ss"),
     ICI_DEFINE_CFUNC(lstat,   ici_sys_lstat),
-        /*
-         * sys.mknod(pathname, int, int)
-         *
-         * Create a special file with mode given by the second argument and
-         * device type given by the third.  Not supported on Win32.
-         *
-         * This --topic-- forms part of the --ici-sys-- documentation.
-         */
+    /*
+     * mknod(pathname, int, int)
+     *
+     * Create a special file with mode given by the second argument and
+     * device type given by the third.  Not supported on Win32.
+     *
+     * This --topic-- forms part of the --ici-sys-- documentation.
+     */
     ICI_DEFINE_CFUNC2(mknod,   ici_sys_simple, mknod,  "sii"),
-        /*
-         * sys.nice(int)
-         *
-         * Change the nice value of a process.
-         * Not supported on Win32.
-         *
-         * This --topic-- forms part of the --ici-sys-- documentation.
-         */
+    /*
+     * nice(int)
+     *
+     * Change the nice value of a process.
+     * Not supported on Win32.
+     *
+     * This --topic-- forms part of the --ici-sys-- documentation.
+     */
     ICI_DEFINE_CFUNC2(nice,    ici_sys_simple, nice,   "i"),
     ICI_DEFINE_CFUNC(passwd,  ici_sys_passwd),
-        /*
-         * sys.pause()
-         *
-         * Wait until a signal is delivered to the process.
-         * Not supported on Win32.
-         *
-         * This --topic-- forms part of the --ici-sys-- documentation.
-         */
+    /*
+     * pause()
+     *
+     * Wait until a signal is delivered to the process.
+     * Not supported on Win32.
+     *
+     * This --topic-- forms part of the --ici-sys-- documentation.
+     */
     ICI_DEFINE_CFUNC2(pause,   ici_sys_simple, pause,  ""),
-        /*
-         * sys.setgid(int)
-         *
-         * Set the real and effective group identifier for the current process.
-         * Not supported on Win32.
-         *
-         * This --topic-- forms part of the --ici-sys-- documentation.
-         */
+    /*
+     * setgid(int)
+     *
+     * Set the real and effective group identifier for the current process.
+     * Not supported on Win32.
+     *
+     * This --topic-- forms part of the --ici-sys-- documentation.
+     */
     ICI_DEFINE_CFUNC2(setgid,  ici_sys_simple, setgid, "i"),
     ICI_DEFINE_CFUNC(setitimer,ici_sys_setitimer),
     ICI_DEFINE_CFUNC(setpgrp, ici_sys_setpgrp),
     ICI_DEFINE_CFUNC(setrlimit,ici_sys_setrlimit),
-        /*
-         * sys.setuid(int)
-         *
-         * Set the real and effective user identifier for the current process.
-         * Not supported on Win32.
-         *
-         * This --topic-- forms part of the --ici-sys-- documentation.
-         */
+    /*
+     * setuid(int)
+     *
+     * Set the real and effective user identifier for the current process.
+     * Not supported on Win32.
+     *
+     * This --topic-- forms part of the --ici-sys-- documentation.
+     */
     ICI_DEFINE_CFUNC2(setuid,  ici_sys_simple, setuid, "i"),
-        /*
-         * sys.sync()
-         *
-         * Schedule in-memory file data to be written to disk.
-         * Not supported on Win32.
-         *
-         * This --topic-- forms part of the --ici-sys-- documentation.
-         */
+    /*
+     * sync()
+     *
+     * Schedule in-memory file data to be written to disk.
+     * Not supported on Win32.
+     *
+     * This --topic-- forms part of the --ici-sys-- documentation.
+     */
     ICI_DEFINE_CFUNC2(sync,    ici_sys_simple, sync,   ""),
-#   endif
+#endif
     ICI_DEFINE_CFUNC(truncate,ici_sys_truncate),
-#   ifndef _WIN32
-        /*
-         * sys.umask(int)
-         *
-         * Set file creation mask.
-         * Not supported on Win32.
-         *
-         * This --topic-- forms part of the --ici-sys-- documentation.
-         */
+#ifndef _WIN32
+    /*
+     * umask(int)
+     *
+     * Set file creation mask.
+     * Not supported on Win32.
+     *
+     * This --topic-- forms part of the --ici-sys-- documentation.
+     */
     ICI_DEFINE_CFUNC2(umask,   ici_sys_simple, umask,  "i"),
     ICI_DEFINE_CFUNC(usleep,  ici_sys_usleep),
-#       ifndef NO_ACCT
-            /*
-             * sys.acct(pathname)
-             *
-             * Enable accounting on the specified file.  Not suppored on
-             * cygwin or Win32.
-             *
-             * This --topic-- forms part of the --ici-sys-- documentation.
-             */
+#ifndef NO_ACCT
+    /*
+     * acct(pathname)
+     *
+     * Enable accounting on the specified file.  Not suppored on
+     * cygwin or Win32.
+     *
+     * This --topic-- forms part of the --ici-sys-- documentation.
+     */
     ICI_DEFINE_CFUNC2(acct,    ici_sys_simple, acct,   "s"),
-#       endif
-#       ifndef ICI_SYS_NOFLOCK
+#endif
+#ifndef ICI_SYS_NOFLOCK
     ICI_DEFINE_CFUNC(flock,   ici_sys_flock),
-#       endif
-#       if !defined(linux) && !defined(BSD4_4) && !defined(__CYGWIN__)
-            /*
-             * int = sys.lockf(fd, cmd, len)
-             *
-             * Invoked 'lockf(3)' on a file.
-             *
-             * Not supported on Linux, Cygwin, Win32.
-             *
-             * This --topic-- forms part of the --ici-sys-- documentation.
-             */
+#endif
+#if !defined(linux) && !defined(BSD4_4) && !defined(__CYGWIN__)
+    /*
+     * int = lockf(fd, cmd, len)
+     *
+     * Invoked 'lockf(3)' on a file.
+     *
+     * Not supported on Linux, Cygwin, Win32.
+     *
+     * This --topic-- forms part of the --ici-sys-- documentation.
+     */
     ICI_DEFINE_CFUNC2(lockf,   ici_sys_simple, lockf,  "iii"),
-#       endif /* linux */
-#       if !defined(NeXT) && !defined(BSD4_4) && !defined(__CYGWIN__)
-            /*
-             * sys.ulimit\(int, int)
-             *
-             * Get and set user limits.
-             * Not supported on Win32, NeXT, some BSD, or Cygwin.
-             *
-             * This --topic-- forms part of the --ici-sys-- documentation.
-             */
+#endif /* linux */
+#if !defined(BSD4_4) && !defined(__CYGWIN__)
+    /*
+     * ulimit(int, int)
+     *
+     * Get and set user limits.
+     * Not supported on Win32, NeXT, some BSD, or Cygwin.
+     *
+     * This --topic-- forms part of the --ici-sys-- documentation.
+     */
     ICI_DEFINE_CFUNC2(ulimit,  ici_sys_simple, ulimit, "ii"),
-#       endif
-#   endif
+#endif
+#endif
     ICI_CFUNCS_END
 };
 
 } // namespace ici
-
-#if 0
-extern "C"
-ici_obj_t *
-anici_sys_init(void)
-{
-    ici_objwsup_t           *sys;
-
-    if (ici_interface_check(ICI_VER, ICI_BACK_COMPAT_VER, "sys"))
-        return NULL;
-    if (init_ici_str())
-        return NULL;
-    if ((sys = ici_module_new(ici_sys_cfuncs)) == NULL)
-        return NULL;
-    if (ici_sys_vars_init(sys))
-    {
-        ici_decref(sys);
-        return NULL;
-    }
-    return sys;
-}
-#endif
