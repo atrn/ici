@@ -71,13 +71,13 @@ static int_func *op_funcs[7];
 
 #define num_op_funcs ((int)(sizeof op_funcs / sizeof op_funcs[0]))
 
-unsigned long archive_type::mark(ici_obj_t *o) {
-    o->o_flags |= ICI_O_MARK;
+unsigned long archive_type::mark(object *o) {
     auto ar = archive_of(o);
-    return size + ici_mark(ar->a_file) + ici_mark(ar->a_sent) + ici_mark(ar->a_scope);
+    o->o_flags |= ICI_O_MARK;
+    return typesize() + ar->a_file->mark() + ar->a_sent->mark() + ar->a_scope->mark();
 }
 
-int ici_archive_init()
+int archive_init()
 {
     op_funcs[0] = NULL;
     op_funcs[1] = ici_o_mklvalue.op_func;
@@ -93,7 +93,7 @@ int ici_archive_init()
     return ici_init_restorer_map();
 }
 
-void ici_archive_uninit()
+void archive_uninit()
 {
     ici_uninit_saver_map();
     ici_uninit_restorer_map();
@@ -126,16 +126,16 @@ ici_archive_start(ici_file_t *file, ici_objwsup_t *scope)
     return ar;
 }
 
-inline static ici_obj_t *
-make_key(ici_obj_t *obj)
+inline static object *
+make_key(object *obj)
 {
     return ici_int_new((long)obj);
 }
 
 int
-ici_archive_insert(ici_archive_t *ar, ici_obj_t *key, ici_obj_t *val)
+ici_archive_insert(ici_archive_t *ar, object *key, object *val)
 {
-    ici_obj_t *k;
+    object *k;
     int failed = 1;
 
     if ((k = make_key(key)) != NULL)
@@ -147,9 +147,9 @@ ici_archive_insert(ici_archive_t *ar, ici_obj_t *key, ici_obj_t *val)
 }
 
 void
-ici_archive_uninsert(ici_archive_t *ar, ici_obj_t *key)
+ici_archive_uninsert(ici_archive_t *ar, object *key)
 {
-    ici_obj_t *k;
+    object *k;
 
     if ((k = make_key(key)) != NULL)
     {
@@ -158,11 +158,11 @@ ici_archive_uninsert(ici_archive_t *ar, ici_obj_t *key)
     }
 }
 
-ici_obj_t *
-ici_archive_lookup(ici_archive_t *ar, ici_obj_t *obj)
+object *
+ici_archive_lookup(ici_archive_t *ar, object *obj)
 {
-    ici_obj_t *v = ici_null;
-    ici_obj_t *k;
+    object *v = ici_null;
+    object *k;
 
     if ((k = make_key(obj)) != NULL)
     {
@@ -199,7 +199,7 @@ int_func *ici_archive_op_func(int code)
     return op_funcs[code];
 }
 
-void ici_archive_byteswap(void *ptr, int sz)
+void archive_byteswap(void *ptr, int sz)
 {
     if (sz == sizeof (long long))
     {
@@ -222,8 +222,8 @@ void ici_archive_byteswap(void *ptr, int sz)
 
 ICI_DEFINE_CFUNCS(save_restore)
 {
-    ICI_DEFINE_CFUNC(save, ici_archive_f_save),
-    ICI_DEFINE_CFUNC(restore, ici_archive_f_restore),
+    ICI_DEFINE_CFUNC(save, archive_f_save),
+    ICI_DEFINE_CFUNC(restore, archive_f_restore),
     ICI_CFUNCS_END
 };
 

@@ -27,7 +27,7 @@ ici_src_new(int lineno, ici_str_t *filename)
 unsigned long src_type::mark(ici_obj_t *o)
 {
     o->o_flags |= ICI_O_MARK;
-    auto mem = size;
+    auto mem = typesize();
     if (ici_srcof(o)->s_filename != NULL)
         mem += ici_mark(ici_srcof(o)->s_filename);
     return mem;

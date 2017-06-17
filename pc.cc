@@ -30,7 +30,7 @@ ici_new_pc()
 unsigned long pc_type::mark(ici_obj_t *o)
 {
     o->o_flags |= ICI_O_MARK;
-    auto mem = size;
+    auto mem = typesize();
     if (ici_pcof(o)->pc_code != NULL)
         mem += ici_mark(ici_pcof(o)->pc_code);
     return mem;

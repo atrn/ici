@@ -69,7 +69,7 @@ ici_uninit()
         wraps = wraps->w_next;
     }
 
-    ici_archive_uninit();
+    archive_uninit();
 
     /*
      * Clean up ICI variables used by various bits of ICI.

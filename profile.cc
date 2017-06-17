@@ -101,7 +101,7 @@ unsigned long profilecall_type::mark(ici_obj_t *o)
 {
     o->o_flags |= ICI_O_MARK;
     auto pf = ici_profilecallof(o);
-    return size + ici_mark(pf->pc_calls) + (pf->pc_calledby == NULL ? 0 : ici_mark(pf->pc_calledby));
+    return typesize() + ici_mark(pf->pc_calls) + (pf->pc_calledby == NULL ? 0 : ici_mark(pf->pc_calledby));
 }
 
 /*

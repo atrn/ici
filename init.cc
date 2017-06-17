@@ -149,7 +149,7 @@ ici_init()
     {
         return 1;
     }
-    if (ici_archive_init())
+    if (archive_init())
     {
         return 1;
     };

@@ -14,14 +14,14 @@
 namespace ici
 {
 
-int ici_archive_init();
-void ici_archive_uninit();
+int archive_init();
+void archive_uninit();
 int ici_init_restorer_map();
 void ici_uninit_restorer_map();
 int ici_init_saver_map();
 void ici_uninit_saver_map();
-int ici_archive_f_save(...);
-int ici_archive_f_restore(...);
+int archive_f_save(...);
+int archive_f_restore(...);
 int ici_archive_op_func_code(int (*fn)());
 int (*ici_archive_op_func(int))();
 
@@ -34,7 +34,7 @@ int (*ici_archive_op_func(int))();
  */
 constexpr int ICI_ARCHIVE_ATOMIC = 0x80;
 
-void ici_archive_byteswap(void *ptr, int sz);
+void archive_byteswap(void *ptr, int sz);
 
 /*
  * An archiving session.
@@ -49,16 +49,16 @@ struct archive : object
     ici_objwsup_t *     a_scope;
 };
 
-inline static ici_archive_t *archive_of(ici_obj_t *o) { return (ici_archive_t *)(o); }
+inline static ici_archive_t *archive_of(object *o) { return (ici_archive_t *)(o); }
 
 /*
  * The following portion of this file exports to ici.h. --ici.h-start--
  */
 
 ici_archive_t   *ici_archive_start(ici_file_t *file, ici_objwsup_t *scope);
-int             ici_archive_insert(ici_archive_t *ar, ici_obj_t *key, ici_obj_t *val);
-void            ici_archive_uninsert(ici_archive_t *ar, ici_obj_t *key);
-ici_obj_t       *ici_archive_lookup(ici_archive_t *ar, ici_obj_t *obj);
+int             ici_archive_insert(ici_archive_t *ar, object *key, object *val);
+void            ici_archive_uninsert(ici_archive_t *ar, object *key);
+object       *ici_archive_lookup(ici_archive_t *ar, object *obj);
 void            ici_archive_stop(ici_archive_t *ar);
 
 /*
@@ -69,7 +69,7 @@ class archive_type : public type
 {
 public:
     archive_type() : type("archive", sizeof (struct archive)) {}
-    unsigned long    mark(ici_obj_t *o) override;
+    unsigned long mark(object *o) override;
 };
 
 } // namespace ici

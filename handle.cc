@@ -313,7 +313,7 @@ unsigned long
 handle_type::mark(ici_obj_t *o)
 {
     o->o_flags |= ICI_O_MARK;
-    auto mem = size;
+    auto mem = typesize();
     if (ici_objwsupof(o)->o_super != NULL)
         mem += ici_mark(ici_objwsupof(o)->o_super);
     if (ici_handleof(o)->h_name != NULL)

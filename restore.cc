@@ -182,7 +182,7 @@ restore_float(ici_archive_t *ar)
         return NULL;
     }
 #if ICI_ARCHIVE_LITTLE_ENDIAN_HOST
-    ici_archive_byteswap(&val, sizeof val);
+    archive_byteswap(&val, sizeof val);
 #endif
     return ici_float_new(val);
 }
@@ -843,7 +843,7 @@ restore(ici_archive_t *ar)
 }
 
 int
-ici_archive_f_restore(...)
+archive_f_restore(...)
 {
     ici_file_t *file;
     ici_archive_t *ar;

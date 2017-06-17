@@ -98,7 +98,7 @@ unsigned long func_type::mark(ici_obj_t *o)
 {
     auto fn = ici_funcof(o);
     o->o_flags |= ICI_O_MARK;
-    auto mem = size;
+    auto mem = typesize();
     if (fn->f_code != NULL)
         mem += ici_mark(fn->f_code);
     if (fn->f_args != NULL)

@@ -1301,7 +1301,7 @@ unsigned long exec_type::mark(ici_obj_t *o)
 {
     o->o_flags |= ICI_O_MARK;
     auto x = ici_execof(o);
-    return size
+    return typesize()
         + (x->x_xs != NULL ? ici_mark(x->x_xs) : 0)
         + (x->x_os != NULL ? ici_mark(x->x_os) : 0)
         + (x->x_vs != NULL ? ici_mark(x->x_vs) : 0)

@@ -302,7 +302,7 @@ unsigned long string_type::mark(ici_obj_t *o)
     o->o_flags |= ICI_O_MARK;
     if (o->o_flags & ICI_S_SEP_ALLOC)
     {
-        return size + ici_stringof(o)->s_u.su_nalloc;
+        return typesize() + ici_stringof(o)->s_u.su_nalloc;
     }
     else
     {

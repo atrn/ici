@@ -107,11 +107,11 @@ ici_register_type(type_t *t)
 
 unsigned long type::mark(ici_obj_t *o) {
     o->o_flags |= ICI_O_MARK;
-    return size;
+    return typesize();
 }
 
 void type::free(ici_obj_t *o) {
-    ici_nfree(o, size);
+    ici_nfree(o, typesize());
 }
 
 unsigned long type::hash(ici_obj_t *o) {

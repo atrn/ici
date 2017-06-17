@@ -145,7 +145,7 @@ save_float(ici_archive_t *ar, ici_obj_t *obj)
 {
     double v = ici_floatof(obj)->f_value;
 #if ICI_ARCHIVE_LITTLE_ENDIAN_HOST
-    ici_archive_byteswap(&v, sizeof v);
+    archive_byteswap(&v, sizeof v);
 #endif
     return writedbl(ar, v);
 }
@@ -419,7 +419,7 @@ ici_archive_save(ici_archive_t *ar, ici_obj_t *obj)
  * This --topic-- forms part of the --ici-serialisation-- documentation.
  */
 int
-ici_archive_f_save(...)
+archive_f_save(...)
 {
     ici_objwsup_t *scp = ici_structof(ici_vs.a_top[-1])->o_super;
     ici_file_t *file;

@@ -81,7 +81,7 @@ ici_op_onerror()
 unsigned long catch_type::mark(ici_obj_t *o)
 {
     o->o_flags |= ICI_O_MARK;
-    auto mem = size;
+    auto mem = typesize();
     if (ici_catchof(o)->c_catcher != NULL)
         mem += ici_mark(ici_catchof(o)->c_catcher);
     return mem;

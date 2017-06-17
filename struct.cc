@@ -281,7 +281,7 @@ unsigned long struct_type::mark(ici_obj_t *o)
     do /* Merge tail recursion on o_super. */
     {
         o->o_flags |= ICI_O_MARK;
-        mem = size + ici_structof(o)->s_nslots * sizeof(ici_sslot_t);
+        mem = typesize() + ici_structof(o)->s_nslots * sizeof(ici_sslot_t);
         if (ici_structof(o)->s_nels != 0)
         {
             for

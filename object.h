@@ -79,6 +79,10 @@ struct object
         return o_tcode == tcode;
     }
 
+    inline void setmark() {
+        o_flags |= ICI_O_MARK;
+    }
+
     inline size_t mark() noexcept {
         if (o_flags & ICI_O_MARK) {
             return 0;

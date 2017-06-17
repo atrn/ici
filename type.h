@@ -35,19 +35,22 @@ public:
 
 public:
     const char * const  name;
-    const size_t        size;
+
 private:
+    const size_t        _size;
     const int           _flags;
     mutable ici_str_t * _name;
 
 protected:
     explicit type(const char *name, size_t size, int flags = 0)
         : name(name)
-        , size(size)
+        , _size(size)
         , _flags(flags)
         , _name(nullptr)
     {
     }
+
+    inline size_t typesize() const noexcept { return _size; }
 
 public:
     inline bool can_fetch_method() const { return _flags & has_fetch_method; }

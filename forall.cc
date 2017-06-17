@@ -90,7 +90,7 @@ unsigned long forall_type::mark(ici_obj_t *o)
 {
     o->o_flags |= ICI_O_MARK;
     auto fa = forallof(o);
-    auto mem = size;
+    auto mem = typesize();
     mem += maybe_mark(fa->fa_aggr);
     mem += maybe_mark(fa->fa_code);
     mem += maybe_mark(fa->fa_vaggr);
