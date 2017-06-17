@@ -1,7 +1,7 @@
 // -*- mode:c++ -*-
 
-#ifndef ICI_TYPES_H
-#define ICI_TYPES_H
+#ifndef ICI_TYPE_H
+#define ICI_TYPE_H
 
 #include "fwd.h"
 
@@ -298,8 +298,8 @@ public:
  * by calls to ici_register_type() and are given the next available slot.
  * ici_object_t's o_tcode is one byte so we're limited to 256 distinct types.
  */
-constexpr size_t        max_types = 256;
-extern DLI type_t *     types[max_types];
+//constexpr size_t        max_types = 256;
+//extern DLI type_t *     types[max_types];
 
 /*
  * End of ici.h export. --ici.h-end--

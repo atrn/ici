@@ -5,6 +5,7 @@
 
 #include "fwd.h"
 #include "type.h"
+#include "types.h"
 
 namespace ici
 {

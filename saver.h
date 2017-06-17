@@ -3,9 +3,8 @@
 #ifndef ICI_SAVER_H
 #define ICI_SAVER_H
 
-#ifndef ICI_OBJECT_H
 #include "object.h"
-#endif
+#include "type.h"
 
 namespace ici
 {
