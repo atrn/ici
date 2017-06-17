@@ -79,7 +79,7 @@ struct object
         return (o_flags & ICI_O_ATOM) != 0;
     }
 
-    inline void setmark() {
+    inline void setmark() noexcept {
         o_flags |= ICI_O_MARK;
     }
 

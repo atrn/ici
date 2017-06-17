@@ -20,12 +20,12 @@
 namespace ici
 {
 
-ici_func_t *
+func *
 ici_new_func()
 {
-    ici_func_t *f;
+    func *f;
 
-    if ((f = ici_talloc(ici_func_t)) == NULL)
+    if ((f = ici_talloc(func)) == NULL)
     {
         return NULL;
     }
@@ -34,10 +34,11 @@ ici_new_func()
     ici_rego(f);
     return f;
 }
+
 int
 ici_op_return()
 {
-    ici_obj_t           **x;
+    object              **x;
     static int          occasionally;
     ici_obj_t           *f;
 
@@ -175,13 +176,13 @@ void func_type::objname(ici_obj_t *o, char p[ICI_OBJNAMEZ])
  */
 int func_type::call(ici_obj_t *o, ici_obj_t *subject)
 {
-    ici_func_t *f;
-    ici_struct_t   *d;     /* The local variable structure. */
+    func *f;
+    ici_struct *d;     /* The local variable structure. */
     ici_obj_t  **ap;   /* Actual parameter. */
     ici_obj_t  **fp;   /* Formal parameter. */
-    ici_sslot_t         *sl;
-    ici_array_t         *va;
-    int                 n;
+    ici_sslot_t *sl;
+    array       *va;
+    int         n;
 
     f = ici_funcof(o);
 #ifndef NOPROFILE
@@ -191,7 +192,7 @@ int func_type::call(ici_obj_t *o, ici_obj_t *subject)
     }
 #endif
 
-    d = ici_structof(ici_copy(f->f_autos));
+    d = ici_structof(f->f_autos->copy());
     if (UNLIKELY(d == NULL))
     {
         goto fail;
@@ -204,8 +205,7 @@ int func_type::call(ici_obj_t *o, ici_obj_t *subject)
          */
         if (UNLIKELY(!ici_hassuper(subject)))
         {
-            char        n1[30];
-
+            char n1[ICI_OBJNAMEZ];
             ici_set_error("attempt to call method on %s", ici_objname(n1, subject));
             goto fail;
         }
