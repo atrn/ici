@@ -68,55 +68,6 @@ ici_objname(char p[ICI_OBJNAMEZ], ici_obj_t *o)
     return p;
 }
 
-/*
- * This is a convenience function which can be used directly as the 't_assign'
- * entry in a type's 'type_t' struction if the type doesn't support
- * asignment.  It sets 'ici_error' to a message of the form:
- *
- *  attempt to set %s keyed by %s to %s
- *
- * and returns 1.  Also, it can b called from within a custom assign function
- * in cases where the particular assignment is illegal.
- *
- * This --func-- forms part of the --ici-api--.
- */
-int
-ici_assign_fail(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v)
-{
-    char        n1[30];
-    char        n2[30];
-    char        n3[30];
-
-    return ici_set_error("attempt to set %s keyed by %s to %s",
-        ici_objname(n1, o),
-        ici_objname(n2, k),
-        ici_objname(n3, v));
-}
-
-/*
- * This is a convenience function which can be used directly as the 't_fetch'
- * entry in a type's 'type_t' struction if the type doesn't support
- * fetching.  It sets 'ici_error' to a message of the form:
- *
- *  attempt to read %s keyed by %
- *
- * and returns 1.  Also, it can b called from within a custom assign function
- * in cases where the particular fetch is illegal.
- *
- * This --func-- forms part of the --ici-api--.
- */
-ici_obj_t *
-ici_fetch_fail(ici_obj_t *o, ici_obj_t *k)
-{
-    char        n1[30];
-    char        n2[30];
-
-    ici_set_error("attempt to read %s keyed by %s",
-        ici_objname(n1, o),
-        ici_objname(n2, k));
-    return NULL;
-}
-
 #define hash(o)                                                         \
 (                                                                       \
     (o)->isa(ICI_TC_INT) ?                                              \

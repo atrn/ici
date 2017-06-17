@@ -172,7 +172,7 @@ ici_obj_t *regexp_type::fetch(ici_obj_t *o, ici_obj_t *k)
         io->decref();
         return io;
     }
-    return ici_fetch_fail(o, k);
+    return fetch_fail(o, k);
 }
 
 } // namespace ici

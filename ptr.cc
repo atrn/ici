@@ -55,7 +55,7 @@ ici_obj_t * ptr_type::fetch(ici_obj_t *o, ici_obj_t *k)
     if (k == ici_zero)
         return ici_fetch(ici_ptrof(o)->p_aggr, ici_ptrof(o)->p_key);
     if (!ici_isint(k) || !ici_isint(ici_ptrof(o)->p_key))
-        return ici_fetch_fail(o, k);
+        return fetch_fail(o, k);
     if (ici_ptrof(o)->p_key == ici_zero)
         k->incref();
     else if ((k = ici_int_new(ici_intof(k)->i_value + ici_intof(ici_ptrof(o)->p_key)->i_value))
@@ -77,7 +77,7 @@ int ptr_type::assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v)
     if (k == ici_zero)
         return ici_assign(ici_ptrof(o)->p_aggr, ici_ptrof(o)->p_key, v);
     if (!ici_isint(k) || !ici_isint(ici_ptrof(o)->p_key))
-        return ici_assign_fail(o, k, v);
+        return assign_fail(o, k, v);
     if (ici_ptrof(o)->p_key == ici_zero)
         k->incref();
     else if ((k = ici_int_new(ici_intof(k)->i_value + ici_intof(ici_ptrof(o)->p_key)->i_value))

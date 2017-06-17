@@ -61,20 +61,20 @@
 #define BUGHUNT
 #endif
 
-#include <assert.h>
+#include <cassert>
 
 /*
  * The following portion of this file exports to ici.h. --ici.h-start--
  */
-#include <stddef.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <stdarg.h>
-#include <stdio.h>
-#include <string.h>
-#include <signal.h>
-#include <errno.h>
-#include <math.h>
+#include <cstddef>
+#include <cstdlib>
+#include <cstdint>
+#include <cstdarg>
+#include <cstdio>
+#include <cstring>
+#include <csignal>
+#include <cerrno>
+#include <cmath>
 
 namespace ici
 {
@@ -234,10 +234,10 @@ extern DLI ici_array_t          ici_xs;
 extern DLI ici_array_t          ici_os;
 extern DLI ici_array_t          ici_vs;
 extern DLI uint32_t             ici_vsver;
-constexpr int NSUBEXP =         10;
+constexpr int                   NSUBEXP = 10;
 extern DLI int                  ici_re_bra[(NSUBEXP + 1) * 3];
 extern DLI int                  ici_re_nbra;
-extern DLI volatile int         ici_aborted;            /* See exec.c */
+extern DLI volatile int         ici_aborted;                    /* See exec.c */
 extern DLI int                  ici_dont_record_line_nums;      /* See lex.c */
 extern DLI char                 *ici_buf;                       /* See buf.h */
 extern DLI size_t               ici_bufz;                       /* See buf.h */
@@ -267,7 +267,6 @@ extern int                      ici_exec_count;
 
 
 extern ici_obj_t                *ici_atom_probe(ici_obj_t *o);
-extern ici_obj_t                *ici_fetch_fail(ici_obj_t *, ici_obj_t *);
 extern ici_obj_t                *ici_atom(ici_obj_t *, int);
 extern int                      ici_parse_file(const char *, char *, ici_ftype_t *);
 extern ici_array_t              *ici_array_new(ptrdiff_t);
@@ -285,7 +284,6 @@ extern int                      ici_interface_check(unsigned long, unsigned long
 extern ici_str_t                *ici_str_new(const char *, int);
 extern ici_ptr_t                *ici_ptr_new(ici_obj_t *, ici_obj_t *);
 extern ici_regexp_t             *ici_regexp_new(ici_str_t *, int);
-extern int                      ici_assign_fail(ici_obj_t *, ici_obj_t *, ici_obj_t *);
 extern ici_file_t               *ici_open_charbuf(char *, int, ici_obj_t *, int);
 extern int                      ici_get_last_errno(const char *, const char *);
 extern int                      ici_argcount(int);

@@ -650,7 +650,7 @@ int array_type::assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v)
     }
     if (!ici_isint(k))
     {
-        return ici_assign_fail(o, k, v);
+        return assign_fail(o, k, v);
     }
     i = ici_intof(k)->i_value;
     if (i < 0)
@@ -669,7 +669,7 @@ ici_obj_t *array_type::fetch(ici_obj_t *o, ici_obj_t *k)
 {
     if (!ici_isint(k))
     {
-        return ici_fetch_fail(o, k);
+        return fetch_fail(o, k);
     }
     return ici_array_get(ici_arrayof(o), ici_intof(k)->i_value);
 }

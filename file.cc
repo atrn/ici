@@ -148,7 +148,7 @@ ici_obj_t * file_type::fetch(ici_obj_t *o, ici_obj_t *k)
             l->decref();
         return l;
     }
-    return ici_fetch_fail(o, k);
+    return fetch_fail(o, k);
 }
 
 } // namespace ici

@@ -365,7 +365,7 @@ ici_obj_t * handle_type::fetch(ici_obj_t *o, ici_obj_t *k)
             return r;
     }
     if (!ici_hassuper(o) || ici_handleof(o)->o_super == NULL)
-        return ici_fetch_fail(o, k);
+        return fetch_fail(o, k);
     return ici_fetch(ici_handleof(o)->o_super, k);
 }
 
@@ -382,7 +382,7 @@ int handle_type::fetch_super(ici_obj_t *o, ici_obj_t *k, ici_obj_t **v, ici_stru
 {
     if (!ici_hassuper(o))
     {
-        ici_fetch_fail(o, k);
+        fetch_fail(o, k);
         return 1;
     }
     if (ici_handleof(o)->o_super == NULL)
@@ -422,7 +422,7 @@ ici_obj_t * handle_type::fetch_base(ici_obj_t *o, ici_obj_t *k)
             return r;
     }
     if (!ici_hassuper(o))
-        return ici_fetch_fail(o, k);
+        return fetch_fail(o, k);
     if ((o->o_flags & ICI_H_HAS_PRIV_STRUCT) == 0)
         return ici_null;
     return ici_fetch_base(h->o_super, k);
@@ -462,7 +462,7 @@ int handle_type::assign_base(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v)
             return 0;
     }
     if (!ici_hassuper(o))
-        return ici_assign_fail(o, k, v);
+        return assign_fail(o, k, v);
     if ((o->o_flags & ICI_H_HAS_PRIV_STRUCT) == 0)
     {
         ici_objwsup_t   *s;
@@ -518,7 +518,7 @@ int handle_type::assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v)
             return 0;
     }
     if (!ici_hassuper(o))
-        return ici_assign_fail(o, k, v);
+        return assign_fail(o, k, v);
     if (o->o_flags & ICI_H_HAS_PRIV_STRUCT)
         return ici_assign(h->o_super, k, v);
     /*
@@ -555,7 +555,7 @@ int handle_type::assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v)
 int handle_type::assign_super(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v, ici_struct_t *b)
 {
     if (!ici_hassuper(o))
-        return ici_assign_fail(o, k, v);
+        return assign_fail(o, k, v);
     if (ici_handleof(o)->o_super == NULL)
         return 0;
     return ici_assign_super(ici_handleof(o)->o_super, k, v, b);

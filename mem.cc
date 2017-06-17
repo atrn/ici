@@ -73,7 +73,7 @@ int mem_type::assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v)
     long       i;
 
     if (!ici_isint(k) || !ici_isint(v))
-        return ici_assign_fail(o, k, v);
+        return assign_fail(o, k, v);
     i = ici_intof(k)->i_value;
     if (i < 0 || i >= (long)ici_memof(o)->m_length)
     {
@@ -101,7 +101,7 @@ ici_obj_t * mem_type::fetch(ici_obj_t *o, ici_obj_t *k)
     long        i;
 
     if (!ici_isint(k))
-        return ici_fetch_fail(o, k);
+        return fetch_fail(o, k);
     i = ici_intof(k)->i_value;
     if (i < 0 || i >= (long)ici_memof(o)->m_length)
         return ici_null;

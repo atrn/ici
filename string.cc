@@ -390,7 +390,7 @@ ici_obj_t *string_type::fetch(ici_obj_t *o, ici_obj_t *k)
 
     if (!ici_isint(k))
     {
-        return ici_fetch_fail(o, k);
+        return fetch_fail(o, k);
     }
     if ((i = (int)ici_intof(k)->i_value) < 0 || i >= ici_stringof(o)->s_nchars)
     {
@@ -425,7 +425,7 @@ int string_type::assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v)
         return ici_set_error("attempt to assign to an atomic string");
     }
     if (!ici_isint(k) || !ici_isint(v))
-        return ici_assign_fail(o, k, v);
+        return assign_fail(o, k, v);
     i = ici_intof(k)->i_value;
     if (i < 0)
     {

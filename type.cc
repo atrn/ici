@@ -85,7 +85,7 @@ type_t      *types[max_types] =
     instance_of<channel_type>()
 };
 
-static int ici_ntypes = ICI_TC_MAX_CORE + 1;
+static int ntypes = ICI_TC_MAX_CORE + 1;
 
 
 /*
@@ -102,13 +102,13 @@ static int ici_ntypes = ICI_TC_MAX_CORE + 1;
 int
 ici_register_type(type_t *t)
 {
-    if (ici_ntypes == max_types)
+    if (ntypes == max_types)
     {
-        ici_set_error("too many primitive types");
+        ici_set_error("too many types");
         return 0;
     }
-    types[ici_ntypes] = t;
-    return ici_ntypes++;
+    types[ntypes] = t;
+    return ntypes++;
 }
 
 //================================================================
@@ -138,19 +138,19 @@ ici_obj_t *type::copy(ici_obj_t *o) {
 }
 
 int type::assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v) {
-    return ici_assign_fail(o, k, v);
+    return assign_fail(o, k, v);
 }
 
 ici_obj_t * type::fetch(ici_obj_t *o, ici_obj_t *k) {
-    return ici_fetch_fail(o, k);
+    return fetch_fail(o, k);
 }
 
 int type::assign_super(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v, ici_struct_t *) {
-    return ici_assign_fail(o, k, v);
+    return assign_fail(o, k, v);
 }
 
 int type::fetch_super(ici_obj_t *o, ici_obj_t *k, ici_obj_t **pv, ici_struct_t *) {
-    *pv = ici_fetch_fail(o, k);
+    *pv = fetch_fail(o, k);
     return 1;
 }
 
@@ -176,6 +176,28 @@ void type::objname(ici_obj_t *, char n[ICI_OBJNAMEZ]) {
 
 int type::call(ici_obj_t *, ici_obj_t *) {
     return 1;
+}
+
+ici_obj_t *type::fetch_fail(ici_obj_t *o, ici_obj_t *k)
+{
+    char n1[ICI_OBJNAMEZ];
+    char n2[ICI_OBJNAMEZ];
+    ici_set_error("attempt to read %s keyed by %s",
+        ici_objname(n1, o),
+        ici_objname(n2, k));
+    return NULL;
+}
+
+int type::assign_fail(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v)
+{
+    char n1[ICI_OBJNAMEZ];
+    char n2[ICI_OBJNAMEZ];
+    char n3[ICI_OBJNAMEZ];
+
+    return ici_set_error("attempt to set %s keyed by %s to %s",
+        ici_objname(n1, o),
+        ici_objname(n2, k),
+        ici_objname(n3, v));
 }
 
 }

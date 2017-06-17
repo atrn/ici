@@ -9,9 +9,7 @@
 #ifndef ICI_ARCHIVE_H
 #define ICI_ARCHIVE_H
 
-#ifndef ICI_OBJECT_H
 #include "object.h"
-#endif
 
 namespace ici
 {

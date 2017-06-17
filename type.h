@@ -89,6 +89,34 @@ public:
         if (_name == nullptr) _name = ici_str_new_nul_term(name);
         return _name;
     }
+
+    /*
+     * This is a convenience function which can be used directly as the 't_fetch'
+     * entry in a type's 'type_t' struction if the type doesn't support
+     * fetching.  It sets 'ici_error' to a message of the form:
+     *
+     *  attempt to read %s keyed by %
+     *
+     * and returns 1.  Also, it can b called from within a custom assign function
+     * in cases where the particular fetch is illegal.
+     *
+     * This --func-- forms part of the --ici-api--.
+     */
+    static ici_obj_t *          fetch_fail(ici_obj_t *, ici_obj_t *);
+
+    /*
+     * This is a convenience function which can be used directly as the 't_assign'
+     * entry in a type's 'type_t' struction if the type doesn't support
+     * asignment.  It sets 'ici_error' to a message of the form:
+     *
+     *  attempt to set %s keyed by %s to %s
+     *
+     * and returns 1.  Also, it can b called from within a custom assign function
+     * in cases where the particular assignment is illegal.
+     *
+     * This --func-- forms part of the --ici-api--.
+     */
+    static int                  assign_fail(ici_obj_t *, ici_obj_t *, ici_obj_t *);
 };
 
 /*
@@ -175,7 +203,7 @@ public:
  * assign(o, k, v)      Must assign to key 'k' of the object 'o' the value
  *                      'v'.  Return 1 on error, else 0.
  *
- *                      The existing function 'ici_assign_fail()' may be used
+ *                      The static function 'assign_fail()' may be used
  *                      both as the implementation of this function for object
  *                      types which do not support any assignment, and as a
  *                      simple method of generating an error for particular
@@ -201,7 +229,7 @@ public:
  *                      into a referenced object immediately.  Callers are
  *                      responsible for taking care.
  *
- *                      The existing function 'ici_fetch_fail()' may be used
+ *                      The static function 'fetch_fail()' may be used
  *                      both as the implementation of this function for object
  *                      types which do not support any assignment, and as a
  *                      simple method of generating an error for particular
