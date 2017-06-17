@@ -21,8 +21,8 @@ void uninit_restorer_map();
 int init_saver_map();
 void uninit_saver_map();
 
-int archive_f_save(...);
-int archive_f_restore(...);
+int f_archive_save(...);
+int f_archive_restore(...);
 
 int archive_op_func_code(int (*fn)());
 int (*archive_op_func(int))();

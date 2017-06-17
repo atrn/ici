@@ -27,45 +27,35 @@
 namespace ici
 {
 
-static int ici_archive_save(ici_archive_t *ar, ici_obj_t *obj);
+static int ici_archive_save(archive *ar, ici_obj_t *obj);
 
 /*
  * Functions to write different size datums to the archive stream.
  */
 
-inline
-static int
-writef(ici_archive_t *ar, const void *data, int len)
+inline int writef(archive *ar, const void *data, int len)
 {
     return ar->a_file->write(data, len) != len;
 }
 
-inline
-static int
-writeb(ici_archive_t *ar, unsigned char abyte)
+inline int writeb(archive *ar, unsigned char abyte)
 {
     return writef(ar, &abyte, 1);
 }
 
-inline
-static int
-write16(ici_archive_t *ar, int16_t hword)
+inline int write16(archive *ar, int16_t hword)
 {
     int16_t swapped = htons(hword);
     return writef(ar, &swapped, sizeof swapped);
 }
 
-inline
-static int
-write32(ici_archive_t *ar, int32_t aword)
+inline int write32(archive *ar, int32_t aword)
 {
     int32_t swapped = htonl(aword);
     return writef(ar, &swapped, sizeof swapped);
 }
 
-inline
-static int
-writedbl(ici_archive_t *ar, double adbl)
+inline int writedbl(archive *ar, double adbl)
 {
     return writef(ar, &adbl, sizeof adbl);
 }
@@ -73,9 +63,7 @@ writedbl(ici_archive_t *ar, double adbl)
 /*
  * Integers are written as "long" in network byte order.
  */
-inline
-static int
-writel(ici_archive_t *ar, long along)
+inline int writel(archive *ar, long along)
 {
     long swapped = htonl(along);
     return writef(ar, &swapped, sizeof swapped);
@@ -86,9 +74,7 @@ writel(ici_archive_t *ar, long along)
  * by that many bytes representing the character data.  Since ICI uses
  * 8-bit coding this count is also the number of characters.
  */
-inline
-static int
-writestr(ici_archive_t *ar, ici_str_t *s)
+inline int writestr(archive *ar, ici_str_t *s)
 {
     return writel(ar, s->s_nchars) || writef(ar, s->s_chars, s->s_nchars);
 }
@@ -96,15 +82,13 @@ writestr(ici_archive_t *ar, ici_str_t *s)
 /*
  * Reference to a previously saved object
  */
-
-static int
-save_object_ref(ici_archive_t *ar, ici_obj_t *o)
+static int save_object_ref(archive *ar, ici_obj_t *o)
 {
     return writeb(ar, ICI_TC_REF) || writef(ar, &o, sizeof o);
 }
 
 static int
-save_object_name(ici_archive_t *ar, ici_obj_t *obj)
+save_object_name(archive *ar, ici_obj_t *obj)
 {
     return ar->insert(obj, obj) || writef(ar, &obj, sizeof obj);
 }
@@ -114,9 +98,9 @@ save_object_name(ici_archive_t *ar, ici_obj_t *obj)
  */
 
 static int
-save_obj(ici_archive_t *ar, ici_obj_t *obj)
+save_obj(archive *ar, ici_obj_t *obj)
 {
-    unsigned char code = obj->o_tcode & 0x1F;
+    uint8_t code = obj->o_tcode & 0x1F;
     if (obj->isatom())
         code |= O_ARCHIVE_ATOMIC;
     return writeb(ar, code);
@@ -125,7 +109,7 @@ save_obj(ici_archive_t *ar, ici_obj_t *obj)
 // NULL
 
 static int
-save_null(ici_archive_t *, ici_obj_t *)
+save_null(archive *, ici_obj_t *)
 {
     return 0;
 }
@@ -133,7 +117,7 @@ save_null(ici_archive_t *, ici_obj_t *)
 // int
 
 static int
-save_int(ici_archive_t *ar, ici_obj_t *obj)
+save_int(archive *ar, ici_obj_t *obj)
 {
     return writel(ar, ici_intof(obj)->i_value);
 }
@@ -141,7 +125,7 @@ save_int(ici_archive_t *ar, ici_obj_t *obj)
 // float
 
 static int
-save_float(ici_archive_t *ar, ici_obj_t *obj)
+save_float(archive *ar, ici_obj_t *obj)
 {
     double v = ici_floatof(obj)->f_value;
 #if ICI_ARCHIVE_LITTLE_ENDIAN_HOST
@@ -153,7 +137,7 @@ save_float(ici_archive_t *ar, ici_obj_t *obj)
 // string
 
 static int
-save_string(ici_archive_t *ar, ici_obj_t *obj)
+save_string(archive *ar, ici_obj_t *obj)
 {
     return save_object_name(ar, obj) || writestr(ar, ici_stringof(obj));
 }
@@ -161,7 +145,7 @@ save_string(ici_archive_t *ar, ici_obj_t *obj)
 // regexp
 
 static int
-save_regexp(ici_archive_t *ar, ici_obj_t *obj)
+save_regexp(archive *ar, ici_obj_t *obj)
 {
     ici_regexp_t *re = ici_regexpof(obj);
     int options;
@@ -173,7 +157,7 @@ save_regexp(ici_archive_t *ar, ici_obj_t *obj)
 // mem
 
 static int
-save_mem(ici_archive_t *ar, ici_obj_t *obj)
+save_mem(archive *ar, ici_obj_t *obj)
 {
     ici_mem_t *m = ici_memof(obj);
     return save_object_name(ar, obj)
@@ -185,7 +169,7 @@ save_mem(ici_archive_t *ar, ici_obj_t *obj)
 // array
 
 static int
-save_array(ici_archive_t *ar, ici_obj_t *obj)
+save_array(archive *ar, ici_obj_t *obj)
 {
     ici_array_t *a = ici_arrayof(obj);
     ici_obj_t **e;
@@ -203,7 +187,7 @@ save_array(ici_archive_t *ar, ici_obj_t *obj)
 // set
 
 static int
-save_set(ici_archive_t *ar, ici_obj_t *obj)
+save_set(archive *ar, ici_obj_t *obj)
 {
     ici_set_t *s = ici_setof(obj);
     ici_obj_t **e = s->s_slots;
@@ -221,7 +205,7 @@ save_set(ici_archive_t *ar, ici_obj_t *obj)
 // struct
 
 static int
-save_struct(ici_archive_t *ar, ici_obj_t *obj)
+save_struct(archive *ar, ici_obj_t *obj)
 {
     ici_struct_t *s = ici_structof(obj);
     ici_obj_t *super = ici_objwsupof(s)->o_super;
@@ -245,7 +229,7 @@ save_struct(ici_archive_t *ar, ici_obj_t *obj)
 // ptr
 
 static int
-save_ptr(ici_archive_t *ar, ici_obj_t *obj)
+save_ptr(archive *ar, ici_obj_t *obj)
 {
     return ici_archive_save(ar, ici_ptrof(obj)->p_aggr) || ici_archive_save(ar, ici_ptrof(obj)->p_key);
 }
@@ -253,7 +237,7 @@ save_ptr(ici_archive_t *ar, ici_obj_t *obj)
 // func
 
 static int
-save_func(ici_archive_t *ar, ici_obj_t *obj)
+save_func(archive *ar, ici_obj_t *obj)
 {
     ici_func_t *f = ici_funcof(obj);
     ici_struct_t *autos;
@@ -283,7 +267,7 @@ save_func(ici_archive_t *ar, ici_obj_t *obj)
 // src
 
 static int
-save_src(ici_archive_t *ar, ici_obj_t *obj)
+save_src(archive *ar, ici_obj_t *obj)
 {
     return writel(ar, ici_srcof(obj)->s_lineno) || ici_archive_save(ar, ici_srcof(obj)->s_filename);
 }
@@ -291,7 +275,7 @@ save_src(ici_archive_t *ar, ici_obj_t *obj)
 // op
 
 static int
-save_op(ici_archive_t *ar, ici_obj_t *obj)
+save_op(archive *ar, ici_obj_t *obj)
 {
     return
         write16(ar, archive_op_func_code(ici_opof(obj)->op_func))
@@ -306,7 +290,7 @@ save_op(ici_archive_t *ar, ici_obj_t *obj)
 //
 
 static ici_obj_t *
-new_saver(int (*fn)(ici_archive_t *, ici_obj_t *))
+new_saver(int (*fn)(archive *, ici_obj_t *))
 {
     saver_t *saver;
 
@@ -335,7 +319,7 @@ init_saver_map()
     struct
     {
         ici_obj_t *name;
-        int (*fn)(ici_archive_t *, ici_obj_t *);
+        int (*fn)(archive *, ici_obj_t *);
     }
     fns[] =
     {
@@ -387,17 +371,17 @@ tname(ici_obj_t *o)
 }
 
 static int
-save_error(ici_archive_t *, ici_obj_t *obj)
+save_error(archive *, ici_obj_t *obj)
 {
     return ici_set_error("%s: unable to save type", ici_typeof(obj)->name);
 }
 
 
 static int
-ici_archive_save(ici_archive_t *ar, ici_obj_t *obj)
+ici_archive_save(archive *ar, ici_obj_t *obj)
 {
     ici_obj_t *saver;
-    int (*fn)(ici_archive_t *, ici_obj_t *);
+    int (*fn)(archive *, ici_obj_t *);
 
     if (ar->lookup(obj) != NULL)
     {
@@ -418,13 +402,12 @@ ici_archive_save(ici_archive_t *ar, ici_obj_t *obj)
  *
  * This --topic-- forms part of the --ici-serialisation-- documentation.
  */
-int
-archive_f_save(...)
+int f_archive_save(...)
 {
     ici_objwsup_t *scp = ici_structof(ici_vs.a_top[-1])->o_super;
     ici_file_t *file;
     ici_obj_t *obj;
-    ici_archive_t *ar;
+    archive *ar;
     int failed = 1;
 
     switch (ICI_NARGS())

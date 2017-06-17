@@ -212,8 +212,8 @@ void archive_byteswap(void *ptr, int sz)
 
 ICI_DEFINE_CFUNCS(save_restore)
 {
-    ICI_DEFINE_CFUNC(save, archive_f_save),
-    ICI_DEFINE_CFUNC(restore, archive_f_restore),
+    ICI_DEFINE_CFUNC(save, f_archive_save),
+    ICI_DEFINE_CFUNC(restore, f_archive_restore),
     ICI_CFUNCS_END
 };
 
