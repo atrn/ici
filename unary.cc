@@ -24,7 +24,7 @@ ici_op_unary()
     switch (ici_opof(ici_xs.a_top[-1])->op_code)
     {
     case t_subtype(T_EXCLAM):
-        if (ici_isfalse(ici_os.a_top[-1]))
+        if (isfalse(ici_os.a_top[-1]))
             ici_os.a_top[-1] = ici_one;
         else
             ici_os.a_top[-1] = ici_zero;

@@ -557,7 +557,7 @@ ici_net_connect(void)
         addr = ici_stringof(arg)->s_chars;
     else if (ici_isint(arg))
     {
-        sprintf(ici_buf, "%ld", ici_intof(arg)->i_value);
+        sprintf(ici_buf, "%lld", ici_intof(arg)->i_value);
         addr = ici_buf;
     }
     else
@@ -612,7 +612,7 @@ ici_net_bind(void)
             addr = ici_stringof(ICI_ARG(1))->s_chars;
         else if (ici_isint(ICI_ARG(1)))
         {
-            sprintf(ici_buf, "%ld", ici_intof(ICI_ARG(1))->i_value);
+            sprintf(ici_buf, "%lld", ici_intof(ICI_ARG(1))->i_value);
             addr = ici_buf;
         }
         else

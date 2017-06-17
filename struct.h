@@ -22,8 +22,8 @@ struct sslot
 
 struct ici_struct : objwsup
 {
-    int         s_nels;         /* How many slots used. */
-    int         s_nslots;       /* How many slots allocated. */
+    size_t      s_nels;         /* How many slots used. */
+    size_t      s_nslots;       /* How many slots allocated. */
     ici_sslot_t *s_slots;
 };
 

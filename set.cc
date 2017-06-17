@@ -261,7 +261,7 @@ int set_type::assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v)
     {
         return ici_set_error("attempt to modify an atomic set");
     }
-    if (ici_isfalse(v))
+    if (isfalse(v))
     {
         return ici_set_unassign(ici_setof(o), k);
     }

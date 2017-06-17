@@ -94,16 +94,17 @@ read32(ici_archive_t *ar, int32_t *aword)
     return 0;
 }
 
-inline
-static int
-readl(ici_archive_t *ar, long *along)
+// todo - remove, use sized versions
+template <typename T>
+int
+readl(ici_archive_t *ar, T *along)
 {
     long tmp;
     if (readf(ar, &tmp, sizeof tmp))
     {
         return 1;
     }
-    *along = ntohl(tmp);
+    *along = (T)ntohl(tmp);
     return 0;
 }
 
@@ -497,7 +498,7 @@ restore_func(ici_archive_t *ar)
     ici_obj_t *args = NULL;
     ici_obj_t *autos = NULL;
     ici_obj_t *name = NULL;
-    long nautos;
+    size_t nautos;
     ici_func_t *fn;
     ici_obj_t *oname;
 

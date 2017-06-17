@@ -907,7 +907,7 @@ ici_evaluate(ici_obj_t *code, int n_operands)
                  * bool => - (os)
                  *
                  */
-                if (ici_isfalse(ici_os.a_top[-1]))
+                if (isfalse(ici_os.a_top[-1]))
                 {
                     --ici_os.a_top;
                     ++ici_pcof(ici_xs.a_top[-1])->pc_next;
@@ -923,7 +923,7 @@ ici_evaluate(ici_obj_t *code, int n_operands)
                 /*
                  * bool => -
                  */
-                if (ici_isfalse(ici_os.a_top[-1]))
+                if (isfalse(ici_os.a_top[-1]))
                 {
                     ++ici_pcof(ici_xs.a_top[-1])->pc_next;
                     o = *ici_pcof(ici_xs.a_top[-1])->pc_next++;
@@ -943,7 +943,7 @@ ici_evaluate(ici_obj_t *code, int n_operands)
                  * bool => - (os)
                  *      => [o_break] (xs)
                  */
-                if (ici_isfalse(ici_os.a_top[-1]))
+                if (isfalse(ici_os.a_top[-1]))
                 {
                     --ici_os.a_top;
                     continue;
@@ -956,7 +956,7 @@ ici_evaluate(ici_obj_t *code, int n_operands)
                  * bool => - (os)
                  *      => [o_break] (xs)
                  */
-                if (!ici_isfalse(ici_os.a_top[-1]))
+                if (!isfalse(ici_os.a_top[-1]))
                 {
                     --ici_os.a_top;
                     continue;
@@ -1016,7 +1016,7 @@ ici_evaluate(ici_obj_t *code, int n_operands)
                 {
                     int         c;
 
-                    if ((c = !ici_isfalse(ici_os.a_top[-2])) == ici_opof(o)->op_code)
+                    if ((c = !isfalse(ici_os.a_top[-2])) == ici_opof(o)->op_code)
                     {
                         /*
                          * Have to test next part of the condition.

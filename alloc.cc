@@ -13,15 +13,15 @@ namespace ici
  * When we reach the limit, a garbage collection is triggered (which
  * will presumably reduce ici_mem and re-evaluate the limit).
  */
-long                    ici_mem;
-long                    ici_mem_limit;
+size_t                  ici_mem;
+size_t                  ici_mem_limit;
 
 /*
  * A count and estimated total size of outstanding allocs done through
  * ici_alloc and yet freed with ici_free.
  */
-int                     ici_n_allocs;
-long                    ici_alloc_mem;
+size_t                  ici_n_allocs;
+size_t                  ici_alloc_mem;
 
 #if !ICI_ALLALLOC
 

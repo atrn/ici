@@ -29,8 +29,8 @@ namespace ici
 
 extern char             *ici_flists[4];
 
-extern long             ici_mem;
-extern long             ici_mem_limit;
+extern size_t           ici_mem;
+extern size_t           ici_mem_limit;
 
 extern void             *ici_nalloc(size_t);
 extern void             ici_nfree(void *, size_t);

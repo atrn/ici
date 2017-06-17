@@ -21,8 +21,8 @@ namespace ici
 struct catcher : object
 {
     ici_obj_t   *c_catcher;
-    short       c_odepth;       /* Operand stack depth. */
-    short       c_vdepth;       /* Variable stack depth. */
+    uint32_t    c_odepth;       /* Operand stack depth. */
+    uint32_t    c_vdepth;       /* Variable stack depth. */
 };
 
 inline ici_catch_t *ici_catchof(ici_obj_t *o) { return static_cast<ici_catch_t *>(o); }
@@ -47,7 +47,6 @@ class catch_type : public type
 {
 public:
     catch_type() : type("catch", sizeof (struct catcher)) {}
-
     unsigned long       mark(ici_obj_t *o) override;
     void                free(ici_obj_t *o) override;
 };

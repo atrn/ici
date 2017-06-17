@@ -6,7 +6,7 @@ namespace ici
 {
 
 char    *ici_buf;       /* #define'd to buf in buf.h. */
-int     ici_bufz;       /* 1 less than actual allocation. */
+size_t  ici_bufz;       /* 1 less than actual allocation. */
 
 /*
  * Ensure that the global buf has room for n chars. Return 1 on erorr,
@@ -14,7 +14,7 @@ int     ici_bufz;       /* 1 less than actual allocation. */
  * macro ici_chkbuf().
  */
 int
-ici_growbuf(int n)
+ici_growbuf(size_t n)
 {
     char       *p;
 

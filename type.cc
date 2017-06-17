@@ -1,3 +1,4 @@
+#define ICI_CORE
 #include "object.h"
 
 #include "archive.h"

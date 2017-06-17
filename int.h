@@ -26,7 +26,7 @@ struct ici_int : object
     {
     }
 
-    long i_value;
+    int64_t i_value;
 };
 
 inline ici_int_t *ici_intof(ici_obj_t *o) { return static_cast<ici_int_t *>(o); }

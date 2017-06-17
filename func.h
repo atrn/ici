@@ -19,7 +19,7 @@ struct func : object
     ici_array_t     *f_args;    /* Array of argument names. */
     ici_struct_t    *f_autos;   /* Prototype struct of autos (incl. args). */
     ici_str_t       *f_name;    /* Some name for the function (diagnostics). */
-    int             f_nautos;   /* If !=0, a hint for auto struct alloc. */
+    size_t          f_nautos;   /* If !=0, a hint for auto struct alloc. */
 };
 
 inline ici_func_t *ici_funcof(ici_obj_t *o) { return static_cast<ici_func_t *>(o); }

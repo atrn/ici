@@ -22,22 +22,22 @@ union ici_ostemp
 
 struct exec : object
 {
-    ici_array_t *x_xs;
-    ici_array_t *x_os;
-    ici_array_t *x_vs;
-    ici_src_t   *x_src;
-    int         x_count;
-    int         x_yield_count;
-    ici_array_t *x_pc_closet;           /* See below. */
-    ici_array_t *x_os_temp_cache;       /* See below. */
-    ici_exec_t  *x_next;
-    int         x_n_engine_recurse;
-    int         x_critsect;
-    ici_obj_t   *x_waitfor;
-    int         x_state;
-    ici_obj_t   *x_result;
+    ici_array_t             *x_xs;
+    ici_array_t             *x_os;
+    ici_array_t             *x_vs;
+    ici_src_t               *x_src;
+    int                      x_count;
+    int                      x_yield_count;
+    ici_array_t             *x_pc_closet; /* See below. */
+    ici_array_t             *x_os_temp_cache; /* See below. */
+    ici_exec_t              *x_next;
+    int                      x_n_engine_recurse;
+    int                      x_critsect;
+    ici_obj_t               *x_waitfor;
+    int                      x_state;
+    ici_obj_t               *x_result;
     std::condition_variable *x_semaphore;
-    char        *x_error;
+    char                    *x_error;
 };
 
 inline ici_exec_t *ici_execof(ici_obj_t *o) { return static_cast<ici_exec_t *>(o); }
@@ -177,6 +177,11 @@ struct debug
 };
 
 /*
+ * Test if an object represents a false value NULL or integer 0.
+ */
+inline bool isfalse(ici_obj_t *o) { return o == static_cast<ici_obj_t *>(ici_zero) || o == static_cast<ici_obj_t *>(ici_null); }
+
+/*
  * End of ici.h export. --ici.h-end--
  */
 
@@ -184,8 +189,6 @@ struct debug
     (*(xs) = ici_exec->x_pc_closet->a_base[(xs) - ici_xs.a_base], \
     ici_pcof(*(xs))->pc_code = code, \
     ici_pcof(*(xs))->pc_next = ici_pcof(*(xs))->pc_code->a_base)
-
-inline bool ici_isfalse(ici_obj_t *o) { return o == static_cast<ici_obj_t *>(ici_zero) || o == static_cast<ici_obj_t *>(ici_null); }
 
 class exec_type : public type
 {

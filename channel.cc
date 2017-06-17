@@ -90,18 +90,20 @@ unsigned long channel_type::mark(ici_obj_t *o)
 static int
 f_channel(...)
 {
-    long                capacity = 0;
+    size_t              capacity = 0;
     ici_channel_t       *chan;
 
     if (ICI_NARGS() != 0)
     {
-        if (ici_typecheck("i", &capacity))
+        long val;
+        if (ici_typecheck("i", &val))
             return 1;
-        if (capacity < 0)
+        if (val < 0)
         {
             ici_set_error("channel capacity must be non-negative");
             return 1;
         }
+        capacity = size_t(val);
     }
     // chan = ici_nalloc(sizeof (ici_channel_t));
     chan = ici_talloc(ici_channel_t);

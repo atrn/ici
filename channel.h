@@ -16,7 +16,7 @@ namespace ici
 struct ici_channel : object
 {
     ici_array_t *       c_q;
-    long                c_capacity;
+    size_t              c_capacity;
     ici_obj_t *         c_altobj;
 };
 

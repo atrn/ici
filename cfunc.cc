@@ -1018,7 +1018,7 @@ f_string()
     if (ici_isstring(o))
         return ici_ret_no_decref(o);
     if (ici_isint(o))
-        sprintf(buf, "%ld", ici_intof(o)->i_value);
+        sprintf(buf, "%lld", ici_intof(o)->i_value);
     else if (ici_isfloat(o))
         sprintf(buf, "%g", ici_floatof(o)->f_value);
     else if (ici_isregexp(o))
@@ -1647,7 +1647,7 @@ ici_f_sprintf()
     int                 nstars;
     int                 gotl;           /* Have a long int flag. */
     int                 gotdot;         /* Have a . in % format. */
-    long                ivalue;
+    int64_t             ivalue;
     double              fvalue;
     char                *svalue;
     ici_obj_t           **o;            /* Argument pointer. */
@@ -1700,7 +1700,7 @@ ici_f_sprintf()
             if (*p == '*')
                 ++nstars;
             else if (*p == 'l')
-                gotl = 1;
+                gotl++;
             else if (*p == '.')
                 gotdot = 1;
             else if (*p >= '0' && *p <= '9')
@@ -1715,8 +1715,10 @@ ici_f_sprintf()
             }
             subfmt[j++] = *p++;
         }
-        if (gotl == 0 && strchr("diouxX", *p) != NULL)
+        if (strchr("diouxX", *p) != NULL) {
             subfmt[j++] = 'l';
+            subfmt[j++] = 'l';
+        }
         subfmt[j++] = *p;
         subfmt[j++] = '\0';
         if (nstars > 2)

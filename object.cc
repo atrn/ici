@@ -120,7 +120,7 @@ ici_objname(char p[ICI_OBJNAMEZ], ici_obj_t *o)
             sprintf(p, "\"%s\"", ici_stringof(o)->s_chars);
     }
     else if (ici_isint(o))
-        sprintf(p, "%ld", ici_intof(o)->i_value);
+        sprintf(p, "%lld", ici_intof(o)->i_value);
     else if (ici_isfloat(o))
         sprintf(p, "%g", ici_floatof(o)->f_value);
     else if (strchr("aeiou", ici_typeof(o)->name[0]) != NULL)
@@ -498,7 +498,7 @@ ici_collect()
     ici_obj_t  *o;
     ici_obj_t  **b;
     /*int        ndead_atoms;*/
-    long       mem;    /* Total mem tied up in refed objects. */
+    size_t     mem;    /* Total mem tied up in refed objects. */
 
     if (ici_supress_collect)
     {
@@ -655,10 +655,6 @@ printf("mem=%ld vs. %ld, nobjects=%d, ici_natoms=%d\n", mem, ici_mem, objs_top -
      * new call to us) to 1.5 times what is currently allocated, but
      * with a special cases for small sizes.
      */
-    if (ici_mem < 0)
-    {
-        ici_mem = 0;
-    }
 #   if ALLCOLLECT
     ici_mem_limit = 0;
 #   else

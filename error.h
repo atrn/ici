@@ -15,11 +15,13 @@ namespace ici
  */
 
 /*
- * This --macro-- forms part of the --ici-api--.
+ * This --const-- forms part of the --ici-api--.
  */
 constexpr int max_error_msg = 1024;
 
 /*
+ * Set the global ici_error value.
+ *
  * This --func-- forms part of the --ici-api--.
  */
 int                     ici_set_error(const char *, ...);
