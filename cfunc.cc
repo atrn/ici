@@ -1498,7 +1498,7 @@ f_interval()
     {
         if ((a1 = ici_array_new(length)) == NULL)
             return 1;
-        ici_array_gather(a1->a_base, a, start, length);
+        a->gather(a1->a_base, start, length);
         a1->a_top += length;
         return ici_ret_with_decref(a1);
     }
@@ -2809,7 +2809,7 @@ f_sort()
         m = a->a_limit - a->a_base;
         if ((e = (ici_obj_t **)ici_nalloc(m * sizeof(ici_obj_t *))) == NULL)
             goto fail;
-        ici_array_gather(e, a, 0, n);
+        a->gather(e, 0, n);
         ici_nfree(a->a_base, m * sizeof(ici_obj_t *));
         a->a_base = e;
         a->a_bot = e;

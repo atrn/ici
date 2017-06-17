@@ -550,9 +550,9 @@
             {
                 FAIL();
             }
-            ici_array_gather(a->a_top, ici_arrayof(o0), 0, z0);
+            ici_arrayof(o0)->gather(a->a_top, 0, z0);
             a->a_top += z0;
-            ici_array_gather(a->a_top, ici_arrayof(o1), 0, z1);
+            ici_arrayof(o1)->gather(a->a_top, 0, z1);
             a->a_top += z1;
             o = a;
         }

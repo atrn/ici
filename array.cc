@@ -147,7 +147,7 @@ array::span(int i, ptrdiff_t *np)
  * This --func-- forms part of the --ici-api--.
  */
 void
-ici_array_gather(ici_obj_t **b, ici_array_t *a, ptrdiff_t start, ptrdiff_t n)
+array::gather(ici_obj_t **b, ptrdiff_t start, ptrdiff_t n)
 {
     ici_obj_t           **e;
     ptrdiff_t           i;
@@ -156,8 +156,8 @@ ici_array_gather(ici_obj_t **b, ici_array_t *a, ptrdiff_t start, ptrdiff_t n)
     for (i = start; i < start + n; i += m, b += m)
     {
         m = n - (i - start);
-        e = a->span(i, &m);
-        memcpy(b, e, m * sizeof(ici_obj_t *));
+        e = span(i, &m);
+        memcpy(b, e, m * sizeof (object *));
     }
 }
 
@@ -183,7 +183,7 @@ int array::grow()
         return 1;
     }
     nel = len();
-    ici_array_gather(e + 1, this, 0, nel);
+    gather(e + 1, 0, nel);
     ici_nfree(a_base, n * sizeof(object *));
     a_base = e;
     a_limit = e + m;
@@ -632,7 +632,7 @@ ici_obj_t * array_type::copy(ici_obj_t *o)
     {
         return NULL;
     }
-    ici_array_gather(na->a_top, ici_arrayof(o), 0, n);
+    ici_arrayof(o)->gather(na->a_top, 0, n);
     na->a_top += n;
     return na;
 }

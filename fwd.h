@@ -323,9 +323,6 @@ extern ici_handle_t             *ici_handle_new(void *, ici_str_t *, ici_objwsup
 extern ici_handle_t             *ici_handle_probe(void *, ici_str_t *);
 extern int                      ici_register_type(type_t *t);
 extern void                     ici_rego_work(ici_obj_t *o);
-
-extern void                     ici_array_gather(ici_obj_t **, ici_array_t *, ptrdiff_t, ptrdiff_t);
-
 extern void                     ici_invalidate_struct_lookaside(ici_struct_t *);
 extern int                      ici_engine_stack_check();
 extern void                     ici_atexit(void (*)(), ici_wrap_t *);

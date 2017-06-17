@@ -92,6 +92,7 @@ struct array : object
     ici_obj_t **find_slot(ptrdiff_t i);
     ici_obj_t *get(ptrdiff_t i);
     ici_obj_t *rpop();
+    void gather(ici_obj_t **, ptrdiff_t, ptrdiff_t);
 };
 
 inline ici_array_t *ici_arrayof(ici_obj_t *o)   { return static_cast<ici_array_t *>(o); }
