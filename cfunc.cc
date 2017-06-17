@@ -19,6 +19,7 @@
 #include "ptr.h"
 #include "buf.h"
 #include "file.h"
+#include "ftype.h"
 #include "re.h"
 #include "null.h"
 #include "parse.h"
@@ -64,8 +65,6 @@
 
 namespace ici
 {
-
-extern int stdio_getc(void *);
 
 /*
  * Marshall function arguments in a call from ICI to C.  This function may
@@ -1919,10 +1918,10 @@ ici_f_sprintf()
                     return 1;
             }
             memcpy(out_buf, buf, i);
-            if (file->f_type->ft_flags & FT_NOMUTEX)
+            if (file->flags() & FT_NOMUTEX)
                 x = ici_leave();
-            (*file->f_type->ft_write)(out_buf, i, file->f_file);
-            if (file->f_type->ft_flags & FT_NOMUTEX)
+            file->write(out_buf, i);
+            if (file->flags() & FT_NOMUTEX)
                 ici_enter(x);
             if (out_buf != small_buf)
                 ici_nfree(out_buf, i);
@@ -1955,7 +1954,7 @@ f_currentfile()
         {
             if (raw)
                 return ici_ret_no_decref(ici_parseof(*o)->p_file);
-            f = ici_file_new(*o, &ici_parse_ftype, ici_parseof(*o)->p_file->f_name, *o);
+            f = ici_file_new(*o, ici_parse_ftype, ici_parseof(*o)->p_file->f_name, *o);
             if (f == NULL)
                 return 1;
             return ici_ret_with_decref(f);
@@ -2265,7 +2264,6 @@ f_waitfor()
     struct timeval      *tv;
     double              to;
     int                 nfds;
-    int                 i;
 
     if (ICI_NARGS() == 0)
         return ici_ret_no_decref(ici_zero);
@@ -2277,18 +2275,13 @@ f_waitfor()
     {
         if (ici_isfile(*e))
         {
-            /*
-             * If the ft_getch routine of the file is the real stdio fgetc,
-             * we can assume the file is a real stdio stream file, then
-             * we also assume we can use fileno on it.
-             */
-            if (ici_fileof(*e)->f_type->ft_getch == stdio_getc)
+            int fd = ici_fileof(*e)->fileno();
+            if (fd != -1)
             {
-                setvbuf((FILE *)ici_fileof(*e)->f_file, NULL, _IONBF, 0);
-                i = fileno((FILE *)ici_fileof(*e)->f_file);
-                FD_SET(i, &readfds);
-                if (i >= nfds)
-                    nfds = i + 1;
+                ici_fileof(*e)->setvbuf(NULL, _IONBF, 0);
+                FD_SET(fd, &readfds);
+                if (fd >= nfds)
+                    nfds = fd + 1;
             }
             else
                 return ici_ret_no_decref(*e);
@@ -2333,10 +2326,10 @@ f_waitfor()
     {
         if (!ici_isfile(*e))
             continue;
-        if (ici_fileof(*e)->f_type->ft_getch == stdio_getc)
+        auto fn = ici_fileof(*e)->fileno();
+        if (fn != -1)
         {
-            i = fileno((FILE *)ici_fileof(*e)->f_file);
-            if (FD_ISSET(i, &readfds))
+            if (FD_ISSET(fn, &readfds))
                 return ici_ret_no_decref(*e);
         }
     }
@@ -2351,8 +2344,6 @@ f_gettoken()
     ici_str_t           *s;
     unsigned char       *seps;
     int                 nseps;
-    void                *file;
-    int                 (*get)(void *);
     int                 c;
     int                 i;
     int                 j;
@@ -2400,11 +2391,9 @@ f_gettoken()
         nseps = s->s_nchars;
         break;
     }
-    get = f->f_type->ft_getch;
-    file = f->f_file;
     do
     {
-        c = (*get)(file);
+        c = f->getch();
         if (c == EOF)
             return ici_null_ret();
         for (i = 0; i < nseps; ++i)
@@ -2420,14 +2409,14 @@ f_gettoken()
     {
         ici_chkbuf(j);
         buf[j++] = c;
-        c = (*get)(file);
+        c = f->getch();
         if (c == EOF)
             break;
         for (i = 0; i < nseps; ++i)
         {
             if (c == seps[i])
             {
-                (*f->f_type->ft_ungetch)(c, file);
+                f->ungetch(c);
                 break;
             }
         }
@@ -2498,7 +2487,6 @@ f_gettokens()
     unsigned char       sep;
     void                *file;
     ici_array_t         *a;
-    int                 (*get)(void *);
     int                 c;
     int                 i;
     int                 j = 0; /* init to shut up compiler */
@@ -2597,7 +2585,6 @@ f_gettokens()
     default:
         return ici_argcount(4);
     }
-    get = f->f_type->ft_getch;
     file = f->f_file;
 
 #define S_IDLE  0
@@ -2617,7 +2604,7 @@ f_gettokens()
         /*
          * Get the next character and classify it.
          */
-        if ((c = (*get)(file)) == EOF)
+        if ((c = f->getch()) == EOF)
         {
             what = W_EOF;
             goto got_what;
@@ -3309,12 +3296,12 @@ f_getchar()
 	}
     }
     ici_signals_blocking_syscall(1);
-    if (f->f_type->ft_flags & FT_NOMUTEX)
+    if (f->flags() & FT_NOMUTEX)
     {
         x = ici_leave();
     }
-    c = (*f->f_type->ft_getch)(f->f_file);
-    if (f->f_type->ft_flags & FT_NOMUTEX)
+    c = f->getch();
+    if (f->flags() & FT_NOMUTEX)
     {
         ici_enter(x);
     }
@@ -3353,7 +3340,7 @@ f_ungetchar()
             return 1;
 	}
     }
-    if ((*f->f_type->ft_ungetch)(*ch, f->f_file) == EOF)
+    if (f->ungetch(*ch) == EOF)
     {
         return ici_set_error("unable to unget character");
     }
@@ -3365,9 +3352,7 @@ f_getline()
 {
     int        i;
     int        c;
-    void       *file;
     ici_file_t          *f;
-    int                 (*get)(void *);
     ici_exec_t          *x = NULL;
     char                *b;
     int                 buf_size;
@@ -3384,22 +3369,20 @@ f_getline()
         if ((f = ici_need_stdin()) == NULL)
             return 1;
     }
-    get = f->f_type->ft_getch;
-    file = f->f_file;
     if ((b = (char *)malloc(buf_size = 128)) == NULL)
         goto nomem;
-    if (f->f_type->ft_flags & FT_NOMUTEX)
+    if (f->flags() & FT_NOMUTEX)
     {
         ici_signals_blocking_syscall(1);
         x = ici_leave();
     }
-    for (i = 0; (c = (*get)(file)) != '\n' && c != EOF; ++i)
+    for (i = 0; (c = f->getch()) != '\n' && c != EOF; ++i)
     {
         if (i == buf_size && (b = (char *)realloc(b, buf_size *= 2)) == NULL)
             break;
         b[i] = c;
     }
-    if (f->f_type->ft_flags & FT_NOMUTEX)
+    if (f->flags() & FT_NOMUTEX)
     {
         ici_enter(x);
         ici_signals_blocking_syscall(0);
@@ -3429,8 +3412,6 @@ f_getfile()
     int                 i;
     int                 c;
     ici_file_t          *f;
-    int                 (*get)(void *);
-    void                *file;
     ici_exec_t          *x = NULL;
     char                *b;
     int                 buf_size;
@@ -3461,22 +3442,20 @@ f_getfile()
         if ((f = ici_need_stdin()) == NULL)
             goto finish;
     }
-    get = f->f_type->ft_getch;
-    file = f->f_file;
     if ((b = (char *)malloc(buf_size = 128)) == NULL)
         goto nomem;
-    if (f->f_type->ft_flags & FT_NOMUTEX)
+    if (f->flags() & FT_NOMUTEX)
     {
         ici_signals_blocking_syscall(1);
         x = ici_leave();
     }
-    for (i = 0; (c = (*get)(file)) != EOF; ++i)
+    for (i = 0; (c = f->getch()) != EOF; ++i)
     {
         if (i == buf_size && (b = (char *)realloc(b, buf_size *= 2)) == NULL)
             break;
         b[i] = c;
     }
-    if (f->f_type->ft_flags & FT_NOMUTEX)
+    if (f->flags() & FT_NOMUTEX)
     {
         ici_enter(x);
         ici_signals_blocking_syscall(0);
@@ -3533,20 +3512,15 @@ f_puts()
     }
     if (!ici_isstring(s))
         return ici_argerror(0);
-    if (f->f_type->ft_flags & FT_NOMUTEX)
+    if (f->flags() & FT_NOMUTEX)
         x = ici_leave();
-    if
-    (
-        (*f->f_type->ft_write)(s->s_chars, s->s_nchars, f->f_file)
-        !=
-        s->s_nchars
-    )
+    if (f->write(s->s_chars, s->s_nchars) != s->s_nchars)
     {
-        if (f->f_type->ft_flags & FT_NOMUTEX)
+        if (f->flags() & FT_NOMUTEX)
             ici_enter(x);
         return ici_set_error("write failed");
     }
-    if (f->f_type->ft_flags & FT_NOMUTEX)
+    if (f->flags() & FT_NOMUTEX)
         ici_enter(x);
     return ici_null_ret();
 }
@@ -3567,15 +3541,15 @@ f_fflush()
         if ((f = ici_need_stdout()) == NULL)
             return 1;
     }
-    if (f->f_type->ft_flags & FT_NOMUTEX)
+    if (f->flags() & FT_NOMUTEX)
         x = ici_leave();
-    if ((*f->f_type->ft_flush)(f->f_file) == -1)
+    if (f->flush() == -1)
     {
-        if (f->f_type->ft_flags & FT_NOMUTEX)
+        if (f->flags() & FT_NOMUTEX)
             ici_enter(x);
         return ici_set_error("flush failed");
     }
-    if (f->f_type->ft_flags & FT_NOMUTEX)
+    if (f->flags() & FT_NOMUTEX)
         ici_enter(x);
     return ici_null_ret();
 }
@@ -3605,7 +3579,7 @@ f_fopen()
         return ici_get_last_errno("open", name);
     }
     ici_enter(x);
-    if ((f = ici_file_new((char *)stream, &ici_stdio_ftype, ici_stringof(ICI_ARG(0)), NULL)) == NULL)
+    if ((f = ici_file_new((char *)stream, ici_stdio_ftype, ici_stringof(ICI_ARG(0)), NULL)) == NULL)
     {
         fclose(stream);
         return 1;
@@ -3637,7 +3611,7 @@ f_fseek()
     default:
         return ici_set_error("invalid whence value in seek()");
     }
-    if ((offset = (*f->f_type->ft_seek)(f->f_file, offset, (int)whence)) == -1)
+    if ((offset = f->seek(offset, (int)whence)) == -1)
         return 1;
     return ici_int_ret(offset);
 }
@@ -3664,7 +3638,7 @@ f_popen()
         return ici_get_last_errno("popen", name);
     }
     ici_enter(x);
-    if ((f = ici_file_new((char *)stream, &ici_popen_ftype, ici_stringof(ICI_ARG(0)), NULL)) == NULL)
+    if ((f = ici_file_new((char *)stream, ici_popen_ftype, ici_stringof(ICI_ARG(0)), NULL)) == NULL)
     {
         pclose(stream);
         return 1;
@@ -3716,10 +3690,10 @@ f_eof()
         if ((f = ici_need_stdin()) == NULL)
             return 1;
     }
-    if (f->f_type->ft_flags & FT_NOMUTEX)
+    if (f->flags() & FT_NOMUTEX)
         x = ici_leave();
-    r = (*f->f_type->ft_eof)(f->f_file);
-    if (f->f_type->ft_flags & FT_NOMUTEX)
+    r = f->eof();
+    if (f->flags() & FT_NOMUTEX)
         ici_enter(x);
     return ici_int_ret((long)r);
 }

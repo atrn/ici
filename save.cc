@@ -37,7 +37,7 @@ inline
 static int
 writef(ici_archive_t *ar, const void *data, int len)
 {
-    return (*ar->a_file->f_type->ft_write)(data, len, ar->a_file->f_file) != len;
+    return ar->a_file->write(data, len) != len;
 }
 
 inline

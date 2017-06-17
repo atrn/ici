@@ -199,7 +199,7 @@ f_load(...)
             fclose(stream);
             goto fail;
         }
-        file = ici_file_new((char *)stream, &ici_stdio_ftype, fn, NULL);
+        file = ici_file_new((char *)stream, ici_stdio_ftype, fn, NULL);
         fn->decref();
         if (file == NULL)
         {

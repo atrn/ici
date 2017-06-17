@@ -42,16 +42,21 @@ namespace ici
 
 static ici_obj_t *restore(ici_archive_t *);
 
+inline int
+get(ici_archive_t *ar)
+{
+    return ar->a_file->f_type->ft_getch(ar->a_file->f_file);
+}
+
 static int
 readf(ici_archive_t *ar, void *buf, int len)
 {
     char *p = (char *)buf;
     while (len-- > 0)
     {
-        int (*get)(void *) = ar->a_file->f_type->ft_getch;
         int ch;
 
-        if ((ch = (*get)(ar->a_file->f_file)) == -1)
+        if ((ch = (*get)(ar)) == -1)
         {
             ici_set_error("eof");
 	    return 1;

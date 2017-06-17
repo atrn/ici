@@ -1053,7 +1053,7 @@ primary(ici_parse_t *p, expr_t **ep, int exclude)
                     goto fail_user_parse;
                 }
             }
-            f = ici_file_new(p, &ici_parse_ftype, p->p_file->f_name, p);
+            f = ici_file_new(p, ici_parse_ftype, p->p_file->f_name, p);
             if (f == NULL)
                 goto fail_user_parse;
             c->incref();
@@ -2562,7 +2562,7 @@ ici_parse_fname(const char *fname)
     {
         return ici_get_last_errno("fopen", fname);
     }
-    r = ici_parse_file(fname, (char *)stream, &ici_stdio_ftype);
+    r = ici_parse_file(fname, (char *)stream, ici_stdio_ftype);
     fclose(stream);
     return r;
 }
@@ -2731,7 +2731,7 @@ parse_file_argcheck()
     {
         return NULL;
     }
-    if (f->f_type != &ici_parse_ftype)
+    if (f->f_type != ici_parse_ftype)
     {
         ici_argerror(0);
         return NULL;
@@ -2754,7 +2754,7 @@ f_parseopen(...)
     {
 	return 1;
     }
-    if ((p = ici_file_new((char *)parse, &ici_parse_ftype, f->f_name, NULL)) == NULL)
+    if ((p = ici_file_new((char *)parse, ici_parse_ftype, f->f_name, NULL)) == NULL)
     {
         parse->decref();
 	return 1;
@@ -2845,7 +2845,7 @@ f_rejectchar(...)
     {
         return 1;
     }
-    if (f->f_type != &ici_parse_ftype)
+    if (f->f_type != ici_parse_ftype)
     {
         ici_argerror(0);
         return 1;
@@ -2854,7 +2854,7 @@ f_rejectchar(...)
     {
         return ici_argerror(1);
     }
-    (*f->f_type->ft_ungetch)(s->s_chars[0], f->f_file);
+    f->f_type->ft_ungetch(s->s_chars[0], f->f_file);
     return ici_ret_no_decref(s);
 }
 

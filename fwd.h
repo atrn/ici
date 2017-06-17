@@ -214,7 +214,7 @@ typedef struct src              ici_src_t;
 typedef struct str              ici_str_t;
 typedef class  type             type_t;
 typedef struct wrap             ici_wrap_t;
-typedef struct ftype            ici_ftype_t;
+typedef class  ftype            ici_ftype_t;
 typedef struct forall           ici_forall_t;
 typedef struct parse            ici_parse_t;
 typedef struct mem              ici_mem_t;
@@ -247,7 +247,6 @@ extern DLI ici_debug_t          *debugfunc;
 extern char                     ici_version_string[];
 extern unsigned long const      ici_crc_table[256];
 extern int                      ici_exec_count;
-
 extern DLI ici_ftype_t          *ici_stdio_ftype;
 extern DLI ici_ftype_t          *ici_popen_ftype;
 
@@ -457,11 +456,16 @@ extern ici_obj_t        **ici_objs_limit;
 extern ici_obj_t        **ici_atoms;
 extern int              ici_atomsz;
 
-extern DLI ici_ftype_t  ici_parse_ftype;
+extern DLI ici_ftype_t  *ici_parse_ftype;
 
 #if !defined(ICI_HAS_BSD_STRUCT_TM)
 extern int              ici_set_timezone_vals(ici_struct_t *);
 #endif
+
+template <typename T> inline T *instance_of() {
+    static T value;
+    return &value;
+}
 
 } // namespace ici
 

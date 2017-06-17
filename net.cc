@@ -46,6 +46,7 @@
 #include "struct.h"
 #include "cfunc.h"
 #include "file.h"
+#include "ftype.h"
 
 #ifdef  _WIN32
 #define USE_WINSOCK /* Else use UNIX style sockets. */
@@ -1591,138 +1592,135 @@ typedef struct
 }
 skt_file_t;
 
-static int
-skt_getch(void *u)
+class skt_ftype : public ftype
 {
-    skt_file_t *sf = (skt_file_t *)u;
-    char        c;
+public:
+    skt_ftype() : ftype(FT_NOMUTEX) {}
+    ~skt_ftype() {}
 
-    if (!(sf->sf_flags & SF_READ) || (sf->sf_flags & SF_EOF))
-        return EOF;
-    if (sf->sf_pbchar != EOF)
+    int ft_getch(void *u) override
     {
-        c = sf->sf_pbchar;
-        sf->sf_pbchar = EOF;
-    }
-    else
-    {
-        if (sf->sf_nbuf == 0)
-        {
-            ici_exec_t *x = potentially_block();
-            sf->sf_nbuf = recv(socket_fd(sf->sf_socket), sf->sf_buf, SF_BUFSIZ, 0);
-            unblock(x);
-            if (sf->sf_nbuf <= 0)
-            {
-                sf->sf_flags |= SF_EOF;
-                return EOF;
-            }
-            sf->sf_bufp = sf->sf_buf;
-        }
-        c = *sf->sf_bufp++;
-        --sf->sf_nbuf;
-    }
-    return (unsigned char)c;
-}
+        skt_file_t *sf = (skt_file_t *)u;
+        char        c;
 
-static int
-skt_ungetc(int c, void *u)
-{
-    skt_file_t *sf = (skt_file_t *)u;
-    if (!(sf->sf_flags & SF_READ))
-        return EOF;
-    if (sf->sf_pbchar != EOF)
-        return EOF;
-    sf->sf_pbchar = c;
-    return 0;
-}
-
-static int
-skt_flush(void *u)
-{
-    skt_file_t *sf = (skt_file_t *)u;
-    if (sf->sf_flags & SF_WRITE && sf->sf_nbuf > 0)
-    {
-        int     rc;
-        ici_exec_t *x = potentially_block();
-        rc = send(socket_fd(sf->sf_socket), sf->sf_buf, sf->sf_nbuf, 0);
-        unblock(x);
-        if (rc != sf->sf_nbuf)
-            return 1;
-    }
-    else /* sf->sf_flags & SF_READ */
-    {
-        sf->sf_pbchar = EOF;
-    }
-    sf->sf_bufp = sf->sf_buf;
-    sf->sf_nbuf = 0;
-    return 0;
-}
-
-static int
-skt_fclose(void *u)
-{
-    skt_file_t *sf = (skt_file_t *)u;
-    int         rc = 0;
-
-    if (sf->sf_flags & SF_WRITE)
-        rc = skt_flush(sf);
-    sf->sf_socket->decref();
-    ici_tfree(sf, skt_file_t);
-    return rc;
-}
-
-static long
-skt_seek(void *u, long o, int w)
-{
-    (void)u;
-    (void)o;
-    (void)w;
-    ici_set_error("cannot seek on a socket");
-    return -1;
-}
-
-static int
-skt_eof(void *u)
-{
-    skt_file_t *sf = (skt_file_t *)u;
-    return sf->sf_flags & SF_EOF;
-}
-
-static int
-skt_write(const void *p, long n, void *u)
-{
-    const char *buf = (const char *)p;
-    skt_file_t	*sf = (skt_file_t *)u;
-    int         nb;
-    int         rc;
-
-    if (!(sf->sf_flags & SF_WRITE))
-        return EOF;
-    for (rc = nb = 0; n > 0; n -= nb, rc += nb)
-    {
-        if (sf->sf_nbuf == SF_BUFSIZ && skt_flush(sf))
+        if (!(sf->sf_flags & SF_READ) || (sf->sf_flags & SF_EOF))
             return EOF;
-        if ((nb = n) > (SF_BUFSIZ - sf->sf_nbuf))
-            nb = SF_BUFSIZ - sf->sf_nbuf;
-        memcpy(sf->sf_bufp, buf, nb);
-        sf->sf_bufp += nb;
-        sf->sf_nbuf += nb;
-        buf += nb;
+        if (sf->sf_pbchar != EOF)
+        {
+            c = sf->sf_pbchar;
+            sf->sf_pbchar = EOF;
+        }
+        else
+        {
+            if (sf->sf_nbuf == 0)
+            {
+                ici_exec_t *x = potentially_block();
+                sf->sf_nbuf = recv(socket_fd(sf->sf_socket), sf->sf_buf, SF_BUFSIZ, 0);
+                unblock(x);
+                if (sf->sf_nbuf <= 0)
+                {
+                    sf->sf_flags |= SF_EOF;
+                    return EOF;
+                }
+                sf->sf_bufp = sf->sf_buf;
+            }
+            c = *sf->sf_bufp++;
+            --sf->sf_nbuf;
+        }
+        return (unsigned char)c;
     }
-    return rc;
-}
 
-static ici_ftype_t  net_skt_ftype =
-{
-    0,
-    skt_getch,
-    skt_ungetc,
-    skt_flush,
-    skt_fclose,
-    skt_seek,
-    skt_eof,
-    skt_write
+    int
+    ft_ungetch(int c, void *u) override
+    {
+        skt_file_t *sf = (skt_file_t *)u;
+        if (!(sf->sf_flags & SF_READ))
+            return EOF;
+        if (sf->sf_pbchar != EOF)
+            return EOF;
+        sf->sf_pbchar = c;
+        return 0;
+    }
+
+    int
+    ft_flush(void *u) override
+    {
+        skt_file_t *sf = (skt_file_t *)u;
+        if (sf->sf_flags & SF_WRITE && sf->sf_nbuf > 0)
+        {
+            int     rc;
+            ici_exec_t *x = potentially_block();
+            rc = send(socket_fd(sf->sf_socket), sf->sf_buf, sf->sf_nbuf, 0);
+            unblock(x);
+            if (rc != sf->sf_nbuf)
+                return 1;
+        }
+        else /* sf->sf_flags & SF_READ */
+        {
+            sf->sf_pbchar = EOF;
+        }
+        sf->sf_bufp = sf->sf_buf;
+        sf->sf_nbuf = 0;
+        return 0;
+    }
+
+    int
+    ft_close(void *u) override
+    {
+        skt_file_t *sf = (skt_file_t *)u;
+        int         rc = 0;
+
+        if (sf->sf_flags & SF_WRITE)
+            rc = ft_flush(u);
+        sf->sf_socket->decref();
+        ici_tfree(sf, skt_file_t);
+        return rc;
+    }
+
+    long
+    ft_seek(void *u, long o, int w) override
+    {
+        (void)u;
+        (void)o;
+        (void)w;
+        ici_set_error("cannot seek on a socket");
+        return -1;
+    }
+
+    int
+    ft_eof(void *u) override
+    {
+        skt_file_t *sf = (skt_file_t *)u;
+        return sf->sf_flags & SF_EOF;
+    }
+
+    int
+    ft_write(const void *p, long n, void *u) override
+    {
+        const char *buf = (const char *)p;
+        skt_file_t	*sf = (skt_file_t *)u;
+        int         nb;
+        int         rc;
+
+        if (!(sf->sf_flags & SF_WRITE))
+            return EOF;
+        for (rc = nb = 0; n > 0; n -= nb, rc += nb)
+        {
+            if (sf->sf_nbuf == SF_BUFSIZ && ft_flush(u))
+                return EOF;
+            if ((nb = n) > (SF_BUFSIZ - sf->sf_nbuf))
+                nb = SF_BUFSIZ - sf->sf_nbuf;
+            memcpy(sf->sf_bufp, buf, nb);
+            sf->sf_bufp += nb;
+            sf->sf_nbuf += nb;
+            buf += nb;
+        }
+        return rc;
+    }
+
 };
+
+skt_ftype ici_skt_ftype;
 
 static skt_file_t *
 skt_open(ici_handle_t *s, const char *mode)
@@ -1792,9 +1790,8 @@ ici_net_sktopen()
         return 1;
     if ((sf = skt_open(skt, mode)) == NULL)
         return 1;
-    if ((f = ici_file_new((char *)sf, &net_skt_ftype, NULL, NULL)) == NULL)
+    if ((f = ici_file_new((char *)sf, &ici_skt_ftype, NULL, NULL)) == NULL)
     {
-        skt_fclose(sf);
         return 1;
     }
     return ici_ret_with_decref(f);

@@ -33,16 +33,6 @@ namespace ici
 {
 
 /*
- * This template function creates a "Myer singleton" for some T and
- * returns its address. We use to create the instances of the various
- * type classes when initializing the types[] array.
- */
-template <typename T> inline type *instance_of() {
-    static T value;
-    return &value;
-}
-
-/*
  * The array of known types. Initialised with the types known to the
  * core. NB: The positions of these must exactly match the ICI_TC_* defines
  * in object.h.

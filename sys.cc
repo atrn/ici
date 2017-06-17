@@ -379,7 +379,7 @@ static int ici_sys_fdopen()
         return 1;
     }
     setvbuf(stream, NULL, _IOLBF, 0);
-    if ((f = ici_file_new((char *)stream, &ici_stdio_ftype, NULL, NULL)) == NULL)
+    if ((f = ici_file_new((char *)stream, ici_stdio_ftype, NULL, NULL)) == NULL)
     {
         fclose(stream);
         return 1;
@@ -610,10 +610,10 @@ static int ici_sys_fileno()
         return 1;
     if
     (
-        f->f_type != &ici_stdio_ftype
+        f->f_type != ici_stdio_ftype
 #ifndef NOPIPES
         &&
-        f->f_type != &ici_popen_ftype
+        f->f_type != ici_popen_ftype
 #endif
     )
     {
@@ -852,7 +852,7 @@ static int ici_sys_stat()
         rc = fstat(ici_intof(o)->i_value, &statb);
     else if (ici_isstring(o))
         rc = stat(ici_stringof(o)->s_chars, &statb);
-    else if (ici_isfile(o) && ici_fileof(o)->f_type == &ici_stdio_ftype)
+    else if (ici_isfile(o) && ici_fileof(o)->f_type == ici_stdio_ftype)
         rc = fstat(fileno((FILE *)ici_fileof(o)->f_file), &statb);
     else
         return ici_argerror(0);

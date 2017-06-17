@@ -69,10 +69,10 @@ ici_file_close(ici_file_t *f)
         return ici_set_error("file already closed");
     }
     f->o_flags |= ICI_F_CLOSED;
-    if (f->f_type->ft_flags & FT_NOMUTEX)
+    if (f->flags() & FT_NOMUTEX)
         x = ici_leave();
-    r = (*f->f_type->ft_close)(f->f_file);
-    if (f->f_type->ft_flags & FT_NOMUTEX)
+    r = f->close();
+    if (f->flags() & FT_NOMUTEX)
         ici_enter(x);
     /*
      * If this is a pipe opened with popen(), 'r' is actually the exit status
@@ -81,7 +81,7 @@ ici_file_close(ici_file_t *f)
      * modifying ici_error between calls to ici_leave()/ici_enter() is not
      * allowed.
      */
-    if (r != 0 && f->f_type == &ici_popen_ftype)
+    if (r != 0 && f->f_type == ici_popen_ftype)
     {
         ici_set_error("popen command exit status %d", r);
     }
@@ -109,7 +109,7 @@ void file_type::free(ici_obj_t *o)
     if ((o->o_flags & ICI_F_CLOSED) == 0)
     {
         if (o->o_flags & ICI_F_NOCLOSE)
-            (*ici_fileof(o)->f_type->ft_flush)(ici_fileof(o)->f_file);
+            ici_fileof(o)->flush();
         else
             ici_file_close(ici_fileof(o));
     }
@@ -130,7 +130,7 @@ ici_obj_t * file_type::fetch(ici_obj_t *o, ici_obj_t *k)
             return ici_fileof(o)->f_name;
         return ici_null;
     }
-    if (ici_fileof(o)->f_type == &ici_parse_ftype && k == SSO(line))
+    if (ici_fileof(o)->f_type == ici_parse_ftype && k == SSO(line))
     {
         ici_int_t   *l;
 

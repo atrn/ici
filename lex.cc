@@ -2,6 +2,7 @@
 #include "fwd.h"
 #include "parse.h"
 #include "file.h"
+#include "ftype.h"
 #include "buf.h"
 #include "src.h"
 #include "str.h"
@@ -34,7 +35,7 @@ get(ici_parse_t *p, ici_array_t *a)
 {
     int         c;
 
-    if ((c = (*p->p_file->f_type->ft_getch)(p->p_file->f_file)) == '\n' || c == '\r')
+    if ((c = p->p_file->getch()) == '\n' || c == '\r')
     {
         if (c == '\n' && p->p_sol && p->p_cr)
         {
@@ -42,7 +43,7 @@ get(ici_parse_t *p, ici_array_t *a)
              * This is a \n after after a \r.  That is regarded as just one
              * newline.  Get the next character.
              */
-            c = (*p->p_file->f_type->ft_getch)(p->p_file->f_file);
+            c = p->p_file->getch();
             if (c == '\n' || c == '\r')
             {
                 ++p->p_lineno;
@@ -97,7 +98,7 @@ get(ici_parse_t *p, ici_array_t *a)
 static void
 unget(int c, ici_parse_t *p)
 {
-    (*p->p_file->f_type->ft_ungetch)(c, p->p_file->f_file);
+    p->p_file->ungetch(c);
     if (c == '\n')
     {
         --p->p_lineno;
@@ -775,58 +776,33 @@ fail:
     return T_ERROR;
 }
 
-/*
- * Functions to support reading currentfile() in cooked mode (which
- * tracks line numbers).
- */
-static int
-pf_getc(void *file)
+class parse_ftype : public ftype
 {
-    return get((ici_parse_t *)file, NULL);
-}
+    /*
+     * Functions to support reading currentfile() in cooked mode (which
+     * tracks line numbers).
+     */
+    int
+    ft_getch(void *file) override
+    {
+        return get((ici_parse_t *)file, NULL);
+    }
 
-static int
-pf_ungetc(int c, void *file)
-{
-    unget(c, (ici_parse_t *)file);
-    return c;
-}
+    int
+    ft_ungetch(int c, void *file) override
+    {
+        unget(c, (ici_parse_t *)file);
+        return c;
+    }
 
-static int
-pf_eof(void *file)
-{
-    ici_parse_t *p = (ici_parse_t *)file;
-    return p->p_file->f_type->ft_eof(p->p_file->f_file);
-}
+    int ft_eof(void *file) override
+    {
+        ici_parse_t *p = (ici_parse_t *)file;
+        return p->p_file->eof();
+    }
 
-static int
-pf_fail(void *p)
-{
-    return 0;
-}
-
-static long
-pf_lfail(void *p, long o, int w)
-{
-    return 0;
-}
-
-static int
-pf_wfail(const void *p, long o, void * w)
-{
-    return 0;
-}
-
-ici_ftype_t ici_parse_ftype =
-{
-    0,
-    pf_getc,
-    pf_ungetc,
-    pf_fail,    /* flush */
-    pf_fail,    /* close */
-    pf_lfail,   /* seek */
-    pf_eof,
-    pf_wfail    /* write */
 };
+
+ici_ftype_t *ici_parse_ftype = instance_of<parse_ftype>();
 
 } // namespace ici

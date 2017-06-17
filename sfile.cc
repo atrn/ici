@@ -1,6 +1,7 @@
 #define ICI_CORE
 #include "fwd.h"
 #include "file.h"
+#include "ftype.h"
 #include "str.h"
 #include "mem.h"
 #include "buf.h"
@@ -29,89 +30,87 @@ typedef struct charbuf
 }
     charbuf_t;
 
-static int
-cbgetc(void *file)
+class charbuf_ftype : public ftype
 {
-    charbuf_t *cb = (charbuf_t *)file;
-    if (cb->cb_ptr < cb->cb_data || cb->cb_ptr >= cb->cb_data + cb->cb_size)
+public:
+    int
+    ft_getch(void *file) override
     {
-        cb->cb_eof = 1;
-        return EOF;
+        charbuf_t *cb = (charbuf_t *)file;
+        if (cb->cb_ptr < cb->cb_data || cb->cb_ptr >= cb->cb_data + cb->cb_size)
+        {
+            cb->cb_eof = 1;
+            return EOF;
+        }
+        cb->cb_eof = 0;
+        return *cb->cb_ptr++ & 0xFF;
     }
-    cb->cb_eof = 0;
-    return *cb->cb_ptr++ & 0xFF;
-}
 
-static int
-cbungetc(int c, void *file)
-{
-    charbuf_t *cb = (charbuf_t *)file;
-    if (c == EOF || cb->cb_ptr <= cb->cb_data || cb->cb_ptr > cb->cb_data + cb->cb_size)
-        return EOF;
-    *--cb->cb_ptr = c;
-    cb->cb_eof = 0;
-    return c;
-}
-
-static int
-cbflush(void *file)
-{
-    /* NOTE fflush() returns 0 if file is not writeable */
-    return 0;
-}
-
-static int
-cbclose(void *file)
-{
-    charbuf_t *cb = (charbuf_t *)file;
-    if (cb->cb_ref == NULL)
-        ici_free(cb->cb_data);
-    ici_tfree(cb, charbuf_t);
-    return 0;
-}
-
-static long
-cbseek(void *file, long offset, int whence)
-{
-    charbuf_t *cb = (charbuf_t *)file;
-    switch (whence)
+    int
+    ft_ungetch(int c, void *file) override
     {
-    case 0:
-        cb->cb_ptr = cb->cb_data + offset;
-        break;
-
-    case 1:
-        cb->cb_ptr += offset;
-        break;
-
-    case 2:
-        cb->cb_ptr = cb->cb_data + cb->cb_size + offset;
-        break;
+        charbuf_t *cb = (charbuf_t *)file;
+        if (c == EOF || cb->cb_ptr <= cb->cb_data || cb->cb_ptr > cb->cb_data + cb->cb_size)
+            return EOF;
+        *--cb->cb_ptr = c;
+        cb->cb_eof = 0;
+        return c;
     }
-    return (long)(cb->cb_ptr - cb->cb_data);
-}
 
-static int
-cbeof(void *file)
-{
-    charbuf_t *cb = (charbuf_t *)file;
-    return cb->cb_eof;
-}
+    int
+    ft_close(void *file) override
+    {
+        charbuf_t *cb = (charbuf_t *)file;
+        if (cb->cb_ref == NULL)
+            ici_free(cb->cb_data);
+        ici_tfree(cb, charbuf_t);
+        return 0;
+    }
 
-static int
-cbwrite(const void *data, long count, void *file)
-{
-    charbuf_t *cb = (charbuf_t *)file;
-    if (cb->cb_readonly || count <= 0)
-        return 0;
-    if (cb->cb_ptr < cb->cb_data || cb->cb_ptr >= cb->cb_data + cb->cb_size)
-        return 0;
-    if (count > cb->cb_data + cb->cb_size - cb->cb_ptr)
-        count = cb->cb_data + cb->cb_size - cb->cb_ptr;
-    memcpy(cb->cb_ptr, data, count);
-    cb->cb_ptr += count;
-    return count;
-}
+    long
+    ft_seek(void *file, long offset, int whence) override
+    {
+        charbuf_t *cb = (charbuf_t *)file;
+        switch (whence)
+        {
+        case 0:
+            cb->cb_ptr = cb->cb_data + offset;
+            break;
+
+        case 1:
+            cb->cb_ptr += offset;
+            break;
+
+        case 2:
+            cb->cb_ptr = cb->cb_data + cb->cb_size + offset;
+            break;
+        }
+        return (long)(cb->cb_ptr - cb->cb_data);
+    }
+
+    int
+    ft_eof(void *file) override
+    {
+        charbuf_t *cb = (charbuf_t *)file;
+        return cb->cb_eof;
+    }
+
+    int
+    ft_write(const void *data, long count, void *file) override
+    {
+        charbuf_t *cb = (charbuf_t *)file;
+        if (cb->cb_readonly || count <= 0)
+            return 0;
+        if (cb->cb_ptr < cb->cb_data || cb->cb_ptr >= cb->cb_data + cb->cb_size)
+            return 0;
+        if (count > cb->cb_data + cb->cb_size - cb->cb_ptr)
+            count = cb->cb_data + cb->cb_size - cb->cb_ptr;
+        memcpy(cb->cb_ptr, data, count);
+        cb->cb_ptr += count;
+        return count;
+    }
+
+};
 
 /*
  * ici_charbuf_ftype is used for buffers which cannot move in memory.  This
@@ -122,17 +121,7 @@ cbwrite(const void *data, long count, void *file)
  * This type replaces string_ftype (which was a misnomer since it could be
  * used for memory objects but not mutable string objects).
  */
-ici_ftype_t ici_charbuf_ftype =
-{
-    0,
-    cbgetc,
-    cbungetc,
-    cbflush,
-    cbclose,
-    cbseek,
-    cbeof,
-    cbwrite
-};
+auto ici_charbuf_ftype = instance_of<charbuf_ftype>();
 
 static void
 reattach_string_buffer(charbuf_t *sb)
@@ -152,54 +141,58 @@ reattach_string_buffer(charbuf_t *sb)
 #endif
 }
 
-static int
-sbgetc(void *file)
+class stringbuf_ftype : public charbuf_ftype
 {
-    charbuf_t *sb = (charbuf_t *)file;
-    reattach_string_buffer(sb);
-    return cbgetc(sb);
-}
+public:
+    int
+    ft_getch(void *file) override
+    {
+        charbuf_t *sb = (charbuf_t *)file;
+        reattach_string_buffer(sb);
+        return charbuf_ftype::ft_getch(sb);
+    }
 
-static int
-sbungetc(int c, void *file)
-{
-    charbuf_t *sb = (charbuf_t *)file;
-    reattach_string_buffer(sb);
-    return cbungetc(c, sb);
-}
+    int
+    ft_ungetch(int c, void *file) override
+    {
+        charbuf_t *sb = (charbuf_t *)file;
+        reattach_string_buffer(sb);
+        return charbuf_ftype::ft_ungetch(c, sb);
+    }
 
-static long
-sbseek(void *file, long offset, int whence)
-{
-    charbuf_t *sb = (charbuf_t *)file;
-    reattach_string_buffer(sb);
-    return cbseek(sb, offset, whence);
-}
+    long ft_seek(void *file, long offset, int whence) override
+    {
+        charbuf_t *sb = (charbuf_t *)file;
+        reattach_string_buffer(sb);
+        return charbuf_ftype::ft_seek(sb, offset, whence);
+    }
 
-static int
-sbwrite(const void *ptr, long count, void *file)
-{
-    const char *data = (const char *)ptr;
-    charbuf_t *sb = (charbuf_t *)file;
-    ici_str_t   *s;
-    int         size;
+    int
+    ft_write(const void *ptr, long count, void *file) override
+    {
+        const char *data = (const char *)ptr;
+        charbuf_t *sb = (charbuf_t *)file;
+        ici_str_t   *s;
+        int         size;
 
-    if (sb->cb_readonly || count <= 0)
-        return 0;
-    if (sb->cb_ptr < sb->cb_data || sb->cb_ptr > sb->cb_data + sb->cb_size)
-        return 0;
-    s = ici_stringof(sb->cb_ref);
-    size = sb->cb_ptr - sb->cb_data + count;
-    if (ici_str_need_size(s, size))
-        return 0;
-    if (s->s_nchars < size)
-        s->s_nchars = size;
-    s->s_chars[s->s_nchars] = '\0';
-    reattach_string_buffer(sb);
-    memcpy(sb->cb_ptr, data, count);
-    sb->cb_ptr += count;
-    return count;
-}
+        if (sb->cb_readonly || count <= 0)
+            return 0;
+        if (sb->cb_ptr < sb->cb_data || sb->cb_ptr > sb->cb_data + sb->cb_size)
+            return 0;
+        s = ici_stringof(sb->cb_ref);
+        size = sb->cb_ptr - sb->cb_data + count;
+        if (ici_str_need_size(s, size))
+            return 0;
+        if (s->s_nchars < size)
+            s->s_nchars = size;
+        s->s_chars[s->s_nchars] = '\0';
+        reattach_string_buffer(sb);
+        memcpy(sb->cb_ptr, data, count);
+        sb->cb_ptr += count;
+        return count;
+    }
+
+};
 
 /*
  * ici_strbuf_ftype is used for mutable string buffer objects, which can move
@@ -208,17 +201,7 @@ sbwrite(const void *ptr, long count, void *file)
  * moved.  This makes it less efficient than ici_charbuf_ftype for buffers
  * that are known to be immovable.
  */
-ici_ftype_t ici_strbuf_ftype =
-{
-    0,
-    sbgetc,
-    sbungetc,
-    cbflush,
-    cbclose,
-    sbseek,
-    cbeof,
-    sbwrite
-};
+auto ici_strbuf_ftype = instance_of<stringbuf_ftype>();
 
 /*
  * Create an ICI file object that treats the character buffer referenced by
@@ -268,15 +251,15 @@ ici_open_charbuf(char *data, int size, ici_obj_t *ref, int readonly)
         if (ici_isstring(ref))
         {
             if ((ref->o_flags & (ICI_O_ATOM|ICI_S_SEP_ALLOC)) == ICI_S_SEP_ALLOC)
-                f = ici_file_new((char *)cb, &ici_strbuf_ftype, NULL, ref);
+                f = ici_file_new((char *)cb, ici_strbuf_ftype, NULL, ref);
             else if (readonly)
-                f = ici_file_new((char *)cb, &ici_charbuf_ftype, NULL, ref);
+                f = ici_file_new((char *)cb, ici_charbuf_ftype, NULL, ref);
             else
                 ici_set_error("attempt to open an atomic string for writing");
         }
         else if (ici_ismem(ref))
         {
-            f = ici_file_new((char *)cb, &ici_charbuf_ftype, NULL, ref);
+            f = ici_file_new((char *)cb, ici_charbuf_ftype, NULL, ref);
         }
         else if (!ici_chkbuf(50))
         {
@@ -296,7 +279,7 @@ ici_open_charbuf(char *data, int size, ici_obj_t *ref, int readonly)
             {
                 memcpy(cb->cb_data, data, size);
                 cb->cb_ptr = cb->cb_data;
-                f = ici_file_new((char *)cb, &ici_charbuf_ftype, NULL, ref);
+                f = ici_file_new((char *)cb, ici_charbuf_ftype, NULL, ref);
                 if (f == NULL)
                     ici_free(cb->cb_data);
             }
