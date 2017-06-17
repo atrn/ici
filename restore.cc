@@ -40,16 +40,16 @@
 namespace ici
 {
 
-static ici_obj_t *restore(ici_archive_t *);
+static object *restore(archive *);
 
 inline int
-get(ici_archive_t *ar)
+get(archive *ar)
 {
     return ar->a_file->getch();
 }
 
 static int
-readf(ici_archive_t *ar, void *buf, int len)
+readf(archive *ar, void *buf, int len)
 {
     char *p = (char *)buf;
     while (len-- > 0)
@@ -68,14 +68,14 @@ readf(ici_archive_t *ar, void *buf, int len)
 
 inline
 static int
-read8(ici_archive_t *ar, char *abyte)
+read8(archive *ar, char *abyte)
 {
     return readf(ar, abyte, 1);
 }
 
 inline
 static int
-read16(ici_archive_t *ar, int16_t *hword)
+read16(archive *ar, int16_t *hword)
 {
     int16_t tmp;
     if (readf(ar, &tmp, sizeof tmp))
@@ -88,7 +88,7 @@ read16(ici_archive_t *ar, int16_t *hword)
 
 inline
 static int
-read32(ici_archive_t *ar, int32_t *aword)
+read32(archive *ar, int32_t *aword)
 {
     int32_t tmp;
     if (readf(ar, &tmp, sizeof tmp))
@@ -102,7 +102,7 @@ read32(ici_archive_t *ar, int32_t *aword)
 // todo - remove, use sized versions
 template <typename T>
 int
-readl(ici_archive_t *ar, T *along)
+readl(archive *ar, T *along)
 {
     long tmp;
     if (readf(ar, &tmp, sizeof tmp))
@@ -115,13 +115,13 @@ readl(ici_archive_t *ar, T *along)
 
 inline
 static int
-readdbl(ici_archive_t *ar, double *dbl)
+readdbl(archive *ar, double *dbl)
 {
     return readf(ar, dbl, sizeof *dbl);
 }
 
 static int
-restore_obj(ici_archive_t *ar, char *flags)
+restore_obj(archive *ar, char *flags)
 {
     char tcode;
 
@@ -134,15 +134,13 @@ restore_obj(ici_archive_t *ar, char *flags)
     return tcode;
 }
 
-inline
-static int
-restore_object_name(ici_archive_t *ar, ici_obj_t **name)
+inline int restore_object_name(archive *ar, object **name)
 {
     return readf(ar, name, sizeof *name);
 }
 
-static ici_obj_t *
-restore_error(ici_archive_t *)
+static object *
+restore_error(archive *)
 {
     ici_set_error("unable to restore object");
     return NULL;
@@ -150,16 +148,16 @@ restore_error(ici_archive_t *)
 
 // null
 
-static ici_obj_t *
-restore_null(ici_archive_t *)
+static object *
+restore_null(archive *)
 {
     return ici_null;
 }
 
 // int
 
-static ici_obj_t *
-restore_int(ici_archive_t *ar)
+static object *
+restore_int(archive *ar)
 {
     long        value;
 
@@ -172,8 +170,8 @@ restore_int(ici_archive_t *ar)
 
 // float
 
-static ici_obj_t *
-restore_float(ici_archive_t *ar)
+static object *
+restore_float(archive *ar)
 {
     double val;
 
@@ -189,13 +187,13 @@ restore_float(ici_archive_t *ar)
 
 // string
 
-static ici_obj_t *
-restore_string(ici_archive_t *ar)
+static object *
+restore_string(archive *ar)
 {
-    ici_str_t *s;
+    str *s;
     long len;
-    ici_obj_t *name;
-    ici_obj_t *obj;
+    object *name;
+    object *obj;
 
     if (restore_object_name(ar, &name))
     {
@@ -232,13 +230,13 @@ fail:
 
 // regexp
 
-static ici_obj_t *
-restore_regexp(ici_archive_t *ar)
+static object *
+restore_regexp(archive *ar)
 {
-    ici_obj_t *r;
+    object *r;
     int options;
-    ici_str_t *s;
-    ici_obj_t *name;
+    str *s;
+    object *name;
 
     if (restore_object_name(ar, &name))
     {
@@ -269,15 +267,15 @@ restore_regexp(ici_archive_t *ar)
 
 // mem
 
-static ici_obj_t *
-restore_mem(ici_archive_t *ar)
+static object *
+restore_mem(archive *ar)
 {
     long len;
     int16_t accessz;
     long sz;
     void *p;
-    ici_mem_t *m = 0;
-    ici_obj_t *name;
+    mem *m = 0;
+    object *name;
 
     if (restore_object_name(ar, &name) || readl(ar, &len) || read16(ar, &accessz))
     {
@@ -301,12 +299,12 @@ restore_mem(ici_archive_t *ar)
 
 // array
 
-static ici_obj_t *
-restore_array(ici_archive_t *ar)
+static object *
+restore_array(archive *ar)
 {
     long n;
-    ici_array_t *a;
-    ici_obj_t *name;
+    array *a;
+    object *name;
 
     if (restore_object_name(ar, &name))
     {
@@ -326,7 +324,7 @@ restore_array(ici_archive_t *ar)
     }
     for (; n > 0; --n)
     {
-        ici_obj_t *o;
+        object *o;
 
         if ((o = restore(ar)) == NULL)
         {
@@ -351,13 +349,13 @@ fail:
 
 // set
 
-static ici_obj_t *
-restore_set(ici_archive_t *ar)
+static object *
+restore_set(archive *ar)
 {
-    ici_set_t *s;
+    set *s;
     long n;
     long i;
-    ici_obj_t *name;
+    object *name;
 
     if (restore_object_name(ar, &name))
     {
@@ -377,7 +375,7 @@ restore_set(ici_archive_t *ar)
     }
     for (i = 0; i < n; ++i)
     {
-        ici_obj_t *o;
+        object *o;
 
         if ((o = restore(ar)) == NULL)
         {
@@ -402,14 +400,14 @@ fail:
 
 // struct
 
-static ici_obj_t *
-restore_struct(ici_archive_t *ar)
+static object *
+restore_struct(archive *ar)
 {
-    ici_struct_t *s;
-    ici_obj_t *super;
+    ici_struct *s;
+    object *super;
     long n;
     long i;
-    ici_obj_t *name;
+    object *name;
 
     if (restore_object_name(ar, &name))
     {
@@ -439,8 +437,8 @@ restore_struct(ici_archive_t *ar)
     }
     for (i = 0; i < n; ++i)
     {
-        ici_obj_t *key;
-        ici_obj_t *value;
+        object *key;
+        object *value;
         int failed;
 
         if ((key = restore(ar)) == NULL)
@@ -472,12 +470,12 @@ fail:
 
 // ptr
 
-static ici_obj_t *
-restore_ptr(ici_archive_t *ar)
+static object *
+restore_ptr(archive *ar)
 {
-    ici_obj_t *aggr;
-    ici_obj_t *key;
-    ici_ptr_t *ptr;
+    object *aggr;
+    object *key;
+    ptr *ptr;
 
     if ((aggr = restore(ar)) == NULL)
     {
@@ -496,16 +494,16 @@ restore_ptr(ici_archive_t *ar)
 
 // func
 
-static ici_obj_t *
-restore_func(ici_archive_t *ar)
+static object *
+restore_func(archive *ar)
 {
-    ici_obj_t *code;
-    ici_obj_t *args = NULL;
-    ici_obj_t *autos = NULL;
-    ici_obj_t *name = NULL;
+    object *code;
+    object *args = NULL;
+    object *autos = NULL;
+    object *name = NULL;
     size_t nautos;
-    ici_func_t *fn;
-    ici_obj_t *oname;
+    func *fn;
+    object *oname;
 
     if (restore_object_name(ar, &oname))
     {
@@ -572,8 +570,8 @@ fail:
     return NULL;
 }
 
-static ici_obj_t *
-restore_op(ici_archive_t *ar)
+static object *
+restore_op(archive *ar)
 {
     int16_t op_func_code;
     int16_t op_ecode;
@@ -594,12 +592,12 @@ restore_op(ici_archive_t *ar)
     return ici_new_op(archive_op_func(op_func_code), op_ecode, op_code);
 }
 
-static ici_obj_t *
-restore_src(ici_archive_t *ar)
+static object *
+restore_src(archive *ar)
 {
     long line;
-    ici_obj_t *result;
-    ici_obj_t *filename;
+    object *result;
+    object *filename;
 
     if (readl(ar, &line))
     {
@@ -626,14 +624,14 @@ restore_src(ici_archive_t *ar)
 
 // cfunc
 
-static ici_obj_t *
-restore_cfunc(ici_archive_t *ar)
+static object *
+restore_cfunc(archive *ar)
 {
     int16_t namelen;
     char space[32];
     char *buf;
-    ici_str_t *func_name;
-    ici_obj_t *fn;
+    str *func_name;
+    object *fn;
 
     if (read16(ar, &namelen))
     {
@@ -666,19 +664,19 @@ restore_cfunc(ici_archive_t *ar)
     return fn;
 }
 
-static ici_obj_t *
-restore_mark(ici_archive_t *ar)
+static object *
+restore_mark(archive *ar)
 {
     return &ici_o_mark;
 }
 
 // ref
 
-static ici_obj_t *
-restore_ref(ici_archive_t *ar)
+static object *
+restore_ref(archive *ar)
 {
-    ici_obj_t *obj;
-    ici_obj_t *name;
+    object *obj;
+    object *name;
 
     if (restore_object_name(ar, &name))
     {
@@ -694,7 +692,7 @@ restore_ref(ici_archive_t *ar)
 // restorer
 
 static restorer_t *
-restorer_new(ici_obj_t *(*fn)(ici_archive_t *))
+restorer_new(object *(*fn)(archive *))
 {
     restorer_t *r;
 
@@ -707,13 +705,13 @@ restorer_new(ici_obj_t *(*fn)(ici_archive_t *))
     return r;
 }
 
-static ici_struct_t *restorer_map = 0;
+static ici_struct *restorer_map = 0;
 
 static int
-add_restorer(int tcode, ici_obj_t *(*fn)(ici_archive_t *))
+add_restorer(int tcode, object *(*fn)(archive *))
 {
     restorer_t *r;
-    ici_int_t *t = 0;
+    ici_int *t = 0;
 
     if ((r = restorer_new(fn)) == NULL)
     {
@@ -740,8 +738,8 @@ fail:
 static restorer_t *
 fetch_restorer(int key)
 {
-    ici_obj_t   *k;
-    ici_obj_t   *v = NULL;
+    object   *k;
+    object   *v = NULL;
 
     if ((k = ici_int_new(key)) != NULL)
     {
@@ -765,7 +763,7 @@ init_restorer_map()
     static struct
     {
         int tcode;
-        ici_obj_t *(*fn)(ici_archive_t *);
+        object *(*fn)(archive *);
     }
     fns[] =
     {
@@ -820,10 +818,10 @@ get_restorer(int tcode)
     return r;
 }
 
-static ici_obj_t *
-restore(ici_archive_t *ar)
+static object *
+restore(archive *ar)
 {
-    ici_obj_t *obj = NULL;
+    object *obj = NULL;
     char flags;
     int tcode;
 
@@ -845,10 +843,10 @@ restore(ici_archive_t *ar)
 int
 f_archive_restore(...)
 {
-    ici_file_t *file;
-    ici_archive_t *ar;
-    ici_objwsup_t *scp;
-    ici_obj_t *obj = NULL;
+    file *file;
+    archive *ar;
+    objwsup *scp;
+    object *obj = NULL;
 
     scp = ici_structof(ici_vs.a_top[-1])->o_super;
     switch (ICI_NARGS())
