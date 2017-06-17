@@ -393,7 +393,7 @@ push_path_elements(ici_array_t *a, const char *path)
         {
             goto skip;
         }
-        if (a->stk_push_chk(1))
+        if (a->stk_push_chk())
         {
             s->decref();
             return 1;

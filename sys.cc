@@ -1697,7 +1697,7 @@ static int ici_sys_passwd()
     {
         ici_struct_t        *s;
 
-        if (a->stk_push_chk(1) || (s = password_struct(pwent)) == NULL)
+        if (a->stk_push_chk() || (s = password_struct(pwent)) == NULL)
         {
             a->decref();
             return 1;

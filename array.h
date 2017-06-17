@@ -38,8 +38,8 @@ namespace ici
  *
  * Now, if an array is still a stack, you can use the member functions:
  *
- *     stk_push_chk(n)
- *     stk_pop_chk(n)
+ *     a->stk_push_chk(n)
+ *     a->stk_pop_chk(n)
  *
  * to ensure that there are n spaces or objects available, then just
  * increment/decrement a_top as you push and pop things on the stack.

@@ -2448,7 +2448,7 @@ fast_gettokens(const char *str, const char *delims)
         {
             if
             (
-                a->stk_push_chk(1)
+                a->stk_push_chk()
                 ||
                 (*a->a_top = ici_str_new(cp, k)) == NULL
             )
@@ -2661,7 +2661,7 @@ f_gettokens()
             j = 0;
         case (S_INTOK << 8) + W_EOF:
         case (S_INTOK << 8) + W_TERM:
-            if (a->stk_push_chk(1))
+            if (a->stk_push_chk())
                 goto fail;
             if ((s = ici_str_new(buf, j)) == NULL)
                 goto fail;
@@ -2676,7 +2676,7 @@ f_gettokens()
                 break;
             j = 0;
         case (S_INTOK << 8) + W_SEP:
-            if (a->stk_push_chk(1))
+            if (a->stk_push_chk())
                 goto fail;
             if ((s = ici_str_new(buf, j)) == NULL)
                 goto fail;
@@ -2692,14 +2692,14 @@ f_gettokens()
             break;
 
         case (S_INTOK << 8) + W_DELIM:
-            if (a->stk_push_chk(1))
+            if (a->stk_push_chk())
                 goto fail;
             if ((s = ici_str_new(buf, j)) == NULL)
                 goto fail;
             *a->a_top++ = s;
             s->decref();
         case (S_IDLE << 8) + W_DELIM:
-            if (a->stk_push_chk(1))
+            if (a->stk_push_chk())
                 goto fail;
             buf[0] = c;
             if ((s = ici_str_new(buf, 1)) == NULL)
@@ -3953,7 +3953,7 @@ f_dir()
             (
                 (s = ici_str_new_nul_term(dirent->d_name)) == NULL
                 ||
-                a->stk_push_chk(1)
+                a->stk_push_chk()
             )
             {
                 if (s != NULL)

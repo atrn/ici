@@ -84,7 +84,7 @@ main(int argc, char *argv[])
         arg0 = argv[1];
         for (i = 2; i < argc; ++i)
         {
-            if (av->stk_push_chk(1))
+            if (av->stk_push_chk())
                 goto fail;
             if ((*av->a_top = ici_str_get_nul_term(argv[i])) == NULL)
                 goto fail;
@@ -128,7 +128,7 @@ main(int argc, char *argv[])
                     case '-':
                         while (++i < argc)
                         {
-                            if (av->stk_push_chk(1))
+                            if (av->stk_push_chk())
                                 goto fail;
                             if ((*av->a_top = ici_str_get_nul_term(argv[i])) == NULL)
                                 goto fail;
@@ -162,7 +162,7 @@ main(int argc, char *argv[])
             }
             else
             {
-                if (av->stk_push_chk(1))
+                if (av->stk_push_chk())
                     goto fail;
                 if ((*av->a_top = ici_str_get_nul_term(argv[i])) == NULL)
                     goto fail;

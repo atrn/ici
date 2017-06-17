@@ -221,7 +221,7 @@ ident_list(ici_parse_t *p)
             reject(p);
             return a;
         }
-        if (a->stk_push_chk(1))
+        if (a->stk_push_chk())
         {
             goto fail;
         }
@@ -479,7 +479,7 @@ compound_statement(ici_parse_t *p, ici_struct_t *sw)
         --a->a_top;
     }
 
-    if (a->stk_push_chk(1))
+    if (a->stk_push_chk())
     {
         goto fail;
     }
@@ -699,7 +699,7 @@ primary(ici_parse_t *p, expr_t **ep, int exclude)
                     goto fail;
 
                 case 1:
-                    if (a->stk_push_chk(1))
+                    if (a->stk_push_chk())
                     {
                         a->decref();
                         goto fail;
@@ -1529,7 +1529,7 @@ const_expression(ici_parse_t *p, ici_obj_t **po, int exclude)
     {
         goto fail;
     }
-    if (a->stk_push_chk(1))
+    if (a->stk_push_chk())
     {
         goto fail;
     }
@@ -1837,7 +1837,7 @@ statement(ici_parse_t *p, ici_array_t *a, ici_struct_t *sw, const char *m, int e
                 a1->decref();
                 return -1;
             }
-            if (a1->stk_push_chk(1))
+            if (a1->stk_push_chk())
             {
                 a1->decref();
                 return -1;
@@ -1854,7 +1854,7 @@ statement(ici_parse_t *p, ici_array_t *a, ici_struct_t *sw, const char *m, int e
                     return -1;
                 }
             }
-            if (a1->stk_push_chk(1))
+            if (a1->stk_push_chk())
             {
                 a1->decref();
                 return -1;
@@ -2079,7 +2079,7 @@ statement(ici_parse_t *p, ici_array_t *a, ici_struct_t *sw, const char *m, int e
                     return -1;
                 }
                 free_expr(e);
-                if (a1->stk_push_chk(1))
+                if (a1->stk_push_chk())
                 {
                     a1->decref();
                     return -1;
@@ -2103,7 +2103,7 @@ statement(ici_parse_t *p, ici_array_t *a, ici_struct_t *sw, const char *m, int e
                     return -1;
                 }
             }
-            if (a1->stk_push_chk(1))
+            if (a1->stk_push_chk())
             {
                 a1->decref();
                 return -1;
@@ -2174,7 +2174,7 @@ statement(ici_parse_t *p, ici_array_t *a, ici_struct_t *sw, const char *m, int e
                 reject(p);
                 return not_followed_by("break", "\";\"");
             }
-            if (a->stk_push_chk(1))
+            if (a->stk_push_chk())
             {
                 return -1;
             }
@@ -2194,7 +2194,7 @@ statement(ici_parse_t *p, ici_array_t *a, ici_struct_t *sw, const char *m, int e
                 reject(p);
                 return not_followed_by("continue", "\";\"");
             }
-            if (a->stk_push_chk(1))
+            if (a->stk_push_chk())
             {
                 return -1;
             }
@@ -2208,7 +2208,7 @@ statement(ici_parse_t *p, ici_array_t *a, ici_struct_t *sw, const char *m, int e
             {
             case -1: return -1;
             case 0:
-                if (a->stk_push_chk(1))
+                if (a->stk_push_chk())
 		{
                     return -1;
 		}
@@ -2223,7 +2223,7 @@ statement(ici_parse_t *p, ici_array_t *a, ici_struct_t *sw, const char *m, int e
                 reject(p);
                 return not_followed_by("return [expr]", "\";\"");
             }
-            if (a->stk_push_chk(1))
+            if (a->stk_push_chk())
 	    {
                 return -1;
 	    }
@@ -2351,7 +2351,7 @@ statement(ici_parse_t *p, ici_array_t *a, ici_struct_t *sw, const char *m, int e
             case 0: not_followed_by("waitfor (", an_expression);
             case -1: return -1;
             }
-            if (a2->stk_push_chk(1))
+            if (a2->stk_push_chk())
             {
                 return -1;
             }
@@ -2423,7 +2423,7 @@ statement(ici_parse_t *p, ici_array_t *a, ici_struct_t *sw, const char *m, int e
             --a->a_top;
         }
 
-        if (a->stk_push_chk(1))
+        if (a->stk_push_chk())
         {
             return -1;
         }
