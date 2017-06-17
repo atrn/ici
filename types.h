@@ -9,6 +9,10 @@ namespace ici
 {
 
 /*
+ * The following portion of this file exports to ici.h. --ici.h-start--
+ */
+
+/*
  * types[] is the "map" from the small integer type codes found in the
  * o_tcode field of every object header, to a type structure (below) that
  * characterises that type of object.  Standard core data types have standard
