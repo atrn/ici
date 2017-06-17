@@ -3,9 +3,7 @@
 #ifndef ICI_PARSE_H
 #define ICI_PARSE_H
 
-#ifndef ICI_OBJECT_H
 #include "object.h"
-#endif
 
 namespace ici
 {

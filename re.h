@@ -3,9 +3,7 @@
 #ifndef ICI_RE_H
 #define ICI_RE_H
 
-#ifndef ICI_OBJECT_H
 #include "object.h"
-#endif
 
 /*
  * The following portion of this file exports to ici.h. --ici.h-start--

@@ -3,9 +3,7 @@
 #ifndef ICI_RESTORER_H
 #define ICI_RESTORER_H
 
-#ifndef ICI_OBJECT_H
 #include "object.h"
-#endif
 
 namespace ici
 {

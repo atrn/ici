@@ -3,9 +3,7 @@
 #ifndef ICI_MEM_H
 #define ICI_MEM_H
 
-#ifndef ICI_OBJECT_H
 #include "object.h"
-#endif
 
 namespace ici
 {

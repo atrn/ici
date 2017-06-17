@@ -14,9 +14,7 @@ namespace ici
  * In a try-onerror catcher this is the code array of the "onerror" clause.
  */
 
-#ifndef ICI_OBJECT_H
 #include "object.h"
-#endif
 
 struct catcher : object
 {
