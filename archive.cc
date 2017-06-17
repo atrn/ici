@@ -74,11 +74,12 @@ long long htonll(long long v)
 typedef int int_func();
 static int_func *op_funcs[7];
 
-#define num_op_funcs ((int)(sizeof op_funcs / sizeof op_funcs[0]))
+constexpr auto num_op_funcs = nels(op_funcs);
+// #define num_op_funcs ((int)(sizeof op_funcs / sizeof op_funcs[0]))
 
 unsigned long archive_type::mark(object *o) {
-    o->setmark();
     auto ar = archive_of(o);
+    ar->setmark();
     return typesize() + ar->a_file->mark() + ar->a_sent->mark() + ar->a_scope->mark();
 }
 
@@ -132,13 +133,13 @@ inline object *make_key(object *obj)
 int
 archive::insert(object *key, object *val)
 {
-    int failed = 1;
+    int rc = 1;
     if (auto k = make_key(key))
     {
-        failed = a_sent->assign(k, val);
+        rc = a_sent->assign(k, val);
         k->decref();
     }
-    return failed;
+    return rc;
 }
 
 void

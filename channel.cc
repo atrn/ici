@@ -139,12 +139,12 @@ f_get(...)
     if (!ici_ischannel(c))
         return ici_argerror(0);
     q = ici_channelof(c)->c_q;
-    while (ici_array_nels(q) < 1)
+    while (q->len() < 1)
     {
         if (ici_waitfor(q))
             return 1;
     }
-    o = ici_array_rpop(q);
+    o = q->rpop();
     ici_wakeup(q);
     if (ici_channelof(c)->c_altobj != NULL)
 	ici_wakeup(ici_channelof(c)->c_altobj);
@@ -178,7 +178,7 @@ f_put(...)
     // unbuffered
     if (ici_channelof(c)->c_capacity == 0)
     {
-        while (ici_array_nels(q) > 0)
+        while (q->len() > 0)
         {
             if (ici_waitfor(q))
                 return 1;
@@ -186,13 +186,13 @@ f_put(...)
     }
     else
     {
-        while (ici_array_nels(q) >= ici_channelof(c)->c_capacity)
+        while (q->len() >= ici_channelof(c)->c_capacity)
         {
             if (ici_waitfor(q))
                 return 1;
         }
     }
-    ici_array_push(q, o);
+    q->push(o);
     ici_wakeup(q);
     if (ici_channelof(c)->c_altobj != NULL)
         ici_wakeup(ici_channelof(c)->c_altobj);
@@ -204,12 +204,12 @@ f_put(...)
 static int
 alt_setup(ici_array_t *alts, ici_obj_t *obj)
 {
-    int n = ici_array_nels(alts);
+    int n = alts->len();
     int i;
 
     for (i = 0; i < n; ++i)
     {
-	ici_obj_t *o = ici_array_get(alts, i);
+	ici_obj_t *o = alts->get(i);
         ici_channel_t *chan;
 	if (ici_ischannel(o))
 	{
@@ -229,13 +229,13 @@ static int
 alt(ici_array_t *alts)
 {
     int idx = -1;
-    int n = ici_array_nels(alts);
+    int n = alts->len();
     int i;
 
     for (i = 0; i < n && idx == -1; ++i)
     {
-        ici_obj_t *o = ici_array_get(alts, i);
-        if (ici_ischannel(o) && ici_array_nels(ici_channelof(o)->c_q) > 0)
+        ici_obj_t *o = alts->get(i);
+        if (ici_ischannel(o) && ici_channelof(o)->c_q->len() > 0)
             idx = i;
     }
     return idx;

@@ -81,11 +81,9 @@ struct array : object
     ici_obj_t   **a_base;   /* The base of allocation. */
     ici_obj_t   **a_limit;  /* Allocation limit, first one you can't use. */
 
-#if 0
-    // todo: make the free funcs members?
     int grow_stack(ptrdiff_t n);
     int fault_stack(ptrdiff_t i);
-    ptrdiff_t nels();
+    ptrdiff_t len();
     ici_obj_t **span(int i, ptrdiff_t *np);
     int grow();
     int push(ici_obj_t *o);
@@ -93,7 +91,7 @@ struct array : object
     ici_obj_t *pop();
     ici_obj_t **find_slot(ptrdiff_t i);
     ici_obj_t *get(ptrdiff_t i);
-#endif
+    ici_obj_t *rpop();
 };
 
 inline ici_array_t *ici_arrayof(ici_obj_t *o)   { return static_cast<ici_array_t *>(o); }
@@ -111,7 +109,7 @@ inline bool ici_isarray(ici_obj_t *o)           { return o->isa(ICI_TC_ARRAY); }
  * This --func-- forms part of the --ici-ap--.
  */
 inline int ici_stk_push_chk(ici_array_t *a, ptrdiff_t n) {
-    return a->a_limit - a->a_top < n ? ici_grow_stack(a, n) : 0;
+    return a->a_limit - a->a_top < n ? a->grow_stack(n) : 0;
 }
 
 /*
@@ -119,7 +117,7 @@ inline int ici_stk_push_chk(ici_array_t *a, ptrdiff_t n) {
  * as necessary. Return non-zero on failure, usual conventions.
  */
 inline int ici_stk_probe(ici_array_t *a, ptrdiff_t i) {
-    return a->a_top - a->a_bot <= i ? ici_fault_stack(a, i) : 0;
+    return a->a_top - a->a_bot <= i ? a->fault_stack(i) : 0;
 }
 
 /*

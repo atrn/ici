@@ -330,7 +330,7 @@ restore_array(archive *ar)
         {
             goto fail1;
         }
-        if (ici_array_push(a, o))
+        if (a->push(o))
         {
             o->decref();
             goto fail1;

@@ -85,7 +85,7 @@ buildxx(ici_obj_t **r, ici_obj_t **dnext, struct context *c)
                     "build(..\"a\"..) given %s instead of an array for content",
                     ici_objname(n1, *c->c_cnext));
             }
-            *r = ici_array_get(ici_arrayof(*c->c_cnext), c->c_ccount);
+            *r = ici_arrayof(*c->c_cnext)->get(c->c_ccount);
             (*r)->incref();
             c->c_cnext += c->c_cstep;
             break;

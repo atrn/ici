@@ -411,11 +411,11 @@ static int ici_sys_close()
 
         if
         (
-            ici_array_nels(a) != 2
+            a->len() != 2
             ||
-            !ici_isint(fd0 = ici_array_get(a, 0))
+            !ici_isint(fd0 = a->get(0))
             ||
-            !ici_isint(fd1 = ici_array_get(a, 1))
+            !ici_isint(fd1 = a->get(1))
         )
         {
             ici_set_error("invalid fd array passed to _close");

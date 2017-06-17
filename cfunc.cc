@@ -904,7 +904,7 @@ f_nels()
     if (ici_isstring(o))
         size = ici_stringof(o)->s_nchars;
     else if (ici_isarray(o))
-        size = ici_array_nels(ici_arrayof(o));
+        size = ici_arrayof(o)->len();
     else if (ici_isstruct(o))
         size = ici_structof(o)->s_nels;
     else if (ici_isset(o))
@@ -1048,7 +1048,7 @@ f_push()
 
     if (ici_typecheck("ao", &a, &o))
         return 1;
-    if (ici_array_push(a, o))
+    if (a->push(o))
         return 1;
     return ici_ret_no_decref(o);
 }
@@ -1061,7 +1061,7 @@ f_rpush()
 
     if (ici_typecheck("ao", &a, &o))
         return 1;
-    if (ici_array_rpush(a, o))
+    if (a->rpush(o))
         return 1;
     return ici_ret_no_decref(o);
 }
@@ -1074,7 +1074,7 @@ f_pop()
 
     if (ici_typecheck("a", &a))
         return 1;
-    if ((o = ici_array_pop(a)) == NULL)
+    if ((o = a->pop()) == NULL)
         return 1;
     return ici_ret_no_decref(o);
 }
@@ -1087,7 +1087,7 @@ f_rpop()
 
     if (ici_typecheck("a", &a))
         return 1;
-    if ((o = ici_array_rpop(a)) == NULL)
+    if ((o = a->rpop()) == NULL)
         return 1;
     return ici_ret_no_decref(o);
 }
@@ -1109,8 +1109,8 @@ f_top()
         if (ici_typecheck("ai", &a, &n))
             return 1;
     }
-    n += ici_array_nels(a) - 1;
-    return ici_ret_no_decref(ici_array_get(a, n));
+    n += a->len() - 1;
+    return ici_ret_no_decref(a->get(n));
 }
 
 static int
@@ -1257,7 +1257,7 @@ f_call()
     if (aa == NULL)
         naargs = 0;
     else
-        naargs = ici_array_nels(aa);
+        naargs = aa->len();
     nargs = naargs + ICI_NARGS() - 2;
     func = ICI_ARG(0);
     func->incref();
@@ -1455,7 +1455,7 @@ f_interval()
 
     case ICI_TC_ARRAY:
         a = ici_arrayof(o);
-        nel = ici_array_nels(a);
+        nel = a->len();
         break;
 
     default:
@@ -1991,7 +1991,7 @@ f_del()
             return ici_null_ret();
         a = ici_arrayof(s);
         i = ici_intof(o)->i_value;
-        n = ici_array_nels(a);
+        n = a->len();
         if (i < 0 || i >= n)
             return ici_null_ret();
         if (s->isatom())
@@ -2002,14 +2002,14 @@ f_del()
         {
             ici_obj_t       **prev_e;
 
-            e = ici_array_find_slot(a, i);
+            e = a->find_slot(i);
             prev_e = e;
             for (e = ici_anext(a, e); e != ici_alimit(a); e = ici_anext(a, e))
             {
                 *prev_e = *e;
                 prev_e = e;
             }
-            ici_array_pop(a);
+            a->pop();
         }
         else
         {
@@ -2022,7 +2022,7 @@ f_del()
                 *e = prev_o;
                 prev_o = o;
             }
-            ici_array_rpop(a);
+            a->rpop();
         }
     }
     else
@@ -2795,7 +2795,7 @@ f_sort()
         return ici_set_error("attempt to sort an atomic array");
     }
 
-    n = ici_array_nels(a);
+    n = a->len();
     if (a->a_bot > a->a_top)
     {
         ptrdiff_t       m;

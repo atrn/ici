@@ -326,16 +326,6 @@ extern void                     ici_rego_work(ici_obj_t *o);
 
 extern void                     ici_array_gather(ici_obj_t **, ici_array_t *, ptrdiff_t, ptrdiff_t);
 
-extern ptrdiff_t                ici_array_nels(ici_array_t *);
-extern int                      ici_grow_stack(ici_array_t *, ptrdiff_t);
-extern int                      ici_fault_stack(ici_array_t *, ptrdiff_t);
-extern int                      ici_array_push(ici_array_t *, ici_obj_t *);
-extern int                      ici_array_rpush(ici_array_t *, ici_obj_t *);
-extern ici_obj_t                *ici_array_pop(ici_array_t *);
-extern ici_obj_t                *ici_array_rpop(ici_array_t *);
-extern ici_obj_t                *ici_array_get(ici_array_t *, ptrdiff_t);
-extern ici_obj_t                **ici_array_find_slot(ici_array_t *, ptrdiff_t);
-
 extern void                     ici_invalidate_struct_lookaside(ici_struct_t *);
 extern int                      ici_engine_stack_check();
 extern void                     ici_atexit(void (*)(), ici_wrap_t *);
@@ -403,7 +393,6 @@ extern void             ici_grow_atoms(ptrdiff_t newz);
 extern int              ici_supress_collect;
 extern int              ici_ncollects;
 extern const char       *ici_binop_name(int);
-extern ici_sslot_t      *find_slot(ici_struct_t **, ici_obj_t *);
 extern ici_sslot_t      *ici_find_raw_slot(ici_struct_t *, ici_obj_t *);
 extern ici_obj_t        *ici_atom_probe2(ici_obj_t *, ici_obj_t ***);
 extern int              ici_parse_exec();

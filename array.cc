@@ -16,11 +16,10 @@ namespace ici
 {
 
 /*
- * Function to do the hard work for the macro ici_stk_push_chk().
+ * Function to do the hard work for the inline function ici_stk_push_chk().
  * See array.h. This reallocates the array buffer.
  */
-int
-ici_grow_stack(ici_array_t *a, ptrdiff_t n)
+int array::grow_stack(ptrdiff_t n)
 {
     ici_obj_t  **e;
     ptrdiff_t  oldz;
@@ -29,54 +28,54 @@ ici_grow_stack(ici_array_t *a, ptrdiff_t n)
      * Users of arrays as stacks are supposed to know the origin and
      * history of the array. So we just assert it is not an atom.
      */
-    assert(!a->isatom());
-    assert(a->a_bot == a->a_base);
+    assert(!isatom());
+    assert(a_bot == a_base);
 
     /*
      * We don't use realloc to ensure that memory exhaustion is
      * cleanly recovereable.
      */
-    if ((oldz = a->a_limit - a->a_base) * 3 / 2 < a->a_limit - a->a_base + n)
+    if ((oldz = a_limit - a_base) * 3 / 2 < a_limit - a_base + n)
     {
-        n += (a->a_limit - a->a_base) + 10;
+        n += (a_limit - a_base) + 10;
     }
     else
     {
-        n = (a->a_limit - a->a_base) * 3 / 2;
+        n = (a_limit - a_base) * 3 / 2;
     }
     if ((e = (ici_obj_t **)ici_nalloc(n * sizeof(ici_obj_t *))) == NULL)
     {
         return 1;
     }
-    memcpy((char *)e, (char *)a->a_base, (a->a_limit - a->a_base) * sizeof(ici_obj_t *));
-    a->a_top = e + (a->a_top - a->a_base);
-    ici_nfree((char *)a->a_base, oldz * sizeof(ici_obj_t *));
-    a->a_base = e;
-    a->a_bot = e;
-    a->a_limit = e + n;
+    memcpy((char *)e, (char *)a_base, (a_limit - a_base) * sizeof (object *));
+    a_top = e + (a_top - a_base);
+    ici_nfree((char *)a_base, oldz * sizeof (object *));
+    a_base = e;
+    a_bot = e;
+    a_limit = e + n;
     return 0;
 }
 
 /*
- * Function to do the hard work for the macro ici_stack_probe(). See array.h.
+ * Function to do the hard work for the inline function ici_stack_probe(). See array.h.
  */
 int
-ici_fault_stack(ici_array_t *a, ptrdiff_t i)
+array::fault_stack(ptrdiff_t i)
 {
     /*
      * Users of arrays as stacks are supposed to know the origin and
      * history of the array. So we just assert it is not an atom.
      */
-    assert(!a->isatom());
+    assert(!isatom());
     ++i;
-    i -= a->a_top - a->a_bot;
-    if (ici_stk_push_chk(a, i))
+    i -= a_top - a_bot;
+    if (ici_stk_push_chk(this, i))
     {
         return 1;
     }
     while (--i >= 0)
     {
-        *a->a_top++ = ici_null;
+        *a_top++ = ici_null;
     }
     return 0;
 }
@@ -87,13 +86,13 @@ ici_fault_stack(ici_array_t *a, ptrdiff_t i)
  * This --func-- forms part of the --ici-api--.
  */
 ptrdiff_t
-ici_array_nels(ici_array_t *a)
+array::len()
 {
-    if (a->a_top >= a->a_bot)
+    if (a_top >= a_bot)
     {
-        return a->a_top - a->a_bot;
+        return a_top - a_bot;
     }
-    return (a->a_top - a->a_base) + (a->a_limit - a->a_bot);
+    return (a_top - a_base) + (a_limit - a_bot);
 }
 
 /*
@@ -104,27 +103,27 @@ ici_array_nels(ici_array_t *a)
  * This is the commonest routine for finding an element at a given
  * index in an array. It only works for valid indexes.
  */
-static ici_obj_t **
-ici_array_span(ici_array_t *a, int i, ptrdiff_t *np)
+ici_obj_t **
+array::span(int i, ptrdiff_t *np)
 {
     ici_obj_t           **e;
     ptrdiff_t           n;
 
-    if (a->a_bot <= a->a_top)
+    if (a_bot <= a_top)
     {
-        e = &a->a_bot[i];
-        n = a->a_top - e;
+        e = &a_bot[i];
+        n = a_top - e;
     }
-    else if (a->a_bot + i < a->a_limit)
+    else if (a_bot + i < a_limit)
     {
-        e = &a->a_bot[i];
-        n = a->a_limit - e;
+        e = &a_bot[i];
+        n = a_limit - e;
     }
     else
     {
-        i -= a->a_limit - a->a_bot;
-        e = &a->a_base[i];
-        n = a->a_top - e;
+        i -= a_limit - a_bot;
+        e = &a_base[i];
+        n = a_top - e;
     }
     assert(n >= 0);
     if (np != NULL && *np > n)
@@ -157,7 +156,7 @@ ici_array_gather(ici_obj_t **b, ici_array_t *a, ptrdiff_t start, ptrdiff_t n)
     for (i = start; i < start + n; i += m, b += m)
     {
         m = n - (i - start);
-        e = ici_array_span(a, i, &m);
+        e = a->span(i, &m);
         memcpy(b, e, m * sizeof(ici_obj_t *));
     }
 }
@@ -167,30 +166,29 @@ ici_array_gather(ici_obj_t **b, ici_array_t *a, ptrdiff_t start, ptrdiff_t n)
  * on return there is at least one empty slot after a_top and before
  * a_bot.
  */
-static int
-ici_array_grow(ici_array_t *a)
+int array::grow()
 {
     ptrdiff_t           nel;    /* Number of elements. */
     ptrdiff_t           n;      /* Old allocation count. */
     ptrdiff_t           m;      /* New allocation count. */
     ici_obj_t           **e;    /* New allocation. */
 
-    n = a->a_limit - a->a_base;
+    n = a_limit - a_base;
     if ((m = n * 3 / 2) < 8)
     {
         m = 8;
     }
-    if ((e = (ici_obj_t **)ici_nalloc(m * sizeof(ici_obj_t *))) == NULL)
+    if ((e = (ici_obj_t **)ici_nalloc(m * sizeof(object *))) == NULL)
     {
         return 1;
     }
-    nel = ici_array_nels(a);
-    ici_array_gather(e + 1, a, 0, nel);
-    ici_nfree(a->a_base, n * sizeof(ici_obj_t *));
-    a->a_base = e;
-    a->a_limit = e + m;
-    a->a_bot = e + 1;
-    a->a_top = e + 1 + nel;
+    nel = len();
+    ici_array_gather(e + 1, this, 0, nel);
+    ici_nfree(a_base, n * sizeof(object *));
+    a_base = e;
+    a_limit = e + m;
+    a_bot = e + 1;
+    a_top = e + 1 + nel;
     return 0;
 }
 
@@ -203,37 +201,37 @@ ici_array_grow(ici_array_t *a)
  * This --func-- forms part of the --ici-api--.
  */
 int
-ici_array_push(ici_array_t *a, ici_obj_t *o)
+array::push(ici_obj_t *o)
 {
-    if (a->isatom())
+    if (isatom())
     {
         return ici_set_error("attempt to push atomic array");
     }
-    if (a->a_bot <= a->a_top)
+    if (a_bot <= a_top)
     {
         /*
          *   ..........oooooooooooooooooooX............
          *   ^a_base   ^a_bot             ^a_top       ^a_limit
          */
-        if (a->a_top == a->a_limit)
+        if (a_top == a_limit)
         {
             /*
              * The a_top pointer is at the limit of the array. So it has to
              * wrap to the base. But will there be room after that?
              */
-            if (a->a_base + 1 >= a->a_bot)
+            if (a_base + 1 >= a_bot)
             {
-                if (ici_array_grow(a))
+                if (grow())
                 {
                     return 1;
                 }
             }
             else
             {
-                a->a_top = a->a_base; /* Wrap from limit to base. */
-                if (a->a_bot == a->a_limit)
+                a_top = a_base; /* Wrap from limit to base. */
+                if (a_bot == a_limit)
                 {
-                    a->a_bot = a->a_base; /* a_bot was also at limit. */
+                    a_bot = a_base; /* a_bot was also at limit. */
                 }
             }
         }
@@ -244,17 +242,17 @@ ici_array_push(ici_array_t *a, ici_obj_t *o)
          *   ooooooooooooooX................ooooooooooo
          *   ^a_base       ^a_top           ^a_bot     ^a_limit
          */
-        if (a->a_top + 1 >= a->a_bot)
+        if (a_top + 1 >= a_bot)
         {
-            if (ici_array_grow(a))
+            if (grow())
             {
                 return 1;
             }
         }
     }
-    assert(a->a_base <= a->a_top);
-    assert(a->a_top <= a->a_limit);
-    *a->a_top++ = o;
+    assert(a_base <= a_top);
+    assert(a_top <= a_limit);
+    *a_top++ = o;
     return 0;
 }
 
@@ -265,30 +263,30 @@ ici_array_push(ici_array_t *a, ici_obj_t *o)
  * This --func-- forms part of the --ici-api--.
  */
 int
-ici_array_rpush(ici_array_t *a, ici_obj_t *o)
+array::rpush(ici_obj_t *o)
 {
-    if (a->isatom())
+    if (isatom())
     {
         return ici_set_error("attempt to rpush atomic array");
     }
-    if (a->a_bot <= a->a_top)
+    if (a_bot <= a_top)
     {
         /*
          *   ..........oooooooooooooooooooX............
          *   ^a_base   ^a_bot             ^a_top       ^a_limit
          */
-        if (a->a_bot == a->a_base)
+        if (a_bot == a_base)
         {
-            if (a->a_top >= a->a_limit - 1 || a->a_top == a->a_bot)
+            if (a_top >= a_limit - 1 || a_top == a_bot)
             {
-                if (ici_array_grow(a))
+                if (grow())
                 {
                     return 1;
                 }
             }
             else
             {
-                a->a_bot = a->a_limit; /* Wrap from base to limit. */
+                a_bot = a_limit; /* Wrap from base to limit. */
             }
         }
     }
@@ -298,17 +296,17 @@ ici_array_rpush(ici_array_t *a, ici_obj_t *o)
          *   ooooooooooooooX................ooooooooooo
          *   ^a_base       ^a_top           ^a_bot     ^a_limit
          */
-        if (a->a_top >= a->a_bot - 1)
+        if (a_top >= a_bot - 1)
         {
-            if (ici_array_grow(a))
+            if (grow())
             {
                 return 1;
             }
         }
     }
-    assert(a->a_base <= a->a_bot);
-    assert(a->a_bot <= a->a_limit);
-    *--a->a_bot = o;
+    assert(a_base <= a_bot);
+    assert(a_bot <= a_limit);
+    *--a_bot = o;
     return 0;
 }
 
@@ -320,22 +318,22 @@ ici_array_rpush(ici_array_t *a, ici_obj_t *o)
  * This --func-- forms part of the --ici-api--.
  */
 ici_obj_t *
-ici_array_pop(ici_array_t *a)
+array::pop()
 {
-    if (a->isatom())
+    if (isatom())
     {
         ici_set_error("attempt to pop atomic array");
         return NULL;
     }
-    if (a->a_bot <= a->a_top)
+    if (a_bot <= a_top)
     {
         /*
          *   ..........oooooooooooooooooooX............
          *   ^a_base   ^a_bot             ^a_top       ^a_limit
          */
-        if (a->a_bot < a->a_top)
+        if (a_bot < a_top)
         {
-            return *--a->a_top;
+            return *--a_top;
         }
     }
     else
@@ -344,18 +342,18 @@ ici_array_pop(ici_array_t *a)
          *   ooooooooooooooX................ooooooooooo
          *   ^a_base       ^a_top           ^a_bot     ^a_limit
          */
-        if (a->a_top > a->a_base)
+        if (a_top > a_base)
         {
-            return *--a->a_top;
+            return *--a_top;
         }
-        a->a_top = a->a_limit;
-        if (a->a_top > a->a_bot)
+        a_top = a_limit;
+        if (a_top > a_bot)
         {
-            return *--a->a_top;
+            return *--a_top;
         }
     }
-    assert(a->a_base <= a->a_top);
-    assert(a->a_top <= a->a_limit);
+    assert(a_base <= a_top);
+    assert(a_top <= a_limit);
     return ici_null;
 }
 
@@ -367,22 +365,22 @@ ici_array_pop(ici_array_t *a)
  * This --func-- forms part of the --ici-api--.
  */
 ici_obj_t *
-ici_array_rpop(ici_array_t *a)
+array::rpop()
 {
-    if (a->isatom())
+    if (isatom())
     {
         ici_set_error("attempt to rpop atomic array");
         return NULL;
     }
-    if (a->a_bot <= a->a_top)
+    if (a_bot <= a_top)
     {
         /*
          *   ..........oooooooooooooooooooX............
          *   ^a_base   ^a_bot             ^a_top       ^a_limit
          */
-        if (a->a_bot < a->a_top)
+        if (a_bot < a_top)
         {
-            return *a->a_bot++;
+            return *a_bot++;
         }
     }
     else
@@ -391,18 +389,18 @@ ici_array_rpop(ici_array_t *a)
          *   ooooooooooooooX................ooooooooooo
          *   ^a_base       ^a_top           ^a_bot     ^a_limit
          */
-        if (a->a_bot < a->a_limit)
+        if (a_bot < a_limit)
         {
-            return *a->a_bot++;
+            return *a_bot++;
         }
-        a->a_bot = a->a_base;
-        if (a->a_bot < a->a_top)
+        a_bot = a_base;
+        if (a_bot < a_top)
         {
-            return *a->a_bot++;
+            return *a_bot++;
         }
     }
-    assert(a->a_base <= a->a_bot);
-    assert(a->a_bot <= a->a_limit);
+    assert(a_base <= a_bot);
+    assert(a_bot <= a_limit);
     return ici_null;
 }
 
@@ -416,20 +414,20 @@ ici_array_rpop(ici_array_t *a)
  * This --func-- forms part of the --ici-api--.
  */
 ici_obj_t **
-ici_array_find_slot(ici_array_t *a, ptrdiff_t i)
+array::find_slot(ptrdiff_t i)
 {
-    ptrdiff_t           n;
+    ptrdiff_t n;
 
-    n = ici_array_nels(a);
+    n = len();
     if (i < n)
     {
         /*
          * Within the range of exisiting objects. Just use
-         * ici_array_span to find the pointer to it.
+         * span to find the pointer to it.
          */
-        return ici_array_span(a, i, NULL);
+        return span(i, NULL);
     }
-    if (a->isatom())
+    if (isatom())
     {
         ici_set_error("attempt to modify an atomic array");
         return NULL;
@@ -437,12 +435,12 @@ ici_array_find_slot(ici_array_t *a, ptrdiff_t i)
     i = i - n + 1; /* Number of elements we need to add. */
     while (--i >= 0)
     {
-        if (ici_array_push(a, ici_null))
+        if (push(ici_null))
         {
             return NULL;
         }
     }
-    return &a->a_top[-1];
+    return &a_top[-1];
 }
 
 /*
@@ -452,14 +450,14 @@ ici_array_find_slot(ici_array_t *a, ptrdiff_t i)
  * This --func-- forms part of the --ici-api--.
  */
 ici_obj_t *
-ici_array_get(ici_array_t *a, ptrdiff_t i)
+array::get(ptrdiff_t i)
 {
-    ptrdiff_t           n;
+    ptrdiff_t n;
 
-    n = ici_array_nels(a);
+    n = len();
     if (i >= 0 && i < n)
     {
-        return *ici_array_span(a, i, NULL);
+        return *span(i, NULL);
     }
     return ici_null;
 }
@@ -577,11 +575,11 @@ unsigned long array_type::hash(ici_obj_t *o)
     ptrdiff_t           i;
 
     h = ARRAY_PRIME;
-    n = ici_array_nels(ici_arrayof(o));
+    n = ici_arrayof(o)->len();
     for (i = 0; i < n; )
     {
         m = n;
-        e = ici_array_span(ici_arrayof(o), i, &m);
+        e = ici_arrayof(o)->span(i, &m);
         i += m;
         while (--m >= 0)
         {
@@ -605,8 +603,8 @@ int array_type::cmp(ici_obj_t *o1, ici_obj_t *o2)
     {
         return 0;
     }
-    n1 = ici_array_nels(ici_arrayof(o1));
-    n2 = ici_array_nels(ici_arrayof(o2));
+    n1 = ici_arrayof(o1)->len();
+    n2 = ici_arrayof(o2)->len();
     if (n1 != n2)
     {
         return 1;
@@ -614,8 +612,8 @@ int array_type::cmp(ici_obj_t *o1, ici_obj_t *o2)
     for (i = 0; i < n1; i += n2)
     {
         n2 = n1;
-        e1 = ici_array_span(ici_arrayof(o1), i, &n2);
-        e2 = ici_array_span(ici_arrayof(o2), i, &n2);
+        e1 = ici_arrayof(o1)->span(i, &n2);
+        e2 = ici_arrayof(o2)->span(i, &n2);
         if (memcmp(e1, e2, n2 * sizeof(ici_obj_t *)))
         {
             return 1;
@@ -629,7 +627,7 @@ ici_obj_t * array_type::copy(ici_obj_t *o)
     ici_array_t         *na;
     ptrdiff_t           n;
 
-    n = ici_array_nels(ici_arrayof(o));
+    n = ici_arrayof(o)->len();
     if ((na = ici_array_new(n)) == NULL)
     {
         return NULL;
@@ -657,7 +655,7 @@ int array_type::assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v)
     {
         return ici_set_error("attempt to assign to negative array index");
     }
-    if ((e = ici_array_find_slot(ici_arrayof(o), i)) == NULL)
+    if ((e = ici_arrayof(o)->find_slot(i)) == NULL)
     {
         return 1;
     }
@@ -671,7 +669,7 @@ ici_obj_t *array_type::fetch(ici_obj_t *o, ici_obj_t *k)
     {
         return fetch_fail(o, k);
     }
-    return ici_array_get(ici_arrayof(o), ici_intof(k)->i_value);
+    return ici_arrayof(o)->get(ici_intof(k)->i_value);
 }
 
 int array_type::forall(ici_obj_t *o)
@@ -681,11 +679,11 @@ int array_type::forall(ici_obj_t *o)
     ici_int_t  *i;
 
     a = ici_arrayof(fa->fa_aggr);
-    if (++fa->fa_index >= ici_array_nels(a))
+    if (++fa->fa_index >= a->len())
         return -1;
     if (fa->fa_vaggr != ici_null)
     {
-        if (ici_assign(fa->fa_vaggr, fa->fa_vkey, ici_array_get(a, fa->fa_index)))
+        if (ici_assign(fa->fa_vaggr, fa->fa_vkey, a->get(fa->fa_index)))
             return 1;
     }
     if (fa->fa_kaggr != ici_null)

@@ -544,8 +544,8 @@
             ptrdiff_t   z0;
             ptrdiff_t   z1;
 
-            z0 = ici_array_nels(ici_arrayof(o0));
-            z1 = ici_array_nels(ici_arrayof(o1));
+            z0 = ici_arrayof(o0)->len();
+            z1 = ici_arrayof(o1)->len();
             if ((a = ici_array_new(z0 + z1)) == NULL)
             {
                 FAIL();
