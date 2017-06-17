@@ -29,7 +29,7 @@ ici_init_sstrings()
     if
     (
 #define SSTRING(name, str) \
-    (SS(name)->s_chars = SS(name)->s_u.su_inline_chars, ici_atom(SSO(name), 1)) == SSO(name) \
+    (SS(name)->s_chars = SS(name)->s_u.su_inline_chars, ici_atom(SS(name), 1)) == SS(name) \
     &&
 #include "sstring.h"
 #undef SSTRING

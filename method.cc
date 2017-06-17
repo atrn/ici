@@ -47,9 +47,9 @@ ici_obj_t * method_type::fetch(ici_obj_t *o, ici_obj_t *k)
     ici_method_t        *m;
 
     m = ici_methodof(o);
-    if (k == SSO(subject))
+    if (k == SS(subject))
         return m->m_subject;
-    if (k == SSO(callable))
+    if (k == SS(callable))
         return m->m_callable;
     return ici_null;
 }

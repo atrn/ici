@@ -153,7 +153,7 @@ unsigned long cfunc_type::mark(ici_obj_t *o)
 
 ici_obj_t * cfunc_type::fetch(ici_obj_t *o, ici_obj_t *k)
 {
-    if (k == SSO(name))
+    if (k == SS(name))
         return ici_cfuncof(o)->cf_name;
     return ici_null;
 }

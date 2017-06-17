@@ -440,23 +440,23 @@ struct_to_flock(ici_struct_t *d, struct flock *flock)
 {
     ici_obj_t    *o;
 
-    if ((o = ici_fetch(d, SSO(start))) == ici_null)
+    if ((o = ici_fetch(d, SS(start))) == ici_null)
         flock->l_start = 0;
     else
         flock->l_start = ici_intof(o)->i_value;
-    if ((o = ici_fetch(d, SSO(len))) == ici_null)
+    if ((o = ici_fetch(d, SS(len))) == ici_null)
         flock->l_len = 0;
     else
         flock->l_len = ici_intof(o)->i_value;
-    if ((o = ici_fetch(d, SSO(type))) == ici_null)
+    if ((o = ici_fetch(d, SS(type))) == ici_null)
         flock->l_type = F_RDLCK;
     else if (ici_isstring(o))
     {
-        if (o == SSO(rdlck))
+        if (o == SS(rdlck))
             flock->l_type = F_RDLCK;
-        else if (o == SSO(wrlck))
+        else if (o == SS(wrlck))
             flock->l_type = F_WRLCK;
-        else if (o == SSO(unlck))
+        else if (o == SS(unlck))
             flock->l_type = F_UNLCK;
         else
             goto bad_lock_type;
@@ -469,7 +469,7 @@ struct_to_flock(ici_struct_t *d, struct flock *flock)
         ici_set_error("invalid lock type");
         return 1;
     }
-    if ((o = ici_fetch(d, SSO(whence))) == ici_null)
+    if ((o = ici_fetch(d, SS(whence))) == ici_null)
         flock->l_whence = SEEK_SET;
     else
         flock->l_whence = ici_intof(o)->i_value;
@@ -561,19 +561,19 @@ static int ici_sys_fcntl()
         return ici_argerror(1);
     if (what == SS(dupfd))
         iwhat = F_DUPFD;
-    else if (what == SSO(getfd))
+    else if (what == SS(getfd))
         iwhat = F_GETFD;
-    else if (what == SSO(setfd))
+    else if (what == SS(setfd))
         iwhat = F_SETFD;
-    else if (what == SSO(getfl))
+    else if (what == SS(getfl))
         iwhat = F_GETFL;
-    else if (what == SSO(setfl))
+    else if (what == SS(setfl))
         iwhat = F_SETFL;
-    else if (what == SSO(getown))
+    else if (what == SS(getown))
         iwhat = F_GETOWN;
-    else if (what == SSO(setown))
+    else if (what == SS(setown))
         iwhat = F_SETOWN;
-    else if (what == SSO(setlk))
+    else if (what == SS(setlk))
     {
         struct flock myflock;
 
@@ -863,7 +863,7 @@ static int ici_sys_stat()
 #define SETFIELD(x)                                     \
     if ((o = ici_int_new(statb.st_ ##x)) == NULL)       \
         goto fail;                                      \
-    else if (ici_assign(s, SSO(x), o))                  \
+    else if (ici_assign(s, SS(x), o))                  \
     {                                                   \
         o->decref();                                    \
         goto fail;                                      \
@@ -927,7 +927,7 @@ static int ici_sys_lstat()
 #define SETFIELD(x)                                     \
     if ((o = ici_int_new(statb.st_ ##x)) == NULL)       \
         goto fail;                                      \
-    else if (ici_assign(s, SSO(x), o))                  \
+    else if (ici_assign(s, SS(x), o))                  \
     {                                                   \
         o->decref();                                    \
         goto fail;                                      \
@@ -1010,7 +1010,7 @@ assign_timeval(ici_struct_t *s, ici_str_t *k, struct timeval *tv)
         return 1;
     if ((i = ici_int_new(tv->tv_usec)) == NULL)
         goto fail;
-    if (ici_assign(ss, SSO(usec), i))
+    if (ici_assign(ss, SS(usec), i))
     {
         i->decref();
         goto fail;
@@ -1018,7 +1018,7 @@ assign_timeval(ici_struct_t *s, ici_str_t *k, struct timeval *tv)
     i->decref();
     if ((i = ici_int_new(tv->tv_sec)) == NULL)
         goto fail;
-    if (ici_assign(ss, SSO(sec), i))
+    if (ici_assign(ss, SS(sec), i))
     {
         i->decref();
         goto fail;
@@ -1067,11 +1067,11 @@ static int ici_sys_getitimer()
             return 1;
         if (!ici_isstring(o))
             return ici_argerror(0);
-        if (o == SSO(real))
+        if (o == SS(real))
             which = ITIMER_REAL;
-        else if (o == SSO(virtual))
+        else if (o == SS(virtual))
             which = ITIMER_VIRTUAL;
-        else if (o == SSO(prof))
+        else if (o == SS(prof))
             which = ITIMER_PROF;
         else
             return ici_argerror(0);
@@ -1100,13 +1100,13 @@ fetch_timeval(ici_obj_t *s, struct timeval *tv)
 
     if (!ici_isstruct(s))
         return 1;
-    if ((o = ici_fetch(s, SSO(usec))) == ici_null)
+    if ((o = ici_fetch(s, SS(usec))) == ici_null)
         tv->tv_usec = 0;
     else if (ici_isint(o))
         tv->tv_usec = ici_intof(o)->i_value;
     else
         return 1;
-    if ((o = ici_fetch(s, SSO(sec))) == ici_null)
+    if ((o = ici_fetch(s, SS(sec))) == ici_null)
         tv->tv_sec = 0;
     else if (ici_isint(o))
         tv->tv_sec = ici_intof(o)->i_value;
@@ -1144,20 +1144,20 @@ static int ici_sys_setitimer()
     {
         if (ici_typecheck("od", &o, &s))
             return 1;
-        if (o == SSO(real))
+        if (o == SS(real))
             which = ITIMER_REAL;
-        else if (o == SSO(virtual))
+        else if (o == SS(virtual))
             which = ITIMER_VIRTUAL;
-        else if (o == SSO(prof))
+        else if (o == SS(prof))
             which = ITIMER_PROF;
         else
             return ici_argerror(0);
     }
-    if ((o = ici_fetch(s, SSO(interval))) == ici_null)
+    if ((o = ici_fetch(s, SS(interval))) == ici_null)
         value.it_interval.tv_sec = value.it_interval.tv_usec = 0;
     else if (fetch_timeval(o, &value.it_interval))
         goto invalid_itimerval;
-    if ((o = ici_fetch(s, SSO(value))) == ici_null)
+    if ((o = ici_fetch(s, SS(value))) == ici_null)
         value.it_value.tv_sec = value.it_value.tv_usec = 0;
     else if (fetch_timeval(o, &value.it_value))
         goto invalid_itimerval;
@@ -1608,7 +1608,7 @@ static int ici_sys_wait()
         return 1;
     if ((i = ici_int_new(pid)) == NULL)
         goto fail;
-    if (ici_assign(s, SSO(pid), i))
+    if (ici_assign(s, SS(pid), i))
     {
         i->decref();
         goto fail;
@@ -1616,7 +1616,7 @@ static int ici_sys_wait()
     i->decref();
     if ((i = ici_int_new(status)) == NULL)
         goto fail;
-    if (ici_assign(s, SSO(status), i))
+    if (ici_assign(s, SS(status), i))
     {
         i->decref();
         goto fail;
@@ -1722,7 +1722,7 @@ password_struct(struct passwd *pwent)
 #define SET_INT_FIELD(x)                                \
         if ((o = ici_int_new(pwent->pw_ ##x)) == NULL)  \
             goto fail;                                  \
-        else if (ici_assign(d, SSO(x), o))              \
+        else if (ici_assign(d, SS(x), o))              \
         {                                               \
             o->decref();                                \
             goto fail;                                  \
@@ -1733,7 +1733,7 @@ password_struct(struct passwd *pwent)
 #define SET_STR_FIELD(x)                                                \
         if ((o = ici_str_new_nul_term(pwent->pw_ ##x)) == NULL)        \
             goto fail;                                                  \
-        else if (ici_assign(d, SSO(x), o))                              \
+        else if (ici_assign(d, SS(x), o))                              \
         {                                                               \
             o->decref();                                                \
             goto fail;                                                  \
@@ -1906,29 +1906,29 @@ static int ici_sys_truncate()
 static int
 string_to_resource(ici_obj_t *what)
 {
-    if (what == SSO(core))
+    if (what == SS(core))
         return RLIMIT_CORE;
-    if (what == SSO(cpu))
+    if (what == SS(cpu))
         return RLIMIT_CPU;
-    if (what == SSO(data))
+    if (what == SS(data))
         return RLIMIT_DATA;
-    if (what == SSO(fsize))
+    if (what == SS(fsize))
         return RLIMIT_FSIZE;
 #if defined(RLIMIT_MEMLOCK)
-    if (what == SSO(memlock))
+    if (what == SS(memlock))
         return RLIMIT_MEMLOCK;
 #endif
-    if (what == SSO(nofile))
+    if (what == SS(nofile))
         return RLIMIT_NOFILE;
 #if defined(RLIMIT_NPROC)
-    if (what == SSO(nproc))
+    if (what == SS(nproc))
         return RLIMIT_NPROC;
 #endif
 #if defined(RLIMIT_RSS)
-    if (what == SSO(rss))
+    if (what == SS(rss))
         return RLIMIT_RSS;
 #endif
-    if (what == SSO(stack))
+    if (what == SS(stack))
         return RLIMIT_STACK;
 
 #if !(defined __MACH__ && defined __APPLE__)
@@ -1939,7 +1939,7 @@ string_to_resource(ici_obj_t *what)
 #endif
 
 #ifndef NO_RLIMIT_SBSIZE
-    if (what == SSO(sbsize))
+    if (what == SS(sbsize))
         return RLIMIT_SBSIZE;
 #endif
     return -1;
@@ -2005,7 +2005,7 @@ static int ici_sys_getrlimit()
         return 1;
     if ((iv = ici_int_new(rlimit.rlim_cur)) == NULL)
         goto fail;
-    if (ici_assign(limit, SSO(cur), iv))
+    if (ici_assign(limit, SS(cur), iv))
     {
         iv->decref();
         goto fail;
@@ -2013,7 +2013,7 @@ static int ici_sys_getrlimit()
     iv->decref();
     if ((iv = ici_int_new(rlimit.rlim_max)) == NULL)
         goto fail;
-    if (ici_assign(limit, SSO(max), iv))
+    if (ici_assign(limit, SS(max), iv))
     {
         iv->decref();
         goto fail;
@@ -2063,18 +2063,18 @@ static int ici_sys_setrlimit()
             return sys_ret(-1);
         rlimit.rlim_cur = ici_intof(value)->i_value;
     }
-    else if (value == SSO(infinity))
+    else if (value == SS(infinity))
     {
         rlimit.rlim_cur = RLIM_INFINITY;
     }
     else if (ici_isstruct(value))
     {
-        if ((iv = ici_fetch(value, SSO(cur))) == ici_null)
+        if ((iv = ici_fetch(value, SS(cur))) == ici_null)
             goto fail;
         if (!ici_isint(iv))
             goto fail;
         rlimit.rlim_cur = ici_intof(iv)->i_value;
-        if ((iv = ici_fetch(value, SSO(max))) == ici_null)
+        if ((iv = ici_fetch(value, SS(max))) == ici_null)
             goto fail;
         if (!ici_isint(iv))
             goto fail;

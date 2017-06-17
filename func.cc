@@ -82,7 +82,7 @@ ici_op_return()
     else if (--occasionally <= 0)
     {
         occasionally = 10;
-        f = ici_fetch(ici_vs.a_top[-1], SSO(_func_));
+        f = ici_fetch(ici_vs.a_top[-1], SS(_func_));
         if (ici_isstruct(ici_vs.a_top[-1]) && ici_isfunc(f))
             ici_funcof(f)->f_nautos = ici_structof(ici_vs.a_top[-1])->s_nels;
     }
@@ -130,15 +130,15 @@ ici_obj_t * func_type::fetch(ici_obj_t *o, ici_obj_t *k)
 
     ici_error = NULL;
     r = NULL;
-    if (k == SSO(vars))
+    if (k == SS(vars))
     {
         r = ici_funcof(o)->f_autos;
     }
-    else if (k == SSO(args))
+    else if (k == SS(args))
     {
         r = ici_funcof(o)->f_args;
     }
-    else if (k == SSO(name))
+    else if (k == SS(name))
     {
         r = ici_funcof(o)->f_name;
     }
@@ -213,7 +213,7 @@ int func_type::call(ici_obj_t *o, ici_obj_t *subject)
         /*
          * Set the special instantiation variables.
          */
-        if (UNLIKELY(ici_assign_base(d, SSO(this), subject)))
+        if (UNLIKELY(ici_assign_base(d, SS(this), subject)))
         {
             goto fail;
         }
@@ -223,7 +223,7 @@ int func_type::call(ici_obj_t *o, ici_obj_t *subject)
             (
                 ici_objwsupof(f->f_autos)->o_super != NULL
                 &&
-                ici_assign_base(d, SSO(class), ici_objwsupof(f->f_autos)->o_super)
+                ici_assign_base(d, SS(class), ici_objwsupof(f->f_autos)->o_super)
             )
         )
         {
@@ -267,7 +267,7 @@ int func_type::call(ici_obj_t *o, ici_obj_t *subject)
         (
             LIKELY
             (
-                (sl = ici_find_raw_slot(d, SSO(vargs))) != NULL
+                (sl = ici_find_raw_slot(d, SS(vargs))) != NULL
                 &&
                 (va = ici_array_new(n)) != NULL
             )

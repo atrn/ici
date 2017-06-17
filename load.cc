@@ -420,7 +420,7 @@ ici_init_path(ici_objwsup_t *externs)
     {
         return 1;
     }
-    r = ici_assign_base(externs, SSO(path), a);
+    r = ici_assign_base(externs, SS(path), a);
     a->decref();
     if (r)
     {

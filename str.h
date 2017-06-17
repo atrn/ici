@@ -34,7 +34,7 @@ struct str : object
 #   if ICI_KEEP_STRING_HASH
     unsigned long   s_hash;         /* String hash code or 0 if not yet computed */
 #   endif
-    int             s_nchars;
+    size_t          s_nchars;
     char            *s_chars;
     union
     {
@@ -168,7 +168,7 @@ struct sstring : object
 #   if ICI_KEEP_STRING_HASH
     unsigned long s_hash;       /* String hash code or 0 if not yet computed */
 #   endif
-    int         s_nchars;
+    size_t      s_nchars;
     char        *s_chars;
     char        s_inline_chars[15]; /* Longest string in sstring.h */
 };
@@ -178,7 +178,7 @@ struct sstring : object
 #undef SSTRING
 
 #define SS(name)         ((ici_str_t *)&ici_ss_##name)
-#define SSO(name)        ((ici_obj_t *)&ici_ss_##name)
+
 #define ici_str_char_at(s,i) ((s)->s_chars[i])
 
 #endif /* ICI_CORE */

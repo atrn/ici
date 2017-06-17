@@ -628,7 +628,7 @@ ici_need_path()
 {
     ici_obj_t           *o;
 
-    o = ici_fetch(ici_vs.a_top[-1], SSO(path));
+    o = ici_fetch(ici_vs.a_top[-1], SS(path));
     if (!ici_isarray(o))
     {
         return ici_arrayof(not_a("path", "array"));
@@ -649,7 +649,7 @@ ici_need_stdin()
 {
     ici_file_t          *f;
 
-    f = ici_fileof(ici_fetch(ici_vs.a_top[-1], SSO(_stdin)));
+    f = ici_fileof(ici_fetch(ici_vs.a_top[-1], SS(_stdin)));
     if (!ici_isfile(f))
     {
         return ici_fileof(not_a("stdin", "file"));
@@ -670,7 +670,7 @@ ici_need_stdout()
 {
     ici_file_t          *f;
 
-    f = ici_fileof(ici_fetch(ici_vs.a_top[-1], SSO(_stdout)));
+    f = ici_fileof(ici_fetch(ici_vs.a_top[-1], SS(_stdout)));
     if (!ici_isfile(f))
     {
         return ici_fileof(not_a("stdout", "file"));
@@ -896,7 +896,7 @@ static int
 f_nels()
 {
     ici_obj_t  *o;
-    long                size;
+    size_t     size;
 
     if (ICI_NARGS() != 1)
         return ici_argcount(1);
@@ -1438,7 +1438,7 @@ f_interval()
     ici_obj_t           *o;
     long                start;
     long                length;
-    long                nel;
+    size_t              nel;
     ici_str_t           *s = 0; /* init to shut up compiler */
     ici_array_t         *a = 0; /* init to shut up compiler */
     ici_array_t         *a1;
@@ -1947,7 +1947,7 @@ f_currentfile()
     int         raw;
     ici_file_t  *f;
 
-    raw = ICI_NARGS() > 0 && ICI_ARG(0) == SSO(raw);
+    raw = ICI_NARGS() > 0 && ICI_ARG(0) == SS(raw);
     for (o = ici_xs.a_top - 1; o >= ici_xs.a_base; --o)
     {
         if (ici_isparse(*o))
@@ -3009,25 +3009,25 @@ f_calendar()
 
         memset(&tm, 0, sizeof tm);
         s = ici_objwsupof(ICI_ARG(0));
-        if (ici_fetch_num(s, SSO(second), &d))
+        if (ici_fetch_num(s, SS(second), &d))
             return 1;
         tm.tm_sec = (int)d;
-        if (ici_fetch_int(s, SSO(minute), &l))
+        if (ici_fetch_int(s, SS(minute), &l))
             return 1;
         tm.tm_min = l;
-        if (ici_fetch_int(s, SSO(hour), &l))
+        if (ici_fetch_int(s, SS(hour), &l))
             return 1;
         tm.tm_hour = l;
-        if (ici_fetch_int(s, SSO(day), &l))
+        if (ici_fetch_int(s, SS(day), &l))
             return 1;
         tm.tm_mday = l;
-        if (ici_fetch_int(s, SSO(month), &l))
+        if (ici_fetch_int(s, SS(month), &l))
             return 1;
         tm.tm_mon = l;
-        if (ici_fetch_int(s, SSO(year), &l))
+        if (ici_fetch_int(s, SS(year), &l))
             return 1;
         tm.tm_year = l - 1900;
-        if (ici_fetch_int(s, SSO(isdst), &l))
+        if (ici_fetch_int(s, SS(isdst), &l))
             tm.tm_isdst = -1;
         else
             tm.tm_isdst = l;

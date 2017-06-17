@@ -55,6 +55,12 @@ inline int write32(archive *ar, int32_t aword)
     return writef(ar, &swapped, sizeof swapped);
 }
 
+inline int write64(archive *ar, int64_t dword)
+{
+    auto swapped = htonll(dword);
+    return writef(ar, &swapped, sizeof swapped);
+}
+
 inline int writedbl(archive *ar, double adbl)
 {
     return writef(ar, &adbl, sizeof adbl);
@@ -253,7 +259,7 @@ save_func(archive *ar, object *obj)
     if ((autos = ici_structof(ici_typeof(f->f_autos)->copy(f->f_autos))) == NULL)
         return 1;
     autos->o_super = NULL;
-    ici_struct_unassign(autos, SSO(_func_));
+    ici_struct_unassign(autos, SS(_func_));
     if (archive_save(ar, autos))
     {
         autos->decref();
@@ -323,20 +329,20 @@ init_saver_map()
     }
     fns[] =
     {
-        {SSO(_NULL_), save_null},
-        {SSO(mark), save_null},
-        {SSO(int), save_int},
-        {SSO(float), save_float},
-        {SSO(string), save_string},
-        {SSO(regexp), save_regexp},
-        {SSO(array), save_array},
-        {SSO(set), save_set},
-        {SSO(struct), save_struct},
-        {SSO(mem), save_mem},
-        {SSO(ptr), save_ptr},
-        {SSO(func), save_func},
-        {SSO(src), save_src},
-        {SSO(op), save_op},
+        {SS(_NULL_), save_null},
+        {SS(mark), save_null},
+        {SS(int), save_int},
+        {SS(float), save_float},
+        {SS(string), save_string},
+        {SS(regexp), save_regexp},
+        {SS(array), save_array},
+        {SS(set), save_set},
+        {SS(struct), save_struct},
+        {SS(mem), save_mem},
+        {SS(ptr), save_ptr},
+        {SS(func), save_func},
+        {SS(src), save_src},
+        {SS(op), save_op},
     };
 
     if ((saver_map = ici_struct_new()) == NULL)

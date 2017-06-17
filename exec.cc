@@ -437,7 +437,7 @@ ici_evaluate(ici_obj_t *code, int n_operands)
                      * Try to load a library of that name and repeat
                      * the lookup before deciding it is undefined.
                      */
-                    if ((f = ici_fetch(ici_vs.a_top[-1], SSO(load))) == ici_null)
+                    if ((f = ici_fetch(ici_vs.a_top[-1], SS(load))) == ici_null)
                     {
                         ici_set_error("\"%s\" undefined", ici_stringof(o)->s_chars);
                         goto fail;
@@ -1340,7 +1340,7 @@ ici_obj_t *exec_type::fetch(ici_obj_t *o, ici_obj_t *k)
     ici_exec_t          *x;
 
     x = ici_execof(o);
-    if (k == SSO(error))
+    if (k == SS(error))
     {
         if (x->x_error == NULL)
         {
@@ -1353,7 +1353,7 @@ ici_obj_t *exec_type::fetch(ici_obj_t *o, ici_obj_t *k)
         }
         return s;
     }
-    if (k == SSO(result))
+    if (k == SS(result))
     {
         switch (x->x_state)
         {
@@ -1371,13 +1371,13 @@ ici_obj_t *exec_type::fetch(ici_obj_t *o, ici_obj_t *k)
             assert(0);
         }
     }
-    else if (k == SSO(status))
+    else if (k == SS(status))
     {
         switch (x->x_state)
         {
-        case ICI_XS_ACTIVE:     return SSO(active);
-        case ICI_XS_RETURNED:   return SSO(finished);
-        case ICI_XS_FAILED:     return SSO(failed);
+        case ICI_XS_ACTIVE:     return SS(active);
+        case ICI_XS_RETURNED:   return SS(finished);
+        case ICI_XS_FAILED:     return SS(failed);
         default:                assert(0);
         }
     }

@@ -124,13 +124,13 @@ int file_type::cmp(ici_obj_t *o1, ici_obj_t *o2)
 
 ici_obj_t * file_type::fetch(ici_obj_t *o, ici_obj_t *k)
 {
-    if (k == SSO(name))
+    if (k == SS(name))
     {
         if (ici_fileof(o)->f_name != NULL)
             return ici_fileof(o)->f_name;
         return ici_null;
     }
-    if (ici_fileof(o)->f_type == parse_ftype && k == SSO(line))
+    if (ici_fileof(o)->f_type == parse_ftype && k == SS(line))
     {
         ici_int_t   *l;
 

@@ -159,9 +159,9 @@ int regexp_type::cmp(ici_obj_t *o1, ici_obj_t *o2)
 
 ici_obj_t *regexp_type::fetch(ici_obj_t *o, ici_obj_t *k)
 {
-    if (k == SSO(pattern))
+    if (k == SS(pattern))
         return ici_regexpof(o)->r_pat;
-    if (k == SSO(options))
+    if (k == SS(options))
     {
         int         options;
         ici_int_t   *io;

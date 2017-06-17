@@ -1,10 +1,10 @@
 // -*- mode:c++ -*-
 
 /*
- * Any strings listed in this file may be refered to with SS(name)
- * for a (ici_str_t *), and SSO(name) for an (ici_obj_t *). Maximum
- * 15 chars per string. Users need to include str.h. Wherever possible,
- * the name and the string should be the same.
+ * Any strings listed in this file may be refered to with SS(name) for
+ * a (ici_str_t *) Maximum 15 chars per string. Users need to include
+ * str.h. Wherever possible, the name and the string should be the
+ * same.
  *
  * String objects made by this mechanism reside in static initialised
  * memory. They are not allocated or collected, but in other respects

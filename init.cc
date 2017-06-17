@@ -170,7 +170,7 @@ ici_init()
     }
 
 #ifndef NOSTARTUPFILE
-    if (ici_call(SS(load), "o", SSO(core)))
+    if (ici_call(SS(load), "o", SS(core)))
     {
         return 1;
     }

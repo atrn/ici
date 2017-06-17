@@ -391,9 +391,9 @@ f_signal(...)
             return ici_set_error("signals messed up, unrecorded handler present");
         }
         if (handler == SIG_DFL)
-            return ici_ret_no_decref(SSO(default));
+            return ici_ret_no_decref(SS(default));
         if (handler == SIG_IGN)
-            return ici_ret_no_decref(SSO(ignore));
+            return ici_ret_no_decref(SS(ignore));
         return ici_set_error("signal in indeterminate state");
     }
 
@@ -429,9 +429,9 @@ f_signal(...)
     if (rc == ici_signal_handler)
         result = prev_handler;
     else if (rc == SIG_DFL)
-        result = SSO(default);
+        result = SS(default);
     else if (rc == SIG_IGN)
-        result = SSO(ignore);
+        result = SS(ignore);
     else
     {
         signal(signo, rc);
