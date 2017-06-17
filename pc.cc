@@ -30,9 +30,10 @@ ici_new_pc()
 unsigned long pc_type::mark(ici_obj_t *o)
 {
     o->o_flags |= ICI_O_MARK;
+    auto mem = size;
     if (ici_pcof(o)->pc_code != NULL)
-        return sizeof(ici_pc_t) + ici_mark(ici_pcof(o)->pc_code);
-    return sizeof(ici_pc_t);
+        mem += ici_mark(ici_pcof(o)->pc_code);
+    return mem;
 }
 
 } // namespace ici

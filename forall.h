@@ -16,14 +16,13 @@ namespace ici
 struct forall : object
 {
     int         fa_index;
-    ici_obj_t   *fa_objs[6];
+    ici_obj_t   *fa_aggr;
+    ici_obj_t   * fa_code;
+    ici_obj_t   * fa_vaggr;
+    ici_obj_t   * fa_vkey;
+    ici_obj_t   * fa_kaggr;
+    ici_obj_t   * fa_kkey;
 };
-#define fa_aggr         fa_objs[0]
-#define fa_code         fa_objs[1]
-#define fa_vaggr        fa_objs[2]
-#define fa_vkey         fa_objs[3]
-#define fa_kaggr        fa_objs[4]
-#define fa_kkey         fa_objs[5]
 
 inline ici_forall_t *forallof(ici_obj_t *o) { return static_cast<ici_forall_t *>(o); }
 inline bool isforall(ici_obj_t *o) { return o->isa(ICI_TC_FORALL); }
@@ -31,7 +30,6 @@ inline bool isforall(ici_obj_t *o) { return o->isa(ICI_TC_FORALL); }
 /*
  * End of ici.h export. --ici.h-end--
  */
-
 class forall_type : public type
 {
 public:

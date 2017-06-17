@@ -7,9 +7,7 @@
  * array.h - ICI array objects.
  */
 
-#ifndef ICI_OBJECT_H
 #include "object.h"
-#endif
 
 namespace ici
 {
@@ -84,6 +82,7 @@ struct array : object
     ici_obj_t   **a_limit;  /* Allocation limit, first one you can't use. */
 
 #if 0
+    // todo: make the free funcs members?
     int grow_stack(ptrdiff_t n);
     int fault_stack(ptrdiff_t i);
     ptrdiff_t nels();

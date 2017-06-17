@@ -32,14 +32,14 @@ struct op : object
     {}
 
     int         (*op_func)();
-    int         op_ecode;       /* See ICI_OP_* below. */
-    int         op_code;
+    int16_t     op_ecode;       /* See ICI_OP_* below. */
+    int16_t     op_code;
 };
 
 inline ici_op_t *ici_opof(ici_obj_t *o) { return static_cast<ici_op_t *>(o); }
 inline bool ici_isop(ici_obj_t *o) { return o->isa(ICI_TC_OP); }
 
-ici_op_t *ici_new_op(int (*func)(), int ecode, int code);
+ici_op_t *ici_new_op(int (*func)(), int16_t ecode, int16_t code);
 
 /*
  * Operator codes. These are stored in the op_ecode field and
@@ -138,10 +138,8 @@ class op_type : public type
 {
 public:
     op_type() : type("op", sizeof (struct op)) {}
-
-    unsigned long       mark(ici_obj_t *o) override;
-    int                 cmp(ici_obj_t *o1, ici_obj_t *o2) override;
-    unsigned long       hash(ici_obj_t *o) override;
+    int cmp(ici_obj_t *o1, ici_obj_t *o2) override;
+    unsigned long hash(ici_obj_t *o) override;
 };
 
 } // namespace ici

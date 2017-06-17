@@ -96,27 +96,26 @@ ici_op_return()
 
 unsigned long func_type::mark(ici_obj_t *o)
 {
-    long        mem;
-
+    auto fn = ici_funcof(o);
     o->o_flags |= ICI_O_MARK;
-    mem = sizeof(ici_func_t);
-    if (ici_funcof(o)->f_code != NULL)
-        mem += ici_mark(ici_funcof(o)->f_code);
-    if (ici_funcof(o)->f_args != NULL)
-        mem += ici_mark(ici_funcof(o)->f_args);
-    if (ici_funcof(o)->f_autos != NULL)
-        mem += ici_mark(ici_funcof(o)->f_autos);
-    if (ici_funcof(o)->f_name != NULL)
-        mem += ici_mark(ici_funcof(o)->f_name);
+    auto mem = size;
+    if (fn->f_code != NULL)
+        mem += ici_mark(fn->f_code);
+    if (fn->f_args != NULL)
+        mem += ici_mark(fn->f_args);
+    if (fn->f_autos != NULL)
+        mem += ici_mark(fn->f_autos);
+    if (fn->f_name != NULL)
+        mem += ici_mark(fn->f_name);
     return mem;
 }
 
 int func_type::cmp(ici_obj_t *o1, ici_obj_t *o2)
 {
     return ici_funcof(o1)->f_code != ici_funcof(o2)->f_code
-    || ici_funcof(o1)->f_autos != ici_funcof(o2)->f_autos
-    || ici_funcof(o1)->f_args != ici_funcof(o2)->f_args
-    || ici_funcof(o1)->f_name != ici_funcof(o2)->f_name;
+        || ici_funcof(o1)->f_autos != ici_funcof(o2)->f_autos
+        || ici_funcof(o1)->f_args != ici_funcof(o2)->f_args
+        || ici_funcof(o1)->f_name != ici_funcof(o2)->f_name;
 }
 
 unsigned long func_type::hash(ici_obj_t *o)

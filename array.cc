@@ -527,15 +527,13 @@ ici_op_mklvalue()
 
 unsigned long array_type::mark(ici_obj_t *o) {
     ici_obj_t           **e;
-    unsigned long       mem;
 
     o->o_flags |= ICI_O_MARK;
     if (ici_arrayof(o)->a_base == NULL)
     {
-        return sizeof(ici_array_t);
+        return size;
     }
-    mem = sizeof(ici_array_t)
-    + (ici_arrayof(o)->a_limit - ici_arrayof(o)->a_base) * sizeof(ici_obj_t *);
+    auto mem = size + (ici_arrayof(o)->a_limit - ici_arrayof(o)->a_base) * sizeof(ici_obj_t *);
     if (ici_arrayof(o)->a_bot <= ici_arrayof(o)->a_top)
     {
         for (e = ici_arrayof(o)->a_bot; e < ici_arrayof(o)->a_top; ++e)

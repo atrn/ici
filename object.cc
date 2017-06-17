@@ -34,68 +34,6 @@ int             ici_natoms;     /* Number of atomic objects. */
 int             ici_supress_collect;
 int		ici_ncollects;	/* Number of ici_collect() calls */
 
-//================================================================
-//
-// class type
-
-void type::free(ici_obj_t *o) {
-    ici_nfree(o, _size);
-}
-
-unsigned long type::hash(ici_obj_t *o) {
-    return ICI_PTR_HASH(o);
-}
-
-int type::cmp(ici_obj_t *o1, ici_obj_t *o2) {
-    return o1 != o2;
-}
-
-ici_obj_t *type::copy(ici_obj_t *o) {
-    o->incref();
-    return o;
-}
-
-int type::assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v) {
-    return ici_assign_fail(o, k, v);
-}
-
-ici_obj_t * type::fetch(ici_obj_t *o, ici_obj_t *k) {
-    return ici_fetch_fail(o, k);
-}
-
-int type::assign_super(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v, ici_struct_t *) {
-    return ici_assign_fail(o, k, v);
-}
-
-int type::fetch_super(ici_obj_t *o, ici_obj_t *k, ici_obj_t **pv, ici_struct_t *) {
-    *pv = ici_fetch_fail(o, k);
-    return 1;
-}
-
-int type::assign_base(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v) {
-    return assign(o, k, v);
-}
-
-ici_obj_t *
-type::fetch_base(ici_obj_t *o, ici_obj_t *k) {
-    return fetch(o, k);
-}
-
-ici_obj_t *type::fetch_method(ici_obj_t *o, ici_obj_t *n) {
-    return nullptr;
-}
-
-int type::forall(ici_obj_t *o) {
-    return 1;
-}
-
-void type::objname(ici_obj_t *, char n[ICI_OBJNAMEZ]) {
-}
-
-int type::call(ici_obj_t *, ici_obj_t *) {
-    return 1;
-}
-
 /*
  * Format a human readable version of the object 'o' into the buffer
  * 'p' in less than 30 chars. Returns 'p'. See 'The error return

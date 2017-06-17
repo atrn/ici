@@ -53,10 +53,8 @@ class float_type : public type
 {
 public:
     float_type() : type("float", sizeof (struct ici_float)) {}
-
-    unsigned long       mark(ici_obj_t *o) override;
-    int                 cmp(ici_obj_t *o1, ici_obj_t *o2) override;
-    unsigned long       hash(ici_obj_t *o) override;
+    int cmp(ici_obj_t *o1, ici_obj_t *o2) override;
+    unsigned long hash(ici_obj_t *o) override;
 };
 
 } // namespace ici

@@ -1,4 +1,5 @@
 #define ICI_CORE
+#include "forall.h"
 #include "exec.h"
 #include "pc.h"
 #include "struct.h"
@@ -81,20 +82,21 @@ ici_exec_forall()
     }
 }
 
+inline unsigned long maybe_mark(ici_obj_t *o) {
+    return o == nullptr ? 0 : o->mark();
+}
+
 unsigned long forall_type::mark(ici_obj_t *o)
 {
-    int        i;
-    unsigned long       mem;
-
     o->o_flags |= ICI_O_MARK;
-    mem = sizeof(ici_forall_t);
-    for (i = 0; i < (int)nels(forallof(o)->fa_objs); ++i)
-    {
-        if (forallof(o)->fa_objs[i] != NULL)
-        {
-            mem += ici_mark(forallof(o)->fa_objs[i]);
-        }
-    }
+    auto fa = forallof(o);
+    auto mem = size;
+    mem += maybe_mark(fa->fa_aggr);
+    mem += maybe_mark(fa->fa_code);
+    mem += maybe_mark(fa->fa_vaggr);
+    mem += maybe_mark(fa->fa_vkey);
+    mem += maybe_mark(fa->fa_kaggr);
+    mem += maybe_mark(fa->fa_kkey);
     return mem;
 }
 

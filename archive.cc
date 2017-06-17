@@ -72,9 +72,9 @@ static int_func *op_funcs[7];
 #define num_op_funcs ((int)(sizeof op_funcs / sizeof op_funcs[0]))
 
 unsigned long archive_type::mark(ici_obj_t *o) {
-    ici_archive_t *ar = archive_of(o);
     o->o_flags |= ICI_O_MARK;
-    return sizeof *ar + ici_mark(ar->a_file) + ici_mark(ar->a_sent) + ici_mark(ar->a_scope);
+    auto ar = archive_of(o);
+    return size + ici_mark(ar->a_file) + ici_mark(ar->a_sent) + ici_mark(ar->a_scope);
 }
 
 int ici_archive_init()

@@ -79,11 +79,7 @@ struct object
         return o_tcode == tcode;
     }
 
-    inline bool isa(type_t *type) const noexcept {
-        return this->type() == type;
-    }
-
-    inline size_t mark() {
+    inline size_t mark() noexcept {
         if (o_flags & ICI_O_MARK) {
             return 0;
         }
@@ -109,13 +105,15 @@ struct object
      *
      * This --func-- forms part of the --ici-api--.
      */
-    inline void incref() {
 #ifdef BUGHUNT
+    inline void incref() {
         bughunt_incref(this);
-#else
-        ++o_nrefs;
-#endif
     }
+#else
+    inline void incref() noexcept {
+        ++o_nrefs;
+    }
+#endif
 
     /*
      * Decrement the object 'o's reference count.  References from ordinary
@@ -128,19 +126,21 @@ struct object
      *
      * This --func-- forms part of the --ici-api--.
      */
-    inline void decref() {
 #ifdef BUGHUNT
+    inline void decref() {
         bughunt_decref(this);
-#else
-        --o_nrefs;
-#endif
     }
+#else
+    inline void decref() noexcept {
+        --o_nrefs;
+    }
+#endif
 
-    inline unsigned long hash() {
+    inline unsigned long hash() noexcept {
         return type()->hash(this);
     }
 
-    inline int cmp(ici_obj_t *that) {
+    inline int cmp(ici_obj_t *that) noexcept {
         return type()->cmp(this, that);
     }
 

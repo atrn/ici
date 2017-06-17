@@ -1299,20 +1299,18 @@ ici_eval(ici_str_t *name)
 
 unsigned long exec_type::mark(ici_obj_t *o)
 {
-    ici_exec_t          *x;
-
     o->o_flags |= ICI_O_MARK;
-    x = ici_execof(o);
-    return sizeof(ici_exec_t)
-    + (x->x_xs != NULL ? ici_mark(x->x_xs) : 0)
-    + (x->x_os != NULL ? ici_mark(x->x_os) : 0)
-    + (x->x_vs != NULL ? ici_mark(x->x_vs) : 0)
-    + ici_mark(x->x_src)
-    + (x->x_pc_closet != NULL ? ici_mark(x->x_pc_closet) : 0)
-    + (x->x_os_temp_cache != NULL ? ici_mark(x->x_os_temp_cache) : 0)
-    + (x->x_waitfor != NULL ? ici_mark(x->x_waitfor) : 0)
-    + (x->x_result != NULL ? ici_mark(x->x_result) : 0)
-    + (x->x_error != NULL ? strlen(x->x_error) + 1: 0);
+    auto x = ici_execof(o);
+    return size
+        + (x->x_xs != NULL ? ici_mark(x->x_xs) : 0)
+        + (x->x_os != NULL ? ici_mark(x->x_os) : 0)
+        + (x->x_vs != NULL ? ici_mark(x->x_vs) : 0)
+        + ici_mark(x->x_src)
+        + (x->x_pc_closet != NULL ? ici_mark(x->x_pc_closet) : 0)
+        + (x->x_os_temp_cache != NULL ? ici_mark(x->x_os_temp_cache) : 0)
+        + (x->x_waitfor != NULL ? ici_mark(x->x_waitfor) : 0)
+        + (x->x_result != NULL ? ici_mark(x->x_result) : 0)
+        + (x->x_error != NULL ? strlen(x->x_error) + 1: 0);
 }
 
 void exec_type::free(ici_obj_t *o)

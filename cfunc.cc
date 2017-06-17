@@ -581,7 +581,7 @@ ici_ret_no_decref(ici_obj_t *o)
  * This function forms part of ICI's exernal API --ici-api-- --func--
  */
 int
-ici_int_ret(long ret)
+ici_int_ret(int64_t ret)
 {
     return ici_ret_with_decref(ici_int_new(ret));
 }

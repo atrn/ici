@@ -2653,10 +2653,8 @@ ici_new_parse(ici_file_t *f)
      */
 unsigned long parse_type::mark(ici_obj_t *o)
 {
-    long        mem;
-
     o->o_flags |= ICI_O_MARK;
-    mem = sizeof(ici_parse_t);
+    auto mem = size;
     if (ici_parseof(o)->p_func != NULL)
     {
         mem += ici_mark(ici_parseof(o)->p_func);

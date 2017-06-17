@@ -30,11 +30,10 @@ class method_type : public type
 {
 public:
     method_type() : type("method", sizeof (struct method), type::has_objname|type::has_call) {}
-
-    unsigned long       mark(ici_obj_t *o) override;
-    ici_obj_t *         fetch(ici_obj_t *o, ici_obj_t *k) override;
-    int                 call(ici_obj_t *o, ici_obj_t *subject) override;
-    void                objname(ici_obj_t *o, char p[ICI_OBJNAMEZ]) override;
+    unsigned long mark(ici_obj_t *o) override;
+    ici_obj_t *fetch(ici_obj_t *o, ici_obj_t *k) override;
+    int call(ici_obj_t *o, ici_obj_t *subject) override;
+    void objname(ici_obj_t *o, char p[ICI_OBJNAMEZ]) override;
 };
 
 } // namespace ici

@@ -38,12 +38,6 @@ ici_float_new(double v)
     return f;
 }
 
-unsigned long float_type::mark(ici_obj_t *o)
-{
-    o->o_flags |= ICI_O_MARK;
-    return sizeof (ici_float_t);
-}
-
 int float_type::cmp(ici_obj_t *o1, ici_obj_t *o2)
 {
     assert(sizeof(double) == 2 * sizeof(int32_t));

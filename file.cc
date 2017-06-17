@@ -105,10 +105,8 @@ ici_file_close(ici_file_t *f)
 
 unsigned long file_type::mark(ici_obj_t *o)
 {
-    long        mem;
-
     o->o_flags |= ICI_O_MARK;
-    mem = sizeof(ici_file_t);
+    auto mem = size;
     if (ici_fileof(o)->f_name != NULL)
         mem += ici_mark(ici_fileof(o)->f_name);
     if (ici_fileof(o)->f_ref != NULL)

@@ -36,9 +36,7 @@ class mark_type : public type
 {
 public:
     mark_type() : type("mark", sizeof (struct mark)) {}
-
-    unsigned long       mark(ici_obj_t *o) override;
-    void                free(ici_obj_t *) override;
+    void free(ici_obj_t *) override;
 };
 
 } // namespace ici

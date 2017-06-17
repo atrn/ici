@@ -143,10 +143,9 @@ ici_set_unassign(ici_set_t *s, ici_obj_t *k)
 unsigned long set_type::mark(ici_obj_t *o)
 {
     ici_obj_t  **e;
-    long                mem;
 
     o->o_flags |= ICI_O_MARK;
-    mem = sizeof(ici_set_t) + ici_setof(o)->s_nslots * sizeof(ici_obj_t *);
+    auto mem = size + ici_setof(o)->s_nslots * sizeof(ici_obj_t *);
     if (ici_setof(o)->s_nels == 0)
         return mem;
     for

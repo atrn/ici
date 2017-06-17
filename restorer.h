@@ -21,7 +21,6 @@ class restorer_type : public type
 {
 public:
     restorer_type() : type("restorer", sizeof (struct restorer)) {}
-    unsigned long       mark(ici_obj_t *o) override;
 };
 
 } // namespace ici

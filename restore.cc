@@ -688,12 +688,6 @@ restore_ref(ici_archive_t *ar)
 
 // restorer
 
-unsigned long restorer_type::mark(ici_obj_t *o)
-{
-    o->o_flags |= ICI_O_MARK;
-    return sizeof (restorer_t);
-}
-
 static restorer_t *
 restorer_new(ici_obj_t *(*fn)(ici_archive_t *))
 {

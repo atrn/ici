@@ -305,12 +305,6 @@ save_op(ici_archive_t *ar, ici_obj_t *obj)
 // saver
 //
 
-unsigned long saver_type::mark(ici_obj_t *o)
-{
-    o->o_flags |= ICI_O_MARK;
-    return sizeof (saver_t);
-}
-
 static ici_obj_t *
 new_saver(int (*fn)(ici_archive_t *, ici_obj_t *))
 {

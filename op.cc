@@ -8,7 +8,7 @@ namespace ici
 {
 
 ici_op_t *
-ici_new_op(int (*func)(), int ecode, int code)
+ici_new_op(int (*func)(), int16_t ecode, int16_t code)
 {
     ici_op_t            *o;
     ici_obj_t           **po;
@@ -36,24 +36,14 @@ ici_new_op(int (*func)(), int ecode, int code)
 }
 
 /*
- * Mark this and referenced unmarked objects, return memory costs.
- * See comments on t_mark() in object.h.
- */
-unsigned long op_type::mark(ici_obj_t *o)
-{
-    o->o_flags |= ICI_O_MARK;
-    return sizeof(ici_op_t);
-}
-
-/*
  * Returns 0 if these objects are equal, else non-zero.
  * See the comments on t_cmp() in object.h.
  */
 int op_type::cmp(ici_obj_t *o1, ici_obj_t *o2)
 {
     return ici_opof(o1)->op_func != ici_opof(o2)->op_func
-    || ici_opof(o1)->op_code != ici_opof(o2)->op_code
-    || ici_opof(o1)->op_ecode != ici_opof(o2)->op_ecode;
+        || ici_opof(o1)->op_code != ici_opof(o2)->op_code
+        || ici_opof(o1)->op_ecode != ici_opof(o2)->op_ecode;
 }
 
 /*

@@ -29,8 +29,8 @@ namespace ici
 int
 ici_funcv(ici_obj_t *subject, ici_obj_t *callable, const char *types, va_list va)
 {
-    int                 nargs;
-    int                 arg;
+    size_t              nargs;
+    size_t              arg;
     ici_obj_t           *member_obj;
     ici_obj_t           *ret_obj;
     char                ret_type;

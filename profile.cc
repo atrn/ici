@@ -99,15 +99,9 @@ char ici_prof_outfile[512] = "";
  */
 unsigned long profilecall_type::mark(ici_obj_t *o)
 {
-    ici_profilecall_t *pf;
-
     o->o_flags |= ICI_O_MARK;
-    pf = ici_profilecallof(o);
-    return sizeof(ici_profilecall_t)
-    +
-    ici_mark(pf->pc_calls)
-    +
-    (pf->pc_calledby == NULL ? 0 : ici_mark(pf->pc_calledby));
+    auto pf = ici_profilecallof(o);
+    return size + ici_mark(pf->pc_calls) + (pf->pc_calledby == NULL ? 0 : ici_mark(pf->pc_calledby));
 }
 
 /*

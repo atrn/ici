@@ -19,7 +19,7 @@ ici_int_t                   *ici_small_ints[ICI_SMALL_INT_COUNT];
  * This --func-- forms part of the --ici-api--.
  */
 ici_int_t *
-ici_int_new(long i)
+ici_int_new(int64_t i)
 {
     ici_obj_t           *o;
     ici_obj_t           **po;
@@ -54,16 +54,6 @@ ici_int_new(long i)
     --ici_supress_collect;
     ICI_STORE_ATOM_AND_COUNT(po, o);
     return ici_intof(o);
-}
-
-/*
- * Mark this and referenced unmarked objects, return memory costs.
- * See comments on t_mark() in object.h.
- */
-unsigned long  int_type::mark(ici_obj_t *o)
-{
-    o->o_flags |= ICI_O_MARK;
-    return sizeof(ici_int_t);
 }
 
 /*

@@ -276,12 +276,12 @@ int struct_type::fetch_super(ici_obj_t *o, ici_obj_t *k, ici_obj_t **v, ici_stru
 unsigned long struct_type::mark(ici_obj_t *o)
 {
     ici_sslot_t *sl;
-    long                mem;
+    unsigned long mem;
 
     do /* Merge tail recursion on o_super. */
     {
         o->o_flags |= ICI_O_MARK;
-        mem = sizeof(ici_struct_t) + ici_structof(o)->s_nslots * sizeof(ici_sslot_t);
+        mem = size + ici_structof(o)->s_nslots * sizeof(ici_sslot_t);
         if (ici_structof(o)->s_nels != 0)
         {
             for

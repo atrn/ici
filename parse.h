@@ -15,7 +15,7 @@ typedef struct
     int         t_what;         /* See TM_* and T_* below. */
     union
     {
-        long    tu_int;
+        int64_t tu_int;
         double  tu_float;
         ici_obj_t *tu_obj;
     }

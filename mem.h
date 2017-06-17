@@ -32,14 +32,11 @@ class mem_type : public type
 {
 public:
     mem_type() : type("mem", sizeof (struct mem)) {}
-
-    unsigned long       mark(ici_obj_t *o) override;
-    void                free(ici_obj_t *o) override;
-
-    int                 cmp(ici_obj_t *o1, ici_obj_t *o2) override;
-    unsigned long       hash(ici_obj_t *o) override;
-    int                 assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v) override;
-    ici_obj_t *         fetch(ici_obj_t *o, ici_obj_t *k) override;
+    void free(ici_obj_t *o) override;
+    int cmp(ici_obj_t *o1, ici_obj_t *o2) override;
+    unsigned long hash(ici_obj_t *o) override;
+    int assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v) override;
+    ici_obj_t *fetch(ici_obj_t *o, ici_obj_t *k) override;
 };
 
 } // namespace ici

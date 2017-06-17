@@ -22,7 +22,6 @@ class saver_type : public type
 {
 public:
     saver_type() : type("saver", sizeof (struct saver)) {}
-    unsigned long       mark(ici_obj_t *o) override;
 };
 
 } // namespace ici

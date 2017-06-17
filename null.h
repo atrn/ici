@@ -28,9 +28,7 @@ class null_type : public type
 {
 public:
     null_type() : type("NULL", sizeof (struct null)) {}
-
-    unsigned long       mark(ici_obj_t *o) override;
-    void                free(ici_obj_t *o) override;
+    void free(ici_obj_t *) override;
 };
 
 

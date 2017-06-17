@@ -40,10 +40,8 @@ class int_type : public type
 {
 public:
     int_type() : type("int", sizeof (struct ici_int)) {}
-
-    unsigned long       mark(ici_obj_t *o) override;
-    int                 cmp(ici_obj_t *o1, ici_obj_t *o2) override;
-    unsigned long       hash(ici_obj_t *o) override;
+    int cmp(ici_obj_t *, ici_obj_t *) override;
+    unsigned long hash(ici_obj_t *) override;
 };
 
 /*
