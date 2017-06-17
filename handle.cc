@@ -10,7 +10,6 @@
 #include "cfunc.h"
 #include "int.h"
 #include "struct.h"
-#include "types.h"
 
 namespace ici
 {

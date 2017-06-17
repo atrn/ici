@@ -5,7 +5,6 @@
 #include "buf.h"
 #include "null.h"
 #include "primes.h"
-#include "types.h"
 
 namespace ici
 {

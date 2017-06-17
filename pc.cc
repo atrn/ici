@@ -1,7 +1,6 @@
 #define ICI_CORE
 #include "exec.h"
 #include "pc.h"
-#include "types.h"
 
 namespace ici
 {

@@ -42,6 +42,13 @@ inline bool ici_issrc(ici_obj_t *o) { return o->isa(ICI_TC_SRC); }
  * End of ici.h export. --ici.h-end--
  */
 
+class src_type : public type
+{
+public:
+    src_type() : type("src", sizeof (struct src)) {}
+    unsigned long       mark(ici_obj_t *o) override;
+};
+
 } // namespace ici
 
 #endif /* ICI_SRC_H */

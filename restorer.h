@@ -17,6 +17,13 @@ struct restorer : object
 
 inline restorer_t *restorerof(ici_obj_t *obj) { return (restorer_t *)obj; }
 
+class restorer_type : public type
+{
+public:
+    restorer_type() : type("restorer", sizeof (struct restorer)) {}
+    unsigned long       mark(ici_obj_t *o) override;
+};
+
 } // namespace ici
 
 #endif /* ICI_RESTORER_H */

@@ -26,6 +26,14 @@ inline bool ici_ispc(ici_obj_t *o) { return o->isa(ICI_TC_PC); }
  * End of ici.h export. --ici.h-end--
  */
 
+class pc_type : public type
+{
+public:
+    pc_type() : type("pc", sizeof (struct pc)) {}
+    unsigned long       mark(ici_obj_t *o) override;
+};
+
+
 } // namespace ici
 
 #endif  /* ICI_PC_H */

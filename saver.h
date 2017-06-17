@@ -18,6 +18,13 @@ struct saver : object
 
 inline saver_t *saverof(ici_obj_t *obj) { return (saver_t *)obj; }
 
+class saver_type : public type
+{
+public:
+    saver_type() : type("saver", sizeof (struct saver)) {}
+    unsigned long       mark(ici_obj_t *o) override;
+};
+
 } // namespace ici
 
 #endif /* ICI_SAVER_H */

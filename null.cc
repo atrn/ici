@@ -1,7 +1,6 @@
 #define ICI_CORE
 #include "fwd.h"
 #include "null.h"
-#include "types.h"
 
 namespace ici
 {

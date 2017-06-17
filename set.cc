@@ -8,7 +8,6 @@
 #include "null.h"
 #include "primes.h"
 #include "forall.h"
-#include "types.h"
 
 #define SET_HASHINDEX(k, s) (ICI_PTR_HASH(k) & ((s)->s_nslots - 1))
 

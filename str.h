@@ -119,6 +119,22 @@ constexpr int ICI_S_SEP_ALLOC     = 0x40;
  * End of ici.h export. --ici.h-end--
  */
 
+class string_type : public type
+{
+public:
+    string_type() : type("string", sizeof (struct str), type::has_forall) {}
+
+    unsigned long       mark(ici_obj_t *o) override;
+    void                free(ici_obj_t *o) override;
+
+    int                 cmp(ici_obj_t *o1, ici_obj_t *o2) override;
+    ici_obj_t *         copy(ici_obj_t *o) override;
+    unsigned long       hash(ici_obj_t *o) override;
+    ici_obj_t *         fetch(ici_obj_t *o, ici_obj_t *k) override;
+    int                 assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v) override;
+    int                 forall(ici_obj_t *o) override;
+};
+
 #ifdef  ICI_CORE
 /*
  * A structure to hold static (ie, not allocated) strings. These can

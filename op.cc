@@ -3,7 +3,6 @@
 #include "op.h"
 #include "exec.h"
 #include "primes.h"
-#include "types.h"
 
 namespace ici
 {

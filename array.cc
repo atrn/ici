@@ -11,7 +11,6 @@
 #include "null.h"
 #include "buf.h"
 #include "primes.h"
-#include "types.h"
 
 namespace ici
 {

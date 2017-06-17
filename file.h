@@ -81,6 +81,17 @@ constexpr int ICI_F_NOCLOSE = 0x40;    /* Don't close on object free. */
  * End of ici.h export. --ici.h-end--
  */
 
+class file_type : public type
+{
+public:
+    file_type() : type("file", sizeof (struct file)) {}
+
+    unsigned long       mark(ici_obj_t *o) override;
+    void                free(ici_obj_t *o) override;
+    int                 cmp(ici_obj_t *o1, ici_obj_t *o2) override;
+    ici_obj_t *         fetch(ici_obj_t *o, ici_obj_t *k) override;
+};
+
 } // namespace ici
 
 #endif /* ICI_FILE_H */

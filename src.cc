@@ -2,7 +2,6 @@
 #include "exec.h"
 #include "src.h"
 #include "str.h"
-#include "types.h"
 
 namespace ici
 {

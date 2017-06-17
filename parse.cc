@@ -15,7 +15,6 @@
 #include "mark.h"
 #include "pc.h"
 #include "src.h"
-#include "types.h"
 #include <errno.h>
 
 namespace ici

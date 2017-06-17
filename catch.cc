@@ -9,7 +9,6 @@
 #include "catch.h"
 #include "op.h"
 #include "func.h"
-#include "types.h"
 
 namespace ici
 {

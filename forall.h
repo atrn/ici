@@ -32,6 +32,13 @@ inline bool isforall(ici_obj_t *o) { return o->isa(ICI_TC_FORALL); }
  * End of ici.h export. --ici.h-end--
  */
 
+class forall_type : public type
+{
+public:
+    forall_type() : type("forall", sizeof (struct forall)) {}
+    unsigned long       mark(ici_obj_t *o) override;
+};
+
 } // namespace ici
 
 #endif /* ICI_FORALL_H */

@@ -6,7 +6,6 @@
 #include "int.h"
 #include "null.h"
 #include "str.h"
-#include "types.h"
 
 /*
  * TODO: add close() support

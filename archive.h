@@ -41,7 +41,7 @@ void ici_archive_byteswap(void *ptr, int sz);
 /*
  * An archiving session.
  */
-struct ici_archive : object
+struct archive : object
 {
     /* The file used for saving or restoring */
     ici_file_t *        a_file;
@@ -50,6 +50,8 @@ struct ici_archive : object
     /* The scope at the time of archive creation */
     ici_objwsup_t *     a_scope;
 };
+
+inline static ici_archive_t *archive_of(ici_obj_t *o) { return (ici_archive_t *)(o); }
 
 /*
  * The following portion of this file exports to ici.h. --ici.h-start--
@@ -64,6 +66,13 @@ void            ici_archive_stop(ici_archive_t *ar);
 /*
  * End of ici.h export. --ici.h-end--
  */
+
+class archive_type : public type
+{
+public:
+    archive_type() : type("archive", sizeof (struct archive)) {}
+    unsigned long    mark(ici_obj_t *o) override;
+};
 
 } // namespace ici
 

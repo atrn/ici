@@ -2,7 +2,6 @@
 #include "fwd.h"
 #include "int.h"
 #include "primes.h"
-#include "types.h"
 
 namespace ici
 {

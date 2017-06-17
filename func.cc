@@ -13,7 +13,6 @@
 #include "mark.h"
 #include "null.h"
 #include "primes.h"
-#include "types.h"
 #ifndef NOPROFILE
 #include "profile.h"
 #endif

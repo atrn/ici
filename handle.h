@@ -146,6 +146,25 @@ constexpr int ICI_H_METHOD = 0x8000000;
  * End of ici.h export. --ici.h-end--
  */
 
+class handle_type : public type
+{
+public:
+    handle_type() : type("handle", sizeof (struct handle), type::has_objname) {}
+
+    unsigned long       mark(ici_obj_t *o) override;
+    void                free(ici_obj_t *o) override;
+
+    unsigned long       hash(ici_obj_t *o) override;
+    int                 cmp(ici_obj_t *o1, ici_obj_t *o2) override;
+    ici_obj_t *         fetch(ici_obj_t *o, ici_obj_t *k) override;
+    int                 fetch_super(ici_obj_t *o, ici_obj_t *k, ici_obj_t **v, ici_struct_t *b) override;
+    ici_obj_t *         fetch_base(ici_obj_t *o, ici_obj_t *k) override;
+    int                 assign_base(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v) override;
+    int                 assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v) override;
+    int                 assign_super(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v, ici_struct_t *b) override;
+    void                objname(ici_obj_t *o, char p[ICI_OBJNAMEZ]) override;
+};
+
 } // namespace ici
 
 #endif /* ICI_HANDLE_H */

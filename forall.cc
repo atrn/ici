@@ -7,7 +7,6 @@
 #include "str.h"
 #include "buf.h"
 #include "null.h"
-#include "types.h"
 
 namespace ici
 {

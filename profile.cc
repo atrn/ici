@@ -34,7 +34,6 @@
 #include "exec.h"
 #include "null.h"
 #include "struct.h"
-#include "types.h"
 #include <time.h>
 
 /* This is required for the high resolution timer. */

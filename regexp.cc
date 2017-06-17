@@ -6,7 +6,6 @@
 #include "op.h"
 #include "buf.h"
 #include "primes.h"
-#include "types.h"
 
 #ifndef ICI
 #define ICI /* Cause PCRE's internal.h to add special stuff for ICI */

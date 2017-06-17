@@ -2,7 +2,6 @@
 #include "fwd.h"
 #include "float.h"
 #include "primes.h"
-#include "types.h"
 #include <assert.h>
 
 namespace ici

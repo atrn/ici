@@ -24,6 +24,15 @@ inline bool ici_isnull(ici_obj_t *o) { return o == ici_null; }
 /*
  * End of ici.h export. --ici.h-end--
  */
+class null_type : public type
+{
+public:
+    null_type() : type("NULL", sizeof (struct null)) {}
+
+    unsigned long       mark(ici_obj_t *o) override;
+    void                free(ici_obj_t *o) override;
+};
+
 
 } // namespace ici
 

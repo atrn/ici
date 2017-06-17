@@ -32,7 +32,6 @@
 #include "ptr.h"
 #include "op.h"
 #include "mark.h"
-#include "types.h"
 
 #include <assert.h>
 

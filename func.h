@@ -29,6 +29,19 @@ inline bool ici_isfunc(ici_obj_t *o) {return o->isa(ICI_TC_FUNC); }
  * End of ici.h export. --ici.h-end--
  */
 
+class func_type : public type
+{
+public:
+    func_type() : type("func", sizeof (struct func), type::has_objname | type::has_call) {}
+
+    unsigned long       mark(ici_obj_t *o) override;
+    int                 cmp(ici_obj_t *o1, ici_obj_t *o2) override;
+    unsigned long       hash(ici_obj_t *o) override;
+    ici_obj_t *         fetch(ici_obj_t *o, ici_obj_t *k) override;
+    void                objname(ici_obj_t *o, char p[ICI_OBJNAMEZ]) override;
+    int                 call(ici_obj_t *o, ici_obj_t *subject) override;
+};
+
 } // namespace ici
 
 #ifndef ICI_CFUNC_H

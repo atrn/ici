@@ -50,7 +50,6 @@
 #include "file.h"
 #include "struct.h"
 #include "op.h"
-#include "types.h"
 
 #include <netinet/in.h>
 
@@ -71,14 +70,6 @@ typedef int int_func();
 static int_func *op_funcs[7];
 
 #define num_op_funcs ((int)(sizeof op_funcs / sizeof op_funcs[0]))
-
-// static int ici_archive_tcode = ICI_TC_ARCHIVE;
-
-inline static ici_archive_t *
-archive_of(ici_obj_t *o)
-{
-    return (ici_archive_t *)(o);
-}
 
 unsigned long archive_type::mark(ici_obj_t *o) {
     ici_archive_t *ar = archive_of(o);

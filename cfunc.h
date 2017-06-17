@@ -201,6 +201,18 @@ inline bool ici_iscfunc(ici_obj_t *o) { return o->isa(ICI_TC_CFUNC); }
  */
 #define ICI_DEFINE_METHOD(NAME, FUNC) {SS(NAME), (int (*)(...))(FUNC)}
 
+
+class cfunc_type : public type
+{
+public:
+    cfunc_type() : type("func", sizeof (cfunc), type::has_objname | type::has_call) {}
+
+    unsigned long       mark(ici_obj_t *o) override;
+    ici_obj_t *         fetch(ici_obj_t *o, ici_obj_t *k) override;
+    void                objname(ici_obj_t *o, char p[ICI_OBJNAMEZ]) override;
+    int                 call(ici_obj_t *o, ici_obj_t *subject) override;
+};
+
 } // namespace ici
 
 #endif /* ICI_CFUNC_H */

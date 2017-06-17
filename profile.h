@@ -55,6 +55,13 @@ inline bool ici_isprofilecall(ici_obj_t *o) { return o->isa(ICI_TC_PROFILECALL);
 /*
  * End of ici.h export. --ici.h-end--
  */
+class profilecall_type : public type
+{
+public:
+    profilecall_type() : type("profile call", sizeof (struct ici_profilecall)) {}
+    unsigned long       mark(ici_obj_t *o) override;
+};
+
 
 } // namespace ici
 

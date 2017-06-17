@@ -134,6 +134,16 @@ extern ici_op_t         ici_o_waitfor;
  * End of ici.h export. --ici.h-end--
  */
 
+class op_type : public type
+{
+public:
+    op_type() : type("op", sizeof (struct op)) {}
+
+    unsigned long       mark(ici_obj_t *o) override;
+    int                 cmp(ici_obj_t *o1, ici_obj_t *o2) override;
+    unsigned long       hash(ici_obj_t *o) override;
+};
+
 } // namespace ici
 
 #endif /* ICI_OP_H */

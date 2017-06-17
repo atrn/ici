@@ -7,7 +7,6 @@
 #include "buf.h"
 #include "primes.h"
 #include "cfunc.h"
-#include "types.h"
 
 namespace ici
 {

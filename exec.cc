@@ -18,7 +18,6 @@
 #include "src.h"
 #include "null.h"
 #include "forall.h"
-#include "types.h"
 #include "primes.h"
 #include <signal.h>
 

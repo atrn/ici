@@ -32,6 +32,15 @@ inline bool ici_ismark(ici_obj_t *o) { return o == &ici_o_mark; }
  * End of ici.h export. --ici.h-end--
  */
 
+class mark_type : public type
+{
+public:
+    mark_type() : type("mark", sizeof (struct mark)) {}
+
+    unsigned long       mark(ici_obj_t *o) override;
+    void                free(ici_obj_t *) override;
+};
+
 } // namespace ici
 
 #endif /* ICI_MARK_H */

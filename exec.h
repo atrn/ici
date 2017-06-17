@@ -187,6 +187,16 @@ struct debug
 
 inline bool ici_isfalse(ici_obj_t *o) { return o == static_cast<ici_obj_t *>(ici_zero) || o == static_cast<ici_obj_t *>(ici_null); }
 
+class exec_type : public type
+{
+public:
+    exec_type() : type("exec", sizeof (struct exec)) {}
+
+    unsigned long       mark(ici_obj_t *o) override;
+    void                free(ici_obj_t *o) override;
+    ici_obj_t *         fetch(ici_obj_t *o, ici_obj_t *k) override;
+};
+
 } // namespace ici
 
 #endif /* ICI_EXEC_H */

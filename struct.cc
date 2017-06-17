@@ -12,7 +12,6 @@
 #include "pc.h"
 #include "primes.h"
 #include "forall.h"
-#include "types.h"
 
 namespace ici
 {

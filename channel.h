@@ -29,6 +29,13 @@ inline bool ici_ischannel(ici_obj_t *o) { return o->isa(ICI_TC_CHANNEL); }
  * End of ici.h export. --ici.h-end--
  */
 
+class channel_type : public type
+{
+public:
+    channel_type() : type("channel", sizeof (struct ici_channel)) {}
+    unsigned long mark(ici_obj_t *o) override;
+};
+
 } // namespace ici
 
 #endif

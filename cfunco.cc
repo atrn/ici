@@ -16,7 +16,6 @@
 #ifndef NOPROFILE
 #include "profile.h"
 #endif
-#include "types.h"
 
 namespace ici
 {
