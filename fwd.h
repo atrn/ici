@@ -189,7 +189,7 @@ constexpr int ICI_OBJNAMEZ = 31;
 /*
  * Standard types.
  */
-typedef struct archive          ici_archive_t;
+typedef class archive           ici_archive_t;
 typedef struct array            ici_array_t;
 typedef struct catcher          ici_catch_t;
 typedef struct sslot            ici_sslot_t;

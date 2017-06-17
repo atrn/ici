@@ -56,6 +56,11 @@
 namespace ici
 {
 
+int init_restorer_map();
+void uninit_restorer_map();
+int init_saver_map();
+void uninit_saver_map();
+
 #ifndef htonll
 long long htonll(long long v)
 {
@@ -99,8 +104,8 @@ void archive_uninit()
     uninit_restorer_map();
 }
 
-static archive *
-new_archive(file *f, objwsup *scope)
+archive *
+archive::start(file *f, objwsup *scope)
 {
     archive *ar = ici_talloc(archive);
     if (ar != NULL)
@@ -117,12 +122,6 @@ new_archive(file *f, objwsup *scope)
         ici_rego(ar);
     }
     return ar;
-}
-
-archive *
-archive::start(file *file, objwsup *scope)
-{
-    return new_archive(file, scope);
 }
 
 inline object *make_key(object *obj)

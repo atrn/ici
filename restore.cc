@@ -45,7 +45,7 @@ static object *restore(archive *);
 inline int
 get(archive *ar)
 {
-    return ar->a_file->getch();
+    return ar->get();
 }
 
 static int
@@ -537,7 +537,7 @@ restore_func(archive *ar)
     fn->f_code = ici_arrayof(code);
     fn->f_args = ici_arrayof(args);
     fn->f_autos = ici_structof(autos);
-    fn->f_autos->o_super = ar->a_scope; /* structof(ici_vs.a_top[-1])->o_super; */
+    fn->f_autos->o_super = ar->scope(); /* structof(ici_vs.a_top[-1])->o_super; */
     fn->f_name = ici_stringof(name);
     fn->f_nautos = nautos;
 
@@ -659,7 +659,7 @@ restore_cfunc(archive *ar)
     {
         ici_free(buf);
     }
-    fn = ici_fetch(ar->a_scope, func_name);
+    fn = ici_fetch(ar->scope(), func_name);
     func_name->decref();
     return fn;
 }

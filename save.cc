@@ -35,7 +35,7 @@ static int archive_save(archive *ar, object *obj);
 
 inline int writef(archive *ar, const void *data, int len)
 {
-    return ar->a_file->write(data, len) != len;
+    return ar->write(data, len) != len;
 }
 
 inline int writeb(archive *ar, unsigned char abyte)

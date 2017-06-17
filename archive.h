@@ -10,16 +10,13 @@
 #define ICI_ARCHIVE_H
 
 #include "object.h"
+#include "file.h"
 
 namespace ici
 {
 
 int archive_init();
 void archive_uninit();
-int init_restorer_map();
-void uninit_restorer_map();
-int init_saver_map();
-void uninit_saver_map();
 
 int f_archive_save(...);
 int f_archive_restore(...);
@@ -32,7 +29,7 @@ int (*archive_op_func(int))();
 #endif
 
 /*
- * The bit of the tcode set when the object is atomic.
+ * Bit of the tcode set when the object is atomic.
  */
 constexpr int O_ARCHIVE_ATOMIC = 0x80;
 
@@ -45,18 +42,29 @@ void archive_byteswap(void *ptr, int sz);
 /*
  * An archiving session.
  */
-struct archive : object
+class archive : public object
 {
-    file *      a_file;  // The file used for saving or restoring.
-    ici_struct *a_sent;  // Records archived object identity - int object address -> object
-    objwsup *   a_scope; // The scope at the time of archiving
+    friend class archive_type;
 
+public:
     static archive *start(ici_file_t *file, ici_objwsup_t *scope);
+
+    inline int get() { return a_file->getch(); }
+    inline int write(const void *data, int len) { return a_file->write(data, len); }
+    inline objwsup *scope() { return a_scope; }
 
     int insert(object *key, object *val);
     void uninsert(object *key);
     object *lookup(object *obj);
     void stop();
+
+private:
+    file *      a_file;  // The file used for saving or restoring.
+    ici_struct *a_sent;  // Records archived object identity - int object address -> object
+    objwsup *   a_scope; // The scope at the time of archiving
+
+    archive() {}
+
 };
 
 inline ici_archive_t *archive_of(object *o) { return (ici_archive_t *)(o); }
@@ -68,7 +76,7 @@ inline ici_archive_t *archive_of(object *o) { return (ici_archive_t *)(o); }
 class archive_type : public type
 {
 public:
-    archive_type() : type("archive", sizeof (struct archive)) {}
+    archive_type() : type("archive", sizeof (archive)) {}
     unsigned long mark(object *o) override;
 };
 
