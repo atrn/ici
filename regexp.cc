@@ -114,7 +114,7 @@ int ici_pcre_exec_simple(ici_regexp_t *r, ici_str_t *s)
  * Mark this and referenced unmarked objects, return memory costs.
  * See comments on t_mark() in object.h.
  */
-unsigned long regexp_type::mark(ici_obj_t *o)
+size_t regexp_type::mark(ici_obj_t *o)
 {
     o->setmark();
     return typesize() + ici_mark(ici_regexpof(o)->r_pat) + ((real_pcre *)ici_regexpof(o)->r_re)->size;

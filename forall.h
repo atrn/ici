@@ -32,7 +32,7 @@ class forall_type : public type
 {
 public:
     forall_type() : type("forall", sizeof (struct forall)) {}
-    unsigned long       mark(ici_obj_t *o) override;
+    size_t mark(ici_obj_t *o) override;
 };
 
 } // namespace ici

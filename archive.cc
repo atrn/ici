@@ -77,7 +77,7 @@ static int_func *op_funcs[7];
 constexpr auto num_op_funcs = nels(op_funcs);
 // #define num_op_funcs ((int)(sizeof op_funcs / sizeof op_funcs[0]))
 
-unsigned long archive_type::mark(object *o) {
+size_t archive_type::mark(object *o) {
     auto ar = archive_of(o);
     ar->setmark();
     return typesize() + ar->a_file->mark() + ar->a_sent->mark() + ar->a_scope->mark();

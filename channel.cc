@@ -67,7 +67,7 @@
 namespace ici
 {
 
-unsigned long channel_type::mark(ici_obj_t *o)
+size_t channel_type::mark(ici_obj_t *o)
 {
     o->setmark();
     auto mem = typesize();

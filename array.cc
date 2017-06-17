@@ -523,7 +523,7 @@ ici_op_mklvalue()
 
 // array_type
 
-unsigned long array_type::mark(ici_obj_t *o) {
+size_t array_type::mark(ici_obj_t *o) {
     ici_obj_t           **e;
 
     o->setmark();

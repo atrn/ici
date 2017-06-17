@@ -273,7 +273,7 @@ int struct_type::fetch_super(ici_obj_t *o, ici_obj_t *k, ici_obj_t **v, ici_stru
  * Mark this and referenced unmarked objects, return memory costs.
  * See comments on t_mark() in object.h.
  */
-unsigned long struct_type::mark(ici_obj_t *o)
+size_t struct_type::mark(ici_obj_t *o)
 {
     ici_sslot_t *sl;
     unsigned long mem;

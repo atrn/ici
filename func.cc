@@ -95,7 +95,7 @@ ici_op_return()
     return 0;
 }
 
-unsigned long func_type::mark(ici_obj_t *o)
+size_t func_type::mark(ici_obj_t *o)
 {
     auto fn = ici_funcof(o);
     o->setmark();

@@ -15,7 +15,7 @@ namespace ici
  * Mark this and referenced unmarked objects, return memory costs.
  * See comments on t_mark() in object.h.
  */
-unsigned long ptr_type::mark(ici_obj_t *o)
+size_t ptr_type::mark(ici_obj_t *o)
 {
     o->setmark();
     return typesize() + ici_mark(ici_ptrof(o)->p_aggr) + ici_mark(ici_ptrof(o)->p_key);

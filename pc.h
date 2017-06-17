@@ -28,7 +28,7 @@ class pc_type : public type
 {
 public:
     pc_type() : type("pc", sizeof (struct pc)) {}
-    unsigned long       mark(ici_obj_t *o) override;
+    size_t mark(ici_obj_t *o) override;
 };
 
 

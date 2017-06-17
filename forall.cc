@@ -86,7 +86,7 @@ inline unsigned long maybe_mark(ici_obj_t *o) {
     return o == nullptr ? 0 : o->mark();
 }
 
-unsigned long forall_type::mark(ici_obj_t *o)
+size_t forall_type::mark(ici_obj_t *o)
 {
     o->setmark();
     auto fa = forallof(o);

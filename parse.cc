@@ -2647,11 +2647,7 @@ ici_new_parse(ici_file_t *f)
     return p;
 }
 
-    /*
-     * Mark this and referenced unmarked objects, return memory costs.
-     * See comments on t_mark() in object.h.
-     */
-unsigned long parse_type::mark(ici_obj_t *o)
+size_t parse_type::mark(ici_obj_t *o)
 {
     o->setmark();
     auto mem = typesize();

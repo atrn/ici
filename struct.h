@@ -37,19 +37,18 @@ class struct_type : public type
 public:
     struct_type() : type("struct", sizeof (struct ici_struct), type::has_forall) {}
 
-    unsigned long       mark(ici_obj_t *o) override;
-    void                free(ici_obj_t *o) override;
-
-    unsigned long       hash(ici_obj_t *o) override;
-    int                 cmp(ici_obj_t *o1, ici_obj_t *o2) override;
-    ici_obj_t *         copy(ici_obj_t *o) override;
-    int                 assign_super(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v, ici_struct_t *b) override;
-    int                 assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v) override;
-    int                 assign_base(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v) override;
-    int                 forall(ici_obj_t *o) override;
-    ici_obj_t *         fetch(ici_obj_t *o, ici_obj_t *k) override;
-    ici_obj_t *         fetch_base(ici_obj_t *o, ici_obj_t *k) override;
-    int                 fetch_super(ici_obj_t *o, ici_obj_t *k, ici_obj_t **pv, ici_struct_t *b) override;
+    size_t  mark(ici_obj_t *o) override;
+    void free(ici_obj_t *o) override;
+    unsigned long hash(ici_obj_t *o) override;
+    int cmp(ici_obj_t *o1, ici_obj_t *o2) override;
+    ici_obj_t *copy(ici_obj_t *o) override;
+    int assign_super(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v, ici_struct_t *b) override;
+    int assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v) override;
+    int assign_base(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v) override;
+    int forall(ici_obj_t *o) override;
+    ici_obj_t *fetch(ici_obj_t *o, ici_obj_t *k) override;
+    ici_obj_t *fetch_base(ici_obj_t *o, ici_obj_t *k) override;
+    int fetch_super(ici_obj_t *o, ici_obj_t *k, ici_obj_t **pv, ici_struct_t *b) override;
 };
 
 } // namespace ici

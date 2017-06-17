@@ -173,8 +173,8 @@ class parse_type : public type
 public:
     parse_type() : type("parse", sizeof (struct parse)) {}
 
-    unsigned long       mark(ici_obj_t *o) override;
-    void                free(ici_obj_t *o) override;
+    size_t mark(ici_obj_t *o) override;
+    void free(ici_obj_t *o) override;
 };
 
 } // namespace ici

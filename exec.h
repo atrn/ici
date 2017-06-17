@@ -195,9 +195,9 @@ class exec_type : public type
 public:
     exec_type() : type("exec", sizeof (struct exec)) {}
 
-    unsigned long       mark(ici_obj_t *o) override;
-    void                free(ici_obj_t *o) override;
-    ici_obj_t *         fetch(ici_obj_t *o, ici_obj_t *k) override;
+    size_t mark(ici_obj_t *o) override;
+    void free(ici_obj_t *o) override;
+    ici_obj_t *fetch(ici_obj_t *o, ici_obj_t *k) override;
 };
 
 } // namespace ici

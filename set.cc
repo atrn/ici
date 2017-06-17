@@ -140,7 +140,7 @@ ici_set_unassign(ici_set_t *s, ici_obj_t *k)
  * Mark this and referenced unmarked objects, return memory costs.
  * See comments on t_mark() in object.h.
  */
-unsigned long set_type::mark(ici_obj_t *o)
+size_t set_type::mark(ici_obj_t *o)
 {
     ici_obj_t  **e;
 

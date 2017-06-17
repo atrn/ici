@@ -1297,7 +1297,7 @@ ici_eval(ici_str_t *name)
     return ici_evaluate(name, 0);
 }
 
-unsigned long exec_type::mark(ici_obj_t *o)
+size_t exec_type::mark(ici_obj_t *o)
 {
     o->setmark();
     auto x = ici_execof(o);

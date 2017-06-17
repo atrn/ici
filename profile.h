@@ -57,7 +57,7 @@ class profilecall_type : public type
 {
 public:
     profilecall_type() : type("profile call", sizeof (struct ici_profilecall)) {}
-    unsigned long       mark(ici_obj_t *o) override;
+    size_t mark(ici_obj_t *o) override;
 };
 
 

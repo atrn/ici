@@ -78,7 +78,7 @@ ici_op_onerror()
     return 0;
 }
 
-unsigned long catch_type::mark(ici_obj_t *o)
+size_t catch_type::mark(ici_obj_t *o)
 {
     o->setmark();
     auto mem = typesize();

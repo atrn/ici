@@ -56,11 +56,11 @@ class regexp_type : public type
 public:
     regexp_type() : type("regexp", sizeof (struct regexp)) {}
 
-    unsigned long       mark(ici_obj_t *o) override;
-    void                free(ici_obj_t *o) override;
-    unsigned long       hash(ici_obj_t *o) override;
-    int                 cmp(ici_obj_t *o1, ici_obj_t *o2) override;
-    ici_obj_t *         fetch(ici_obj_t *o, ici_obj_t *k) override;
+    size_t mark(ici_obj_t *o) override;
+    void free(ici_obj_t *o) override;
+    unsigned long hash(ici_obj_t *o) override;
+    int cmp(ici_obj_t *o1, ici_obj_t *o2) override;
+    ici_obj_t *fetch(ici_obj_t *o, ici_obj_t *k) override;
 };
 
 } // namespace ici

@@ -153,14 +153,14 @@ class array_type : public type
  public:
     array_type() : type("array", sizeof (struct array), type::has_forall) {}
 
-    unsigned long   mark(object *o) override;
-    void            free(object *o) override;
-    unsigned long   hash(object *o) override;
-    int             cmp(object *o1, object *o2) override;
-    object *        copy(object *o) override;
-    int             assign(object *o, object *k, object *v) override;
-    object *        fetch(object *o, object *k) override;
-    int             forall(object *o) override;
+    size_t mark(object *o) override;
+    void free(object *o) override;
+    unsigned long hash(object *o) override;
+    int cmp(object *o1, object *o2) override;
+    object *copy(object *o) override;
+    int assign(object *o, object *k, object *v) override;
+    object *fetch(object *o, object *k) override;
+    int forall(object *o) override;
 };
 
 } // namespace ici

@@ -309,8 +309,7 @@ void handle_type::objname(ici_obj_t *o, char p[ICI_OBJNAMEZ])
     }
 }
 
-unsigned long
-handle_type::mark(ici_obj_t *o)
+size_t handle_type::mark(ici_obj_t *o)
 {
     o->setmark();
     auto mem = typesize();

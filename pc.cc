@@ -27,7 +27,7 @@ ici_new_pc()
  * Mark this and referenced unmarked objects, return memory costs.
  * See comments on t_mark() in object.h.
  */
-unsigned long pc_type::mark(ici_obj_t *o)
+size_t pc_type::mark(ici_obj_t *o)
 {
     o->setmark();
     auto mem = typesize();

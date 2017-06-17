@@ -58,7 +58,7 @@ public:
     inline bool can_objname() const      { return _flags & has_objname; }
     inline bool can_call() const         { return _flags & has_call; }
 
-    virtual unsigned long       mark(ici_obj_t *o);
+    virtual size_t              mark(ici_obj_t *o);
     virtual void                free(ici_obj_t *o);
     virtual unsigned long       hash(ici_obj_t *o);
     virtual int                 cmp(ici_obj_t *a, ici_obj_t *b);

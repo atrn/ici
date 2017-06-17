@@ -145,7 +145,7 @@ call_cfunc_nodebug(ici_obj_t *o, ici_obj_t *subject)
 }
 #endif
 
-unsigned long cfunc_type::mark(ici_obj_t *o)
+size_t cfunc_type::mark(ici_obj_t *o)
 {
     o->setmark();
     return typesize() + ici_mark(ici_cfuncof(o)->cf_name);

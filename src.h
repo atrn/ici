@@ -44,7 +44,7 @@ class src_type : public type
 {
 public:
     src_type() : type("src", sizeof (struct src)) {}
-    unsigned long       mark(ici_obj_t *o) override;
+    size_t mark(ici_obj_t *o) override;
 };
 
 } // namespace ici

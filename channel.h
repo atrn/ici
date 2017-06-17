@@ -31,7 +31,7 @@ class channel_type : public type
 {
 public:
     channel_type() : type("channel", sizeof (struct ici_channel)) {}
-    unsigned long mark(ici_obj_t *o) override;
+    size_t mark(ici_obj_t *o) override;
 };
 
 } // namespace ici

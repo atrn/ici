@@ -93,7 +93,7 @@ ici_file_close(ici_file_t *f)
  * See comments on t_mark() in object.h.
  */
 
-unsigned long file_type::mark(ici_obj_t *o)
+size_t file_type::mark(ici_obj_t *o)
 {
     o->setmark();
     auto mem = typesize();

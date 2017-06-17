@@ -24,7 +24,7 @@ ici_src_new(int lineno, ici_str_t *filename)
  * Mark this and referenced unmarked objects, return memory costs.
  * See comments on t_mark() in object.h.
  */
-unsigned long src_type::mark(ici_obj_t *o)
+size_t src_type::mark(ici_obj_t *o)
 {
     o->setmark();
     auto mem = typesize();

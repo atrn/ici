@@ -297,7 +297,7 @@ ici_str_need_size(ici_str_t *s, int n)
  * Mark this and referenced unmarked objects, return memory costs.
  * See comments on t_mark() in object.h.
  */
-unsigned long string_type::mark(ici_obj_t *o)
+size_t string_type::mark(ici_obj_t *o)
 {
     o->setmark();
     if (o->flag(ICI_S_SEP_ALLOC))

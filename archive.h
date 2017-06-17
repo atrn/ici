@@ -77,7 +77,7 @@ class archive_type : public type
 {
 public:
     archive_type() : type("archive", sizeof (archive)) {}
-    unsigned long mark(object *o) override;
+    size_t mark(object *o) override;
 };
 
 } // namespace ici

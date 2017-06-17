@@ -36,7 +36,7 @@ ici_method_new(ici_obj_t *subject, ici_obj_t *callable)
     return m;
 }
 
-unsigned long method_type::mark(ici_obj_t *o)
+size_t method_type::mark(ici_obj_t *o)
 {
     o->setmark();
     return typesize() + ici_mark(ici_methodof(o)->m_subject) + ici_mark(ici_methodof(o)->m_callable);
