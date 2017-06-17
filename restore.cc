@@ -45,7 +45,7 @@ static ici_obj_t *restore(ici_archive_t *);
 inline int
 get(ici_archive_t *ar)
 {
-    return ar->a_file->f_type->ft_getch(ar->a_file->f_file);
+    return ar->a_file->getch();
 }
 
 static int
@@ -129,8 +129,8 @@ restore_obj(ici_archive_t *ar, char *flags)
     {
     	return -1;
     }
-    *flags = tcode & ICI_ARCHIVE_ATOMIC ? ICI_O_ATOM : 0;
-    tcode &= ~ICI_ARCHIVE_ATOMIC;
+    *flags = tcode & O_ARCHIVE_ATOMIC ? ICI_O_ATOM : 0;
+    tcode &= ~O_ARCHIVE_ATOMIC;
     return tcode;
 }
 
@@ -218,7 +218,7 @@ restore_string(ici_archive_t *ar)
     {
         goto fail;
     }
-    if (ici_archive_insert(ar, name, obj))
+    if (ar->insert(name, obj))
     {
         obj->decref();
         goto fail;
@@ -259,7 +259,7 @@ restore_regexp(ici_archive_t *ar)
         return NULL;
     }
     s->decref();
-    if (ici_archive_insert(ar, name, r))
+    if (ar->insert(name, r))
     {
         r->decref();
         return NULL;
@@ -290,7 +290,7 @@ restore_mem(ici_archive_t *ar)
         {
             ici_free(p);
         }
-        else if (readf(ar, p, sz) || ici_archive_insert(ar, name, m))
+        else if (readf(ar, p, sz) || ar->insert(name, m))
         {
             m->decref();
             m = NULL;
@@ -320,7 +320,7 @@ restore_array(ici_archive_t *ar)
     {
         return NULL;
     }
-    if (ici_archive_insert(ar, name, a))
+    if (ar->insert(name, a))
     {
         goto fail;
     }
@@ -342,7 +342,7 @@ restore_array(ici_archive_t *ar)
     return a;
 
 fail1:
-    ici_archive_uninsert(ar, name);
+    ar->uninsert(name);
 
 fail:
     a->decref();
@@ -367,7 +367,7 @@ restore_set(ici_archive_t *ar)
     {
         return NULL;
     }
-    if (ici_archive_insert(ar, name, s))
+    if (ar->insert(name, s))
     {
         goto fail;
     }
@@ -393,7 +393,7 @@ restore_set(ici_archive_t *ar)
     return s;
 
 fail1:
-    ici_archive_uninsert(ar, name);
+    ar->uninsert(name);
 
 fail:
     s->decref();
@@ -419,7 +419,7 @@ restore_struct(ici_archive_t *ar)
     {
         return NULL;
     }
-    if (ici_archive_insert(ar, name, s))
+    if (ar->insert(name, s))
     {
         goto fail;
     }
@@ -463,7 +463,7 @@ restore_struct(ici_archive_t *ar)
     return s;
 
 fail1:
-    ici_archive_uninsert(ar, name);
+    ar->uninsert(name);
 
 fail:
     s->decref();
@@ -548,7 +548,7 @@ restore_func(ici_archive_t *ar)
     autos->decref();
     name->decref();
 
-    if (!ici_archive_insert(ar, oname, fn))
+    if (!ar->insert(oname, fn))
     {
 	return fn;
     }
@@ -591,7 +591,7 @@ restore_op(ici_archive_t *ar)
         return 0;
     }
 
-    return ici_new_op(ici_archive_op_func(op_func_code), op_ecode, op_code);
+    return ici_new_op(archive_op_func(op_func_code), op_ecode, op_code);
 }
 
 static ici_obj_t *
@@ -684,7 +684,7 @@ restore_ref(ici_archive_t *ar)
     {
         return NULL;
     }
-    if ((obj = ici_archive_lookup(ar, name)) == ici_null)
+    if ((obj = ar->lookup(name)) == ici_null)
     {
         obj = NULL;
     }
@@ -752,13 +752,13 @@ fetch_restorer(int key)
 }
 
 void
-ici_uninit_restorer_map()
+uninit_restorer_map()
 {
     restorer_map->decref();
 }
 
 int
-ici_init_restorer_map()
+init_restorer_map()
 {
     size_t i;
 
@@ -882,10 +882,10 @@ archive_f_restore(...)
 	break;
     }
 
-    if ((ar = ici_archive_start(file, scp)) != NULL)
+    if ((ar = archive::start(file, scp)) != NULL)
     {
         obj = restore(ar);
-        ici_archive_stop(ar);
+        ar->stop();
     }
 
     return obj == NULL ? 1 : ici_ret_with_decref(obj);

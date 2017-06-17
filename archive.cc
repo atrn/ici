@@ -86,103 +86,93 @@ int archive_init()
     op_funcs[4] = ici_o_mkptr.op_func;
     op_funcs[5] = ici_o_openptr.op_func;
     op_funcs[6] = ici_o_fetch.op_func;
-    if (ici_init_saver_map())
+    if (init_saver_map())
     {
         return 1;
     }
-    return ici_init_restorer_map();
+    return init_restorer_map();
 }
 
 void archive_uninit()
 {
-    ici_uninit_saver_map();
-    ici_uninit_restorer_map();
+    uninit_saver_map();
+    uninit_restorer_map();
 }
 
-static ici_archive_t *
-new_archive(ici_file_t *file, ici_objwsup_t *scope)
+static archive *
+new_archive(file *f, objwsup *scope)
 {
-    ici_archive_t *ar = ici_talloc(ici_archive_t);
+    archive *ar = ici_talloc(archive);
     if (ar != NULL)
     {
         ICI_OBJ_SET_TFNZ(ar, ICI_TC_ARCHIVE, 0, 1, 0);
         if ((ar->a_sent = ici_struct_new()) == NULL)
         {
-            ici_tfree(ar, ici_archive_t);
+            ici_tfree(ar, archive);
             return NULL;
         }
 	ar->a_sent->decref();
-        ar->a_file = file;
+        ar->a_file = f;
 	ar->a_scope = scope;
         ici_rego(ar);
     }
     return ar;
 }
 
-ici_archive_t *
-ici_archive_start(ici_file_t *file, ici_objwsup_t *scope)
+archive *
+archive::start(file *file, objwsup *scope)
 {
-    ici_archive_t *ar = new_archive(file, scope);
-    return ar;
+    return new_archive(file, scope);
 }
 
-inline static object *
-make_key(object *obj)
+inline object *make_key(object *obj)
 {
-    return ici_int_new((long)obj);
+    return ici_int_new((int64_t)obj);
 }
 
 int
-ici_archive_insert(ici_archive_t *ar, object *key, object *val)
+archive::insert(object *key, object *val)
 {
-    object *k;
     int failed = 1;
-
-    if ((k = make_key(key)) != NULL)
+    if (auto k = make_key(key))
     {
-        failed = ici_assign(ar->a_sent, k, val);
+        failed = a_sent->assign(k, val);
         k->decref();
     }
     return failed;
 }
 
 void
-ici_archive_uninsert(ici_archive_t *ar, object *key)
+archive::uninsert(object *key)
 {
-    object *k;
-
-    if ((k = make_key(key)) != NULL)
+    if (auto k = make_key(key))
     {
-        ici_struct_unassign(ar->a_sent, k);
+        ici_struct_unassign(a_sent, k);
         k->decref();
     }
 }
 
 object *
-ici_archive_lookup(ici_archive_t *ar, object *obj)
+archive::lookup(object *obj)
 {
     object *v = ici_null;
-    object *k;
-
-    if ((k = make_key(obj)) != NULL)
+    if (auto k = make_key(obj))
     {
-        v = ici_fetch(ar->a_sent, k);
+        v = a_sent->fetch(k);
         k->decref();
     }
     return v == ici_null ? NULL : v;
 }
 
 void
-ici_archive_stop(ici_archive_t *ar)
+archive::stop()
 {
-    ar->decref();
+    decref();
 }
 
-int ici_archive_op_func_code(int_func *fn)
+int archive_op_func_code(int_func *fn)
 {
-    int i;
-
-    for (i = 0; i < num_op_funcs; ++i)
+    for (int i = 0; i < num_op_funcs; ++i)
     {
         if (fn == op_funcs[i])
             return i;
@@ -190,7 +180,7 @@ int ici_archive_op_func_code(int_func *fn)
     return -1;
 }
 
-int_func *ici_archive_op_func(int code)
+int_func *archive_op_func(int code)
 {
     if (code < 0 || code >= num_op_funcs)
     {

@@ -16,14 +16,16 @@ namespace ici
 
 int archive_init();
 void archive_uninit();
-int ici_init_restorer_map();
-void ici_uninit_restorer_map();
-int ici_init_saver_map();
-void ici_uninit_saver_map();
+int init_restorer_map();
+void uninit_restorer_map();
+int init_saver_map();
+void uninit_saver_map();
+
 int archive_f_save(...);
 int archive_f_restore(...);
-int ici_archive_op_func_code(int (*fn)());
-int (*ici_archive_op_func(int))();
+
+int archive_op_func_code(int (*fn)());
+int (*archive_op_func(int))();
 
 #if defined(__i386__) || defined(__x86_64__)
 #define ICI_ARCHIVE_LITTLE_ENDIAN_HOST 1
@@ -32,34 +34,32 @@ int (*ici_archive_op_func(int))();
 /*
  * The bit of the tcode set when the object is atomic.
  */
-constexpr int ICI_ARCHIVE_ATOMIC = 0x80;
+constexpr int O_ARCHIVE_ATOMIC = 0x80;
 
 void archive_byteswap(void *ptr, int sz);
+
+/*
+ * The following portion of this file exports to ici.h. --ici.h-start--
+ */
 
 /*
  * An archiving session.
  */
 struct archive : object
 {
-    /* The file used for saving or restoring */
-    ici_file_t *        a_file;
-    /* Remembers which objects have been sent - maps object address as ints to object */
-    ici_struct_t *      a_sent;
-    /* The scope at the time of archive creation */
-    ici_objwsup_t *     a_scope;
+    file *      a_file;  // The file used for saving or restoring.
+    ici_struct *a_sent;  // Records archived object identity - int object address -> object
+    objwsup *   a_scope; // The scope at the time of archiving
+
+    static archive *start(ici_file_t *file, ici_objwsup_t *scope);
+
+    int insert(object *key, object *val);
+    void uninsert(object *key);
+    object *lookup(object *obj);
+    void stop();
 };
 
-inline static ici_archive_t *archive_of(object *o) { return (ici_archive_t *)(o); }
-
-/*
- * The following portion of this file exports to ici.h. --ici.h-start--
- */
-
-ici_archive_t   *ici_archive_start(ici_file_t *file, ici_objwsup_t *scope);
-int             ici_archive_insert(ici_archive_t *ar, object *key, object *val);
-void            ici_archive_uninsert(ici_archive_t *ar, object *key);
-object       *ici_archive_lookup(ici_archive_t *ar, object *obj);
-void            ici_archive_stop(ici_archive_t *ar);
+inline ici_archive_t *archive_of(object *o) { return (ici_archive_t *)(o); }
 
 /*
  * End of ici.h export. --ici.h-end--

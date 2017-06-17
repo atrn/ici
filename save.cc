@@ -106,7 +106,7 @@ save_object_ref(ici_archive_t *ar, ici_obj_t *o)
 static int
 save_object_name(ici_archive_t *ar, ici_obj_t *obj)
 {
-    return ici_archive_insert(ar, obj, obj) || writef(ar, &obj, sizeof obj);
+    return ar->insert(obj, obj) || writef(ar, &obj, sizeof obj);
 }
 
 /*
@@ -118,7 +118,7 @@ save_obj(ici_archive_t *ar, ici_obj_t *obj)
 {
     unsigned char code = obj->o_tcode & 0x1F;
     if (obj->isatom())
-        code |= ICI_ARCHIVE_ATOMIC;
+        code |= O_ARCHIVE_ATOMIC;
     return writeb(ar, code);
 }
 
@@ -294,7 +294,7 @@ static int
 save_op(ici_archive_t *ar, ici_obj_t *obj)
 {
     return
-        write16(ar, ici_archive_op_func_code(ici_opof(obj)->op_func))
+        write16(ar, archive_op_func_code(ici_opof(obj)->op_func))
         ||
         write16(ar, ici_opof(obj)->op_ecode)
         ||
@@ -323,13 +323,13 @@ new_saver(int (*fn)(ici_archive_t *, ici_obj_t *))
 static ici_struct_t *saver_map = NULL;
 
 void
-ici_uninit_saver_map()
+uninit_saver_map()
 {
     saver_map->decref();
 }
 
 int
-ici_init_saver_map()
+init_saver_map()
 {
     size_t i;
     struct
@@ -399,7 +399,7 @@ ici_archive_save(ici_archive_t *ar, ici_obj_t *obj)
     ici_obj_t *saver;
     int (*fn)(ici_archive_t *, ici_obj_t *);
 
-    if (ici_archive_lookup(ar, obj) != NULL)
+    if (ar->lookup(obj) != NULL)
     {
         return save_object_ref(ar, obj);
     }
@@ -450,10 +450,10 @@ archive_f_save(...)
         return ici_argerror(2);
     }
 
-    if ((ar = ici_archive_start(file, scp)) != NULL)
+    if ((ar = archive::start(file, scp)) != NULL)
     {
         failed = ici_archive_save(ar, obj);
-        ici_archive_stop(ar);
+        ar->stop();
     }
 
     return failed ? failed : ici_null_ret();
