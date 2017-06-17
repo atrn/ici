@@ -116,7 +116,7 @@ int ici_pcre_exec_simple(ici_regexp_t *r, ici_str_t *s)
  */
 unsigned long regexp_type::mark(ici_obj_t *o)
 {
-    o->o_flags |= ICI_O_MARK;
+    o->setmark();
     return typesize() + ici_mark(ici_regexpof(o)->r_pat) + ((real_pcre *)ici_regexpof(o)->r_re)->size;
 }
 

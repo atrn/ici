@@ -490,7 +490,7 @@ ici_evaluate(ici_obj_t *code, int n_operands)
              * The caller knows if there is really a value to return.
              */
             *ici_xs.a_top++ = o; /* Restore formal state. */
-            if (o->o_flags & CF_EVAL_BASE)
+            if (o->flag(CF_EVAL_BASE))
             {
                 /*
                  * This is the base of a call to ici_evaluate().  It is now
@@ -509,7 +509,7 @@ ici_evaluate(ici_obj_t *code, int n_operands)
                 --ici_exec->x_n_engine_recurse;
                 return o;
             }
-            if (o->o_flags & CF_CRIT_SECT)
+            if (o->flag(CF_CRIT_SECT))
             {
                 // --ici_exec->x_critsect;
 		__sync_fetch_and_sub(&ici_exec->x_critsect, 1);
@@ -799,7 +799,7 @@ ici_evaluate(ici_obj_t *code, int n_operands)
                     &&
                     ici_isstring(ici_os.a_top[-2])
                     &&
-                    (ici_os.a_top[-2]->o_flags & ICI_S_LOOKASIDE_IS_ATOM) == 0
+                    !ici_os.a_top[-2]->flag(ICI_S_LOOKASIDE_IS_ATOM)
                 )
                 {
                     ici_stringof(ici_os.a_top[-2])->s_slot->sl_value = ici_os.a_top[-1];
@@ -978,13 +978,13 @@ ici_evaluate(ici_obj_t *code, int n_operands)
                     {
                         if (ici_iscatch(s[-1]))
                         {
-                            if (s[-1]->o_flags & CF_CRIT_SECT)
+                            if (s[-1]->flag(CF_CRIT_SECT))
                             {
                                 // --ici_exec->x_critsect;
 				__sync_fetch_and_sub(&ici_exec->x_critsect, 1);
                                 ici_exec_count = 1;
                             }
-                            else if (s[-1]->o_flags & CF_EVAL_BASE)
+                            else if (s[-1]->flag(CF_EVAL_BASE))
                             {
                                 break;
                             }
@@ -1047,11 +1047,11 @@ ici_evaluate(ici_obj_t *code, int n_operands)
                     {
                         if (ici_iscatch(s[-1]))
                         {
-                            if (s[-1]->o_flags & CF_EVAL_BASE)
+                            if (s[-1]->flag(CF_EVAL_BASE))
                             {
                                 break;
                             }
-                            if (s[-1]->o_flags & CF_CRIT_SECT)
+                            if (s[-1]->flag(CF_CRIT_SECT))
                             {
                                 // --ici_exec->x_critsect;
 				__sync_fetch_and_sub(&ici_exec->x_critsect, 1);
@@ -1224,11 +1224,11 @@ ici_evaluate(ici_obj_t *code, int n_operands)
             }
             for (;;)
             {
-                if ((c = ici_unwind()) == NULL || c->o_flags & CF_EVAL_BASE)
+                if ((c = ici_unwind()) == NULL || c->flag(CF_EVAL_BASE))
                 {
                     goto badfail;
                 }
-                if (c->o_flags & CF_CRIT_SECT)
+                if (c->flag(CF_CRIT_SECT))
                 {
                     // --ici_exec->x_critsect;
 		    __sync_fetch_and_sub(&ici_exec->x_critsect, 1);
@@ -1299,7 +1299,7 @@ ici_eval(ici_str_t *name)
 
 unsigned long exec_type::mark(ici_obj_t *o)
 {
-    o->o_flags |= ICI_O_MARK;
+    o->setmark();
     auto x = ici_execof(o);
     return typesize()
         + (x->x_xs != NULL ? ici_mark(x->x_xs) : 0)

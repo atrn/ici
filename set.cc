@@ -144,7 +144,7 @@ unsigned long set_type::mark(ici_obj_t *o)
 {
     ici_obj_t  **e;
 
-    o->o_flags |= ICI_O_MARK;
+    o->setmark();
     auto mem = typesize() + ici_setof(o)->s_nslots * sizeof(ici_obj_t *);
     if (ici_setof(o)->s_nels == 0)
         return mem;

@@ -99,7 +99,7 @@ char ici_prof_outfile[512] = "";
  */
 unsigned long profilecall_type::mark(ici_obj_t *o)
 {
-    o->o_flags |= ICI_O_MARK;
+    o->setmark();
     auto pf = ici_profilecallof(o);
     return typesize() + ici_mark(pf->pc_calls) + (pf->pc_calledby == NULL ? 0 : ici_mark(pf->pc_calledby));
 }

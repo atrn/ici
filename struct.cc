@@ -244,11 +244,11 @@ int struct_type::fetch_super(ici_obj_t *o, ici_obj_t *k, ici_obj_t **v, ici_stru
                     ici_stringof(k)->s_slot = sl;
                     if (o->isatom())
                     {
-                        k->o_flags |= ICI_S_LOOKASIDE_IS_ATOM;
+                        k->setflag(ICI_S_LOOKASIDE_IS_ATOM);
                     }
                     else
                     {
-                        k->o_flags &= ~ICI_S_LOOKASIDE_IS_ATOM;
+                        k->clrflag(ICI_S_LOOKASIDE_IS_ATOM);
                     }
                 }
                 *v = sl->sl_value;
@@ -280,7 +280,7 @@ unsigned long struct_type::mark(ici_obj_t *o)
 
     do /* Merge tail recursion on o_super. */
     {
-        o->o_flags |= ICI_O_MARK;
+        o->setmark();
         mem = typesize() + ici_structof(o)->s_nslots * sizeof(ici_sslot_t);
         if (ici_structof(o)->s_nels != 0)
         {
@@ -302,7 +302,7 @@ unsigned long struct_type::mark(ici_obj_t *o)
         (
             (o = ici_structof(o)->o_super) != NULL
             &&
-            (o->o_flags & ICI_O_MARK) == 0
+            !o->marked()
         );
 
     return mem;
@@ -459,7 +459,7 @@ int struct_type::assign_super(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v, ici_stru
                         ici_stringof(k)->s_vsver = ici_vsver;
                         ici_stringof(k)->s_struct = b;
                         ici_stringof(k)->s_slot = sl;
-                        k->o_flags &= ~ICI_S_LOOKASIDE_IS_ATOM;
+                        k->clrflag(ICI_S_LOOKASIDE_IS_ATOM);
                     }
                     return 1;
                 }
@@ -497,7 +497,7 @@ int struct_type::assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v)
         &&
         ici_stringof(k)->s_vsver == ici_vsver
         &&
-        (k->o_flags & ICI_S_LOOKASIDE_IS_ATOM) == 0
+        !k->flag(ICI_S_LOOKASIDE_IS_ATOM)
     )
     {
 #ifndef NDEBUG
@@ -566,7 +566,7 @@ int struct_type::assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v)
         ici_stringof(k)->s_vsver = ici_vsver;
         ici_stringof(k)->s_struct = ici_structof(o);
         ici_stringof(k)->s_slot = sl;
-        k->o_flags &= ~ICI_S_LOOKASIDE_IS_ATOM;
+        k->clrflag(ICI_S_LOOKASIDE_IS_ATOM);
     }
     return 0;
 }
@@ -625,7 +625,7 @@ int struct_type::assign_base(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v)
         ici_stringof(k)->s_vsver = ici_vsver;
         ici_stringof(k)->s_struct = s;
         ici_stringof(k)->s_slot = sl;
-        k->o_flags &= ~ICI_S_LOOKASIDE_IS_ATOM;
+        k->clrflag(ICI_S_LOOKASIDE_IS_ATOM);
     }
     return 0;
 }
@@ -703,11 +703,11 @@ ici_obj_t *struct_type::fetch_base(ici_obj_t *o, ici_obj_t *k)
         ici_stringof(k)->s_slot = sl;
         if (o->isatom())
         {
-            k->o_flags |= ICI_S_LOOKASIDE_IS_ATOM;
+            k->setflag(ICI_S_LOOKASIDE_IS_ATOM);
         }
         else
         {
-            k->o_flags &= ~ICI_S_LOOKASIDE_IS_ATOM;
+            k->clrflag(ICI_S_LOOKASIDE_IS_ATOM);
         }
     }
     return sl->sl_value;

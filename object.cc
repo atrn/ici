@@ -208,7 +208,7 @@ ici_atom(ici_obj_t *o, int lone)
         o = *po;
     }
     *po = o;
-    o->o_flags |= ICI_O_ATOM;
+    o->setflag(ICI_O_ATOM);
     if (++ici_natoms > ici_atomsz / 2)
         ici_grow_atoms(ici_atomsz * 2);
     if (!lone)
@@ -298,7 +298,7 @@ unatom(ici_obj_t *o)
     return 1;
 
 deleteo:
-    o->o_flags &= ~ICI_O_ATOM;
+    o->clrflag(ICI_O_ATOM);
     --ici_natoms;
     sl = ss;
     /*
@@ -485,7 +485,7 @@ ici_collect()
         a = &ici_atoms[ici_atomsz];
         while (--a >= ici_atoms)
         {
-            if ((o = *a) != NULL && o->o_nrefs == 0 && (o->o_flags & ICI_O_MARK) == 0)
+            if ((o = *a) != NULL && o->o_nrefs == 0 && !o->flag(ICI_O_MARK))
                 *a = NULL;
         }
         ici_natoms -= ndead_atoms;
@@ -500,13 +500,14 @@ ici_collect()
 
         for (a = b = ici_objs; a < ici_objs_top; ++a)
         {
-            if (((o = *a)->o_flags & ICI_O_MARK) == 0)
+            o = *a;
+            if (!o->marked())
             {
                 ici_freeo(o);
             }
             else
             {
-                o->o_flags &= ~ICI_O_MARK;
+                o->clrflag(ICI_O_MARK);
                 *b++ = o;
             }
         }
@@ -520,7 +521,8 @@ ici_collect()
          */
         for (a = b = ici_objs; a < ici_objs_top; ++a)
         {
-            if (((o = *a)->o_flags & ICI_O_MARK) == 0)
+            o = *a;
+            if (!o->marked())
             {
                 if (!o->isatom() || unatom(o) == 0)
                 {
@@ -529,8 +531,7 @@ ici_collect()
             }
             else
             {
-                o->o_flags &= ~ICI_O_MARK;
-		o->o_flags |= ICI_O_OLD;
+                o->clrflag(ICI_O_MARK);
                 *b++ = o;
             }
         }

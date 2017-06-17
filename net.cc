@@ -138,7 +138,7 @@ socket_fd(ici_handle_t *h) {
 static void
 socket_prefree(ici_handle_t *h)
 {
-    if ((h->o_flags & ICI_H_CLOSED) == 0)
+    if (!h->flag(ICI_H_CLOSED))
         closesocket(socket_fd(h));
 }
 
@@ -152,13 +152,13 @@ new_netsocket(SOCKET fd)
     long lfd = fd;
     if ((h = ici_handle_new((void *)lfd, SS(socket), NULL)) == NULL)
         return NULL;
-    h->o_flags &= ~ICI_H_CLOSED;
+    h->clrflag(ICI_H_CLOSED);
     h->h_pre_free = socket_prefree;
     /*
      * Turn off super support. This means you can't assign or fetch
      * values with a socket.
      */
-    h->o_flags &= ~ICI_O_SUPER;
+    h->clrflag(ICI_O_SUPER);
     return h;
 }
 
@@ -168,12 +168,12 @@ new_netsocket(SOCKET fd)
 static int
 isclosed(ici_handle_t *skt)
 {
-    int closed = skt->o_flags & ICI_H_CLOSED;
-    if (closed)
+    if (skt->flag(ICI_H_CLOSED))
     {
         ici_set_error("attempt to use closed socket");
+        return 1;
     }
-    return closed;
+    return 0;
 }
 
 /*
@@ -453,7 +453,7 @@ ici_net_close(void)
     if (isclosed(skt))
         return 1;
     closesocket(socket_fd(skt));
-    skt->o_flags |= ICI_H_CLOSED;
+    skt->setflag(ICI_H_CLOSED);
     return ici_null_ret();
 }
 

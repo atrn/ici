@@ -77,8 +77,8 @@ static int_func *op_funcs[7];
 #define num_op_funcs ((int)(sizeof op_funcs / sizeof op_funcs[0]))
 
 unsigned long archive_type::mark(object *o) {
+    o->setmark();
     auto ar = archive_of(o);
-    o->o_flags |= ICI_O_MARK;
     return typesize() + ar->a_file->mark() + ar->a_sent->mark() + ar->a_scope->mark();
 }
 

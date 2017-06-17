@@ -80,7 +80,7 @@ ici_op_onerror()
 
 unsigned long catch_type::mark(ici_obj_t *o)
 {
-    o->o_flags |= ICI_O_MARK;
+    o->setmark();
     auto mem = typesize();
     if (ici_catchof(o)->c_catcher != NULL)
         mem += ici_mark(ici_catchof(o)->c_catcher);
@@ -89,7 +89,7 @@ unsigned long catch_type::mark(ici_obj_t *o)
 
 void catch_type::free(ici_obj_t *o)
 {
-    assert((o->o_flags & CF_EVAL_BASE) == 0);
+    assert(!o->o_flag(CF_EVAL_BASE));
     ici_tfree(o, ici_catch_t);
 }
 

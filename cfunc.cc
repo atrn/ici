@@ -1899,7 +1899,7 @@ ici_f_sprintf()
         if ((file = ici_need_stdout()) == NULL)
             return 1;
     case 2: /* fprintf */
-        if (file->o_flags & ICI_F_CLOSED)
+        if (file->flag(ICI_F_CLOSED))
         {
             return ici_set_error("write to closed file");
         }
@@ -2053,22 +2053,22 @@ super_loop(ici_objwsup_t *base)
      */
     for (s = base; s != NULL; s = s->o_super)
     {
-        if (s->o_flags & ICI_O_MARK)
+        if (s->marked())
         {
             /*
              * A loop. Clear all the ICI_O_MARK flags we set and set error.
              */
-            for (s = base; s->o_flags & ICI_O_MARK; s = s->o_super)
-                s->o_flags &= ~ICI_O_MARK;
+            for (s = base; s->marked(); s = s->o_super)
+                s->clrflag(ICI_O_MARK);
             return ici_set_error("cycle in struct super chain");
         }
-        s->o_flags |= ICI_O_MARK;
+        s->setmark();
     }
     /*
      * No loop. Clear all the ICI_O_MARK flags we set.
      */
     for (s = base; s != NULL; s = s->o_super)
-        s->o_flags &= ~ICI_O_MARK;
+        s->clrflag(ICI_O_MARK);
     return 0;
 }
 

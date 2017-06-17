@@ -64,11 +64,11 @@ ici_file_close(ici_file_t *f)
     ici_exec_t  *x = NULL;
     int         r;
 
-    if (f->o_flags & ICI_F_CLOSED)
+    if (f->flag(ICI_F_CLOSED))
     {
         return ici_set_error("file already closed");
     }
-    f->o_flags |= ICI_F_CLOSED;
+    f->setflag(ICI_F_CLOSED);
     if (f->flags() & FT_NOMUTEX)
         x = ici_leave();
     r = f->close();
@@ -95,7 +95,7 @@ ici_file_close(ici_file_t *f)
 
 unsigned long file_type::mark(ici_obj_t *o)
 {
-    o->o_flags |= ICI_O_MARK;
+    o->setmark();
     auto mem = typesize();
     if (ici_fileof(o)->f_name != NULL)
         mem += ici_mark(ici_fileof(o)->f_name);
@@ -106,9 +106,9 @@ unsigned long file_type::mark(ici_obj_t *o)
 
 void file_type::free(ici_obj_t *o)
 {
-    if ((o->o_flags & ICI_F_CLOSED) == 0)
+    if (!o->flag(ICI_F_CLOSED))
     {
-        if (o->o_flags & ICI_F_NOCLOSE)
+        if (o->flag(ICI_F_NOCLOSE))
             ici_fileof(o)->flush();
         else
             ici_file_close(ici_fileof(o));

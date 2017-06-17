@@ -35,7 +35,6 @@ constexpr int ICI_O_MARK  =         0x01;    /* Garbage collection mark. */
 constexpr int ICI_O_ATOM  =         0x02;    /* Is a member of the atom pool. */
 constexpr int ICI_O_TEMP  =         0x04;    /* Is a re-usable temp (flag for asserts). */
 constexpr int ICI_O_SUPER =         0x08;    /* Has super (is ici_objwsup_t derived). */
-constexpr int ICI_O_OLD   =	    0x10;    /* Has been through 1+ collects */
 
 #ifdef BUGHUNT
 /*
@@ -68,6 +67,10 @@ struct object
         , o_leafz(leafz)
     {}
 
+    inline bool isa(char tcode) const noexcept {
+        return o_tcode == tcode;
+    }
+
     inline type_t *type() const noexcept {
         return types[(size_t)o_tcode];
     }
@@ -76,12 +79,24 @@ struct object
         return (o_flags & ICI_O_ATOM) != 0;
     }
 
-    inline bool isa(char tcode) const noexcept {
-        return o_tcode == tcode;
-    }
-
     inline void setmark() {
         o_flags |= ICI_O_MARK;
+    }
+
+    inline bool flag(uint8_t mask) const noexcept {
+        return (o_flags & mask) != 0;
+    }
+
+    inline bool marked() const noexcept {
+        return flag(ICI_O_MARK);
+    }
+
+    inline void setflag(uint8_t mask) noexcept {
+        o_flags |= mask;
+    }
+
+    inline void clrflag(uint8_t mask) noexcept {
+        o_flags &= ~mask;
     }
 
     inline size_t mark() noexcept {

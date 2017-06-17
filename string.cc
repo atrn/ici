@@ -299,8 +299,8 @@ ici_str_need_size(ici_str_t *s, int n)
  */
 unsigned long string_type::mark(ici_obj_t *o)
 {
-    o->o_flags |= ICI_O_MARK;
-    if (o->o_flags & ICI_S_SEP_ALLOC)
+    o->setmark();
+    if (o->flag(ICI_S_SEP_ALLOC))
     {
         return typesize() + ici_stringof(o)->s_u.su_nalloc;
     }
@@ -360,7 +360,7 @@ ici_obj_t *string_type::copy(ici_obj_t *o)
  */
 void string_type::free(ici_obj_t *o)
 {
-    if (o->o_flags & ICI_S_SEP_ALLOC)
+    if (o->flag(ICI_S_SEP_ALLOC))
     {
         ici_nfree(ici_stringof(o)->s_chars, ici_stringof(o)->s_u.su_nalloc);
         ici_tfree(o, ici_str_t);

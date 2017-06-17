@@ -17,7 +17,7 @@ namespace ici
  */
 unsigned long ptr_type::mark(ici_obj_t *o)
 {
-    o->o_flags |= ICI_O_MARK;
+    o->setmark();
     return typesize() + ici_mark(ici_ptrof(o)->p_aggr) + ici_mark(ici_ptrof(o)->p_key);
 }
 

@@ -194,7 +194,7 @@ ici_handle_method(ici_obj_t *inst)
 
     if (ici_method_check(inst, ICI_TC_HANDLE))
         return 1;
-    if (inst->o_flags & ICI_H_CLOSED)
+    if (inst->flag(ICI_H_CLOSED))
     {
         return ici_set_error("attempt to apply method %s to %s which is dead",
                              ici_objname(n1, ici_os.a_top[-1]),
@@ -312,7 +312,7 @@ void handle_type::objname(ici_obj_t *o, char p[ICI_OBJNAMEZ])
 unsigned long
 handle_type::mark(ici_obj_t *o)
 {
-    o->o_flags |= ICI_O_MARK;
+    o->setmark();
     auto mem = typesize();
     if (ici_objwsupof(o)->o_super != NULL)
         mem += ici_mark(ici_objwsupof(o)->o_super);
@@ -339,7 +339,7 @@ ici_obj_t * handle_type::fetch(ici_obj_t *o, ici_obj_t *k)
     ici_obj_t           *r;
 
     h = ici_handleof(o);
-    if (h->h_member_map != NULL && (o->o_flags & ICI_H_CLOSED) == 0)
+    if (h->h_member_map != NULL && !o->flag(ICI_H_CLOSED))
     {
         ici_obj_t       *id;
 
@@ -396,7 +396,7 @@ ici_obj_t * handle_type::fetch_base(ici_obj_t *o, ici_obj_t *k)
     ici_obj_t           *r;
 
     h = ici_handleof(o);
-    if (h->h_member_map != NULL && (o->o_flags & ICI_H_CLOSED) == 0)
+    if (h->h_member_map != NULL && !o->flag(ICI_H_CLOSED))
     {
         ici_obj_t       *id;
 
@@ -423,7 +423,7 @@ ici_obj_t * handle_type::fetch_base(ici_obj_t *o, ici_obj_t *k)
     }
     if (!ici_hassuper(o))
         return fetch_fail(o, k);
-    if ((o->o_flags & ICI_H_HAS_PRIV_STRUCT) == 0)
+    if (!o->flag(ICI_H_HAS_PRIV_STRUCT))
         return ici_null;
     return ici_fetch_base(h->o_super, k);
 }
@@ -438,7 +438,7 @@ int handle_type::assign_base(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v)
     ici_obj_t           *r;
 
     h = ici_handleof(o);
-    if (h->h_member_map != NULL && (o->o_flags & ICI_H_CLOSED) == 0)
+    if (h->h_member_map != NULL && !o->flag(ICI_H_CLOSED))
     {
         ici_obj_t       *id;
 
@@ -463,7 +463,7 @@ int handle_type::assign_base(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v)
     }
     if (!ici_hassuper(o))
         return assign_fail(o, k, v);
-    if ((o->o_flags & ICI_H_HAS_PRIV_STRUCT) == 0)
+    if (!o->flag(ICI_H_HAS_PRIV_STRUCT))
     {
         ici_objwsup_t   *s;
 
@@ -479,7 +479,7 @@ int handle_type::assign_base(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v)
         s->o_super = ici_objwsupof(o)->o_super;
         ici_objwsupof(o)->o_super = s;
         ++ici_vsver;
-        o->o_flags |= ICI_H_HAS_PRIV_STRUCT;
+        o->setflag(ICI_H_HAS_PRIV_STRUCT);
     }
     return ici_assign_base(ici_objwsupof(o)->o_super, k, v);
 }
@@ -495,7 +495,7 @@ int handle_type::assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v)
 
     h = ici_handleof(o);
     r = NULL;
-    if (h->h_member_map != NULL && (o->o_flags & ICI_H_CLOSED) == 0)
+    if (h->h_member_map != NULL && !o->flag(ICI_H_CLOSED))
     {
         ici_obj_t       *id;
 
@@ -519,7 +519,7 @@ int handle_type::assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v)
     }
     if (!ici_hassuper(o))
         return assign_fail(o, k, v);
-    if (o->o_flags & ICI_H_HAS_PRIV_STRUCT)
+    if (o->flag(ICI_H_HAS_PRIV_STRUCT))
         return ici_assign(h->o_super, k, v);
     /*
      * We don't have a base struct of our own yet. Try the super.

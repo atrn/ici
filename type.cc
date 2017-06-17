@@ -5,7 +5,7 @@ namespace ici
 {
 
 unsigned long type::mark(ici_obj_t *o) {
-    o->o_flags |= ICI_O_MARK;
+    o->setmark();
     return typesize();
 }
 

@@ -69,7 +69,7 @@ namespace ici
 
 unsigned long channel_type::mark(ici_obj_t *o)
 {
-    o->o_flags |= ICI_O_MARK;
+    o->setmark();
     auto mem = typesize();
     mem += ici_mark(ici_objwsupof(o)->o_super);
     mem += ici_mark(ici_channelof(o)->c_q);

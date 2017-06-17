@@ -528,7 +528,7 @@ ici_op_mklvalue()
 unsigned long array_type::mark(ici_obj_t *o) {
     ici_obj_t           **e;
 
-    o->o_flags |= ICI_O_MARK;
+    o->setmark();
     if (ici_arrayof(o)->a_base == NULL)
     {
         return typesize();

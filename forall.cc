@@ -88,7 +88,7 @@ inline unsigned long maybe_mark(ici_obj_t *o) {
 
 unsigned long forall_type::mark(ici_obj_t *o)
 {
-    o->o_flags |= ICI_O_MARK;
+    o->setmark();
     auto fa = forallof(o);
     auto mem = typesize();
     mem += maybe_mark(fa->fa_aggr);
