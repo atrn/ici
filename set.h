@@ -34,7 +34,6 @@ public:
 
     unsigned long       mark(ici_obj_t *o) override;
     void                free(ici_obj_t *o) override;
-
     int                 cmp(ici_obj_t *o1, ici_obj_t *o2) override;
     unsigned long       hash(ici_obj_t *o) override;
     ici_obj_t *         copy(ici_obj_t *o) override;

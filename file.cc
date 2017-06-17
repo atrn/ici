@@ -37,16 +37,6 @@ ici_file_new(void *fp, ici_ftype_t *ftype, ici_str_t *name, ici_obj_t *ref)
 {
     ici_file_t *f;
 
-    if (ftype->ft_flags & ~0xFF)
-    {
-        /*
-         * Old ici_ftype_t's have a function pointer rather than flags in the
-         * first field.  If any still exist in third-party extensions, this
-         * should trap them.
-         */
-        ici_set_error("old-style file type is no longer supported");
-        return NULL;
-    }
     if ((f = ici_talloc(ici_file_t)) == NULL)
         return NULL;
     ICI_OBJ_SET_TFNZ(f, ICI_TC_FILE, 0, 1, 0);

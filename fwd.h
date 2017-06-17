@@ -241,14 +241,15 @@ extern DLI volatile int         ici_aborted;                    /* See exec.c */
 extern DLI int                  ici_dont_record_line_nums;      /* See lex.c */
 extern DLI char                 *ici_buf;                       /* See buf.h */
 extern DLI size_t               ici_bufz;                       /* See buf.h */
-extern DLI ici_ftype_t          ici_stdio_ftype;
-extern DLI ici_ftype_t          ici_popen_ftype;
 extern DLI ici_mark_t           ici_o_mark;
 extern DLI ici_null_t           ici_o_null;
 extern DLI ici_debug_t          *debugfunc;
 extern char                     ici_version_string[];
 extern unsigned long const      ici_crc_table[256];
 extern int                      ici_exec_count;
+
+extern DLI ici_ftype_t          *ici_stdio_ftype;
+extern DLI ici_ftype_t          *ici_popen_ftype;
 
 /*
  * This ICI NULL object. It is of type '(ici_obj_t *)'.
