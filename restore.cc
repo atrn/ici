@@ -14,6 +14,7 @@
  */
 
 #include "fwd.h"
+#include "restorer.h"
 #include "archive.h"
 #include "int.h"
 #include "float.h"
@@ -687,22 +688,10 @@ restore_ref(ici_archive_t *ar)
 
 // restorer
 
-struct restorer : object
-{
-    ici_obj_t *(*r_fn)(ici_archive_t *);
-};
-
-typedef struct restorer restorer_t;
-
 unsigned long restorer_type::mark(ici_obj_t *o)
 {
     o->o_flags |= ICI_O_MARK;
     return sizeof (restorer_t);
-}
-
-void restorer_type::free(ici_obj_t *o)
-{
-    ici_tfree(o, restorer_t);
 }
 
 static restorer_t *

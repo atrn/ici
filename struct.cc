@@ -26,7 +26,7 @@ namespace ici
  *
  * This is the global generation (version) number.
  */
-long    ici_vsver   = 1;
+uint32_t        ici_vsver   = 1;
 
 /*
  * Hash a pointer to get the initial position in a struct has table.

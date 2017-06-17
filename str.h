@@ -32,7 +32,7 @@ struct str : object
 
     ici_struct_t    *s_struct;      /* Where we were last found on the vs. */
     ici_sslot_t     *s_slot;        /* And our slot. */
-    long            s_vsver;        /* The vs version at that time. */
+    uint32_t         s_vsver;        /* The vs version at that time. */
 #   if ICI_KEEP_STRING_HASH
     unsigned long   s_hash;         /* String hash code or 0 if not yet computed */
 #   endif

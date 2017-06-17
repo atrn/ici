@@ -293,7 +293,7 @@ parseaddr(const char *raddr, long defhost, struct sockaddr_in *saddr)
     if (host != NULL)
     {
         struct hostent *hostent;
-        long            hostaddr;
+        uint32_t        hostaddr;
 
         if (!strcmp(host, "."))
             hostaddr = htonl(INADDR_LOOPBACK);
@@ -301,7 +301,7 @@ parseaddr(const char *raddr, long defhost, struct sockaddr_in *saddr)
             hostaddr = htonl(INADDR_ANY);
         else if (!strcmp(host, "*"))
             hostaddr = htonl(INADDR_BROADCAST);
-        else if ((hostaddr = inet_addr(host)) != (unsigned long)-1)
+        else if ((hostaddr = inet_addr(host)) != (in_addr_t)-1)
             /* NOTHING */ ;
         else if ((hostent = gethostbyname(host)) != NULL)
             memcpy(&hostaddr, hostent->h_addr, sizeof hostaddr);
@@ -721,18 +721,18 @@ ici_net_select()
     long                timeout  = -1;
     fd_set              fds[3];
     fd_set              *rfds = NULL;
-    ici_set_t               *rset = NULL;
+    ici_set_t           *rset = NULL;
     fd_set              *wfds = NULL;
-    ici_set_t               *wset = NULL;
+    ici_set_t           *wset = NULL;
     fd_set              *efds = NULL;
-    ici_set_t               *eset = NULL;
+    ici_set_t           *eset = NULL;
     struct timeval      timeval;
     struct timeval      *tv;
-    ici_struct_t            *result;
-    ici_set_t               *set  = NULL; /* Init. to remove compiler warning */
+    ici_struct_t        *result;
+    ici_set_t           *set  = NULL; /* Init. to remove compiler warning */
     int                 whichset = -1;  /* 0 == read, 1 == write, 2 == except*/
-    ici_sslot_t              *sl;
-    ici_exec_t              *x;
+    ici_sslot_t          *sl;
+    ici_exec_t          *x;
 
     if (ICI_NARGS() == 0)
         return seterror("incorrect number of arguments for net.select()", NULL);
@@ -1529,7 +1529,7 @@ ici_net_gethostbyname()
 static int
 ici_net_gethostbyaddr(void)
 {
-    long                addr;
+    uint32_t            addr;
     char                *s;
     struct hostent      *hostent;
 

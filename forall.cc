@@ -99,9 +99,4 @@ unsigned long forall_type::mark(ici_obj_t *o)
     return mem;
 }
 
-void forall_type::free(ici_obj_t *o)
-{
-    ici_tfree(o, ici_forall_t);
-}
-
 } // namespace ici

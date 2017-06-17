@@ -79,12 +79,6 @@ unsigned long channel_type::mark(ici_obj_t *o)
     return mem;
 }
 
-void channel_type::free(ici_obj_t *o)
-{
-    ici_tfree(o, ici_channel_t);
-}
-
-
 /*
  * channel = channel([capacity])
  *

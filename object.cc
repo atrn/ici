@@ -98,6 +98,10 @@ int		ici_ncollects;	/* Number of ici_collect() calls */
 //
 // class type
 
+void type::free(ici_obj_t *o) {
+    ici_nfree(o, _size);
+}
+
 unsigned long type::hash(ici_obj_t *o) {
     return ICI_PTR_HASH(o);
 }

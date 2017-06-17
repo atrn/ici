@@ -88,13 +88,4 @@ unsigned long int_type::hash(ici_obj_t *o)
     return (unsigned long)ici_intof(o)->i_value * INT_PRIME;
 }
 
-/*
- * Free this object and associated memory (but not other objects).
- * See the comments on t_free() in object.h.
- */
-void int_type::free(ici_obj_t *o)
-{
-    ici_tfree(o, ici_int_t);
-}
-
 } // namespace ici

@@ -5,8 +5,8 @@
 
 .PHONY: all lib clean depend
 
-CXX=            c++ -std=c++14
-CXXFLAGS=       -Wall -DNDEBUG -Os -mtune=native
+CXX=            c++ -std=c++11
+CXXFLAGS=       -Wall -DNDEBUG -O0 -g -mtune=native -DICI_SW_CRC
 
 uname=		$(shell uname|tr A-Z a-z)
 conf?=		conf/$(uname).h

@@ -124,15 +124,6 @@ int ptr_type::call(ici_obj_t *o, ici_obj_t *subject)
 }
 
 /*
- * Free this object and associated memory (but not other objects).
- * See the comments on t_free() in object.h.
- */
-void ptr_type::free(ici_obj_t *o)
-{
-    ici_tfree(o, ici_ptr_t);
-}
-
-/*
  * Return a new ICI pointer object. The pointer will point to the element
  * keyed by 'k' in the object 'a'.
  *

@@ -65,9 +65,10 @@ extern unsigned long const ici_crc_table[256] =
 unsigned long
 ici_crc(unsigned long crc, unsigned char const *p, ptrdiff_t n)
 {
+#ifndef ICI_SW_CRC
     extern uint32_t crc32c(uint32_t crc, const void *buf, size_t len);
     return crc32c(crc, p, n) * 0x0020C323UL;
-#ifdef ICI_SW_CRC
+#else
     while (--n >= 0)
     {
         crc = (crc >> 8) ^ ici_crc_table[(crc ^ *p++) & 0xFF];

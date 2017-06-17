@@ -36,13 +36,4 @@ unsigned long pc_type::mark(ici_obj_t *o)
     return sizeof(ici_pc_t);
 }
 
-/*
- * Free this object and associated memory (but not other objects).
- * See the comments on t_free() in object.h.
- */
-void pc_type::free(ici_obj_t *o)
-{
-    ici_tfree(o, ici_pc_t);
-}
-
 } // namespace ici

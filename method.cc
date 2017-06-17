@@ -44,11 +44,6 @@ unsigned long method_type::mark(ici_obj_t *o)
     + ici_mark(ici_methodof(o)->m_callable);
 }
 
-void method_type::free(ici_obj_t *o)
-{
-    ici_tfree(o, ici_method_t);
-}
-
 ici_obj_t * method_type::fetch(ici_obj_t *o, ici_obj_t *k)
 {
     ici_method_t        *m;

@@ -54,7 +54,6 @@ struct ici_archive : object
 /*
  * The following portion of this file exports to ici.h. --ici.h-start--
  */
-typedef struct ici_archive ici_archive_t;
 
 ici_archive_t   *ici_archive_start(ici_file_t *file, ici_objwsup_t *scope);
 int             ici_archive_insert(ici_archive_t *ar, ici_obj_t *key, ici_obj_t *val);

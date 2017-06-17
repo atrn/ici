@@ -1,6 +1,8 @@
 #define ICI_CORE
 
 #include "fwd.h"
+#include "saver.h"
+
 #include "archive.h"
 #include "array.h"
 #include "cfunc.h"
@@ -304,28 +306,10 @@ save_op(ici_archive_t *ar, ici_obj_t *obj)
 // saver
 //
 
-struct saver : object
-{
-    int (*s_fn)(ici_archive_t *, ici_obj_t *);
-};
-
-typedef struct saver saver_t;
-
-static saver_t *
-saverof(ici_obj_t *obj)
-{
-    return (saver_t *)obj;
-}
-
 unsigned long saver_type::mark(ici_obj_t *o)
 {
     o->o_flags |= ICI_O_MARK;
     return sizeof (saver_t);
-}
-
-void saver_type::free(ici_obj_t *o)
-{
-    ici_tfree(o, saver_t);
 }
 
 static ici_obj_t *

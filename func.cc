@@ -112,11 +112,6 @@ unsigned long func_type::mark(ici_obj_t *o)
     return mem;
 }
 
-void func_type::free(ici_obj_t *o)
-{
-    ici_tfree(o, ici_func_t);
-}
-
 int func_type::cmp(ici_obj_t *o1, ici_obj_t *o2)
 {
     return ici_funcof(o1)->f_code != ici_funcof(o2)->f_code

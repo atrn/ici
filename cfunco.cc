@@ -152,11 +152,6 @@ unsigned long cfunc_type::mark(ici_obj_t *o)
     return sizeof (ici_cfunc_t) + ici_mark(ici_cfuncof(o)->cf_name);
 }
 
-void cfunc_type::free(ici_obj_t *o)
-{
-    ici_tfree(o, ici_cfunc_t);
-}
-
 ici_obj_t * cfunc_type::fetch(ici_obj_t *o, ici_obj_t *k)
 {
     if (k == SSO(name))

@@ -81,16 +81,9 @@ archive_of(ici_obj_t *o)
 }
 
 unsigned long archive_type::mark(ici_obj_t *o) {
-        ici_archive_t *ar = archive_of(o);
-        o->o_flags |= ICI_O_MARK;
-        return sizeof *ar
-            + ici_mark(ar->a_file)
-            + ici_mark(ar->a_sent)
-            + ici_mark(ar->a_scope);
-    }
-
-void archive_type::free(ici_obj_t *o) {
-    ici_tfree(o, ici_archive_t);
+    ici_archive_t *ar = archive_of(o);
+    o->o_flags |= ICI_O_MARK;
+    return sizeof *ar + ici_mark(ar->a_file) + ici_mark(ar->a_sent) + ici_mark(ar->a_scope);
 }
 
 int ici_archive_init()

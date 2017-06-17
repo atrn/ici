@@ -345,10 +345,10 @@ push_os_path_elements(ici_array_t *a)
         }
     }
 #   ifdef ICI_CONFIG_PREFIX
-        /*
-         * Put a configuration defined location on, if there is one..
-         */
-    PUSH(a, ICI_CONFIG_PREFIX "/lib/ici4");
+    /*
+     * Put a configuration defined location on, if there is one..
+     */
+    PUSH(a, ICI_CONFIG_PREFIX "/lib/anici4");
 #   endif
     return 0;
 }

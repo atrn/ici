@@ -189,6 +189,7 @@ constexpr int ICI_OBJNAMEZ = 31;
 /*
  * Standard types.
  */
+typedef struct ici_archive      ici_archive_t;
 typedef struct array            ici_array_t;
 typedef struct catcher          ici_catch_t;
 typedef struct sslot            ici_sslot_t;
@@ -220,6 +221,9 @@ typedef struct mem              ici_mem_t;
 typedef struct handle           ici_handle_t;
 typedef struct debug            ici_debug_t;
 typedef struct name_id          ici_name_id_t;
+typedef struct restorer         restorer_t;
+
+typedef struct saver            saver_t;
 
 extern DLI ici_int_t            *ici_zero;
 extern DLI ici_int_t            *ici_one;
@@ -229,7 +233,7 @@ extern DLI ici_exec_t           *ici_exec;
 extern DLI ici_array_t          ici_xs;
 extern DLI ici_array_t          ici_os;
 extern DLI ici_array_t          ici_vs;
-extern DLI long                 ici_vsver;
+extern DLI uint32_t             ici_vsver;
 constexpr int NSUBEXP =         10;
 extern DLI int                  ici_re_bra[(NSUBEXP + 1) * 3];
 extern DLI int                  ici_re_nbra;

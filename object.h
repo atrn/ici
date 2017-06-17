@@ -48,14 +48,15 @@ public:
 
 public:
     const char * const  name;
-
 private:
+    const size_t        _size;
     const int           _flags;
     mutable ici_str_t * _name;
 
 protected:
-    explicit type(const char *name, int flags = 0)
+    explicit type(const char *name, size_t size, int flags = 0)
         : name(name)
+        , _size(size)
         , _flags(flags)
         , _name(nullptr)
     {
@@ -68,7 +69,7 @@ public:
     inline bool can_call() const         { return _flags & has_call; }
 
     virtual unsigned long       mark(ici_obj_t *o) = 0;
-    virtual void                free(ici_obj_t *o) = 0;
+    virtual void                free(ici_obj_t *o);
     virtual unsigned long       hash(ici_obj_t *o);
     virtual int                 cmp(ici_obj_t *a, ici_obj_t *b);
     virtual ici_obj_t *         copy(ici_obj_t *o);

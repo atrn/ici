@@ -112,15 +112,6 @@ unsigned long profilecall_type::mark(ici_obj_t *o)
 }
 
 /*
- * Free this object and associated memory (but not other objects).
- * See the comments on t_free() in object.h.
- */
-void profilecall_type::free(ici_obj_t *o)
-{
-    ici_tfree(o, ici_profilecall_t);
-}
-
-/*
  * Parameters:
  *  called_by   The ici_profilecall_t for the function calling this 'f'.
  *

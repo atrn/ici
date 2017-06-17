@@ -33,6 +33,8 @@
    1.1   1 Aug 2013  Correct comments on why three crc instructions in parallel
  */
 
+#ifndef ICI_SW_CRC
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -381,3 +383,5 @@ int main(int argc, char **argv)
 }
 
 #endif /* TEST */
+
+#endif // ICI_SW_CRC

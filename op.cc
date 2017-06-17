@@ -68,13 +68,4 @@ unsigned long op_type::hash(ici_obj_t *o)
                        + ici_opof(o)->op_ecode);
 }
 
-/*
- * Free this object and associated memory (but not other objects).
- * See the comments on t_free() in object.h.
- */
-void op_type::free(ici_obj_t *o) 
-{
-    ici_tfree(o, ici_op_t);
-}
-
 } // namespace ici
