@@ -1720,7 +1720,7 @@ public:
 
 };
 
-skt_ftype ici_skt_ftype;
+static ftype *skt_ftype = ptr_to_instance_of<class skt_ftype>();
 
 static skt_file_t *
 skt_open(ici_handle_t *s, const char *mode)
@@ -1790,7 +1790,7 @@ ici_net_sktopen()
         return 1;
     if ((sf = skt_open(skt, mode)) == NULL)
         return 1;
-    if ((f = ici_file_new((char *)sf, &ici_skt_ftype, NULL, NULL)) == NULL)
+    if ((f = ici_file_new((char *)sf, skt_ftype, NULL, NULL)) == NULL)
     {
         return 1;
     }

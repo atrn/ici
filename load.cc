@@ -199,7 +199,7 @@ f_load(...)
             fclose(stream);
             goto fail;
         }
-        file = ici_file_new((char *)stream, ici_stdio_ftype, fn, NULL);
+        file = ici_file_new((char *)stream, stdio_ftype, fn, NULL);
         fn->decref();
         if (file == NULL)
         {
@@ -393,7 +393,7 @@ push_path_elements(ici_array_t *a, const char *path)
         {
             goto skip;
         }
-        if (ici_stk_push_chk(a, 1))
+        if (a->stk_push_chk(1))
         {
             s->decref();
             return 1;

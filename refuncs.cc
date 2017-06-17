@@ -191,7 +191,7 @@ do_smash
          */
         for (i = 0; i < n_repls; ++i)
         {
-            if (ici_stk_push_chk(a, 1))
+            if (a->stk_push_chk(1))
                goto fail;
             size = do_repl(s, repls[-i]->s_chars, repls[-i]->s_nchars, NULL);
             if ((ns = ici_str_alloc(size)) == NULL)
@@ -209,7 +209,7 @@ do_smash
          * There is left-over un-matched string. Push it, as a string onto
          * the array too.
          */
-        if (ici_stk_push_chk(a, 1))
+        if (a->stk_push_chk(1))
             goto fail;
         if ((ns = ici_str_new(s, se - s)) == NULL)
             goto fail;

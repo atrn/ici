@@ -98,7 +98,7 @@ call_signal_handler(ici_obj_t *func, int signo)
     ici_int_t           *isigno;
     ici_obj_t           *ret_obj;
 
-    if (ici_stk_push_chk(&ici_os, 3 + 80)) /* see comment in ici/call.c */
+    if (ici_os.stk_push_chk(3 + 80)) /* see comment in ici/call.c */
         return 1;
     if ((isigno = ici_int_new(signo)) == NULL)
         return 1;

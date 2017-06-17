@@ -113,7 +113,7 @@ int popen_ftype::ft_close(void *file)
     return pclose((FILE *)file);
 }
 
-ici_ftype_t *ici_stdio_ftype = instance_of<stdio_ftype>();
-ici_ftype_t *ici_popen_ftype = instance_of<popen_ftype>();
+ftype *stdio_ftype = ptr_to_instance_of<class stdio_ftype>();
+ftype *popen_ftype = ptr_to_instance_of<class popen_ftype>();
 
-}
+} // namespace ici

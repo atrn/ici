@@ -84,7 +84,7 @@ main(int argc, char *argv[])
         arg0 = argv[1];
         for (i = 2; i < argc; ++i)
         {
-            if (ici_stk_push_chk(av, 1))
+            if (av->stk_push_chk(1))
                 goto fail;
             if ((*av->a_top = ici_str_get_nul_term(argv[i])) == NULL)
                 goto fail;
@@ -128,7 +128,7 @@ main(int argc, char *argv[])
                     case '-':
                         while (++i < argc)
                         {
-                            if (ici_stk_push_chk(av, 1))
+                            if (av->stk_push_chk(1))
                                 goto fail;
                             if ((*av->a_top = ici_str_get_nul_term(argv[i])) == NULL)
                                 goto fail;
@@ -162,7 +162,7 @@ main(int argc, char *argv[])
             }
             else
             {
-                if (ici_stk_push_chk(av, 1))
+                if (av->stk_push_chk(1))
                     goto fail;
                 if ((*av->a_top = ici_str_get_nul_term(argv[i])) == NULL)
                     goto fail;
@@ -219,7 +219,7 @@ main(int argc, char *argv[])
             ici_set_error("%s: Could not open %s.", argv[0], argv[1]);
             goto fail;
         }
-        if (ici_parse_file(argv[1], (char *)stream, ici_stdio_ftype))
+        if (ici_parse_file(argv[1], (char *)stream, stdio_ftype))
             goto fail;
     }
     else
@@ -236,7 +236,7 @@ main(int argc, char *argv[])
                 continue;
             if (argv[i][1] == '\0')
             {
-                if (ici_parse_file("stdin", (char *)stdin, ici_stdio_ftype))
+                if (ici_parse_file("stdin", (char *)stdin, stdio_ftype))
                     goto fail;
                 continue;
             }
@@ -290,7 +290,7 @@ main(int argc, char *argv[])
                         ici_set_error("%s: Could not open %s.", argv[0], s);
                         goto fail;
                     }
-                    if (ici_parse_file(buf, (char *)stream, ici_stdio_ftype))
+                    if (ici_parse_file(buf, (char *)stream, stdio_ftype))
                         goto fail;
                     break;
 
@@ -302,7 +302,7 @@ main(int argc, char *argv[])
                             argv[0], argv[i][j] - '0');
                         goto fail;
                     }
-                    if (ici_parse_file(arg0, (char *)stream, ici_stdio_ftype))
+                    if (ici_parse_file(arg0, (char *)stream, stdio_ftype))
                         goto fail;
                     continue;
                 }

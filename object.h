@@ -60,14 +60,14 @@ struct object
         , o_leafz(0)
     {}
 
-    object(char tcode, char flags = 0, char nrefs = 1, char leafz = 0)
+    explicit object(uint8_t tcode, uint8_t flags = 0, uint8_t nrefs = 1, uint8_t leafz = 0)
         : o_tcode(tcode)
         , o_flags(flags)
         , o_nrefs(nrefs)
         , o_leafz(leafz)
     {}
 
-    inline bool isa(char tcode) const noexcept {
+    inline bool isa(uint8_t tcode) const noexcept {
         return o_tcode == tcode;
     }
 
@@ -261,7 +261,7 @@ inline type_t *ici_typeof(ici_obj_t *o) { return o->type(); }
  */
 struct objwsup : object
 {
-    objwsup(char tcode, char flags, char nrefs, char leafz)
+    objwsup(uint8_t tcode, uint8_t flags, uint8_t nrefs, uint8_t leafz)
         : object(tcode, flags, nrefs, leafz)
         , o_super(nullptr)
     {}
@@ -294,7 +294,7 @@ inline bool ici_hassuper(const ici_obj_t *o) { return (o->o_flags & ICI_O_SUPER)
  *
  * This --func-- forms part of the --ici-api--.
  */
-inline void ICI_OBJ_SET_TFNZ(ici_obj_t *o, char tcode, char flags, char nrefs, char leafz) {
+inline void ICI_OBJ_SET_TFNZ(ici_obj_t *o, uint8_t tcode, uint8_t flags, uint8_t nrefs, uint8_t leafz) {
     o->o_tcode = tcode;
     o->o_flags = flags;
     o->o_nrefs = nrefs;

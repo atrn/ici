@@ -77,7 +77,7 @@ ici_compile_expr(ici_array_t *a, expr_t *e, int why)
 #define NOTLV(why)      ((why) == FOR_LVALUE ? FOR_VALUE : (why))
 #define NOTTEMP(why)    ((why) == FOR_TEMP ? FOR_VALUE : (why))
 
-    if (ici_stk_push_chk(a, 1))
+    if (a->stk_push_chk(1))
     {
         return 1;
     }
@@ -112,7 +112,7 @@ ici_compile_expr(ici_array_t *a, expr_t *e, int why)
             {
                 return 1;
             }
-            if (ici_compile_expr(a1, e->e_arg[1]->e_arg[0], why) || ici_stk_push_chk(a1, 1))
+            if (ici_compile_expr(a1, e->e_arg[1]->e_arg[0], why) || a1->stk_push_chk(1))
             {
                 a1->decref();
                 return 1;
@@ -127,9 +127,9 @@ ici_compile_expr(ici_array_t *a, expr_t *e, int why)
             (
                 ici_compile_expr(a2, e->e_arg[1]->e_arg[1], why)
                 ||
-                ici_stk_push_chk(a2, 1)
+                a2->stk_push_chk(1)
                 ||
-                ici_stk_push_chk(a, 3)
+                a->stk_push_chk(3)
             )
             {
                 a1->decref();
@@ -154,7 +154,7 @@ ici_compile_expr(ici_array_t *a, expr_t *e, int why)
             {
                 return 1;
             }
-            if (ici_stk_push_chk(a, 1))
+            if (a->stk_push_chk(1))
             {
                 return 1;
             }
@@ -173,7 +173,7 @@ ici_compile_expr(ici_array_t *a, expr_t *e, int why)
              */
             if (e->e_arg[0]->e_what == T_NAME && e->e_what == T_COLONEQ)
             {
-                if (ici_stk_push_chk(a, 2))
+                if (a->stk_push_chk(2))
                 {
                     return 1;
                 }
@@ -183,7 +183,7 @@ ici_compile_expr(ici_array_t *a, expr_t *e, int why)
                 {
                     return 1;
                 }
-                if (ici_stk_push_chk(a, 1))
+                if (a->stk_push_chk(1))
                 {
                     return 1;
                 }
@@ -201,7 +201,7 @@ ici_compile_expr(ici_array_t *a, expr_t *e, int why)
                 {
                     return 1;
                 }
-                if (ici_stk_push_chk(a, 2))
+                if (a->stk_push_chk(2))
                 {
                     return 1;
                 }
@@ -222,7 +222,7 @@ ici_compile_expr(ici_array_t *a, expr_t *e, int why)
             {
                 return 1;
             }
-            if (ici_stk_push_chk(a, 1))
+            if (a->stk_push_chk(1))
             {
                 return 1;
             }
@@ -243,7 +243,7 @@ ici_compile_expr(ici_array_t *a, expr_t *e, int why)
             {
                 return 1;
             }
-            if (ici_stk_push_chk(a, 1))
+            if (a->stk_push_chk(1))
             {
                 return 1;
             }
@@ -252,7 +252,7 @@ ici_compile_expr(ici_array_t *a, expr_t *e, int why)
             {
                 return 1;
             }
-            if (ici_stk_push_chk(a, 2))
+            if (a->stk_push_chk(2))
             {
                 return 1;
             }
@@ -289,9 +289,9 @@ ici_compile_expr(ici_array_t *a, expr_t *e, int why)
             (
                 ici_compile_expr(a1, e->e_arg[1], FOR_VALUE)
                 ||
-                ici_stk_push_chk(a1, 3)
+                a1->stk_push_chk(3)
                 ||
-                ici_stk_push_chk(a, 3)
+                a->stk_push_chk(3)
             )
             {
                 a1->decref();
@@ -319,7 +319,7 @@ ici_compile_expr(ici_array_t *a, expr_t *e, int why)
         {
             return 1;
         }
-        if (ici_stk_push_chk(a, 1))
+        if (a->stk_push_chk(1))
         {
             return 1;
         }
@@ -339,7 +339,7 @@ ici_compile_expr(ici_array_t *a, expr_t *e, int why)
         /*
          * Not a "binary opertor".
          */
-        if (ici_stk_push_chk(a, 3)) /* Worst case below. */
+        if (a->stk_push_chk(3)) /* Worst case below. */
         {
             return 1;
         }
@@ -368,7 +368,7 @@ ici_compile_expr(ici_array_t *a, expr_t *e, int why)
                 (
                     ici_compile_expr(a1, e->e_arg[0], NOTLV(why))
                     ||
-                    ici_stk_push_chk(a1, 1)
+                    a1->stk_push_chk(1)
                 )
                 {
                     a1->decref();
@@ -441,7 +441,7 @@ ici_compile_expr(ici_array_t *a, expr_t *e, int why)
                     goto pluspluseffect;
                 }
 
-                if (ici_stk_push_chk(a, 4))
+                if (a->stk_push_chk(4))
                 {
                     return 1;
                 }
@@ -469,7 +469,7 @@ ici_compile_expr(ici_array_t *a, expr_t *e, int why)
                     return 1;
                 }
             pluspluseffect:
-                if (ici_stk_push_chk(a, 4))
+                if (a->stk_push_chk(4))
                 {
                     return 1;
                 }
@@ -504,7 +504,7 @@ ici_compile_expr(ici_array_t *a, expr_t *e, int why)
             {
                 return 1;
             }
-            if (ici_stk_push_chk(a, 1))
+            if (a->stk_push_chk(1))
             {
                 return 1;
             }
@@ -531,7 +531,7 @@ ici_compile_expr(ici_array_t *a, expr_t *e, int why)
             {
                 break;
             }
-            if (ici_stk_push_chk(a, 1))
+            if (a->stk_push_chk(1))
             {
                 return 1;
             }
@@ -552,7 +552,7 @@ ici_compile_expr(ici_array_t *a, expr_t *e, int why)
             {
                 break;
             }
-            if (ici_stk_push_chk(a, 1))
+            if (a->stk_push_chk(1))
             {
                 return 1;
             }
@@ -573,7 +573,7 @@ ici_compile_expr(ici_array_t *a, expr_t *e, int why)
             {
                 break;
             }
-            if (ici_stk_push_chk(a, 1))
+            if (a->stk_push_chk(1))
             {
                 return 1;
             }
@@ -589,7 +589,7 @@ ici_compile_expr(ici_array_t *a, expr_t *e, int why)
             {
                 break;
             }
-            if (ici_stk_push_chk(a, 1))
+            if (a->stk_push_chk(1))
             {
                 return 1;
             }
@@ -617,7 +617,7 @@ ici_compile_expr(ici_array_t *a, expr_t *e, int why)
             {
                 break;
             }
-            if (ici_stk_push_chk(a, 1))
+            if (a->stk_push_chk(1))
             {
                 return 1;
             }
@@ -646,7 +646,7 @@ ici_compile_expr(ici_array_t *a, expr_t *e, int why)
             {
                 goto notlvalue;
             }
-            if (ici_stk_push_chk(a, 1))
+            if (a->stk_push_chk(1))
             {
                 return 1;
             }
@@ -671,7 +671,7 @@ ici_compile_expr(ici_array_t *a, expr_t *e, int why)
             }
             if (why != FOR_EFFECT)
             {
-                if (ici_stk_push_chk(a, 1))
+                if (a->stk_push_chk(1))
                 {
                     return 1;
                 }
@@ -696,7 +696,7 @@ ici_compile_expr(ici_array_t *a, expr_t *e, int why)
             {
                 return 0;
             }
-            if (ici_stk_push_chk(a, 1))
+            if (a->stk_push_chk(1))
             {
                 return 1;
             }
@@ -720,7 +720,7 @@ ici_compile_expr(ici_array_t *a, expr_t *e, int why)
             {
                 goto notlvalue;
             }
-            if (ici_stk_push_chk(a, 1))
+            if (a->stk_push_chk(1))
             {
                 return 1;
             }
@@ -745,7 +745,7 @@ ici_compile_expr(ici_array_t *a, expr_t *e, int why)
                     }
                     ++nargs;
                 }
-                if (ici_stk_push_chk(a, 1))
+                if (a->stk_push_chk(1))
                 {
                     return 1;
                 }
@@ -778,7 +778,7 @@ ici_compile_expr(ici_array_t *a, expr_t *e, int why)
                     {
                         return 1;
                     }
-                    if (ici_stk_push_chk(a, 2))
+                    if (a->stk_push_chk(2))
                     {
                         return 1;
                     }
@@ -801,7 +801,7 @@ ici_compile_expr(ici_array_t *a, expr_t *e, int why)
                     {
                         return 1;
                     }
-                    if (ici_stk_push_chk(a, 2))
+                    if (a->stk_push_chk(2))
                     {
                         return 1;
                     }
@@ -817,7 +817,7 @@ ici_compile_expr(ici_array_t *a, expr_t *e, int why)
     }
     if (why == FOR_LVALUE)
     {
-        if (ici_stk_push_chk(a, 1))
+        if (a->stk_push_chk(1))
         {
             return 1;
         }

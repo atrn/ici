@@ -49,10 +49,9 @@ ici_objname(char p[ICI_OBJNAMEZ], ici_obj_t *o)
         ici_typeof(o)->objname(o, p);
         return p;
     }
-
     if (ici_isstring(o))
     {
-        if (ici_stringof(o)->s_nchars > 24)
+        if (ici_stringof(o)->s_nchars > ICI_OBJNAMEZ - 6)
             sprintf(p, "\"%.24s...\"", ici_stringof(o)->s_chars);
         else
             sprintf(p, "\"%s\"", ici_stringof(o)->s_chars);
@@ -68,12 +67,11 @@ ici_objname(char p[ICI_OBJNAMEZ], ici_obj_t *o)
     return p;
 }
 
-#define hash(o)                                                         \
-(                                                                       \
-    (o)->isa(ICI_TC_INT) ?                                              \
-        (unsigned long)ici_intof(o)->i_value * INT_PRIME                \
-        : (o)->hash()                                                   \
-)
+inline unsigned long hash(object *o)
+{
+    if (ici_isint(o)) return (unsigned long)ici_intof(o)->i_value * INT_PRIME;
+    return o->hash();
+}
 
 /*
  * Grow the hash table of atoms to the given size, which *must* be a

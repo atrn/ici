@@ -111,7 +111,7 @@ int ptr_type::call(ici_obj_t *o, ici_obj_t *subject)
         return 1;
     (ici_os.a_top[-1])->decref();
     ici_os.a_top[-2] = ici_ptrof(o)->p_aggr;
-    if (ici_stk_push_chk(&ici_os, 1))
+    if (ici_os.stk_push_chk(1))
         return 1;
     *ici_os.a_top++ = f;
     ici_xs.a_top[-1] = &ici_o_call;

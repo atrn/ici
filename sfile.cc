@@ -13,11 +13,11 @@ namespace ici
  * This structure is used wherever a character buffer in memory is treated as
  * an ICI file object.  Two related file types reference this structure:
  *
- * ici_charbuf_ftype:   used for atomic string objects, memory objects, and
- *                      simple C strings, which cannot move in memory.
+ * charbuf_ftype:   used for atomic string objects, memory objects, and
+ *                  simple C strings, which cannot move in memory.
  *
- * ici_strbuf_ftype:    used for mutable string buffer objects, which can move
- *                      unexpectedly in memory.
+ * strbuf_ftype:    used for mutable string buffer objects, which can move
+ *                  unexpectedly in memory.
  */
 typedef struct charbuf
 {
@@ -113,15 +113,15 @@ public:
 };
 
 /*
- * ici_charbuf_ftype is used for buffers which cannot move in memory.  This
+ * charbuf_ftype is used for buffers which cannot move in memory.  This
  * includes atomic string objects, memory objects, and C strings.  It is
- * slightly more efficient at reading and writing than ici_strbuf_ftype is,
+ * slightly more efficient at reading and writing than strbuf_ftype is,
  * since it stores pointers directly into the immovable buffer.
  *
  * This type replaces string_ftype (which was a misnomer since it could be
  * used for memory objects but not mutable string objects).
  */
-auto ici_charbuf_ftype = instance_of<charbuf_ftype>();
+ftype *charbuf_ftype = ptr_to_instance_of<class charbuf_ftype>();
 
 static void
 reattach_string_buffer(charbuf_t *sb)
@@ -195,13 +195,13 @@ public:
 };
 
 /*
- * ici_strbuf_ftype is used for mutable string buffer objects, which can move
+ * strbuf_ftype is used for mutable string buffer objects, which can move
  * unexpectedly in memory as they grow.  Because of this, this file type must
  * check on every file operation whether the referenced string buffer has
- * moved.  This makes it less efficient than ici_charbuf_ftype for buffers
+ * moved.  This makes it less efficient than charbuf_ftype for buffers
  * that are known to be immovable.
  */
-auto ici_strbuf_ftype = instance_of<stringbuf_ftype>();
+ftype *strbuf_ftype = ptr_to_instance_of<class stringbuf_ftype>();
 
 /*
  * Create an ICI file object that treats the character buffer referenced by
@@ -243,23 +243,23 @@ ici_open_charbuf(char *data, int size, ici_obj_t *ref, int readonly)
         cb->cb_data = data;
         cb->cb_ptr = data;
         /*
-         * If this is a mutable string buffer, use ici_strbuf_ftype.  If this
+         * If this is a mutable string buffer, use strbuf_ftype.  If this
          * is an atomic (immutable) string, or a memory object, it is slightly
-         * more efficient to use ici_charbuf_ftype.  Of course an atomic
+         * more efficient to use charbuf_ftype.  Of course an atomic
          * string can't be opened for writing.
          */
         if (ici_isstring(ref))
         {
             if ((ref->o_flags & (ICI_O_ATOM|ICI_S_SEP_ALLOC)) == ICI_S_SEP_ALLOC)
-                f = ici_file_new((char *)cb, ici_strbuf_ftype, NULL, ref);
+                f = ici_file_new((char *)cb, strbuf_ftype, NULL, ref);
             else if (readonly)
-                f = ici_file_new((char *)cb, ici_charbuf_ftype, NULL, ref);
+                f = ici_file_new((char *)cb, charbuf_ftype, NULL, ref);
             else
                 ici_set_error("attempt to open an atomic string for writing");
         }
         else if (ici_ismem(ref))
         {
-            f = ici_file_new((char *)cb, ici_charbuf_ftype, NULL, ref);
+            f = ici_file_new((char *)cb, charbuf_ftype, NULL, ref);
         }
         else if (!ici_chkbuf(50))
         {
@@ -279,7 +279,7 @@ ici_open_charbuf(char *data, int size, ici_obj_t *ref, int readonly)
             {
                 memcpy(cb->cb_data, data, size);
                 cb->cb_ptr = cb->cb_data;
-                f = ici_file_new((char *)cb, ici_charbuf_ftype, NULL, ref);
+                f = ici_file_new((char *)cb, charbuf_ftype, NULL, ref);
                 if (f == NULL)
                     ici_free(cb->cb_data);
             }

@@ -858,7 +858,7 @@ usef:
         int             n;
 
         n = &ici_os.a_top[-2] - ici_os.a_base;
-        if (ici_stk_probe(ici_exec->x_os_temp_cache, n))
+        if (ici_exec->x_os_temp_cache->stk_probe(n))
         {
             FAIL();
         }
@@ -948,7 +948,7 @@ usei:
         int             n;
 
         n = &ici_os.a_top[-2] - ici_os.a_base;
-        if (UNLIKELY(ici_stk_probe(ici_exec->x_os_temp_cache, n)))
+        if (UNLIKELY(ici_exec->x_os_temp_cache->stk_probe(n)))
         {
             FAIL();
         }

@@ -379,7 +379,7 @@ static int ici_sys_fdopen()
         return 1;
     }
     setvbuf(stream, NULL, _IOLBF, 0);
-    if ((f = ici_file_new((char *)stream, ici_stdio_ftype, NULL, NULL)) == NULL)
+    if ((f = ici_file_new((char *)stream, stdio_ftype, NULL, NULL)) == NULL)
     {
         fclose(stream);
         return 1;
@@ -610,10 +610,10 @@ static int ici_sys_fileno()
         return 1;
     if
     (
-        f->f_type != ici_stdio_ftype
+        f->f_type != stdio_ftype
 #ifndef NOPIPES
         &&
-        f->f_type != ici_popen_ftype
+        f->f_type != popen_ftype
 #endif
     )
     {
@@ -852,8 +852,8 @@ static int ici_sys_stat()
         rc = fstat(ici_intof(o)->i_value, &statb);
     else if (ici_isstring(o))
         rc = stat(ici_stringof(o)->s_chars, &statb);
-    else if (ici_isfile(o) && ici_fileof(o)->f_type == ici_stdio_ftype)
-        rc = fstat(fileno((FILE *)ici_fileof(o)->f_file), &statb);
+    else if (ici_isfile(o) && ici_fileof(o)->f_type == stdio_ftype)
+        rc = fstat(ici_fileof(o)->fileno(), &statb);
     else
         return ici_argerror(0);
     if (rc == -1)
@@ -1426,7 +1426,7 @@ static int ici_sys_exec()
         ici_array_t *a;
 
         a = ici_arrayof(*o);
-        for (p = ici_astart(a); p < ici_alimit(a); p = ici_anext(a, p))
+        for (p = a->astart(); p < a->alimit(); p = a->anext(p))
             if (ici_isstring(*p))
                 ADDARG(ici_stringof(*p)->s_chars);
     }
@@ -1535,7 +1535,7 @@ static int ici_sys_spawn()
         ici_array_t *a;
 
         a = arrayof(*o);
-        for (p = ici_astart(a); p < ici_alimit(a); p = ici_anext(a, p))
+        for (p = a->astart(); p < a->alimit(); p = a->anext(p))
             if (ici_isstring(*p))
                 ADDARG(stringof(*p)->s_chars);
     }
@@ -1697,7 +1697,7 @@ static int ici_sys_passwd()
     {
         ici_struct_t        *s;
 
-        if (ici_stk_push_chk(a, 1) || (s = password_struct(pwent)) == NULL)
+        if (a->stk_push_chk(1) || (s = password_struct(pwent)) == NULL)
         {
             a->decref();
             return 1;

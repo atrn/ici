@@ -78,7 +78,7 @@ get(ici_parse_t *p, ici_array_t *a)
         {
             ici_srcof(a->a_top[-1])->s_lineno = p->p_lineno;
         }
-        else if (ici_stk_push_chk(a, 1) == 0)
+        else if (a->stk_push_chk(1) == 0)
         {
             if ((*a->a_top = ici_src_new(p->p_lineno, p->p_file->f_name)) != NULL)
             {
@@ -803,6 +803,6 @@ class parse_ftype : public ftype
 
 };
 
-ici_ftype_t *ici_parse_ftype = instance_of<parse_ftype>();
+ftype *parse_ftype = ptr_to_instance_of<class parse_ftype>();
 
 } // namespace ici

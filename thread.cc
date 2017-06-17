@@ -303,7 +303,7 @@ f_go(...)
     /*
      * Copy all the arguments to the operand stack of the new thread.
      */
-    if (ici_stk_push_chk(x->x_os, ICI_NARGS() + 80))
+    if (x->x_os->stk_push_chk(ICI_NARGS() + 80))
         goto fail;
     for (i = 1; i < ICI_NARGS(); ++i)
         x->x_os->a_top[ICI_NARGS() - i - 1] = ICI_ARG(i);

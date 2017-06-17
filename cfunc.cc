@@ -1278,7 +1278,7 @@ f_call()
      * We include an extra 80 in our ici_stk_push_chk, see start of
      * ici_evaluate().
      */
-    if (ici_stk_push_chk(&ici_os, naargs + 80))
+    if (ici_os.stk_push_chk(naargs + 80))
         goto fail;
     base = &ICI_ARG(ICI_NARGS() - 1);
     if (aa != NULL)
@@ -1294,7 +1294,7 @@ f_call()
     if (naargs > 0)
     {
         i = naargs;
-        for (e = ici_astart(aa); i > 0; e = ici_anext(aa, e))
+        for (e = aa->astart(); i > 0; e = aa->anext(e))
             base[--i] = *e;
     }
     /*
@@ -1541,7 +1541,7 @@ f_implode()
     if (ici_typecheck("a", &a))
         return 1;
     i = 0;
-    for (o = ici_astart(a); o != ici_alimit(a); o = ici_anext(a, o))
+    for (o = a->astart(); o != a->alimit(); o = a->anext(o))
     {
         switch ((*o)->o_tcode)
         {
@@ -1557,7 +1557,7 @@ f_implode()
     if ((s = ici_str_alloc(i)) == NULL)
         return 1;
     p = s->s_chars;
-    for (o = ici_astart(a); o != ici_alimit(a); o = ici_anext(a, o))
+    for (o = a->astart(); o != a->alimit(); o = a->anext(o))
     {
         switch ((*o)->o_tcode)
         {
@@ -1954,7 +1954,7 @@ f_currentfile()
         {
             if (raw)
                 return ici_ret_no_decref(ici_parseof(*o)->p_file);
-            f = ici_file_new(*o, ici_parse_ftype, ici_parseof(*o)->p_file->f_name, *o);
+            f = ici_file_new(*o, parse_ftype, ici_parseof(*o)->p_file->f_name, *o);
             if (f == NULL)
                 return 1;
             return ici_ret_with_decref(f);
@@ -2004,7 +2004,7 @@ f_del()
 
             e = a->find_slot(i);
             prev_e = e;
-            for (e = ici_anext(a, e); e != ici_alimit(a); e = ici_anext(a, e))
+            for (e = a->anext(e); e != a->alimit(); e = a->anext(e))
             {
                 *prev_e = *e;
                 prev_e = e;
@@ -2015,8 +2015,8 @@ f_del()
         {
             ici_obj_t       *prev_o;
 
-            prev_o = *(e = ici_astart(a));
-            for (e = ici_anext(a, e); --i >= 0; e = ici_anext(a, e))
+            prev_o = *(e = a->astart());
+            for (e = a->anext(e); --i >= 0; e = a->anext(e))
             {
                 o = *e;
                 *e = prev_o;
@@ -2448,7 +2448,7 @@ fast_gettokens(const char *str, const char *delims)
         {
             if
             (
-                ici_stk_push_chk(a, 1)
+                a->stk_push_chk(1)
                 ||
                 (*a->a_top = ici_str_new(cp, k)) == NULL
             )
@@ -2661,7 +2661,7 @@ f_gettokens()
             j = 0;
         case (S_INTOK << 8) + W_EOF:
         case (S_INTOK << 8) + W_TERM:
-            if (ici_stk_push_chk(a, 1))
+            if (a->stk_push_chk(1))
                 goto fail;
             if ((s = ici_str_new(buf, j)) == NULL)
                 goto fail;
@@ -2676,7 +2676,7 @@ f_gettokens()
                 break;
             j = 0;
         case (S_INTOK << 8) + W_SEP:
-            if (ici_stk_push_chk(a, 1))
+            if (a->stk_push_chk(1))
                 goto fail;
             if ((s = ici_str_new(buf, j)) == NULL)
                 goto fail;
@@ -2692,14 +2692,14 @@ f_gettokens()
             break;
 
         case (S_INTOK << 8) + W_DELIM:
-            if (ici_stk_push_chk(a, 1))
+            if (a->stk_push_chk(1))
                 goto fail;
             if ((s = ici_str_new(buf, j)) == NULL)
                 goto fail;
             *a->a_top++ = s;
             s->decref();
         case (S_IDLE << 8) + W_DELIM:
-            if (ici_stk_push_chk(a, 1))
+            if (a->stk_push_chk(1))
                 goto fail;
             buf[0] = c;
             if ((s = ici_str_new(buf, 1)) == NULL)
@@ -3579,7 +3579,7 @@ f_fopen()
         return ici_get_last_errno("open", name);
     }
     ici_enter(x);
-    if ((f = ici_file_new((char *)stream, ici_stdio_ftype, ici_stringof(ICI_ARG(0)), NULL)) == NULL)
+    if ((f = ici_file_new((char *)stream, stdio_ftype, ici_stringof(ICI_ARG(0)), NULL)) == NULL)
     {
         fclose(stream);
         return 1;
@@ -3638,7 +3638,7 @@ f_popen()
         return ici_get_last_errno("popen", name);
     }
     ici_enter(x);
-    if ((f = ici_file_new((char *)stream, ici_popen_ftype, ici_stringof(ICI_ARG(0)), NULL)) == NULL)
+    if ((f = ici_file_new((char *)stream, popen_ftype, ici_stringof(ICI_ARG(0)), NULL)) == NULL)
     {
         pclose(stream);
         return 1;
@@ -3953,7 +3953,7 @@ f_dir()
             (
                 (s = ici_str_new_nul_term(dirent->d_name)) == NULL
                 ||
-                ici_stk_push_chk(a, 1)
+                a->stk_push_chk(1)
             )
             {
                 if (s != NULL)

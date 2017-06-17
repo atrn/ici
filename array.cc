@@ -69,7 +69,7 @@ array::fault_stack(ptrdiff_t i)
     assert(!isatom());
     ++i;
     i -= a_top - a_bot;
-    if (ici_stk_push_chk(this, i))
+    if (stk_push_chk(i))
     {
         return 1;
     }

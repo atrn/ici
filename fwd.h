@@ -184,7 +184,7 @@ constexpr int ICI_EVENT_ERROR = 0x7A41B291;
 /*
  * Size of a char arrays used to hold formatted object names.
  */
-constexpr int ICI_OBJNAMEZ = 31;
+constexpr int ICI_OBJNAMEZ = 32;
 
 /*
  * Standard types.
@@ -247,8 +247,10 @@ extern DLI ici_debug_t          *debugfunc;
 extern char                     ici_version_string[];
 extern unsigned long const      ici_crc_table[256];
 extern int                      ici_exec_count;
-extern DLI ici_ftype_t          *ici_stdio_ftype;
-extern DLI ici_ftype_t          *ici_popen_ftype;
+
+extern DLI ftype                *stdio_ftype;
+extern DLI ftype                *popen_ftype;
+extern DLI ftype                *parse_ftype;
 
 /*
  * This ICI NULL object. It is of type '(ici_obj_t *)'.
@@ -321,7 +323,7 @@ extern int                      main(int, char **);
 extern ici_method_t             *ici_method_new(ici_obj_t *, ici_obj_t *);
 extern ici_handle_t             *ici_handle_new(void *, ici_str_t *, ici_objwsup_t *);
 extern ici_handle_t             *ici_handle_probe(void *, ici_str_t *);
-extern int                      ici_register_type(type_t *t);
+extern int                      register_type(type *);
 extern void                     ici_rego_work(ici_obj_t *o);
 extern void                     ici_invalidate_struct_lookaside(ici_struct_t *);
 extern int                      ici_engine_stack_check();
@@ -442,13 +444,11 @@ extern ici_obj_t        **ici_objs_limit;
 extern ici_obj_t        **ici_atoms;
 extern int              ici_atomsz;
 
-extern DLI ici_ftype_t  *ici_parse_ftype;
-
 #if !defined(ICI_HAS_BSD_STRUCT_TM)
 extern int              ici_set_timezone_vals(ici_struct_t *);
 #endif
 
-template <typename T> inline T *instance_of() {
+template <typename T> inline T *ptr_to_instance_of() {
     static T value;
     return &value;
 }

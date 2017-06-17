@@ -60,7 +60,7 @@ int type::forall(ici_obj_t *o) {
 }
 
 void type::objname(ici_obj_t *, char n[ICI_OBJNAMEZ]) {
-    n[0] = 0;
+    snprintf(n, ICI_OBJNAMEZ, "%s %p", name, (void *)this);
 }
 
 int type::call(ici_obj_t *, ici_obj_t *) {

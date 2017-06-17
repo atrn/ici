@@ -36,10 +36,10 @@ namespace ici
  * stacks (never had rpop() or rpush() done) and ones that are queues
  * (may, possibly, have had rpop() or rpush() done).
  *
- * Now, if an array is still a stack, you can use the functions:
+ * Now, if an array is still a stack, you can use the member functions:
  *
- *     ici_stk_push_chk(a, n)
- *     ici_stk_pop_chk(a, n)
+ *     stk_push_chk(n)
+ *     stk_pop_chk(n)
  *
  * to ensure that there are n spaces or objects available, then just
  * increment/decrement a_top as you push and pop things on the stack.
@@ -76,95 +76,73 @@ namespace ici
  */
 struct array : object
 {
-    ici_obj_t   **a_top;    /* The next free slot. */
-    ici_obj_t   **a_bot;    /* The first used slot. */
-    ici_obj_t   **a_base;   /* The base of allocation. */
-    ici_obj_t   **a_limit;  /* Allocation limit, first one you can't use. */
+    object   **a_top;    /* The next free slot. */
+    object   **a_bot;    /* The first used slot. */
+    object   **a_base;   /* The base of allocation. */
+    object   **a_limit;  /* Allocation limit, first one you can't use. */
+
+    /*
+     * Functions to assist in doing for loops over the elements of an array.
+     * Use as:
+     *
+     *  array *a;
+     *  object **e;
+     *  for (e = a->astart(); e != a->alimit(); e = a->anext(e))
+     *      ...
+     *
+     * This --func-- forms part of the --ici-api--.
+     */
+    inline object **astart() {
+        return a_bot == a_limit && a_bot != a_top ? a_base : a_bot;
+    }
+
+    inline object **alimit() {
+        return a_top;
+    }
+
+    inline object **anext(object **e) {
+        return e + 1 == a_limit && a_limit != a_top ? a_base : e + 1;
+    }
 
     int grow_stack(ptrdiff_t n);
     int fault_stack(ptrdiff_t i);
     ptrdiff_t len();
-    ici_obj_t **span(int i, ptrdiff_t *np);
+    object **span(int i, ptrdiff_t *np);
     int grow();
-    int push(ici_obj_t *o);
-    int rpush(ici_obj_t *o);
-    ici_obj_t *pop();
-    ici_obj_t **find_slot(ptrdiff_t i);
-    ici_obj_t *get(ptrdiff_t i);
-    ici_obj_t *rpop();
-    void gather(ici_obj_t **, ptrdiff_t, ptrdiff_t);
+    int push(object *o);
+    int rpush(object *o);
+    object *pop();
+    object **find_slot(ptrdiff_t i);
+    object *get(ptrdiff_t i);
+    object *rpop();
+    void gather(object **, ptrdiff_t, ptrdiff_t);
+
+    /*
+     * Check that there is room for 'n' new elements on the end of 'a'.  May
+     * reallocate array memory to get more room. Return non-zero on failure,
+     * usual conventions.
+     *
+     * This function can only be used where the array has never had
+     * elements rpush()ed or rpop()ed. See the discussion on 'Accessing
+     * ICI array object from C' before using.
+     *
+     * This --func-- forms part of the --ici-ap--.
+     */
+    inline int stk_push_chk(ptrdiff_t n = 1) {
+        return a_limit - a_top < n ? grow_stack(n) : 0;
+    }
+
+    /*
+     * Ensure that the stack a has i as a valid index.  Will grow and NULL fill
+     * as necessary. Return non-zero on failure, usual conventions.
+     */
+    inline int stk_probe(ptrdiff_t i) {
+        return a_top - a_bot <= i ? fault_stack(i) : 0;
+    }
 };
 
-inline ici_array_t *ici_arrayof(ici_obj_t *o)   { return static_cast<ici_array_t *>(o); }
-inline bool ici_isarray(ici_obj_t *o)           { return o->isa(ICI_TC_ARRAY); }
-
-/*
- * Check that there is room for 'n' new elements on the end of 'a'.  May
- * reallocate array memory to get more room. Return non-zero on failure,
- * usual conventions.
- *
- * This function can only be used where the array has never had
- * elements rpush()ed or rpop()ed. See the discussion on 'Accessing
- * ICI array object from C' before using.
- *
- * This --func-- forms part of the --ici-ap--.
- */
-inline int ici_stk_push_chk(ici_array_t *a, ptrdiff_t n) {
-    return a->a_limit - a->a_top < n ? a->grow_stack(n) : 0;
-}
-
-/*
- * Ensure that the stack a has i as a valid index.  Will grow and NULL fill
- * as necessary. Return non-zero on failure, usual conventions.
- */
-inline int ici_stk_probe(ici_array_t *a, ptrdiff_t i) {
-    return a->a_top - a->a_bot <= i ? a->fault_stack(i) : 0;
-}
-
-/*
- * A function to assist in doing for loops over the elements of an array.
- * Use as:
- *
- *  ici_array_t  *a;
- *  ici_obj_t    **e;
- *  for (e = ici_astart(a); e != ici_alimit(a); e = ici_anext(a, e))
- *      ...
- *
- * This --func-- forms part of the --ici-api--.
- */
-inline ici_obj_t **ici_astart(ici_array_t *a) {
-    return a->a_bot == a->a_limit && a->a_bot != a->a_top ? a->a_base : a->a_bot;
-}
-
-/*
- * A function to assist in doing for loops over the elements of an array.
- * Use as:
- *
- *  ici_array_t  *a;
- *  ici_obj_t    **e;
- *  for (e = ici_astart(a); e != ici_alimit(a); e = ici_anext(a, e))
- *      ...
- *
- * This --func-- forms part of the --ici-api--.
- */
-inline ici_obj_t **ici_alimit(ici_array_t *a) {
-    return a->a_top;
-}
-
-/*
- * A funcion to assist in doing for loops over the elements of an array.
- * Use as:
- *
- *  ici_array_t  *a;
- *  ici_obj_t    **e;
- *  for (e = ici_astart(a); e != ici_alimit(a); e = ici_anext(a, e))
- *      ...
- *
- * This --func-- forms part of the --ici-api--.
- */
-inline ici_obj_t **ici_anext(ici_array_t *a, ici_obj_t **e) {
-    return e + 1 == a->a_limit && a->a_limit != a->a_top ? a->a_base : e + 1;
-}
+inline ici_array_t *ici_arrayof(object *o)   { return static_cast<ici_array_t *>(o); }
+inline bool ici_isarray(object *o)           { return o->isa(ICI_TC_ARRAY); }
 
  /*
  * End of ici.h export. --ici.h-end--
@@ -175,14 +153,14 @@ class array_type : public type
  public:
     array_type() : type("array", sizeof (struct array), type::has_forall) {}
 
-    unsigned long       mark(ici_obj_t *o) override;
-    void                free(ici_obj_t *o) override;
-    unsigned long       hash(ici_obj_t *o) override;
-    int                 cmp(ici_obj_t *o1, ici_obj_t *o2) override;
-    ici_obj_t *         copy(ici_obj_t *o) override;
-    int                 assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v) override;
-    ici_obj_t *         fetch(ici_obj_t *o, ici_obj_t *k) override;
-    int                 forall(ici_obj_t *o) override;
+    unsigned long   mark(object *o) override;
+    void            free(object *o) override;
+    unsigned long   hash(object *o) override;
+    int             cmp(object *o1, object *o2) override;
+    object *        copy(object *o) override;
+    int             assign(object *o, object *k, object *v) override;
+    object *        fetch(object *o, object *k) override;
+    int             forall(object *o) override;
 };
 
 } // namespace ici

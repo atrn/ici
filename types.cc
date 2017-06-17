@@ -40,39 +40,39 @@ namespace ici
 type_t      *types[max_types] =
 {
     nullptr,
-    instance_of<pc_type>(),
-    instance_of<src_type>(),
-    instance_of<parse_type>(),
-    instance_of<op_type>(),
-    instance_of<string_type>(),
-    instance_of<catch_type>(),
-    instance_of<forall_type>(),
-    instance_of<int_type>(),
-    instance_of<float_type>(),
-    instance_of<regexp_type>(),
-    instance_of<ptr_type>(),
-    instance_of<array_type>(),
-    instance_of<struct_type>(),
-    instance_of<set_type>(),
-    instance_of<exec_type>(),
-    instance_of<file_type>(),
-    instance_of<func_type>(),
-    instance_of<cfunc_type>(),
-    instance_of<method_type>(),
-    instance_of<mark_type>(),
-    instance_of<null_type>(),
-    instance_of<handle_type>(),
-    instance_of<mem_type>(),
+    ptr_to_instance_of<pc_type>(),
+    ptr_to_instance_of<src_type>(),
+    ptr_to_instance_of<parse_type>(),
+    ptr_to_instance_of<op_type>(),
+    ptr_to_instance_of<string_type>(),
+    ptr_to_instance_of<catch_type>(),
+    ptr_to_instance_of<forall_type>(),
+    ptr_to_instance_of<int_type>(),
+    ptr_to_instance_of<float_type>(),
+    ptr_to_instance_of<regexp_type>(),
+    ptr_to_instance_of<ptr_type>(),
+    ptr_to_instance_of<array_type>(),
+    ptr_to_instance_of<struct_type>(),
+    ptr_to_instance_of<set_type>(),
+    ptr_to_instance_of<exec_type>(),
+    ptr_to_instance_of<file_type>(),
+    ptr_to_instance_of<func_type>(),
+    ptr_to_instance_of<cfunc_type>(),
+    ptr_to_instance_of<method_type>(),
+    ptr_to_instance_of<mark_type>(),
+    ptr_to_instance_of<null_type>(),
+    ptr_to_instance_of<handle_type>(),
+    ptr_to_instance_of<mem_type>(),
 #ifndef NOPROFILE
-    instance_of<profilecall_type>(),
+    ptr_to_instance_of<profilecall_type>(),
 #else
     nullptr,
 #endif
-    instance_of<archive_type>(),
+    ptr_to_instance_of<archive_type>(),
     nullptr, // ICI_TC_REF is special, a reserved type code with no actual type
-    instance_of<restorer_type>(),
-    instance_of<saver_type>(),
-    instance_of<channel_type>()
+    ptr_to_instance_of<restorer_type>(),
+    ptr_to_instance_of<saver_type>(),
+    ptr_to_instance_of<channel_type>()
 };
 
 static int ntypes = ICI_TC_MAX_CORE + 1;
@@ -88,7 +88,7 @@ static int ntypes = ICI_TC_MAX_CORE + 1;
  *
  * This --func-- forms part of the --ici-api--.
  */
-int ici_register_type(type_t *t)
+int register_type(type *t)
 {
     if (ntypes == max_types)
     {

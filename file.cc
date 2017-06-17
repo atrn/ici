@@ -23,7 +23,7 @@ namespace ici
  * will be used to do I/O operations on the file (see 'ici_ftype_t').  The
  * given structure is assumed to exist as long as necessary.  (It is normally
  * a static srtucture, so this is not a problem.) The core-supplied struct
- * 'ici_stdio_ftype' can be used if 'fp' is a 'STREAM *'.
+ * 'stdio_ftype' can be used if 'fp' is a 'STREAM *'.
  *
  * The 'ref' argument is an object reference that the file object will keep in
  * case the 'fp' argument is an implicit reference into some object (for
@@ -77,11 +77,11 @@ ici_file_close(ici_file_t *f)
     /*
      * If this is a pipe opened with popen(), 'r' is actually the exit status
      * of the process.  If this is non-zero, format it into an error message.
-     * Note: we can't do this within ici_popen_ftype's ft_close(), because
+     * Note: we can't do this within popen_ftype's ft_close(), because
      * modifying ici_error between calls to ici_leave()/ici_enter() is not
      * allowed.
      */
-    if (r != 0 && f->f_type == ici_popen_ftype)
+    if (r != 0 && f->f_type == popen_ftype)
     {
         ici_set_error("popen command exit status %d", r);
     }
@@ -130,7 +130,7 @@ ici_obj_t * file_type::fetch(ici_obj_t *o, ici_obj_t *k)
             return ici_fileof(o)->f_name;
         return ici_null;
     }
-    if (ici_fileof(o)->f_type == ici_parse_ftype && k == SSO(line))
+    if (ici_fileof(o)->f_type == parse_ftype && k == SSO(line))
     {
         ici_int_t   *l;
 

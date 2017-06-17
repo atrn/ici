@@ -156,15 +156,15 @@ ici_engine_stack_check()
     ici_array_t         *pcs;
     int                 depth;
 
-    if (ici_stk_push_chk(&ici_xs, 60))
+    if (ici_xs.stk_push_chk(60))
     {
         return 1;
     }
-    if (ici_stk_push_chk(&ici_os, 60))
+    if (ici_os.stk_push_chk(60))
     {
         return 1;
     }
-    if (ici_stk_push_chk(&ici_vs, 60))
+    if (ici_vs.stk_push_chk(60))
     {
         return 1;
     }
@@ -172,7 +172,7 @@ ici_engine_stack_check()
     depth = (ici_xs.a_top - ici_xs.a_base) + 60;
     if ((depth -= (pcs->a_top - pcs->a_base)) > 0)
     {
-        if (ici_stk_push_chk(pcs, depth))
+        if (pcs->stk_push_chk(depth))
         {
             return 1;
         }

@@ -62,10 +62,10 @@ ici_funcv(ici_obj_t *subject, ici_obj_t *callable, const char *types, va_list va
 
     os_depth = ici_os.a_top - ici_os.a_base;
     /*
-     * We include an extra 80 in our ici_stk_push_chk, see start of evaluate().
+     * We include an extra 80 in our stk_push_chk, see start of evaluate().
      */
     nargs = strlen(types);
-    if (ici_stk_push_chk(&ici_os, nargs + 80))
+    if (ici_os.stk_push_chk(nargs + 80))
     {
         return 1;
     }

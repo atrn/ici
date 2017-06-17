@@ -221,7 +221,7 @@ ident_list(ici_parse_t *p)
             reject(p);
             return a;
         }
-        if (ici_stk_push_chk(a, 1))
+        if (a->stk_push_chk(1))
         {
             goto fail;
         }
@@ -310,7 +310,7 @@ function(ici_parse_t *p, ici_str_t *name)
     {
         --f->f_code->a_top;
     }
-    if (ici_stk_push_chk(f->f_code, 3))
+    if (f->f_code->stk_push_chk(3))
     {
         goto fail;
     }
@@ -479,7 +479,7 @@ compound_statement(ici_parse_t *p, ici_struct_t *sw)
         --a->a_top;
     }
 
-    if (ici_stk_push_chk(a, 1))
+    if (a->stk_push_chk(1))
     {
         goto fail;
     }
@@ -699,7 +699,7 @@ primary(ici_parse_t *p, expr_t **ep, int exclude)
                     goto fail;
 
                 case 1:
-                    if (ici_stk_push_chk(a, 1))
+                    if (a->stk_push_chk(1))
                     {
                         a->decref();
                         goto fail;
@@ -856,7 +856,7 @@ primary(ici_parse_t *p, expr_t **ep, int exclude)
                     goto fail;
                 }
                 autos->o_super = ici_objwsupof(d);
-                if (ici_stk_push_chk(&ici_vs, 80)) /* ### Formalise */
+                if (ici_vs.stk_push_chk(80)) /* ### Formalise */
                 {
                     d->decref();
                     goto fail;
@@ -1053,7 +1053,7 @@ primary(ici_parse_t *p, expr_t **ep, int exclude)
                     goto fail_user_parse;
                 }
             }
-            f = ici_file_new(p, ici_parse_ftype, p->p_file->f_name, p);
+            f = ici_file_new(p, parse_ftype, p->p_file->f_name, p);
             if (f == NULL)
                 goto fail_user_parse;
             c->incref();
@@ -1529,7 +1529,7 @@ const_expression(ici_parse_t *p, ici_obj_t **po, int exclude)
     {
         goto fail;
     }
-    if (ici_stk_push_chk(a, 1))
+    if (a->stk_push_chk(1))
     {
         goto fail;
     }
@@ -1801,7 +1801,7 @@ statement(ici_parse_t *p, ici_array_t *a, ici_struct_t *sw, const char *m, int e
             {
                 reject(p);
             }
-            if (ici_stk_push_chk(a, 3))
+            if (a->stk_push_chk(3))
             {
                 a1->decref();
                 if (a2 != NULL)
@@ -1837,7 +1837,7 @@ statement(ici_parse_t *p, ici_array_t *a, ici_struct_t *sw, const char *m, int e
                 a1->decref();
                 return -1;
             }
-            if (ici_stk_push_chk(a1, 1))
+            if (a1->stk_push_chk(1))
             {
                 a1->decref();
                 return -1;
@@ -1854,13 +1854,13 @@ statement(ici_parse_t *p, ici_array_t *a, ici_struct_t *sw, const char *m, int e
                     return -1;
                 }
             }
-            if (ici_stk_push_chk(a1, 1))
+            if (a1->stk_push_chk(1))
             {
                 a1->decref();
                 return -1;
             }
             *a1->a_top++ = &ici_o_rewind;
-            if (ici_stk_push_chk(a, 2))
+            if (a->stk_push_chk(2))
             {
                 a1->decref();
                 return -1;
@@ -1913,7 +1913,7 @@ statement(ici_parse_t *p, ici_array_t *a, ici_struct_t *sw, const char *m, int e
                 a1->decref();
                 return not_followed_by("do statement while (expr", "\");\"");
             }
-            if (ici_stk_push_chk(a1, 2))
+            if (a1->stk_push_chk(2))
             {
                 a1->decref();
                 return -1;
@@ -1921,7 +1921,7 @@ statement(ici_parse_t *p, ici_array_t *a, ici_struct_t *sw, const char *m, int e
             *a1->a_top++ = &ici_o_ifnotbreak;
             *a1->a_top++ = &ici_o_rewind;
 
-            if (ici_stk_push_chk(a, 2))
+            if (a->stk_push_chk(2))
             {
                 a1->decref();
                 return -1;
@@ -1947,7 +1947,7 @@ statement(ici_parse_t *p, ici_array_t *a, ici_struct_t *sw, const char *m, int e
             }
             if (rc == 0)
             {
-                if (ici_stk_push_chk(a, 2))
+                if (a->stk_push_chk(2))
                     return -1;
                 *a->a_top++ = ici_null;
                 *a->a_top++ = ici_null;
@@ -1975,7 +1975,7 @@ statement(ici_parse_t *p, ici_array_t *a, ici_struct_t *sw, const char *m, int e
                 }
                 this = T_NONE; /* Take ownership of name. */
                 p->p_got.t_obj->decref();
-                if (ici_stk_push_chk(a, 2))
+                if (a->stk_push_chk(2))
                 {
                     return -1;
                 }
@@ -2006,7 +2006,7 @@ statement(ici_parse_t *p, ici_array_t *a, ici_struct_t *sw, const char *m, int e
                     return -1;
                 }
             }
-            if (ici_stk_push_chk(a, 2))
+            if (a->stk_push_chk(2))
             {
                 a1->decref();
                 return -1;
@@ -2079,7 +2079,7 @@ statement(ici_parse_t *p, ici_array_t *a, ici_struct_t *sw, const char *m, int e
                     return -1;
                 }
                 free_expr(e);
-                if (ici_stk_push_chk(a1, 1))
+                if (a1->stk_push_chk(1))
                 {
                     a1->decref();
                     return -1;
@@ -2103,13 +2103,13 @@ statement(ici_parse_t *p, ici_array_t *a, ici_struct_t *sw, const char *m, int e
                     return -1;
                 }
             }
-            if (ici_stk_push_chk(a1, 1))
+            if (a1->stk_push_chk(1))
             {
                 a1->decref();
                 return -1;
             }
             *a1->a_top++ = &ici_o_rewind;
-            if (ici_stk_push_chk(a, 2))
+            if (a->stk_push_chk(2))
             {
                 a1->decref();
                 return -1;
@@ -2149,7 +2149,7 @@ statement(ici_parse_t *p, ici_array_t *a, ici_struct_t *sw, const char *m, int e
                     return -1;
                 }
             }
-            if (ici_stk_push_chk(a, 3))
+            if (a->stk_push_chk(3))
             {
                 d->decref();
                 p->p_got.t_obj->decref();
@@ -2174,7 +2174,7 @@ statement(ici_parse_t *p, ici_array_t *a, ici_struct_t *sw, const char *m, int e
                 reject(p);
                 return not_followed_by("break", "\";\"");
             }
-            if (ici_stk_push_chk(a, 1))
+            if (a->stk_push_chk(1))
             {
                 return -1;
             }
@@ -2194,7 +2194,7 @@ statement(ici_parse_t *p, ici_array_t *a, ici_struct_t *sw, const char *m, int e
                 reject(p);
                 return not_followed_by("continue", "\";\"");
             }
-            if (ici_stk_push_chk(a, 1))
+            if (a->stk_push_chk(1))
             {
                 return -1;
             }
@@ -2208,7 +2208,7 @@ statement(ici_parse_t *p, ici_array_t *a, ici_struct_t *sw, const char *m, int e
             {
             case -1: return -1;
             case 0:
-                if (ici_stk_push_chk(a, 1))
+                if (a->stk_push_chk(1))
 		{
                     return -1;
 		}
@@ -2223,7 +2223,7 @@ statement(ici_parse_t *p, ici_array_t *a, ici_struct_t *sw, const char *m, int e
                 reject(p);
                 return not_followed_by("return [expr]", "\";\"");
             }
-            if (ici_stk_push_chk(a, 1))
+            if (a->stk_push_chk(1))
 	    {
                 return -1;
 	    }
@@ -2260,7 +2260,7 @@ statement(ici_parse_t *p, ici_array_t *a, ici_struct_t *sw, const char *m, int e
                 a2->decref();
                 return -1;
             }
-            if (ici_stk_push_chk(a, 3))
+            if (a->stk_push_chk(3))
             {
                 a1->decref();
                 a2->decref();
@@ -2280,7 +2280,7 @@ statement(ici_parse_t *p, ici_array_t *a, ici_struct_t *sw, const char *m, int e
              * Start a critical section with a new code array (a1) as
              * its subject. Into this code array we place the statement.
              */
-            if (ici_stk_push_chk(a, 2))
+            if (a->stk_push_chk(2))
             {
                 return -1;
             }
@@ -2308,7 +2308,7 @@ statement(ici_parse_t *p, ici_array_t *a, ici_struct_t *sw, const char *m, int e
              * temporarily releases one level of critical section around
              * the actual wait call.
              */
-            if (ici_stk_push_chk(a, 2))
+            if (a->stk_push_chk(2))
             {
                 return -1;
             }
@@ -2323,7 +2323,7 @@ statement(ici_parse_t *p, ici_array_t *a, ici_struct_t *sw, const char *m, int e
              * Start a new code array (a2) and establish it as the body of
              * a loop.
              */
-            if (ici_stk_push_chk(a1, 2))
+            if (a1->stk_push_chk(2))
             {
                 return -1;
             }
@@ -2351,7 +2351,7 @@ statement(ici_parse_t *p, ici_array_t *a, ici_struct_t *sw, const char *m, int e
             case 0: not_followed_by("waitfor (", an_expression);
             case -1: return -1;
             }
-            if (ici_stk_push_chk(a2, 1))
+            if (a2->stk_push_chk(1))
             {
                 return -1;
             }
@@ -2366,7 +2366,7 @@ statement(ici_parse_t *p, ici_array_t *a, ici_struct_t *sw, const char *m, int e
             case 0: not_followed_by("waitfor (expr;", an_expression);
             case -1: return -1;
             }
-            if (ici_stk_push_chk(a2, 2))
+            if (a2->stk_push_chk(2))
             {
                 return -1;
             }
@@ -2423,7 +2423,7 @@ statement(ici_parse_t *p, ici_array_t *a, ici_struct_t *sw, const char *m, int e
             --a->a_top;
         }
 
-        if (ici_stk_push_chk(a, 1))
+        if (a->stk_push_chk(1))
         {
             return -1;
         }
@@ -2562,7 +2562,7 @@ ici_parse_fname(const char *fname)
     {
         return ici_get_last_errno("fopen", fname);
     }
-    r = ici_parse_file(fname, (char *)stream, ici_stdio_ftype);
+    r = ici_parse_file(fname, (char *)stream, stdio_ftype);
     fclose(stream);
     return r;
 }
@@ -2731,7 +2731,7 @@ parse_file_argcheck()
     {
         return NULL;
     }
-    if (f->f_type != ici_parse_ftype)
+    if (f->f_type != parse_ftype)
     {
         ici_argerror(0);
         return NULL;
@@ -2754,7 +2754,7 @@ f_parseopen(...)
     {
 	return 1;
     }
-    if ((p = ici_file_new((char *)parse, ici_parse_ftype, f->f_name, NULL)) == NULL)
+    if ((p = ici_file_new((char *)parse, parse_ftype, f->f_name, NULL)) == NULL)
     {
         parse->decref();
 	return 1;
@@ -2845,7 +2845,7 @@ f_rejectchar(...)
     {
         return 1;
     }
-    if (f->f_type != ici_parse_ftype)
+    if (f->f_type != parse_ftype)
     {
         ici_argerror(0);
         return 1;

@@ -36,7 +36,7 @@ constexpr int FT_NOMUTEX = 0x01;
  * assumed to be compatible with the stdio function of the same name.  In the
  * case were the file is a stdio stream, these *are* the stdio functions.
  *
- * See also: 'ici_stdio_ftype', 'ici_popen_ftype'.
+ * See also: 'stdio_ftype', 'popen_ftype', 'parse_ftype' et al.
  *
  * This --struct-- forms part of the --ici-api--.
  */
@@ -77,7 +77,9 @@ public:
     virtual int ft_setvbuf(void *, char *, int, size_t) override;
 };
 
-/**
+/*
+ * The ftype for pipes is just a stdio ftype that uses pclose()
+ * for its close implementation and checks the returned exit status.
  */
 class popen_ftype : public stdio_ftype
 {

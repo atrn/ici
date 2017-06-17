@@ -63,7 +63,7 @@ ici_exec_forall()
     t = ici_typeof(fa->fa_aggr);
     if (!t->can_forall())
     {
-        char n[ICI_OBJNAMEZ+1];
+        char n[ICI_OBJNAMEZ];
         return ici_set_error("attempt to forall over %s", ici_objname(n, fa->fa_aggr));
     }
     switch (t->forall(fa))

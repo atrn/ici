@@ -176,7 +176,7 @@ save_array(archive *ar, object *obj)
 
     if (save_object_name(ar, obj) || writel(ar, a->len()))
         return 1;
-    for (e = ici_astart(a); e != ici_alimit(a); e = ici_anext(a, e))
+    for (e = a->astart(); e != a->alimit(); e = a->anext(e))
     {
         if (archive_save(ar, *e))
             return 1;
