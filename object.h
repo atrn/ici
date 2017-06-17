@@ -17,9 +17,9 @@ namespace ici
 /*
  * The generic flags that may appear in the lower 4 bits of o_flags are:
  *
- * ICI_O_MARK               The garbage collection mark flag.
+ * ICI_O_MARK           The garbage collection mark flag.
  *
- * ICI_O_ATOM               Indicates that this object is the read-only
+ * ICI_O_ATOM           Indicates that this object is the read-only
  *                      atomic form of all objects of the same type with
  *                      the same value. Any attempt to change an object
  *                      in a way that would change its value with respect
@@ -27,7 +27,7 @@ namespace ici
  *                      check for this flag and fail the attempt if it is
  *                      set.
  *
- * ICI_O_SUPER              This object can support a super.
+ * ICI_O_SUPER          This object can support a super.
  *
  * --ici-api-- continued.
  */
