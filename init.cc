@@ -71,7 +71,7 @@ ici_init()
     }
 #   endif
 
-    if (ici_chkbuf(1024))
+    if (chkbuf(1024))
     {
         return 1;
     }

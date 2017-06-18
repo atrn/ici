@@ -282,7 +282,7 @@ main(int argc, char *argv[])
                         goto usage;
                     else
                         s = argv[i];
-                    if (ici_chkbuf(strlen(s) + strlen(fmt)))
+                    if (chkbuf(strlen(s) + strlen(fmt)))
                         goto fail;
                     sprintf(buf, fmt, s);
                     if ((stream = fopen(buf, "r")) == NULL)

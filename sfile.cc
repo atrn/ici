@@ -261,7 +261,7 @@ ici_open_charbuf(char *data, int size, ici_obj_t *ref, int readonly)
         {
             f = ici_file_new((char *)cb, charbuf_ftype, NULL, ref);
         }
-        else if (!ici_chkbuf(50))
+        else if (!chkbuf(50))
         {
             char n[ICI_OBJNAMEZ];
             ici_set_error("attempt to open %s as a char buffer", ici_objname(n, ref));

@@ -138,14 +138,14 @@ ici_uninit()
     }
 #endif
 
-    if (ici_buf != ici_error)
+    if (buf != ici_error)
     {
         /* Free the general purpose buffer. ### Hmm... If we do this we can't
         return ici_error from ici_main.*/
-        ici_nfree(ici_buf, ici_bufz + 1);
+        ici_nfree(buf, bufz + 1);
     }
-    ici_buf = NULL;
-    ici_bufz = 0;
+    buf = NULL;
+    bufz = 0;
 
     /*
      * Destroy the now empty atom pool and list of registered objects.

@@ -507,7 +507,7 @@ ici_lex(ici_parse_t *p, ici_array_t *a)
         i = 0;
         while ((c = get(p, a)) != '#' && c != '\n' && c != EOF)
         {
-            if (ici_chkbuf(i))
+            if (chkbuf(i))
             {
                 goto fail;
             }
@@ -534,7 +534,7 @@ ici_lex(ici_parse_t *p, ici_array_t *a)
         i = 0;
         while ((c = get(p, a)) != (t == T_INT ? '\'' : '"') && c != '\n' && c!=EOF)
         {
-            if (ici_chkbuf(i))
+            if (chkbuf(i))
             {
                 goto fail;
             }
@@ -626,7 +626,7 @@ ici_lex(ici_parse_t *p, ici_array_t *a)
                 break;
             }
         }
-        if (ici_chkbuf(i))
+        if (chkbuf(i))
         {
             goto fail;
         }
@@ -687,7 +687,7 @@ ici_lex(ici_parse_t *p, ici_array_t *a)
         fstate = c=='.' ? FS_INFRAC : c>='0' && c<='9' ? FS_ININT : FS_NOTF;
         for (;;)
         {
-            if (ici_chkbuf(i))
+            if (chkbuf(i))
             {
                 goto fail;
             }
@@ -742,7 +742,7 @@ ici_lex(ici_parse_t *p, ici_array_t *a)
 
         }
         unget(c, p);
-        if (ici_chkbuf(i))
+        if (chkbuf(i))
         {
             break;
         }

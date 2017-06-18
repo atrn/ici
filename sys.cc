@@ -334,8 +334,8 @@ static int ici_sys_open()
 static int
 not_on_win32(const char *s)
 {
-    sprintf(ici_buf, "%s is not implemented on Win32 platforms", s);
-    ici_set_error(ici_buf);
+    sprintf(buf, "%s is not implemented on Win32 platforms", s);
+    ici_set_error(buf);
     return 1;
 }
 #endif

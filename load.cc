@@ -160,7 +160,7 @@ f_load(...)
 #ifndef SUNOS5 /* Doing the dlclose results in a crash under Solaris - why? */
             dlclose(lib);
 #endif
-            if (ici_chkbuf(strlen(entry_symbol) + strlen(fname)))
+            if (chkbuf(strlen(entry_symbol) + strlen(fname)))
                 ici_set_error("failed to find library entry point");
             else
             {

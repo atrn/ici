@@ -1681,7 +1681,7 @@ ici_f_sprintf()
     {
         if (*p != '%')
         {
-            if (ici_chkbuf(i))
+            if (chkbuf(i))
                 return 1;
             buf[i++] = *p++;
             continue;
@@ -1748,7 +1748,7 @@ ici_f_sprintf()
                 ivalue = (long)ici_floatof(*o)->f_value;
             else
                 goto type;
-            if (ici_chkbuf(i + 30 + stars[0] + stars[1])) /* Pessimistic. */
+            if (chkbuf(i + 30 + stars[0] + stars[1])) /* Pessimistic. */
                 return 1;
             switch (nstars)
             {
@@ -1777,7 +1777,7 @@ ici_f_sprintf()
                 ivalue = (long)ici_floatof(*o)->f_value;
             else
                 goto type;
-            if (ici_chkbuf(i + 30 + stars[0] + stars[1])) /* Pessimistic. */
+            if (chkbuf(i + 30 + stars[0] + stars[1])) /* Pessimistic. */
                 return 1;
             switch (nstars)
             {
@@ -1803,7 +1803,7 @@ ici_f_sprintf()
             if (!ici_isstring(*o))
                 goto type;
             svalue = ici_stringof(*o)->s_chars;
-            if (ici_chkbuf(i + ici_stringof(*o)->s_nchars + stars[0] + stars[1]))
+            if (chkbuf(i + ici_stringof(*o)->s_nchars + stars[0] + stars[1]))
                 return 1;
             switch (nstars)
             {
@@ -1828,7 +1828,7 @@ ici_f_sprintf()
                 goto lacking;
             ici_objname(oname, *o);
             svalue = oname;
-            if (ici_chkbuf(i + ICI_OBJNAMEZ + stars[0] + stars[1]))
+            if (chkbuf(i + ICI_OBJNAMEZ + stars[0] + stars[1]))
                 return 1;
             subfmt[strlen(subfmt) - 1] = 's';
             switch (nstars)
@@ -1862,7 +1862,7 @@ ici_f_sprintf()
                 fvalue = ici_floatof(*o)->f_value;
             else
                 goto type;
-            if (ici_chkbuf(i + 40 + stars[0] + stars[1])) /* Pessimistic. */
+            if (chkbuf(i + 40 + stars[0] + stars[1])) /* Pessimistic. */
                 return 1;
             switch (nstars)
             {
@@ -1883,7 +1883,7 @@ ici_f_sprintf()
             break;
 
         case '%':
-            if (ici_chkbuf(i))
+            if (chkbuf(i))
                 return 1;
             buf[i++] = '%';
             continue;
@@ -2407,7 +2407,7 @@ f_gettoken()
     j = 0;
     do
     {
-        ici_chkbuf(j);
+        chkbuf(j);
         buf[j++] = c;
         c = f->getch();
         if (c == EOF)
@@ -2714,7 +2714,7 @@ f_gettokens()
             j = 0;
             state = S_INTOK;
         case (S_INTOK << 8) + W_TOK:
-            if (ici_chkbuf(j))
+            if (chkbuf(j))
                 goto fail;
             buf[j++] = c;
         }

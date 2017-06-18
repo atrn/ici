@@ -601,7 +601,7 @@ primary(ici_parse_t *p, expr_t **ep, int exclude)
             int        i;
 
             i = ici_stringof(p->p_got.t_obj)->s_nchars;
-            if (ici_chkbuf(ici_stringof(o)->s_nchars + i + 1))
+            if (chkbuf(ici_stringof(o)->s_nchars + i + 1))
             {
                 goto fail;
             }

@@ -25,11 +25,11 @@ ici_get_last_win32_error()
         NULL,
         GetLastError(),
         MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
-        ici_buf,
-        ici_bufz,
+        buf,
+        bufz,
         NULL
     );
-    return ici_set_error("%s", ici_buf);
+    return ici_set_error("%s", buf);
 }
 
 } // namespace ici

@@ -104,7 +104,7 @@ namespace ici
  * If fmt is NULL then the fallback string is used to set the ici error
  * string.  If fmt is non-NULL it is used to format a message using
  * sprintf and any actual parameters.  The formatted message must fit
- * within 256 characters. If ici_buf cannot size itself to contain the
+ * within 256 characters. If buf cannot size itself to contain the
  * formatted message the fallback message is used to set error.
  */
 static int
@@ -112,14 +112,14 @@ seterror(const char *fallback, const char *fmt, ...)
 {
     va_list     va;
 
-    if (fmt == NULL || ici_chkbuf(256))
+    if (fmt == NULL || chkbuf(256))
         ici_set_error(fallback);
     else
     {
         va_start(va, fmt);
-        vsprintf(ici_buf, fmt, va);
+        vsprintf(buf, fmt, va);
         va_end(va);
-        ici_set_error(ici_buf);
+        ici_set_error(buf);
     }
     return 1;
 }
@@ -558,8 +558,8 @@ ici_net_connect(void)
         addr = ici_stringof(arg)->s_chars;
     else if (ici_isint(arg))
     {
-        sprintf(ici_buf, "%lld", ici_intof(arg)->i_value);
-        addr = ici_buf;
+        sprintf(buf, "%lld", ici_intof(arg)->i_value);
+        addr = buf;
     }
     else
         return ici_argerror(1);
@@ -613,8 +613,8 @@ ici_net_bind(void)
             addr = ici_stringof(ICI_ARG(1))->s_chars;
         else if (ici_isint(ICI_ARG(1)))
         {
-            sprintf(ici_buf, "%lld", ici_intof(ICI_ARG(1))->i_value);
-            addr = ici_buf;
+            sprintf(buf, "%lld", ici_intof(ICI_ARG(1))->i_value);
+            addr = buf;
         }
         else
             return ici_argerror(1);

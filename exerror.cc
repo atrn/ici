@@ -43,7 +43,7 @@ ici_expand_error(int lineno, ici_str_t *fname)
         else
             sprintf(s, "%s", ici_error);
     }
-    if (ici_chkbuf(strlen(s)))
+    if (chkbuf(strlen(s)))
         return;
     strcpy(buf, s);
     ici_nfree(s, z);
