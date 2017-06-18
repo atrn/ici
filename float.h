@@ -20,10 +20,12 @@ namespace ici
 struct ici_float : object
 {
     ici_float(double v = 0.0) : object(ICI_TC_FLOAT), f_value(v) {}
-    double      f_value;
+    double f_value;
 };
-#define ici_floatof(o)      (static_cast<ici_float_t *>(o))
-#define ici_isfloat(o)      ((o)->o_tcode == ICI_TC_FLOAT)
+
+inline ici_float *ici_floatof(object *o) { return static_cast<ici_float *>(o); }
+inline bool ici_isfloat(object *o) { return o->isa(ICI_TC_FLOAT); }
+
 /*
  * End of ici.h export. --ici.h-end--
  */
@@ -51,8 +53,8 @@ class float_type : public type
 {
 public:
     float_type() : type("float", sizeof (struct ici_float)) {}
-    int cmp(ici_obj_t *o1, ici_obj_t *o2) override;
-    unsigned long hash(ici_obj_t *o) override;
+    int cmp(object *o1, object *o2) override;
+    unsigned long hash(object *o) override;
 };
 
 } // namespace ici

@@ -27,8 +27,8 @@ struct ici_int : object
     int64_t i_value;
 };
 
-inline ici_int_t *ici_intof(ici_obj_t *o) { return static_cast<ici_int_t *>(o); }
-inline bool ici_isint(ici_obj_t *o) { return o->isa(ICI_TC_INT); }
+inline ici_int *ici_intof(object *o) { return static_cast<ici_int *>(o); }
+inline bool ici_isint(object *o) { return o->isa(ICI_TC_INT); }
 
 /*
  * End of ici.h export. --ici.h-end--
@@ -38,17 +38,17 @@ class int_type : public type
 {
 public:
     int_type() : type("int", sizeof (struct ici_int)) {}
-    int cmp(ici_obj_t *, ici_obj_t *) override;
-    unsigned long hash(ici_obj_t *) override;
+    int cmp(object *, object *) override;
+    unsigned long hash(object *) override;
 };
 
 /*
- * So-called "small" integers are pre-created.
+ * So-called "small" integers are pre-created to prime the atom table.
  */
-constexpr int ICI_SMALL_INT_COUNT = 1024;
-constexpr int ICI_SMALL_INT_MASK  = 0x3FF;
+constexpr int small_int_count = 1024;
+constexpr int small_int_mask  = 0x3FF;
 
-extern ici_int_t *ici_small_ints[ICI_SMALL_INT_COUNT];
+extern ici_int *small_ints[small_int_count];
 
 } // namespace ici
 

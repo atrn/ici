@@ -6,7 +6,7 @@
 namespace ici
 {
 
-ici_int_t                   *ici_small_ints[ICI_SMALL_INT_COUNT];
+ici_int *small_ints[small_int_count];
 
 /*
  * Return the int object with the value 'v'.  The returned object has had its
@@ -18,13 +18,13 @@ ici_int_t                   *ici_small_ints[ICI_SMALL_INT_COUNT];
  *
  * This --func-- forms part of the --ici-api--.
  */
-ici_int_t *
+ici_int *
 ici_int_new(int64_t i)
 {
-    ici_obj_t           *o;
-    ici_obj_t           **po;
+    object *o;
+    object **po;
 
-    if ((i & ~ICI_SMALL_INT_MASK) == 0 && (o = ici_small_ints[i]) != NULL)
+    if ((i & ~small_int_mask) == 0 && (o = small_ints[i]) != NULL)
     {
         o->incref();
         return ici_intof(o);
@@ -43,12 +43,12 @@ ici_int_new(int64_t i)
         }
     }
     ++ici_supress_collect;
-    if ((o = ici_talloc(ici_int_t)) == NULL)
+    if ((o = ici_talloc(ici_int)) == NULL)
     {
         --ici_supress_collect;
         return NULL;
     }
-    ICI_OBJ_SET_TFNZ(o, ICI_TC_INT, ICI_O_ATOM, 1, sizeof(ici_int_t));
+    ICI_OBJ_SET_TFNZ(o, ICI_TC_INT, ICI_O_ATOM, 1, sizeof (ici_int));
     ici_rego(o);
     ici_intof(o)->i_value = i;
     --ici_supress_collect;
@@ -60,7 +60,7 @@ ici_int_new(int64_t i)
  * Returns 0 if these objects are equal, else non-zero.
  * See the comments on t_cmp() in object.h.
  */
-int int_type::cmp(ici_obj_t *o1, ici_obj_t *o2)
+int int_type::cmp(object *o1, object *o2)
 {
     return ici_intof(o1)->i_value != ici_intof(o2)->i_value;
 }
@@ -69,7 +69,7 @@ int int_type::cmp(ici_obj_t *o1, ici_obj_t *o2)
  * Return a hash sensitive to the value of the object.
  * See the comment on t_hash() in object.h
  */
-unsigned long int_type::hash(ici_obj_t *o)
+unsigned long int_type::hash(object *o)
 {
     /*
      * There are in-line versions of this in object.c and binop.h.

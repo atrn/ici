@@ -969,9 +969,9 @@ usei:
      * In-line expansion of atom_int() from object.c. Following that, and
      * merged with it, is in-line atom creation.
      */
-    if ((i & ~ICI_SMALL_INT_MASK) == 0)
+    if ((i & ~small_int_mask) == 0)
     {
-        o = ici_small_ints[i];
+        o = small_ints[i];
         USEo();
     }
     {

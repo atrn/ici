@@ -74,10 +74,10 @@ ici_uninit()
     /*
      * Clean up ICI variables used by various bits of ICI.
      */
-    for (i = 0; i < (int)nels(ici_small_ints); ++i)
+    for (i = 0; i < (int)nels(small_ints); ++i)
     {
-        ici_small_ints[i]->decref();
-        ici_small_ints[i] = NULL;
+        small_ints[i]->decref();
+        small_ints[i] = NULL;
     }
     if (ici_ver_cache != NULL)
         ici_ver_cache->decref();

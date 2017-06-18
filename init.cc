@@ -88,15 +88,15 @@ ici_init()
     memset((char *)ici_objs, 0, INITIAL_OBJS * sizeof(ici_obj_t *));
     ici_objs_limit = ici_objs + INITIAL_OBJS;
     ici_objs_top = ici_objs;
-    for (i = 0; i < (int)nels(ici_small_ints); ++i)
+    for (i = 0; i < (int)nels(small_ints); ++i)
     {
-        if ((ici_small_ints[i] = ici_int_new(i)) == NULL)
+        if ((small_ints[i] = ici_int_new(i)) == NULL)
         {
             return -1;
         }
     }
-    ici_zero = ici_small_ints[0];
-    ici_one = ici_small_ints[1];
+    ici_zero = small_ints[0];
+    ici_one = small_ints[1];
     if (ici_init_sstrings())
     {
         return 1;

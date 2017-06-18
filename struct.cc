@@ -30,7 +30,7 @@ uint32_t        ici_vsver   = 1;
 /*
  * Hash a pointer to get the initial position in a struct has table.
  */
-inline size_t HASHINDEX(ici_obj_t *k, ici_struct_t *s) {
+inline size_t HASHINDEX(object *k, ici_struct *s) {
     return ICI_PTR_HASH(k) & (s->s_nslots - 1);
 }
 
@@ -38,10 +38,10 @@ inline size_t HASHINDEX(ici_obj_t *k, ici_struct_t *s) {
  * Find the struct slot which does, or should, contain the key k.  Does
  * not look down the super chain.
  */
-ici_sslot_t *
-ici_find_raw_slot(ici_struct_t *s, ici_obj_t *k)
+sslot *
+ici_find_raw_slot(ici_struct *s, object *k)
 {
-    ici_sslot_t *sl = &s->s_slots[HASHINDEX(k, s)];
+    sslot *sl = &s->s_slots[HASHINDEX(k, s)];
     while (LIKELY(sl->sl_key != NULL))
     {
         if (LIKELY(sl->sl_key == k))
@@ -63,27 +63,27 @@ ici_find_raw_slot(ici_struct_t *s, ici_obj_t *k)
  *
  * This --func-- forms part of the --ici-api--.
  */
-ici_struct_t *
+ici_struct *
 ici_struct_new()
 {
-    ici_struct_t   *s;
+    ici_struct   *s;
 
     /*
      * NB: there is a copy of this sequence in copy_struct.
      */
-    if ((s = ici_talloc(ici_struct_t)) == NULL)
+    if ((s = ici_talloc(ici_struct)) == NULL)
         return NULL;
     ICI_OBJ_SET_TFNZ(s, ICI_TC_STRUCT, ICI_O_SUPER, 1, 0);
     s->o_super = NULL;
     s->s_slots = NULL;
     s->s_nels = 0;
     s->s_nslots = 4; /* Must be power of 2. */
-    if ((s->s_slots = (ici_sslot_t*)ici_nalloc(4 * sizeof(ici_sslot_t))) == NULL)
+    if ((s->s_slots = (sslot*)ici_nalloc(4 * sizeof(sslot))) == NULL)
     {
-        ici_tfree(s, ici_struct_t);
+        ici_tfree(s, ici_struct);
         return NULL;
     }
-    memset(s->s_slots, 0, 4 * sizeof(ici_sslot_t));
+    memset(s->s_slots, 0, 4 * sizeof(sslot));
     ici_rego(s);
     return s;
 }
@@ -99,11 +99,11 @@ ici_struct_new()
  * call this if you know exactly what you are doing.
  */
 void
-ici_invalidate_struct_lookaside(ici_struct_t *s)
+ici_invalidate_struct_lookaside(ici_struct *s)
 {
-    ici_sslot_t     *sl;
-    ici_sslot_t     *sle;
-    ici_str_t       *str;
+    sslot     *sl;
+    sslot     *sle;
+    str       *str;
 
     sl = s->s_slots;
     sle = sl + s->s_nslots;
@@ -126,14 +126,14 @@ ici_invalidate_struct_lookaside(ici_struct_t *s)
  * Grow the struct s so that it has twice as many slots.
  */
 static int
-grow_struct(ici_struct_t *s)
+grow_struct(ici_struct *s)
 {
-    ici_sslot_t *sl;
-    ici_sslot_t *oldslots;
-    int        i;
+    sslot *sl;
+    sslot *oldslots;
+    int   i;
 
-    i = (s->s_nslots * 2) * sizeof(ici_sslot_t);
-    if ((sl = (ici_sslot_t*)ici_nalloc(i)) == NULL)
+    i = (s->s_nslots * 2) * sizeof(sslot);
+    if ((sl = (sslot*)ici_nalloc(i)) == NULL)
         return 1;
     memset((char *)sl, 0, i);
     oldslots = s->s_slots;
@@ -147,7 +147,7 @@ grow_struct(ici_struct_t *s)
             *ici_find_raw_slot(s, oldslots[i].sl_key) = oldslots[i];
 	}
     }
-    ici_nfree((char *)oldslots, (s->s_nslots / 2) * sizeof(ici_sslot_t));
+    ici_nfree((char *)oldslots, (s->s_nslots / 2) * sizeof(sslot));
     ++ici_vsver;
     return 0;
 }
@@ -158,11 +158,11 @@ grow_struct(ici_struct_t *s)
  * This --func-- forms part of the --ici-api--.
  */
 void
-ici_struct_unassign(ici_struct_t *s, ici_obj_t *k)
+ici_struct_unassign(ici_struct *s, object *k)
 {
-    ici_sslot_t *sl;
-    ici_sslot_t *ss;
-    ici_sslot_t *ws;    /* Wanted position. */
+    sslot *sl;
+    sslot *ss;
+    sslot *ws;    /* Wanted position. */
 
     if ((ss = ici_find_raw_slot(s, k))->sl_key == NULL)
     {
@@ -226,9 +226,9 @@ ici_struct_unassign(ici_struct_t *s, ici_obj_t *k)
  * If not NULL, b is a struct that was the base element of this
  * fetch. This is used to mantain the lookup lookaside mechanism.
  */
-int struct_type::fetch_super(ici_obj_t *o, ici_obj_t *k, ici_obj_t **v, ici_struct_t *b)
+int struct_type::fetch_super(object *o, object *k, object **v, ici_struct *b)
 {
-    ici_sslot_t         *sl;
+    sslot *sl;
 
     do
     {
@@ -273,15 +273,15 @@ int struct_type::fetch_super(ici_obj_t *o, ici_obj_t *k, ici_obj_t **v, ici_stru
  * Mark this and referenced unmarked objects, return memory costs.
  * See comments on t_mark() in object.h.
  */
-size_t struct_type::mark(ici_obj_t *o)
+size_t struct_type::mark(object *o)
 {
-    ici_sslot_t *sl;
+    sslot *sl;
     unsigned long mem;
 
     do /* Merge tail recursion on o_super. */
     {
         o->setmark();
-        mem = typesize() + ici_structof(o)->s_nslots * sizeof(ici_sslot_t);
+        mem = typesize() + ici_structof(o)->s_nslots * sizeof(sslot);
         if (ici_structof(o)->s_nels != 0)
         {
             for
@@ -312,22 +312,22 @@ size_t struct_type::mark(ici_obj_t *o)
  * Free this object and associated memory (but not other objects).
  * See the comments on t_free() in object.h.
  */
-void struct_type::free(ici_obj_t *o)
+void struct_type::free(object *o)
 {
     if (ici_structof(o)->s_slots != NULL)
     {
-        ici_nfree(ici_structof(o)->s_slots, ici_structof(o)->s_nslots * sizeof(ici_sslot_t));
+        ici_nfree(ici_structof(o)->s_slots, ici_structof(o)->s_nslots * sizeof(sslot));
     }
-    ici_tfree(o, ici_struct_t);
+    ici_tfree(o, ici_struct);
     ++ici_vsver;
 }
 
-unsigned long struct_type::hash(ici_obj_t *o)
+unsigned long struct_type::hash(object *o)
 {
-    int                         i;
-    unsigned long               hk;
-    unsigned long               hv;
-    ici_sslot_t                 *sl;
+    int                   i;
+    unsigned long         hk;
+    unsigned long         hv;
+    sslot                 *sl;
 
     hk = 0;
     hv = 0;
@@ -349,11 +349,11 @@ unsigned long struct_type::hash(ici_obj_t *o)
  * Returns 0 if these objects are equal, else non-zero.
  * See the comments on t_cmp() in object.h.
  */
-int struct_type::cmp(ici_obj_t *o1, ici_obj_t *o2)
+int struct_type::cmp(object *o1, object *o2)
 {
-    int        i;
-    ici_sslot_t *sl1;
-    ici_sslot_t *sl2;
+    size_t i;
+    sslot *sl1;
+    sslot *sl2;
 
     if (ici_structof(o1) == ici_structof(o2))
     {
@@ -369,7 +369,7 @@ int struct_type::cmp(ici_obj_t *o1, ici_obj_t *o2)
     }
     sl1 = ici_structof(o1)->s_slots;
     i = ici_structof(o1)->s_nslots;
-    while (--i >= 0)
+    while (i-- > 0)
     {
         if (sl1->sl_key != NULL)
         {
@@ -389,13 +389,13 @@ int struct_type::cmp(ici_obj_t *o1, ici_obj_t *o2)
  * Return a copy of the given object, or NULL on error.
  * See the comment on t_copy() in object.h.
  */
-ici_obj_t *struct_type::copy(ici_obj_t *o)
+object *struct_type::copy(object *o)
 {
-    ici_struct_t    *s;
-    ici_struct_t    *ns;
+    ici_struct    *s;
+    ici_struct    *ns;
 
     s = ici_structof(o);
-    if ((ns = (ici_struct_t *)ici_talloc(ici_struct_t)) == NULL)
+    if ((ns = (ici_struct *)ici_talloc(ici_struct)) == NULL)
     {
         return NULL;
     }
@@ -405,11 +405,11 @@ ici_obj_t *struct_type::copy(ici_obj_t *o)
     ns->s_nslots = 0;
     ns->s_slots = NULL;
     ici_rego(ns);
-    if ((ns->s_slots = (ici_sslot_t*)ici_nalloc(s->s_nslots * sizeof(ici_sslot_t))) == NULL)
+    if ((ns->s_slots = (sslot*)ici_nalloc(s->s_nslots * sizeof(sslot))) == NULL)
     {
         goto fail;
     }
-    memcpy((char *)ns->s_slots, (char *)s->s_slots, s->s_nslots*sizeof(ici_sslot_t));
+    memcpy((char *)ns->s_slots, (char *)s->s_slots, s->s_nslots*sizeof(sslot));
     ns->s_nels = s->s_nels;
     ns->s_nslots = s->s_nslots;
     if (ns->s_nslots <= 64)
@@ -440,9 +440,9 @@ ici_obj_t *struct_type::copy(ici_obj_t *o)
  * If not NULL, b is a struct that was the base element of this
  * assignment. This is used to mantain the lookup lookaside mechanism.
  */
-int struct_type::assign_super(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v, ici_struct_t *b)
+int struct_type::assign_super(object *o, object *k, object *v, ici_struct *b)
 {
-    ici_sslot_t         *sl;
+    sslot *sl;
 
     do
     {
@@ -485,9 +485,9 @@ int struct_type::assign_super(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v, ici_stru
  * failure, else 0.
  * See the comment on t_assign() in object.h.
  */
-int struct_type::assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v)
+int struct_type::assign(object *o, object *k, object *v)
 {
-    ici_sslot_t         *sl;
+    sslot *sl;
 
     if
     (
@@ -501,7 +501,7 @@ int struct_type::assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v)
     )
     {
 #ifndef NDEBUG
-        ici_obj_t       *av;
+        object       *av;
         assert(fetch_super(o, k, &av, NULL) == 1);
         assert(ici_stringof(k)->s_slot->sl_value == av);
 #endif
@@ -575,11 +575,11 @@ int struct_type::assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v)
  * Assign a value into a key of a struct, but ignore the super chain.
  * That is, always assign into the lowest level. Usual error coventions.
  */
-int struct_type::assign_base(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v)
+int struct_type::assign_base(object *o, object *k, object *v)
 {
-    ici_struct_t      	*s = ici_structof(o);
-    ici_sslot_t         *sl;
-    int                 tqfull;
+    ici_struct  *s = ici_structof(o);
+    sslot       *sl;
+    int         tqfull;
 
     if (UNLIKELY(o->isatom()))
     {
@@ -630,14 +630,14 @@ int struct_type::assign_base(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v)
     return 0;
 }
 
-int struct_type::forall(ici_obj_t *o)
+int struct_type::forall(object *o)
 {
-    ici_forall_t        *fa = forallof(o);
-    ici_struct_t        *s  = ici_structof(fa->fa_aggr);
+    struct forall *fa = forallof(o);
+    ici_struct    *s  = ici_structof(fa->fa_aggr);
 
     while (++fa->fa_index < s->s_nslots)
     {
-        ici_sslot_t     *sl = &s->s_slots[fa->fa_index];
+        sslot *sl = &s->s_slots[fa->fa_index];
 
         if (sl->sl_key == NULL)
         {
@@ -662,9 +662,9 @@ int struct_type::forall(ici_obj_t *o)
  * Return the object at key k of the obejct o, or NULL on error.
  * See the comment on t_fetch in object.h.
  */
-ici_obj_t *struct_type::fetch(ici_obj_t *o, ici_obj_t *k)
+object *struct_type::fetch(object *o, object *k)
 {
-    ici_obj_t           *v;
+    object           *v;
 
     if
     (
@@ -687,9 +687,9 @@ ici_obj_t *struct_type::fetch(ici_obj_t *o, ici_obj_t *k)
     return ici_null;                    /* Not found. */
 }
 
-ici_obj_t *struct_type::fetch_base(ici_obj_t *o, ici_obj_t *k)
+object *struct_type::fetch_base(object *o, object *k)
 {
-    ici_sslot_t         *sl;
+    sslot *sl;
 
     sl = ici_find_raw_slot(ici_structof(o), k);
     if (sl->sl_key == NULL)
