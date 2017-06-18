@@ -263,9 +263,9 @@ ici_evaluate(ici_obj_t *code, int n_operands)
     frame.c_vdepth = ici_vs.a_top - ici_vs.a_base;
     *ici_xs.a_top++ = &frame;
 
-    if (ici_isarray(code))
+    if (isarray(code))
     {
-        ici_get_pc(ici_arrayof(code), ici_xs.a_top);
+        ici_get_pc(arrayof(code), ici_xs.a_top);
     }
     else
     {
@@ -914,7 +914,7 @@ ici_evaluate(ici_obj_t *code, int n_operands)
                     goto stable_stacks_continue;
                 }
                 o = *ici_pcof(ici_xs.a_top[-1])->pc_next++;
-                ici_get_pc(ici_arrayof(o), ici_xs.a_top);
+                ici_get_pc(arrayof(o), ici_xs.a_top);
                 --ici_os.a_top;
                 ++ici_xs.a_top;
                 continue;
@@ -933,7 +933,7 @@ ici_evaluate(ici_obj_t *code, int n_operands)
                     o = *ici_pcof(ici_xs.a_top[-1])->pc_next++;
                     ++ici_pcof(ici_xs.a_top[-1])->pc_next;
                 }
-                ici_get_pc(ici_arrayof(o), ici_xs.a_top);
+                ici_get_pc(arrayof(o), ici_xs.a_top);
                 --ici_os.a_top;
                 ++ici_xs.a_top;
                 goto stable_stacks_continue;
@@ -1021,7 +1021,7 @@ ici_evaluate(ici_obj_t *code, int n_operands)
                         /*
                          * Have to test next part of the condition.
                          */
-                        ici_get_pc(ici_arrayof(ici_os.a_top[-1]), ici_xs.a_top);
+                        ici_get_pc(arrayof(ici_os.a_top[-1]), ici_xs.a_top);
                         ++ici_xs.a_top;
                         ici_os.a_top -= 2;
                         goto stable_stacks_continue;
@@ -1089,7 +1089,7 @@ ici_evaluate(ici_obj_t *code, int n_operands)
                  * end of a code array that should loop.
                  */
                 *ici_xs.a_top++ = o; /* Restore formal state.*/
-                ici_get_pc(ici_arrayof(ici_xs.a_top[-2]), ici_xs.a_top);
+                ici_get_pc(arrayof(ici_xs.a_top[-2]), ici_xs.a_top);
                 ++ici_xs.a_top;
                 goto stable_stacks_continue;
 
@@ -1104,7 +1104,7 @@ ici_evaluate(ici_obj_t *code, int n_operands)
                 o = *ici_pcof(ici_xs.a_top[-1])->pc_next++;
                 *ici_xs.a_top++ = o;
                 *ici_xs.a_top++ = &ici_o_looper;
-                ici_get_pc(ici_arrayof(o), ici_xs.a_top);
+                ici_get_pc(arrayof(o), ici_xs.a_top);
                 ++ici_xs.a_top;
                 break;
 
@@ -1113,7 +1113,7 @@ ici_evaluate(ici_obj_t *code, int n_operands)
                  * array => - (os)
                  *       => pc (xs)
                  */
-                ici_get_pc(ici_arrayof(ici_os.a_top[-1]), ici_xs.a_top);
+                ici_get_pc(arrayof(ici_os.a_top[-1]), ici_xs.a_top);
                 ++ici_xs.a_top;
                 --ici_os.a_top;
                 continue;
@@ -1150,7 +1150,7 @@ ici_evaluate(ici_obj_t *code, int n_operands)
                     }
                     *ici_xs.a_top++ = ici_null;
                     *ici_xs.a_top++ = &ici_o_switcher;
-                    ici_get_pc(ici_arrayof(ici_os.a_top[-2]), ici_xs.a_top);
+                    ici_get_pc(arrayof(ici_os.a_top[-2]), ici_xs.a_top);
                     ici_pcof(*ici_xs.a_top)->pc_next += ici_intof(sl->sl_value)->i_value;
                     ++ici_xs.a_top;
                     ici_os.a_top -= 3;
@@ -1171,7 +1171,7 @@ ici_evaluate(ici_obj_t *code, int n_operands)
                         goto fail;
                     }
                     ++ici_xs.a_top;
-                    ici_get_pc(ici_arrayof(ici_os.a_top[-1]), ici_xs.a_top);
+                    ici_get_pc(arrayof(ici_os.a_top[-1]), ici_xs.a_top);
                     ++ici_xs.a_top;
                     --ici_os.a_top;
                     // ++ici_exec->x_critsect;
@@ -1250,7 +1250,7 @@ ici_evaluate(ici_obj_t *code, int n_operands)
                 c->decref();
                 goto badfail;
             }
-            ici_get_pc(ici_arrayof(c->c_catcher), ici_xs.a_top);
+            ici_get_pc(arrayof(c->c_catcher), ici_xs.a_top);
             ++ici_xs.a_top;
             c->decref();
             continue;

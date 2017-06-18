@@ -71,7 +71,7 @@ struct object
         return o_tcode == tcode;
     }
 
-    inline type_t *type() const noexcept {
+    inline type *type() const noexcept {
         return types[(size_t)o_tcode];
     }
 

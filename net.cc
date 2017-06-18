@@ -1567,7 +1567,7 @@ ici_net_sktno()
 }
 
 /*
- * For turning sockets into files we implement a complete ICI ftype_t.
+ * For turning sockets into files we implement a complete ICI ftype.
  * This is done because, (a) it works for all platforms and, (b) we
  * can control when the socket is closed (we don't close the underlying
  * socket when the file object is closed as occurs if fdopen() is used).

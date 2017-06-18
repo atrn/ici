@@ -79,13 +79,13 @@ buildxx(ici_obj_t **r, ici_obj_t **dnext, struct context *c)
             break;
 
         case 'a':
-            if (!ici_isarray(*c->c_cnext))
+            if (!isarray(*c->c_cnext))
             {
                 return ici_set_error(
                     "build(..\"a\"..) given %s instead of an array for content",
                     ici_objname(n1, *c->c_cnext));
             }
-            *r = ici_arrayof(*c->c_cnext)->get(c->c_ccount);
+            *r = arrayof(*c->c_cnext)->get(c->c_ccount);
             (*r)->incref();
             c->c_cnext += c->c_cstep;
             break;
@@ -146,7 +146,7 @@ buildxx(ici_obj_t **r, ici_obj_t **dnext, struct context *c)
         }
         *r = a;
     }
-    else if (ici_isarray(*dnext))
+    else if (isarray(*dnext))
     {
         ici_array_t     *a;
         ici_struct_t    *s;
@@ -158,7 +158,7 @@ buildxx(ici_obj_t **r, ici_obj_t **dnext, struct context *c)
          * of the array as keys. We must recursively build the struct elememts
          * with the next dimension or content.
          */
-        a = ici_arrayof(*dnext);
+        a = arrayof(*dnext);
         if ((s = ici_struct_new()) == NULL)
             return 1;
         for (e = a->astart(); e != a->alimit(); e = a->anext(e))

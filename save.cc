@@ -177,7 +177,7 @@ save_mem(archive *ar, object *obj)
 static int
 save_array(archive *ar, object *obj)
 {
-    array *a = ici_arrayof(obj);
+    array *a = arrayof(obj);
     object **e;
 
     if (save_object_name(ar, obj) || writel(ar, a->len()))

@@ -56,8 +56,8 @@ ici_op_forall()
 int
 ici_exec_forall()
 {
-    ici_forall_t        *fa;
-    type_t              *t;
+    forall *fa;
+    type *t;
 
     fa = forallof(ici_xs.a_top[-1]);
     t = ici_typeof(fa->fa_aggr);
@@ -69,7 +69,7 @@ ici_exec_forall()
     switch (t->forall(fa))
     {
     case 0:
-        ici_get_pc(ici_arrayof(fa->fa_code), ici_xs.a_top);
+        ici_get_pc(arrayof(fa->fa_code), ici_xs.a_top);
         ++ici_xs.a_top;
         return 0;
 

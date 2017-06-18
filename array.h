@@ -141,8 +141,8 @@ struct array : object
     }
 };
 
-inline ici_array_t *ici_arrayof(object *o)   { return static_cast<ici_array_t *>(o); }
-inline bool ici_isarray(object *o)           { return o->isa(ICI_TC_ARRAY); }
+inline array *arrayof(object *o) { return static_cast<array *>(o); }
+inline bool isarray(object *o) { return o->isa(ICI_TC_ARRAY); }
 
  /*
  * End of ici.h export. --ici.h-end--

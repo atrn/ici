@@ -534,8 +534,8 @@ restore_func(archive *ar)
         goto fail;
     }
 
-    fn->f_code = ici_arrayof(code);
-    fn->f_args = ici_arrayof(args);
+    fn->f_code = arrayof(code);
+    fn->f_args = arrayof(args);
     fn->f_autos = ici_structof(autos);
     fn->f_autos->o_super = ar->scope(); /* structof(ici_vs.a_top[-1])->o_super; */
     fn->f_name = ici_stringof(name);

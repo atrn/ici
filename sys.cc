@@ -405,9 +405,9 @@ static int ici_sys_close()
         return ici_argcount(1);
     if (ici_isint(ICI_ARG(0)))
         rc = close(ici_intof(ICI_ARG(0))->i_value);
-    else if (ici_isarray(ICI_ARG(0)))
+    else if (isarray(ICI_ARG(0)))
     {
-        ici_array_t *a = ici_arrayof(ICI_ARG(0));
+        ici_array_t *a = arrayof(ICI_ARG(0));
 
         if
         (
@@ -1418,14 +1418,14 @@ static int ici_sys_exec()
             --o;
         }
     }
-    else if (!ici_isarray(*o))
+    else if (!isarray(*o))
         return ici_argerror(0);
     else
     {
         ici_obj_t **p;
         ici_array_t *a;
 
-        a = ici_arrayof(*o);
+        a = arrayof(*o);
         for (p = a->astart(); p < a->alimit(); p = a->anext(p))
             if (ici_isstring(*p))
                 ADDARG(ici_stringof(*p)->s_chars);

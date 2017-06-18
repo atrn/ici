@@ -20,7 +20,7 @@ namespace ici
  * returned object has a ref count of 1.  Returns NULL on error.
  *
  * The 'ftype' is a pointer to a struct of stdio-like function pointers that
- * will be used to do I/O operations on the file (see 'ici_ftype_t').  The
+ * will be used to do I/O operations on the file (see 'ftype').  The
  * given structure is assumed to exist as long as necessary.  (It is normally
  * a static srtucture, so this is not a problem.) The core-supplied struct
  * 'stdio_ftype' can be used if 'fp' is a 'STREAM *'.
@@ -33,7 +33,7 @@ namespace ici
  * This --func-- forms part of the --ici-api--.
  */
 ici_file_t *
-ici_file_new(void *fp, ici_ftype_t *ftype, ici_str_t *name, ici_obj_t *ref)
+ici_file_new(void *fp, ftype *ftype, str *name, object *ref)
 {
     ici_file_t *f;
 
@@ -50,7 +50,7 @@ ici_file_new(void *fp, ici_ftype_t *ftype, ici_str_t *name, ici_obj_t *ref)
 
 /*
  * Close the given ICI file 'f' by calling the lower-level close function
- * given in the 'ici_ftype_t' associated with the file.  A guard flag is
+ * given in the 'ftype' associated with the file.  A guard flag is
  * maintained in the file object to prevent multiple calls to the lower level
  * function (this is really so we can optionally close the file explicitly,
  * and let the garbage collector do it to).  Returns non-zero on error, usual

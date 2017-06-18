@@ -437,7 +437,7 @@
         {
             if (ici_re_bra[i*2] == -1)
             {
-                if ((*ici_arrayof(o)->a_top = ici_str_alloc(0)) == NULL)
+                if ((*arrayof(o)->a_top = ici_str_alloc(0)) == NULL)
                 {
                     FAIL();
                 }
@@ -445,7 +445,7 @@
             else if
             (
                 (
-                    *ici_arrayof(o)->a_top
+                    *arrayof(o)->a_top
                     =
                     ici_str_new
                     (
@@ -459,8 +459,8 @@
             {
                 FAIL();
             }
-            (*ici_arrayof(o)->a_top)->decref();
-            ++ici_arrayof(o)->a_top;
+            (*arrayof(o)->a_top)->decref();
+            ++arrayof(o)->a_top;
         }
         LOOSEo();
 
@@ -544,15 +544,15 @@
             ptrdiff_t   z0;
             ptrdiff_t   z1;
 
-            z0 = ici_arrayof(o0)->len();
-            z1 = ici_arrayof(o1)->len();
+            z0 = arrayof(o0)->len();
+            z1 = arrayof(o1)->len();
             if ((a = ici_array_new(z0 + z1)) == NULL)
             {
                 FAIL();
             }
-            ici_arrayof(o0)->gather(a->a_top, 0, z0);
+            arrayof(o0)->gather(a->a_top, 0, z0);
             a->a_top += z0;
-            ici_arrayof(o1)->gather(a->a_top, 0, z1);
+            arrayof(o1)->gather(a->a_top, 0, z1);
             a->a_top += z1;
             o = a;
         }

@@ -148,7 +148,7 @@ ici_grow_atoms(ptrdiff_t newz)
  * This is achieved by looking for an object of equal value in the
  * 'atom pool'. The atom pool is a hash table of all atoms. The object's
  * 't_hash' and 't_cmp' functions will be used it this lookup process
- * (from this object's 'type_t' struct).
+ * (from this object's 'type').
  * 
  * If an existing atomic form of the object is found in the atom pool,
  * it is returned.

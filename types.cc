@@ -37,7 +37,7 @@ namespace ici
  * core. NB: The positions of these must exactly match the ICI_TC_* defines
  * in object.h.
  */
-type_t      *types[max_types] =
+type *types[max_types] =
 {
     nullptr,
     ptr_to_instance_of<pc_type>(),
@@ -78,8 +78,8 @@ type_t      *types[max_types] =
 static int ntypes = ICI_TC_MAX_CORE + 1;
 
 /*
- * Register a new 'type_t' structure and return a new small int type code
- * to use in the header of objects of that type. The pointer 't' passed to
+ * Register a new 'type' and return a new small int type code to use
+ * in the header of objects of that type. The pointer 't' passed to
  * this function is retained and assumed to remain valid indefinetly
  * (it is normally a statically initialised structure).
  *

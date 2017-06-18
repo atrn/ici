@@ -16,12 +16,12 @@ namespace ici
 {
 
 /*
- * Function to do the hard work for the inline function ici_stk_push_chk().
+ * Function to do the hard work for the inline function stk_push_chk().
  * See array.h. This reallocates the array buffer.
  */
 int array::grow_stack(ptrdiff_t n)
 {
-    ici_obj_t  **e;
+    object  **e;
     ptrdiff_t  oldz;
 
     /*
@@ -43,7 +43,7 @@ int array::grow_stack(ptrdiff_t n)
     {
         n = (a_limit - a_base) * 3 / 2;
     }
-    if ((e = (ici_obj_t **)ici_nalloc(n * sizeof(ici_obj_t *))) == NULL)
+    if ((e = (object **)ici_nalloc(n * sizeof(object *))) == NULL)
     {
         return 1;
     }
@@ -57,7 +57,7 @@ int array::grow_stack(ptrdiff_t n)
 }
 
 /*
- * Function to do the hard work for the inline function ici_stack_probe(). See array.h.
+ * Function to do the hard work for the inline function stack_probe(). See array.h.
  */
 int
 array::fault_stack(ptrdiff_t i)
@@ -103,10 +103,10 @@ array::len()
  * This is the commonest routine for finding an element at a given
  * index in an array. It only works for valid indexes.
  */
-ici_obj_t **
+object **
 array::span(int i, ptrdiff_t *np)
 {
-    ici_obj_t           **e;
+    object           **e;
     ptrdiff_t           n;
 
     if (a_bot <= a_top)
@@ -147,9 +147,9 @@ array::span(int i, ptrdiff_t *np)
  * This --func-- forms part of the --ici-api--.
  */
 void
-array::gather(ici_obj_t **b, ptrdiff_t start, ptrdiff_t n)
+array::gather(object **b, ptrdiff_t start, ptrdiff_t n)
 {
-    ici_obj_t           **e;
+    object           **e;
     ptrdiff_t           i;
     ptrdiff_t           m;
 
@@ -171,14 +171,14 @@ int array::grow()
     ptrdiff_t           nel;    /* Number of elements. */
     ptrdiff_t           n;      /* Old allocation count. */
     ptrdiff_t           m;      /* New allocation count. */
-    ici_obj_t           **e;    /* New allocation. */
+    object           **e;    /* New allocation. */
 
     n = a_limit - a_base;
     if ((m = n * 3 / 2) < 8)
     {
         m = 8;
     }
-    if ((e = (ici_obj_t **)ici_nalloc(m * sizeof(object *))) == NULL)
+    if ((e = (object **)ici_nalloc(m * sizeof(object *))) == NULL)
     {
         return 1;
     }
@@ -201,7 +201,7 @@ int array::grow()
  * This --func-- forms part of the --ici-api--.
  */
 int
-array::push(ici_obj_t *o)
+array::push(object *o)
 {
     if (isatom())
     {
@@ -263,7 +263,7 @@ array::push(ici_obj_t *o)
  * This --func-- forms part of the --ici-api--.
  */
 int
-array::rpush(ici_obj_t *o)
+array::rpush(object *o)
 {
     if (isatom())
     {
@@ -317,7 +317,7 @@ array::rpush(ici_obj_t *o)
  *
  * This --func-- forms part of the --ici-api--.
  */
-ici_obj_t *
+object *
 array::pop()
 {
     if (isatom())
@@ -364,7 +364,7 @@ array::pop()
  *
  * This --func-- forms part of the --ici-api--.
  */
-ici_obj_t *
+object *
 array::rpop()
 {
     if (isatom())
@@ -408,12 +408,11 @@ array::rpop()
  * Return a pointer to the slot in the array 'a' that does, or should contain
  * the index 'i'.  This will grow and 'ici_null' fill the array as necessary
  * (and fail if the array is atomic).  Only positive 'i'.  Returns NULL on
- * error, usual conventions.  This will not fail if 'i' is less than
- * 'ici_array_nels(a)'.
+ * error, usual conventions.  This will not fail if 'i' is less than 'len()'.
  *
  * This --func-- forms part of the --ici-api--.
  */
-ici_obj_t **
+object **
 array::find_slot(ptrdiff_t i)
 {
     ptrdiff_t n;
@@ -449,7 +448,7 @@ array::find_slot(ptrdiff_t i)
  *
  * This --func-- forms part of the --ici-api--.
  */
-ici_obj_t *
+object *
 array::get(ptrdiff_t i)
 {
     ptrdiff_t n;
@@ -471,12 +470,11 @@ array::get(ptrdiff_t i)
  *
  * This --func-- forms part of the --ici-api--.
  */
-ici_array_t *
-ici_array_new(ptrdiff_t n)
+array *ici_array_new(ptrdiff_t n)
 {
-    ici_array_t    *a;
+    array *a;
 
-    if ((a = ici_talloc(ici_array_t)) == NULL)
+    if ((a = ici_talloc(array)) == NULL)
     {
         return NULL;
     }
@@ -489,9 +487,9 @@ ici_array_new(ptrdiff_t n)
     {
         n = 4;
     }
-    if ((a->a_base = (ici_obj_t **)ici_nalloc(n * sizeof(ici_obj_t *))) == NULL)
+    if ((a->a_base = (object **)ici_nalloc(n * sizeof(object *))) == NULL)
     {
-        ici_tfree(a, ici_array_t);
+        ici_tfree(a, array);
         return NULL;
     }
     a->a_top = a->a_base;
@@ -507,7 +505,7 @@ ici_array_new(ptrdiff_t n)
 int
 ici_op_mklvalue()
 {
-    ici_array_t *a;
+    array *a;
 
     if ((a = ici_array_new(1)) == NULL)
     {
@@ -523,29 +521,29 @@ ici_op_mklvalue()
 
 // array_type
 
-size_t array_type::mark(ici_obj_t *o) {
-    ici_obj_t           **e;
+size_t array_type::mark(object *o) {
+    object           **e;
 
     o->setmark();
-    if (ici_arrayof(o)->a_base == NULL)
+    if (arrayof(o)->a_base == NULL)
     {
         return typesize();
     }
-    auto mem = typesize() + (ici_arrayof(o)->a_limit - ici_arrayof(o)->a_base) * sizeof(ici_obj_t *);
-    if (ici_arrayof(o)->a_bot <= ici_arrayof(o)->a_top)
+    auto mem = typesize() + (arrayof(o)->a_limit - arrayof(o)->a_base) * sizeof(object *);
+    if (arrayof(o)->a_bot <= arrayof(o)->a_top)
     {
-        for (e = ici_arrayof(o)->a_bot; e < ici_arrayof(o)->a_top; ++e)
+        for (e = arrayof(o)->a_bot; e < arrayof(o)->a_top; ++e)
         {
             mem += ici_mark(*e);
         }
     }
     else
     {
-        for (e = ici_arrayof(o)->a_base; e < ici_arrayof(o)->a_top; ++e)
+        for (e = arrayof(o)->a_base; e < arrayof(o)->a_top; ++e)
         {
             mem += ici_mark(*e);
         }
-        for (e = ici_arrayof(o)->a_bot; e < ici_arrayof(o)->a_limit; ++e)
+        for (e = arrayof(o)->a_bot; e < arrayof(o)->a_limit; ++e)
         {
             mem += ici_mark(*e);
         }
@@ -553,33 +551,33 @@ size_t array_type::mark(ici_obj_t *o) {
     return mem;
 }
 
-void array_type::free(ici_obj_t *o)
+void array_type::free(object *o)
 {
-    if (ici_arrayof(o)->a_base != NULL)
+    if (arrayof(o)->a_base != NULL)
     {
         ici_nfree
         (
-            ici_arrayof(o)->a_base,
-            (ici_arrayof(o)->a_limit - ici_arrayof(o)->a_base) * sizeof(ici_obj_t *)
+            arrayof(o)->a_base,
+            (arrayof(o)->a_limit - arrayof(o)->a_base) * sizeof(object *)
         );
     }
-    ici_tfree(o, ici_array_t);
+    ici_tfree(o, array);
 }
 
-unsigned long array_type::hash(ici_obj_t *o)
+unsigned long array_type::hash(object *o)
 {
     unsigned long       h;
-    ici_obj_t           **e;
+    object           **e;
     ptrdiff_t           n;
     ptrdiff_t           m;
     ptrdiff_t           i;
 
     h = ARRAY_PRIME;
-    n = ici_arrayof(o)->len();
+    n = arrayof(o)->len();
     for (i = 0; i < n; )
     {
         m = n;
-        e = ici_arrayof(o)->span(i, &m);
+        e = arrayof(o)->span(i, &m);
         i += m;
         while (--m >= 0)
         {
@@ -591,20 +589,20 @@ unsigned long array_type::hash(ici_obj_t *o)
     return h;
 }
 
-int array_type::cmp(ici_obj_t *o1, ici_obj_t *o2)
+int array_type::cmp(object *o1, object *o2)
 {
     ptrdiff_t           i;
     ptrdiff_t           n1;
     ptrdiff_t           n2;
-    ici_obj_t           **e1;
-    ici_obj_t           **e2;
+    object           **e1;
+    object           **e2;
 
     if (o1 == o2)
     {
         return 0;
     }
-    n1 = ici_arrayof(o1)->len();
-    n2 = ici_arrayof(o2)->len();
+    n1 = arrayof(o1)->len();
+    n2 = arrayof(o2)->len();
     if (n1 != n2)
     {
         return 1;
@@ -612,9 +610,9 @@ int array_type::cmp(ici_obj_t *o1, ici_obj_t *o2)
     for (i = 0; i < n1; i += n2)
     {
         n2 = n1;
-        e1 = ici_arrayof(o1)->span(i, &n2);
-        e2 = ici_arrayof(o2)->span(i, &n2);
-        if (memcmp(e1, e2, n2 * sizeof(ici_obj_t *)))
+        e1 = arrayof(o1)->span(i, &n2);
+        e2 = arrayof(o2)->span(i, &n2);
+        if (memcmp(e1, e2, n2 * sizeof(object *)))
         {
             return 1;
         }
@@ -622,25 +620,25 @@ int array_type::cmp(ici_obj_t *o1, ici_obj_t *o2)
     return 0;
 }
 
-ici_obj_t * array_type::copy(ici_obj_t *o)
+object * array_type::copy(object *o)
 {
-    ici_array_t         *na;
-    ptrdiff_t           n;
+    array *na;
+    ptrdiff_t n;
 
-    n = ici_arrayof(o)->len();
+    n = arrayof(o)->len();
     if ((na = ici_array_new(n)) == NULL)
     {
         return NULL;
     }
-    ici_arrayof(o)->gather(na->a_top, 0, n);
+    arrayof(o)->gather(na->a_top, 0, n);
     na->a_top += n;
     return na;
 }
 
-int array_type::assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v)
+int array_type::assign(object *o, object *k, object *v)
 {
     long        i;
-    ici_obj_t   **e;
+    object   **e;
 
     if (o->isatom())
     {
@@ -655,7 +653,7 @@ int array_type::assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v)
     {
         return ici_set_error("attempt to assign to negative array index");
     }
-    if ((e = ici_arrayof(o)->find_slot(i)) == NULL)
+    if ((e = arrayof(o)->find_slot(i)) == NULL)
     {
         return 1;
     }
@@ -663,22 +661,22 @@ int array_type::assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v)
     return 0;
 }
 
-ici_obj_t *array_type::fetch(ici_obj_t *o, ici_obj_t *k)
+object *array_type::fetch(object *o, object *k)
 {
     if (!ici_isint(k))
     {
         return fetch_fail(o, k);
     }
-    return ici_arrayof(o)->get(ici_intof(k)->i_value);
+    return arrayof(o)->get(ici_intof(k)->i_value);
 }
 
-int array_type::forall(ici_obj_t *o)
+int array_type::forall(object *o)
 {
     ici_forall_t *fa = forallof(o);
-    ici_array_t    *a;
-    ici_int_t  *i;
+    array    *a;
+    ici_int  *i;
 
-    a = ici_arrayof(fa->fa_aggr);
+    a = arrayof(fa->fa_aggr);
     if (++fa->fa_index >= a->len())
         return -1;
     if (fa->fa_vaggr != ici_null)

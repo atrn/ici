@@ -104,9 +104,9 @@ disassemble(int indent, ici_array_t *a)
         {
             printf("%s\n", ici_objname(n1, *e));
         }
-        if (ici_isarray(*e))
+        if (isarray(*e))
         {
-            disassemble(indent + 4, ici_arrayof(*e));
+            disassemble(indent + 4, arrayof(*e));
         }
     }
 }
@@ -232,7 +232,7 @@ ident_list(ici_parse_t *p)
         if (next(p, NULL) != T_COMMA)
         {
             reject(p);
-            return ici_arrayof(ici_atom(a, 1));
+            return arrayof(ici_atom(a, 1));
         }
     }
 
@@ -304,7 +304,7 @@ function(ici_parse_t *p, ici_str_t *name)
     case 0: not_followed_by("ident ( [args] )", "\"{\"");
     case -1: goto fail;
     }
-    f->f_code = ici_arrayof(p->p_got.t_obj);
+    f->f_code = arrayof(p->p_got.t_obj);
     f->f_code->decref();
     if (f->f_code->a_top[-1] == &ici_o_end)
     {
@@ -2492,7 +2492,7 @@ ici_parse(ici_file_t *f, ici_objwsup_t *s)
  * This --func-- forms part of the --ici-api--.
  */
 int
-ici_parse_file(const char *mname, char *file, ici_ftype_t *ftype)
+ici_parse_file(const char *mname, char *file, ftype *ftype)
 {
     ici_objwsup_t       *s;     /* Statics. */
     ici_objwsup_t       *a;     /* Autos. */

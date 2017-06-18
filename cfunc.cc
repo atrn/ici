@@ -240,9 +240,9 @@ ici_typecheck(const char *types, ...)
             break;
 
         case 'a': /* An array -> (ici_array_t *). */
-            if (!ici_isarray(o))
+            if (!isarray(o))
                 goto fail;
-            *(ici_array_t **)ptr = ici_arrayof(o);
+            *(ici_array_t **)ptr = arrayof(o);
             break;
 
         case 'u': /* A file -> (ici_file_t *). */
@@ -379,9 +379,9 @@ ici_retcheck(const char *types, ...)
             break;
 
         case 'a':
-            if (!ici_isarray(o))
+            if (!isarray(o))
                 goto fail;
-            *(ici_array_t **)ptr = ici_arrayof(o);
+            *(ici_array_t **)ptr = arrayof(o);
             break;
 
         case 'u':
@@ -629,11 +629,11 @@ ici_need_path()
     ici_obj_t           *o;
 
     o = ici_fetch(ici_vs.a_top[-1], SS(path));
-    if (!ici_isarray(o))
+    if (!isarray(o))
     {
-        return ici_arrayof(not_a("path", "array"));
+        return arrayof(not_a("path", "array"));
     }
-    return ici_arrayof(o);
+    return arrayof(o);
 }
 
 /*
@@ -903,8 +903,8 @@ f_nels()
     o = ICI_ARG(0);
     if (ici_isstring(o))
         size = ici_stringof(o)->s_nchars;
-    else if (ici_isarray(o))
-        size = ici_arrayof(o)->len();
+    else if (isarray(o))
+        size = arrayof(o)->len();
     else if (ici_isstruct(o))
         size = ici_structof(o)->s_nels;
     else if (ici_isset(o))
@@ -1248,8 +1248,8 @@ f_call()
         return ici_argcount(2);
     nargso = NULL;
     base = &ICI_ARG(ICI_NARGS() - 1);
-    if (ici_isarray(*base))
-        aa = ici_arrayof(*base);
+    if (isarray(*base))
+        aa = arrayof(*base);
     else if (ici_isnull(*base))
         aa = NULL;
     else
@@ -1282,7 +1282,7 @@ f_call()
         goto fail;
     base = &ICI_ARG(ICI_NARGS() - 1);
     if (aa != NULL)
-        aa = ici_arrayof(*base);
+        aa = arrayof(*base);
     if ((nargso = ici_int_new(nargs)) == NULL)
         goto fail;
     /*
@@ -1454,7 +1454,7 @@ f_interval()
         break;
 
     case ICI_TC_ARRAY:
-        a = ici_arrayof(o);
+        a = arrayof(o);
         nel = a->len();
         break;
 
@@ -1979,7 +1979,7 @@ f_del()
     {
         ici_set_unassign(ici_setof(s), o);
     }
-    else if (ici_isarray(s))
+    else if (isarray(s))
     {
         ici_array_t     *a;
         ici_obj_t       **e;
@@ -1989,7 +1989,7 @@ f_del()
         
         if (!ici_isint(o))
             return ici_null_ret();
-        a = ici_arrayof(s);
+        a = arrayof(s);
         i = ici_intof(o)->i_value;
         n = a->len();
         if (i < 0 || i >= n)
