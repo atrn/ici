@@ -49,7 +49,7 @@ new_binop(int op, int why)
      */
     o = ici_new_op(NULL, why == FOR_TEMP ? ICI_OP_BINOP_FOR_TEMP : ICI_OP_BINOP, op);
 #else
-    o = ici_new_op(ici_op_binop, 0, op);
+    o = ici_new_op(op_binop, 0, op);
 #endif
     if (o == NULL)
     {

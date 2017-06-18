@@ -18,7 +18,7 @@ namespace ici
 /*
  * binop.c
  *
- * In most configurations this file only defines ici_binop_name() which
+ * In most configurations this file only defines binop_name() which
  * merely returns the textual form of a binary operator for error messages.
  * But in configuration where the function ici_evaluate() (in exec.c) cannot
  * be compiled with the whole binary operator switch statement in-line,
@@ -31,8 +31,7 @@ namespace ici
  * Return the textual form of a binary operator. This is only to assist
  * in error messages.
  */
-const char *
-ici_binop_name(int op)
+const char *binop_name(int op)
 {
     switch (op)
     {
@@ -87,7 +86,7 @@ ici_binop_name(int op)
  * See the comment in binop.h.
  */
 int
-ici_op_binop(ici_obj_t *o)
+op_binop(ici_obj_t *o)
 {
 #include "binop.h"
     return 0;

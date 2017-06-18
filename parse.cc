@@ -1444,8 +1444,7 @@ expr(ici_parse_t *p, expr_t **ep, int exclude)
         switch (unary(p, &e->e_arg[1], in_quest_colon ? T_COLON : exclude))
         {
         case 0:
-            ici_set_error("\"expr %s\" %s %s",
-                          ici_binop_name(t_subtype(e->e_what)), not_by, an_expression);
+            ici_set_error("\"expr %s\" %s %s", binop_name(t_subtype(e->e_what)), not_by, an_expression);
         case -1:
             ici_tfree(e, expr_t);
             return -1;
@@ -2693,7 +2692,7 @@ ici_token_name(int t)
     case t_type(T_EOF):         return "eof";
     case t_type(T_INT):         return "int";
     case t_type(T_FLOAT):       return "float";
-    case t_type(T_BINOP):       return ici_binop_name(t_subtype(t));
+    case t_type(T_BINOP):       return binop_name(t_subtype(t));
     case t_type(T_ERROR):       return "error";
     case t_type(T_NULL):        return "NULL";
     case t_type(T_ONROUND):     return "(";

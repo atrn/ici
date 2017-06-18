@@ -835,7 +835,7 @@
 
             sprintf(buf, "attempt to perform \"%s %s %s\"",
                 ici_objname(n1, o0),
-                ici_binop_name(ici_opof(o)->op_code),
+                binop_name(ici_opof(o)->op_code),
                 ici_objname(n2, o1));
         }
         ici_error = buf;

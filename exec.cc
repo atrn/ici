@@ -1201,7 +1201,7 @@ ici_evaluate(ici_obj_t *code, int n_operands)
 #ifndef BINOPFUNC
 #include        "binop.h"
 #else
-                if (ici_op_binop(o))
+                if (op_binop(o))
                 {
                     goto fail;
                 }
