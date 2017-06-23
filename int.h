@@ -18,12 +18,6 @@ namespace ici
  */
 struct ici_int : object
 {
-    explicit ici_int(long v = 0)
-        : object(ICI_TC_INT)
-        , i_value(v)
-    {
-    }
-
     int64_t i_value;
 };
 

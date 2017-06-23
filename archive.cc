@@ -73,11 +73,10 @@ long long htonll(long long v)
 
 typedef int int_func();
 static int_func *op_funcs[7];
-
 constexpr auto num_op_funcs = nels(op_funcs);
-// #define num_op_funcs ((int)(sizeof op_funcs / sizeof op_funcs[0]))
 
-size_t archive_type::mark(object *o) {
+size_t archive_type::mark(object *o)
+{
     auto ar = archive_of(o);
     ar->setmark();
     return typesize() + ar->a_file->mark() + ar->a_sent->mark() + ar->a_scope->mark();
@@ -105,8 +104,7 @@ void archive_uninit()
     uninit_restorer_map();
 }
 
-archive *
-archive::start(file *f, objwsup *scope)
+archive *archive::start(file *f, objwsup *scope)
 {
     archive *ar = ici_talloc(archive);
     if (ar != NULL)
@@ -117,9 +115,9 @@ archive::start(file *f, objwsup *scope)
             ici_tfree(ar, archive);
             return NULL;
         }
-	ar->a_sent->decref();
+	    ar->a_sent->decref();
         ar->a_file = f;
-	ar->a_scope = scope;
+	    ar->a_scope = scope;
         ici_rego(ar);
     }
     return ar;
@@ -130,8 +128,7 @@ inline object *make_key(object *obj)
     return ici_int_new((int64_t)obj);
 }
 
-int
-archive::insert(object *key, object *val)
+int archive::insert(object *key, object *val)
 {
     int rc = 1;
     if (auto k = make_key(key))
@@ -142,8 +139,7 @@ archive::insert(object *key, object *val)
     return rc;
 }
 
-void
-archive::uninsert(object *key)
+void archive::uninsert(object *key)
 {
     if (auto k = make_key(key))
     {
@@ -152,8 +148,7 @@ archive::uninsert(object *key)
     }
 }
 
-object *
-archive::lookup(object *obj)
+object *archive::lookup(object *obj)
 {
     object *v = ici_null;
     if (auto k = make_key(obj))
@@ -164,8 +159,7 @@ archive::lookup(object *obj)
     return v == ici_null ? NULL : v;
 }
 
-void
-archive::stop()
+void archive::stop()
 {
     decref();
 }
