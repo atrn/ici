@@ -1598,7 +1598,7 @@ public:
     skt_ftype() : ftype(FT_NOMUTEX) {}
     ~skt_ftype() {}
 
-    int ft_getch(void *u) override
+    int getch(void *u) override
     {
         skt_file_t *sf = (skt_file_t *)u;
         char        c;
@@ -1631,7 +1631,7 @@ public:
     }
 
     int
-    ft_ungetch(int c, void *u) override
+    ungetch(int c, void *u) override
     {
         skt_file_t *sf = (skt_file_t *)u;
         if (!(sf->sf_flags & SF_READ))
@@ -1643,7 +1643,7 @@ public:
     }
 
     int
-    ft_flush(void *u) override
+    flush(void *u) override
     {
         skt_file_t *sf = (skt_file_t *)u;
         if (sf->sf_flags & SF_WRITE && sf->sf_nbuf > 0)
@@ -1665,20 +1665,20 @@ public:
     }
 
     int
-    ft_close(void *u) override
+    close(void *u) override
     {
         skt_file_t *sf = (skt_file_t *)u;
         int         rc = 0;
 
         if (sf->sf_flags & SF_WRITE)
-            rc = ft_flush(u);
+            rc = flush(u);
         sf->sf_socket->decref();
         ici_tfree(sf, skt_file_t);
         return rc;
     }
 
     long
-    ft_seek(void *u, long o, int w) override
+    seek(void *u, long o, int w) override
     {
         (void)u;
         (void)o;
@@ -1688,14 +1688,14 @@ public:
     }
 
     int
-    ft_eof(void *u) override
+    eof(void *u) override
     {
         skt_file_t *sf = (skt_file_t *)u;
         return sf->sf_flags & SF_EOF;
     }
 
     int
-    ft_write(const void *p, long n, void *u) override
+    write(const void *p, long n, void *u) override
     {
         const char *buf = (const char *)p;
         skt_file_t	*sf = (skt_file_t *)u;
@@ -1706,7 +1706,7 @@ public:
             return EOF;
         for (rc = nb = 0; n > 0; n -= nb, rc += nb)
         {
-            if (sf->sf_nbuf == SF_BUFSIZ && ft_flush(u))
+            if (sf->sf_nbuf == SF_BUFSIZ && flush(u))
                 return EOF;
             if ((nb = n) > (SF_BUFSIZ - sf->sf_nbuf))
                 nb = SF_BUFSIZ - sf->sf_nbuf;

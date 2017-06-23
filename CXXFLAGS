@@ -6,10 +6,10 @@
 -std=c++14 -Wall
 
 # RELEASE - Ofast and Oz seem to be best
--DNDEBUG
--Ofast -Oz
+#-DNDEBUG
+#-Ofast -Oz
 
 # DEBUG (pcre uses DEBUG, ICI !NDEBUG)
-#-g -O0
-#-UNDEBUG
+-g -O0
+-UNDEBUG
 #-DDEBUG

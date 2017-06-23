@@ -4,47 +4,47 @@
 namespace ici
 {
 
-int ftype::ft_getch(void *)
+int ftype::getch(void *)
 {
     return -1;
 }
 
-int ftype::ft_ungetch(int, void *)
+int ftype::ungetch(int, void *)
 {
     return -1;
 }
 
-int ftype::ft_flush(void *)
+int ftype::flush(void *)
 {
     return 0;
 }
 
-int ftype::ft_close(void *)
+int ftype::close(void *)
 {
     return 0;
 }
 
-int long ftype::ft_seek(void *, long, int)
+int long ftype::seek(void *, long, int)
 {
     return -1l;
 }
 
-int ftype::ft_eof(void *)
+int ftype::eof(void *)
 {
     return 0;
 }
 
-int ftype::ft_write(const void *, long, void *)
+int ftype::write(const void *, long, void *)
 {
     return 0;
 }
 
-int ftype::ft_fileno(void *)
+int ftype::fileno(void *)
 {
     return -1;
 }
 
-int ftype::ft_setvbuf(void *, char *, int, size_t)
+int ftype::setvbuf(void *, char *, int, size_t)
 {
     return -1;
 }
@@ -56,61 +56,61 @@ stdio_ftype::stdio_ftype()
 {
 }
 
-int stdio_ftype::ft_getch(void *file)
+int stdio_ftype::getch(void *file)
 {
-    return fgetc((FILE *)file);
+    return ::fgetc((FILE *)file);
 }
 
-int stdio_ftype::ft_ungetch(int c, void *file)
+int stdio_ftype::ungetch(int c, void *file)
 {
-    return ungetc(c, (FILE *)file);
+    return ::ungetc(c, (FILE *)file);
 }
 
-int stdio_ftype::ft_flush(void *file)
+int stdio_ftype::flush(void *file)
 {
-    return fflush((FILE *)file);
+    return ::fflush((FILE *)file);
 }
 
-int stdio_ftype::ft_close(void *file)
+int stdio_ftype::close(void *file)
 {
-    return fclose((FILE *)file);
+    return ::fclose((FILE *)file);
 }
 
-long stdio_ftype::ft_seek(void *file, long offset, int whence)
+long stdio_ftype::seek(void *file, long offset, int whence)
 {
-    if (fseek((FILE *)file, offset, whence) == -1)
+    if (::fseek((FILE *)file, offset, whence) == -1)
     {
         ici_set_error("seek failed");
         return -1;
     }
-    return ftell((FILE *)file);
+    return ::ftell((FILE *)file);
 }
 
-int stdio_ftype::ft_eof(void *file)
+int stdio_ftype::eof(void *file)
 {
-    return feof((FILE *)file);
+    return ::feof((FILE *)file);
 }
 
-int stdio_ftype::ft_write(const void *buf, long n, void *file)
+int stdio_ftype::write(const void *buf, long n, void *file)
 {
-    return fwrite(buf, 1, (size_t)n, (FILE *)file);
+    return ::fwrite(buf, 1, (size_t)n, (FILE *)file);
 }
 
-int stdio_ftype::ft_fileno(void *f)
+int stdio_ftype::fileno(void *f)
 {
-    return fileno((FILE *)f);
+    return ::fileno((FILE *)f);
 }
 
-int stdio_ftype::ft_setvbuf(void *f, char *buf, int typ, size_t size)
+int stdio_ftype::setvbuf(void *f, char *buf, int typ, size_t size)
 {
-    return setvbuf((FILE *)f, buf, typ, size);
+    return ::setvbuf((FILE *)f, buf, typ, size);
 }
 
 //================================================================
 
-int popen_ftype::ft_close(void *file)
+int popen_ftype::close(void *file)
 {
-    return pclose((FILE *)file);
+    return ::pclose((FILE *)file);
 }
 
 ftype *stdio_ftype = ptr_to_instance_of<class stdio_ftype>();

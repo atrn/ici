@@ -8,7 +8,7 @@
 namespace ici
 {
 
-typedef struct
+struct token
 {
     int         t_what;         /* See TM_* and T_* below. */
     union
@@ -18,8 +18,7 @@ typedef struct
         ici_obj_t *tu_obj;
     }
         tu;
-}
-    token_t;
+};
 
 #define t_int   tu.tu_int
 #define t_float tu.tu_float
@@ -27,23 +26,24 @@ typedef struct
 
 struct parse : object
 {
-    ici_file_t  *p_file;
+    file        *p_file;
     int         p_lineno;       /* Diagnostic information. */
     short       p_sol;          /* At first char in line. */
     short       p_cr;           /* New-line caused by \r, not \n. */
-    token_t     p_got;
-    token_t     p_ungot;
-    ici_func_t  *p_func;        /* NULL when not within scope. */
+    token       p_got;
+    token       p_ungot;
+    func        *p_func;        /* NULL when not within scope. */
     int         p_module_depth; /* Depth within module, 0 is file level. */
     int         p_break_depth;
     int         p_continue_depth;
 };
+
 /*
  * The following portion of this file exports to ici.h. --ici.h-start--
  */
-inline ici_parse_t *ici_parseof(ici_obj_t *o) { return static_cast<ici_parse_t *>(o); }
-inline ici_parse_t *ici_parseof(void *f) { return reinterpret_cast<ici_parse_t *>(f); }
-inline bool ici_isparse(ici_obj_t *o) { return o->isa(ICI_TC_PARSE); }
+inline parse *ici_parseof(object *o) { return static_cast<ici_parse_t *>(o); }
+inline parse *ici_parseof(void *f) { return reinterpret_cast<ici_parse_t *>(f); }
+inline bool ici_isparse(object *o) { return o->isa(ICI_TC_PARSE); }
 
 /*
  * End of ici.h export. --ici.h-end--

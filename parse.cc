@@ -2849,7 +2849,7 @@ f_rejectchar(...)
     {
         return ici_argerror(1);
     }
-    f->f_type->ft_ungetch(s->s_chars[0], f->f_file);
+    f->ungetch(s->s_chars[0]);
     return ici_ret_no_decref(s);
 }
 

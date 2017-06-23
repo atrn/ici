@@ -14,7 +14,7 @@ namespace ici
 
 
 /*
- * The flags that may appear in ft_flags.  NOTE: If any flag greater than 0x80
+ * The flags that may appear in flags.  NOTE: If any flag greater than 0x80
  * is specified, file creation with ici_file_new() will fail.  See that
  * function for details.
  *
@@ -43,38 +43,38 @@ constexpr int FT_NOMUTEX = 0x01;
 class ftype
 {
 protected:
-    ftype(int flags = 0) : ft_flags(flags) {}
+    ftype(int flags = 0) : flags(flags) {}
 public:
     virtual ~ftype() {}
-    virtual int ft_getch(void *);
-    virtual int ft_ungetch(int, void *);
-    virtual int ft_flush(void *);
-    virtual int ft_close(void *);
-    virtual long ft_seek(void *, long, int);
-    virtual int ft_eof(void *);
-    virtual int ft_write(const void *, long, void *);
-    virtual int ft_fileno(void *);
-    virtual int ft_setvbuf(void *, char *, int, size_t);
+    virtual int getch(void *);
+    virtual int ungetch(int, void *);
+    virtual int flush(void *);
+    virtual int close(void *);
+    virtual long seek(void *, long, int);
+    virtual int eof(void *);
+    virtual int write(const void *, long, void *);
+    virtual int fileno(void *);
+    virtual int setvbuf(void *, char *, int, size_t);
 
-    int ft_flags;
+    int flags;
 };
 /*
- * ft_flags             A combination of FT_* flags, defined below.
+ * flags             A combination of * flags, defined below.
  */
 
 class stdio_ftype : public ftype
 {
 public:
     stdio_ftype();
-    virtual int ft_getch(void *) override;
-    virtual int ft_ungetch(int, void *) override;
-    virtual int ft_flush(void *) override;
-    virtual int ft_close(void *) override;
-    virtual long ft_seek(void *, long, int) override;
-    virtual int ft_eof(void *) override;
-    virtual int ft_write(const void *, long, void *) override;
-    virtual int ft_fileno(void *) override;
-    virtual int ft_setvbuf(void *, char *, int, size_t) override;
+    virtual int getch(void *) override;
+    virtual int ungetch(int, void *) override;
+    virtual int flush(void *) override;
+    virtual int close(void *) override;
+    virtual long seek(void *, long, int) override;
+    virtual int eof(void *) override;
+    virtual int write(const void *, long, void *) override;
+    virtual int fileno(void *) override;
+    virtual int setvbuf(void *, char *, int, size_t) override;
 };
 
 /*
@@ -84,7 +84,7 @@ public:
 class popen_ftype : public stdio_ftype
 {
 public:
-    virtual int ft_close(void *) override;
+    virtual int close(void *) override;
 };
 
 /*

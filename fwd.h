@@ -238,7 +238,7 @@ constexpr int                   NSUBEXP = 10;
 extern DLI int                  ici_re_bra[(NSUBEXP + 1) * 3];
 extern DLI int                  ici_re_nbra;
 extern DLI volatile int         ici_aborted;                    /* See exec.c */
-extern DLI int                  ici_dont_record_line_nums;      /* See lex.c */
+extern DLI int                  record_line_nums;               /* See lex.c */
 extern DLI char                 *buf;                           /* See buf.h */
 extern DLI size_t               bufz;                           /* See buf.h */
 extern DLI ici_mark_t           ici_o_mark;

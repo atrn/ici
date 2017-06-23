@@ -34,7 +34,7 @@ class charbuf_ftype : public ftype
 {
 public:
     int
-    ft_getch(void *file) override
+    getch(void *file) override
     {
         charbuf_t *cb = (charbuf_t *)file;
         if (cb->cb_ptr < cb->cb_data || cb->cb_ptr >= cb->cb_data + cb->cb_size)
@@ -47,7 +47,7 @@ public:
     }
 
     int
-    ft_ungetch(int c, void *file) override
+    ungetch(int c, void *file) override
     {
         charbuf_t *cb = (charbuf_t *)file;
         if (c == EOF || cb->cb_ptr <= cb->cb_data || cb->cb_ptr > cb->cb_data + cb->cb_size)
@@ -58,7 +58,7 @@ public:
     }
 
     int
-    ft_close(void *file) override
+    close(void *file) override
     {
         charbuf_t *cb = (charbuf_t *)file;
         if (cb->cb_ref == NULL)
@@ -68,7 +68,7 @@ public:
     }
 
     long
-    ft_seek(void *file, long offset, int whence) override
+    seek(void *file, long offset, int whence) override
     {
         charbuf_t *cb = (charbuf_t *)file;
         switch (whence)
@@ -89,14 +89,14 @@ public:
     }
 
     int
-    ft_eof(void *file) override
+    eof(void *file) override
     {
         charbuf_t *cb = (charbuf_t *)file;
         return cb->cb_eof;
     }
 
     int
-    ft_write(const void *data, long count, void *file) override
+    write(const void *data, long count, void *file) override
     {
         charbuf_t *cb = (charbuf_t *)file;
         if (cb->cb_readonly || count <= 0)
@@ -145,30 +145,30 @@ class stringbuf_ftype : public charbuf_ftype
 {
 public:
     int
-    ft_getch(void *file) override
+    getch(void *file) override
     {
         charbuf_t *sb = (charbuf_t *)file;
         reattach_string_buffer(sb);
-        return charbuf_ftype::ft_getch(sb);
+        return charbuf_ftype::getch(sb);
     }
 
     int
-    ft_ungetch(int c, void *file) override
+    ungetch(int c, void *file) override
     {
         charbuf_t *sb = (charbuf_t *)file;
         reattach_string_buffer(sb);
-        return charbuf_ftype::ft_ungetch(c, sb);
+        return charbuf_ftype::ungetch(c, sb);
     }
 
-    long ft_seek(void *file, long offset, int whence) override
+    long seek(void *file, long offset, int whence) override
     {
         charbuf_t *sb = (charbuf_t *)file;
         reattach_string_buffer(sb);
-        return charbuf_ftype::ft_seek(sb, offset, whence);
+        return charbuf_ftype::seek(sb, offset, whence);
     }
 
     int
-    ft_write(const void *ptr, long count, void *file) override
+    write(const void *ptr, long count, void *file) override
     {
         const char *data = (const char *)ptr;
         charbuf_t *sb = (charbuf_t *)file;

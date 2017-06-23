@@ -12,15 +12,15 @@ namespace ici
 {
 
 /*
- * Set this to non-zero to stop the recording of file and line number
+ * Set this to zero to stop the recording of file and line number
  * information as code is parsed.  There is nothing in the interpreter core
- * that sets this.  Setting this can both save memory and increase execution
- * speed (slightly).  But diagnostics won't report line numbers and source
- * line debugging operations won't work.
+ * that sets this after loading.  Zeroing this can both save memory and
+ * increase execution speed (slightly).  But diagnostics won't report line
+ * numbers and source line debugging operations won't work.
  *
  * This --variable-- forms part of the --ici-api--.
  */
-int     ici_dont_record_line_nums;
+int     record_line_nums = 1;
 
 /*
  * Return the next character from the file being parsed in the given parse
@@ -68,7 +68,7 @@ get(ici_parse_t *p, ici_array_t *a)
         p->p_sol = 0;
     }
 
-    if (a != NULL && !ici_dont_record_line_nums)
+    if (a != NULL && record_line_nums)
     {
         /*
          * There is a code array being built. Update any trailing
@@ -126,7 +126,7 @@ ici_lex(ici_parse_t *p, ici_array_t *a)
     {
         /*
          * No-one consumed the object reference in the last token we returned.
-         * Disgard it now. This only happens because of user parseing, as ICI's
+         * Discard it now. This only happens because of user parseing, as ICI's
          * parser is always well behaved and consumes tokens completely before
          * getting the next one.
          */
@@ -776,29 +776,26 @@ fail:
     return T_ERROR;
 }
 
+/*
+ * An ftype to support reading currentfile() in cooked mode (which
+ * tracks line numbers).
+ */
 class parse_ftype : public ftype
 {
-    /*
-     * Functions to support reading currentfile() in cooked mode (which
-     * tracks line numbers).
-     */
-    int
-    ft_getch(void *file) override
+    int getch(void *file) override
     {
-        return get((ici_parse_t *)file, NULL);
+        return get(ici_parseof(file), NULL);
     }
 
-    int
-    ft_ungetch(int c, void *file) override
+    int ungetch(int c, void *file) override
     {
-        unget(c, (ici_parse_t *)file);
+        unget(c, ici_parseof(file));
         return c;
     }
 
-    int ft_eof(void *file) override
+    int eof(void *file) override
     {
-        ici_parse_t *p = (ici_parse_t *)file;
-        return p->p_file->eof();
+        return ici_parseof(file)->p_file->eof();
     }
 
 };

@@ -77,7 +77,7 @@ ici_file_close(ici_file_t *f)
     /*
      * If this is a pipe opened with popen(), 'r' is actually the exit status
      * of the process.  If this is non-zero, format it into an error message.
-     * Note: we can't do this within popen_ftype's ft_close(), because
+     * Note: we can't do this within popen_ftype's close(), because
      * modifying ici_error between calls to ici_leave()/ici_enter() is not
      * allowed.
      */
