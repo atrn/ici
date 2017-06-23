@@ -747,13 +747,13 @@ ici_net_select()
             if (timeout < 0)
                 return seterror("-ve timeout passed to net.select", NULL);
         }
-        else if (ici_isset(ARG(i)) || ici_isnull(ARG(i)))
+        else if (isset(ARG(i)) || ici_isnull(ARG(i)))
         {
             int j;
 
             if (++whichset > 2)
                 return seterror("too many set/NULL params to select()", NULL);
-            if (ici_isset(ARG(i)))
+            if (isset(ARG(i)))
             {
                 fd_set *fs = 0;
 
@@ -761,15 +761,15 @@ ici_net_select()
                 {
                 case 0:
                     fs = rfds = &fds[0];
-                    set = rset = ici_setof(ARG(i));
+                    set = rset = setof(ARG(i));
                     break;
                 case 1:
                     fs = wfds = &fds[1];
-                    set = wset = ici_setof(ARG(i));
+                    set = wset = setof(ARG(i));
                     break;
                 case 2:
                     fs = efds = &fds[2];
-                    set = eset = ici_setof(ARG(i));
+                    set = eset = setof(ARG(i));
                     break;
                 }
                 FD_ZERO(fs);
@@ -847,7 +847,7 @@ ici_net_select()
     if (select_add_result(result, SS(read), rset, rfds, &n))
         goto fail;
     /* Simpler return, one set of ready sockets */
-    if (NARGS() == 1 && ici_isset(ARG(0)))
+    if (NARGS() == 1 && isset(ARG(0)))
     {
         object        *o;
 

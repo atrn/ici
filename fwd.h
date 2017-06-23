@@ -76,6 +76,8 @@
 #include <cerrno>
 #include <cmath>
 
+#undef isset
+
 namespace ici
 {
 

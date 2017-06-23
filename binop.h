@@ -593,12 +593,12 @@
             ici_obj_t  **sl;
             int        i;
 
-            if ((s = ici_setof(ici_copy(o0))) == NULL)
+            if ((s = setof(ici_copy(o0))) == NULL)
             {
                 FAIL();
             }
-            sl = ici_setof(o1)->s_slots;
-            for (i = 0; i < ici_setof(o1)->s_nslots; ++i, ++sl)
+            sl = setof(o1)->s_slots;
+            for (i = 0; i < setof(o1)->s_nslots; ++i, ++sl)
             {
                 if (*sl == NULL)
                 {
@@ -621,12 +621,12 @@
             ici_obj_t  **sl;
             int        i;
 
-            if ((s = ici_setof(ici_copy(o0))) == NULL)
+            if ((s = setof(ici_copy(o0))) == NULL)
             {
                 FAIL();
             }
-            sl = ici_setof(o1)->s_slots;
-            for (i = 0; i < ici_setof(o1)->s_nslots; ++i, ++sl)
+            sl = setof(o1)->s_slots;
+            for (i = 0; i < setof(o1)->s_nslots; ++i, ++sl)
             {
                 if (*sl == NULL)
                 {
@@ -649,7 +649,7 @@
             ici_obj_t  **sl;
             int        i;
 
-            if (ici_setof(o0)->s_nels > ici_setof(o1)->s_nels)
+            if (setof(o0)->s_nels > setof(o1)->s_nels)
             {
                 SWAP();
             }
@@ -657,8 +657,8 @@
             {
                 FAIL();
             }
-            sl = ici_setof(o0)->s_slots;
-            for (i = 0; i < ici_setof(o0)->s_nslots; ++i, ++sl)
+            sl = setof(o0)->s_slots;
+            for (i = 0; i < setof(o0)->s_nslots; ++i, ++sl)
             {
                 if (*sl == NULL)
                 {
@@ -680,19 +680,19 @@
         LOOSEo();
 
     case ICI_TRI(ICI_TC_SET, ICI_TC_SET, T_GRTEQ):
-        o = ici_set_issubset(ici_setof(o1), ici_setof(o0)) ? ici_one : ici_zero;
+        o = ici_set_issubset(setof(o1), setof(o0)) ? ici_one : ici_zero;
         USEo();
 
     case ICI_TRI(ICI_TC_SET, ICI_TC_SET, T_LESSEQ):
-        o = ici_set_issubset(ici_setof(o0), ici_setof(o1)) ? ici_one : ici_zero;
+        o = ici_set_issubset(setof(o0), setof(o1)) ? ici_one : ici_zero;
         USEo();
 
     case ICI_TRI(ICI_TC_SET, ICI_TC_SET, T_GRT):
-        o = ici_set_ispropersubset(ici_setof(o1), ici_setof(o0)) ? ici_one : ici_zero;
+        o = ici_set_ispropersubset(setof(o1), setof(o0)) ? ici_one : ici_zero;
         USEo();
 
     case ICI_TRI(ICI_TC_SET, ICI_TC_SET, T_LESS):
-        o = ici_set_ispropersubset(ici_setof(o0), ici_setof(o1)) ? ici_one : ici_zero;
+        o = ici_set_ispropersubset(setof(o0), setof(o1)) ? ici_one : ici_zero;
         USEo();
 
     case ICI_TRI(ICI_TC_PTR, ICI_TC_PTR, T_MINUS):
@@ -804,7 +804,7 @@
 	case t_subtype(T_MINUSEQ):
 	    if (o0->o_tcode == ICI_TC_SET)
 	    {
-		if (ici_set_unassign(ici_setof(o0), o1))
+		if (ici_set_unassign(setof(o0), o1))
                 {
 		    FAIL();
                 }

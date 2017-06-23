@@ -848,9 +848,9 @@ f_keys()
                 *k->a_top++ = sl->sl_key;
         }
     }
-    else if (ici_isset(ARG(0)))
+    else if (isset(ARG(0)))
     {
-        set *s = ici_setof(ARG(0));
+        set *s = setof(ARG(0));
         int i;
 
         if ((k = ici_array_new(s->s_nels)) == NULL)
@@ -905,8 +905,8 @@ f_nels()
         size = arrayof(o)->len();
     else if (ici_isstruct(o))
         size = ici_structof(o)->s_nels;
-    else if (ici_isset(o))
-        size = ici_setof(o)->s_nels;
+    else if (isset(o))
+        size = setof(o)->s_nels;
     else if (ici_ismem(o))
         size = ici_memof(o)->m_length;
     else if (ici_ischannel(o))
@@ -1961,9 +1961,9 @@ f_del()
     {
         ici_struct_unassign(ici_structof(s), o);
     }
-    else if (ici_isset(s))
+    else if (isset(s))
     {
-        ici_set_unassign(ici_setof(s), o);
+        ici_set_unassign(setof(s), o);
     }
     else if (isarray(s))
     {
@@ -2200,7 +2200,7 @@ f_assign()
     case 2:
         if (typecheck("oo", &s, &k))
             return 1;
-        if (ici_isset(s))
+        if (isset(s))
             v = ici_one;
         else
             v = ici_null;

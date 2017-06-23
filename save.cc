@@ -186,7 +186,7 @@ save_array(archive *ar, object *obj)
 static int
 save_set(archive *ar, object *obj)
 {
-    set *s = ici_setof(obj);
+    auto s = setof(obj);
     object **e = s->s_slots;
 
     if (save_object_name(ar, obj) || write64(ar, s->s_nels))
