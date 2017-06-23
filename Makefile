@@ -7,6 +7,8 @@
 
 prog=  anici
 conf?= conf/darwin.h
+
+# uncomment for static exe with no shared lib
 static=yes
 
 srcs=  $(shell echo *.cc)
