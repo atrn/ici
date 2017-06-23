@@ -15,17 +15,18 @@ namespace ici
  * Mark this and referenced unmarked objects, return memory costs.
  * See comments on t_mark() in object.h.
  */
-size_t ptr_type::mark(ici_obj_t *o)
+size_t ptr_type::mark(object *o)
 {
-    o->setmark();
-    return typesize() + ici_mark(ici_ptrof(o)->p_aggr) + ici_mark(ici_ptrof(o)->p_key);
+    auto p = ici_ptrof(o);
+    p->setmark();
+    return typesize() + ici_mark(p->p_aggr) + ici_mark(p->p_key);
 }
 
 /*
  * Returns 0 if these objects are equal, else non-zero.
  * See the comments on t_cmp() in object.h.
  */
-int ptr_type::cmp(ici_obj_t *o1, ici_obj_t *o2)
+int ptr_type::cmp(object *o1, object *o2)
 {
     return ici_ptrof(o1)->p_aggr != ici_ptrof(o2)->p_aggr
         || ici_ptrof(o1)->p_key != ici_ptrof(o2)->p_key;
@@ -35,7 +36,7 @@ int ptr_type::cmp(ici_obj_t *o1, ici_obj_t *o2)
  * Return a hash sensitive to the value of the object.
  * See the comment on t_hash() in object.h
  */
-unsigned long ptr_type::hash(ici_obj_t *o)
+unsigned long ptr_type::hash(object *o)
 {
     return (unsigned long)ici_ptrof(o)->p_aggr * PTR_PRIME_0
         + (unsigned long)ici_ptrof(o)->p_key * PTR_PRIME_1;
@@ -50,7 +51,7 @@ unsigned long ptr_type::hash(ici_obj_t *o)
  * of course the key must be an integer too.  The final key is the sum of the
  * two keys.  But if the key is zero, just do *ptr.
  */
-ici_obj_t * ptr_type::fetch(ici_obj_t *o, ici_obj_t *k)
+object * ptr_type::fetch(object *o, object *k)
 {
     if (k == ici_zero)
         return ici_fetch(ici_ptrof(o)->p_aggr, ici_ptrof(o)->p_key);
@@ -58,8 +59,7 @@ ici_obj_t * ptr_type::fetch(ici_obj_t *o, ici_obj_t *k)
         return fetch_fail(o, k);
     if (ici_ptrof(o)->p_key == ici_zero)
         k->incref();
-    else if ((k = ici_int_new(ici_intof(k)->i_value + ici_intof(ici_ptrof(o)->p_key)->i_value))
-            == NULL)
+    else if ((k = ici_int_new(ici_intof(k)->i_value + ici_intof(ici_ptrof(o)->p_key)->i_value)) == NULL)
         return NULL;
     o = ici_fetch(ici_ptrof(o)->p_aggr, k);
     k->decref();
@@ -72,7 +72,7 @@ ici_obj_t * ptr_type::fetch(ici_obj_t *o, ici_obj_t *k)
  *
  * See above comment.
  */
-int ptr_type::assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v)
+int ptr_type::assign(object *o, object *k, object *v)
 {
     if (k == ici_zero)
         return ici_assign(ici_ptrof(o)->p_aggr, ici_ptrof(o)->p_key, v);
@@ -80,8 +80,7 @@ int ptr_type::assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v)
         return assign_fail(o, k, v);
     if (ici_ptrof(o)->p_key == ici_zero)
         k->incref();
-    else if ((k = ici_int_new(ici_intof(k)->i_value + ici_intof(ici_ptrof(o)->p_key)->i_value))
-            == NULL)
+    else if ((k = ici_int_new(ici_intof(k)->i_value + ici_intof(ici_ptrof(o)->p_key)->i_value)) == NULL)
         return 1;
     if (ici_assign(ici_ptrof(o)->p_aggr, k, v))
     {
@@ -92,13 +91,13 @@ int ptr_type::assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v)
     return 0;
 }
 
-int ptr_type::call(ici_obj_t *o, ici_obj_t *subject)
+int ptr_type::call(object *o, object *subject)
 {
-    ici_obj_t   *f;
+    object   *f;
 
     if ((f = ici_fetch(ici_ptrof(o)->p_aggr, ici_ptrof(o)->p_key)) == NULL)
         return 1;
-    if (!ici_typeof(f)->can_call())
+    if (!f->can_call())
     {
         char    n1[30];
         return ici_set_error("attempt to call a ptr pointing to %s", ici_objname(n1, o));
@@ -119,7 +118,7 @@ int ptr_type::call(ici_obj_t *o, ici_obj_t *subject)
      * Then behave as if the target had been called. Should this do the
      * debug hooks? Assume not for now.
      */
-    return ici_typeof(f)->call(f, NULL);
+    return f->call(NULL);
 }
 
 /*
@@ -133,7 +132,7 @@ int ptr_type::call(ici_obj_t *o, ici_obj_t *subject)
  * This --func-- forms part of the --ici-api--.
  */
 ici_ptr_t *
-ici_ptr_new(ici_obj_t *a, ici_obj_t *k)
+ici_ptr_new(object *a, object *k)
 {
     ici_ptr_t  *p;
 
@@ -151,7 +150,7 @@ ici_ptr_new(ici_obj_t *a, ici_obj_t *k)
 int
 ici_op_mkptr()
 {
-    ici_obj_t  *o;
+    object  *o;
 
     if ((o = ici_ptr_new(ici_os.a_top[-2], ici_os.a_top[-1])) == NULL)
         return 1;
@@ -188,8 +187,8 @@ int
 ici_op_fetch()
 {
     ici_ptr_t  *p;
-    ici_obj_t  *o;
-    char                n[30];
+    object  *o;
+    char    n[30];
 
     if (!ici_isptr(p = ici_ptrof(ici_os.a_top[-1])))
     {

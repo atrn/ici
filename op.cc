@@ -10,9 +10,9 @@ namespace ici
 ici_op_t *
 ici_new_op(int (*func)(), int16_t ecode, int16_t code)
 {
-    ici_op_t            *o;
-    ici_obj_t           **po;
-    static ici_op_t     proto = {ICI_TC_OP};
+    ici_op_t         *o;
+    object           **po;
+    static ici_op_t  proto = {ICI_TC_OP};
 
     proto.op_func = func;
     proto.op_code = code;
@@ -39,7 +39,7 @@ ici_new_op(int (*func)(), int16_t ecode, int16_t code)
  * Returns 0 if these objects are equal, else non-zero.
  * See the comments on t_cmp() in object.h.
  */
-int op_type::cmp(ici_obj_t *o1, ici_obj_t *o2)
+int op_type::cmp(object *o1, object *o2)
 {
     return ici_opof(o1)->op_func != ici_opof(o2)->op_func
         || ici_opof(o1)->op_code != ici_opof(o2)->op_code
@@ -50,7 +50,7 @@ int op_type::cmp(ici_obj_t *o1, ici_obj_t *o2)
  * Return a hash sensitive to the value of the object.
  * See the comment on t_hash() in object.h
  */
-unsigned long op_type::hash(ici_obj_t *o)
+unsigned long op_type::hash(object *o)
 {
     return OP_PRIME * ((unsigned long)ici_opof(o)->op_func
                        + ici_opof(o)->op_code

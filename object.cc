@@ -23,16 +23,16 @@ namespace ici
  * All objects are in the objects list or completely static and
  * known to never require collection.
  */
-ici_obj_t       **ici_objs;         /* List of all objects. */
-ici_obj_t       **ici_objs_limit;   /* First element we can't use in list. */
-ici_obj_t       **ici_objs_top;     /* Next unused element in list. */
+object       **ici_objs;         /* List of all objects. */
+object       **ici_objs_limit;   /* First element we can't use in list. */
+object       **ici_objs_top;     /* Next unused element in list. */
 
-ici_obj_t       **ici_atoms;    /* Hash table of atomic objects. */
-int             ici_atomsz;     /* Number of slots in hash table. */
-int             ici_natoms;     /* Number of atomic objects. */
+object       **ici_atoms;    /* Hash table of atomic objects. */
+int          ici_atomsz;     /* Number of slots in hash table. */
+int          ici_natoms;     /* Number of atomic objects. */
 
-int             ici_supress_collect;
-int		ici_ncollects;	/* Number of ici_collect() calls */
+int          ici_supress_collect;
+int          ici_ncollects;	/* Number of ici_collect() calls */
 
 /*
  * Format a human readable version of the object 'o' into the buffer
@@ -42,11 +42,11 @@ int		ici_ncollects;	/* Number of ici_collect() calls */
  * This --func-- forms part of the --ici-api--.
  */
 char *
-ici_objname(char p[ICI_OBJNAMEZ], ici_obj_t *o)
+ici_objname(char p[ICI_OBJNAMEZ], object *o)
 {
-    if (ici_typeof(o)->can_objname())
+    if (o->type()->can_objname())
     {
-        ici_typeof(o)->objname(o, p);
+        o->type()->objname(o, p);
         return p;
     }
     if (ici_isstring(o))
@@ -60,10 +60,10 @@ ici_objname(char p[ICI_OBJNAMEZ], ici_obj_t *o)
         sprintf(p, "%lld", ici_intof(o)->i_value);
     else if (ici_isfloat(o))
         sprintf(p, "%g", ici_floatof(o)->f_value);
-    else if (strchr("aeiou", ici_typeof(o)->name[0]) != NULL)
-        sprintf(p, "an %s", ici_typeof(o)->name);
+    else if (strchr("aeiou", o->type()->name[0]) != NULL)
+        sprintf(p, "an %s", o->type()->name);
     else
-        sprintf(p, "a %s", ici_typeof(o)->name);
+        sprintf(p, "a %s", o->type()->name);
     return p;
 }
 
@@ -80,26 +80,26 @@ inline unsigned long hash(object *o)
 static void
 ici_grow_atoms_core(ptrdiff_t newz)
 {
-    ici_obj_t  **po;
+    object  **po;
     int        i;
-    ici_obj_t           **olda;
+    object           **olda;
     ptrdiff_t           oldz;
 
     assert(((newz - 1) & newz) == 0); /* Assert power of 2. */
     oldz = ici_atomsz;
     ++ici_supress_collect;
-    po = (ici_obj_t **)ici_nalloc(newz * sizeof(ici_obj_t *));
+    po = (object **)ici_nalloc(newz * sizeof(object *));
     --ici_supress_collect;
     if (po == NULL)
         return;
     ici_atomsz = newz;
-    memset((char *)po, 0, newz * sizeof(ici_obj_t *));
+    memset((char *)po, 0, newz * sizeof(object *));
     olda = ici_atoms;
     ici_atoms = po;
     i = oldz;
     while (--i >= 0)
     {
-        ici_obj_t   *o;
+        object   *o;
 
         if ((o = olda[i]) != NULL)
         {
@@ -113,7 +113,7 @@ ici_grow_atoms_core(ptrdiff_t newz)
             *po = o;
         }
     }
-    ici_nfree(olda, oldz * sizeof(ici_obj_t *));
+    ici_nfree(olda, oldz * sizeof(object *));
 }
 
 /*
@@ -166,10 +166,10 @@ ici_grow_atoms(ptrdiff_t newz)
  *
  * This --func-- forms part of the --ici-api--.
  */
-ici_obj_t *
-ici_atom(ici_obj_t *o, int lone)
+object *
+ici_atom(object *o, int lone)
 {
-    ici_obj_t   **po;
+    object   **po;
 
     assert(!(lone == 1 && o->o_nrefs == 0));
 
@@ -224,10 +224,10 @@ ici_atom(ici_obj_t *o, int lone)
  * afterwards.  The macro ICI_STORE_ATOM_AND_COUNT() can be used for this.
  * Note that any call to collect() could disturb the atom pool.
  */
-ici_obj_t *
-ici_atom_probe2(ici_obj_t *o, ici_obj_t ***ppo)
+object *
+ici_atom_probe2(object *o, object ***ppo)
 {
-    ici_obj_t   **po;
+    object   **po;
 
     for
     (
@@ -254,8 +254,8 @@ ici_atom_probe2(ici_obj_t *o, ici_obj_t ***ppo)
  *
  * This --func-- forms part of the --ici-api--.
  */
-ici_obj_t *
-ici_atom_probe(ici_obj_t *o)
+object *
+ici_atom_probe(object *o)
 {
     return ici_atom_probe2(o, NULL);
 }
@@ -271,11 +271,11 @@ ici_atom_probe(ici_obj_t *o)
  * little more robustness if something is screwy.
  */
 static int
-unatom(ici_obj_t *o)
+unatom(object *o)
 {
-    ici_obj_t  **sl;
-    ici_obj_t  **ss;
-    ici_obj_t  **ws;   /* Wanted position. */
+    object  **sl;
+    object  **ss;
+    object  **ws;   /* Wanted position. */
 
     for
     (
@@ -331,16 +331,16 @@ deleteo:
 }
 
 void
-ici_grow_objs(ici_obj_t *o)
+ici_grow_objs(object *o)
 {
-    ici_obj_t           **newobjs;
+    object           **newobjs;
     ptrdiff_t           newz;
     ptrdiff_t           oldz;
 
     oldz = ici_objs_limit - ici_objs;
     newz = 2 * oldz;
     ++ici_supress_collect;
-    if ((newobjs = (ici_obj_t **)ici_nalloc(newz * sizeof(ici_obj_t *))) == NULL)
+    if ((newobjs = (object **)ici_nalloc(newz * sizeof(object *))) == NULL)
     {
         --ici_supress_collect;
         return;
@@ -350,13 +350,13 @@ ici_grow_objs(ici_obj_t *o)
     ici_objs_limit = newobjs + newz;
     ici_objs_top = newobjs + (ici_objs_top - ici_objs);
     memset((char *)ici_objs_top, 0, (char *)ici_objs_limit - (char *)ici_objs_top);
-    ici_nfree(ici_objs, oldz * sizeof(ici_obj_t *));
+    ici_nfree(ici_objs, oldz * sizeof(object *));
     ici_objs = newobjs;
     *ici_objs_top++ = o;
 }
 
 void
-ici_rego_work(ici_obj_t *o)
+ici_rego_work(object *o)
 {
     if (ici_objs_top < ici_objs_limit)
     {
@@ -381,11 +381,11 @@ ici_rego_work(ici_obj_t *o)
 void
 ici_collect()
 {
-    ici_obj_t  **a;
-    ici_obj_t  *o;
-    ici_obj_t  **b;
+    object  **a;
+    object  *o;
+    object  **b;
+    size_t  mem;    /* Total mem tied up in refed objects. */
     /*int        ndead_atoms;*/
-    size_t     mem;    /* Total mem tied up in refed objects. */
 
     if (ici_supress_collect)
     {
@@ -410,7 +410,7 @@ ici_collect()
      * life of the object.
      */
     {
-        ici_obj_t   **a;
+        object **a;
 
         if ((a = &ici_atoms[ici_atomsz]) != NULL)
         {
@@ -424,22 +424,6 @@ ici_collect()
         }
     }
 #   endif
-
-#if 0
-    // Mark all new objects
-    mem = 0;
-    for (a = ici_objs; a < ici_objs_top; ++a)
-    {
-	o = *a;
-	if (is_new(o) && o->o_nrefs == 0)
-	{
-            mem += ici_mark(*a);
-	}
-    }
-    // And sweep them up.
-    //
-    sweep();
-#endif
 
     /*
      * Mark all objects which are referenced (and thus what they ref).
@@ -562,7 +546,7 @@ printf("mem=%ld vs. %ld, nobjects=%d, ici_natoms=%d\n", mem, ici_mem, objs_top -
 void
 ici_dump_refs()
 {
-    ici_obj_t           **a;
+    object           **a;
     char                n[30];
     int                 spoken;
 
@@ -598,10 +582,10 @@ ici_reclaim()
 
 #ifdef  BUGHUNT
 
-ici_obj_t   *traceobj;
+object   *traceobj;
 
 void
-bughunt_incref(ici_obj_t *o)
+bughunt_incref(object *o)
 {
     if (o == traceobj)
     {
@@ -620,7 +604,7 @@ bughunt_incref(ici_obj_t *o)
 }
 
 void
-bughunt_decref(ici_obj_t *o)
+bughunt_decref(object *o)
 {
     if (o == traceobj)
     {
@@ -634,7 +618,7 @@ bughunt_decref(ici_obj_t *o)
 }
 
 void
-bughunt_rego(ici_obj_t *o)
+bughunt_rego(object *o)
 {
     if (o == traceobj)
     {

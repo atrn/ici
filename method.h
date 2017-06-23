@@ -13,12 +13,12 @@ namespace ici
  */
 struct method : object
 {
-    ici_obj_t   *m_subject;
-    ici_obj_t   *m_callable;
+    object   *m_subject;
+    object   *m_callable;
 };
 
-inline ici_method_t *ici_methodof(ici_obj_t *o) { return static_cast<ici_method_t *>(o); }
-inline bool ici_ismethod(ici_obj_t *o) { return o->isa(ICI_TC_METHOD); }
+inline ici_method_t *ici_methodof(object *o) { return static_cast<method *>(o); }
+inline bool ici_ismethod(object *o) { return o->isa(ICI_TC_METHOD); }
 
 /*
  * End of ici.h export. --ici.h-end--
@@ -28,10 +28,10 @@ class method_type : public type
 {
 public:
     method_type() : type("method", sizeof (struct method), type::has_objname|type::has_call) {}
-    size_t mark(ici_obj_t *o) override;
-    ici_obj_t *fetch(ici_obj_t *o, ici_obj_t *k) override;
-    int call(ici_obj_t *o, ici_obj_t *subject) override;
-    void objname(ici_obj_t *o, char p[ICI_OBJNAMEZ]) override;
+    size_t mark(object *o) override;
+    object *fetch(object *o, object *k) override;
+    int call(object *o, object *subject) override;
+    void objname(object *o, char p[ICI_OBJNAMEZ]) override;
 };
 
 } // namespace ici

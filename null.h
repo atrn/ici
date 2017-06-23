@@ -16,8 +16,8 @@ struct null : object
     null() : object{ICI_TC_NULL, ICI_O_ATOM, 1, 0} {}
 };
 
-inline ici_null_t *ici_nullof(ici_obj_t *o) { return static_cast<ici_null_t *>(o); }
-inline bool ici_isnull(ici_obj_t *o) { return o == ici_null; }
+inline null *ici_nullof(object *o) { return static_cast<null *>(o); }
+inline bool ici_isnull(object *o) { return o == ici_null; }
 
 /*
  * End of ici.h export. --ici.h-end--
@@ -28,7 +28,6 @@ public:
     null_type() : type("NULL", sizeof (struct null)) {}
     void free(ici_obj_t *) override;
 };
-
 
 } // namespace ici
 

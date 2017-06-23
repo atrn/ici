@@ -29,13 +29,13 @@ struct op : object
         , op_code(code)
     {}
 
-    int         (*op_func)();
-    int16_t     op_ecode;       /* See ICI_OP_* below. */
-    int16_t     op_code;
+    int     (*op_func)();
+    int16_t op_ecode;       /* See ICI_OP_* below. */
+    int16_t op_code;
 };
 
-inline ici_op_t *ici_opof(ici_obj_t *o) { return static_cast<ici_op_t *>(o); }
-inline bool ici_isop(ici_obj_t *o) { return o->isa(ICI_TC_OP); }
+inline ici_op_t *ici_opof(object *o) { return static_cast<ici_op_t *>(o); }
+inline bool ici_isop(object *o) { return o->isa(ICI_TC_OP); }
 
 ici_op_t *ici_new_op(int (*func)(), int16_t ecode, int16_t code);
 
@@ -136,8 +136,8 @@ class op_type : public type
 {
 public:
     op_type() : type("op", sizeof (struct op)) {}
-    int cmp(ici_obj_t *o1, ici_obj_t *o2) override;
-    unsigned long hash(ici_obj_t *o) override;
+    int cmp(object *o1, object *o2) override;
+    unsigned long hash(object *o) override;
 };
 
 } // namespace ici

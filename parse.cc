@@ -29,10 +29,10 @@ static char     an_expression[] = "an expression";
 /*
  * A few forward definitions...
  */
-static int      compound_statement(ici_parse_t *, ici_struct_t *);
-static int      expr(ici_parse_t *, expr_t **, int);
-static int      const_expression(ici_parse_t *, ici_obj_t **, int);
-static int      statement(ici_parse_t *, ici_array_t *, ici_struct_t *, const char *, int);
+static int      compound_statement(parse *, ici_struct *);
+static int      expr(parse *, expr_t **, int);
+static int      const_expression(parse *, object **, int);
+static int      statement(parse *, array *, ici_struct *, const char *, int);
 
 #define DISASSEMBLE   0
 #if DISASSEMBLE
@@ -83,9 +83,9 @@ opname(ici_op_t *op)
 }
 
 static void
-disassemble(int indent, ici_array_t *a)
+disassemble(int indent, array *a)
 {
-    ici_obj_t           **e;
+    object           **e;
     char                n1[30];
     int                 i;
 
@@ -142,7 +142,7 @@ disassemble(int indent, ici_array_t *a)
 #else
 
 static int
-next(ici_parse_t *p, ici_array_t *a)
+next(parse *p, array *a)
 {
     if (p->p_ungot.t_what != T_NONE)
     {
@@ -154,7 +154,7 @@ next(ici_parse_t *p, ici_array_t *a)
 }
 
 static void
-reject(ici_parse_t *p)
+reject(parse *p)
 {
     p->p_ungot = p->p_got;
     this = T_NONE;
@@ -176,26 +176,26 @@ not_allowed(const char *what)
 }
 
 static void
-increment_break_depth(ici_parse_t *p)
+increment_break_depth(parse *p)
 {
     ++p->p_break_depth;
 }
 
 static void
-decrement_break_depth(ici_parse_t *p)
+decrement_break_depth(parse *p)
 {
     --p->p_break_depth;
 }
 
 static void
-increment_break_continue_depth(ici_parse_t *p)
+increment_break_continue_depth(parse *p)
 {
     ++p->p_break_depth;
     ++p->p_continue_depth;
 }
 
 static void
-decrement_break_continue_depth(ici_parse_t *p)
+decrement_break_continue_depth(parse *p)
 {
     --p->p_break_depth;
     --p->p_continue_depth;
@@ -205,10 +205,10 @@ decrement_break_continue_depth(ici_parse_t *p)
  * Returns a non-decref atomic array of identifiers parsed from a comma
  * seperated list, or NULL on error.  The array may be empty.
  */
-static ici_array_t *
-ident_list(ici_parse_t *p)
+static array *
+ident_list(parse *p)
 {
-    ici_array_t *a;
+    array *a;
 
     if ((a = ici_array_new(0)) == NULL)
     {
@@ -249,12 +249,12 @@ ident_list(ici_parse_t *p)
  * non-decref function in parse.p_got.t_obj.
  */
 static int
-function(ici_parse_t *p, ici_str_t *name)
+function(parse *p, str *name)
 {
-    ici_array_t *a;
-    ici_func_t  *f;
-    ici_func_t  *saved_func;
-    ici_obj_t   **fp;
+    array *a;
+    func  *f;
+    func  *saved_func;
+    object **fp;
 
     a = NULL;
     f = NULL;
@@ -343,10 +343,10 @@ function(ici_parse_t *p, ici_str_t *name)
  * ows is the struct (or whatever) the idents are going into.
  */
 static int
-data_def(ici_parse_t *p, ici_objwsup_t *ows)
+data_def(parse *p, objwsup *ows)
 {
-    ici_obj_t   *o;     /* The value it is initialised with. */
-    ici_obj_t   *n;     /* The name. */
+    object   *o;     /* The value it is initialised with. */
+    object   *n;     /* The name. */
     int         wasfunc;
     int         hasinit;
 
@@ -442,9 +442,9 @@ data_def(ici_parse_t *p, ici_objwsup_t *ows)
 }
 
 static int
-compound_statement(ici_parse_t *p, ici_struct_t *sw)
+compound_statement(parse *p, ici_struct *sw)
 {
-    ici_array_t *a;
+    array *a;
 
     a = NULL;
     if (next(p, NULL) != T_ONCURLY)
@@ -524,7 +524,7 @@ free_expr(expr_t *e)
  * including the ')'.
  */
 static int
-bracketed_expr(ici_parse_t *p, expr_t **ep)
+bracketed_expr(parse *p, expr_t **ep)
 {
     switch (expr(p, ep, T_NONE))
     {
@@ -546,17 +546,17 @@ bracketed_expr(ici_parse_t *p, expr_t **ep)
  * comment on expr() for the meaning of exclude.
  */
 static int
-primary(ici_parse_t *p, expr_t **ep, int exclude)
+primary(parse *p, expr_t **ep, int exclude)
 {
     expr_t          *e;
-    ici_array_t     *a;
-    ici_struct_t    *d;
+    array     *a;
+    ici_struct    *d;
     ici_set_t       *s;
-    ici_obj_t       *n;
-    ici_obj_t       *o;
+    object       *n;
+    object       *o;
     const char      *token_name = 0;
     int             wasfunc;
-    ici_obj_t       *name;
+    object       *name;
     int             token;
 
     *ep = NULL;
@@ -734,7 +734,7 @@ primary(ici_parse_t *p, expr_t **ep, int exclude)
             name == SS(module)
         )
         {
-            ici_struct_t    *super;
+            ici_struct    *super;
 
             p->p_got.t_obj->decref();
             d = NULL;
@@ -818,7 +818,7 @@ primary(ici_parse_t *p, expr_t **ep, int exclude)
 
             if (name == SS(module))
             {
-                ici_struct_t    *autos;
+                ici_struct    *autos;
 
                 if ((autos = ici_struct_new()) == NULL)
                 {
@@ -844,7 +844,7 @@ primary(ici_parse_t *p, expr_t **ep, int exclude)
             }
             if (name == SS(class))
             {
-                ici_struct_t    *autos;
+                ici_struct    *autos;
 
                 /*
                  * A class definition operates within the scope context of
@@ -1029,9 +1029,9 @@ primary(ici_parse_t *p, expr_t **ep, int exclude)
         }
         else
         {
-            ici_str_t   *s;     /* Name after the on-square . */
-            ici_file_t  *f;     /* The parse file. */
-            ici_obj_t   *c;     /* The callable parser function. */
+            str    *s;     /* Name after the on-square . */
+            file   *f;     /* The parse file. */
+            object *c;     /* The callable parser function. */
 
             f = NULL;
             n = NULL;
@@ -1041,7 +1041,7 @@ primary(ici_parse_t *p, expr_t **ep, int exclude)
             {
                 goto fail_user_parse;
             }
-            if (ici_typeof(o)->can_call())
+            if (o->can_call())
             {
                 c = o;
                 o = NULL;
@@ -1291,7 +1291,7 @@ primary(ici_parse_t *p, expr_t **ep, int exclude)
  * comment on expr() for the meaning of exclude.
  */
 static int
-unary(ici_parse_t *p, expr_t **ep, int exclude)
+unary(parse *p, expr_t **ep, int exclude)
 {
     expr_t      *e;
     int         what;
@@ -1369,7 +1369,7 @@ unary(ici_parse_t *p, expr_t **ep, int exclude)
  *                      colon.
  */
 static int
-expr(ici_parse_t *p, expr_t **ep, int exclude)
+expr(parse *p, expr_t **ep, int exclude)
 {
     expr_t      *e;
     expr_t      **ebase;
@@ -1457,7 +1457,7 @@ expr(ici_parse_t *p, expr_t **ep, int exclude)
 }
 
 static int
-expression(ici_parse_t *p, ici_array_t *a, int why, int exclude)
+expression(parse *p, array *a, int why, int exclude)
 {
     expr_t      *e;
 
@@ -1487,10 +1487,10 @@ expression(ici_parse_t *p, ici_array_t *a, int why, int exclude)
  * Usual parseing return conventions.
  */
 static int
-const_expression(ici_parse_t *p, ici_obj_t **po, int exclude)
+const_expression(parse *p, object **po, int exclude)
 {
     expr_t      *e;
-    ici_array_t *a;
+    array *a;
     int         ret;
 
     a = NULL;
@@ -1552,7 +1552,7 @@ const_expression(ici_parse_t *p, ici_obj_t **po, int exclude)
 }
 
 static int
-xx_brac_expr_brac(ici_parse_t *p, ici_array_t *a, const char *xx)
+xx_brac_expr_brac(parse *p, array *a, const char *xx)
 {
     if (next(p, a) != T_ONROUND)
     {
@@ -1590,14 +1590,14 @@ xx_brac_expr_brac(ici_parse_t *p, ici_array_t *a, const char *xx)
  *      returning.
  */
 static int
-statement(ici_parse_t *p, ici_array_t *a, ici_struct_t *sw, const char *m, int endme)
+statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
 {
-    ici_array_t         *a1;
-    ici_array_t         *a2;
+    array         *a1;
+    array         *a2;
     expr_t              *e;
-    ici_struct_t        *d;
-    ici_objwsup_t       *ows;
-    ici_obj_t           *o;
+    ici_struct        *d;
+    objwsup       *ows;
+    object           *o;
     ici_int_t           *i;
     int                 stepz;
 
@@ -2449,10 +2449,10 @@ statement(ici_parse_t *p, ici_array_t *a, ici_struct_t *sw, const char *m, int e
  * This --func-- forms part of the --ici-api--.
  */
 int
-ici_parse(ici_file_t *f, ici_objwsup_t *s)
+ici_parse(file *f, objwsup *s)
 {
-    ici_parse_t         *p;
-    ici_obj_t           *o;
+    parse         *p;
+    object           *o;
 
     if ((p = ici_new_parse(f)) == NULL)
     {
@@ -2491,15 +2491,15 @@ ici_parse(ici_file_t *f, ici_objwsup_t *s)
  * This --func-- forms part of the --ici-api--.
  */
 int
-ici_parse_file(const char *mname, char *file, ftype *ftype)
+ici_parse_file(const char *mname, char *fileo, ftype *ftype)
 {
-    ici_objwsup_t       *s;     /* Statics. */
-    ici_objwsup_t       *a;     /* Autos. */
-    ici_file_t          *f;
+    objwsup       *s;     /* Statics. */
+    objwsup       *a;     /* Autos. */
+    file          *f;
 
     a = NULL;
     f = NULL;
-    if ((f = ici_file_new(file, ftype, ici_str_get_nul_term(mname), NULL)) == NULL)
+    if ((f = ici_file_new(fileo, ftype, ici_str_get_nul_term(mname), NULL)) == NULL)
     {
         goto fail;
     }
@@ -2569,8 +2569,8 @@ ici_parse_fname(const char *fname)
 int
 ici_parse_exec()
 {
-    ici_parse_t *p;
-    ici_array_t *a;
+    parse *p;
+    array *a;
 
     if ((a = ici_array_new(0)) == NULL)
     {
@@ -2626,16 +2626,16 @@ ici_parse_exec()
     }
 }
 
-ici_parse_t *
-ici_new_parse(ici_file_t *f)
+parse *
+ici_new_parse(file *f)
 {
-    ici_parse_t    *p;
+    parse    *p;
 
-    if ((p = (ici_parse_t *)ici_talloc(ici_parse_t)) == NULL)
+    if ((p = (parse *)ici_talloc(parse)) == NULL)
     {
         return NULL;
     }
-    memset(p, 0, sizeof(ici_parse_t));
+    memset(p, 0, sizeof(parse));
     ICI_OBJ_SET_TFNZ(p, ICI_TC_PARSE, 0, 1, 0);
     ici_rego(p);
     p->p_file = f;
@@ -2646,7 +2646,7 @@ ici_new_parse(ici_file_t *f)
     return p;
 }
 
-size_t parse_type::mark(ici_obj_t *o)
+size_t parse_type::mark(object *o)
 {
     o->setmark();
     auto mem = typesize();
@@ -2665,7 +2665,7 @@ size_t parse_type::mark(ici_obj_t *o)
  * Free this object and associated memory (but not other objects).
  * See the comments on t_free() in object.h.
  */
-void parse_type::free(ici_obj_t *o)
+void parse_type::free(object *o)
 {
     if (ici_parseof(o)->p_got.t_what & TM_HASOBJ)
     {
@@ -2676,7 +2676,7 @@ void parse_type::free(ici_obj_t *o)
         ici_parseof(o)->p_ungot.t_obj->decref();
     }
     ici_parseof(o)->p_ungot.t_what = T_NONE;
-    ici_tfree(o, ici_parse_t);
+    ici_tfree(o, parse);
 }
 
 const char *
@@ -2717,10 +2717,10 @@ ici_token_name(int t)
     return "token";
 }
 
-static ici_parse_t *
+static parse *
 parse_file_argcheck()
 {
-    ici_file_t          *f;
+    file          *f;
 
     if (typecheck("u", &f))
     {
@@ -2737,9 +2737,9 @@ parse_file_argcheck()
 static int
 f_parseopen(...)
 {
-    ici_file_t		*f;
-    ici_file_t		*p;
-    ici_parse_t		*parse;
+    file		*f;
+    file		*p;
+    parse		*parse;
 
     if (typecheck("u", &f))
     {
@@ -2760,7 +2760,7 @@ f_parseopen(...)
 static int
 f_parsetoken(...)
 {
-    ici_parse_t         *p;
+    parse         *p;
     int                 t;
 
     if ((p = parse_file_argcheck()) == NULL)
@@ -2777,7 +2777,7 @@ f_parsetoken(...)
 static int
 f_tokenobj(...)
 {
-    ici_parse_t         *p;
+    parse         *p;
 
     if ((p = parse_file_argcheck()) == NULL)
     {
@@ -2802,7 +2802,7 @@ f_tokenobj(...)
 static int
 f_rejecttoken(...)
 {
-    ici_parse_t         *p;
+    parse         *p;
 
     if ((p = parse_file_argcheck()) == NULL)
     {
@@ -2815,8 +2815,8 @@ f_rejecttoken(...)
 static int
 f_parsevalue(...)
 {
-    ici_parse_t         *p;
-    ici_obj_t           *o = NULL;
+    parse         *p;
+    object           *o = NULL;
 
     if ((p = parse_file_argcheck()) == NULL)
     {
@@ -2833,8 +2833,8 @@ f_parsevalue(...)
 static int
 f_rejectchar(...)
 {
-    ici_file_t          *f;
-    ici_str_t           *s;
+    file          *f;
+    str           *s;
 
     if (typecheck("uo", &f, &s))
     {

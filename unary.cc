@@ -51,11 +51,11 @@ ici_op_unary()
     default:
         switch (ici_opof(ici_xs.a_top[-1])->op_code)
         {
-        case t_subtype(T_EXCLAM): return attempted("!", ici_typeof(ici_os.a_top[-1])->name);
-        case t_subtype(T_TILDE): return attempted("~", ici_typeof(ici_os.a_top[-1])->name);
-        case t_subtype(T_MINUS): return attempted("-", ici_typeof(ici_os.a_top[-1])->name);
+        case t_subtype(T_EXCLAM): return attempted("!", ici_os.a_top[-1]->type()->name);
+        case t_subtype(T_TILDE): return attempted("~", ici_os.a_top[-1]->type()->name);
+        case t_subtype(T_MINUS): return attempted("-", ici_os.a_top[-1]->type()->name);
         }
-        return attempted("<unknown unary operator>", ici_typeof(ici_os.a_top[-1])->name);
+        return attempted("<unknown unary operator>", ici_os.a_top[-1]->type()->name);
     }
 }
 

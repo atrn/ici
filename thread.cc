@@ -290,7 +290,7 @@ f_go(...)
     ici_exec_t          *x;
     int                 i;
 
-    if (NARGS() < 1 || !ici_typeof(ARG(0))->can_call())
+    if (NARGS() < 1 || !ARG(0)->can_call())
         return ici_argerror(0);
 
     if ((x = ici_new_exec()) == NULL)

@@ -67,22 +67,13 @@ inline int writedbl(archive *ar, double adbl)
 }
 
 /*
- * Integers are written as "long" in network byte order.
- */
-inline int writel(archive *ar, long along)
-{
-    long swapped = htonl(along);
-    return writef(ar, &swapped, sizeof swapped);
-}
-
-/*
  * Strings are written as a long count of the number of bytes followed
  * by that many bytes representing the character data.  Since ICI uses
  * 8-bit coding this count is also the number of characters.
  */
 inline int writestr(archive *ar, str *s)
 {
-    return writel(ar, s->s_nchars) || writef(ar, s->s_chars, s->s_nchars);
+    return write32(ar, s->s_nchars) || writef(ar, s->s_chars, s->s_nchars);
 }
 
 /*
@@ -125,7 +116,7 @@ save_null(archive *, object *)
 static int
 save_int(archive *ar, object *obj)
 {
-    return writel(ar, ici_intof(obj)->i_value);
+    return write64(ar, ici_intof(obj)->i_value);
 }
 
 // float
@@ -167,7 +158,7 @@ save_mem(archive *ar, object *obj)
 {
     mem *m = ici_memof(obj);
     return save_object_name(ar, obj)
-           || writel(ar, m->m_length)
+           || write64(ar, m->m_length)
            || write16(ar, m->m_accessz)
            || writef(ar, m->m_base, m->m_length * m->m_accessz);
 }
@@ -180,7 +171,7 @@ save_array(archive *ar, object *obj)
     array *a = arrayof(obj);
     object **e;
 
-    if (save_object_name(ar, obj) || writel(ar, a->len()))
+    if (save_object_name(ar, obj) || write64(ar, a->len()))
         return 1;
     for (e = a->astart(); e != a->alimit(); e = a->anext(e))
     {
@@ -198,7 +189,7 @@ save_set(archive *ar, object *obj)
     set *s = ici_setof(obj);
     object **e = s->s_slots;
 
-    if (save_object_name(ar, obj) || writel(ar, s->s_nels))
+    if (save_object_name(ar, obj) || write64(ar, s->s_nels))
         return 1;
     for (; e - s->s_slots < s->s_nslots; ++e)
     {
@@ -219,7 +210,7 @@ save_struct(archive *ar, object *obj)
     if (super == nullptr) {
         super = ici_null;
     }
-    if (save_object_name(ar, obj) || archive_save(ar, super) || writel(ar, s->s_nels))
+    if (save_object_name(ar, obj) || archive_save(ar, super) || write64(ar, s->s_nels))
         return 1;
     for (sl = s->s_slots; sl - s->s_slots < s->s_nslots; ++sl)
     {
@@ -256,7 +247,7 @@ save_func(archive *ar, object *obj)
 
     if (save_object_name(ar, obj) || archive_save(ar, f->f_code) || archive_save(ar, f->f_args))
         return 1;
-    if ((autos = ici_structof(ici_typeof(f->f_autos)->copy(f->f_autos))) == NULL)
+    if ((autos = ici_structof(f->f_autos->copy())) == NULL)
         return 1;
     autos->o_super = NULL;
     ici_struct_unassign(autos, SS(_func_));
@@ -267,7 +258,7 @@ save_func(archive *ar, object *obj)
     }
     autos->decref();
 
-    return archive_save(ar, f->f_name) || writel(ar, f->f_nautos);
+    return archive_save(ar, f->f_name) || write32(ar, f->f_nautos);
 }
 
 // src
@@ -275,7 +266,7 @@ save_func(archive *ar, object *obj)
 static int
 save_src(archive *ar, object *obj)
 {
-    return writel(ar, srcof(obj)->s_lineno) || archive_save(ar, srcof(obj)->s_filename);
+    return write32(ar, srcof(obj)->s_lineno) || archive_save(ar, srcof(obj)->s_filename);
 }
 
 // op
@@ -373,13 +364,13 @@ fail:
 static str *
 tname(object *o)
 {
-    return ici_typeof(o)->ici_name();
+    return o->type()->ici_name();
 }
 
 static int
 save_error(archive *, object *obj)
 {
-    return ici_set_error("%s: unable to save type", ici_typeof(obj)->name);
+    return ici_set_error("%s: unable to save type", obj->type()->name);
 }
 
 

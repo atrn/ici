@@ -23,7 +23,7 @@ namespace ici
  * This --func-- forms part of the --ici-api--.
  */
 ici_method_t *
-ici_method_new(ici_obj_t *subject, ici_obj_t *callable)
+ici_method_new(object *subject, object *callable)
 {
     ici_method_t   *m;
 
@@ -36,13 +36,13 @@ ici_method_new(ici_obj_t *subject, ici_obj_t *callable)
     return m;
 }
 
-size_t method_type::mark(ici_obj_t *o)
+size_t method_type::mark(object *o)
 {
     o->setmark();
     return typesize() + ici_mark(ici_methodof(o)->m_subject) + ici_mark(ici_methodof(o)->m_callable);
 }
 
-ici_obj_t * method_type::fetch(ici_obj_t *o, ici_obj_t *k)
+object * method_type::fetch(object *o, object *k)
 {
     ici_method_t        *m;
 
@@ -54,12 +54,12 @@ ici_obj_t * method_type::fetch(ici_obj_t *o, ici_obj_t *k)
     return ici_null;
 }
 
-int method_type::call(ici_obj_t *o, ici_obj_t *subject)
+int method_type::call(object *o, object *subject)
 {
     ici_method_t        *m;
 
     m = ici_methodof(o);
-    if (!ici_typeof(m->m_callable)->can_call())
+    if (!m->m_callable->can_call())
     {
         char    n1[ICI_OBJNAMEZ];
         char    n2[ICI_OBJNAMEZ];
@@ -68,10 +68,10 @@ int method_type::call(ici_obj_t *o, ici_obj_t *subject)
                              ici_objname(n1, m->m_subject),
                              ici_objname(n2, m->m_callable));
     }
-    return ici_typeof(m->m_callable)->call(m->m_callable, m->m_subject);
+    return m->m_callable->call(m->m_subject);
 }
 
-void method_type::objname(ici_obj_t *o, char p[ICI_OBJNAMEZ])
+void method_type::objname(object *o, char p[ICI_OBJNAMEZ])
 {
     char    n1[ICI_OBJNAMEZ];
     char    n2[ICI_OBJNAMEZ];

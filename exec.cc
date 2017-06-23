@@ -586,9 +586,9 @@ ici_evaluate(object *code, int n_operands)
                             goto fail;
                         }
                     }
-                    if (ici_typeof(t)->can_fetch_method())
+                    if (t->type()->can_fetch_method())
                     {
-                        if ((o = ici_typeof(t)->fetch_method(t, ici_os.a_top[-1])) == NULL)
+                        if ((o = t->type()->fetch_method(t, ici_os.a_top[-1])) == NULL)
                         {
                             goto fail;
                         }
@@ -651,7 +651,7 @@ ici_evaluate(object *code, int n_operands)
                 *ici_xs.a_top++ = o;        /* Restore to formal state. */
                 o = NULL;                   /* No subject object. */
             do_call:
-                if (UNLIKELY(!ici_typeof(ici_os.a_top[-1])->can_call()))
+                if (UNLIKELY(!ici_os.a_top[-1]->can_call()))
                 {
                     char    n1[30];
 
@@ -666,7 +666,7 @@ ici_evaluate(object *code, int n_operands)
 		{
                     debugfunc->idbg_fncall(ici_os.a_top[-1], ARGS(), NARGS());
 		}
-                if (ici_typeof(ici_os.a_top[-1])->call(ici_os.a_top[-1], o))
+                if (ici_os.a_top[-1]->call(o))
                 {
                     if (o != NULL)
                     {

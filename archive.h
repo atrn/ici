@@ -33,6 +33,9 @@ int (*archive_op_func(int))();
  */
 constexpr int O_ARCHIVE_ATOMIC = 0x80;
 
+#ifndef htonll
+long long htonll(long long v);
+#endif
 void archive_byteswap(void *ptr, int sz);
 
 /*

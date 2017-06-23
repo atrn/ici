@@ -26,7 +26,7 @@ namespace ici
  * This --func-- forms part of the --ici-api--.
  */
 int
-ici_method_check(ici_obj_t *o, int tcode)
+ici_method_check(object *o, int tcode)
 {
     char        n1[30];
     char        n2[30];
@@ -46,12 +46,12 @@ ici_method_check(ici_obj_t *o, int tcode)
 }
 
 /*
- * Implemantation of the ICI new method.
+ * The ICI 'new' method.
  */
 static int
-m_new(ici_obj_t *o)
+m_new(object *o)
 {
-    ici_struct_t    *s;
+    ici_struct *s;
 
     if (ici_method_check(o, 0))
         return 1;
@@ -62,10 +62,10 @@ m_new(ici_obj_t *o)
 }
 
 static int
-m_isa(ici_obj_t *o)
+m_isa(object *o)
 {
-    ici_objwsup_t   *s;
-    ici_obj_t   *klass;
+    objwsup  *s;
+    object   *klass;
 
     if (ici_method_check(o, 0))
         return 1;
@@ -80,10 +80,10 @@ m_isa(ici_obj_t *o)
 }
 
 static int
-m_respondsto(ici_obj_t *o)
+m_respondsto(object *o)
 {
-    ici_obj_t   *classname;
-    ici_obj_t   *v;
+    object   *classname;
+    object   *v;
 
     if (ici_method_check(o, 0))
         return 1;
@@ -103,9 +103,8 @@ m_respondsto(ici_obj_t *o)
 }
 
 static int
-m_unknown_method(ici_obj_t *o)
+m_unknown_method(object *o)
 {
-
     if (ici_method_check(o, 0))
 	return 1;
     if (NARGS() > 0 && ici_isstring(ARG(0)))

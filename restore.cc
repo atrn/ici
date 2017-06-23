@@ -42,21 +42,14 @@ namespace ici
 
 static object *restore(archive *);
 
-inline int
-get(archive *ar)
-{
-    return ar->get();
-}
-
-static int
-readf(archive *ar, void *buf, int len)
+static int readf(archive *ar, void *buf, int len)
 {
     char *p = (char *)buf;
     while (len-- > 0)
     {
         int ch;
 
-        if ((ch = (*get)(ar)) == -1)
+        if ((ch = ar->get()) == -1)
         {
             ici_set_error("eof");
 	    return 1;
@@ -66,16 +59,12 @@ readf(archive *ar, void *buf, int len)
     return 0;
 }
 
-inline
-static int
-read8(archive *ar, char *abyte)
+inline int read8(archive *ar, char *abyte)
 {
     return readf(ar, abyte, 1);
 }
 
-inline
-static int
-read16(archive *ar, int16_t *hword)
+static int read16(archive *ar, int16_t *hword)
 {
     int16_t tmp;
     if (readf(ar, &tmp, sizeof tmp))
@@ -86,7 +75,6 @@ read16(archive *ar, int16_t *hword)
     return 0;
 }
 
-inline
 static int
 read32(archive *ar, int32_t *aword)
 {
@@ -99,21 +87,18 @@ read32(archive *ar, int32_t *aword)
     return 0;
 }
 
-// todo - remove, use sized versions
-template <typename T>
-int
-readl(archive *ar, T *along)
+static int
+read64(archive *ar, int64_t *dword)
 {
-    long tmp;
+    int64_t tmp;
     if (readf(ar, &tmp, sizeof tmp))
     {
-        return 1;
+    	return 1;
     }
-    *along = (T)ntohl(tmp);
+    *dword = ntohll(tmp);
     return 0;
 }
 
-inline
 static int
 readdbl(archive *ar, double *dbl)
 {
@@ -159,9 +144,9 @@ restore_null(archive *)
 static object *
 restore_int(archive *ar)
 {
-    long        value;
+    int64_t value;
 
-    if (readl(ar, &value))
+    if (read64(ar, &value))
     {
         return NULL;
     }
@@ -191,7 +176,7 @@ static object *
 restore_string(archive *ar)
 {
     str *s;
-    long len;
+    int32_t len;
     object *name;
     object *obj;
 
@@ -199,7 +184,7 @@ restore_string(archive *ar)
     {
         return NULL;
     }
-    if (readl(ar, &len))
+    if (read32(ar, &len))
     {
         return NULL;
     }
@@ -270,18 +255,18 @@ restore_regexp(archive *ar)
 static object *
 restore_mem(archive *ar)
 {
-    long len;
+    int64_t len;
     int16_t accessz;
-    long sz;
+    size_t sz;
     void *p;
     mem *m = 0;
     object *name;
 
-    if (restore_object_name(ar, &name) || readl(ar, &len) || read16(ar, &accessz))
+    if (restore_object_name(ar, &name) || read64(ar, &len) || read16(ar, &accessz))
     {
         return NULL;
     }
-    sz = len * accessz;
+    sz = size_t(len) * size_t(accessz);
     if ((p = ici_alloc(sz)) != NULL)
     {
         if ((m = ici_mem_new(p, len, accessz, ici_free)) == NULL)
@@ -302,7 +287,7 @@ restore_mem(archive *ar)
 static object *
 restore_array(archive *ar)
 {
-    long n;
+    int64_t n;
     array *a;
     object *name;
 
@@ -310,7 +295,7 @@ restore_array(archive *ar)
     {
         return NULL;
     }
-    if (readl(ar, &n))
+    if (read64(ar, &n))
     {
         return NULL;
     }
@@ -353,8 +338,8 @@ static object *
 restore_set(archive *ar)
 {
     set *s;
-    long n;
-    long i;
+    int64_t n;
+    int64_t i;
     object *name;
 
     if (restore_object_name(ar, &name))
@@ -369,7 +354,7 @@ restore_set(archive *ar)
     {
         goto fail;
     }
-    if (readl(ar, &n))
+    if (read64(ar, &n))
     {
         goto fail1;
     }
@@ -405,7 +390,7 @@ restore_struct(archive *ar)
 {
     ici_struct *s;
     object *super;
-    long n;
+    int64_t n;
     long i;
     object *name;
 
@@ -431,7 +416,7 @@ restore_struct(archive *ar)
         super->decref();
     }
 
-    if (readl(ar, &n))
+    if (read64(ar, &n))
     {
         goto fail1;
     }
@@ -501,7 +486,7 @@ restore_func(archive *ar)
     object *args = NULL;
     object *autos = NULL;
     object *name = NULL;
-    size_t nautos;
+    int32_t nautos;
     func *fn;
     object *oname;
 
@@ -525,7 +510,7 @@ restore_func(archive *ar)
     {
         goto fail;
     }
-    if (readl(ar, &nautos))
+    if (read32(ar, &nautos))
     {
         goto fail;
     }
@@ -595,11 +580,11 @@ restore_op(archive *ar)
 static object *
 restore_src(archive *ar)
 {
-    long line;
+    int32_t line;
     object *result;
     object *filename;
 
-    if (readl(ar, &line))
+    if (read32(ar, &line))
     {
         return NULL;
     }

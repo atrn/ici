@@ -10,29 +10,29 @@ namespace ici
  *
  * NOTE: pc's come back ready-decref'ed.
  */
-ici_pc_t *
-ici_new_pc()
+pc *ici_new_pc()
 {
-    ici_pc_t            *pc;
+    pc *p;
 
-    if ((pc = ici_pcof(ici_talloc(ici_pc_t))) == NULL)
+    if ((p = ici_pcof(ici_talloc(pc))) == NULL)
         return NULL;
-    ICI_OBJ_SET_TFNZ(pc, ICI_TC_PC, 0, 0, 0);
-    pc->pc_code = NULL;
-    ici_rego(pc);
-    return pc;
+    ICI_OBJ_SET_TFNZ(p, ICI_TC_PC, 0, 0, 0);
+    p->pc_code = NULL;
+    ici_rego(p);
+    return p;
 }
 
 /*
  * Mark this and referenced unmarked objects, return memory costs.
  * See comments on t_mark() in object.h.
  */
-size_t pc_type::mark(ici_obj_t *o)
+size_t pc_type::mark(object *o)
 {
-    o->setmark();
+    auto p = ici_pcof(o);
     auto mem = typesize();
-    if (ici_pcof(o)->pc_code != NULL)
-        mem += ici_mark(ici_pcof(o)->pc_code);
+    p->setmark();
+    if (p->pc_code != NULL)
+        mem += ici_mark(p->pc_code);
     return mem;
 }
 

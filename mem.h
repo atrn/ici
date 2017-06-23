@@ -19,8 +19,8 @@ struct mem : object
     void                (*m_free)(void *);
 };
 
-inline ici_mem_t *ici_memof(ici_obj_t *o) { return static_cast<ici_mem_t *>(o); }
-inline bool ici_ismem(ici_obj_t *o) { return o->isa(ICI_TC_MEM); }
+inline ici_mem_t *ici_memof(object *o) { return static_cast<ici_mem_t *>(o); }
+inline bool ici_ismem(object *o) { return o->isa(ICI_TC_MEM); }
 
 /*
  * End of ici.h export. --ici.h-end--

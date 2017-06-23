@@ -60,7 +60,7 @@ ici_exec_forall()
     type *t;
 
     fa = forallof(ici_xs.a_top[-1]);
-    t = ici_typeof(fa->fa_aggr);
+    t = fa->fa_aggr->type();
     if (!t->can_forall())
     {
         char n[ICI_OBJNAMEZ];

@@ -737,7 +737,7 @@ f_coreici(object *s)
     c->decref();
     if (f == NULL)
         return 1;
-    if (!ici_typeof(f)->can_call())
+    if (!f->can_call())
     {
         char    n1[30];
         return ici_set_error("attempt to call %s", ici_objname(n1, f));
@@ -753,7 +753,7 @@ f_coreici(object *s)
      * and transfer to it.
      */
     ici_os.a_top[-1] = f;
-    return ici_typeof(f)->call(f, s);
+    return f->call(s);
 }
 
 /*--------------------------------------------------------------------------------*/
@@ -887,7 +887,7 @@ f_typeof()
         return ici_argcount(1);
     if (ici_ishandle(ARG(0)))
         return ici_ret_no_decref(ici_handleof(ARG(0))->h_name);
-    return ici_ret_no_decref(ici_typeof(ARG(0))->ici_name());
+    return ici_ret_no_decref(ARG(0)->type()->ici_name());
 }
 
 static int
@@ -1021,7 +1021,7 @@ f_string()
     else if (ici_isregexp(o))
         return ici_ret_no_decref(ici_regexpof(o)->r_pat);
     else
-        sprintf(buf, "<%s>", ici_typeof(o)->name);
+        sprintf(buf, "<%s>", o->type()->name);
     return ici_str_ret(buf);
 }
 
@@ -1931,8 +1931,7 @@ ici_f_sprintf()
     }
 
 type:
-    return ici_set_error("attempt to use a %s with a \"%s\" format in sprintf",
-        ici_typeof(*o)->name, subfmt);
+    return ici_set_error("attempt to use a %s with a \"%s\" format in sprintf", (*o)->type()->name, subfmt);
 
 lacking:
     return ici_set_error("not enoughs args to sprintf");
@@ -2764,14 +2763,14 @@ f_sort()
     case 3:
         if (typecheck("aoo", &a, &f, &uarg))
             return 1;
-        if (!ici_typeof(f)->can_call())
+        if (!f->can_call())
             return ici_argerror(1);
         break;
 
     case 2:
         if (typecheck("ao", &a, &f))
             return 1;
-        if (!ici_typeof(f)->can_call())
+        if (!f->can_call())
             return ici_argerror(1);
         break;
 
@@ -2779,7 +2778,7 @@ f_sort()
         if (typecheck("a", &a))
             return 1;
         f = ici_fetch(ici_vs.a_top[-1], SS(cmp));
-        if (!ici_typeof(f)->can_call())
+        if (!f->can_call())
         {
             return ici_set_error("no suitable cmp function in scope");
         }

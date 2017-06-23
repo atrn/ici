@@ -49,7 +49,7 @@
 #include "ftype.h"
 
 #ifdef  _WIN32
-#define USE_WINSOCK /* Else use UNIX style sockets. */
+#define USE_WINSOCK /* Else use BSD sockets. */
 #endif
 
 #ifdef  USE_WINSOCK
@@ -67,14 +67,6 @@
 
 #else /* USE_WINSOCK */
 
-/*
- * For compatibility with WINSOCK we use its definitions and emulate
- * them on Unix via trivial emulation.
- */
-#define SOCKET          int
-#define closesocket(s)  close(s)
-#define SOCKET_ERROR    (-1)
-
 #include <errno.h>
 #include <sys/param.h>
 #include <sys/types.h>
@@ -86,6 +78,14 @@
 #include <sys/time.h>
 #include <pwd.h>
 #include <unistd.h>
+
+/*
+ * For compatibility with WINSOCK we use its definitions and emulate
+ * them on Unix via trivial emulation.
+ */
+using SOCKET = int;
+inline int closesocket(SOCKET s) { return ::close(s); }
+constexpr int SOCKET_ERROR = -1;
 
 #endif /* USE_WINSOCK */
 
@@ -426,7 +426,7 @@ ici_net_socket(void)
             "unsupported protocol or address family: %s", proto->s_chars
         );
     }
-    if ((fd = socket(PF_INET, type, 0)) == -1)
+    if ((fd = socket(PF_INET, type, 0)) == SOCKET_ERROR)
         return ici_get_last_errno("net.socket", NULL);
     if ((skt = new_netsocket(fd)) == NULL)
     {
@@ -491,7 +491,7 @@ ici_net_listen(void)
     }
     if (isclosed(skt))
         return 1;
-    if (listen(socket_fd(skt), (int)backlog) == -1)
+    if (listen(socket_fd(skt), (int)backlog) == SOCKET_ERROR)
         return ici_get_last_errno("net.listen", NULL);
     return ici_ret_no_decref(skt);
 }
@@ -523,7 +523,7 @@ ici_net_accept(void)
     x = potentially_block();
     fd = accept(socket_fd(skt), NULL, NULL);
     unblock(x);
-    if (fd == -1)
+    if (fd == SOCKET_ERROR)
     {
         return ici_get_last_errno("net.accept", NULL);
     }
@@ -547,7 +547,7 @@ ici_net_connect(void)
 {
     ici_handle_t        *skt;
     char                *addr;
-    ici_obj_t            *arg;
+    object            *arg;
     struct sockaddr_in  saddr;
     ici_exec_t              *x;
     int                 rc;
@@ -570,7 +570,7 @@ ici_net_connect(void)
     x = potentially_block();
     rc = connect(socket_fd(skt), (struct sockaddr *)&saddr, sizeof saddr);
     unblock(x);
-    return rc == -1 ? ici_get_last_errno("net.connect", NULL) : ici_ret_no_decref(skt);
+    return rc == SOCKET_ERROR ? ici_get_last_errno("net.connect", NULL) : ici_ret_no_decref(skt);
 }
 
 /*
@@ -629,7 +629,7 @@ ici_net_bind(void)
         return 1;
     if (isclosed(skt))
         return 1;
-    if (bind(socket_fd(skt), (struct sockaddr *)&saddr, sizeof saddr) == -1)
+    if (bind(socket_fd(skt), (struct sockaddr *)&saddr, sizeof saddr) == SOCKET_ERROR)
         return ici_get_last_errno("net.bind", NULL);
     return ici_ret_no_decref(skt);
 }
@@ -849,7 +849,7 @@ ici_net_select()
     /* Simpler return, one set of ready sockets */
     if (NARGS() == 1 && ici_isset(ARG(0)))
     {
-        ici_obj_t        *o;
+        object        *o;
 
         o = ici_fetch(result, SS(read));
         o->incref();
@@ -965,7 +965,7 @@ ici_net_recvfrom()
     x = potentially_block();
     nb = recvfrom(socket_fd(skt), msg, len, 0, (struct sockaddr *)&addr, &addrsz);
     unblock(x);
-    if (nb == -1)
+    if (nb == SOCKET_ERROR)
     {
         ici_nfree(msg, len + 1);
         return ici_get_last_errno("net.recvfrom", NULL);
@@ -1075,7 +1075,7 @@ ici_net_recv()
     x = potentially_block();
     nb = recv(socket_fd(skt), msg, len, 0);
     unblock(x);
-    if (nb == -1)
+    if (nb == SOCKET_ERROR)
     {
         ici_nfree(msg, len + 1);
         return ici_get_last_errno("net.recv", NULL);
@@ -1241,7 +1241,7 @@ ici_net_getsockopt()
 
     if (isclosed(skt))
         return 1;
-    if (getsockopt(socket_fd(skt), optlevel, o, optval, &optlen) == -1)
+    if (getsockopt(socket_fd(skt), optlevel, o, optval, &optlen) == SOCKET_ERROR)
         return ici_get_last_errno("net.getsockopt", NULL);
     if (o == SO_LINGER)
         intvar = linger.l_onoff ? linger.l_linger : -1;
@@ -1344,7 +1344,7 @@ ici_net_setsockopt()
 
     if (isclosed(skt))
         return 1;
-    if (setsockopt(socket_fd(skt), optlevel, optcode, optval, optlen) == -1)
+    if (setsockopt(socket_fd(skt), optlevel, optcode, optval, optlen) == SOCKET_ERROR)
         return ici_get_last_errno("net.setsockopt", NULL);
     return ici_ret_no_decref(skt);
 
@@ -1362,7 +1362,7 @@ bad:
 static int
 ici_net_hostname()
 {
-    static ici_str_t     *hostname = NULL;
+    static str *hostname = NULL;
 
     if (hostname == NULL)
     {
@@ -1373,7 +1373,7 @@ ici_net_hostname()
             return 1;
         hostname->incref();
     }
-    return ici_ret_no_decref((ici_obj_t *)ici_stringof(hostname));
+    return ici_ret_no_decref(hostname);
 }
 
 #if 0
@@ -1437,7 +1437,7 @@ ici_net_getpeername()
         return 1;
     if (isclosed(skt))
         return 1;
-    if (getpeername(socket_fd(skt), (struct sockaddr *)&addr, &len) == -1)
+    if (getpeername(socket_fd(skt), (struct sockaddr *)&addr, &len) == SOCKET_ERROR)
         return ici_get_last_errno("net.getpeername", NULL);
     return ici_str_ret(unparse_addr(&addr));
 }
@@ -1460,7 +1460,7 @@ ici_net_getsockname()
         return 1;
     if (isclosed(skt))
         return 1;
-    if (getsockname(socket_fd(skt), (struct sockaddr *)&addr, &len) == -1)
+    if (getsockname(socket_fd(skt), (struct sockaddr *)&addr, &len) == SOCKET_ERROR)
         return ici_get_last_errno("net.getsockname", NULL);
     return ici_str_ret(unparse_addr(&addr));
 }
@@ -1483,7 +1483,7 @@ ici_net_getportno()
         return 1;
     if (isclosed(skt))
         return 1;
-    if (getsockname(socket_fd(skt), (struct sockaddr *)&addr, &len) == -1)
+    if (getsockname(socket_fd(skt), (struct sockaddr *)&addr, &len) == SOCKET_ERROR)
         return ici_get_last_errno("net.getsockname", NULL);
     return ici_int_ret(ntohs(addr.sin_port));
 }

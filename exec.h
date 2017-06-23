@@ -179,7 +179,7 @@ struct debug
 /*
  * Test if an object represents a false value NULL or integer 0.
  */
-inline bool isfalse(ici_obj_t *o) { return o == static_cast<ici_obj_t *>(ici_zero) || o == static_cast<ici_obj_t *>(ici_null); }
+inline bool isfalse(object *o) { return ici_isnull(o) || o == ici_zero; }
 
 /*
  * End of ici.h export. --ici.h-end--

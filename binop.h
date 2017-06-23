@@ -814,14 +814,14 @@
 	    MISMATCH();
 
         case t_subtype(T_EQEQ):
-            if (ici_typeof(o0) == ici_typeof(o1) && ici_cmp(o0, o1) == 0)
+            if (o0->type() == o1->type() && ici_cmp(o0, o1) == 0)
             {
                 USE1();
             }
             USE0();
 
         case t_subtype(T_EXCLAMEQ):
-            if (!(ici_typeof(o0) == ici_typeof(o1) && ici_cmp(o0, o1) == 0))
+            if (!(o0->type() == o1->type() && ici_cmp(o0, o1) == 0))
             {
                 USE1();
             }

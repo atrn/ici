@@ -40,8 +40,8 @@ constexpr int ICI_O_SUPER =         0x08;    /* Has super (is ici_objwsup_t deri
 /*
  * Override incref/decref when bughunting.
  */
-void bughunt_incref(ici_obj_t *o);
-void bughunt_decref(ici_obj_t *o);
+void bughunt_incref(object *o);
+void bughunt_decref(object *o);
 #endif
 
 /*
@@ -160,43 +160,47 @@ struct object
         return type()->hash(this);
     }
 
-    inline int cmp(ici_obj_t *that) noexcept {
+    inline int cmp(object *that) noexcept {
         return type()->cmp(this, that);
     }
 
-    inline ici_obj_t *copy() {
+    inline object *copy() {
         return type()->copy(this);
     }
 
-    inline int assign(ici_obj_t *k, ici_obj_t *v) {
+    inline int assign(object *k, object *v) {
         return type()->assign(this, k, v);
     }
 
-    inline ici_obj_t *fetch(ici_obj_t *k) {
+    inline object *fetch(object *k) {
         return type()->fetch(this, k);
     }
 
-    inline int assign_super(ici_obj_t *k, ici_obj_t *v, ici_struct_t *b) {
+    inline int assign_super(object *k, object *v, ici_struct_t *b) {
         return type()->assign_super(this, k, v, b);
     }
     
-    inline int fetch_super(ici_obj_t *k, ici_obj_t **pv, ici_struct_t *b) {
+    inline int fetch_super(object *k, object **pv, ici_struct_t *b) {
         return type()->fetch_super(this, k, pv, b);
     }
 
-    inline int assign_base(ici_obj_t *k, ici_obj_t *v) {
+    inline int assign_base(object *k, object *v) {
         return type()->assign_base(this, k, v);
     }
 
-    inline ici_obj_t *fetch_base(ici_obj_t *k) {
+    inline object *fetch_base(object *k) {
         return type()->fetch_base(this, k);
     }
 
-    inline ici_obj_t *fetch_method(ici_obj_t *n) {
+    inline object *fetch_method(object *n) {
         return type()->fetch_method(this, n);
     }
 
-    inline int call(ici_obj_t *o) {
+    inline bool can_call() const {
+        return type()->can_call();
+    }
+
+    inline int call(object *o) {
         return type()->call(this, o);
     }
 
@@ -247,7 +251,7 @@ struct object
  *
  * This --func-- forms part of the --ici-api--.
  */
-inline type_t *ici_typeof(ici_obj_t *o) { return o->type(); }
+inline type_t *ici_typeof(object *o) { return o->type(); }
 
 /*
  * "Object with super." This is a specialised header for all objects that
@@ -269,7 +273,7 @@ struct objwsup : object
     objwsup *o_super;
 };
 
-inline ici_objwsup_t *ici_objwsupof(ici_obj_t *o) { return static_cast<ici_objwsup_t *>(o); }
+inline ici_objwsup_t *ici_objwsupof(object *o) { return static_cast<ici_objwsup_t *>(o); }
 
 /*
  * Test if this object supports a super type.  (It may or may not have a super
@@ -277,7 +281,7 @@ inline ici_objwsup_t *ici_objwsupof(ici_obj_t *o) { return static_cast<ici_objws
  *
  * This --macro-- forms part of the --ici-api--.
  */
-inline bool ici_hassuper(const ici_obj_t *o) { return (o->o_flags & ICI_O_SUPER) != 0; }
+inline bool ici_hassuper(const object *o) { return (o->o_flags & ICI_O_SUPER) != 0; }
 
 /*
  * For static object initialisations...
@@ -288,13 +292,13 @@ inline bool ici_hassuper(const ici_obj_t *o) { return (o->o_flags & ICI_O_SUPER)
  * Set the basic fields of the object header of 'o'.  'o' can be any struct
  * declared with an object header (this macro casts it).  This macro is
  * prefered to doing it by hand in case there is any future change in the
- * structure.  See comments on each field of 'ici_obj_t'.  This is normally
+ * structure.  See comments on each field of 'object'.  This is normally
  * the first thing done after allocating a new bit of memory to hold an ICI
  * object.
  *
  * This --func-- forms part of the --ici-api--.
  */
-inline void ICI_OBJ_SET_TFNZ(ici_obj_t *o, uint8_t tcode, uint8_t flags, uint8_t nrefs, uint8_t leafz) {
+inline void ICI_OBJ_SET_TFNZ(object *o, uint8_t tcode, uint8_t flags, uint8_t nrefs, uint8_t leafz) {
     o->o_tcode = tcode;
     o->o_flags = flags;
     o->o_nrefs = nrefs;
@@ -314,7 +318,7 @@ inline void ICI_OBJ_SET_TFNZ(ici_obj_t *o, uint8_t tcode, uint8_t flags, uint8_t
  * The o_leafz field of an object tells us it doesn't reference any other objects
  * and is of small (ie o_leafz) size.
  */
-inline size_t ici_mark(ici_obj_t *o) {
+inline size_t ici_mark(object *o) {
     return o->mark();
 }
 
@@ -334,7 +338,7 @@ inline size_t ici_mark(ici_obj_t *o) {
  *
  * This --func-- forms part of the --ici-api--.
  */
-inline ici_obj_t *ici_fetch(ici_obj_t *o, ici_obj_t *k) {
+inline object *ici_fetch(object *o, object *k) {
     return o->fetch(k);
 }
 
@@ -348,7 +352,7 @@ inline ici_obj_t *ici_fetch(ici_obj_t *o, ici_obj_t *k) {
  *
  * This --func-- forms part of the --ici-api--.
  */
-inline int ici_assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v) {
+inline int ici_assign(object *o, object *k, object *v) {
     return o->assign(k, v);
 }
 
@@ -363,7 +367,7 @@ inline int ici_assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v) {
  *
  * This --macro-- forms part of the --ici-api--.
  */
-inline int ici_assign_base(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v) {
+inline int ici_assign_base(object *o, object *k, object *v) {
     return o->assign_base(k, v);
 }
 
@@ -375,7 +379,7 @@ inline int ici_assign_base(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v) {
  *
  * This --macro-- forms part of the --ici-api--.
  */
-inline ici_obj_t *ici_fetch_base(ici_obj_t *o, ici_obj_t *k) {
+inline object *ici_fetch_base(object *o, object *k) {
     return o->fetch_base(k);
 }
 
@@ -396,7 +400,7 @@ inline ici_obj_t *ici_fetch_base(ici_obj_t *o, ici_obj_t *k) {
  *
  * This --macro-- forms part of the --ici-api--.
  */
-inline int ici_fetch_super(ici_obj_t *o, ici_obj_t *k, ici_obj_t **v, ici_struct_t *b) {
+inline int ici_fetch_super(object *o, object *k, object **v, ici_struct_t *b) {
     return o->fetch_super(k, v, b);
 }
 
@@ -415,7 +419,7 @@ inline int ici_fetch_super(ici_obj_t *o, ici_obj_t *k, ici_obj_t **v, ici_struct
  *
  * This --macro-- forms part of the --ici-api--.
  */
-inline int ici_assign_super(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v, ici_struct_t *b) {
+inline int ici_assign_super(object *o, object *k, object *v, ici_struct_t *b) {
     return o->assign_super(k, v, b);
 }
 
@@ -487,23 +491,23 @@ constexpr int ICI_TC_MAX_CORE =     29;
 /*
  * Forced cast of some pointer (e.g. ostemp union type)
  */
-inline ici_obj_t *ici_object_cast(void *x) {
-    return reinterpret_cast<ici_obj_t *>(x);
+inline object *ici_object_cast(void *x) {
+    return reinterpret_cast<object *>(x);
 }
 
-inline void ici_freeo(ici_obj_t *o) {
+inline void ici_freeo(object *o) {
     return o->free();
 }
 
-inline unsigned long ici_hash(ici_obj_t *o) {
+inline unsigned long ici_hash(object *o) {
     return o->hash();
 }
 
-inline int ici_cmp(ici_obj_t *o1, ici_obj_t *o2) {
+inline int ici_cmp(object *o1, object *o2) {
     return o1->cmp(o2);
 }
 
-inline ici_obj_t *ici_copy(ici_obj_t *o) {
+inline object *ici_copy(object *o) {
     return o->copy();
 }
 
@@ -511,7 +515,7 @@ inline ici_obj_t *ici_copy(ici_obj_t *o) {
 /*
  * In the core we use an inline function for ici_rego.
  */
-inline void ici_rego_core(ici_obj_t *o) {
+inline void ici_rego_core(object *o) {
     if (ici_objs_top < ici_objs_limit) {
         *ici_objs_top++ = o;
     } else {
@@ -526,12 +530,12 @@ inline void ici_rego_core(ici_obj_t *o) {
  * Or if BUGHUNT is enabled we use a bug hunting version for ici_rego.
  */
 #undef  ici_rego
-extern void  bughunt_rego(ici_obj_t *);
+extern void  bughunt_rego(object *);
 #define ici_rego(o) bughunt_rego(o)
 #endif
 
 
-inline void ICI_STORE_ATOM_AND_COUNT(ici_obj_t **po, ici_obj_t *s) {
+inline void ICI_STORE_ATOM_AND_COUNT(object **po, object *s) {
     *po = s;
     if (++ici_natoms > ici_atomsz / 2) {
         ici_grow_atoms(ici_atomsz * 2);
