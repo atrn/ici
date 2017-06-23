@@ -215,10 +215,10 @@ ici_waitfor(ici_obj_t *o)
     ici_exec->x_waitfor = o;
     x = ici_leave2(false); // leave ici_mutex locked
     {
-        std::unique_lock<std::mutex> u(ici_mutex, std::adopt_lock);
-        assert(u.owns_lock());
-        x->x_semaphore->wait(u);
-        // u's dtor unlocks ici_mutex
+        std::unique_lock<std::mutex> lock(ici_mutex, std::adopt_lock);
+        assert(lock.owns_lock());
+        x->x_semaphore->wait(lock);
+        // lock's dtor unlocks ici_mutex
     }
     ici_enter(x);
     if (e != NULL)
@@ -342,17 +342,6 @@ f_wakeup(...)
     if (ici_wakeup(ICI_ARG(0)))
         return 1;
     return ici_null_ret();
-}
-
-/*
- * Perform any OS specific initialisations concerning thread support.
- * Called once from ici_init() before the first execution context is
- * made.
- */
-int
-ici_init_thread_stuff()
-{
-    return 0;
 }
 
 ICI_DEFINE_CFUNCS(thread)

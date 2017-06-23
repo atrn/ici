@@ -103,10 +103,6 @@ ici_init()
     }
     pcre_free = ici_free;
     pcre_malloc = (void *(*)(size_t))ici_alloc;
-    if (ici_init_thread_stuff())
-    {
-        return 1;
-    }
     if ((scope = ici_struct_new()) == NULL)
     {
         return 1;

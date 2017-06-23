@@ -344,7 +344,6 @@ extern void                     ici_enter(ici_exec_t *);
 extern void                     ici_yield();
 extern int                      ici_waitfor(ici_obj_t *);
 extern int                      ici_wakeup(ici_obj_t *);
-extern int                      ici_init_thread_stuff();
 extern DLI int                  ici_debug_enabled;
 extern int                      ici_debug_ign_err;
 extern DLI void                 ici_debug_ignore_errors();
