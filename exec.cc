@@ -364,11 +364,11 @@ ici_evaluate(ici_obj_t *code, int n_operands)
         switch (o->o_tcode)
         {
         case ICI_TC_SRC:
-            ici_exec->x_src = ici_srcof(o);
+            ici_exec->x_src = srcof(o);
             if (UNLIKELY(ici_debug_active))
             {
                 *ici_xs.a_top++ = o; /* Restore formal state. */
-                debugfunc->idbg_src(ici_srcof(o));
+                debugfunc->idbg_src(srcof(o));
                 --ici_xs.a_top;
                 continue;
             }

@@ -92,9 +92,9 @@ disassemble(int indent, ici_array_t *a)
     for (i = 0, e = a->a_bot; e < a->a_top; ++i, ++e)
     {
         printf("%*d: ", indent, i);
-        if (ici_issrc(*e))
+        if (issrc(*e))
         {
-            printf("%s, %d\n", ici_srcof(*e)->s_filename->s_chars, ici_srcof(*e)->s_lineno);
+            printf("%s, %d\n", srcof(*e)->s_filename->s_chars, srcof(*e)->s_lineno);
         }
         else if (ici_isop(*e))
         {
@@ -474,7 +474,7 @@ compound_statement(ici_parse_t *p, ici_struct_t *sw)
     /*
      *  Drop any trailing source marker.
      */
-    if (a->a_top > a->a_bot && ici_issrc(a->a_top[-1]))
+    if (a->a_top > a->a_bot && issrc(a->a_top[-1]))
     {
         --a->a_top;
     }
@@ -1689,7 +1689,7 @@ statement(ici_parse_t *p, ici_array_t *a, ici_struct_t *sw, const char *m, int e
             case -1: return -1;
             }
             stepz = a->a_top - a->a_bot;
-            if (stepz > 0 && ici_issrc(a->a_top[-1]))
+            if (stepz > 0 && issrc(a->a_top[-1]))
             {
                 /*
                  * If the last thing in the code array is a source marker,
@@ -1735,7 +1735,7 @@ statement(ici_parse_t *p, ici_array_t *a, ici_struct_t *sw, const char *m, int e
                 return not_followed_by("default", "\":\"");
             }
             stepz = a->a_top - a->a_bot;
-            if (stepz > 0 && ici_issrc(a->a_top[-1]))
+            if (stepz > 0 && issrc(a->a_top[-1]))
             {
                 /*
                  * If the last thing in the code array is a source marker,
@@ -2417,7 +2417,7 @@ statement(ici_parse_t *p, ici_array_t *a, ici_struct_t *sw, const char *m, int e
         /*
          *  Drop any trailing source marker.
          */
-        if (a->a_top > a->a_bot && ici_issrc(a->a_top[-1]))
+        if (a->a_top > a->a_bot && issrc(a->a_top[-1]))
         {
             --a->a_top;
         }

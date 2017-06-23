@@ -275,7 +275,7 @@ save_func(archive *ar, object *obj)
 static int
 save_src(archive *ar, object *obj)
 {
-    return writel(ar, ici_srcof(obj)->s_lineno) || archive_save(ar, ici_srcof(obj)->s_filename);
+    return writel(ar, srcof(obj)->s_lineno) || archive_save(ar, srcof(obj)->s_filename);
 }
 
 // op

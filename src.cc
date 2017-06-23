@@ -6,12 +6,11 @@
 namespace ici
 {
 
-ici_src_t *
-ici_src_new(int lineno, ici_str_t *filename)
+src *ici_src_new(int lineno, ici_str_t *filename)
 {
-    ici_src_t  *s;
+    src *s;
 
-    if ((s = ici_talloc(ici_src_t)) == NULL)
+    if ((s = ici_talloc(src)) == NULL)
         return NULL;
     ICI_OBJ_SET_TFNZ(s, ICI_TC_SRC, 0, 1, 0);
     s->s_lineno = lineno;
@@ -24,12 +23,12 @@ ici_src_new(int lineno, ici_str_t *filename)
  * Mark this and referenced unmarked objects, return memory costs.
  * See comments on t_mark() in object.h.
  */
-size_t src_type::mark(ici_obj_t *o)
+size_t src_type::mark(object *o)
 {
     o->setmark();
     auto mem = typesize();
-    if (ici_srcof(o)->s_filename != NULL)
-        mem += ici_mark(ici_srcof(o)->s_filename);
+    if (srcof(o)->s_filename != NULL)
+        mem += ici_mark(srcof(o)->s_filename);
     return mem;
 }
 
