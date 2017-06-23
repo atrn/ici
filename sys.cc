@@ -750,11 +750,11 @@ static int ici_sys_write()
         if (!havesz || sz > ici_stringof(o)->s_nchars)
             sz = ici_stringof(o)->s_nchars;
     }
-    else if (ici_ismem(o))
+    else if (ismem(o))
     {
-        addr = (char *)ici_memof(o)->m_base;
-        if (!havesz || (size_t)sz > ici_memof(o)->m_length * ici_memof(o)->m_accessz)
-            sz = ici_memof(o)->m_length * ici_memof(o)->m_accessz;
+        addr = (char *)memof(o)->m_base;
+        if (!havesz || (size_t)sz > memof(o)->m_length * memof(o)->m_accessz)
+            sz = memof(o)->m_length * memof(o)->m_accessz;
     }
     else
     {

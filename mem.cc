@@ -32,7 +32,7 @@ mem *ici_mem_new(void *base, size_t length, int accessz, void (*free_func)(void 
     m->m_length = length;
     m->m_accessz = accessz;
     m->m_free = free_func;
-    return ici_memof(ici_atom(m, 1));
+    return memof(ici_atom(m, 1));
 }
 
 /*
@@ -41,8 +41,8 @@ mem *ici_mem_new(void *base, size_t length, int accessz, void (*free_func)(void 
  */
 int mem_type::cmp(object *o1, object *o2)
 {
-    auto m1 = ici_memof(o1);
-    auto m2 = ici_memof(o2);
+    auto m1 = memof(o1);
+    auto m2 = memof(o2);
     return m1->m_base != m2->m_base
         || m1->m_length != m2->m_length
         || m1->m_accessz != m2->m_accessz
@@ -55,14 +55,14 @@ int mem_type::cmp(object *o1, object *o2)
  */
 unsigned long mem_type::hash(object *o)
 {
-    return (unsigned long)ici_memof(o)->m_base * MEM_PRIME_0
-    + (unsigned long)ici_memof(o)->m_length * MEM_PRIME_1
-    + (unsigned long)ici_memof(o)->m_accessz * MEM_PRIME_2;
+    return (unsigned long)memof(o)->m_base * MEM_PRIME_0
+    + (unsigned long)memof(o)->m_length * MEM_PRIME_1
+    + (unsigned long)memof(o)->m_accessz * MEM_PRIME_2;
 }
 
 void mem_type::free(object *o)
 {
-    auto m = ici_memof(o);
+    auto m = memof(o);
     if (m->m_free != NULL)
     {
         (*m->m_free)(m->m_base);
@@ -77,26 +77,26 @@ int mem_type::assign(object *o, object *k, object *v)
     if (!ici_isint(k) || !ici_isint(v))
         return assign_fail(o, k, v);
     i = ici_intof(k)->i_value;
-    if (i < 0 || i >= (int64_t)ici_memof(o)->m_length)
+    if (i < 0 || i >= (int64_t)memof(o)->m_length)
     {
         return ici_set_error("attempt to write at mem index %ld\n", i);
     }
-    switch (ici_memof(o)->m_accessz)
+    switch (memof(o)->m_accessz)
     {
     case 1:
-        ((unsigned char *)ici_memof(o)->m_base)[i] = (unsigned char)ici_intof(v)->i_value;
+        ((unsigned char *)memof(o)->m_base)[i] = (unsigned char)ici_intof(v)->i_value;
         break;
 
     case 2:
-        ((unsigned short *)ici_memof(o)->m_base)[i] = (unsigned short)ici_intof(v)->i_value;
+        ((unsigned short *)memof(o)->m_base)[i] = (unsigned short)ici_intof(v)->i_value;
         break;
 
     case 4:
-        ((int *)ici_memof(o)->m_base)[i] = (int32_t)ici_intof(v)->i_value;
+        ((int *)memof(o)->m_base)[i] = (int32_t)ici_intof(v)->i_value;
         break;
 
     case 8:
-        ((int *)ici_memof(o)->m_base)[i] = (int64_t)ici_intof(v)->i_value;
+        ((int *)memof(o)->m_base)[i] = (int64_t)ici_intof(v)->i_value;
         break;
     }
     return 0;
@@ -109,24 +109,24 @@ object * mem_type::fetch(object *o, object *k)
     if (!ici_isint(k))
         return fetch_fail(o, k);
     i = ici_intof(k)->i_value;
-    if (i < 0 || i >= (int64_t)ici_memof(o)->m_length)
+    if (i < 0 || i >= (int64_t)memof(o)->m_length)
         return ici_null;
-    switch (ici_memof(o)->m_accessz)
+    switch (memof(o)->m_accessz)
     {
     case 1:
-        i = ((unsigned char *)ici_memof(o)->m_base)[i];
+        i = ((unsigned char *)memof(o)->m_base)[i];
         break;
 
     case 2:
-        i = ((unsigned short *)ici_memof(o)->m_base)[i];
+        i = ((unsigned short *)memof(o)->m_base)[i];
         break;
 
     case 4:
-        i = ((int32_t *)ici_memof(o)->m_base)[i];
+        i = ((int32_t *)memof(o)->m_base)[i];
         break;
 
     case 8:
-        i = ((int64_t *)ici_memof(o)->m_base)[i];
+        i = ((int64_t *)memof(o)->m_base)[i];
         break;
     }
     o = ici_int_new(i);

@@ -245,7 +245,7 @@ file *ici_open_charbuf(char *data, int size, object *ref, int readonly)
             else
                 ici_set_error("attempt to open an atomic string for writing");
         }
-        else if (ici_ismem(ref))
+        else if (ismem(ref))
         {
             f = ici_file_new((char *)cb, charbuf_ftype, NULL, ref);
         }

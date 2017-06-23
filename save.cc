@@ -156,7 +156,7 @@ save_regexp(archive *ar, object *obj)
 static int
 save_mem(archive *ar, object *obj)
 {
-    mem *m = ici_memof(obj);
+    auto m = memof(obj);
     return save_object_name(ar, obj)
            || write64(ar, m->m_length)
            || write16(ar, m->m_accessz)

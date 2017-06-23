@@ -257,9 +257,9 @@ int typecheck(const char *types, ...)
             break;
 
         case 'm': /* A mem -> (ici_mem_t *). */
-            if (!ici_ismem(o))
+            if (!ismem(o))
                 goto fail;
-            *(ici_mem_t **)ptr = ici_memof(o);
+            *(ici_mem_t **)ptr = memof(o);
             break;
 
         default:
@@ -434,7 +434,7 @@ fail:
  *
  *      if (NARGS() != 1)
  *          return ici_argcount(1);
- *      if (!ici_ismem(ARG(0)))
+ *      if (!ismem(ARG(0)))
  *          return ici_argerror(0);
  *      . . .
  *
@@ -907,8 +907,8 @@ f_nels()
         size = ici_structof(o)->s_nels;
     else if (isset(o))
         size = setof(o)->s_nels;
-    else if (ici_ismem(o))
-        size = ici_memof(o)->m_length;
+    else if (ismem(o))
+        size = memof(o)->m_length;
     else if (ici_ischannel(o))
         size = ici_channelof(o)->c_capacity;
     else
