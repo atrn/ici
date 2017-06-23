@@ -142,8 +142,7 @@ namespace ici
  *
  * This --func-- forms part or the --ici-api--.
  */
-int
-ici_typecheck(const char *types, ...)
+int typecheck(const char *types, ...)
 {
     va_list             va;
     ici_obj_t  **ap;   /* Argument pointer. */
@@ -292,7 +291,7 @@ fail:
  *
  * d
  * a
- * u    Likwise for types as per ici_typecheck() above.
+ * u    Likwise for types as per typecheck() above.
  * ...
  * -    The acutal argument is skipped.
  * *    ...
@@ -426,7 +425,7 @@ fail:
  * function.  It takes the function name from the current operand stack, which
  * therefore should not have been distured (which is normal for intrincic
  * functions).  This function is typically used from C coded functions that
- * are not using ici_typecheck() to process arguments.  For example, a
+ * are not using typecheck() to process arguments.  For example, a
  * function that just takes a single mem object as an argument might start:
  *
  *  static int
@@ -470,7 +469,7 @@ ici_argerror(int i)
  * distured (which is normal for intrincic functions).  It takes the number of
  * arguments the function should have been supplied with (or typically is)
  * from 'n'.  This function is typically used from C coded functions that are
- * not using ici_typecheck() to process arguments.  For example, a function
+ * not using typecheck() to process arguments.  For example, a function
  * that just takes a single object as an argument might start:
  *
  *      static int
@@ -692,7 +691,7 @@ f_math()
 
     av[0] = 0.0;
     av[1] = 0.0;
-    if (ici_typecheck((char *)ICI_CF_ARG2() + 2, &av[0], &av[1]))
+    if (typecheck((char *)ICI_CF_ARG2() + 2, &av[0], &av[1]))
         return 1;
     errno = 0;
     r = (*(double (*)(...))ICI_CF_ARG1())(av[0], av[1]);
@@ -1033,7 +1032,7 @@ f_eq()
     ici_obj_t   *o1;
     ici_obj_t   *o2;
 
-    if (ici_typecheck("oo", &o1, &o2))
+    if (typecheck("oo", &o1, &o2))
         return 1;
     if (o1 == o2)
         return ici_ret_no_decref(ici_one);
@@ -1046,7 +1045,7 @@ f_push()
     ici_array_t *a;
     ici_obj_t   *o;
 
-    if (ici_typecheck("ao", &a, &o))
+    if (typecheck("ao", &a, &o))
         return 1;
     if (a->push(o))
         return 1;
@@ -1059,7 +1058,7 @@ f_rpush()
     ici_array_t *a;
     ici_obj_t   *o;
 
-    if (ici_typecheck("ao", &a, &o))
+    if (typecheck("ao", &a, &o))
         return 1;
     if (a->rpush(o))
         return 1;
@@ -1072,7 +1071,7 @@ f_pop()
     ici_array_t *a;
     ici_obj_t   *o;
 
-    if (ici_typecheck("a", &a))
+    if (typecheck("a", &a))
         return 1;
     if ((o = a->pop()) == NULL)
         return 1;
@@ -1085,7 +1084,7 @@ f_rpop()
     ici_array_t *a;
     ici_obj_t   *o;
 
-    if (ici_typecheck("a", &a))
+    if (typecheck("a", &a))
         return 1;
     if ((o = a->rpop()) == NULL)
         return 1;
@@ -1101,12 +1100,12 @@ f_top()
     switch (ICI_NARGS())
     {
     case 1:
-        if (ici_typecheck("a", &a))
+        if (typecheck("a", &a))
             return 1;
         break;
 
     default:
-        if (ici_typecheck("ai", &a, &n))
+        if (typecheck("ai", &a, &n))
             return 1;
     }
     n += a->len() - 1;
@@ -1124,7 +1123,7 @@ f_parse()
     switch (ICI_NARGS())
     {
     case 1:
-        if (ici_typecheck("o", &o))
+        if (typecheck("o", &o))
             return 1;
         if ((a = ici_struct_new()) == NULL)
             return 1;
@@ -1138,7 +1137,7 @@ f_parse()
         break;
 
     default:
-        if (ici_typecheck("od", &o, &a))
+        if (typecheck("od", &o, &a))
             return 1;
         a->incref();
         break;
@@ -1185,13 +1184,13 @@ static int f_include()
     switch (ICI_NARGS())
     {
     case 1:
-        if (ici_typecheck("o", &filename))
+        if (typecheck("o", &filename))
             return 1;
         a = ici_structof(ici_vs.a_top[-1]);
         break;
 
     case 2:
-        if (ici_typecheck("od", &filename, &a))
+        if (typecheck("od", &filename, &a))
             return 1;
         break;
 
@@ -1323,7 +1322,7 @@ f_fail()
 {
     char        *s;
 
-    if (ici_typecheck("s", &s))
+    if (typecheck("s", &s))
         return 1;
     return ici_set_error("%s", s);
 }
@@ -1341,7 +1340,7 @@ f_exit()
         break;
 
     case 1:
-        if (ici_typecheck("o", &rc))
+        if (typecheck("o", &rc))
             return 1;
         break;
 
@@ -1397,7 +1396,7 @@ f_tochar()
 {
     long        i;
 
-    if (ici_typecheck("i", &i))
+    if (typecheck("i", &i))
         return 1;
     buf[0] = (unsigned char)i;
     return ici_ret_with_decref(ici_str_new(buf, 1));
@@ -1408,7 +1407,7 @@ f_toint()
 {
     char        *s;
 
-    if (ici_typecheck("s", &s))
+    if (typecheck("s", &s))
         return 1;
     return ici_int_ret((long)(s[0] & 0xFF));
 }
@@ -1420,7 +1419,7 @@ f_rand()
 
     if (ICI_NARGS() >= 1)
     {
-        if (ici_typecheck("i", &seed))
+        if (typecheck("i", &seed))
             return 1;
         srand(seed);
     }
@@ -1444,7 +1443,7 @@ f_interval()
     ici_array_t         *a1;
 
 
-    if (ici_typecheck("oi*", &o, &start))
+    if (typecheck("oi*", &o, &start))
         return 1;
     switch (o->o_tcode)
     {
@@ -1511,7 +1510,7 @@ f_explode()
     char                *s;
     ici_array_t         *x;
 
-    if (ici_typecheck("s", &s))
+    if (typecheck("s", &s))
         return 1;
     i = ici_stringof(ICI_ARG(0))->s_nchars;
     if ((x = ici_array_new(i)) == NULL)
@@ -1538,7 +1537,7 @@ f_implode()
     ici_str_t           *s;
     char                *p;
 
-    if (ici_typecheck("a", &a))
+    if (typecheck("a", &a))
         return 1;
     i = 0;
     for (o = a->astart(); o != a->alimit(); o = a->anext(o))
@@ -1585,7 +1584,7 @@ f_sopen()
     int         readonly;
 
     mode = "r";
-    if (ici_typecheck(ICI_NARGS() > 1 ? "ss" : "s", &str, &mode))
+    if (typecheck(ICI_NARGS() > 1 ? "ss" : "s", &str, &mode))
         return 1;
     readonly = 1;
     if (strcmp(mode, "r") != 0 && strcmp(mode, "rb") != 0)
@@ -1611,7 +1610,7 @@ f_mopen()
     int         readonly;
 
     mode = "r";
-    if (ici_typecheck(ICI_NARGS() > 1 ? "ms" : "m", &mem, &mode))
+    if (typecheck(ICI_NARGS() > 1 ? "ms" : "m", &mem, &mode))
         return 1;
     readonly = 1;
     if (strcmp(mode, "r") && strcmp(mode, "rb"))
@@ -1662,14 +1661,14 @@ ici_f_sprintf()
     if (which != 0 && ICI_NARGS() > 0 && ici_isfile(ICI_ARG(0)))
     {
         which = 2;
-        if (ici_typecheck("us*", &file, &fmt))
+        if (typecheck("us*", &file, &fmt))
             return 1;
         o = ICI_ARGS() - 2;
         nargs = ICI_NARGS() - 2;
     }
     else
     {
-        if (ici_typecheck("s*", &fmt))
+        if (typecheck("s*", &fmt))
             return 1;
         o = ICI_ARGS() - 1;
         nargs = ICI_NARGS() - 1;
@@ -1969,7 +1968,7 @@ f_del()
     ici_obj_t   *s;
     ici_obj_t   *o;
 
-    if (ici_typecheck("oo", &s, &o))
+    if (typecheck("oo", &s, &o))
         return 1;
     if (ici_isstruct(s))
     {
@@ -2079,7 +2078,7 @@ f_super()
     ici_objwsup_t       *newsuper;
     ici_objwsup_t       *oldsuper;
 
-    if (ici_typecheck("o*", &o))
+    if (typecheck("o*", &o))
         return 1;
     if (!ici_hassuper(o))
         return ici_argerror(0);
@@ -2117,7 +2116,7 @@ f_scope()
     s = ici_structof(ici_vs.a_top[-1]);
     if (ICI_NARGS() > 0)
     {
-        if (ici_typecheck("d", &ici_vs.a_top[-1]))
+        if (typecheck("d", &ici_vs.a_top[-1]))
             return 1;
     }
     return ici_ret_no_decref(s);
@@ -2128,7 +2127,7 @@ f_isatom()
 {
     ici_obj_t   *o;
 
-    if (ici_typecheck("o", &o))
+    if (typecheck("o", &o))
         return 1;
     return ici_ret_no_decref(o->isatom() ? ici_one : ici_zero);
 }
@@ -2140,7 +2139,7 @@ f_alloc()
     int         accessz;
     char        *p;
 
-    if (ici_typecheck("i*", &length))
+    if (typecheck("i*", &length))
         return 1;
     if (length < 0)
     {
@@ -2178,7 +2177,7 @@ f_mem()
     long        length;
     int         accessz;
 
-    if (ici_typecheck("ii*", &base, &length))
+    if (typecheck("ii*", &base, &length))
         return 1;
     if (ICI_NARGS() >= 3)
     {
@@ -2212,7 +2211,7 @@ f_assign()
     switch (ICI_NARGS())
     {
     case 2:
-        if (ici_typecheck("oo", &s, &k))
+        if (typecheck("oo", &s, &k))
             return 1;
         if (ici_isset(s))
             v = ici_one;
@@ -2221,7 +2220,7 @@ f_assign()
         break;
 
     case 3:
-        if (ici_typecheck("ooo", &s, &k, &v))
+        if (typecheck("ooo", &s, &k, &v))
             return 1;
         break;
 
@@ -2247,7 +2246,7 @@ f_fetch()
     ici_struct_t    *s;
     ici_obj_t   *k;
 
-    if (ici_typecheck("oo", &s, &k))
+    if (typecheck("oo", &s, &k))
         return 1;
     if (ici_hassuper(s))
         return ici_ret_no_decref(ici_fetch_base(s, k));
@@ -2358,7 +2357,7 @@ f_gettoken()
         break;
 
     case 1:
-        if (ici_typecheck("o", &fo))
+        if (typecheck("o", &fo))
             return 1;
         if (ici_isstring(fo))
         {
@@ -2373,7 +2372,7 @@ f_gettoken()
         break;
 
     default:
-        if (ici_typecheck("oo", &fo, &s))
+        if (typecheck("oo", &fo, &s))
             return 1;
         if (ici_isstring(fo))
         {
@@ -2508,7 +2507,7 @@ f_gettokens()
         break;
 
     case 1:
-        if (ici_typecheck("o", &fo))
+        if (typecheck("o", &fo))
             return 1;
         if (ici_isstring(fo))
         {
@@ -2523,7 +2522,7 @@ f_gettokens()
     case 2:
     case 3:
     case 4:
-        if (ici_typecheck("oo*", &fo, &s))
+        if (typecheck("oo*", &fo, &s))
             return 1;
         if (ICI_NARGS() == 2 && ici_isstring(fo) && ici_isstring(s))
         {
@@ -2764,21 +2763,21 @@ f_sort()
     switch (ICI_NARGS())
     {
     case 3:
-        if (ici_typecheck("aoo", &a, &f, &uarg))
+        if (typecheck("aoo", &a, &f, &uarg))
             return 1;
         if (!ici_typeof(f)->can_call())
             return ici_argerror(1);
         break;
 
     case 2:
-        if (ici_typecheck("ao", &a, &f))
+        if (typecheck("ao", &a, &f))
             return 1;
         if (!ici_typeof(f)->can_call())
             return ici_argerror(1);
         break;
 
     case 1:
-        if (ici_typecheck("a", &a))
+        if (typecheck("a", &a))
             return 1;
         f = ici_fetch(ici_vs.a_top[-1], SS(cmp));
         if (!ici_typeof(f)->can_call())
@@ -3050,7 +3049,7 @@ f_sleep()
     double              how_long;
     ici_exec_t          *x;
 
-    if (ici_typecheck("n", &how_long))
+    if (typecheck("n", &how_long))
         return 1;
 
 #ifdef _WIN32
@@ -3224,7 +3223,7 @@ f_which()
     ici_obj_t           *k;
 
     s = NULL;
-    if (ici_typecheck(ICI_NARGS() < 2 ? "o" : "oo", &k, &s))
+    if (typecheck(ICI_NARGS() < 2 ? "o" : "oo", &k, &s))
         return 1;
     if (s == NULL)
         s = ici_objwsupof(ici_vs.a_top[-1]);
@@ -3283,7 +3282,7 @@ f_getchar()
 
     if (ICI_NARGS() != 0)
     {
-        if (ici_typecheck("u", &f))
+        if (typecheck("u", &f))
 	{
             return 1;
 	}
@@ -3326,7 +3325,7 @@ f_ungetchar()
 
     if (ICI_NARGS() != 1)
     {
-        if (ici_typecheck("su", &ch, &f))
+        if (typecheck("su", &ch, &f))
             return 1;
     }
     else
@@ -3335,7 +3334,7 @@ f_ungetchar()
 	{
             return 1;
 	}
-        if (ici_typecheck("s", &ch))
+        if (typecheck("s", &ch))
 	{
             return 1;
 	}
@@ -3361,7 +3360,7 @@ f_getline()
     x = NULL;
     if (ICI_NARGS() != 0)
     {
-        if (ici_typecheck("u", &f))
+        if (typecheck("u", &f))
             return 1;
     }
     else
@@ -3500,12 +3499,12 @@ f_puts()
 
     if (ICI_NARGS() > 1)
     {
-        if (ici_typecheck("ou", &s, &f))
+        if (typecheck("ou", &s, &f))
             return 1;
     }
     else
     {
-        if (ici_typecheck("o", &s))
+        if (typecheck("o", &s))
             return 1;
         if ((f = ici_need_stdout()) == NULL)
             return 1;
@@ -3533,7 +3532,7 @@ f_fflush()
 
     if (ICI_NARGS() > 0)
     {
-        if (ici_typecheck("u", &f))
+        if (typecheck("u", &f))
             return 1;
     }
     else
@@ -3565,7 +3564,7 @@ f_fopen()
     int         i;
 
     mode = "r";
-    if (ici_typecheck(ICI_NARGS() > 1 ? "ss" : "s", &name, &mode))
+    if (typecheck(ICI_NARGS() > 1 ? "ss" : "s", &name, &mode))
         return 1;
     x = ici_leave();
     ici_signals_blocking_syscall(1);
@@ -3594,9 +3593,9 @@ f_fseek()
     long        offset;
     long        whence;
 
-    if (ici_typecheck("uii", &f, &offset, &whence))
+    if (typecheck("uii", &f, &offset, &whence))
     {
-	if (ici_typecheck("ui", &f, &offset))
+	if (typecheck("ui", &f, &offset))
         {
 	    return 1;
         }
@@ -3627,7 +3626,7 @@ f_popen()
     int         i;
 
     mode = "r";
-    if (ici_typecheck(ICI_NARGS() > 1 ? "ss" : "s", &name, &mode))
+    if (typecheck(ICI_NARGS() > 1 ? "ss" : "s", &name, &mode))
         return 1;
     x = ici_leave();
     if ((stream = popen(name, mode)) == NULL)
@@ -3653,7 +3652,7 @@ f_system()
     long        result;
     ici_exec_t  *x = NULL;
 
-    if (ici_typecheck("s", &cmd))
+    if (typecheck("s", &cmd))
         return 1;
     x = ici_leave();
     result = system(cmd);
@@ -3666,7 +3665,7 @@ f_fclose()
 {
     ici_file_t  *f;
 
-    if (ici_typecheck("u", &f))
+    if (typecheck("u", &f))
         return 1;
     if (ici_file_close(f))
         return 1;
@@ -3682,7 +3681,7 @@ f_eof()
 
     if (ICI_NARGS() != 0)
     {
-        if (ici_typecheck("u", &f))
+        if (typecheck("u", &f))
             return 1;
     }
     else
@@ -3703,7 +3702,7 @@ f_remove()
 {
     char        *s;
 
-    if (ici_typecheck("s", &s))
+    if (typecheck("s", &s))
         return 1;
     if (remove(s) != 0)
         return ici_get_last_errno("remove", s);
@@ -3999,7 +3998,7 @@ f_rename()
     char                *o;
     char                *n;
 
-    if (ici_typecheck("ss", &o, &n))
+    if (typecheck("ss", &o, &n))
         return 1;
     return sys_ret(rename(o, n));
 }
@@ -4012,7 +4011,7 @@ f_chdir()
 {
     char                *n;
 
-    if (ici_typecheck("s", &n))
+    if (typecheck("s", &n))
         return 1;
     return sys_ret(chdir(n));
 }
@@ -4082,7 +4081,7 @@ f_putenv()
     char        *f;
     int         i;
 
-    if (ici_typecheck("s", &s))
+    if (typecheck("s", &s))
         return 1;
     if ((e = strchr(s, '=')) == NULL)
     {

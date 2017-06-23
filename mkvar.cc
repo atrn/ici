@@ -20,7 +20,7 @@ namespace ici
  * Note that the C value is generally passed as a pointer to the value.
  *
  * Type specification is similar to other internal functions (ici_func,
- * ici_typecheck etc..) and uses the following key-letters
+ * typecheck etc..) and uses the following key-letters
  *
  * Type Letter  ICI type        C type (of value)
  * ================================================
@@ -152,7 +152,7 @@ ici_fetch_int(ici_obj_t *o, ici_obj_t *k, long *vp)
  * the specified scope.
  *
  * Type specification is similar to other internal functions (ici_func,
- * ici_typecheck etc..) and uses the following key-letters
+ * typecheck etc..) and uses the following key-letters
  *
  * Type Letter  ICI type        C type (of value)
  * ================================================

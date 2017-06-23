@@ -69,7 +69,7 @@ m_isa(ici_obj_t *o)
 
     if (ici_method_check(o, 0))
         return 1;
-    if (ici_typecheck("o", &klass))
+    if (typecheck("o", &klass))
         return 1;
     for (s = ici_objwsupof(o); s != NULL; s = s->o_super)
     {
@@ -87,7 +87,7 @@ m_respondsto(ici_obj_t *o)
 
     if (ici_method_check(o, 0))
         return 1;
-    if (ici_typecheck("o", &classname))
+    if (typecheck("o", &classname))
         return 1;
     if ((v = ici_fetch(o, classname)) == NULL)
         return 1;

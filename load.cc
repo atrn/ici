@@ -106,7 +106,7 @@ f_load(...)
      */
     entry_symbol[0] = 0;
 
-    if (ici_typecheck("o", &name))
+    if (typecheck("o", &name))
         return 1;
     if (!ici_isstring(name))
         return ici_argerror(0);

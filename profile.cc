@@ -191,7 +191,7 @@ f_profile(...)
     if (ICI_NARGS() == 1)
     {
         /* Check and store the path that profiling info will be saved to. */
-        if (ici_typecheck("s", &outfile))
+        if (typecheck("s", &outfile))
             return 1;
         strcpy(ici_prof_outfile, outfile);
     }

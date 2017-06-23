@@ -407,7 +407,7 @@ f_sub(...)
     /*
      * Get the ICI arguments.
      */
-    if (ici_typecheck("oos", &str, &o, &repl))
+    if (typecheck("oos", &str, &o, &repl))
         return 1;
     if (!ici_isstring(str))
         return ici_argerror(0);
@@ -523,7 +523,7 @@ f_old_smash()
     ici_array_t    *sa;
     char       **strs;
 
-    if (ici_typecheck("ss", &s, &delim))
+    if (typecheck("ss", &s, &delim))
         return 1;
     if (delim[0] == 0)
     {

@@ -275,7 +275,7 @@ save_func(archive *ar, object *obj)
 static int
 save_src(archive *ar, object *obj)
 {
-    return writel(ar, ici_srcof(obj)->s_lineno) || archive_save(ar, ici_srcof(obj)->s_filename);
+    return writel(ar, srcof(obj)->s_lineno) || archive_save(ar, srcof(obj)->s_filename);
 }
 
 // op
@@ -419,17 +419,17 @@ int f_archive_save(...)
     switch (ICI_NARGS())
     {
     case 3:
-        if (ici_typecheck("uod", &file, &obj, &scp))
+        if (typecheck("uod", &file, &obj, &scp))
             return 1;
         break;
 
     case 2:
-        if (ici_typecheck("uo", &file, &obj))
+        if (typecheck("uo", &file, &obj))
             return 1;
         break;
 
     case 1:
-        if (ici_typecheck("o", &obj))
+        if (typecheck("o", &obj))
             return 1;
         if ((file = ici_need_stdout()) == NULL)
             return 1;

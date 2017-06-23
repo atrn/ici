@@ -74,9 +74,9 @@ get(ici_parse_t *p, ici_array_t *a)
          * There is a code array being built. Update any trailing
          * source marker, and if there isn't one, add one.
          */
-        if (a->a_top > a->a_base && ici_issrc(a->a_top[-1]))
+        if (a->a_top > a->a_base && issrc(a->a_top[-1]))
         {
-            ici_srcof(a->a_top[-1])->s_lineno = p->p_lineno;
+            srcof(a->a_top[-1])->s_lineno = p->p_lineno;
         }
         else if (a->stk_push_chk() == 0)
         {

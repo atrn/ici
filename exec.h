@@ -16,32 +16,32 @@ namespace ici
 
 union ici_ostemp
 {
-    ici_int_t   i;
-    ici_float_t f;
+    ici_int   i;
+    ici_float f;
 };
 
 struct exec : object
 {
-    ici_array_t             *x_xs;
-    ici_array_t             *x_os;
-    ici_array_t             *x_vs;
-    ici_src_t               *x_src;
+    array                   *x_xs;
+    array                   *x_os;
+    array                   *x_vs;
+    src                     *x_src;
     int                      x_count;
     int                      x_yield_count;
-    ici_array_t             *x_pc_closet; /* See below. */
-    ici_array_t             *x_os_temp_cache; /* See below. */
-    ici_exec_t              *x_next;
+    array                   *x_pc_closet; /* See below. */
+    array                   *x_os_temp_cache; /* See below. */
+    exec                    *x_next;
     int                      x_n_engine_recurse;
     int                      x_critsect;
-    ici_obj_t               *x_waitfor;
+    object                  *x_waitfor;
     int                      x_state;
-    ici_obj_t               *x_result;
+    object                  *x_result;
     std::condition_variable *x_semaphore;
     char                    *x_error;
 };
 
-inline ici_exec_t *ici_execof(ici_obj_t *o) { return static_cast<ici_exec_t *>(o); }
-inline bool ici_isexec(ici_obj_t *o) { return o->isa(ICI_TC_EXEC); }
+inline ici_exec_t *ici_execof(object *o) { return static_cast<exec *>(o); }
+inline bool ici_isexec(object *o) { return o->isa(ICI_TC_EXEC); }
 
 /*
  * x_xs                 The ICI interpreter execution stack. This contains

@@ -44,7 +44,7 @@ namespace ici
  *                      methods, and which to properties.  When the 'id'
  *                      refers to a method, the usual environment for
  *                      intrinsic function invocations can be assumed (e.g.
- *                      'ici_typecheck()' is available) except the return
+ *                      'typecheck()' is available) except the return
  *                      value should be stored through '*retv' without any
  *                      extra reference count.
  *

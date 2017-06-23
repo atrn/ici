@@ -66,7 +66,7 @@ f_debug(...)
     t = ici_debug_enabled;
     if (ICI_NARGS() != 0)
     {
-        if (ici_typecheck("i", &v))
+        if (typecheck("i", &v))
             return 1;
         ici_debug_enabled = v;
     }

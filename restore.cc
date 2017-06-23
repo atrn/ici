@@ -859,9 +859,9 @@ f_archive_restore(...)
 	break;
 
     case 1:
-        if (ici_typecheck("u", &file))
+        if (typecheck("u", &file))
 	{
-            if (ici_typecheck("d", &scp))
+            if (typecheck("d", &scp))
             {
 		return 1;
             }
@@ -873,7 +873,7 @@ f_archive_restore(...)
 	break;
 
     default:
-	if (ici_typecheck("ud", &file, &scp))
+	if (typecheck("ud", &file, &scp))
         {
 	    return 1;
         }

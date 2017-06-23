@@ -298,7 +298,7 @@ extern int                      ici_file_close(ici_file_t *f);
 extern int                      ici_ret_with_decref(ici_obj_t *);
 extern int                      ici_int_ret(int64_t);
 extern int                      ici_ret_no_decref(ici_obj_t *);
-extern int                      ici_typecheck(const char *, ...);
+extern int                      typecheck(const char *, ...);
 extern int                      ici_retcheck(const char *, ...);
 extern int                      ici_init();
 extern void                     ici_uninit();

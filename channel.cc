@@ -96,7 +96,7 @@ f_channel(...)
     if (ICI_NARGS() != 0)
     {
         long val;
-        if (ici_typecheck("i", &val))
+        if (typecheck("i", &val))
             return 1;
         if (val < 0)
         {
@@ -134,7 +134,7 @@ f_get(...)
     ici_obj_t *o;
     ici_array_t *q;
 
-    if (ici_typecheck("o", &c))
+    if (typecheck("o", &c))
         return 1;
     if (!ici_ischannel(c))
         return ici_argerror(0);
@@ -169,7 +169,7 @@ f_put(...)
     ici_obj_t *o;
     ici_array_t *q;
 
-    if (ici_typecheck("oo", &c, &o))
+    if (typecheck("oo", &c, &o))
         return 1;
     if (!ici_ischannel(c))
         return 1;
@@ -254,7 +254,7 @@ f_alt(...)
     int idx;
     ici_array_t *alts;
 
-    if (ici_typecheck("a", &alts))
+    if (typecheck("a", &alts))
         return 1;
     if (alt_setup(alts, alts))
 	return 1;

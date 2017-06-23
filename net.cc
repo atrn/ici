@@ -406,11 +406,11 @@ ici_net_socket(void)
 
     if (ICI_NARGS() == 0)
         proto = SS(tcp);
-    else if (ici_typecheck("o", &proto))
+    else if (typecheck("o", &proto))
     {
         long            i;
 
-        if (ici_typecheck("i", &i))
+        if (typecheck("i", &i))
             return 1;
         return ici_ret_with_decref(new_netsocket(i));
     }
@@ -448,7 +448,7 @@ ici_net_close(void)
 {
     ici_handle_t *skt;
 
-    if (ici_typecheck("h", SS(socket), &skt))
+    if (typecheck("h", SS(socket), &skt))
         return 1;
     if (isclosed(skt))
         return 1;
@@ -477,12 +477,12 @@ ici_net_listen(void)
     switch (ICI_NARGS())
     {
     case 1:
-        if (ici_typecheck("h", SS(socket), &skt))
+        if (typecheck("h", SS(socket), &skt))
             return 1;
         break;
 
     case 2:
-        if (ici_typecheck("hi", SS(socket), &skt, &backlog))
+        if (typecheck("hi", SS(socket), &skt, &backlog))
             return 1;
         break;
 
@@ -516,7 +516,7 @@ ici_net_accept(void)
     SOCKET        fd;
     ici_exec_t        *x;
 
-    if (ici_typecheck("h", SS(socket), &skt))
+    if (typecheck("h", SS(socket), &skt))
         return 1;
     if (isclosed(skt))
         return 1;
@@ -552,7 +552,7 @@ ici_net_connect(void)
     ici_exec_t              *x;
     int                 rc;
 
-    if (ici_typecheck("ho", SS(socket), &skt, &arg))
+    if (typecheck("ho", SS(socket), &skt, &arg))
         return 1;
     if (ici_isstring(arg))
         addr = ici_stringof(arg)->s_chars;
@@ -621,7 +621,7 @@ ici_net_bind(void)
     }
     else
     {
-        if (ici_typecheck("h", SS(socket), &skt))
+        if (typecheck("h", SS(socket), &skt))
             return 1;
         addr = "0";
     }
@@ -887,7 +887,7 @@ ici_net_sendto()
     ici_handle_t        *skt;
     struct sockaddr_in  sockaddr;
 
-    if (ici_typecheck("hos", SS(socket), &skt, &msg, &addr))
+    if (typecheck("hos", SS(socket), &skt, &msg, &addr))
         return 1;
     if (!ici_isstring(msg))
         return ici_argerror(1);
@@ -954,7 +954,7 @@ ici_net_recvfrom()
     ici_str_t            *s;
     ici_exec_t              *x;
 
-    if (ici_typecheck("hi", SS(socket), &skt, &len))
+    if (typecheck("hi", SS(socket), &skt, &len))
         return 1;
     if (isclosed(skt))
         return 1;
@@ -1029,7 +1029,7 @@ ici_net_send()
     int          len;
     ici_str_t     *msg;
 
-    if (ici_typecheck("ho", SS(socket), &skt, &msg))
+    if (typecheck("ho", SS(socket), &skt, &msg))
         return 1;
     if (!ici_isstring(msg))
         return ici_argerror(1);
@@ -1064,7 +1064,7 @@ ici_net_recv()
     ici_str_t     *s;
     ici_exec_t       *x;
 
-    if (ici_typecheck("hi", SS(socket), &skt, &len))
+    if (typecheck("hi", SS(socket), &skt, &len))
         return 1;
     if (isclosed(skt))
         return 1;
@@ -1189,7 +1189,7 @@ ici_net_getsockopt()
 
     optval = (char *)&intvar;
     optlen = sizeof intvar;
-    if (ici_typecheck("hs", SS(socket), &skt, &opt))
+    if (typecheck("hs", SS(socket), &skt, &opt))
         return 1;
 
     o = sockopt(opt, &optlevel);
@@ -1288,9 +1288,9 @@ ici_net_setsockopt()
     int                 intvar;
     struct linger       linger;
 
-    if (ici_typecheck("hs", SS(socket), &skt, &opt) == 0)
+    if (typecheck("hs", SS(socket), &skt, &opt) == 0)
         intvar = 1; /* default to +ve action ... "set..." */
-    else if (ici_typecheck("hsi", SS(socket), &skt, &opt, &intvar))
+    else if (typecheck("hsi", SS(socket), &skt, &opt, &intvar))
         return 1;
     optcode = sockopt(opt, &optlevel);
     optval = (char *)&intvar;
@@ -1402,7 +1402,7 @@ ici_net_username()
 
     if (NARGS() > 0)
     {
-        if (ici_typecheck("i", &uid))
+        if (typecheck("i", &uid))
             return 1;
     }
     if ((pwent = getpwuid(uid)) == NULL)
@@ -1433,7 +1433,7 @@ ici_net_getpeername()
     socklen_t           len = sizeof addr;
     ici_handle_t        *skt;
 
-    if (ici_typecheck("h", SS(socket), &skt))
+    if (typecheck("h", SS(socket), &skt))
         return 1;
     if (isclosed(skt))
         return 1;
@@ -1456,7 +1456,7 @@ ici_net_getsockname()
     socklen_t           len = sizeof addr;
     ici_handle_t        *skt;
 
-    if (ici_typecheck("h", SS(socket), &skt))
+    if (typecheck("h", SS(socket), &skt))
         return 1;
     if (isclosed(skt))
         return 1;
@@ -1479,7 +1479,7 @@ ici_net_getportno()
     socklen_t           len = sizeof addr;
     ici_handle_t        *skt;
 
-    if (ici_typecheck("h", SS(socket), &skt))
+    if (typecheck("h", SS(socket), &skt))
         return 1;
     if (isclosed(skt))
         return 1;
@@ -1505,7 +1505,7 @@ ici_net_gethostbyname()
     struct hostent      *hostent;
     struct in_addr      addr;
 
-    if (ici_typecheck("s", &name))
+    if (typecheck("s", &name))
         return 1;
     if ((hostent = gethostbyname(name)) == NULL)
         return seterror("no such host", "no such host: \"%.32s\"", name);
@@ -1538,7 +1538,7 @@ ici_net_gethostbyaddr(void)
         return ici_argcount(1);
     if (ici_isint(ICI_ARG(0)))
         addr = htonl((unsigned long)ici_intof(ICI_ARG(0))->i_value);
-    else if (ici_typecheck("s", &s))
+    else if (typecheck("s", &s))
         return 1;
     else if ((addr = inet_addr(s)) == 0xFFFFFFFF)
         return seterror("invalid IP address", "invalid IP address: %32s", s);
@@ -1559,7 +1559,7 @@ ici_net_sktno()
 {
     ici_handle_t *skt;
 
-    if (ici_typecheck("h", SS(socket), &skt))
+    if (typecheck("h", SS(socket), &skt))
         return 1;
     if (isclosed(skt))
         return 1;
@@ -1780,9 +1780,9 @@ ici_net_sktopen()
     ici_file_t          *f;
     skt_file_t          *sf;
 
-    if (ici_typecheck("hs", SS(socket), &skt, &mode))
+    if (typecheck("hs", SS(socket), &skt, &mode))
     {
-        if (ici_typecheck("h", SS(socket), &skt))
+        if (typecheck("h", SS(socket), &skt))
             return 1;
         mode = "r";
     }
@@ -1862,13 +1862,13 @@ ici_net_shutdown()
     switch (ICI_NARGS())
     {
     case 1:
-        if (ici_typecheck("h", SS(socket), &skt))
+        if (typecheck("h", SS(socket), &skt))
             return 1;
         flags = 2;
         break;
 
     case 2:
-        if (ici_typecheck("hi", SS(socket), &skt, &flags))
+        if (typecheck("hi", SS(socket), &skt, &flags))
             return 1;
         break;
 

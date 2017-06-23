@@ -280,7 +280,7 @@ static int ici_sys_simple()
 {
     long        av[4];
 
-    if (ici_typecheck((const char *)ICI_CF_ARG2(), &av[0], &av[1], &av[2], &av[3]))
+    if (typecheck((const char *)ICI_CF_ARG2(), &av[0], &av[1], &av[2], &av[3]))
         return 1;
     return sys_ret((*(int (*)(...))ICI_CF_ARG1())(av[0], av[1], av[2], av[3]));
 }
@@ -307,12 +307,12 @@ static int ici_sys_open()
     switch (ICI_NARGS())
     {
     case 2:
-        if (ici_typecheck("si", &fname, &omode))
+        if (typecheck("si", &fname, &omode))
             return 1;
         break;
 
     case 3:
-        if (ici_typecheck("sii", &fname, &omode, &perms))
+        if (typecheck("sii", &fname, &omode, &perms))
             return 1;
         break;
 
@@ -362,12 +362,12 @@ static int ici_sys_fdopen()
     switch (ICI_NARGS())
     {
     case 1:
-        if (ici_typecheck("i", &fd))
+        if (typecheck("i", &fd))
             return 1;
         mode = "r";
         break;
     case 2:
-        if (ici_typecheck("is", &fd, &mode))
+        if (typecheck("is", &fd, &mode))
             return 1;
         break;
     default:
@@ -541,12 +541,12 @@ static int ici_sys_fcntl()
     case 2:
         iarg = 1;
         arg = ici_null;
-        if (ici_typecheck("io", &fd, &what))
+        if (typecheck("io", &fd, &what))
             return 1;
         break;
 
     case 3:
-        if (ici_typecheck("ioo", &fd, &what, &arg))
+        if (typecheck("ioo", &fd, &what, &arg))
             return 1;
         if (ici_isint(arg))
             iarg = ici_intof(arg)->i_value;
@@ -606,7 +606,7 @@ static int ici_sys_fileno()
 {
     ici_file_t      *f;
 
-    if (ici_typecheck("u", &f))
+    if (typecheck("u", &f))
         return 1;
     if
     (
@@ -635,7 +635,7 @@ static int ici_sys_mkdir()
     char        *path;
 
 #ifdef _WIN32
-    if (ici_typecheck("s", &path))
+    if (typecheck("s", &path))
         return 1;
     if (mkdir(path) == -1)
         return ici_get_last_errno("mkdir", path);
@@ -644,10 +644,10 @@ static int ici_sys_mkdir()
 
     if (ICI_NARGS() == 1)
     {
-        if (ici_typecheck("s", &path))
+        if (typecheck("s", &path))
             return 1;
     }
-    else if (ici_typecheck("si", &path, &mode))
+    else if (typecheck("si", &path, &mode))
         return 1;
     if (mkdir(path, mode) == -1)
         return ici_get_last_errno("mkdir", path);
@@ -671,7 +671,7 @@ static int ici_sys_mkfifo()
     char        *path;
     long        mode;
 
-    if (ici_typecheck("si", &path, &mode))
+    if (typecheck("si", &path, &mode))
         return 1;
     if (mkfifo(path, mode) == -1)
         return ici_get_last_errno("mkfifo", path);
@@ -695,7 +695,7 @@ static int ici_sys_read()
     int         r;
     char        *msg;
 
-    if (ici_typecheck("ii", &fd, &len))
+    if (typecheck("ii", &fd, &len))
         return 1;
     if ((msg = (char *)ici_alloc(len+1)) == NULL)
         return 1;
@@ -738,9 +738,9 @@ static int ici_sys_write()
     long        sz;
     int         havesz = 0;
 
-    if (ici_typecheck("io", &fd, &o))
+    if (typecheck("io", &fd, &o))
     {
-        if (ici_typecheck("ioi", &fd, &o, &sz))
+        if (typecheck("ioi", &fd, &o, &sz))
             return 1;
         havesz = 1;
     }
@@ -778,7 +778,7 @@ static int ici_sys_symlink()
 #else
     char        *a, *b;
 
-    if (ici_typecheck("ss", &a, &b))
+    if (typecheck("ss", &a, &b))
         return 1;
     if (symlink(a, b) == -1)
         return ici_get_last_errno("symlink", a);
@@ -802,7 +802,7 @@ static int ici_sys_readlink()
     char        *path;
     char        pbuf[MAXPATHLEN+1];
 
-    if (ici_typecheck("s", &path))
+    if (typecheck("s", &path))
         return 1;
     if (readlink(path, pbuf, sizeof pbuf) == -1)
         return ici_get_last_errno("readlink", path);
@@ -976,7 +976,7 @@ static int ici_sys_ctime()
     time_t      timev;
     ici_str_t    *s;
 
-    if (ici_typecheck("i", &timev) || (s = ici_str_new_nul_term(ctime(&timev))) == NULL)
+    if (typecheck("i", &timev) || (s = ici_str_new_nul_term(ctime(&timev))) == NULL)
         return 1;
     return ici_ret_with_decref(s);
 }
@@ -1063,7 +1063,7 @@ static int ici_sys_getitimer()
 
     if (ICI_NARGS() != 0)
     {
-        if (ici_typecheck("o", &o))
+        if (typecheck("o", &o))
             return 1;
         if (!ici_isstring(o))
             return ici_argerror(0);
@@ -1137,12 +1137,12 @@ static int ici_sys_setitimer()
 
     if (ICI_NARGS() == 1)
     {
-        if (ici_typecheck("d", &s))
+        if (typecheck("d", &s))
             return 1;
     }
     else
     {
-        if (ici_typecheck("od", &o, &s))
+        if (typecheck("od", &o, &s))
             return 1;
         if (o == SS(real))
             which = ITIMER_REAL;
@@ -1233,11 +1233,11 @@ static int ici_sys_access()
     switch (ICI_NARGS())
     {
     case 1:
-        if (ici_typecheck("s", &fname))
+        if (typecheck("s", &fname))
             return 1;
         break;
     case 2:
-        if (ici_typecheck("si", &fname, &bits))
+        if (typecheck("si", &fname, &bits))
             return 1;
         break;
     default:
@@ -1304,7 +1304,7 @@ static int ici_sys_creat()
     long        perms;
     int         fd;
 
-    if (ici_typecheck("si", &fname, &perms))
+    if (typecheck("si", &fname, &perms))
         return 1;
     if ((fd = creat(fname, perms)) == -1)
         return ici_get_last_errno("creat", fname);
@@ -1330,12 +1330,12 @@ static int ici_sys_dup()
     switch (ICI_NARGS())
     {
     case 1:
-        if (ici_typecheck("i", &fd1))
+        if (typecheck("i", &fd1))
             return 1;
         fd2 = -1;
         break;
     case 2:
-        if (ici_typecheck("ii", &fd1, &fd2))
+        if (typecheck("ii", &fd1, &fd2))
             return 1;
         break;
     default:
@@ -1570,11 +1570,11 @@ static int ici_sys_lseek()
     switch (ICI_NARGS())
     {
     case 2:
-        if (ici_typecheck("ii", &fd, &ofs))
+        if (typecheck("ii", &fd, &ofs))
             return 1;
         break;
     case 3:
-        if (ici_typecheck("iii", &fd, &ofs, &whence))
+        if (typecheck("iii", &fd, &ofs, &whence))
             return 1;
         break;
 
@@ -1776,7 +1776,7 @@ static int ici_sys_getpass()
 
     if (ICI_NARGS() > 0)
     {
-        if (ici_typecheck("s", &prompt))
+        if (typecheck("s", &prompt))
             return 1;
     }
     return ici_str_ret(getpass(prompt));
@@ -1805,13 +1805,13 @@ static int ici_sys_setpgrp()
     case 1:
         pid = 0;
 #endif
-        if (ici_typecheck("i", &pgrp))
+        if (typecheck("i", &pgrp))
             return 1;
 #ifdef SETPGRP_2_ARGS
         break;
 
     default:
-        if (ici_typecheck("ii", &pid, &pgrp))
+        if (typecheck("ii", &pid, &pgrp))
             return 1;
         break;
     }
@@ -1837,7 +1837,7 @@ static int ici_sys_flock()
 {
     long        fd, operation;
 
-    if (ici_typecheck("ii", &fd, &operation))
+    if (typecheck("ii", &fd, &operation))
         return 1;
     return sys_ret(flock(fd, operation));
 }
@@ -1886,13 +1886,13 @@ static int ici_sys_truncate()
     long        len;
     char        *s;
 
-    if (ici_typecheck("ii", &fd, &len) == 0)
+    if (typecheck("ii", &fd, &len) == 0)
     {
         if (ftruncate(fd, len) == -1)
             return sys_ret(-1L);
         return ici_null_ret();
     }
-    if (ici_typecheck("si", &s, &len) == 0)
+    if (typecheck("si", &s, &len) == 0)
     {
         if (truncate(s, len) == -1)
             return ici_get_last_errno("truncate", s);
@@ -1986,7 +1986,7 @@ static int ici_sys_getrlimit()
     ici_struct_t            *limit;
     ici_int_t               *iv;
 
-    if (ici_typecheck("o", &what))
+    if (typecheck("o", &what))
         return 1;
     if (ici_isint(what))
         resource = ici_intof(what)->i_value;
@@ -2045,7 +2045,7 @@ static int ici_sys_setrlimit()
     int                 resource;
     ici_obj_t            *iv;
 
-    if (ici_typecheck("oo", &what, &value))
+    if (typecheck("oo", &what, &value))
         return 1;
     if (ici_isint(what))
         resource = ici_intof(what)->i_value;
@@ -2102,7 +2102,7 @@ static int ici_sys_usleep()
     long    t;
     ici_exec_t *x;
 
-    if (ici_typecheck("i", &t))
+    if (typecheck("i", &t))
         return 1;
     ici_signals_blocking_syscall(1);
     x = ici_leave();

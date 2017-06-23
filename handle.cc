@@ -148,7 +148,7 @@ ici_handle_probe(void *ptr, ici_str_t *name)
  *
  *      if (ici_handle_method_check(inst, ICIS(XML_Parser), NULL, &p))
  *          return 1;
- *      if (ici_typecheck("s", &s))
+ *      if (typecheck("s", &s))
  *          return 1;
  *      if (!XML_SetBase(p, s))
  *          return ici_xml_error(p);

@@ -455,7 +455,7 @@ f_signam(...)
     long  signo;
     char  *nam;
 
-    if (ici_typecheck("i", &signo))
+    if (typecheck("i", &signo))
         return 1;
     if ((nam = (char *)signo_to_signam(signo)) == NULL)
     {
