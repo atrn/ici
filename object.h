@@ -36,12 +36,6 @@ constexpr int ICI_O_ATOM  =         0x02;    /* Is a member of the atom pool. */
 constexpr int ICI_O_TEMP  =         0x04;    /* Is a re-usable temp (flag for asserts). */
 constexpr int ICI_O_SUPER =         0x08;    /* Has super (is ici_objwsup_t derived). */
 
-#ifdef BUGHUNT
-// We use special incref/decref when bughunting.
-void bughunt_incref(object *o);
-void bughunt_decref(object *o);
-#endif
-
 /*
  * This is the universal header of all objects.  Each object inherits
  * from object and adds any type specific stuff.
@@ -133,20 +127,13 @@ struct object
     inline void incref() noexcept {
         ++o_nrefs;
     }
-#else
-    inline void incref() {
-        bughunt_incref(this);
-    }
-#endif
 
-#ifndef BUGHUNT
     inline void decref() noexcept {
         --o_nrefs;
     }
 #else
-    inline void decref() {
-        bughunt_decref(this);
-    }
+    void incref();
+    void decref();
 #endif
 
     inline unsigned long hash() noexcept {
@@ -422,7 +409,21 @@ inline int ici_assign_super(object *o, object *k, object *v, ici_struct_t *b) {
  *
  * This --macro-- forms part of the --ici-api--.
  */
-#define ici_rego(o) ici_rego_work(o)
+#ifndef BUGHUNT
+/*
+ * Inline function for ici_rego.
+ */
+inline void ici_rego(object *o) {
+    if (ici_objs_top < ici_objs_limit) {
+        *ici_objs_top++ = o;
+    } else {
+        ici_grow_objs(o);
+    }
+}
+#else
+extern void ici_rego(object *);
+#endif
+
 
 /*
  * The o_tcode field is a small int. These are the "well known" core
@@ -493,30 +494,6 @@ inline int ici_cmp(object *o1, object *o2) {
 inline object *ici_copy(object *o) {
     return o->copy();
 }
-
-#ifndef BUGHUNT
-/*
- * In the core we use an inline function for ici_rego.
- */
-inline void ici_rego_core(object *o) {
-    if (ici_objs_top < ici_objs_limit) {
-        *ici_objs_top++ = o;
-    } else {
-        ici_grow_objs(o);
-    }
-}
-#undef ici_rego
-#define ici_rego(o) ici_rego_core(o)
-
-#else
-/*
- * Or if BUGHUNT is enabled we use a bug hunting version for ici_rego.
- */
-#undef  ici_rego
-extern void  bughunt_rego(object *);
-#define ici_rego(o) bughunt_rego(o)
-#endif
-
 
 inline void ICI_STORE_ATOM_AND_COUNT(object **po, object *s) {
     *po = s;

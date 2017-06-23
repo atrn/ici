@@ -355,17 +355,6 @@ ici_grow_objs(object *o)
     *ici_objs_top++ = o;
 }
 
-void
-ici_rego_work(object *o)
-{
-    if (ici_objs_top < ici_objs_limit)
-    {
-        *ici_objs_top++ = o;
-        return;
-    }
-    ici_grow_objs(o);
-}
-
 /*
  * Mark sweep garbage collection.  Should be safe to do any time, as new
  * objects are created without the nrefs == 0 which allows them to be
@@ -584,8 +573,7 @@ ici_reclaim()
 
 object   *traceobj;
 
-void
-bughunt_incref(object *o)
+void object::incref(object *o)
 {
     if (o == traceobj)
     {
@@ -603,8 +591,7 @@ bughunt_incref(object *o)
     }
 }
 
-void
-bughunt_decref(object *o)
+void object::decref(object *o)
 {
     if (o == traceobj)
     {

@@ -12,8 +12,8 @@ namespace ici
 
 struct wrap
 {
-    ici_wrap_t  *w_next;
-    void        (*w_func)();
+    wrap *w_next;
+    void (*w_func)();
 };
 
 /*
