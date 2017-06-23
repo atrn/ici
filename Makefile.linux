@@ -22,7 +22,7 @@ anici.h:	anici $(hdrs) mk-ici-h.ici
 	LD_LIBRARY_PATH=`pwd` ./anici mk-ici-h.ici $(conf)
 
 libanici.so : $(objs)
-	$(CXX) $(CXXFLAGS) -shared $(objs) -o $@ $(libs)
+	$(CXX) $(CXXFLAGS) -shared $(objs) $(libs) -o $@
 
 $(objs) : %.o : %.cc
 	$(CXX) $(CXXFLAGS) -fPIC -c $<
