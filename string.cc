@@ -119,7 +119,7 @@ ici_str_new(const char *p, int nchars)
         ici_str_t       s;
         char            d[40];
     }
-    proto; //    = {{ICI_OBJ(ICI_TC_STRING)}};
+    proto;
 
     assert(nchars >= 0);
     az = STR_ALLOCZ(nchars);
@@ -272,7 +272,7 @@ ici_str_need_size(ici_str_t *s, int n)
     char                *chars;
     char                n1[30];
 
-    if ((s->o_flags & (ICI_O_ATOM|ICI_S_SEP_ALLOC)) != ICI_S_SEP_ALLOC)
+    if (s->flags(ICI_O_ATOM|ICI_S_SEP_ALLOC) != ICI_S_SEP_ALLOC)
     {
         return ici_set_error("attempt to modify an atomic string %s", ici_objname(n1, s));
     }
@@ -300,7 +300,7 @@ ici_str_need_size(ici_str_t *s, int n)
 size_t string_type::mark(object *o)
 {
     o->setmark();
-    if (o->flag(ICI_S_SEP_ALLOC))
+    if (o->flagged(ICI_S_SEP_ALLOC))
     {
         return typesize() + ici_stringof(o)->s_u.su_nalloc;
     }
@@ -360,7 +360,7 @@ object *string_type::copy(object *o)
  */
 void string_type::free(object *o)
 {
-    if (o->flag(ICI_S_SEP_ALLOC))
+    if (o->flagged(ICI_S_SEP_ALLOC))
     {
         ici_nfree(ici_stringof(o)->s_chars, ici_stringof(o)->s_u.su_nalloc);
         ici_tfree(o, ici_str_t);

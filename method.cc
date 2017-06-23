@@ -22,12 +22,11 @@ namespace ici
  *
  * This --func-- forms part of the --ici-api--.
  */
-ici_method_t *
-ici_method_new(object *subject, object *callable)
+method *ici_method_new(object *subject, object *callable)
 {
-    ici_method_t   *m;
+    method   *m;
 
-    if ((m = ici_talloc(ici_method_t)) == NULL)
+    if ((m = ici_talloc(method)) == NULL)
         return NULL;
     ICI_OBJ_SET_TFNZ(m, ICI_TC_METHOD, 0, 1, 0);
     m->m_subject = subject;
@@ -38,15 +37,14 @@ ici_method_new(object *subject, object *callable)
 
 size_t method_type::mark(object *o)
 {
-    o->setmark();
-    return typesize() + ici_mark(ici_methodof(o)->m_subject) + ici_mark(ici_methodof(o)->m_callable);
+    auto m = ici_methodof(o);
+    m->setmark();
+    return typesize() + ici_mark(m->m_subject) + ici_mark(m->m_callable);
 }
 
 object * method_type::fetch(object *o, object *k)
 {
-    ici_method_t        *m;
-
-    m = ici_methodof(o);
+    auto m = ici_methodof(o);
     if (k == SS(subject))
         return m->m_subject;
     if (k == SS(callable))
@@ -56,9 +54,7 @@ object * method_type::fetch(object *o, object *k)
 
 int method_type::call(object *o, object *subject)
 {
-    ici_method_t        *m;
-
-    m = ici_methodof(o);
+    auto m = ici_methodof(o);
     if (!m->m_callable->can_call())
     {
         char    n1[ICI_OBJNAMEZ];

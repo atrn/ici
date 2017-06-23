@@ -37,22 +37,25 @@ constexpr int ICI_O_TEMP  =         0x04;    /* Is a re-usable temp (flag for as
 constexpr int ICI_O_SUPER =         0x08;    /* Has super (is ici_objwsup_t derived). */
 
 #ifdef BUGHUNT
-/*
- * Override incref/decref when bughunting.
- */
+// We use special incref/decref when bughunting.
 void bughunt_incref(object *o);
 void bughunt_decref(object *o);
 #endif
 
 /*
- * This is the universal header of all objects.  Each object includes this as
- * its first element.  In the real structures associated with each object type the type
- * specific stuff follows
+ * This is the universal header of all objects.  Each object inherits
+ * from object and adds any type specific stuff.
  *
  * This --struct-- forms part of the --ici-api--.
  */
 struct object
 {
+
+    uint8_t        o_tcode;
+    uint8_t        o_flags;
+    uint8_t        o_nrefs;
+    uint8_t        o_leafz;
+
     object()
         : o_tcode(0)
         , o_flags(0)
@@ -72,27 +75,19 @@ struct object
     }
 
     inline type *type() const noexcept {
-        return types[(size_t)o_tcode];
+        return types[o_tcode];
     }
 
     inline const char * type_name() const noexcept {
         return type()->name;
     }
 
-    inline bool isatom() const noexcept {
-        return (o_flags & ICI_O_ATOM) != 0;
+    inline uint8_t flags(uint8_t mask = 0xff) const noexcept {
+        return o_flags & mask;
     }
 
-    inline void setmark() noexcept {
-        o_flags |= ICI_O_MARK;
-    }
-
-    inline bool flag(uint8_t mask) const noexcept {
-        return (o_flags & mask) != 0;
-    }
-
-    inline bool marked() const noexcept {
-        return flag(ICI_O_MARK);
+    inline bool flagged(uint8_t mask) const noexcept {
+        return flags(mask) != 0;
     }
 
     inline void setflag(uint8_t mask) noexcept {
@@ -103,12 +98,28 @@ struct object
         o_flags &= ~mask;
     }
 
+    inline bool isatom() const noexcept {
+        return flagged(ICI_O_ATOM);
+    }
+
+    inline void setmark() noexcept {
+        setflag(ICI_O_MARK);
+    }
+
+    inline void clrmark() noexcept {
+        clrflag(ICI_O_MARK);
+    }
+
+    inline bool marked() const noexcept {
+        return flagged(ICI_O_MARK);
+    }
+
     inline size_t mark() noexcept {
-        if (o_flags & ICI_O_MARK) {
+        if (flagged(ICI_O_MARK)) {
             return 0;
         }
         if (o_leafz != 0) {
-            o_flags |= ICI_O_MARK;
+            setmark();
             return o_leafz;
         }
         return type()->mark(this);
@@ -118,45 +129,23 @@ struct object
         type()->free(this);
     }
 
-    /*
-     * Increment the object 'o's reference count.  References from ordinary
-     * machine data objects (ie.  variables and stuff, not other objects) are
-     * invisible to the garbage collector.  These refs must be accounted for if
-     * there is a possibility of garbage collection.  Note that most routines that
-     * make objects (new_*(), copy() etc...) return objects with 1 ref.  The
-     * caller is expected to decref() it when they attach it into wherever it
-     * is going.
-     *
-     * This --func-- forms part of the --ici-api--.
-     */
-#ifdef BUGHUNT
-    inline void incref() {
-        bughunt_incref(this);
-    }
-#else
+#ifndef BUGHUNT
     inline void incref() noexcept {
         ++o_nrefs;
     }
+#else
+    inline void incref() {
+        bughunt_incref(this);
+    }
 #endif
 
-    /*
-     * Decrement the object 'o's reference count.  References from ordinary
-     * machine data objects (ie.  variables and stuff, not other objects) are
-     * invisible to the garbage collector.  These refs must be accounted for if
-     * there is a possibility of garbage collection.  Note that most routines that
-     * make objects (new_*(), copy() etc...) return objects with 1 ref.  The
-     * caller is expected to decref() it when they attach it into wherever it
-     * is going.
-     *
-     * This --func-- forms part of the --ici-api--.
-     */
-#ifdef BUGHUNT
-    inline void decref() {
-        bughunt_decref(this);
-    }
-#else
+#ifndef BUGHUNT
     inline void decref() noexcept {
         --o_nrefs;
+    }
+#else
+    inline void decref() {
+        bughunt_decref(this);
     }
 #endif
 
@@ -215,11 +204,6 @@ struct object
     inline void objname(char n[ICI_OBJNAMEZ]) {
         type()->objname(this, n);
     }
-
-    uint8_t        o_tcode;
-    uint8_t        o_flags;
-    uint8_t        o_nrefs;
-    uint8_t        o_leafz;
 };
 /*
  * o_tcode              The small integer type code that characterises
@@ -285,12 +269,7 @@ inline ici_objwsup_t *ici_objwsupof(object *o) { return static_cast<ici_objwsup_
  *
  * This --macro-- forms part of the --ici-api--.
  */
-inline bool ici_hassuper(const object *o) { return (o->o_flags & ICI_O_SUPER) != 0; }
-
-/*
- * For static object initialisations...
- */
-#define ICI_OBJ(tc)    {(tc), 0, 1, 0}
+inline bool ici_hassuper(const object *o) { return o->flagged(ICI_O_SUPER); }
 
 /*
  * Set the basic fields of the object header of 'o'.  'o' can be any struct

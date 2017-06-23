@@ -37,12 +37,12 @@ ici_init()
     extern int ici_sys_init(objwsup *);
     extern int ici_net_init();
 
-    ici_cfunc_t         **cfp;
-    ici_struct_t        *scope;
-    ici_objwsup_t       *externs;
-    ici_exec_t          *x;
-    int                 i;
-    double              pi = 3.1415926535897932;
+    cfunc         **cfp;
+    ici_struct    *scope;
+    objwsup       *externs;
+    exec          *x;
+    int           i;
+    double        pi = 3.1415926535897932;
     
     /*
      * Just make sure our universal headers are really the size we

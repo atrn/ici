@@ -1444,19 +1444,18 @@ f_interval()
 
     if (typecheck("oi*", &o, &start))
         return 1;
-    switch (o->o_tcode)
+    if (ici_isstring(o))
     {
-    case ICI_TC_STRING:
         s = ici_stringof(o);
         nel = s->s_nchars;
-        break;
-
-    case ICI_TC_ARRAY:
+    }
+    else if (isarray(o))
+    {
         a = arrayof(o);
         nel = a->len();
-        break;
-
-    default:
+    }
+    else
+    {
         return ici_argerror(0);
     }
 
@@ -1488,7 +1487,7 @@ f_interval()
     if (start + length > nel)
         length = nel - start;
 
-    if (o->o_tcode == ICI_TC_STRING)
+    if (ici_isstring(o))
     {
         return ici_ret_with_decref(ici_str_new(s->s_chars + start, (int)length));
     }
@@ -1530,43 +1529,33 @@ f_explode()
 static int
 f_implode()
 {
-    array         *a;
-    int                 i;
-    object           **o;
-    str           *s;
-    char                *p;
+    array   *a;
+    int      i;
+    object **o;
+    str     *s;
+    char    *p;
 
     if (typecheck("a", &a))
         return 1;
     i = 0;
     for (o = a->astart(); o != a->alimit(); o = a->anext(o))
     {
-        switch ((*o)->o_tcode)
-        {
-        case ICI_TC_INT:
+        if (ici_isint(*o))
             ++i;
-            break;
-
-        case ICI_TC_STRING:
+        else if (ici_isstring(*o))
             i += ici_stringof(*o)->s_nchars;
-            break;
-        }
     }
     if ((s = ici_str_alloc(i)) == NULL)
         return 1;
     p = s->s_chars;
     for (o = a->astart(); o != a->alimit(); o = a->anext(o))
     {
-        switch ((*o)->o_tcode)
-        {
-        case ICI_TC_INT:
+        if (ici_isint(*o))
             *p++ = (char)ici_intof(*o)->i_value;
-            break;
-
-        case ICI_TC_STRING:
+        else if (ici_isstring(*o))
+        {
             memcpy(p, ici_stringof(*o)->s_chars, ici_stringof(*o)->s_nchars);
             p += ici_stringof(*o)->s_nchars;
-            break;
         }
     }
     if ((s = ici_stringof(ici_atom(s, 1))) == NULL)
@@ -1897,7 +1886,7 @@ ici_f_sprintf()
         if ((file = ici_need_stdout()) == NULL)
             return 1;
     case 2: /* fprintf */
-        if (file->flag(ICI_F_CLOSED))
+        if (file->flagged(ICI_F_CLOSED))
         {
             return ici_set_error("write to closed file");
         }
@@ -2041,8 +2030,8 @@ super_loop(ici_objwsup_t *base)
     ici_objwsup_t       *s;
 
     /*
-     * Scan up the super chain setting the ICI_O_MARK flag as we go. If we hit
-     * a marked struct, we must have looped. Note that the ICI_O_MARK flag
+     * Scan up the super chain setting the mark flag as we go. If we hit
+     * a marked struct, we must have looped. Note that the mark flag
      * is a strictly transitory flag that can only be used in local
      * non-allocating areas such as this. It must be left cleared at all
      * times. The garbage collector assumes it is cleared on all objects
@@ -2053,19 +2042,19 @@ super_loop(ici_objwsup_t *base)
         if (s->marked())
         {
             /*
-             * A loop. Clear all the ICI_O_MARK flags we set and set error.
+             * A loop. Clear all the mark flags we set and set error.
              */
             for (s = base; s->marked(); s = s->o_super)
-                s->clrflag(ICI_O_MARK);
+                s->clrmark();
             return ici_set_error("cycle in struct super chain");
         }
         s->setmark();
     }
     /*
-     * No loop. Clear all the ICI_O_MARK flags we set.
+     * No loop. Clear all the mark flags we set.
      */
     for (s = base; s != NULL; s = s->o_super)
-        s->clrflag(ICI_O_MARK);
+        s->clrmark();
     return 0;
 }
 

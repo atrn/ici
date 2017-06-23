@@ -102,17 +102,17 @@ struct handle : objwsup
              , h_general_intf(nullptr)
     {}
 
-    void            *h_ptr;
-    ici_str_t       *h_name;
-    void            (*h_pre_free)(ici_handle_t *h);
-    ici_obj_t       *h_member_map;
-    int             (*h_member_intf)(void *ptr, int id, ici_obj_t *setv, ici_obj_t **retv);
-    int             (*h_general_intf)(ici_handle_t *h, ici_obj_t *k, ici_obj_t *setv, ici_obj_t **retv);
+    void    *h_ptr;
+    str     *h_name;
+    void    (*h_pre_free)(ici_handle_t *h);
+    object   *h_member_map;
+    int     (*h_member_intf)(void *ptr, int id, object *setv, object **retv);
+    int     (*h_general_intf)(ici_handle_t *h, object *k, object *setv, object **retv);
 };
 
-inline ici_handle_t *ici_handleof(ici_obj_t *o) { return static_cast<ici_handle_t *>(o); }
-inline bool ici_ishandle(ici_obj_t *o) { return o->isa(ICI_TC_HANDLE); }
-inline bool ici_ishandleof(ici_obj_t *o, ici_str_t *n) { return ici_ishandle(o) && ici_handleof(o)->h_name == n; }
+inline handle *ici_handleof(object *o) { return static_cast<handle *>(o); }
+inline bool ici_ishandle(object *o) { return o->isa(ICI_TC_HANDLE); }
+inline bool ici_ishandleof(object *o, str *n) { return ici_ishandle(o) && ici_handleof(o)->h_name == n; }
 
 /*
  * Flags set in the upper nibble of o_flags, which is
@@ -151,17 +151,17 @@ class handle_type : public type
 public:
     handle_type() : type("handle", sizeof (struct handle), type::has_objname) {}
 
-    size_t mark(ici_obj_t *o) override;
-    void free(ici_obj_t *o) override;
-    unsigned long hash(ici_obj_t *o) override;
-    int cmp(ici_obj_t *o1, ici_obj_t *o2) override;
-    ici_obj_t *fetch(ici_obj_t *o, ici_obj_t *k) override;
-    int fetch_super(ici_obj_t *o, ici_obj_t *k, ici_obj_t **v, ici_struct_t *b) override;
-    ici_obj_t *fetch_base(ici_obj_t *o, ici_obj_t *k) override;
-    int assign_base(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v) override;
-    int assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v) override;
-    int assign_super(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v, ici_struct_t *b) override;
-    void objname(ici_obj_t *o, char p[ICI_OBJNAMEZ]) override;
+    size_t mark(object *o) override;
+    void free(object *o) override;
+    unsigned long hash(object *o) override;
+    int cmp(object *o1, object *o2) override;
+    object *fetch(object *o, object *k) override;
+    int fetch_super(object *o, object *k, object **v, ici_struct *b) override;
+    object *fetch_base(object *o, object *k) override;
+    int assign_base(object *o, object *k, object *v) override;
+    int assign(object *o, object *k, object *v) override;
+    int assign_super(object *o, object *k, object *v, ici_struct *b) override;
+    void objname(object *o, char p[ICI_OBJNAMEZ]) override;
 };
 
 } // namespace ici

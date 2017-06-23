@@ -34,15 +34,15 @@ namespace ici
 int
 main(int argc, char *argv[])
 {
-    int                 i;
-    int                 j;
-    char                *s;
-    const char          *fmt;
-    char                *arg0;
-    ici_array_t         *av = NULL;
-    FILE                *stream;
-    ici_file_t          *f;
-    int                 help = 0;
+    int         i;
+    int         j;
+    char       *s;
+    const char *fmt;
+    char       *arg0;
+    array      *av   = NULL;
+    FILE       *stream;
+    file       *f;
+    int         help = 0;
 
 #   ifndef NDEBUG
         /*

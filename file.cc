@@ -64,7 +64,7 @@ ici_file_close(ici_file_t *f)
     ici_exec_t  *x = NULL;
     int         r;
 
-    if (f->flag(ICI_F_CLOSED))
+    if (f->flagged(ICI_F_CLOSED))
     {
         return ici_set_error("file already closed");
     }
@@ -106,9 +106,9 @@ size_t file_type::mark(ici_obj_t *o)
 
 void file_type::free(ici_obj_t *o)
 {
-    if (!o->flag(ICI_F_CLOSED))
+    if (!o->flagged(ICI_F_CLOSED))
     {
-        if (o->flag(ICI_F_NOCLOSE))
+        if (o->flagged(ICI_F_NOCLOSE))
             ici_fileof(o)->flush();
         else
             ici_file_close(ici_fileof(o));

@@ -445,7 +445,7 @@ ici_collect()
     ndead_atoms = 0;
     for (a = ici_objs; a < ici_objs_top; ++a)
     {
-        if (((*a)->o_flags & (ICI_O_ATOM|ICI_O_MARK)) == ICI_O_ATOM)
+        if ((*a)->flags(ICI_O_ATOM|ICI_O_MARK) == ICI_O_ATOM)
             ++ndead_atoms;
     }
 
@@ -467,7 +467,7 @@ ici_collect()
         a = &ici_atoms[ici_atomsz];
         while (--a >= ici_atoms)
         {
-            if ((o = *a) != NULL && o->o_nrefs == 0 && !o->flag(ICI_O_MARK))
+            if ((o = *a) != NULL && o->o_nrefs == 0 && !o->marked())
                 *a = NULL;
         }
         ici_natoms -= ndead_atoms;
@@ -489,7 +489,7 @@ ici_collect()
             }
             else
             {
-                o->clrflag(ICI_O_MARK);
+                o->clrmark();
                 *b++ = o;
             }
         }
@@ -513,7 +513,7 @@ ici_collect()
             }
             else
             {
-                o->clrflag(ICI_O_MARK);
+                o->clrmark();
                 *b++ = o;
             }
         }

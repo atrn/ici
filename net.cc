@@ -138,7 +138,7 @@ socket_fd(ici_handle_t *h) {
 static void
 socket_prefree(ici_handle_t *h)
 {
-    if (!h->flag(ICI_H_CLOSED))
+    if (!h->flagged(ICI_H_CLOSED))
         closesocket(socket_fd(h));
 }
 
@@ -168,7 +168,7 @@ new_netsocket(SOCKET fd)
 static int
 isclosed(ici_handle_t *skt)
 {
-    if (skt->flag(ICI_H_CLOSED))
+    if (skt->flagged(ICI_H_CLOSED))
     {
         ici_set_error("attempt to use closed socket");
         return 1;

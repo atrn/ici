@@ -89,7 +89,7 @@ size_t catch_type::mark(ici_obj_t *o)
 
 void catch_type::free(ici_obj_t *o)
 {
-    assert(!o->flag(CF_EVAL_BASE));
+    assert(!o->flagged(CF_EVAL_BASE));
     ici_tfree(o, ici_catch_t);
 }
 

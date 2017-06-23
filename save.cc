@@ -239,7 +239,7 @@ save_func(archive *ar, object *obj)
     func *f = ici_funcof(obj);
     ici_struct *autos;
 
-    if (obj->o_tcode == ICI_TC_CFUNC)
+    if (ici_iscfunc(obj))
     {
         cfunc *cf = ici_cfuncof(obj);
         return write16(ar, cf->cf_name->s_nchars) || writef(ar, cf->cf_name->s_chars, cf->cf_name->s_nchars);

@@ -497,7 +497,7 @@ int struct_type::assign(object *o, object *k, object *v)
         &&
         ici_stringof(k)->s_vsver == vsver
         &&
-        !k->flag(ICI_S_LOOKASIDE_IS_ATOM)
+        !k->flagged(ICI_S_LOOKASIDE_IS_ATOM)
     )
     {
 #ifndef NDEBUG

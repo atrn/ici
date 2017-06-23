@@ -20,14 +20,13 @@ namespace ici
  *
  * This --func-- forms part of the --ici-api--.
  */
-ici_mem_t *
-ici_mem_new(void *base, size_t length, int accessz, void (*free_func)(void *))
+mem *ici_mem_new(void *base, size_t length, int accessz, void (*free_func)(void *))
 {
-    ici_mem_t  *m;
+    mem  *m;
 
-    if ((m = ici_talloc(ici_mem_t)) == NULL)
+    if ((m = ici_talloc(mem)) == NULL)
         return NULL;
-    ICI_OBJ_SET_TFNZ(m, ICI_TC_MEM, 0, 1, sizeof(ici_mem_t));
+    ICI_OBJ_SET_TFNZ(m, ICI_TC_MEM, 0, 1, sizeof(mem));
     ici_rego(m);
     m->m_base = base;
     m->m_length = length;
@@ -40,42 +39,45 @@ ici_mem_new(void *base, size_t length, int accessz, void (*free_func)(void *))
  * Returns 0 if these objects are equal, else non-zero.
  * See the comments on t_cmp() in object.h.
  */
-int mem_type::cmp(ici_obj_t *o1, ici_obj_t *o2)
+int mem_type::cmp(object *o1, object *o2)
 {
-    return ici_memof(o1)->m_base != ici_memof(o2)->m_base
-        || ici_memof(o1)->m_length != ici_memof(o2)->m_length
-        || ici_memof(o1)->m_accessz != ici_memof(o2)->m_accessz
-        || ici_memof(o1)->m_free != ici_memof(o2)->m_free;
+    auto m1 = ici_memof(o1);
+    auto m2 = ici_memof(o2);
+    return m1->m_base != m2->m_base
+        || m1->m_length != m2->m_length
+        || m1->m_accessz != m2->m_accessz
+        || m1->m_free != m2->m_free;
 }
 
 /*
  * Return a hash sensitive to the value of the object.
  * See the comment on t_hash() in object.h
  */
-unsigned long mem_type::hash(ici_obj_t *o)
+unsigned long mem_type::hash(object *o)
 {
     return (unsigned long)ici_memof(o)->m_base * MEM_PRIME_0
     + (unsigned long)ici_memof(o)->m_length * MEM_PRIME_1
     + (unsigned long)ici_memof(o)->m_accessz * MEM_PRIME_2;
 }
 
-void mem_type::free(ici_obj_t *o)
+void mem_type::free(object *o)
 {
-    if (ici_memof(o)->m_free != NULL)
+    auto m = ici_memof(o);
+    if (m->m_free != NULL)
     {
-        (*ici_memof(o)->m_free)(ici_memof(o)->m_base);
+        (*m->m_free)(m->m_base);
     }
-    ici_tfree(o, ici_mem_t);
+    ici_tfree(o, mem);
 }
 
-int mem_type::assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v)
+int mem_type::assign(object *o, object *k, object *v)
 {
-    long       i;
+    int64_t i;
 
     if (!ici_isint(k) || !ici_isint(v))
         return assign_fail(o, k, v);
     i = ici_intof(k)->i_value;
-    if (i < 0 || i >= (long)ici_memof(o)->m_length)
+    if (i < 0 || i >= (int64_t)ici_memof(o)->m_length)
     {
         return ici_set_error("attempt to write at mem index %ld\n", i);
     }
@@ -90,20 +92,24 @@ int mem_type::assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v)
         break;
 
     case 4:
-        ((int *)ici_memof(o)->m_base)[i] = (int)ici_intof(v)->i_value;
+        ((int *)ici_memof(o)->m_base)[i] = (int32_t)ici_intof(v)->i_value;
+        break;
+
+    case 8:
+        ((int *)ici_memof(o)->m_base)[i] = (int64_t)ici_intof(v)->i_value;
         break;
     }
     return 0;
 }
 
-ici_obj_t * mem_type::fetch(ici_obj_t *o, ici_obj_t *k)
+object * mem_type::fetch(object *o, object *k)
 {
-    long        i;
+    int64_t i;
 
     if (!ici_isint(k))
         return fetch_fail(o, k);
     i = ici_intof(k)->i_value;
-    if (i < 0 || i >= (long)ici_memof(o)->m_length)
+    if (i < 0 || i >= (int64_t)ici_memof(o)->m_length)
         return ici_null;
     switch (ici_memof(o)->m_accessz)
     {
@@ -116,7 +122,11 @@ ici_obj_t * mem_type::fetch(ici_obj_t *o, ici_obj_t *k)
         break;
 
     case 4:
-        i = ((int *)ici_memof(o)->m_base)[i];
+        i = ((int32_t *)ici_memof(o)->m_base)[i];
+        break;
+
+    case 8:
+        i = ((int64_t *)ici_memof(o)->m_base)[i];
         break;
     }
     o = ici_int_new(i);

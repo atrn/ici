@@ -18,7 +18,7 @@ namespace ici
  * Flag indicating if the user wants debugging enabled. Could be used
  * as a bit set to control which things get debugged.
  */
-int     ici_debug_enabled = 0;
+int ici_debug_enabled = 0;
 
 /*
  * Flag indicating if error trapping should be ignored.
