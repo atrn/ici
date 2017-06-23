@@ -11,11 +11,11 @@ namespace ici
 
 struct saver : object
 {
-    int (*s_fn)(ici_archive_t *, ici_obj_t *);
+    int (*s_fn)(archive *, object *);
 };
 
 
-inline saver_t *saverof(ici_obj_t *obj) { return (saver_t *)obj; }
+inline saver *saverof(object *obj) { return static_cast<saver *>(obj); }
 
 class saver_type : public type
 {

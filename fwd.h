@@ -189,7 +189,7 @@ constexpr int ICI_OBJNAMEZ = 32;
 /*
  * Standard types.
  */
-typedef class archive           ici_archive_t;
+typedef class  archive          ici_archive_t;
 typedef struct array            ici_array_t;
 typedef struct catcher          ici_catch_t;
 typedef struct sslot            ici_sslot_t;
@@ -273,7 +273,7 @@ extern ici_obj_t                *ici_atom(ici_obj_t *, int);
 extern int                      ici_parse_file(const char *, char *, ici_ftype_t *);
 extern ici_array_t              *ici_array_new(ptrdiff_t);
 extern ici_mem_t                *ici_mem_new(void *, size_t, int, void (*)(void *));
-extern ici_src_t                *ici_src_new(int, ici_str_t *);
+extern src                      *new_src(int, str *);
 extern ici_str_t                *ici_str_alloc(int);
 extern ici_str_t                *ici_str_new_nul_term(const char *);
 extern ici_str_t                *ici_str_get_nul_term(const char *);
@@ -299,7 +299,7 @@ extern int                      ici_ret_with_decref(ici_obj_t *);
 extern int                      ici_int_ret(int64_t);
 extern int                      ici_ret_no_decref(ici_obj_t *);
 extern int                      typecheck(const char *, ...);
-extern int                      ici_retcheck(const char *, ...);
+extern int                      retcheck(const char *, ...);
 extern int                      ici_init();
 extern void                     ici_uninit();
 extern ici_file_t               *ici_need_stdin();

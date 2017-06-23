@@ -613,7 +613,7 @@ restore_src(archive *ar)
         filename->decref();
         return NULL;
     }
-    if ((result = ici_src_new(line, ici_stringof(filename))) == NULL)
+    if ((result = new_src(line, ici_stringof(filename))) == NULL)
     {
         filename->decref();
         return NULL;

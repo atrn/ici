@@ -80,7 +80,7 @@ get(ici_parse_t *p, ici_array_t *a)
         }
         else if (a->stk_push_chk() == 0)
         {
-            if ((*a->a_top = ici_src_new(p->p_lineno, p->p_file->f_name)) != NULL)
+            if ((*a->a_top = new_src(p->p_lineno, p->p_file->f_name)) != NULL)
             {
                 (*a->a_top)->decref();
                 ++a->a_top;

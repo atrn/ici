@@ -67,7 +67,7 @@ private:
 
 };
 
-inline ici_archive_t *archive_of(object *o) { return (ici_archive_t *)(o); }
+inline archive *archive_of(object *o) { return static_cast<archive *>(o); }
 
 /*
  * End of ici.h export. --ici.h-end--

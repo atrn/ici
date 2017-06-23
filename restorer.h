@@ -10,10 +10,10 @@ namespace ici
 
 struct restorer : object
 {
-    ici_obj_t *(*r_fn)(ici_archive_t *);
+    object *(*r_fn)(archive *);
 };
 
-inline restorer_t *restorerof(ici_obj_t *obj) { return (restorer_t *)obj; }
+inline restorer_t *restorerof(object *obj) { return (restorer_t *)obj; }
 
 class restorer_type : public type
 {
