@@ -290,7 +290,7 @@ f_go(...)
     ici_exec_t          *x;
     int                 i;
 
-    if (ICI_NARGS() < 1 || !ici_typeof(ICI_ARG(0))->can_call())
+    if (NARGS() < 1 || !ici_typeof(ICI_ARG(0))->can_call())
         return ici_argerror(0);
 
     if ((x = ici_new_exec()) == NULL)
@@ -303,16 +303,16 @@ f_go(...)
     /*
      * Copy all the arguments to the operand stack of the new thread.
      */
-    if (x->x_os->stk_push_chk(ICI_NARGS() + 80))
+    if (x->x_os->stk_push_chk(NARGS() + 80))
         goto fail;
-    for (i = 1; i < ICI_NARGS(); ++i)
-        x->x_os->a_top[ICI_NARGS() - i - 1] = ICI_ARG(i);
-    x->x_os->a_top += ICI_NARGS() - 1;
+    for (i = 1; i < NARGS(); ++i)
+        x->x_os->a_top[NARGS() - i - 1] = ICI_ARG(i);
+    x->x_os->a_top += NARGS() - 1;
     /*
      * Now push the number of actuals and the object to call on the
      * new operand stack.
      */
-    if ((*x->x_os->a_top = ici_int_new(ICI_NARGS() - 1)) == NULL)
+    if ((*x->x_os->a_top = ici_int_new(NARGS() - 1)) == NULL)
         goto fail;
     (*x->x_os->a_top)->decref();
     ++x->x_os->a_top;
@@ -337,7 +337,7 @@ fail:
 static int
 f_wakeup(...)
 {
-    if (ICI_NARGS() != 1)
+    if (NARGS() != 1)
         return ici_argcount(1);
     if (ici_wakeup(ICI_ARG(0)))
         return 1;

@@ -107,7 +107,7 @@ int ptr_type::call(ici_obj_t *o, ici_obj_t *subject)
      * Replace ourselves on the operand stack with 'self' (our aggr) and
      * push on the new object being called.
      */
-    if ((ici_os.a_top[-1] = ici_int_new(ICI_NARGS() + 1)) == NULL)
+    if ((ici_os.a_top[-1] = ici_int_new(NARGS() + 1)) == NULL)
         return 1;
     (ici_os.a_top[-1])->decref();
     ici_os.a_top[-2] = ici_ptrof(o)->p_aggr;

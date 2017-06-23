@@ -23,7 +23,7 @@ f_regexp(...)
 {
     int opts = 0;
 
-    switch (ICI_NARGS())
+    switch (NARGS())
     {
     case 2:
         if (!ici_isint(ICI_ARG(1)))
@@ -451,7 +451,7 @@ f_gsub(...)
      * Get the ICI arguments.
      */
     a = NULL;
-    if (ICI_NARGS() < 3)
+    if (NARGS() < 3)
         return ici_argcount(3);
     if (!ici_isstring(ICI_ARG(0)))
         return ici_argerror(0);
@@ -573,17 +573,17 @@ f_smash(...)
     int                 include_remainder;
     int                 nargs;
 
-    if (ICI_NARGS() < 1)
+    if (NARGS() < 1)
         return ici_argcount(1);
 
-    if (ICI_NARGS() == 2 && ici_isstring(ICI_ARG(1)))
+    if (NARGS() == 2 && ici_isstring(ICI_ARG(1)))
         return f_old_smash();
 
-    nargs = ICI_NARGS();
+    nargs = NARGS();
     include_remainder = 0;
     if (ici_isint(ICI_ARG(nargs - 1)))
     {
-        include_remainder = ici_intof(ICI_ARG(ICI_NARGS() - 1))->i_value != 0;
+        include_remainder = ici_intof(ICI_ARG(NARGS() - 1))->i_value != 0;
         if (--nargs == 0)
             return ici_argerror(0);
     }

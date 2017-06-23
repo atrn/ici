@@ -849,7 +849,7 @@ f_archive_restore(...)
     object *obj = NULL;
 
     scp = ici_structof(ici_vs.a_top[-1])->o_super;
-    switch (ICI_NARGS())
+    switch (NARGS())
     {
     case 0:
         if ((file = ici_need_stdin()) == NULL)

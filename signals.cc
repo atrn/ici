@@ -347,7 +347,7 @@ f_signal(...)
     ici_obj_t   *result;
 
     handlero = NULL;
-    switch (ICI_NARGS())
+    switch (NARGS())
     {
     case 2:
         handlero = ICI_ARG(1);

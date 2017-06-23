@@ -304,7 +304,7 @@ static int ici_sys_open()
     long        omode;
     long        perms = -1; /* -1 means not passed */
 
-    switch (ICI_NARGS())
+    switch (NARGS())
     {
     case 2:
         if (typecheck("si", &fname, &omode))
@@ -359,7 +359,7 @@ static int ici_sys_fdopen()
     FILE        *stream;
     ici_file_t  *f;
 
-    switch (ICI_NARGS())
+    switch (NARGS())
     {
     case 1:
         if (typecheck("i", &fd))
@@ -401,7 +401,7 @@ static int ici_sys_close()
     ici_obj_t            *fd0;
     ici_obj_t            *fd1;
 
-    if (ICI_NARGS() != 1)
+    if (NARGS() != 1)
         return ici_argcount(1);
     if (ici_isint(ICI_ARG(0)))
         rc = close(ici_intof(ICI_ARG(0))->i_value);
@@ -536,7 +536,7 @@ static int ici_sys_fcntl()
     int         iwhat;
     int         r;
 
-    switch (ICI_NARGS())
+    switch (NARGS())
     {
     case 2:
         iarg = 1;
@@ -642,7 +642,7 @@ static int ici_sys_mkdir()
 #else
     long        mode = 0777;
 
-    if (ICI_NARGS() == 1)
+    if (NARGS() == 1)
     {
         if (typecheck("s", &path))
             return 1;
@@ -845,7 +845,7 @@ static int ici_sys_stat()
     int         rc;
     ici_struct_t    *s;
 
-    if (ICI_NARGS() != 1)
+    if (NARGS() != 1)
         return ici_argcount(1);
     o = ICI_ARG(0);
     if (ici_isint(o))
@@ -913,7 +913,7 @@ static int ici_sys_lstat()
     int         rc;
     ici_struct_t    *s;
 
-    if (ICI_NARGS() != 1)
+    if (NARGS() != 1)
         return ici_argcount(1);
     o = ICI_ARG(0);
     if (ici_isstring(o))
@@ -1061,7 +1061,7 @@ static int ici_sys_getitimer()
     struct itimerval    value;
     ici_obj_t            *o;
 
-    if (ICI_NARGS() != 0)
+    if (NARGS() != 0)
     {
         if (typecheck("o", &o))
             return 1;
@@ -1135,7 +1135,7 @@ static int ici_sys_setitimer()
     struct itimerval    ovalue;
     ici_obj_t            *o;
 
-    if (ICI_NARGS() == 1)
+    if (NARGS() == 1)
     {
         if (typecheck("d", &s))
             return 1;
@@ -1230,7 +1230,7 @@ static int ici_sys_access()
     char        *fname;
     int         bits = F_OK;
 
-    switch (ICI_NARGS())
+    switch (NARGS())
     {
     case 1:
         if (typecheck("s", &fname))
@@ -1327,7 +1327,7 @@ static int ici_sys_dup()
     long        fd1;
     long        fd2;
 
-    switch (ICI_NARGS())
+    switch (NARGS())
     {
     case 1:
         if (typecheck("i", &fd1))
@@ -1401,7 +1401,7 @@ static int ici_sys_exec()
         argv[argc++] = (X);                                             \
     }
 
-    if ((n = ICI_NARGS()) < 2)
+    if ((n = NARGS()) < 2)
         return ici_argcount(2);
     if (!ici_isstring(*(o = ICI_ARGS())))
         return ici_argerror(0);
@@ -1500,7 +1500,7 @@ static int ici_sys_spawn()
         argv[argc++] = (X);                                             \
     }
 
-    if ((n = ICI_NARGS()) < 2)
+    if ((n = NARGS()) < 2)
         return ici_argcount(2);
     o = ICI_ARGS();
     if (ici_isint(*o))
@@ -1567,7 +1567,7 @@ static int ici_sys_lseek()
     long        ofs;
     long        whence = SEEK_SET;
 
-    switch (ICI_NARGS())
+    switch (NARGS())
     {
     case 2:
         if (typecheck("ii", &fd, &ofs))
@@ -1670,7 +1670,7 @@ static int ici_sys_passwd()
     struct passwd       *pwent;
     ici_array_t             *a;
 
-    switch (ICI_NARGS())
+    switch (NARGS())
     {
     case 0:
         break;
@@ -1774,7 +1774,7 @@ static int ici_sys_getpass()
 {
     const char *prompt = "Password: ";
 
-    if (ICI_NARGS() > 0)
+    if (NARGS() > 0)
     {
         if (typecheck("s", &prompt))
             return 1;
@@ -1800,7 +1800,7 @@ static int ici_sys_setpgrp()
 #endif
 
 #ifdef SETPGRP_2_ARGS
-    switch (ICI_NARGS())
+    switch (NARGS())
     {
     case 1:
         pid = 0;

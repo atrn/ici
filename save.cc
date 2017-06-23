@@ -416,7 +416,7 @@ int f_archive_save(...)
     archive *ar;
     int failed = 1;
 
-    switch (ICI_NARGS())
+    switch (NARGS())
     {
     case 3:
         if (typecheck("uod", &file, &obj, &scp))

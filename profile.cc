@@ -186,9 +186,9 @@ f_profile(...)
     assert(!ici_profile_active);
 
     /* Check parameters. */
-    if (ICI_NARGS() > 1)
+    if (NARGS() > 1)
         return ici_argcount(1);
-    if (ICI_NARGS() == 1)
+    if (NARGS() == 1)
     {
         /* Check and store the path that profiling info will be saved to. */
         if (typecheck("s", &outfile))

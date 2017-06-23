@@ -93,7 +93,7 @@ f_channel(...)
     size_t              capacity = 0;
     ici_channel_t       *chan;
 
-    if (ICI_NARGS() != 0)
+    if (NARGS() != 0)
     {
         long val;
         if (typecheck("i", &val))

@@ -230,7 +230,7 @@ int func_type::call(ici_obj_t *o, ici_obj_t *subject)
             goto fail;
         }
     }
-    n = ICI_NARGS(); /* Number of actual args. */
+    n = NARGS(); /* Number of actual args. */
     ap = ICI_ARGS();
     if (LIKELY(f->f_args != NULL))
     {
@@ -298,7 +298,7 @@ int func_type::call(ici_obj_t *o, ici_obj_t *subject)
     ++ici_xs.a_top;
     *ici_vs.a_top++ = d;
     d->decref();
-    ici_os.a_top -= ICI_NARGS() + 2;
+    ici_os.a_top -= NARGS() + 2;
     return 0;
 
  fail:

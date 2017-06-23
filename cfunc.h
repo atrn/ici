@@ -4,6 +4,8 @@
 #define ICI_CFUNC_H
 
 #include "object.h"
+#include "array.h"
+#include "int.h"
 #include "str.h"
 
 namespace ici
@@ -118,10 +120,10 @@ inline bool ici_iscfunc(ici_obj_t *o) { return o->isa(ICI_TC_CFUNC); }
 /*
  * The operand stack on entry to an intrinsic function:
  *
- * arg(n-1) ... arg(1) arg(0) ICI_NARGS FUNC
+ * arg(n-1) ... arg(1) arg(0) NARGS FUNC
  *                                        ^-ici_os.a_top
  *
- * ICI_NARGS is an ICI int and FUNC is the function object (us).
+ * NARGS is an ICI int and FUNC is the function object (us).
  */
 
 /*
@@ -136,6 +138,7 @@ inline bool ici_iscfunc(ici_obj_t *o) { return o->isa(ICI_TC_CFUNC); }
  * This --macro-- forms part of the --ici-api--.
  */
 #define ICI_ARG(n)          (ici_os.a_top[-3 - (n)])
+// inline object *ICI_ARG(int n) { return ici_os.a_top[-3 - (n)]; }
 
 /*
  * In a call from ICI to a function coded in C, this macro returns the
@@ -145,7 +148,9 @@ inline bool ici_iscfunc(ici_obj_t *o) { return o->isa(ICI_TC_CFUNC); }
  *
  * This --macro-- forms part of the --ici-api--.
  */
-#define ICI_NARGS()         ((int)ici_intof(ici_os.a_top[-2])->i_value)
+// #define NARGS()             ((int)ici_intof(ici_os.a_top[-2])->i_value)
+
+inline int NARGS() { return ici_intof(ici_os.a_top[-2])->i_value; }
 
 /*
  * In a call from ICI to a function coded in C, this macro returns
@@ -172,12 +177,6 @@ inline bool ici_iscfunc(ici_obj_t *o) { return o->isa(ICI_TC_CFUNC); }
 #define ICI_CF_ARG2()       (ici_cfuncof(ici_os.a_top[-1])->cf_arg2)
 
 /*
- * End of ici.h export. --ici.h-end--
- */
-
-#define ICI_CF_ARG(X)       ((void *)(X))
-
-/*
  * Defines a 'cfuncs' array.
  */
 #define ICI_DEFINE_CFUNCS(NAME) ici_cfunc_t ici_ ## NAME ## _cfuncs[] =
@@ -198,6 +197,10 @@ inline bool ici_iscfunc(ici_obj_t *o) { return o->isa(ICI_TC_CFUNC); }
  * Macros to define methods within a cfuncs array.
  */
 #define ICI_DEFINE_METHOD(NAME, FUNC) {SS(NAME), (int (*)(...))(FUNC)}
+
+/*
+ * End of ici.h export. --ici.h-end--
+ */
 
 
 class cfunc_type : public type

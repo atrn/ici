@@ -21,10 +21,11 @@ src *new_src(int lineno, str *filename)
 
 size_t src_type::mark(object *o)
 {
-    o->setmark();
+    auto s = srcof(o);
     auto mem = typesize();
-    if (srcof(o)->s_filename)
-        mem += srcof(o)->s_filename->mark();
+    s->setmark();
+    if (s->s_filename)
+        mem += s->s_filename->mark();
     return mem;
 }
 

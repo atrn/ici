@@ -39,8 +39,8 @@ public:
 /*
  * So-called "small" integers are pre-created to prime the atom table.
  */
-constexpr int small_int_count = 1024;
-constexpr int small_int_mask  = 0x3FF;
+constexpr int small_int_count = 256;
+constexpr int small_int_mask  = 0xFF;
 
 extern ici_int *small_ints[small_int_count];
 

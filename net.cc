@@ -404,7 +404,7 @@ ici_net_socket(void)
     int                 type;
     SOCKET              fd;
 
-    if (ICI_NARGS() == 0)
+    if (NARGS() == 0)
         proto = SS(tcp);
     else if (typecheck("o", &proto))
     {
@@ -474,7 +474,7 @@ ici_net_listen(void)
     ici_handle_t *skt;
     long         backlog = 5;    /* ain't tradition grand */
 
-    switch (ICI_NARGS())
+    switch (NARGS())
     {
     case 1:
         if (typecheck("h", SS(socket), &skt))
@@ -604,7 +604,7 @@ ici_net_bind(void)
     const char          *addr;
     struct sockaddr_in  saddr;
 
-    if (ICI_NARGS() == 2)
+    if (NARGS() == 2)
     {
         skt = ici_handleof(ICI_ARG(0));
         if (!ici_ishandleof(skt, SS(socket)))
@@ -735,9 +735,9 @@ ici_net_select()
     ici_sslot_t          *sl;
     ici_exec_t          *x;
 
-    if (ICI_NARGS() == 0)
+    if (NARGS() == 0)
         return seterror("incorrect number of arguments for net.select()", NULL);
-    for (i = 0; i < ICI_NARGS(); ++i)
+    for (i = 0; i < NARGS(); ++i)
     {
         if (ici_isint(ICI_ARG(i)))
         {
@@ -847,7 +847,7 @@ ici_net_select()
     if (select_add_result(result, SS(read), rset, rfds, &n))
         goto fail;
     /* Simpler return, one set of ready sockets */
-    if (ICI_NARGS() == 1 && ici_isset(ICI_ARG(0)))
+    if (NARGS() == 1 && ici_isset(ICI_ARG(0)))
     {
         ici_obj_t        *o;
 
@@ -1534,7 +1534,7 @@ ici_net_gethostbyaddr(void)
     char                *s;
     struct hostent      *hostent;
 
-    if (ICI_NARGS() != 1)
+    if (NARGS() != 1)
         return ici_argcount(1);
     if (ici_isint(ICI_ARG(0)))
         addr = htonl((unsigned long)ici_intof(ICI_ARG(0))->i_value);
@@ -1859,7 +1859,7 @@ ici_net_shutdown()
     ici_handle_t    *skt;
     long            flags;
 
-    switch (ICI_NARGS())
+    switch (NARGS())
     {
     case 1:
         if (typecheck("h", SS(socket), &skt))
