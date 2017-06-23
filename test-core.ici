@@ -712,6 +712,15 @@ printf("func...\n");
     if (eq(x, y))
         fail("copy of array was same object");
 
+    if (x[-1] != [array 3, 4])
+       fail("-ve (-1) index did not produce expected result");
+    if (x[-2] != 2)
+       fail("-ve (-2) index did not produce expected result");
+    if (x[-3] != 1)
+       fail("-ve (-3) index did not produce expected result");
+    if (x[-4] != NULL)
+       fail("-ve (-4) index did not produce expected result");
+
     x = [struct a=1, b=2, c=[array 3, 4]];
     if ((y = copy(x)) != x)
         fail("copy of struct was not equal");

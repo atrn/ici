@@ -485,7 +485,7 @@ array *ici_array_new(ptrdiff_t n)
     a->a_bot = NULL;
     if (n == 0)
     {
-        n = 4;
+        n = 16;
     }
     if ((a->a_base = (object **)ici_nalloc(n * sizeof(object *))) == NULL)
     {
@@ -667,7 +667,12 @@ object *array_type::fetch(object *o, object *k)
     {
         return fetch_fail(o, k);
     }
-    return arrayof(o)->get(ici_intof(k)->i_value);
+    if (ici_intof(k)->i_value >= 0)
+    {
+        return arrayof(o)->get(ici_intof(k)->i_value);
+    }
+    auto idx = ici_intof(k)->i_value + arrayof(o)->len();
+    return arrayof(o)->get(idx);
 }
 
 int array_type::forall(object *o)
