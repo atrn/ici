@@ -25,7 +25,7 @@ namespace ici
  *
  * This is the global generation (version) number.
  */
-uint32_t        ici_vsver   = 1;
+uint32_t        vsver   = 1;
 
 /*
  * Hash a pointer to get the initial position in a struct has table.
@@ -95,7 +95,7 @@ ici_struct_new()
 /*
  * Invalidate the lookup lookaside of any string keyed entries in
  * this struct. This can be done for small structs as an alternative
- * to ++ici_vsver which completely invalidates all lookasides. Only
+ * to ++vsver which completely invalidates all lookasides. Only
  * call this if you know exactly what you are doing.
  */
 void
@@ -113,7 +113,7 @@ ici_invalidate_struct_lookaside(ici_struct *s)
         {
             str = ici_stringof(sl->sl_key);
             /*ici_stringof(sl->sl_key)->s_vsver = 0;*/
-            str->s_vsver = ici_vsver;
+            str->s_vsver = vsver;
             str->s_struct = s;
             str->s_slot = sl;
         }
@@ -148,7 +148,7 @@ grow_struct(ici_struct *s)
 	}
     }
     ici_nfree((char *)oldslots, (s->s_nslots / 2) * sizeof(sslot));
-    ++ici_vsver;
+    ++vsver;
     return 0;
 }
 
@@ -239,7 +239,7 @@ int struct_type::fetch_super(object *o, object *k, object **v, ici_struct *b)
             {
                 if (b != NULL && ici_isstring(k))
                 {
-                    ici_stringof(k)->s_vsver = ici_vsver;
+                    ici_stringof(k)->s_vsver = vsver;
                     ici_stringof(k)->s_struct = b;
                     ici_stringof(k)->s_slot = sl;
                     if (o->isatom())
@@ -319,7 +319,7 @@ void struct_type::free(object *o)
         ici_nfree(ici_structof(o)->s_slots, ici_structof(o)->s_nslots * sizeof(sslot));
     }
     ici_tfree(o, ici_struct);
-    ++ici_vsver;
+    ++vsver;
 }
 
 unsigned long struct_type::hash(object *o)
@@ -418,7 +418,7 @@ object *struct_type::copy(object *o)
     }
     else
     {
-        ++ici_vsver;
+        ++vsver;
     }
     return ns;
 
@@ -456,7 +456,7 @@ int struct_type::assign_super(object *o, object *k, object *v, ici_struct *b)
                     sl->sl_value = v;
                     if (b != NULL && ici_isstring(k))
                     {
-                        ici_stringof(k)->s_vsver = ici_vsver;
+                        ici_stringof(k)->s_vsver = vsver;
                         ici_stringof(k)->s_struct = b;
                         ici_stringof(k)->s_slot = sl;
                         k->clrflag(ICI_S_LOOKASIDE_IS_ATOM);
@@ -495,7 +495,7 @@ int struct_type::assign(object *o, object *k, object *v)
         &&
         ici_stringof(k)->s_struct == ici_structof(o)
         &&
-        ici_stringof(k)->s_vsver == ici_vsver
+        ici_stringof(k)->s_vsver == vsver
         &&
         !k->flag(ICI_S_LOOKASIDE_IS_ATOM)
     )
@@ -563,7 +563,7 @@ int struct_type::assign(object *o, object *k, object *v)
     sl->sl_value = v;
     if (ici_isstring(k))
     {
-        ici_stringof(k)->s_vsver = ici_vsver;
+        ici_stringof(k)->s_vsver = vsver;
         ici_stringof(k)->s_struct = ici_structof(o);
         ici_stringof(k)->s_slot = sl;
         k->clrflag(ICI_S_LOOKASIDE_IS_ATOM);
@@ -622,7 +622,7 @@ int struct_type::assign_base(object *o, object *k, object *v)
     sl->sl_value = v;
     if (LIKELY(ici_isstring(k)))
     {
-        ici_stringof(k)->s_vsver = ici_vsver;
+        ici_stringof(k)->s_vsver = vsver;
         ici_stringof(k)->s_struct = s;
         ici_stringof(k)->s_slot = sl;
         k->clrflag(ICI_S_LOOKASIDE_IS_ATOM);
@@ -672,7 +672,7 @@ object *struct_type::fetch(object *o, object *k)
         &&
         ici_stringof(k)->s_struct == ici_structof(o)
         &&
-        ici_stringof(k)->s_vsver == ici_vsver
+        ici_stringof(k)->s_vsver == vsver
     )
     {
         assert(fetch_super(o, k, &v, NULL) == 1);
@@ -698,7 +698,7 @@ object *struct_type::fetch_base(object *o, object *k)
     }
     if (ici_isstring(k))
     {
-        ici_stringof(k)->s_vsver = ici_vsver;
+        ici_stringof(k)->s_vsver = vsver;
         ici_stringof(k)->s_struct = ici_structof(o);
         ici_stringof(k)->s_slot = sl;
         if (o->isatom())

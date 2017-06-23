@@ -471,13 +471,13 @@ int handle_type::assign_base(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v)
          * Give ourselves one.
          *
          * This operation disturbs the struct-lookup lookaside mechanism.
-         * We invalidate all existing entries by incrementing ici_vsver.
+         * We invalidate all existing entries by incrementing vsver.
          */
         if ((s = ici_objwsupof(ici_struct_new())) == NULL)
             return 1;
         s->o_super = ici_objwsupof(o)->o_super;
         ici_objwsupof(o)->o_super = s;
-        ++ici_vsver;
+        ++vsver;
         o->setflag(ICI_H_HAS_PRIV_STRUCT);
     }
     return ici_assign_base(ici_objwsupof(o)->o_super, k, v);

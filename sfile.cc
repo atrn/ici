@@ -19,24 +19,22 @@ namespace ici
  * strbuf_ftype:    used for mutable string buffer objects, which can move
  *                  unexpectedly in memory.
  */
-typedef struct charbuf
+struct charbuf
 {
-    char        *cb_data;
-    char        *cb_ptr;
-    int         cb_size;
-    int         cb_eof;
-    ici_obj_t   *cb_ref;
-    int         cb_readonly;
-}
-    charbuf_t;
+    char   *cb_data;
+    char   *cb_ptr;
+    int     cb_size;
+    int     cb_eof;
+    object *cb_ref;
+    int     cb_readonly;
+};
 
 class charbuf_ftype : public ftype
 {
 public:
-    int
-    getch(void *file) override
+    int getch(void *file) override
     {
-        charbuf_t *cb = (charbuf_t *)file;
+        charbuf *cb = (charbuf *)file;
         if (cb->cb_ptr < cb->cb_data || cb->cb_ptr >= cb->cb_data + cb->cb_size)
         {
             cb->cb_eof = 1;
@@ -46,10 +44,9 @@ public:
         return *cb->cb_ptr++ & 0xFF;
     }
 
-    int
-    ungetch(int c, void *file) override
+    int ungetch(int c, void *file) override
     {
-        charbuf_t *cb = (charbuf_t *)file;
+        charbuf *cb = (charbuf *)file;
         if (c == EOF || cb->cb_ptr <= cb->cb_data || cb->cb_ptr > cb->cb_data + cb->cb_size)
             return EOF;
         *--cb->cb_ptr = c;
@@ -57,20 +54,18 @@ public:
         return c;
     }
 
-    int
-    close(void *file) override
+    int close(void *file) override
     {
-        charbuf_t *cb = (charbuf_t *)file;
+        charbuf *cb = (charbuf *)file;
         if (cb->cb_ref == NULL)
             ici_free(cb->cb_data);
-        ici_tfree(cb, charbuf_t);
+        ici_tfree(cb, charbuf);
         return 0;
     }
 
-    long
-    seek(void *file, long offset, int whence) override
+    long seek(void *file, long offset, int whence) override
     {
-        charbuf_t *cb = (charbuf_t *)file;
+        charbuf *cb = (charbuf *)file;
         switch (whence)
         {
         case 0:
@@ -88,17 +83,15 @@ public:
         return (long)(cb->cb_ptr - cb->cb_data);
     }
 
-    int
-    eof(void *file) override
+    int eof(void *file) override
     {
-        charbuf_t *cb = (charbuf_t *)file;
+        charbuf *cb = (charbuf *)file;
         return cb->cb_eof;
     }
 
-    int
-    write(const void *data, long count, void *file) override
+    int write(const void *data, long count, void *file) override
     {
-        charbuf_t *cb = (charbuf_t *)file;
+        charbuf *cb = (charbuf *)file;
         if (cb->cb_readonly || count <= 0)
             return 0;
         if (cb->cb_ptr < cb->cb_data || cb->cb_ptr >= cb->cb_data + cb->cb_size)
@@ -124,7 +117,7 @@ public:
 ftype *charbuf_ftype = ptr_to_instance_of<class charbuf_ftype>();
 
 static void
-reattach_string_buffer(charbuf_t *sb)
+reattach_string_buffer(charbuf *sb)
 {
     int     index;
 
@@ -134,7 +127,7 @@ reattach_string_buffer(charbuf_t *sb)
     sb->cb_ptr = sb->cb_data + index;
 #if ICI_KEEP_STRING_HASH
     {
-	ici_str_t *s = ici_stringof(sb->cb_ref);
+	str *s = ici_stringof(sb->cb_ref);
 	s->s_hash = 0;
 	ici_hash_string(s);
     }
@@ -144,36 +137,33 @@ reattach_string_buffer(charbuf_t *sb)
 class stringbuf_ftype : public charbuf_ftype
 {
 public:
-    int
-    getch(void *file) override
+    int getch(void *file) override
     {
-        charbuf_t *sb = (charbuf_t *)file;
+        charbuf *sb = (charbuf *)file;
         reattach_string_buffer(sb);
         return charbuf_ftype::getch(sb);
     }
 
-    int
-    ungetch(int c, void *file) override
+    int ungetch(int c, void *file) override
     {
-        charbuf_t *sb = (charbuf_t *)file;
+        charbuf *sb = (charbuf *)file;
         reattach_string_buffer(sb);
         return charbuf_ftype::ungetch(c, sb);
     }
 
     long seek(void *file, long offset, int whence) override
     {
-        charbuf_t *sb = (charbuf_t *)file;
+        charbuf *sb = (charbuf *)file;
         reattach_string_buffer(sb);
         return charbuf_ftype::seek(sb, offset, whence);
     }
 
-    int
-    write(const void *ptr, long count, void *file) override
+    int write(const void *ptr, long count, void *file) override
     {
         const char *data = (const char *)ptr;
-        charbuf_t *sb = (charbuf_t *)file;
-        ici_str_t   *s;
-        int         size;
+        charbuf *sb = (charbuf *)file;
+        str   *s;
+        int   size;
 
         if (sb->cb_readonly || count <= 0)
             return 0;
@@ -191,7 +181,6 @@ public:
         sb->cb_ptr += count;
         return count;
     }
-
 };
 
 /*
@@ -222,13 +211,12 @@ ftype *strbuf_ftype = ptr_to_instance_of<class stringbuf_ftype>();
  *
  * This --func-- forms part of the --ici-api--.
  */
-ici_file_t *
-ici_open_charbuf(char *data, int size, ici_obj_t *ref, int readonly)
+file *ici_open_charbuf(char *data, int size, object *ref, int readonly)
 {
-    ici_file_t     *f      = NULL;
-    charbuf_t      *cb;
+    file     *f      = NULL;
+    charbuf  *cb;
 
-    if ((cb = ici_talloc(charbuf_t)) == NULL)
+    if ((cb = ici_talloc(charbuf)) == NULL)
         return NULL;
     cb->cb_size = size;
     cb->cb_eof = 0;
@@ -290,7 +278,7 @@ ici_open_charbuf(char *data, int size, ici_obj_t *ref, int readonly)
         }
     }
     if (f == NULL)
-        ici_tfree(cb, charbuf_t);
+        ici_tfree(cb, charbuf);
     return f;
 }
 

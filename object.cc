@@ -60,10 +60,10 @@ ici_objname(char p[ICI_OBJNAMEZ], object *o)
         sprintf(p, "%lld", ici_intof(o)->i_value);
     else if (ici_isfloat(o))
         sprintf(p, "%g", ici_floatof(o)->f_value);
-    else if (strchr("aeiou", o->type()->name[0]) != NULL)
-        sprintf(p, "an %s", o->type()->name);
+    else if (strchr("aeiou", o->type_name()[0]) != NULL)
+        sprintf(p, "an %s", o->type_name());
     else
-        sprintf(p, "a %s", o->type()->name);
+        sprintf(p, "a %s", o->type_name());
     return p;
 }
 

@@ -75,6 +75,10 @@ struct object
         return types[(size_t)o_tcode];
     }
 
+    inline const char * type_name() const noexcept {
+        return type()->name;
+    }
+
     inline bool isatom() const noexcept {
         return (o_flags & ICI_O_ATOM) != 0;
     }

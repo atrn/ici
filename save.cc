@@ -370,7 +370,7 @@ tname(object *o)
 static int
 save_error(archive *, object *obj)
 {
-    return ici_set_error("%s: unable to save type", obj->type()->name);
+    return ici_set_error("%s: unable to save type", obj->type_name());
 }
 
 

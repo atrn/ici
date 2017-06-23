@@ -233,7 +233,7 @@ extern DLI ici_exec_t           *ici_exec;
 extern DLI ici_array_t          ici_xs;
 extern DLI ici_array_t          ici_os;
 extern DLI ici_array_t          ici_vs;
-extern DLI uint32_t             ici_vsver;
+extern DLI uint32_t             vsver;
 constexpr int                   NSUBEXP = 10;
 extern DLI int                  ici_re_bra[(NSUBEXP + 1) * 3];
 extern DLI int                  ici_re_nbra;

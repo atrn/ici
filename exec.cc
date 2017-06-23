@@ -228,7 +228,7 @@ ici_evaluate(object *code, int n_operands)
     (                                                           \
         ici_isstring(k)                                         \
         	&& ici_stringof(k)->s_struct == ici_structof(s) \
-        	&& ici_stringof(k)->s_vsver == ici_vsver        \
+        	&& ici_stringof(k)->s_vsver == vsver            \
         ? ici_stringof(k)->s_slot->sl_value                     \
         : ici_fetch(s, k)                                       \
     )
@@ -394,7 +394,7 @@ ici_evaluate(object *code, int n_operands)
             (
                 ici_stringof(o)->s_struct == ici_structof(ici_vs.a_top[-1])
                 &&
-                ici_stringof(o)->s_vsver == ici_vsver
+                ici_stringof(o)->s_vsver == vsver
             )
             {
                 /*
@@ -794,7 +794,7 @@ ici_evaluate(object *code, int n_operands)
                 (
                     ici_stringof(ici_os.a_top[-2])->s_struct == ici_structof(ici_os.a_top[-3])
                     &&
-                    ici_stringof(ici_os.a_top[-2])->s_vsver == ici_vsver
+                    ici_stringof(ici_os.a_top[-2])->s_vsver == vsver
                     &&
                     ici_isstring(ici_os.a_top[-2])
                     &&

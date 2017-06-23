@@ -72,7 +72,7 @@ ici_op_return()
     (
         SS(_func_)->s_struct == ici_vs.a_top[-1]
         &&
-        SS(_func_)->s_vsver == ici_vsver
+        SS(_func_)->s_vsver == vsver
         &&
         ici_isfunc(f = SS(_func_)->s_slot->sl_value)
     )
@@ -244,7 +244,7 @@ int func_type::call(ici_obj_t *o, ici_obj_t *subject)
         while (fp < f->f_args->a_top && n > 0)
         {
             assert(ici_isstring(*fp));
-            if (LIKELY(ici_stringof(*fp)->s_struct == d && ici_stringof(*fp)->s_vsver == ici_vsver))
+            if (LIKELY(ici_stringof(*fp)->s_struct == d && ici_stringof(*fp)->s_vsver == vsver))
             {
                 ici_stringof(*fp)->s_slot->sl_value = *ap;
             }

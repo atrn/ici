@@ -1021,7 +1021,7 @@ f_string()
     else if (ici_isregexp(o))
         return ici_ret_no_decref(ici_regexpof(o)->r_pat);
     else
-        sprintf(buf, "<%s>", o->type()->name);
+        sprintf(buf, "<%s>", o->type_name());
     return ici_str_ret(buf);
 }
 
@@ -1931,7 +1931,7 @@ ici_f_sprintf()
     }
 
 type:
-    return ici_set_error("attempt to use a %s with a \"%s\" format in sprintf", (*o)->type()->name, subfmt);
+    return ici_set_error("attempt to use a %s with a \"%s\" format in sprintf", (*o)->type_name(), subfmt);
 
 lacking:
     return ici_set_error("not enoughs args to sprintf");
@@ -2093,7 +2093,7 @@ f_super()
             newsuper = ici_objwsupof(ARG(1));
         else
             return ici_argerror(1);
-        ++ici_vsver;
+        ++vsver;
     }
     o->o_super = newsuper;
     if (super_loop(o))

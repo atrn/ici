@@ -18,7 +18,7 @@ namespace ici
 #define STR_ALLOCZ(n)   ((n) + sizeof (ici_str_t) - sizeof (int))
 // (offsetof(ici_str_t, s_u) + (n) + 1)
 
-int (ici_str_char_at)(ici_str_t *s, int index)
+int (ici_str_char_at)(str *s, int index)
 {
     return index < 0 || index >= s->s_nchars ? 0 : s->s_chars[index];
 }
@@ -28,7 +28,7 @@ int (ici_str_char_at)(ici_str_t *s, int index)
  * See the comment on t_hash() in object.h
  */
 unsigned long
-ici_hash_string(ici_obj_t *o)
+ici_hash_string(object *o)
 {
     unsigned long       h;
 
@@ -125,7 +125,7 @@ ici_str_new(const char *p, int nchars)
     az = STR_ALLOCZ(nchars);
     if ((size_t)nchars < sizeof proto.d)
     {
-        ici_obj_t       **po;
+        object       **po;
 
         proto.s.s_nchars = nchars;
         proto.s.s_chars = proto.s.s_u.su_inline_chars;
@@ -297,7 +297,7 @@ ici_str_need_size(ici_str_t *s, int n)
  * Mark this and referenced unmarked objects, return memory costs.
  * See comments on t_mark() in object.h.
  */
-size_t string_type::mark(ici_obj_t *o)
+size_t string_type::mark(object *o)
 {
     o->setmark();
     if (o->flag(ICI_S_SEP_ALLOC))
@@ -314,7 +314,7 @@ size_t string_type::mark(ici_obj_t *o)
  * Returns 0 if these objects are equal, else non-zero.
  * See the comments on t_cmp() in object.h.
  */
-int string_type::cmp(ici_obj_t *o1, ici_obj_t *o2)
+int string_type::cmp(object *o1, object *o2)
 {
     if (ici_stringof(o1)->s_nchars != ici_stringof(o2)->s_nchars)
     {
@@ -340,9 +340,9 @@ int string_type::cmp(ici_obj_t *o1, ici_obj_t *o2)
  * Return a copy of the given object, or NULL on error.
  * See the comment on t_copy() in object.h.
  */
-ici_obj_t *string_type::copy(ici_obj_t *o)
+object *string_type::copy(object *o)
 {
-    ici_str_t           *ns;
+    str *ns;
 
     if ((ns = ici_str_buf_new(ici_stringof(o)->s_nchars + 1)) == NULL)
     {
@@ -358,7 +358,7 @@ ici_obj_t *string_type::copy(ici_obj_t *o)
  * Free this object and associated memory (but not other objects).
  * See the comments on t_free() in object.h.
  */
-void string_type::free(ici_obj_t *o)
+void string_type::free(object *o)
 {
     if (o->flag(ICI_S_SEP_ALLOC))
     {
@@ -375,7 +375,7 @@ void string_type::free(ici_obj_t *o)
  * Return a hash sensitive to the value of the object.
  * See the comment on t_hash() in object.h
  */
-unsigned long string_type::hash(ici_obj_t *o)
+unsigned long string_type::hash(object *o)
 {
     return ici_hash_string(o);
 }
@@ -384,9 +384,9 @@ unsigned long string_type::hash(ici_obj_t *o)
  * Return the object at key k of the obejct o, or NULL on error.
  * See the comment on t_fetch in object.h.
  */
-ici_obj_t *string_type::fetch(ici_obj_t *o, ici_obj_t *k)
+object *string_type::fetch(object *o, object *k)
 {
-    int        i;
+    int64_t i;
 
     if (!ici_isint(k))
     {
@@ -414,11 +414,11 @@ ici_obj_t *string_type::fetch(ici_obj_t *o, ici_obj_t *k)
  * The key k must be a positive integer. The string will attempt to grow
  * to accomodate the new index as necessary.
  */
-int string_type::assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v)
+int string_type::assign(object *o, object *k, object *v)
 {
-    long        i;
-    long        n;
-    ici_str_t   *s;
+    int64_t     i;
+    int64_t     n;
+    str         *s;
 
     if (o->isatom())
     {
@@ -445,11 +445,11 @@ int string_type::assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v)
     return 0;
 }
 
-int string_type::forall(ici_obj_t *o)
+int string_type::forall(object *o)
 {
-    ici_forall_t *fa = forallof(o);
-    ici_str_t  *s;
-    ici_int_t  *i;
+    struct forall *fa = forallof(o);
+    str *s;
+    ici_int *i;
 
     s = ici_stringof(fa->fa_aggr);
     if (++fa->fa_index >= s->s_nchars)
