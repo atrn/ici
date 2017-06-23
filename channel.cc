@@ -273,7 +273,7 @@ ICI_DEFINE_CFUNCS(channel)
     ICI_DEFINE_CFUNC(get,       f_get),
     ICI_DEFINE_CFUNC(put,       f_put),
     ICI_DEFINE_CFUNC(alt,       f_alt),
-    ICI_CFUNCS_END
+    ICI_CFUNCS_END()
 };
 
 } // namespace ici

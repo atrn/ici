@@ -208,7 +208,7 @@ ICI_DEFINE_CFUNCS(save_restore)
 {
     ICI_DEFINE_CFUNC(save, f_archive_save),
     ICI_DEFINE_CFUNC(restore, f_archive_restore),
-    ICI_CFUNCS_END
+    ICI_CFUNCS_END()
 };
 
 } // namespace ici

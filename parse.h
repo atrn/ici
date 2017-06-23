@@ -11,18 +11,12 @@ namespace ici
 struct token
 {
     int         t_what;         /* See TM_* and T_* below. */
-    union
-    {
-        int64_t tu_int;
-        double  tu_float;
-        object *tu_obj;
-    }
-        tu;
+    union {
+        int64_t t_int;
+        double  t_float;
+        object *t_obj;
+    };
 };
-
-#define t_int   tu.tu_int
-#define t_float tu.tu_float
-#define t_obj   tu.tu_obj
 
 struct parse : object
 {
@@ -41,8 +35,8 @@ struct parse : object
 /*
  * The following portion of this file exports to ici.h. --ici.h-start--
  */
-inline parse *ici_parseof(object *o) { return static_cast<ici_parse_t *>(o); }
-inline parse *ici_parseof(void *f) { return reinterpret_cast<ici_parse_t *>(f); }
+inline parse *ici_parseof(object *o) { return static_cast<parse *>(o); }
+inline parse *ici_parseof(void *f) { return reinterpret_cast<parse *>(f); }
 inline bool ici_isparse(object *o) { return o->isa(ICI_TC_PARSE); }
 
 /*
@@ -53,10 +47,11 @@ inline bool ici_isparse(object *o) { return o->isa(ICI_TC_PARSE); }
  * Token numbers.  Note that the precedence and order of binary operators
  * is built into the token number; this drives the expression parser.
  */
-constexpr int TM_SUBTYPE =       0x003F;          /* 6 bits. */
-#define TM_TYPE         0x07C0          /* 5 bits. */
-#define TM_PREC         0x7800          /* 4 bits, 0 is high (tight bind).*/
-#define TM_HASOBJ       0x8000          /* Implies incref on t_obj. */
+constexpr int TM_SUBTYPE =      0x003F;          /* 6 bits. */
+constexpr int TM_TYPE =         0x07C0;          /* 5 bits. */
+constexpr int TM_PREC =         0x7800;          /* 4 bits, 0 is high (tight bind).*/
+constexpr int TM_HASOBJ =       0x8000;          /* Implies incref on t_obj. */
+
 #define t_subtype(t)    ((t) & TM_SUBTYPE)
 #define t_type(t)       ((t) & TM_TYPE)
 #define t_prec(t)       (((t) & TM_PREC) >> 11)
@@ -138,24 +133,24 @@ constexpr int TM_SUBTYPE =       0x003F;          /* 6 bits. */
 #define T_2TILDEEQ      (PREC(12)|T_BINOP|37)
 #define T_LESSEQGRT     (PREC(12)|T_BINOP|38)
 #define T_COMMA         (PREC(13)|T_BINOP|39)
-#define BINOP_MAX       39
+constexpr int BINOP_MAX = 39;
 /* Maximum values       (PREC(15)|T_BINOP|63) */
 
 /*
  * Reasons for doing things (compiling expressions generally).
  */
-#define FOR_VALUE       0
-#define FOR_LVALUE      1
-#define FOR_EFFECT      2
-#define FOR_TEMP        3
+constexpr int FOR_VALUE       = 0;
+constexpr int FOR_LVALUE      = 1;
+constexpr int FOR_EFFECT      = 2;
+constexpr int FOR_TEMP        = 3;
 
 /*
  * Flags modifying the behaviour of the colon operator. These are stored
  * in the op_code field of a OP_COLON operators by the compiler and noticed
  * by the execution loop.
  */
-#define OPC_COLON_CARET     0x0001  /* It's a :^ not a : */
-#define OPC_COLON_CALL      0x0002  /* Don't form a method, just call it. */
+constexpr int OPC_COLON_CARET     = 0x0001;  /* It's a :^ not a : */
+constexpr int OPC_COLON_CALL      = 0x0002;  /* Don't form a method, just call it. */
 
 /*
  * Expression tree.  This is what the parseing functions build and

@@ -231,7 +231,7 @@ int func_type::call(ici_obj_t *o, ici_obj_t *subject)
         }
     }
     n = NARGS(); /* Number of actual args. */
-    ap = ICI_ARGS();
+    ap = ARGS();
     if (LIKELY(f->f_args != NULL))
     {
         /*

@@ -198,19 +198,19 @@ f_build(...)
     struct context      c;
 
     memset(&c, 0, sizeof c);
-    dstart = &ICI_ARG(0);
-    c.c_dlimit = &ICI_ARG(NARGS()); /* Assume for the moment. */
+    dstart = &ARG(0);
+    c.c_dlimit = &ARG(NARGS()); /* Assume for the moment. */
     c.c_dstep = -1;
     for (i = 0; i < NARGS(); ++i)
     {
-        if (ici_isstring(ICI_ARG(i)))
+        if (ici_isstring(ARG(i)))
         {
-            c.c_dlimit = &ICI_ARG(i); /* Revise. */
-            c.c_option = ici_str_char_at(ici_stringof(ICI_ARG(i)), 0);
+            c.c_dlimit = &ARG(i); /* Revise. */
+            c.c_option = ici_str_char_at(ici_stringof(ARG(i)), 0);
             if (++i < NARGS())
             {
-                c.c_cstart = &ICI_ARG(i);
-                c.c_climit = &ICI_ARG(NARGS());
+                c.c_cstart = &ARG(i);
+                c.c_climit = &ARG(NARGS());
                 c.c_cstep = -1;
             }
             break;
@@ -262,7 +262,7 @@ f_build(...)
 ICI_DEFINE_CFUNCS(apl)
 {
     ICI_DEFINE_CFUNC(build, f_build),
-    ICI_CFUNCS_END
+    ICI_CFUNCS_END()
 };
 
 } // namespace ici

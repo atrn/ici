@@ -403,11 +403,11 @@ static int ici_sys_close()
 
     if (NARGS() != 1)
         return ici_argcount(1);
-    if (ici_isint(ICI_ARG(0)))
-        rc = close(ici_intof(ICI_ARG(0))->i_value);
-    else if (isarray(ICI_ARG(0)))
+    if (ici_isint(ARG(0)))
+        rc = close(ici_intof(ARG(0))->i_value);
+    else if (isarray(ARG(0)))
     {
-        ici_array_t *a = arrayof(ICI_ARG(0));
+        ici_array_t *a = arrayof(ARG(0));
 
         if
         (
@@ -847,7 +847,7 @@ static int ici_sys_stat()
 
     if (NARGS() != 1)
         return ici_argcount(1);
-    o = ICI_ARG(0);
+    o = ARG(0);
     if (ici_isint(o))
         rc = fstat(ici_intof(o)->i_value, &statb);
     else if (ici_isstring(o))
@@ -915,7 +915,7 @@ static int ici_sys_lstat()
 
     if (NARGS() != 1)
         return ici_argcount(1);
-    o = ICI_ARG(0);
+    o = ARG(0);
     if (ici_isstring(o))
         rc = lstat(ici_stringof(o)->s_chars, &statb);
     else
@@ -1403,7 +1403,7 @@ static int ici_sys_exec()
 
     if ((n = NARGS()) < 2)
         return ici_argcount(2);
-    if (!ici_isstring(*(o = ICI_ARGS())))
+    if (!ici_isstring(*(o = ARGS())))
         return ici_argerror(0);
     path = ici_stringof(*o)->s_chars;
     --o;
@@ -1502,7 +1502,7 @@ static int ici_sys_spawn()
 
     if ((n = NARGS()) < 2)
         return ici_argcount(2);
-    o = ICI_ARGS();
+    o = ARGS();
     if (ici_isint(*o))
     {
         mode = ici_intof(*o)->i_value;
@@ -1676,10 +1676,10 @@ static int ici_sys_passwd()
         break;
 
     case 1:
-        if (ici_isint(ICI_ARG(0)))
-            pwent = getpwuid((uid_t)ici_intof(ICI_ARG(0))->i_value);
-        else if (ici_isstring(ICI_ARG(0)))
-            pwent = getpwnam(ici_stringof(ICI_ARG(0))->s_chars);
+        if (ici_isint(ARG(0)))
+            pwent = getpwuid((uid_t)ici_intof(ARG(0))->i_value);
+        else if (ici_isstring(ARG(0)))
+            pwent = getpwnam(ici_stringof(ARG(0))->s_chars);
         else
             return ici_argerror(0);
         if (pwent == NULL)
@@ -2429,7 +2429,7 @@ ICI_DEFINE_CFUNCS(sys)
     ICI_DEFINE_CFUNC2(ulimit,  ici_sys_simple, ulimit, "ii"),
 #endif
 #endif
-    ICI_CFUNCS_END
+    ICI_CFUNCS_END()
 };
 
 } // namespace ici

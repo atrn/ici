@@ -146,7 +146,7 @@ enum
  *                      future.
  *
  * idbg_fncall()        Called with the object being called, the pointer to
- *                      the first actual argument (see 'ICI_ARGS()' and the number
+ *                      the first actual argument (see 'ARGS()' and the number
  *                      of actual arguments just before control is transfered
  *                      to a callable object (function, method or anything
  *                      else).

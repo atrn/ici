@@ -664,7 +664,7 @@ ici_evaluate(object *code, int n_operands)
                 }
                 if (UNLIKELY(ici_debug_active))
 		{
-                    debugfunc->idbg_fncall(ici_os.a_top[-1], ICI_ARGS(), NARGS());
+                    debugfunc->idbg_fncall(ici_os.a_top[-1], ARGS(), NARGS());
 		}
                 if (ici_typeof(ici_os.a_top[-1])->call(ici_os.a_top[-1], o))
                 {

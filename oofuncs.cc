@@ -108,9 +108,9 @@ m_unknown_method(ici_obj_t *o)
 
     if (ici_method_check(o, 0))
 	return 1;
-    if (NARGS() > 0 && ici_isstring(ICI_ARG(0)))
+    if (NARGS() > 0 && ici_isstring(ARG(0)))
     {
-        ici_str_t *name = ici_stringof(ICI_ARG(0));
+        ici_str_t *name = ici_stringof(ARG(0));
         return ici_set_error("attempt to call unknown method \"%s\"", name->s_chars);
     }
     return ici_set_error("attempt to call unknown method");
@@ -122,7 +122,7 @@ ICI_DEFINE_CFUNCS(oo)
     ICI_DEFINE_METHOD(isa,              m_isa),
     ICI_DEFINE_METHOD(respondsto,       m_respondsto),
     ICI_DEFINE_METHOD(unknown_method,   m_unknown_method),
-    ICI_CFUNCS_END
+    ICI_CFUNCS_END()
 };
 
 } // namespace ici

@@ -73,10 +73,10 @@ f_debug(...)
     return ici_int_ret(t);
 }
 
-ici_cfunc_t ici_debug_cfuncs[] =
+ICI_DEFINE_CFUNCS(debug)
 {
     ICI_DEFINE_CFUNC(    debug,        f_debug),
-    ICI_CFUNCS_END
+    ICI_CFUNCS_END()
 };
 
 } // namespace ici

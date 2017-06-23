@@ -350,10 +350,10 @@ f_signal(...)
     switch (NARGS())
     {
     case 2:
-        handlero = ICI_ARG(1);
+        handlero = ARG(1);
         /*FALLTHROUGH*/
     case 1:
-        sigo = ICI_ARG(0);
+        sigo = ARG(0);
         break;
     default:
         return ici_argcount(2);
@@ -472,7 +472,7 @@ ICI_DEFINE_CFUNCS(signals)
 {
     ICI_DEFINE_CFUNC(signal,   f_signal),
     ICI_DEFINE_CFUNC(signam,   f_signam),
-    ICI_CFUNCS_END
+    ICI_CFUNCS_END()
 };
 
 } // namespace ici

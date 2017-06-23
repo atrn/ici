@@ -48,10 +48,10 @@ f_eventloop()
 
 #endif /* _WIN32 */
 
-ici_cfunc_t ici_event_cfuncs[] =
+ICI_DEFINE_CFUNCS(event)
 {
     ICI_DEFINE_CFUNC(eventloop, f_eventloop),
-    ICI_CFUNCS_END
+    ICI_CFUNCS_END()
 };
 
 } // namespace ici

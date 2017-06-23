@@ -2861,7 +2861,7 @@ ICI_DEFINE_CFUNCS(parse)
     ICI_DEFINE_CFUNC(tokenobj,     f_tokenobj),
     ICI_DEFINE_CFUNC(rejecttoken,  f_rejecttoken),
     ICI_DEFINE_CFUNC(rejectchar,   f_rejectchar),
-    ICI_CFUNCS_END
-    };
+    ICI_CFUNCS_END()
+};
 
 } // namespace ici

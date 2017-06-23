@@ -26,12 +26,12 @@ f_regexp(...)
     switch (NARGS())
     {
     case 2:
-        if (!ici_isint(ICI_ARG(1)))
+        if (!ici_isint(ARG(1)))
             return ici_argerror(1);
-        opts = ici_intof(ICI_ARG(1))->i_value;
+        opts = ici_intof(ARG(1))->i_value;
         /* FALLTHROUGH */
     case 1:
-        if (!ici_isstring(ICI_ARG(0)))
+        if (!ici_isstring(ARG(0)))
             return ici_argerror(0);
         break;
     default:
@@ -39,7 +39,7 @@ f_regexp(...)
     }
     if (ICI_CF_ARG2() != NULL)
         opts |= PCRE_CASELESS;
-    return ici_ret_with_decref(ici_regexp_new(ici_stringof(ICI_ARG(0)), opts));
+    return ici_ret_with_decref(ici_regexp_new(ici_stringof(ARG(0)), opts));
 }
 
 /*
@@ -453,21 +453,21 @@ f_gsub(...)
     a = NULL;
     if (NARGS() < 3)
         return ici_argcount(3);
-    if (!ici_isstring(ICI_ARG(0)))
+    if (!ici_isstring(ARG(0)))
         return ici_argerror(0);
-    str = ici_stringof(ICI_ARG(0));
-    if (!ici_isstring(ICI_ARG(2)))
+    str = ici_stringof(ARG(0));
+    if (!ici_isstring(ARG(2)))
         return ici_argerror(2);
-    repl = ici_stringof(ICI_ARG(2));
-    if (!ici_isregexp(ICI_ARG(1)))
+    repl = ici_stringof(ARG(2));
+    if (!ici_isregexp(ARG(1)))
     {
-        if (!ici_isstring(ICI_ARG(1)))
+        if (!ici_isstring(ARG(1)))
             return ici_argerror(1);
-        if ((re = ici_regexp_new(ici_stringof(ICI_ARG(1)), 0)) == NULL)
+        if ((re = ici_regexp_new(ici_stringof(ARG(1)), 0)) == NULL)
             return 1;
     }
     else
-        re = ici_regexpof(ICI_ARG(1));
+        re = ici_regexpof(ARG(1));
 
     repls[0] = repl;
     repls[1] = SS(slosh0);
@@ -485,14 +485,14 @@ f_gsub(...)
     if ((ns = ici_stringof(ici_atom(ns, 1))) == NULL)
         goto fail;
     a->decref();
-    if (!ici_isregexp(ICI_ARG(1)))
+    if (!ici_isregexp(ARG(1)))
         re->decref();
     return ici_ret_with_decref(ns);
 
 fail:
     if (a != NULL)
         a->decref();
-    if (!ici_isregexp(ICI_ARG(1)))
+    if (!ici_isregexp(ARG(1)))
         re->decref();
     return 1;
 }
@@ -576,21 +576,21 @@ f_smash(...)
     if (NARGS() < 1)
         return ici_argcount(1);
 
-    if (NARGS() == 2 && ici_isstring(ICI_ARG(1)))
+    if (NARGS() == 2 && ici_isstring(ARG(1)))
         return f_old_smash();
 
     nargs = NARGS();
     include_remainder = 0;
-    if (ici_isint(ICI_ARG(nargs - 1)))
+    if (ici_isint(ARG(nargs - 1)))
     {
-        include_remainder = ici_intof(ICI_ARG(NARGS() - 1))->i_value != 0;
+        include_remainder = ici_intof(ARG(NARGS() - 1))->i_value != 0;
         if (--nargs == 0)
             return ici_argerror(0);
     }
 
-    if (!ici_isstring(ICI_ARG(0)))
+    if (!ici_isstring(ARG(0)))
         return ici_argerror(0);
-    str = ici_stringof(ICI_ARG(0));
+    str = ici_stringof(ARG(0));
 
     if (nargs < 2)
     {
@@ -603,9 +603,9 @@ f_smash(...)
     }
     else
     {
-        if (!ici_isregexp(ICI_ARG(1)))
+        if (!ici_isregexp(ARG(1)))
             return ici_argerror(1);
-        re = ici_regexpof(ICI_ARG(1));
+        re = ici_regexpof(ARG(1));
     }
 
     if (nargs < 3)
@@ -617,7 +617,7 @@ f_smash(...)
     else
     {
         n_repls = nargs - 2;
-        repls = (ici_str_t **)(ICI_ARGS() - 2);
+        repls = (ici_str_t **)(ARGS() - 2);
         for (i = 0; i < n_repls; ++i)
         {
             if (!ici_isstring(repls[-i]))
@@ -636,7 +636,7 @@ ICI_DEFINE_CFUNCS(re)
     ICI_DEFINE_CFUNC(sub,          f_sub),
     ICI_DEFINE_CFUNC(gsub,         f_gsub),
     ICI_DEFINE_CFUNC(smash,        f_smash),
-    ICI_CFUNCS_END
+    ICI_CFUNCS_END()
 };
 
 } // namespace ici

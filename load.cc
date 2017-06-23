@@ -434,10 +434,10 @@ ici_init_path(ici_objwsup_t *externs)
     return 0;
 }
 
-ici_cfunc_t ici_load_cfuncs[] =
+ICI_DEFINE_CFUNCS(load)
 {
     ICI_DEFINE_CFUNC(load, f_load),
-    ICI_CFUNCS_END
+    ICI_CFUNCS_END()
 };
 
 } // namespace ici

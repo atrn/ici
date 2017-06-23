@@ -154,7 +154,7 @@ int typecheck(const char *types, ...)
 
     va_start(va, types);
     nargs = NARGS();
-    ap = ICI_ARGS();
+    ap = ARGS();
     for (i = 0; types[i] != '\0'; ++i, --ap)
     {
         if (types[i] == '*')
@@ -310,7 +310,7 @@ int retcheck(const char *types, ...)
 
     va_start(va, types);
     nargs = NARGS();
-    ap = ICI_ARGS();
+    ap = ARGS();
     for (i = 0; types[i] != '\0'; ++i, --ap)
     {
         if ((tcode = types[i]) == '*')
@@ -434,7 +434,7 @@ fail:
  *
  *      if (NARGS() != 1)
  *          return ici_argcount(1);
- *      if (!ici_ismem(ICI_ARG(0)))
+ *      if (!ici_ismem(ARG(0)))
  *          return ici_argerror(0);
  *      . . .
  *
@@ -449,7 +449,7 @@ ici_argerror(int i)
     return ici_set_error("argument %d of %s incorrectly supplied as %s",
         i + 1,
         ici_objname(n1, ici_os.a_top[-1]),
-        ici_objname(n2, ICI_ARG(i)));
+        ici_objname(n2, ARG(i)));
 }
 
 /*
@@ -478,7 +478,7 @@ ici_argerror(int i)
  *
  *          if (NARGS() != 1)
  *              return ici_argcount(1);
- *          o = ICI_ARG(0);
+ *          o = ARG(0);
  *          . . .
  *
  * This function forms part of ICI's exernal API --ici-api-- --func--
@@ -768,7 +768,7 @@ f_array(...)
     nargs = NARGS();
     if ((a = ici_array_new(nargs)) == NULL)
         return 1;
-    for (o = ICI_ARGS(); nargs > 0; --nargs)
+    for (o = ARGS(); nargs > 0; --nargs)
         *a->a_top++ = *o--;
     return ici_ret_with_decref(a);
 }
@@ -782,7 +782,7 @@ f_struct()
     ici_objwsup_t       *super;
 
     nargs = NARGS();
-    o = ICI_ARGS();
+    o = ARGS();
     super = NULL;
     if (nargs & 1)
     {
@@ -817,7 +817,7 @@ f_set()
 
     if ((s = ici_set_new()) == NULL)
         return 1;
-    for (nargs = NARGS(), o = ICI_ARGS(); nargs > 0; --nargs, --o)
+    for (nargs = NARGS(), o = ARGS(); nargs > 0; --nargs, --o)
     {
         if (ici_assign(s, *o, ici_one))
         {
@@ -835,9 +835,9 @@ f_keys()
 
     if (NARGS() != 1)
         return ici_argcount(1);
-    if (ici_isstruct(ICI_ARG(0)))
+    if (ici_isstruct(ARG(0)))
     {
-        ici_struct_t *s = ici_structof(ICI_ARG(0));
+        ici_struct_t *s = ici_structof(ARG(0));
         ici_sslot_t *sl;
 
         if ((k = ici_array_new(s->s_nels)) == NULL)
@@ -848,9 +848,9 @@ f_keys()
                 *k->a_top++ = sl->sl_key;
         }
     }
-    else if (ici_isset(ICI_ARG(0)))
+    else if (ici_isset(ARG(0)))
     {
-        set *s = ici_setof(ICI_ARG(0));
+        set *s = ici_setof(ARG(0));
         int i;
 
         if ((k = ici_array_new(s->s_nels)) == NULL)
@@ -877,7 +877,7 @@ f_copy(object *o)
         return ici_ret_with_decref(ici_copy(o));
     if (NARGS() != 1)
         return ici_argcount(1);
-    return ici_ret_with_decref(ici_copy(ICI_ARG(0)));
+    return ici_ret_with_decref(ici_copy(ARG(0)));
 }
 
 static int
@@ -885,9 +885,9 @@ f_typeof()
 {
     if (NARGS() != 1)
         return ici_argcount(1);
-    if (ici_ishandle(ICI_ARG(0)))
-        return ici_ret_no_decref(ici_handleof(ICI_ARG(0))->h_name);
-    return ici_ret_no_decref(ici_typeof(ICI_ARG(0))->ici_name());
+    if (ici_ishandle(ARG(0)))
+        return ici_ret_no_decref(ici_handleof(ARG(0))->h_name);
+    return ici_ret_no_decref(ici_typeof(ARG(0))->ici_name());
 }
 
 static int
@@ -898,7 +898,7 @@ f_nels()
 
     if (NARGS() != 1)
         return ici_argcount(1);
-    o = ICI_ARG(0);
+    o = ARG(0);
     if (ici_isstring(o))
         size = ici_stringof(o)->s_nchars;
     else if (isarray(o))
@@ -924,7 +924,7 @@ f_int()
 
     if (NARGS() < 1)
         return ici_argcount(1);
-    o = ICI_ARG(0);
+    o = ARG(0);
     if (ici_isint(o))
         return ici_ret_no_decref(o);
     else if (ici_isstring(o))
@@ -933,9 +933,9 @@ f_int()
 
         if (NARGS() > 1)
         {
-            if (!ici_isint(ICI_ARG(1)))
+            if (!ici_isint(ARG(1)))
                 return ici_argerror(1);
-            base = ici_intof(ICI_ARG(1))->i_value;
+            base = ici_intof(ARG(1))->i_value;
             if (base != 0 && (base < 2 || base > 36))
                 return ici_argerror(1);
         }
@@ -956,7 +956,7 @@ f_float()
 
     if (NARGS() != 1)
         return ici_argcount(1);
-    o = ICI_ARG(0);
+    o = ARG(0);
     if (ici_isfloat(o))
         return ici_ret_no_decref(o);
     else if (ici_isstring(o))
@@ -979,7 +979,7 @@ f_num()
 
     if (NARGS() != 1)
         return ici_argcount(1);
-    o = ICI_ARG(0);
+    o = ARG(0);
     if (ici_isfloat(o) || ici_isint(o))
         return ici_ret_no_decref(o);
     else if (ici_isstring(o))
@@ -988,9 +988,9 @@ f_num()
 
         if (NARGS() > 1)
         {
-            if (!ici_isint(ICI_ARG(1)))
+            if (!ici_isint(ARG(1)))
                 return ici_argerror(1);
-            base = ici_intof(ICI_ARG(1))->i_value;
+            base = ici_intof(ARG(1))->i_value;
             if (base != 0 && (base < 2 || base > 36))
                 return ici_argerror(1);
         }
@@ -1011,7 +1011,7 @@ f_string()
 
     if (NARGS() != 1)
         return ici_argcount(1);
-    o = ICI_ARG(0);
+    o = ARG(0);
     if (ici_isstring(o))
         return ici_ret_no_decref(o);
     if (ici_isint(o))
@@ -1245,7 +1245,7 @@ f_call()
     if (NARGS() < 2)
         return ici_argcount(2);
     nargso = NULL;
-    base = &ICI_ARG(NARGS() - 1);
+    base = &ARG(NARGS() - 1);
     if (isarray(*base))
         aa = arrayof(*base);
     else if (ici_isnull(*base))
@@ -1257,7 +1257,7 @@ f_call()
     else
         naargs = aa->len();
     nargs = naargs + NARGS() - 2;
-    func = ICI_ARG(0);
+    func = ARG(0);
     func->incref();
     /*
      * On the operand stack, we have...
@@ -1278,7 +1278,7 @@ f_call()
      */
     if (ici_os.stk_push_chk(naargs + 80))
         goto fail;
-    base = &ICI_ARG(NARGS() - 1);
+    base = &ARG(NARGS() - 1);
     if (aa != NULL)
         aa = arrayof(*base);
     if ((nargso = ici_int_new(nargs)) == NULL)
@@ -1380,9 +1380,9 @@ f_vstack()
     if (NARGS() == 0)
         return ici_ret_with_decref(ici_copy(&ici_vs));
 
-    if (!ici_isint(ICI_ARG(0)))
+    if (!ici_isint(ARG(0)))
         return ici_argerror(0);
-    depth = ici_intof(ICI_ARG(0))->i_value;
+    depth = ici_intof(ARG(0))->i_value;
     if (depth < 0)
         return ici_argerror(0);
     if (depth >= ici_vs.a_top - ici_vs.a_bot)
@@ -1463,9 +1463,9 @@ f_interval()
     length = nel;
     if (NARGS() > 2)
     {
-        if (!ici_isint(ICI_ARG(2)))
+        if (!ici_isint(ARG(2)))
             return ici_argerror(2);
-        if ((length = ici_intof(ICI_ARG(2))->i_value) < 0)
+        if ((length = ici_intof(ARG(2))->i_value) < 0)
             ici_argerror(2);
     }
 
@@ -1511,7 +1511,7 @@ f_explode()
 
     if (typecheck("s", &s))
         return 1;
-    i = ici_stringof(ICI_ARG(0))->s_nchars;
+    i = ici_stringof(ARG(0))->s_nchars;
     if ((x = ici_array_new(i)) == NULL)
         return 1;
     while (--i >= 0)
@@ -1594,7 +1594,7 @@ f_sopen()
         }
         readonly = 0;
     }
-    if ((f = ici_open_charbuf(str, ici_stringof(ICI_ARG(0))->s_nchars, ICI_ARG(0), readonly)) == NULL)
+    if ((f = ici_open_charbuf(str, ici_stringof(ARG(0))->s_nchars, ARG(0), readonly)) == NULL)
         return 1;
     f->f_name = SS(empty_string);
     return ici_ret_with_decref(f);
@@ -1657,19 +1657,19 @@ ici_f_sprintf()
 #endif
 
     which = (long)ICI_CF_ARG1(); /* sprintf, printf, fprintf */
-    if (which != 0 && NARGS() > 0 && ici_isfile(ICI_ARG(0)))
+    if (which != 0 && NARGS() > 0 && ici_isfile(ARG(0)))
     {
         which = 2;
         if (typecheck("us*", &file, &fmt))
             return 1;
-        o = ICI_ARGS() - 2;
+        o = ARGS() - 2;
         nargs = NARGS() - 2;
     }
     else
     {
         if (typecheck("s*", &fmt))
             return 1;
-        o = ICI_ARGS() - 1;
+        o = ARGS() - 1;
         nargs = NARGS() - 1;
     }
 
@@ -1945,7 +1945,7 @@ f_currentfile()
     int         raw;
     file  *f;
 
-    raw = NARGS() > 0 && ICI_ARG(0) == SS(raw);
+    raw = NARGS() > 0 && ARG(0) == SS(raw);
     for (o = ici_xs.a_top - 1; o >= ici_xs.a_base; --o)
     {
         if (ici_isparse(*o))
@@ -2088,10 +2088,10 @@ f_super()
         {
             return ici_set_error("attempt to set super of an atomic struct");
         }
-        if (ici_isnull(ICI_ARG(1)))
+        if (ici_isnull(ARG(1)))
             newsuper = NULL;
-        else if (ici_hassuper(ICI_ARG(1)))
-            newsuper = ici_objwsupof(ICI_ARG(1));
+        else if (ici_hassuper(ARG(1)))
+            newsuper = ici_objwsupof(ARG(1));
         else
             return ici_argerror(1);
         ++ici_vsver;
@@ -2148,10 +2148,10 @@ f_alloc()
     {
         if
         (
-            !ici_isint(ICI_ARG(1))
+            !ici_isint(ARG(1))
             ||
             (
-                (accessz = (int)ici_intof(ICI_ARG(1))->i_value) != 1
+                (accessz = (int)ici_intof(ARG(1))->i_value) != 1
                 &&
                 accessz != 2
                 &&
@@ -2182,10 +2182,10 @@ f_mem()
     {
         if
         (
-            !ici_isint(ICI_ARG(2))
+            !ici_isint(ARG(2))
             ||
             (
-                (accessz = (int)ici_intof(ICI_ARG(2))->i_value) != 1
+                (accessz = (int)ici_intof(ARG(2))->i_value) != 1
                 &&
                 accessz != 2
                 &&
@@ -2269,7 +2269,7 @@ f_waitfor()
     nfds = 0;
     FD_ZERO(&readfds);
     to = 0.0; /* Stops warnings, not required. */
-    for (nargs = NARGS(), e = ICI_ARGS(); nargs > 0; --nargs, --e)
+    for (nargs = NARGS(), e = ARGS(); nargs > 0; --nargs, --e)
     {
         if (ici_isfile(*e))
         {
@@ -2301,7 +2301,7 @@ f_waitfor()
             }
         }
         else
-            return ici_argerror(ICI_ARGS() - e);
+            return ici_argerror(ARGS() - e);
     }
     if (tv != NULL)
     {
@@ -2320,7 +2320,7 @@ f_waitfor()
         return ici_ret_no_decref(ici_zero);
     }
     ici_signals_blocking_syscall(0);
-    for (nargs = NARGS(), e = ICI_ARGS(); nargs > 0; --nargs, --e)
+    for (nargs = NARGS(), e = ARGS(); nargs > 0; --nargs, --e)
     {
         if (!ici_isfile(*e))
             continue;
@@ -2558,24 +2558,24 @@ f_gettokens()
         }
         if (NARGS() > 2)
         {
-            if (!ici_isstring(ICI_ARG(2)))
+            if (!ici_isstring(ARG(2)))
             {
                 if (loose_it)
                     f->decref();
                 return ici_argerror(2);
             }
-            terms = (unsigned char *)ici_stringof(ICI_ARG(2))->s_chars;
-            nterms = ici_stringof(ICI_ARG(2))->s_nchars;
+            terms = (unsigned char *)ici_stringof(ARG(2))->s_chars;
+            nterms = ici_stringof(ARG(2))->s_nchars;
             if (NARGS() > 3)
             {
-                if (!ici_isstring(ICI_ARG(3)))
+                if (!ici_isstring(ARG(3)))
                 {
                     if (loose_it)
                         f->decref();
                     return ici_argerror(3);
                 }
-                delims = (unsigned char *)ici_stringof(ICI_ARG(3))->s_chars;
-                ndelims = ici_stringof(ICI_ARG(3))->s_nchars;
+                delims = (unsigned char *)ici_stringof(ARG(3))->s_chars;
+                ndelims = ici_stringof(ARG(3))->s_nchars;
             }
         }
         break;
@@ -2908,17 +2908,17 @@ f_reclaim()
 static int
 f_abs()
 {
-    if (ici_isint(ICI_ARG(0)))
+    if (ici_isint(ARG(0)))
     {
-        if (ici_intof(ICI_ARG(0))->i_value >= 0)
-            return ici_ret_no_decref(ICI_ARG(0));
-        return ici_int_ret(-ici_intof(ICI_ARG(0))->i_value);
+        if (ici_intof(ARG(0))->i_value >= 0)
+            return ici_ret_no_decref(ARG(0));
+        return ici_int_ret(-ici_intof(ARG(0))->i_value);
     }
-    else if (ici_isfloat(ICI_ARG(0)))
+    else if (ici_isfloat(ARG(0)))
     {
-        if (ici_floatof(ICI_ARG(0))->f_value >= 0)
-            return ici_ret_no_decref(ICI_ARG(0));
-        return ici_float_ret(-ici_floatof(ICI_ARG(0))->f_value);
+        if (ici_floatof(ARG(0))->f_value >= 0)
+            return ici_ret_no_decref(ARG(0));
+        return ici_float_ret(-ici_floatof(ARG(0))->f_value);
     }
     return ici_argerror(0);
 }
@@ -2958,7 +2958,7 @@ f_calendar()
         get_epoch_time();
     if (NARGS() != 1)
         return ici_argcount(1);
-    if (ici_isfloat(ICI_ARG(0)))
+    if (ici_isfloat(ARG(0)))
     {
         time_t          t;
         struct tm       *tm;
@@ -2972,7 +2972,7 @@ f_calendar()
          * say seconds, with a time_t. But we all know that time_t is
          * really in seconds. So I'll just assume that.
          */
-        t = epoch_time + (time_t)ici_floatof(ICI_ARG(0))->f_value;
+        t = epoch_time + (time_t)ici_floatof(ARG(0))->f_value;
         tm = localtime(&t);
         if ((s = ici_objwsupof(ici_struct_new())) == NULL)
             return 1;
@@ -3000,13 +3000,13 @@ f_calendar()
         }
         return ici_ret_with_decref(s);
     }
-    else if (ici_isstruct(ICI_ARG(0)))
+    else if (ici_isstruct(ARG(0)))
     {
         time_t          t;
         struct tm       tm;
 
         memset(&tm, 0, sizeof tm);
-        s = ici_objwsupof(ICI_ARG(0));
+        s = ici_objwsupof(ARG(0));
         if (ici_fetch_num(s, SS(second), &d))
             return 1;
         tm.tm_sec = (int)d;
@@ -3115,8 +3115,8 @@ f_cputime()
 # endif
 #endif
     t -= base;
-    if (NARGS() > 0 && ici_isfloat(ICI_ARG(0)))
-        base = ici_floatof(ICI_ARG(0))->f_value + t;
+    if (NARGS() > 0 && ici_isfloat(ARG(0)))
+        base = ici_floatof(ARG(0))->f_value + t;
     return ici_float_ret(t);
 }
 
@@ -3147,9 +3147,9 @@ f_strbuf()
     n = 10;
     if (NARGS() > 0)
     {
-        if (!ici_isstring(ICI_ARG(0)))
+        if (!ici_isstring(ARG(0)))
             return ici_argerror(0);
-        is = ici_stringof(ICI_ARG(0));
+        is = ici_stringof(ARG(0));
         n = is->s_nchars;
     }
     if ((s = ici_str_buf_new(n)) == NULL)
@@ -3178,13 +3178,13 @@ f_strcat()
 
     if (NARGS() < 2)
         return ici_argcount(2);
-    if (!ici_isstring(ICI_ARG(0)))
+    if (!ici_isstring(ARG(0)))
         return ici_argerror(0);
-    s1 = ici_stringof(ICI_ARG(0));
-    if (ici_isint(ICI_ARG(1)))
+    s1 = ici_stringof(ARG(0));
+    if (ici_isint(ARG(1)))
     {
         si = 2;
-        sz = ici_intof(ICI_ARG(1))->i_value;
+        sz = ici_intof(ARG(1))->i_value;
         if (sz < 0 || sz > s1->s_nchars)
             return ici_argerror(1);
     }
@@ -3196,7 +3196,7 @@ f_strcat()
     n = NARGS();
     for (i = si, z = sz; i < n; ++i)
     {
-        s2 = ici_stringof(ICI_ARG(i));
+        s2 = ici_stringof(ARG(i));
         if (!ici_isstring(s2))
             return ici_argerror(i);
         z += s2->s_nchars;
@@ -3205,7 +3205,7 @@ f_strcat()
         return 1;
     for (i = si, z = sz; i < n; ++i)
     {
-        s2 = ici_stringof(ICI_ARG(i));
+        s2 = ici_stringof(ARG(i));
         memcpy(&s1->s_chars[z], s2->s_chars, s2->s_nchars);
         z += s2->s_nchars;
     }
@@ -3420,14 +3420,14 @@ f_getfile()
     str = NULL; /* Pessimistic. */
     if (NARGS() != 0)
     {
-        if (ici_isstring(ICI_ARG(0)))
+        if (ici_isstring(ARG(0)))
         {
-            if (ici_call(SS(fopen), "o=o", &f, ICI_ARG(0)))
+            if (ici_call(SS(fopen), "o=o", &f, ARG(0)))
                 goto finish;
             must_close = 1;
         }
         else
-            f = ici_fileof(ICI_ARG(0));
+            f = ici_fileof(ARG(0));
         if (!ici_isfile(f))
         {
             char    n1[ICI_OBJNAMEZ];
@@ -3577,7 +3577,7 @@ f_fopen()
         return ici_get_last_errno("open", name);
     }
     ici_enter(x);
-    if ((f = ici_file_new((char *)stream, stdio_ftype, ici_stringof(ICI_ARG(0)), NULL)) == NULL)
+    if ((f = ici_file_new((char *)stream, stdio_ftype, ici_stringof(ARG(0)), NULL)) == NULL)
     {
         fclose(stream);
         return 1;
@@ -3636,7 +3636,7 @@ f_popen()
         return ici_get_last_errno("popen", name);
     }
     ici_enter(x);
-    if ((f = ici_file_new((char *)stream, popen_ftype, ici_stringof(ICI_ARG(0)), NULL)) == NULL)
+    if ((f = ici_file_new((char *)stream, popen_ftype, ici_stringof(ARG(0)), NULL)) == NULL)
     {
         pclose(stream);
         return 1;
@@ -3811,7 +3811,7 @@ f_dir()
         break;
 
     case 1:
-        o = ICI_ARG(0);
+        o = ARG(0);
         if (ici_isstring(o))
             path = ici_stringof(o)->s_chars;
         else if (ici_isnull(o))
@@ -3823,7 +3823,7 @@ f_dir()
         break;
 
     case 2:
-        o = ICI_ARG(0);
+        o = ARG(0);
         if (ici_isstring(o))
             path = ici_stringof(o)->s_chars;
         else if (ici_isnull(o))
@@ -3832,7 +3832,7 @@ f_dir()
             regexp = ici_regexpof(o);
         else
             return ici_argerror(0);
-        o = ICI_ARG(1);
+        o = ARG(1);
         if (ici_isregexp(o))
         {
             if (regexp != NULL)
@@ -3846,18 +3846,18 @@ f_dir()
         break;
 
     case 3:
-        o = ICI_ARG(0);
+        o = ARG(0);
         if (ici_isstring(o))
             path = ici_stringof(o)->s_chars;
         else if (ici_isnull(o))
             ;   /* leave path as is */
         else
             return ici_argerror(0);
-        o = ICI_ARG(1);
+        o = ARG(1);
         if (!ici_isregexp(o))
             return ici_argerror(1);
         regexp = ici_regexpof(o);
-        o = ICI_ARG(2);
+        o = ARG(2);
         if (!ici_isstring(o))
             return ici_argerror(2);
         format = ici_stringof(o)->s_chars;
@@ -4039,9 +4039,9 @@ f_getenv()
 
     if (NARGS() != 1)
         return ici_argcount(1);
-    if (!ici_isstring(ICI_ARG(0)))
+    if (!ici_isstring(ARG(0)))
         return ici_argerror(0);
-    n = ici_stringof(ICI_ARG(0));
+    n = ici_stringof(ARG(0));
 
     for (p = environ; *p != NULL; ++p)
     {
@@ -4246,7 +4246,7 @@ ICI_DEFINE_CFUNCS(std)
     ICI_DEFINE_CFUNC(rename,    f_rename),
     ICI_DEFINE_CFUNC(getenv,    f_getenv),
     ICI_DEFINE_CFUNC(putenv,    f_putenv),
-    ICI_CFUNCS_END
+    ICI_CFUNCS_END()
 };
 
 } // namespace ici

@@ -290,7 +290,7 @@ f_go(...)
     ici_exec_t          *x;
     int                 i;
 
-    if (NARGS() < 1 || !ici_typeof(ICI_ARG(0))->can_call())
+    if (NARGS() < 1 || !ici_typeof(ARG(0))->can_call())
         return ici_argerror(0);
 
     if ((x = ici_new_exec()) == NULL)
@@ -306,7 +306,7 @@ f_go(...)
     if (x->x_os->stk_push_chk(NARGS() + 80))
         goto fail;
     for (i = 1; i < NARGS(); ++i)
-        x->x_os->a_top[NARGS() - i - 1] = ICI_ARG(i);
+        x->x_os->a_top[NARGS() - i - 1] = ARG(i);
     x->x_os->a_top += NARGS() - 1;
     /*
      * Now push the number of actuals and the object to call on the
@@ -316,7 +316,7 @@ f_go(...)
         goto fail;
     (*x->x_os->a_top)->decref();
     ++x->x_os->a_top;
-    *x->x_os->a_top++ = ICI_ARG(0);
+    *x->x_os->a_top++ = ARG(0);
     /*
      * Create the native machine thread. We ici_incref x to give the new thread
      * it's own reference.
@@ -339,7 +339,7 @@ f_wakeup(...)
 {
     if (NARGS() != 1)
         return ici_argcount(1);
-    if (ici_wakeup(ICI_ARG(0)))
+    if (ici_wakeup(ARG(0)))
         return 1;
     return ici_null_ret();
 }
@@ -348,7 +348,7 @@ ICI_DEFINE_CFUNCS(thread)
 {
     ICI_DEFINE_CFUNC(go,            f_go),
     ICI_DEFINE_CFUNC(wakeup,        f_wakeup),
-    ICI_CFUNCS_END
+    ICI_CFUNCS_END()
 };
 
 } // namespace ici

@@ -606,14 +606,14 @@ ici_net_bind(void)
 
     if (NARGS() == 2)
     {
-        skt = ici_handleof(ICI_ARG(0));
+        skt = ici_handleof(ARG(0));
         if (!ici_ishandleof(skt, SS(socket)))
             return ici_argerror(0);
-        if (ici_isstring(ICI_ARG(1)))
-            addr = ici_stringof(ICI_ARG(1))->s_chars;
-        else if (ici_isint(ICI_ARG(1)))
+        if (ici_isstring(ARG(1)))
+            addr = ici_stringof(ARG(1))->s_chars;
+        else if (ici_isint(ARG(1)))
         {
-            sprintf(buf, "%lld", ici_intof(ICI_ARG(1))->i_value);
+            sprintf(buf, "%lld", ici_intof(ARG(1))->i_value);
             addr = buf;
         }
         else
@@ -739,21 +739,21 @@ ici_net_select()
         return seterror("incorrect number of arguments for net.select()", NULL);
     for (i = 0; i < NARGS(); ++i)
     {
-        if (ici_isint(ICI_ARG(i)))
+        if (ici_isint(ARG(i)))
         {
             if (timeout != -1)
                 return seterror("too many timeout parameters passed to net.select", NULL);
-            timeout = ici_intof(ICI_ARG(i))->i_value;
+            timeout = ici_intof(ARG(i))->i_value;
             if (timeout < 0)
                 return seterror("-ve timeout passed to net.select", NULL);
         }
-        else if (ici_isset(ICI_ARG(i)) || ici_isnull(ICI_ARG(i)))
+        else if (ici_isset(ARG(i)) || ici_isnull(ARG(i)))
         {
             int j;
 
             if (++whichset > 2)
                 return seterror("too many set/NULL params to select()", NULL);
-            if (ici_isset(ICI_ARG(i)))
+            if (ici_isset(ARG(i)))
             {
                 fd_set *fs = 0;
 
@@ -761,15 +761,15 @@ ici_net_select()
                 {
                 case 0:
                     fs = rfds = &fds[0];
-                    set = rset = ici_setof(ICI_ARG(i));
+                    set = rset = ici_setof(ARG(i));
                     break;
                 case 1:
                     fs = wfds = &fds[1];
-                    set = wset = ici_setof(ICI_ARG(i));
+                    set = wset = ici_setof(ARG(i));
                     break;
                 case 2:
                     fs = efds = &fds[2];
-                    set = eset = ici_setof(ICI_ARG(i));
+                    set = eset = ici_setof(ARG(i));
                     break;
                 }
                 FD_ZERO(fs);
@@ -847,7 +847,7 @@ ici_net_select()
     if (select_add_result(result, SS(read), rset, rfds, &n))
         goto fail;
     /* Simpler return, one set of ready sockets */
-    if (NARGS() == 1 && ici_isset(ICI_ARG(0)))
+    if (NARGS() == 1 && ici_isset(ARG(0)))
     {
         ici_obj_t        *o;
 
@@ -1536,8 +1536,8 @@ ici_net_gethostbyaddr(void)
 
     if (NARGS() != 1)
         return ici_argcount(1);
-    if (ici_isint(ICI_ARG(0)))
-        addr = htonl((unsigned long)ici_intof(ICI_ARG(0))->i_value);
+    if (ici_isint(ARG(0)))
+        addr = htonl((unsigned long)ici_intof(ARG(0))->i_value);
     else if (typecheck("s", &s))
         return 1;
     else if ((addr = inet_addr(s)) == 0xFFFFFFFF)
@@ -1918,7 +1918,7 @@ ICI_DEFINE_CFUNCS(net)
 #ifndef USE_WINSOCK
     ICI_DEFINE_CFUNC(socketpair, ici_net_socketpair),
 #endif
-    ICI_CFUNCS_END
+    ICI_CFUNCS_END()
 };
 
 } // namespace ici

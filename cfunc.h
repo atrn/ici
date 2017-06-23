@@ -128,7 +128,7 @@ inline bool ici_iscfunc(ici_obj_t *o) { return o->isa(ICI_TC_CFUNC); }
 
 /*
  * In a call from ICI to a function coded in C, this macro returns the object
- * passed as the 'i'th actual parameter (the first parameter is ICI_ARG(0)).  The
+ * passed as the 'i'th actual parameter (the first parameter is ARG(0)).  The
  * type of the result is an '(ici_obj_t *)'.  There is no actual or implied
  * incref associated with this.  Parameters are known to be on the ICI operand
  * stack, and so can be assumed to be referenced and not garbage collected.
@@ -137,8 +137,8 @@ inline bool ici_iscfunc(ici_obj_t *o) { return o->isa(ICI_TC_CFUNC); }
  *
  * This --macro-- forms part of the --ici-api--.
  */
-#define ICI_ARG(n)          (ici_os.a_top[-3 - (n)])
-// inline object *ICI_ARG(int n) { return ici_os.a_top[-3 - (n)]; }
+#define ARG(n)          (ici_os.a_top[-3 - (n)])
+// inline object *ARG(int n) { return ici_os.a_top[-3 - (n)]; }
 
 /*
  * In a call from ICI to a function coded in C, this macro returns the
@@ -161,7 +161,7 @@ inline int NARGS() { return ici_intof(ici_os.a_top[-2])->i_value; }
  *
  * This --macro-- forms part of the --ici-api--.
  */
-#define ICI_ARGS()          (&ici_os.a_top[-3])
+#define ARGS()          (&ici_os.a_top[-3])
 
 /*
  * In a call from ICI to a function coded in C, this macro returns the
@@ -184,7 +184,7 @@ inline int NARGS() { return ici_intof(ici_os.a_top[-2])->i_value; }
 /*
  * Marks the end of the initializers of a cfuncs array.
  */
-#define ICI_CFUNCS_END {false}
+#define ICI_CFUNCS_END() {false}
 
 /*
  * Macros to define cfuncs. Use the one for the number of arguments.

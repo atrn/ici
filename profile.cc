@@ -349,7 +349,7 @@ ici_profile_return()
 ICI_DEFINE_CFUNCS(profile)
 {
     ICI_DEFINE_CFUNC(profile, f_profile),
-    ICI_CFUNCS_END
+    ICI_CFUNCS_END()
 };
 
 #endif
