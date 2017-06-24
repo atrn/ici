@@ -164,7 +164,7 @@ void cfunc_type::objname(object *o, char p[objnamez])
 
 int cfunc_type::call(object *o, object *subject)
 {
-    if (UNLIKELY(ici_debug_active)
+    if (UNLIKELY(debug_active)
 #ifndef NOPROFILE
         ||
         UNLIKELY(ici_profile_active)
@@ -190,9 +190,9 @@ int cfunc_type::call(object *o, object *subject)
         if (ici_profile_active)
             ici_profile_return();
 #endif
-        if (UNLIKELY(ici_debug_active))
+        if (UNLIKELY(debug_active))
         {
-            debugfunc->idbg_fnresult(os.a_top[-1]);
+            o_debug->idbg_fnresult(os.a_top[-1]);
         }
         return result;
     }

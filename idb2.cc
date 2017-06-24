@@ -10,7 +10,7 @@ namespace ici
  */
 
 /*
- * ici_debug_error - called when the program raises an error.
+ * debug_error - called when the program raises an error.
  *
  * Parameters:
  *
@@ -18,12 +18,12 @@ namespace ici
  *      src     the last source marker encountered.
  */
 static void
-ici_debug_error(char *, src *)
+debug_error(char *, src *)
 {
 }
 
 /*
- * ici_debug_fncall - called prior to a function call.
+ * debug_fncall - called prior to a function call.
  *
  * Parameters:
  *
@@ -32,36 +32,36 @@ ici_debug_error(char *, src *)
  *      nargs   The number of parameters in that array.
  */
 static void
-ici_debug_fncall(object *, object **, int)
+debug_fncall(object *, object **, int)
 {
 }
 
 /*
- * ici_debug_fnresult - called upon function return.
+ * debug_fnresult - called upon function return.
  *
  * Parameters:
  *
  *      o       The result of the function.
  */
 static void
-ici_debug_fnresult(object *)
+debug_fnresult(object *)
 {
 }
 
 /*
- * ici_debug_src - called when a source line marker is encountered.
+ * debug_src - called when a source line marker is encountered.
  *
  * Parameters:
  *
  *      src     The source marker encountered.
  */
 static void
-ici_debug_src(src *)
+debug_src(src *)
 {
 }
 
 /*
- * ici_debug_watch - called upon each assignment.
+ * debug_watch - called upon each assignment.
  *
  * Parameters:
  *
@@ -72,7 +72,7 @@ ici_debug_src(src *)
  *      v       The value being assigned to the object.
  */
 static void
-ici_debug_watch(object *, object *, object *)
+debug_watch(object *, object *, object *)
 {
 }
 
@@ -80,15 +80,15 @@ ici_debug_watch(object *, object *, object *)
  * The default debugging interface is the stub functions.  Debuggers
  * will assign ici_debug to point to a more useful set of functions.
  */
-ici_debug_t ici_debug_stubs =
+debug debug_stubs =
 {
-    ici_debug_error,
-    ici_debug_fncall,
-    ici_debug_fnresult,
-    ici_debug_src,
-    ici_debug_watch
+    debug_error,
+    debug_fncall,
+    debug_fnresult,
+    debug_src,
+    debug_watch
 };
 
-ici_debug_t *debugfunc = &ici_debug_stubs;
+debug *o_debug = &debug_stubs;
 
 } // namespace ici

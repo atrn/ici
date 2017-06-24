@@ -129,7 +129,7 @@ exec *new_exec()
     }
     x->x_os_temp_cache->decref();
     x->x_semaphore = new std::condition_variable;
-    x->x_state = ICI_XS_ACTIVE;
+    x->x_state = XS_ACTIVE;
     x->x_count = 100;
     x->x_n_engine_recurse = 0;
     x->x_next = execs;
@@ -361,10 +361,10 @@ object *evaluate(object *code, int n_operands)
         {
         case TC_SRC:
             ex->x_src = srcof(o);
-            if (UNLIKELY(ici_debug_active))
+            if (UNLIKELY(debug_active))
             {
                 *xs.a_top++ = o; /* Restore formal state. */
-                debugfunc->idbg_src(srcof(o));
+                o_debug->idbg_src(srcof(o));
                 --xs.a_top;
                 continue;
             }
@@ -659,9 +659,9 @@ object *evaluate(object *code, int n_operands)
                     }
                     goto fail;
                 }
-                if (UNLIKELY(ici_debug_active))
+                if (UNLIKELY(debug_active))
 		{
-                    debugfunc->idbg_fncall(os.a_top[-1], ARGS(), NARGS());
+                    o_debug->idbg_fncall(os.a_top[-1], ARGS(), NARGS());
 		}
                 if (os.a_top[-1]->call(o))
                 {
@@ -1259,9 +1259,9 @@ object *evaluate(object *code, int n_operands)
              * scope for debugging is very limited. But if it was earlier, we
              * would be breaking on every type of error, even caught ones.
              */
-            if (UNLIKELY(ici_debug_active && !ici_debug_ign_err))
+            if (UNLIKELY(debug_active && !debug_ignore_err))
 	    {
-                debugfunc->idbg_error(error, ex->x_src);
+                o_debug->idbg_error(error, ex->x_src);
 	    }
 #endif
             expand_error(ex->x_src->s_lineno, ex->x_src->s_filename);
@@ -1351,13 +1351,13 @@ object *exec_type::fetch(object *o, object *k)
     {
         switch (x->x_state)
         {
-        case ICI_XS_ACTIVE:
+        case XS_ACTIVE:
             return ici_null;
 
-        case ICI_XS_RETURNED:
+        case XS_RETURNED:
             return x->x_result;
 
-        case ICI_XS_FAILED:
+        case XS_FAILED:
             set_error("%s", x->x_result == NULL  ? "failed" : stringof(x->x_result)->s_chars);
             return NULL;
 
@@ -1369,9 +1369,9 @@ object *exec_type::fetch(object *o, object *k)
     {
         switch (x->x_state)
         {
-        case ICI_XS_ACTIVE:     return SS(active);
-        case ICI_XS_RETURNED:   return SS(finished);
-        case ICI_XS_FAILED:     return SS(failed);
+        case XS_ACTIVE:     return SS(active);
+        case XS_RETURNED:   return SS(finished);
+        case XS_FAILED:     return SS(failed);
         default:                assert(0);
         }
     }

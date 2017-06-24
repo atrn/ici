@@ -121,9 +121,9 @@ inline bool isexec(object *o) { return o->isa(TC_EXEC); }
  */
 enum
 {
-    ICI_XS_ACTIVE,          /* Thread has not exited yet. */
-    ICI_XS_RETURNED,        /* Function returned and thread exited normally. */
-    ICI_XS_FAILED,          /* Function failed and thread exitied. */
+    XS_ACTIVE,          /* Thread has not exited yet. */
+    XS_RETURNED,        /* Function returned and thread exited normally. */
+    XS_FAILED,          /* Function failed and thread exitied. */
 };
 
 /*
@@ -132,9 +132,9 @@ enum
 
 /*
  * ICI debug interface.  The interpreter has a global debug interface enable
- * flag, 'ici_debug_enabled', and a global pointer, 'ici_debug', to one of
+ * flag, 'debug_enabled', and a global pointer, 'ici_debug', to one of
  * these structs.  If the flag is set, the interpreter calls these functions.
- * See 'ici_debug' and 'ici_debug_enabled'.
+ * See 'ici_debug' and 'debug_enabled'.
  *
  * idbg_error()         Called with the current value of error (redundant,
  *                      for historical reasons) and a source line marker

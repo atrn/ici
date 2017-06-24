@@ -124,7 +124,7 @@ struct object
         otype()->free(this);
     }
 
-#ifndef BUGHUNT
+#ifdef NDEBUG
     inline void incref() noexcept {
         ++o_nrefs;
     }
@@ -248,7 +248,7 @@ inline objwsup *objwsupof(object *o) { return static_cast<objwsup *>(o); }
  * Test if this object supports a super type.  (It may or may not have a super
  * at any particular time).
  *
- * This --macro-- forms part of the --ici-api--.
+ * This --func-- forms part of the --ici-api--.
  */
 inline bool hassuper(const object *o) { return o->flagged(object::O_SUPER); }
 
@@ -333,7 +333,7 @@ inline int ici_assign(object *o, object *k, object *v) {
  *
  * Returns non-zero on error, usual conventions.
  *
- * This --macro-- forms part of the --ici-api--.
+ * This --func-- forms part of the --ici-api--.
  */
 inline int ici_assign_base(object *o, object *k, object *v) {
     return o->assign_base(k, v);
@@ -345,7 +345,7 @@ inline int ici_assign_base(object *o, object *k, object *v) {
  * 'ici_fetch()', which also apply here. The object 'o' *must* be one that
  * supports super types (such as a 'struct' or a 'handle').
  *
- * This --macro-- forms part of the --ici-api--.
+ * This --func-- forms part of the --ici-api--.
  */
 inline object *ici_fetch_base(object *o, object *k) {
     return o->fetch_base(k);
@@ -366,7 +366,7 @@ inline object *ici_fetch_base(object *o, object *k) {
  * Return -1 on error, 0 if it was not found, and 1 if it was found.  If
  * found, the value is stored in *v.
  *
- * This --macro-- forms part of the --ici-api--.
+ * This --func-- forms part of the --ici-api--.
  */
 inline int ici_fetch_super(object *o, object *k, object **v, ici_struct *b) {
     return o->fetch_super(k, v, b);
@@ -385,7 +385,7 @@ inline int ici_fetch_super(object *o, object *k, object **v, ici_struct *b) {
  * Return -1 on error, 0 if it was not found, and 1 if the assignment was
  * completed.
  *
- * This --macro-- forms part of the --ici-api--.
+ * This --func-- forms part of the --ici-api--.
  */
 inline int ici_assign_super(object *o, object *k, object *v, ici_struct *b) {
     return o->assign_super(k, v, b);
@@ -405,9 +405,9 @@ inline int ici_assign_super(object *o, object *k, object *v, ici_struct *b) {
  * are problems with unregistered objects that reference other objects,
  * so this should be used with caution.)
  *
- * This --macro-- forms part of the --ici-api--.
+ * This --func-- forms part of the --ici-api--.
  */
-#ifndef BUGHUNT
+#ifdef NDEBUG
 /*
  * Inline function for rego.
  */

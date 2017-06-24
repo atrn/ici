@@ -560,7 +560,7 @@ void reclaim()
 }
 
 
-#ifdef  BUGHUNT
+#ifndef NDEBUG
 
 object   *traceobj;
 

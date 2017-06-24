@@ -262,13 +262,13 @@ static void ici_thread_base(void *arg)
     if ((x->x_result = evaluate(&o_call, n_ops)) == NULL)
     {
         x->x_result = str_get_nul_term(error);
-        x->x_state = ICI_XS_FAILED;
+        x->x_state = XS_FAILED;
         fprintf(stderr, "Warning, uncaught error in sub-thread: %s\n", error);
     }
     else
     {
         x->x_result->decref();
-        x->x_state = ICI_XS_RETURNED;
+        x->x_state = XS_RETURNED;
     }
     wakeup(x);
     x->decref();

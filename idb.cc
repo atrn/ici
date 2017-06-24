@@ -18,30 +18,30 @@ namespace ici
  * Flag indicating if the user wants debugging enabled. Could be used
  * as a bit set to control which things get debugged.
  */
-int ici_debug_enabled = 0;
+int debug_enabled = 0;
 
 /*
  * Flag indicating if error trapping should be ignored.
  */
-int ici_debug_ign_err = 0;
+int debug_ign_err = 0;
 
 /*
  * Ignore errors within exec loop. Used by internal calls to
  * exec that handle errors themselves, e.g., f_include().
  */
 void
-ici_debug_ignore_errors()
+debug_ignore_errors()
 {
-    ici_debug_ign_err = 1;
+    debug_ign_err = 1;
 }
 
 /*
  * Restore error processing.
  */
 void
-ici_debug_respect_errors()
+debug_respect_errors()
 {
-    ici_debug_ign_err = 0;
+    debug_ign_err = 0;
 }
 
 /*
@@ -63,12 +63,12 @@ f_debug(...)
 {
     long        v, t;
 
-    t = ici_debug_enabled;
+    t = debug_enabled;
     if (NARGS() != 0)
     {
         if (typecheck("i", &v))
             return 1;
-        ici_debug_enabled = v;
+        debug_enabled = v;
     }
     return int_ret(t);
 }

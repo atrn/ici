@@ -21,7 +21,7 @@ static wrap *wraps;
  *
  * This --func-- forms part of the --ici-api--.
  */
-void ici_atexit(void (*func)(), wrap *w)
+void atexit(void (*func)(), wrap *w)
 {
     w->w_next = wraps;
     w->w_func = func;
@@ -31,7 +31,7 @@ void ici_atexit(void (*func)(), wrap *w)
 /*
  * Shut down the interpreter and clean up any allocations.  This function is
  * the reverse of 'init()'.  It's first action is to call any wrap-up
- * functions registered through 'ici_atexit()'
+ * functions registered through 'atexit()'
  *
  * Calling 'ici_init()' again after calling this hasn't been adequately
  * tested.

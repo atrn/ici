@@ -40,9 +40,9 @@ int op_return()
     object     **x;
     object      *f;
 
-    if (UNLIKELY(ici_debug_active))
+    if (UNLIKELY(debug_active))
     {
-        debugfunc->idbg_fnresult(os.a_top[-1]);
+        o_debug->idbg_fnresult(os.a_top[-1]);
     }
 
     x = xs.a_top - 1;

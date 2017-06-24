@@ -1198,7 +1198,7 @@ static int f_include()
     if (!isstring(filename))
         return argerror(0);
 #ifndef NODEBUGGING
-    ici_debug_ignore_errors();
+    debug_ignore_errors();
 #endif
     if (call(SS(fopen), "o=o", &f, filename))
     {
@@ -1208,20 +1208,20 @@ static int f_include()
         if (!find_on_path(fname, NULL))
         {
 #ifndef NODEBUGGING
-            ici_debug_respect_errors();
+            debug_respect_errors();
 #endif
             return set_error("could not find \"%s\" on path", fname);
         }
         if (call(SS(fopen), "o=s", &f, fname))
         {
 #ifndef NODEBUGGING
-            ici_debug_respect_errors();
+            debug_respect_errors();
 #endif
             return 1;
         }
     }
 #ifndef NODEBUGGING
-    ici_debug_respect_errors();
+    debug_respect_errors();
 #endif
     rc = parse_file(f, objwsupof(a));
     call(SS(close), "o", f);
