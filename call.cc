@@ -95,7 +95,7 @@ ici_funcv(object *subject, object *callable, const char *types, va_list va)
             break;
 
         case 's':
-            if ((os.a_top[arg] = ici_str_new_nul_term(va_arg(va, char *))) == NULL)
+            if ((os.a_top[arg] = new_str_nul_term(va_arg(va, char *))) == NULL)
             {
                 goto fail;
             }

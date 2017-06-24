@@ -20,7 +20,7 @@ namespace ici
  * pre-free function pointer can be supplied to handle cleanup on final
  * collection of the handle.
  *
- * See also 'ici_handle_new()'.
+ * See also 'new_handle()'.
  *
  * h_ptr                The pointer to the primitive data object that his
  *                      handle is associated with.
@@ -93,7 +93,7 @@ namespace ici
  */
 struct handle : objwsup
 {
-    handle() : objwsup{ICI_TC_HANDLE, 0, 1, 0}
+    handle() : objwsup{TC_HANDLE, 0, 1, 0}
              , h_ptr(nullptr)
              , h_name(nullptr)
              , h_pre_free(nullptr)
@@ -111,7 +111,7 @@ struct handle : objwsup
 };
 
 inline handle *handleof(object *o) { return static_cast<handle *>(o); }
-inline bool ishandle(object *o) { return o->isa(ICI_TC_HANDLE); }
+inline bool ishandle(object *o) { return o->isa(TC_HANDLE); }
 inline bool ishandleof(object *o, str *n) { return ishandle(o) && handleof(o)->h_name == n; }
 
 /*

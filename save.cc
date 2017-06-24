@@ -81,7 +81,7 @@ inline int writestr(archive *ar, str *s)
  */
 static int save_object_ref(archive *ar, object *o)
 {
-    return writeb(ar, ICI_TC_REF) || writef(ar, &o, sizeof o);
+    return writeb(ar, TC_REF) || writef(ar, &o, sizeof o);
 }
 
 static int
@@ -292,9 +292,9 @@ new_saver(int (*fn)(archive *, object *))
 
     if ((saver = ici_talloc(saver_t)) != NULL)
     {
-        ICI_OBJ_SET_TFNZ(saver, ICI_TC_SAVER, 0, 1, sizeof (saver_t));
+        set_tfnz(saver, TC_SAVER, 0, 1, sizeof (saver_t));
         saver->s_fn = fn;
-        ici_rego(saver);
+        rego(saver);
     }
 
     return saver;

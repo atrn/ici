@@ -29,8 +29,8 @@ func *new_func()
         return NULL;
     }
     memset((char *)f, 0, sizeof (func));
-    ICI_OBJ_SET_TFNZ(f, ICI_TC_FUNC, 0, 1, 0);
-    ici_rego(f);
+    set_tfnz(f, TC_FUNC, 0, 1, 0);
+    rego(f);
     return f;
 }
 
@@ -198,7 +198,7 @@ int func_type::call(object *o, object *subject)
         if (UNLIKELY(!hassuper(subject)))
         {
             char n1[objnamez];
-            set_error("attempt to call method on %s", ici_objname(n1, subject));
+            set_error("attempt to call method on %s", ici::objname(n1, subject));
             goto fail;
         }
         objwsupof(d)->o_super = objwsupof(subject);

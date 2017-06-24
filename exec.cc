@@ -100,8 +100,8 @@ exec *new_exec()
         return NULL;
     }
     memset(x, 0, sizeof *x);
-    ICI_OBJ_SET_TFNZ(x, ICI_TC_EXEC, 0, 1, 0);
-    ici_rego(x);
+    set_tfnz(x, TC_EXEC, 0, 1, 0);
+    rego(x);
     x->x_src = &default_src;
     if ((x->x_xs = new_array(80)) == NULL)
     {
@@ -253,7 +253,7 @@ object *evaluate(object *code, int n_operands)
      * one.  This is likely to cause a good memory integrity checking system
      * to complain.
      */
-    ICI_OBJ_SET_TFNZ(&frame, ICI_TC_CATCHER, CF_EVAL_BASE, 0, 0);
+    set_tfnz(&frame, TC_CATCHER, CF_EVAL_BASE, 0, 0);
     frame.c_catcher = NULL;
     frame.c_odepth = (os.a_top - os.a_base) - n_operands;
     frame.c_vdepth = vs.a_top - vs.a_base;
@@ -359,7 +359,7 @@ object *evaluate(object *code, int n_operands)
          */
         switch (o->o_tcode)
         {
-        case ICI_TC_SRC:
+        case TC_SRC:
             ex->x_src = srcof(o);
             if (UNLIKELY(ici_debug_active))
             {
@@ -370,7 +370,7 @@ object *evaluate(object *code, int n_operands)
             }
             goto stable_stacks_continue;
 
-        case ICI_TC_PARSE:
+        case TC_PARSE:
             *xs.a_top++ = o; /* Restore formal state. */
             if (parse_exec())
 	    {
@@ -378,7 +378,7 @@ object *evaluate(object *code, int n_operands)
 	    }
             continue;
 
-        case ICI_TC_STRING:
+        case TC_STRING:
             /*
              * Executing a string is the operation of variable lookup.
              * Look up the value of the string on the execution stack
@@ -474,7 +474,7 @@ object *evaluate(object *code, int n_operands)
             }
             continue;
 
-        case ICI_TC_CATCHER:
+        case TC_CATCHER:
             /*
              * This can either be an error catcher which is being poped
              * off (having done its job, but it never got used) or it
@@ -520,7 +520,7 @@ object *evaluate(object *code, int n_operands)
             unwind();
             goto stable_stacks_continue;
 
-        case ICI_TC_FORALL:
+        case TC_FORALL:
             *xs.a_top++ = o; /* Restore formal state. */
             if (exec_forall())
             {
@@ -532,7 +532,7 @@ object *evaluate(object *code, int n_operands)
             *os.a_top++ = o;
             continue;
 
-        case ICI_TC_OP:
+        case TC_OP:
         an_op:
             switch (opof(o)->op_ecode)
             {
@@ -574,7 +574,7 @@ object *evaluate(object *code, int n_operands)
                         {
                             char        n1[30];
 
-                            set_error("\"class\" evaluated to %s in :^ operation", ici_objname(n1, o));
+                            set_error("\"class\" evaluated to %s in :^ operation", objname(n1, o));
                             goto fail;
                         }
                         if ((t = objwsupof(o)->o_super) == NULL)
@@ -623,7 +623,7 @@ object *evaluate(object *code, int n_operands)
                     {
                         method *m;
 
-                        if ((m = ici_method_new(os.a_top[-2], o)) == NULL)
+                        if ((m = new_method(os.a_top[-2], o)) == NULL)
                         {
                             goto fail;
                         }
@@ -652,7 +652,7 @@ object *evaluate(object *code, int n_operands)
                 {
                     char    n1[30];
 
-                    set_error("attempt to call %s", ici_objname(n1, os.a_top[-1]));
+                    set_error("attempt to call %s", objname(n1, os.a_top[-1]));
                     if (o != NULL)
                     {
                         o->decref();
@@ -1340,7 +1340,7 @@ object *exec_type::fetch(object *o, object *k)
         {
             return ici_null;
         }
-        str *s = ici_str_new_nul_term(x->x_error);
+        str *s = new_str_nul_term(x->x_error);
         if (s != NULL)
         {
             s->decref();

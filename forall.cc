@@ -34,7 +34,7 @@ int op_forall()
     {
         return 1;
     }
-    ICI_OBJ_SET_TFNZ(fa, ICI_TC_FORALL, 0, 0, 0);
+    set_tfnz(fa, TC_FORALL, 0, 0, 0);
     fa->fa_index = size_t(-1);
     fa->fa_code = *--os.a_top;
     fa->fa_aggr = *--os.a_top;
@@ -43,7 +43,7 @@ int op_forall()
     fa->fa_vkey = *--os.a_top;
     fa->fa_vaggr = *--os.a_top;
     xs.a_top[-1] = fa;
-    ici_rego(fa);
+    rego(fa);
     return 0;
 }
 
@@ -62,7 +62,7 @@ int exec_forall()
     if (!t->can_forall())
     {
         char n[objnamez];
-        return set_error("attempt to forall over %s", ici_objname(n, fa->fa_aggr));
+        return set_error("attempt to forall over %s", objname(n, fa->fa_aggr));
     }
     switch (t->forall(fa))
     {

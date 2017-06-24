@@ -52,11 +52,11 @@ catcher *new_catcher(object *o, int odepth, int vdepth, int flags)
 
     if ((c = ici_talloc(catcher)) == NULL)
         return NULL;
-    ICI_OBJ_SET_TFNZ(c, ICI_TC_CATCHER, flags, 0, 0);
+    set_tfnz(c, TC_CATCHER, flags, 0, 0);
     c->c_catcher = o;
     c->c_odepth = odepth;
     c->c_vdepth = vdepth;
-    ici_rego(c);
+    rego(c);
     return c;
 }
 

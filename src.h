@@ -36,7 +36,7 @@ struct src : object
  */
 
 inline src *srcof(object *o) { return static_cast<src *>(o); }
-inline bool issrc(object *o) { return o->isa(ICI_TC_SRC); }
+inline bool issrc(object *o) { return o->isa(TC_SRC); }
 
 /*
  * End of ici.h export. --ici.h-end--

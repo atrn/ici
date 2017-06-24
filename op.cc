@@ -11,7 +11,7 @@ op *new_op(int (*func)(), int16_t ecode, int16_t code)
 {
     op         *o;
     object     **po;
-    static op  proto = {ICI_TC_OP};
+    static op  proto = {TC_OP};
 
     proto.op_func = func;
     proto.op_code = code;
@@ -27,13 +27,13 @@ op *new_op(int (*func)(), int16_t ecode, int16_t code)
         --supress_collect;
         return NULL;
     }
-    ICI_OBJ_SET_TFNZ(o, ICI_TC_OP, ICI_O_ATOM, 1, sizeof (op));
+    set_tfnz(o, TC_OP, object::O_ATOM, 1, sizeof (op));
     o->op_code = code;
     o->op_ecode = ecode;
     o->op_func = func;
-    ici_rego(o);
+    rego(o);
     --supress_collect;
-    ICI_STORE_ATOM_AND_COUNT(po, o);
+    store_atom_and_count(po, o);
     return o;
 }
 

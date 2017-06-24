@@ -16,7 +16,7 @@ namespace ici
  * types[] is the "map" from the small integer type codes found in the
  * o_tcode field of every object header, to an instance of a type class
  * that characterises that type of object.  Standard core data types
- * have standard positions (see ICI_TC_* defines in object.h).  Other
+ * have standard positions (see TC_* defines in object.h).  Other
  * types are registered at run-time by calls to ici::register_type()
  * and are given the next available slot.  ici object's  o_tcode is
  * one byte so we're limited to 256 distinct types.

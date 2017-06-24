@@ -114,7 +114,7 @@ restore_obj(archive *ar, char *flags)
     {
     	return -1;
     }
-    *flags = tcode & O_ARCHIVE_ATOMIC ? ICI_O_ATOM : 0;
+    *flags = tcode & O_ARCHIVE_ATOMIC ? object::O_ATOM : 0;
     tcode &= ~O_ARCHIVE_ATOMIC;
     return tcode;
 }
@@ -188,7 +188,7 @@ restore_string(archive *ar)
     {
         return NULL;
     }
-    if ((s = ici_str_alloc(len)) == NULL)
+    if ((s = str_alloc(len)) == NULL)
     {
         return NULL;
     }
@@ -635,7 +635,7 @@ restore_cfunc(archive *ar)
         ici_free(buf);
         return 0;
     }
-    if ((func_name = ici_str_new(buf, namelen)) == NULL)
+    if ((func_name = new_str(buf, namelen)) == NULL)
     {
         ici_free(buf);
         return 0;
@@ -683,9 +683,9 @@ restorer_new(object *(*fn)(archive *))
 
     if ((r = ici_talloc(restorer_t)) != NULL)
     {
-        ICI_OBJ_SET_TFNZ(r, ICI_TC_RESTORER, 0, 1, sizeof (restorer_t));
+        set_tfnz(r, TC_RESTORER, 0, 1, sizeof (restorer_t));
         r->r_fn = fn;
-        ici_rego(r);
+        rego(r);
     }
     return r;
 }
@@ -753,22 +753,22 @@ init_restorer_map()
     fns[] =
     {
         {-1,            restore_error},
-        {ICI_TC_NULL,   restore_null},
-        {ICI_TC_INT,    restore_int},
-        {ICI_TC_FLOAT,  restore_float},
-        {ICI_TC_STRING, restore_string},
-        {ICI_TC_REGEXP, restore_regexp},
-        {ICI_TC_MEM,    restore_mem},
-        {ICI_TC_ARRAY,  restore_array},
-        {ICI_TC_SET,    restore_set},
-        {ICI_TC_STRUCT, restore_struct},
-        {ICI_TC_PTR,    restore_ptr},
-        {ICI_TC_FUNC,   restore_func},
-        {ICI_TC_OP,     restore_op},
-        {ICI_TC_SRC,    restore_src},
-        {ICI_TC_CFUNC,  restore_cfunc},
-        {ICI_TC_MARK,   restore_mark},
-        {ICI_TC_REF,    restore_ref}
+        {TC_NULL,   restore_null},
+        {TC_INT,    restore_int},
+        {TC_FLOAT,  restore_float},
+        {TC_STRING, restore_string},
+        {TC_REGEXP, restore_regexp},
+        {TC_MEM,    restore_mem},
+        {TC_ARRAY,  restore_array},
+        {TC_SET,    restore_set},
+        {TC_STRUCT, restore_struct},
+        {TC_PTR,    restore_ptr},
+        {TC_FUNC,   restore_func},
+        {TC_OP,     restore_op},
+        {TC_SRC,    restore_src},
+        {TC_CFUNC,  restore_cfunc},
+        {TC_MARK,   restore_mark},
+        {TC_REF,    restore_ref}
     };
 
     if ((restorer_map = new_struct()) == NULL)
@@ -816,7 +816,7 @@ restore(archive *ar)
 
         if ((restorer = get_restorer(tcode)) != NULL && (obj = (*restorer->r_fn)(ar)) != NULL)
         {
-            if (flags & ICI_O_ATOM)
+            if (flags & object::O_ATOM)
             {
                 obj = atom(obj, 1);
             }

@@ -34,7 +34,7 @@ namespace ici
 
 /*
  * The array of known types. Initialised with the types known to the
- * core. NB: The positions of these must exactly match the ICI_TC_* defines
+ * core. NB: The positions of these must exactly match the TC_* defines
  * in object.h.
  */
 type *types[max_types] =
@@ -69,13 +69,13 @@ type *types[max_types] =
     nullptr,
 #endif
     ptr_to_instance_of<archive_type>(),
-    nullptr, // ICI_TC_REF is special, a reserved type code with no actual type
+    nullptr, // TC_REF is special, a reserved type code with no actual type
     ptr_to_instance_of<restorer_type>(),
     ptr_to_instance_of<saver_type>(),
     ptr_to_instance_of<channel_type>()
 };
 
-static int ntypes = ICI_TC_MAX_CORE + 1;
+static int ntypes = TC_MAX_CORE + 1;
 
 /*
  * Register a new 'type' and return a new small int type code to use

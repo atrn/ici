@@ -22,7 +22,7 @@ struct ici_int : object
 };
 
 inline ici_int *intof(object *o) { return static_cast<ici_int *>(o); }
-inline bool isint(object *o) { return o->isa(ICI_TC_INT); }
+inline bool isint(object *o) { return o->isa(TC_INT); }
 
 /*
  * End of ici.h export. --ici.h-end--

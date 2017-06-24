@@ -23,7 +23,7 @@ struct forall : object
 };
 
 inline forall *forallof(object *o) { return static_cast<forall *>(o); }
-inline bool isforall(object *o) { return o->isa(ICI_TC_FORALL); }
+inline bool isforall(object *o) { return o->isa(TC_FORALL); }
 
 /*
  * End of ici.h export. --ici.h-end--

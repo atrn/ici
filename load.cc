@@ -193,7 +193,7 @@ f_load(...)
          */
         if ((stream = fopen(fname, "r")) == NULL)
             return get_last_errno("open", fname);
-        if ((fn = ici_str_new_nul_term(fname)) == NULL)
+        if ((fn = new_str_nul_term(fname)) == NULL)
         {
             fclose(stream);
             goto fail;
@@ -368,7 +368,7 @@ static int push_path_elements(array *a, const char *path)
         {
             q = p + strlen(p);
         }
-        if ((s = ici_str_new(p, q - p)) == NULL)
+        if ((s = new_str(p, q - p)) == NULL)
         {
             return 1;
         }

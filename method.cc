@@ -22,16 +22,16 @@ namespace ici
  *
  * This --func-- forms part of the --ici-api--.
  */
-method *ici_method_new(object *subject, object *callable)
+method *new_method(object *subject, object *callable)
 {
     method   *m;
 
     if ((m = ici_talloc(method)) == NULL)
         return NULL;
-    ICI_OBJ_SET_TFNZ(m, ICI_TC_METHOD, 0, 1, 0);
+    set_tfnz(m, TC_METHOD, 0, 1, 0);
     m->m_subject = subject;
     m->m_callable = callable;
-    ici_rego(m);
+    rego(m);
     return m;
 }
 
@@ -59,9 +59,12 @@ int method_type::call(object *o, object *)
         char    n1[objnamez];
         char    n2[objnamez];
 
-        return set_error("attempt to call %s:%s",
-                             ici_objname(n1, m->m_subject),
-                             ici_objname(n2, m->m_callable));
+        return set_error
+        (
+            "attempt to call %s:%s",
+            ici::objname(n1, m->m_subject),
+            ici::objname(n2, m->m_callable)
+        );
     }
     return m->m_callable->call(m->m_subject);
 }
@@ -71,8 +74,8 @@ void method_type::objname(object *o, char p[objnamez])
     char    n1[objnamez];
     char    n2[objnamez];
 
-    ici_objname(n1, methodof(o)->m_subject);
-    ici_objname(n2, methodof(o)->m_callable);
+    ici::objname(n1, methodof(o)->m_subject);
+    ici::objname(n2, methodof(o)->m_callable);
     sprintf(p, "(%.13s:%.13s)", n1, n2);
 }
 

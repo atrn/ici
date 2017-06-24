@@ -278,22 +278,26 @@ extern int           parse_file(const char *, char *, ftype *);
 extern int           parse_file(file *, objwsup *);
 extern int           parse_file(const char *);
 
-extern exec          *new_exec();
-extern src           *new_src(int, str *);
-extern ptr           *new_ptr(object *, object *);
-extern set           *new_set();
 extern array         *new_array(ptrdiff_t);
-extern ici_struct    *new_struct();
-extern ici_int       *new_int(int64_t);
-extern ici_float     *new_float(double);
+extern exec          *new_exec();
 extern file          *new_file(void *, ftype *, str *, object *);
+extern handle        *new_handle(void *, str *, objwsup *);
+extern ici_float     *new_float(double);
+extern ici_int       *new_int(int64_t);
+extern ici_struct    *new_struct();
 extern mem           *new_mem(void *, size_t, int, void (*)(void *));
+extern method        *new_method(object *, object *);
+extern objwsup       *new_class(cfunc *cf, objwsup *super);
+extern objwsup       *new_module(cfunc *cf);
+extern ptr           *new_ptr(object *, object *);
 extern regexp        *new_regexp(str *, int);
+extern set           *new_set();
+extern src           *new_src(int, str *);
+extern str           *new_str(const char *, size_t);
+extern str           *new_str_nul_term(const char *);
 
-extern str           *ici_str_alloc(size_t);
-extern str           *ici_str_new(const char *, size_t);
-extern str           *ici_str_new_nul_term(const char *);
-extern str           *ici_str_get_nul_term(const char *);
+extern str           *str_alloc(size_t);
+extern str           *str_get_nul_term(const char *);
 
 extern int            check_interface(unsigned long, unsigned long, char const *);
 
@@ -307,7 +311,7 @@ extern int            argerror(int);
 extern int            unassign(ici_struct *, object *);
 extern int            unassign(set *, object *);
 
-extern char          *ici_objname(char [objnamez], object *);
+extern char          *objname(char [objnamez], object *);
 
 extern int            close_file(file *f);
 
@@ -340,20 +344,16 @@ extern int            ici_cmkvar(objwsup *, const char *, int, void *);
 extern int            ici_set_val(objwsup *, str *, int, void *);
 extern int            ici_fetch_num(object *, object *, double *);
 extern int            ici_fetch_int(object *, object *, long *);
-extern int            ici_assign_cfuncs(objwsup *, cfunc *);
-extern int            ici_def_cfuncs(cfunc *);
-extern method        *ici_method_new(object *, object *);
-extern handle        *ici_handle_new(void *, str *, objwsup *);
 extern handle        *ici_handle_probe(void *, str *);
 
+extern int            assign_cfuncs(objwsup *, cfunc *);
+extern int            define_cfuncs(cfunc *);
 extern int            register_type(type *);
 
 extern void           invalidate_struct_lookaside(ici_struct *);
 extern int            engine_stack_check();
 extern void           ici_atexit(void (*)(), wrap *);
 
-extern objwsup       *ici_class_new(cfunc *cf, objwsup *super);
-extern objwsup       *ici_module_new(cfunc *cf);
 extern int            ici_handle_method_check(object *, str *, handle **, void **);
 extern int            ici_method_check(object *o, int tcode);
 extern unsigned long  crc(unsigned long, unsigned char const *, ptrdiff_t);

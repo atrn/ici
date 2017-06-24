@@ -32,7 +32,7 @@ struct regexp : object
 };
 
 inline regexp *regexpof(object *o) { return static_cast<regexp *>(o); }
-inline bool isregexp(object *o) { return o->isa(ICI_TC_REGEXP); }
+inline bool isregexp(object *o) { return o->isa(TC_REGEXP); }
 
 int ici_pcre_exec_simple(regexp *, str *);
 

@@ -99,7 +99,7 @@ int ptr_type::call(object *o, object *)
     if (!f->can_call())
     {
         char    n1[30];
-        return set_error("attempt to call a ptr pointing to %s", ici_objname(n1, o));
+        return set_error("attempt to call a ptr pointing to %s", ici::objname(n1, o));
     }
     /*
      * Replace ourselves on the operand stack with 'self' (our aggr) and
@@ -136,10 +136,10 @@ ptr *new_ptr(object *a, object *k)
 
     if ((p = ici_talloc(ptr)) == NULL)
         return NULL;
-    ICI_OBJ_SET_TFNZ(p, ICI_TC_PTR, 0, 1, 0);
+    set_tfnz(p, TC_PTR, 0, 1, 0);
     p->p_aggr = a;
     p->p_key = k;
-    ici_rego(p);
+    rego(p);
     return p;
 }
 /*
@@ -168,7 +168,7 @@ int op_openptr()
 
     if (!isptr(p = ptrof(os.a_top[-1])))
     {
-        return set_error("pointer required, but %s given", ici_objname(n, os.a_top[-1]));
+        return set_error("pointer required, but %s given", objname(n, os.a_top[-1]));
     }
     os.a_top[-1] = p->p_aggr;
     *os.a_top++ = p->p_key;
@@ -187,7 +187,7 @@ int op_fetch()
 
     if (!isptr(p = ptrof(os.a_top[-1])))
     {
-        return set_error("pointer required, but %s given", ici_objname(n, os.a_top[-1]));
+        return set_error("pointer required, but %s given", objname(n, os.a_top[-1]));
     }
     if ((o = ici_fetch(p->p_aggr, p->p_key)) == NULL)
         return 1;

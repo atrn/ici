@@ -31,7 +31,7 @@ struct cfunc : object
     const void  *cf_arg2;
 
     cfunc(bool) // sentinel for end of cfunc lists
-        : object{ICI_TC_CFUNC, 0, 0, 0}
+        : object{TC_CFUNC, 0, 0, 0}
         , cf_name(nullptr)
         , cf_cfunc(nullptr)
         , cf_arg1(nullptr)
@@ -40,7 +40,7 @@ struct cfunc : object
 
     template <typename F>
     cfunc(str *name, F *f)
-        : object{ICI_TC_CFUNC, 0, 1, 0}
+        : object{TC_CFUNC, 0, 1, 0}
         , cf_name(name)
         , cf_cfunc(reinterpret_cast<int (*)(...)>(f))
         , cf_arg1(nullptr)
@@ -50,7 +50,7 @@ struct cfunc : object
 
     template <typename F>
     cfunc(str *name, F *f, void *arg1)
-        : object{ICI_TC_CFUNC, 0, 1, 0}
+        : object{TC_CFUNC, 0, 1, 0}
         , cf_name(name)
         , cf_cfunc(reinterpret_cast<int (*)(...)>(f))
         , cf_arg1(arg1)
@@ -59,7 +59,7 @@ struct cfunc : object
     }
 
     cfunc(str *name, int (*f)(), long arg1)
-        : object{ICI_TC_CFUNC, 0, 1, 0}
+        : object{TC_CFUNC, 0, 1, 0}
         , cf_name(name)
         , cf_cfunc(reinterpret_cast<int (*)(...)>(f))
         , cf_arg1((const void *)arg1)
@@ -68,7 +68,7 @@ struct cfunc : object
     }
 
     cfunc(str *name, double (*f)(...), const char *arg1)
-        : object{ICI_TC_CFUNC, 0, 1, 0}
+        : object{TC_CFUNC, 0, 1, 0}
         , cf_name(name)
         , cf_cfunc(reinterpret_cast<int (*)(...)>(f))
         , cf_arg1(arg1)
@@ -78,7 +78,7 @@ struct cfunc : object
 
     template <typename F>
     cfunc(str *name, F *f, void *arg1, void *arg2)
-        : object{ICI_TC_CFUNC, 0, 1, 0}
+        : object{TC_CFUNC, 0, 1, 0}
         , cf_name(name)
         , cf_cfunc(reinterpret_cast<int (*)(...)>(f))
         , cf_arg1(arg1)
@@ -94,10 +94,10 @@ struct cfunc : object
  * this, the macro 'ICI_CF_OBJ' can be used as the initialiser of the
  * 'object' header.
  *
- * The type has a well-known built-in type code of 'ICI_TC_CFUNC'.
+ * The type has a well-known built-in type code of 'TC_CFUNC'.
  *
   * cf_name              A name for the function. Calls to functions
- *                      such as 'ici_assign_cfuncs' will use this as
+ *                      such as 'assign_cfuncs' will use this as
  *                      the name to use when assigning it into an ICI
  *                      struct. Apart from that, it is only used in
  *                      error messages.
@@ -115,7 +115,7 @@ struct cfunc : object
  */
 
 inline cfunc *cfuncof(object *o) { return static_cast<cfunc *>(o); }
-inline bool iscfunc(object *o) { return o->isa(ICI_TC_CFUNC); }
+inline bool iscfunc(object *o) { return o->isa(TC_CFUNC); }
 
 /*
  * The operand stack on entry to an intrinsic function:

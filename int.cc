@@ -30,7 +30,7 @@ ici_int *new_int(int64_t i)
     }
     for
     (
-        po = &atoms[ici_atom_hash_index((unsigned long)i * INT_PRIME)];
+        po = &atoms[atom_hash_index((unsigned long)i * INT_PRIME)];
         (o = *po) != NULL;
         --po < atoms ? po = atoms + atomsz - 1 : NULL
     )
@@ -47,11 +47,11 @@ ici_int *new_int(int64_t i)
         --supress_collect;
         return NULL;
     }
-    ICI_OBJ_SET_TFNZ(o, ICI_TC_INT, ICI_O_ATOM, 1, sizeof (ici_int));
-    ici_rego(o);
+    set_tfnz(o, TC_INT, object::O_ATOM, 1, sizeof (ici_int));
+    rego(o);
     intof(o)->i_value = i;
     --supress_collect;
-    ICI_STORE_ATOM_AND_COUNT(po, o);
+    store_atom_and_count(po, o);
     return intof(o);
 }
 

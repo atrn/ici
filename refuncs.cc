@@ -194,7 +194,7 @@ static array *do_smash
             if (a->stk_push_chk())
                goto fail;
             size = do_repl(s, repls[-i]->s_chars, repls[-i]->s_nchars, NULL);
-            if ((ns = ici_str_alloc(size)) == NULL)
+            if ((ns = str_alloc(size)) == NULL)
                 goto fail;
             do_repl(s, repls[-i]->s_chars, repls[-i]->s_nchars, ns->s_chars);
             if ((ns = stringof(atom(ns, 1))) == NULL)
@@ -211,7 +211,7 @@ static array *do_smash
          */
         if (a->stk_push_chk())
             goto fail;
-        if ((ns = ici_str_new(s, se - s)) == NULL)
+        if ((ns = new_str(s, se - s)) == NULL)
             goto fail;
         *a->a_top++ = ns;
         ns->decref();
@@ -383,7 +383,7 @@ static str *do_sub(str *thestr, regexp *re, char *repl, int *ofs)
     len = (thestr->s_chars + thestr->s_nchars) - END(0) + 1;
     memcpy(d, END(0), len);
     d[len] = '\0';
-    rc = ici_str_new_nul_term(dst);
+    rc = new_str_nul_term(dst);
     ici_free(dst);
     if (rc == NULL)
         return (str *)-1;
@@ -475,7 +475,7 @@ f_gsub(...)
         goto fail;
     for (p = a->a_base, size = 0; p < a->a_top; ++p)
         size += stringof(*p)->s_nchars;
-    if ((ns = ici_str_alloc(size)) == NULL)
+    if ((ns = str_alloc(size)) == NULL)
         goto fail;
     for (p = a->a_base, s = ns->s_chars; p < a->a_top; ++p)
     {
@@ -539,7 +539,7 @@ f_old_smash()
         goto fail;
     for (p = strs; *p != NULL; ++p)
     {
-        if ((*sa->a_top = ici_str_get_nul_term(*p)) == NULL)
+        if ((*sa->a_top = str_get_nul_term(*p)) == NULL)
             goto fail;
         ++sa->a_top;
     }

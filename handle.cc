@@ -55,7 +55,7 @@ static handle ici_handle_proto;
  * the automatic creation of a private struct to store such values in upon
  * first assignment. This mechanism is, by default, only enabled if you
  * supply a non-NULL super. But you can enable it even with a NULL super
- * by setting ICI_O_SUPER in the handle's object header at any time. (Actually,
+ * by setting O_SUPER in the handle's object header at any time. (Actually,
  * it is an historical accident that 'super' was ever an argument to this
  * function.)
  *
@@ -74,7 +74,7 @@ static handle ici_handle_proto;
  *
  * This --func-- forms part of the --ici-api--.
  */
-handle *ici_handle_new(void *ptr, str *name, objwsup *super)
+handle *new_handle(void *ptr, str *name, objwsup *super)
 {
     handle      *h;
     object      **po;
@@ -90,7 +90,7 @@ handle *ici_handle_new(void *ptr, str *name, objwsup *super)
     ++supress_collect;
     if ((h = ici_talloc(handle)) == NULL)
         return NULL;
-    ICI_OBJ_SET_TFNZ(h, ICI_TC_HANDLE, (super != NULL ? ICI_O_SUPER : 0) | ICI_O_ATOM, 1, 0);
+    set_tfnz(h, TC_HANDLE, (super != NULL ? object::O_SUPER : 0) | object::O_ATOM, 1, 0);
     h->h_ptr = ptr;
     h->h_name = name;
     h->o_super = super;
@@ -98,9 +98,9 @@ handle *ici_handle_new(void *ptr, str *name, objwsup *super)
     h->h_member_map = NULL;
     h->h_member_intf = NULL;
     h->h_general_intf = NULL;
-    ici_rego(h);
+    rego(h);
     --supress_collect;
-    ICI_STORE_ATOM_AND_COUNT(po, h);
+    store_atom_and_count(po, h);
     return h;
 }
 
@@ -111,7 +111,7 @@ handle *ici_handle_new(void *ptr, str *name, objwsup *super)
  *
  * This function can be used to probe to see if there is an ICI handle
  * associated with your C data structure in existence, but avoids allocating
- * it if does not exist already (as 'ici_handle_new()' would do).  This can be
+ * it if does not exist already (as 'new_handle()' would do).  This can be
  * useful if you want to free your C data structure, and need to mark any ICI
  * reference to the data by setting ICI_H_CLOSED in the handle's object header.
  *
@@ -163,13 +163,13 @@ ici_handle_method_check(object *inst, str *name, handle **h, void **p)
     char                n1[30];
     char                n2[30];
 
-    if (ici_method_check(inst, ICI_TC_HANDLE))
+    if (ici_method_check(inst, TC_HANDLE))
         return 1;
     if (handleof(inst)->h_name != name)
     {
         return set_error("attempt to apply method %s to %s",
-                             ici_objname(n1, os.a_top[-1]),
-                             ici_objname(n2, inst));
+                             objname(n1, os.a_top[-1]),
+                             objname(n2, inst));
     }
     if (h != NULL)
         *h = handleof(inst);
@@ -191,13 +191,13 @@ ici_handle_method(object *inst)
     char                n2[30];
     long                id;
 
-    if (ici_method_check(inst, ICI_TC_HANDLE))
+    if (ici_method_check(inst, TC_HANDLE))
         return 1;
     if (inst->flagged(ICI_H_CLOSED))
     {
         return set_error("attempt to apply method %s to %s which is dead",
-                             ici_objname(n1, os.a_top[-1]),
-                             ici_objname(n2, inst));
+                             objname(n1, os.a_top[-1]),
+                             objname(n2, inst));
     }
     r = NULL;
     id = (long)cfuncof(os.a_top[-1])->cf_arg1;
@@ -206,8 +206,8 @@ ici_handle_method(object *inst)
     if (r == NULL)
     {
         return set_error("attempt to apply method %s to %s",
-                             ici_objname(n1, os.a_top[-1]),
-                             ici_objname(n2, inst));
+                             objname(n1, os.a_top[-1]),
+                             objname(n2, inst));
     }
     return ret_no_decref(r);
 }
@@ -258,7 +258,7 @@ object *ici_make_handle_member_map(ici_name_id_t *ni)
     for (; ni->ni_name != NULL; ++ni)
     {
         id = NULL;
-        if ((n = ici_str_new_nul_term(ni->ni_name)) == NULL)
+        if ((n = new_str_nul_term(ni->ni_name)) == NULL)
             goto fail;
         if (ni->ni_id & ICI_H_METHOD)
         {

@@ -266,7 +266,7 @@ sys_ret(int ret)
     char        n1[objnamez];
 
     if (ret < 0)
-        return get_last_errno(ici_objname(n1, os.a_top[-1]), NULL);
+        return get_last_errno(objname(n1, os.a_top[-1]), NULL);
     return int_ret((long)ret);
 }
 
@@ -709,7 +709,7 @@ static int ici_sys_read()
         ici_free(msg);
         return null_ret();
     }
-    if ((s = ici_str_alloc(r)) == NULL)
+    if ((s = str_alloc(r)) == NULL)
     {
         ici_free(msg);
         return 1;
@@ -806,7 +806,7 @@ static int ici_sys_readlink()
         return 1;
     if (readlink(path, pbuf, sizeof pbuf) == -1)
         return get_last_errno("readlink", path);
-    return ret_with_decref(ici_str_new_nul_term(pbuf));
+    return ret_with_decref(new_str_nul_term(pbuf));
 #endif /* _WIN32 */
 }
 
@@ -976,7 +976,7 @@ static int ici_sys_ctime()
     time_t  timev;
     str    *s;
 
-    if (typecheck("i", &timev) || (s = ici_str_new_nul_term(ctime(&timev))) == NULL)
+    if (typecheck("i", &timev) || (s = new_str_nul_term(ctime(&timev))) == NULL)
         return 1;
     return ret_with_decref(s);
 }
@@ -1731,7 +1731,7 @@ password_struct(struct passwd *pwent)
             o->decref()
 
 #define SET_STR_FIELD(x)                                        \
-        if ((o = ici_str_new_nul_term(pwent->pw_ ##x)) == NULL) \
+        if ((o = new_str_nul_term(pwent->pw_ ##x)) == NULL) \
             goto fail;                                          \
         else if (ici_assign(d, SS(x), o))                       \
         {                                                       \

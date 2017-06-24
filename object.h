@@ -15,28 +15,6 @@ namespace ici
  */
 
 /*
- * The generic flags that may appear in the lower 4 bits of o_flags are:
- *
- * ICI_O_MARK           The garbage collection mark flag.
- *
- * ICI_O_ATOM           Indicates that this object is the read-only
- *                      atomic form of all objects of the same type with
- *                      the same value. Any attempt to change an object
- *                      in a way that would change its value with respect
- *                      to the 't_cmp()' function (see 'type_t') must
- *                      check for this flag and fail the attempt if it is
- *                      set.
- *
- * ICI_O_SUPER          This object can support a super.
- *
- * --ici-api-- continued.
- */
-constexpr int ICI_O_MARK  =         0x01;    /* Garbage collection mark. */
-constexpr int ICI_O_ATOM  =         0x02;    /* Is a member of the atom pool. */
-constexpr int ICI_O_TEMP  =         0x04;    /* Is a re-usable temp (flag for asserts). */
-constexpr int ICI_O_SUPER =         0x08;    /* Has super (is objwsup derived). */
-
-/*
  * This is the universal 'header' of all objects.  Each object type
  * inherits from object giving it the common 'header' fields, then
  * adds any type specific stuff, if any.
@@ -45,6 +23,29 @@ constexpr int ICI_O_SUPER =         0x08;    /* Has super (is objwsup derived). 
  */
 struct object
 {
+    /*
+     * The generic flags that may appear in the lower 4 bits of o_flags are:
+     *
+     * O_MARK           The garbage collection mark flag.
+     *
+     * O_ATOM           Indicates that this object is the read-only
+     *                      atomic form of all objects of the same type with
+     *                      the same value. Any attempt to change an object
+     *                      in a way that would change its value with respect
+     *                      to the 't_cmp()' function (see 'type_t') must
+     *                      check for this flag and fail the attempt if it is
+     *                      set.
+     *
+     * O_SUPER          This object can support a super.
+     *
+     * --ici-api-- continued.
+     */
+    static constexpr int O_MARK  =         0x01;    /* Garbage collection mark. */
+    static constexpr int O_ATOM  =         0x02;    /* Is a member of the atom pool. */
+    static constexpr int O_TEMP  =         0x04;    /* Is a re-usable temp (flag for asserts). */
+    static constexpr int O_SUPER =         0x08;    /* Has super (is objwsup derived). */
+
+
     uint8_t        o_tcode;     // type code, index into types[]
     uint8_t        o_flags;     // flags, see above
     uint8_t        o_nrefs;     // # non-ICI references
@@ -93,23 +94,23 @@ struct object
     }
 
     inline bool isatom() const noexcept {
-        return flagged(ICI_O_ATOM);
+        return flagged(O_ATOM);
     }
 
     inline void setmark() noexcept {
-        set(ICI_O_MARK);
+        set(O_MARK);
     }
 
     inline void clrmark() noexcept {
-        clr(ICI_O_MARK);
+        clr(O_MARK);
     }
 
     inline bool marked() const noexcept {
-        return flagged(ICI_O_MARK);
+        return flagged(O_MARK);
     }
 
     inline size_t mark() noexcept {
-        if (flagged(ICI_O_MARK)) {
+        if (flagged(O_MARK)) {
             return 0;
         }
         if (o_leafz != 0) {
@@ -195,7 +196,7 @@ struct object
 /*
  * o_tcode              The small integer type code that characterises
  *                      this object. Standard core types have well known
- *                      codes identified by the ICI_TC_* defines. Other
+ *                      codes identified by the TC_* defines. Other
  *                      types are registered at run-time and are given
  *                      the next available code.
  *
@@ -213,7 +214,7 @@ struct object
  *
  * o_leafz              If (and only if) this object does not reference any
  *                      other objects (i.e. its t_mark() function just sets
- *                      the ICI_O_MARK flag), and its memory cost fits in this
+ *                      the O_MARK flag), and its memory cost fits in this
  *                      signed byte (< 127), then its size can be set here
  *                      to accelerate the marking phase of the garbage
  *                      collector. Else it must be zero.
@@ -222,18 +223,11 @@ struct object
  */
 
 /*
- * Return a pointer to the 'type' struct of the given object.
- *
- * This --func-- forms part of the --ici-api--.
- */
-inline type_t *ici_typeof(object *o) { return o->otype(); }
-
-/*
  * "Object with super." This is a specialised header for all objects that
- * support a super pointer.  All such objects must have the ICI_O_SUPER flag set
+ * support a super pointer.  All such objects must have the O_SUPER flag set
  * in o_flags and provide the 't_fetch_super()' and 't_assign_super()'
  * functions in their type structure.  The actual 'o_super' pointer will be
- * NULL if there is no actual super, which is different from ICI_O_SUPER being
+ * NULL if there is no actual super, which is different from O_SUPER being
  * clear (which would mean there could not be a super, ever).
  *
  * This --struct-- forms part of the --ici-api--.
@@ -256,7 +250,7 @@ inline objwsup *objwsupof(object *o) { return static_cast<objwsup *>(o); }
  *
  * This --macro-- forms part of the --ici-api--.
  */
-inline bool hassuper(const object *o) { return o->flagged(ICI_O_SUPER); }
+inline bool hassuper(const object *o) { return o->flagged(object::O_SUPER); }
 
 /*
  * Set the basic fields of the object header of 'o'.  'o' can be any struct
@@ -268,7 +262,7 @@ inline bool hassuper(const object *o) { return o->flagged(ICI_O_SUPER); }
  *
  * This --func-- forms part of the --ici-api--.
  */
-inline void ICI_OBJ_SET_TFNZ(object *o, uint8_t tcode, uint8_t flags, uint8_t nrefs, uint8_t leafz) {
+inline void set_tfnz(object *o, uint8_t tcode, uint8_t flags, uint8_t nrefs, uint8_t leafz) {
     o->o_tcode = tcode;
     o->o_flags = flags;
     o->o_nrefs = nrefs;
@@ -415,9 +409,9 @@ inline int ici_assign_super(object *o, object *k, object *v, ici_struct *b) {
  */
 #ifndef BUGHUNT
 /*
- * Inline function for ici_rego.
+ * Inline function for rego.
  */
-inline void ici_rego(object *o) {
+inline void rego(object *o) {
     if (objs_top < objs_limit) {
         *objs_top++ = o;
     } else {
@@ -425,7 +419,7 @@ inline void ici_rego(object *o) {
     }
 }
 #else
-extern void ici_rego(object *);
+extern void rego(object *);
 #endif
 
 
@@ -433,42 +427,42 @@ extern void ici_rego(object *);
  * The o_tcode field is a small int. These are the "well known" core
  * language types. See comments on o_tcode above and types above.
  */
-constexpr int ICI_TC_OTHER =        0;
-constexpr int ICI_TC_PC =           1;
-constexpr int ICI_TC_SRC =          2;
-constexpr int ICI_TC_PARSE =        3;
-constexpr int ICI_TC_OP =           4;
-constexpr int ICI_TC_STRING =       5;
-constexpr int ICI_TC_CATCHER =      6;
-constexpr int ICI_TC_FORALL =       7;
-constexpr int ICI_TC_INT =          8;
-constexpr int ICI_TC_FLOAT =        9;
-constexpr int ICI_TC_REGEXP =       10;
-constexpr int ICI_TC_PTR =          11;
-constexpr int ICI_TC_ARRAY =        12;
-constexpr int ICI_TC_STRUCT =       13;
-constexpr int ICI_TC_SET =          14;
-constexpr int ICI_TC_MAX_BINOP =    14; /* Max of 15 for binary op args. */
+constexpr int TC_OTHER =        0;
+constexpr int TC_PC =           1;
+constexpr int TC_SRC =          2;
+constexpr int TC_PARSE =        3;
+constexpr int TC_OP =           4;
+constexpr int TC_STRING =       5;
+constexpr int TC_CATCHER =      6;
+constexpr int TC_FORALL =       7;
+constexpr int TC_INT =          8;
+constexpr int TC_FLOAT =        9;
+constexpr int TC_REGEXP =       10;
+constexpr int TC_PTR =          11;
+constexpr int TC_ARRAY =        12;
+constexpr int TC_STRUCT =       13;
+constexpr int TC_SET =          14;
+constexpr int TC_MAX_BINOP =    14; /* Max of 15 for binary op args. */
 
-constexpr int ICI_TC_EXEC =         15;
-constexpr int ICI_TC_FILE =         16;
-constexpr int ICI_TC_FUNC =         17;
-constexpr int ICI_TC_CFUNC =        18;
-constexpr int ICI_TC_METHOD =       19;
-constexpr int ICI_TC_MARK =         20;
-constexpr int ICI_TC_NULL =         21;
-constexpr int ICI_TC_HANDLE =       22;
-constexpr int ICI_TC_MEM =          23;
-constexpr int ICI_TC_PROFILECALL =  24;
-constexpr int ICI_TC_ARCHIVE =      25;
+constexpr int TC_EXEC =         15;
+constexpr int TC_FILE =         16;
+constexpr int TC_FUNC =         17;
+constexpr int TC_CFUNC =        18;
+constexpr int TC_METHOD =       19;
+constexpr int TC_MARK =         20;
+constexpr int TC_NULL =         21;
+constexpr int TC_HANDLE =       22;
+constexpr int TC_MEM =          23;
+constexpr int TC_PROFILECALL =  24;
+constexpr int TC_ARCHIVE =      25;
 /* TC_REF is a special type code reserved for use in the
    serialization protocol to indicate a reference to previously
    transmitted object. */
-constexpr int ICI_TC_REF =          26;
-constexpr int ICI_TC_RESTORER =     27;
-constexpr int ICI_TC_SAVER =        28;
-constexpr int ICI_TC_CHANNEL =      29;
-constexpr int ICI_TC_MAX_CORE =     29;
+constexpr int TC_REF =          26;
+constexpr int TC_RESTORER =     27;
+constexpr int TC_SAVER =        28;
+constexpr int TC_CHANNEL =      29;
+constexpr int TC_MAX_CORE =     29;
 
 /*
  * End of ici.h export. --ici.h-end--
@@ -499,14 +493,16 @@ inline object *ici_copy(object *o) {
     return o->copy();
 }
 
-inline void ICI_STORE_ATOM_AND_COUNT(object **po, object *s) {
+inline void store_atom_and_count(object **po, object *s) {
     *po = s;
     if (++natoms > atomsz / 2) {
         grow_atoms(atomsz * 2);
     }
 }
 
-inline long ici_atom_hash_index(long h)  { return h & (atomsz - 1); }
+inline long atom_hash_index(long h)  {
+    return h & (atomsz - 1);
+}
 
 } // namespace ici
 

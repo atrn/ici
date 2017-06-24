@@ -475,7 +475,7 @@ array *new_array(ptrdiff_t n)
     {
         return NULL;
     }
-    ICI_OBJ_SET_TFNZ(a, ICI_TC_ARRAY, 0, 1, 0);
+    set_tfnz(a, TC_ARRAY, 0, 1, 0);
     a->a_base = NULL;
     a->a_top = NULL;
     a->a_limit = NULL;
@@ -492,7 +492,7 @@ array *new_array(ptrdiff_t n)
     a->a_top = a->a_base;
     a->a_bot = a->a_base;
     a->a_limit = a->a_base + n;
-    ici_rego(a);
+    rego(a);
     return a;
 }
 

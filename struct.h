@@ -26,7 +26,7 @@ struct ici_struct : objwsup
 };
 
 inline ici_struct *structof(object *o) { return static_cast<ici_struct *>(o); }
-inline bool isstruct(object *o) { return o->isa(ICI_TC_STRUCT); }
+inline bool isstruct(object *o) { return o->isa(TC_STRUCT); }
 
 /*
  * End of ici.h export. --ici.h-end--

@@ -86,7 +86,7 @@ main(int argc, char *argv[])
         {
             if (av->stk_push_chk())
                 goto fail;
-            if ((*av->a_top = ici_str_get_nul_term(argv[i])) == NULL)
+            if ((*av->a_top = str_get_nul_term(argv[i])) == NULL)
                 goto fail;
             ++av->a_top;
         }
@@ -121,7 +121,7 @@ main(int argc, char *argv[])
                             goto usage;
                         else
                             s = argv[i];
-                        if ((av->a_base[0] = ici_str_get_nul_term(s)) == NULL)
+                        if ((av->a_base[0] = str_get_nul_term(s)) == NULL)
                             goto fail;
                         break;
 
@@ -130,7 +130,7 @@ main(int argc, char *argv[])
                         {
                             if (av->stk_push_chk())
                                 goto fail;
-                            if ((*av->a_top = ici_str_get_nul_term(argv[i])) == NULL)
+                            if ((*av->a_top = str_get_nul_term(argv[i])) == NULL)
                                 goto fail;
                             ++av->a_top;
                         }
@@ -164,7 +164,7 @@ main(int argc, char *argv[])
             {
                 if (av->stk_push_chk())
                     goto fail;
-                if ((*av->a_top = ici_str_get_nul_term(argv[i])) == NULL)
+                if ((*av->a_top = str_get_nul_term(argv[i])) == NULL)
                     goto fail;
                 ++av->a_top;
             }
@@ -174,7 +174,7 @@ main(int argc, char *argv[])
     {
         if (arg0 == NULL)
             arg0 = argv[0];
-        if ((av->a_base[0] = ici_str_get_nul_term(arg0)) == NULL)
+        if ((av->a_base[0] = str_get_nul_term(arg0)) == NULL)
             goto fail;
     }
     else

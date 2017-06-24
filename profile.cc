@@ -130,7 +130,7 @@ ici_profilecall_new(profilecall *called_by)
         return NULL;
 
     /* Fill in the bits common to all ICI objects. */
-    ICI_OBJ_SET_TFNZ(pc, ICI_TC_PROFILECALL, 0, 1, 0);
+    set_tfnz(pc, TC_PROFILECALL, 0, 1, 0);
 
     /* Fill in ici_profilecall specific bits. */
     pc->pc_calledby = called_by;
@@ -146,7 +146,7 @@ ici_profilecall_new(profilecall *called_by)
     pc->pc_call_count = 0;
 
     /* Link it in to the global list of objects. */
-    ici_rego(pc);
+    rego(pc);
 
     return pc;
 }
@@ -258,7 +258,7 @@ static void write_outfile(FILE *of, profilecall *pc, int indent)
         {
             char    n1[objnamez];
 
-            ici_objname(n1, sl->sl_key);
+            objname(n1, sl->sl_key);
             fprintf(of, "%*s(\"", indent + 2, "");
             for (p = n1; *p != '\0'; ++p)
             {

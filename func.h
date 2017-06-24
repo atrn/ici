@@ -21,7 +21,7 @@ struct func : object
 };
 
 inline func *funcof(object *o) { return static_cast<func *>(o); }
-inline bool isfunc(object *o) {return o->isa(ICI_TC_FUNC); }
+inline bool isfunc(object *o) {return o->isa(TC_FUNC); }
 
 /*
  * End of ici.h export. --ici.h-end--

@@ -149,7 +149,7 @@ static handle *new_netsocket(SOCKET fd)
 {
     handle *h;
     long lfd = fd;
-    if ((h = ici_handle_new((void *)lfd, SS(socket), NULL)) == NULL)
+    if ((h = new_handle((void *)lfd, SS(socket), NULL)) == NULL)
         return NULL;
     h->clr(ICI_H_CLOSED);
     h->h_pre_free = socket_prefree;
@@ -157,7 +157,7 @@ static handle *new_netsocket(SOCKET fd)
      * Turn off super support. This means you can't assign or fetch
      * values with a socket.
      */
-    h->clr(ICI_O_SUPER);
+    h->clr(object::O_SUPER);
     return h;
 }
 
@@ -976,7 +976,7 @@ ici_net_recvfrom()
         ici_nfree(msg, len + 1);
         return 1;
     }
-    if ((s = ici_str_new(msg, nb)) == NULL)
+    if ((s = new_str(msg, nb)) == NULL)
     {
         ici_nfree(msg, len + 1);
         return 1;
@@ -989,7 +989,7 @@ ici_net_recvfrom()
         goto fail;
     }
     s->decref();
-    if ((s = ici_str_new_nul_term(unparse_addr(&addr))) == NULL)
+    if ((s = new_str_nul_term(unparse_addr(&addr))) == NULL)
     {
         goto fail;
     }
@@ -1081,7 +1081,7 @@ ici_net_recv()
         ici_nfree(msg, len + 1);
         return null_ret();
     }
-    if ((s = ici_str_new(msg, nb)) == NULL)
+    if ((s = new_str(msg, nb)) == NULL)
         return 1;
     ici_nfree(msg, len + 1);
     return ret_with_decref(s);
@@ -1365,7 +1365,7 @@ ici_net_hostname()
         char name_buf[MAXHOSTNAMELEN];
         if (gethostname(name_buf, sizeof name_buf) == -1)
             return get_last_errno("net.gethostname", NULL);
-        if ((hostname = ici_str_new_nul_term(name_buf)) == NULL)
+        if ((hostname = new_str_nul_term(name_buf)) == NULL)
             return 1;
         hostname->incref();
     }

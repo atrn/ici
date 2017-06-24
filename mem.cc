@@ -26,8 +26,8 @@ mem *new_mem(void *base, size_t length, int accessz, void (*free_func)(void *))
 
     if ((m = ici_talloc(mem)) == NULL)
         return NULL;
-    ICI_OBJ_SET_TFNZ(m, ICI_TC_MEM, 0, 1, sizeof (mem));
-    ici_rego(m);
+    set_tfnz(m, TC_MEM, 0, 1, sizeof (mem));
+    rego(m);
     m->m_base = base;
     m->m_length = length;
     m->m_accessz = accessz;

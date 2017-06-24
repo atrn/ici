@@ -50,7 +50,7 @@ set *new_set()
      */
     if ((s = ici_talloc(set)) == NULL)
         return NULL;
-    ICI_OBJ_SET_TFNZ(s, ICI_TC_SET, 0, 1, 0);
+    set_tfnz(s, TC_SET, 0, 1, 0);
     s->s_nels = 0;
     s->s_nslots = 4; /* Must be power of 2. */
     if ((s->s_slots = (object **)ici_nalloc(4 * sizeof (object *))) == NULL)
@@ -59,7 +59,7 @@ set *new_set()
         return NULL;
     }
     memset(s->s_slots, 0, 4 * sizeof (object *));
-    ici_rego(s);
+    rego(s);
     return s;
 }
 
@@ -216,10 +216,10 @@ object * set_type::copy(object *o)
     s = setof(o);
     if ((ns = ici_talloc(set)) == NULL)
         return NULL;
-    ICI_OBJ_SET_TFNZ(ns, ICI_TC_SET, 0, 1, 0);
+    set_tfnz(ns, TC_SET, 0, 1, 0);
     ns->s_nels = 0;
     ns->s_nslots = 0;
-    ici_rego(ns);
+    rego(ns);
     if ((ns->s_slots = (object **)ici_nalloc(s->s_nslots * sizeof (object *))) == NULL)
         goto fail;
     memcpy(ns->s_slots, s->s_slots, s->s_nslots * sizeof (object *));

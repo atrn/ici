@@ -13,7 +13,7 @@ namespace ici
  */
 struct null : object
 {
-    null() : object{ICI_TC_NULL, ICI_O_ATOM, 1, 0} {}
+    null() : object{TC_NULL, O_ATOM, 1, 0} {}
 };
 
 inline null *nullof(object *o) { return static_cast<null *>(o); }

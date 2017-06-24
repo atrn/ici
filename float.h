@@ -19,12 +19,12 @@ namespace ici
  */
 struct ici_float : object
 {
-    ici_float(double v = 0.0) : object(ICI_TC_FLOAT), f_value(v) {}
+    ici_float(double v = 0.0) : object(TC_FLOAT), f_value(v) {}
     double f_value;
 };
 
 inline ici_float *floatof(object *o) { return static_cast<ici_float *>(o); }
-inline bool isfloat(object *o) { return o->isa(ICI_TC_FLOAT); }
+inline bool isfloat(object *o) { return o->isa(TC_FLOAT); }
 
 /*
  * End of ici.h export. --ici.h-end--

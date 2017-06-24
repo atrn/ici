@@ -12,10 +12,10 @@ src *new_src(int lineno, str *filename)
 
     if ((s = ici_talloc(src)) == NULL)
         return NULL;
-    ICI_OBJ_SET_TFNZ(s, ICI_TC_SRC, 0, 1, 0);
+    set_tfnz(s, TC_SRC, 0, 1, 0);
     s->s_lineno = lineno;
     s->s_filename = filename;
-    ici_rego(s);
+    rego(s);
     return s;
 }
 

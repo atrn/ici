@@ -48,7 +48,7 @@ int ici_set_val(objwsup *s, str *name, int type, void *vp)
         break;
         
     case 's':
-        o = ici_str_new_nul_term((char *)vp);
+        o = new_str_nul_term((char *)vp);
         break;
 
     case 'u':
@@ -85,9 +85,9 @@ ici_fetch_mismatch(object *o, object *k, object *v, const char *expected)
     char        n3[30];
 
     return set_error("read %s from %s keyed by %s, but expected %s",
-        ici_objname(n1, v),
-        ici_objname(n2, o),
-        ici_objname(n3, k),
+        objname(n1, v),
+        objname(n2, o),
+        objname(n3, k),
         expected);
 }
 
@@ -166,7 +166,7 @@ int ici_cmkvar(objwsup *scope, const char *name, int type, void *vp)
     str   *s;
     int         i;
 
-    if ((s = ici_str_new_nul_term(name)) == NULL)
+    if ((s = new_str_nul_term(name)) == NULL)
         return 1;
     i = ici_set_val(scope, s, type, vp);
     s->decref();

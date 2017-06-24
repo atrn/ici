@@ -41,7 +41,7 @@ struct exec : object
 };
 
 inline exec *execof(object *o) { return static_cast<exec *>(o); }
-inline bool isexec(object *o) { return o->isa(ICI_TC_EXEC); }
+inline bool isexec(object *o) { return o->isa(TC_EXEC); }
 
 /*
  * x_xs                 The ICI interpreter execution stack. This contains

@@ -41,8 +41,7 @@ int          ncollects;	/* Number of collect() calls */
  *
  * This --func-- forms part of the --ici-api--.
  */
-char *
-ici_objname(char p[objnamez], object *o)
+char *objname(char p[objnamez], object *o)
 {
     if (o->otype()->can_objname())
     {
@@ -104,7 +103,7 @@ static void grow_atoms_core(ptrdiff_t newz)
         {
             for
             (
-                po = &atoms[ici_atom_hash_index(hash(o))];
+                po = &atoms[atom_hash_index(hash(o))];
                 *po != NULL;
                 --po < atoms ? po = atoms + atomsz - 1 : NULL
             )
@@ -174,7 +173,7 @@ object *atom(object *o, int lone)
         return o;
     for
     (
-        po = &atoms[ici_atom_hash_index(hash(o))];
+        po = &atoms[atom_hash_index(hash(o))];
         *po != NULL;
         --po < atoms ? po = atoms + atomsz - 1 : NULL
     )
@@ -203,7 +202,7 @@ object *atom(object *o, int lone)
         o = *po;
     }
     *po = o;
-    o->set(ICI_O_ATOM);
+    o->set(object::O_ATOM);
     if (++natoms > atomsz / 2)
         grow_atoms(atomsz * 2);
     if (!lone)
@@ -218,7 +217,7 @@ object *atom(object *o, int lone)
  * updated to point to the slot in the atom pool where this object belongs.
  * The caller may use this to store the new object in *provided* the atom pool
  * is not disturbed in the meantime, and is checked for possible growth
- * afterwards.  The macro ICI_STORE_ATOM_AND_COUNT() can be used for this.
+ * afterwards.  The function store_atom_and_count() can be used for this.
  * Note that any call to collect() could disturb the atom pool.
  */
 object *atom_probe2(object *o, object ***ppo)
@@ -227,7 +226,7 @@ object *atom_probe2(object *o, object ***ppo)
 
     for
     (
-        po = &atoms[ici_atom_hash_index(hash(o))];
+        po = &atoms[atom_hash_index(hash(o))];
         *po != NULL;
         --po < atoms ? po = atoms + atomsz - 1 : NULL
     )
@@ -274,7 +273,7 @@ unatom(object *o)
 
     for
     (
-        ss = &atoms[ici_atom_hash_index(hash(o))];
+        ss = &atoms[atom_hash_index(hash(o))];
         *ss != NULL;
         --ss < atoms ? ss = atoms + atomsz - 1 : NULL
     )
@@ -284,14 +283,14 @@ unatom(object *o)
     }
     /*
      * The object isn't in the pool. This would seem to indicate that
-     * we have been given a bad pointer, or the ICI_O_ATOM flag of some object
+     * we have been given a bad pointer, or the O_ATOM flag of some object
      * has been set spuriously.
      */
     assert(0);
     return 1;
 
 deleteo:
-    o->clr(ICI_O_ATOM);
+    o->clr(object::O_ATOM);
     --natoms;
     sl = ss;
     /*
@@ -304,7 +303,7 @@ deleteo:
             sl = atoms + atomsz - 1;
         if (*sl == NULL)
             break;
-        ws = &atoms[ici_atom_hash_index(hash(*sl))];
+        ws = &atoms[atom_hash_index(hash(*sl))];
         if
         (
             (sl < ss && (ws >= ss || ws < sl))
@@ -385,7 +384,7 @@ void collect()
 #   ifndef NDEBUG
     /*
      * In debug builds we take this opportunity to check the consistency of of
-     * the atom pool.  We check that each entry has the ICI_O_ATOM flag set, and
+     * the atom pool.  We check that each entry has the O_ATOM flag set, and
      * that it can be found in the pool (i.e.  that its hash is the same as
      * when it was inserted).  A failure here is a common result of a hash
      * and/or cmp function that considers information that changes during the
@@ -427,7 +426,7 @@ void collect()
     ndead_atoms = 0;
     for (a = objs; a < objs_top; ++a)
     {
-        if ((*a)->flags(ICI_O_ATOM|ICI_O_MARK) == ICI_O_ATOM)
+        if ((*a)->flags(O_ATOM|O_MARK) == O_ATOM)
             ++ndead_atoms;
     }
 
@@ -544,7 +543,7 @@ ici_dump_refs()
             printf("The following ojects have spurious left-over reference counts...\n");
             spoken = 1;
         }
-        printf("%d 0x%08lX: %s\n", (*a)->o_nrefs, (unsigned long)*a, ici_objname(n, *a));
+        printf("%d 0x%08lX: %s\n", (*a)->o_nrefs, (unsigned long)*a, objname(n, *a));
     }
 
 }

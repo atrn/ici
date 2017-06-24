@@ -20,7 +20,7 @@ struct mem : object
 };
 
 inline mem *memof(object *o) { return static_cast<mem *>(o); }
-inline bool ismem(object *o) { return o->isa(ICI_TC_MEM); }
+inline bool ismem(object *o) { return o->isa(TC_MEM); }
 
 /*
  * End of ici.h export. --ici.h-end--

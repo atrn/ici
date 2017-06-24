@@ -24,7 +24,7 @@ struct catcher : object
 };
 
 inline catcher *catcherof(object *o) { return static_cast<catcher *>(o); }
-inline bool iscatcher(object *o) { return o->isa(ICI_TC_CATCHER); }
+inline bool iscatcher(object *o) { return o->isa(TC_CATCHER); }
 
 /*
  * Flags set stored in the upper nibble of o_flags (which is

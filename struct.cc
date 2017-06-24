@@ -72,7 +72,7 @@ ici_struct *new_struct()
      */
     if ((s = ici_talloc(ici_struct)) == NULL)
         return NULL;
-    ICI_OBJ_SET_TFNZ(s, ICI_TC_STRUCT, ICI_O_SUPER, 1, 0);
+    set_tfnz(s, TC_STRUCT, object::O_SUPER, 1, 0);
     s->o_super = NULL;
     s->s_slots = NULL;
     s->s_nels = 0;
@@ -83,7 +83,7 @@ ici_struct *new_struct()
         return NULL;
     }
     memset(s->s_slots, 0, 4 * sizeof (sslot));
-    ici_rego(s);
+    rego(s);
     return s;
 }
 
@@ -397,12 +397,12 @@ object *struct_type::copy(object *o)
     {
         return NULL;
     }
-    ICI_OBJ_SET_TFNZ(ns, ICI_TC_STRUCT, ICI_O_SUPER, 1, 0);
+    set_tfnz(ns, TC_STRUCT, object::O_SUPER, 1, 0);
     ns->o_super = s->o_super;
     ns->s_nels = 0;
     ns->s_nslots = 0;
     ns->s_slots = NULL;
-    ici_rego(ns);
+    rego(ns);
     if ((ns->s_slots = (sslot*)ici_nalloc(s->s_nslots * sizeof (sslot))) == NULL)
     {
         goto fail;

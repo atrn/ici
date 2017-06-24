@@ -102,7 +102,7 @@ disassemble(int indent, array *a)
         }
         else
         {
-            printf("%s\n", ici_objname(n1, *e));
+            printf("%s\n", objname(n1, *e));
         }
         if (isarray(*e))
         {
@@ -616,7 +616,7 @@ primary(parse *p, expr **ep, int exclude)
             o->decref();
             curtok = T_NONE; /* Take ownership of obj. */
             p->p_got.t_obj->decref();
-            if ((o = ici_str_new(buf, i)) == NULL)
+            if ((o = new_str(buf, i)) == NULL)
             {
                 goto fail;
             }
@@ -758,7 +758,7 @@ primary(parse *p, expr **ep, int exclude)
                     set_error("attempt to do [%s %c %s",
                                   stringof(name)->s_chars,
                                   is_eq ? '=' : ':',
-                                  ici_objname(n, o));
+                                  objname(n, o));
                     o->decref();
                     goto fail;
                 }
@@ -2497,7 +2497,7 @@ int parse_file(const char *mname, char *fileo, ftype *ftype)
 
     a = NULL;
     f = NULL;
-    if ((f = new_file(fileo, ftype, ici_str_get_nul_term(mname), NULL)) == NULL)
+    if ((f = new_file(fileo, ftype, str_get_nul_term(mname), NULL)) == NULL)
     {
         goto fail;
     }
@@ -2631,8 +2631,8 @@ parse *new_parse(file *f)
         return NULL;
     }
     memset(p, 0, sizeof (parse));
-    ICI_OBJ_SET_TFNZ(p, ICI_TC_PARSE, 0, 1, 0);
-    ici_rego(p);
+    set_tfnz(p, TC_PARSE, 0, 1, 0);
+    rego(p);
     p->p_file = f;
     p->p_sol = 1;
     p->p_lineno = 1;

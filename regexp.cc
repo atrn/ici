@@ -40,7 +40,7 @@ regexp *new_regexp(str *s, int flags)
     pcre_extra *rex = NULL;
     int         errofs;
 
-    /* Special test for possible failure of ici_str_new_nul_term() in lex.c */
+    /* Special test for possible failure of new_str_nul_term() in lex.c */
     if (s == NULL)
         return NULL;
     re = pcre_compile(s->s_chars, flags, (const char **)&error, &errofs, NULL);
@@ -57,11 +57,11 @@ regexp *new_regexp(str *s, int flags)
     /* Note rex can be NULL if no extra info required */
     if ((r = (regexp *)ici_talloc(regexp)) == NULL)
         goto fail;
-    ICI_OBJ_SET_TFNZ(r, ICI_TC_REGEXP, 0, 1, 0);
+    set_tfnz(r, TC_REGEXP, 0, 1, 0);
     r->r_re  = re;
     r->r_rex = rex;
     r->r_pat = stringof(atom(s, 0));
-    ici_rego(r);
+    rego(r);
     return regexpof(atom(r, 1));
 
  fail:

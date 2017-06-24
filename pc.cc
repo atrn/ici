@@ -16,9 +16,9 @@ pc *new_pc()
 
     if ((p = ici_talloc(pc)) == NULL)
         return NULL;
-    ICI_OBJ_SET_TFNZ(p, ICI_TC_PC, 0, 0, 0);
+    set_tfnz(p, TC_PC, 0, 0, 0);
     p->pc_code = NULL;
-    ici_rego(p);
+    rego(p);
     return p;
 }
 

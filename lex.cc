@@ -515,7 +515,7 @@ int lex(parse *p, array *a)
             set_error("newline in #...#");
             goto fail;
         }
-        if ((p->p_got.t_obj = ici_str_new(buf, i)) == NULL)
+        if ((p->p_got.t_obj = new_str(buf, i)) == NULL)
         {
             goto fail;
         }
@@ -644,7 +644,7 @@ int lex(parse *p, array *a)
                 set_error("newline in \"...\"");
                 goto fail;
             }
-            if ((p->p_got.t_obj = ici_str_new(buf, i)) == NULL)
+            if ((p->p_got.t_obj = new_str(buf, i)) == NULL)
             {
                 goto fail;
             }
@@ -758,7 +758,7 @@ int lex(parse *p, array *a)
             t = T_FLOAT;
             break;
         }
-        if ((p->p_got.t_obj = ici_str_new_nul_term(buf)) == NULL)
+        if ((p->p_got.t_obj = new_str_nul_term(buf)) == NULL)
         {
             goto fail;
         }

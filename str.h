@@ -26,7 +26,7 @@ namespace ici
 
 struct str : object
 {
-    str() : object{ICI_TC_STRING} {}
+    str() : object{TC_STRING} {}
 
     ici_struct      *s_struct;      /* Where we were last found on the vs. */
     sslot           *s_slot;        /* And our slot. */
@@ -61,7 +61,7 @@ struct str : object
  *                      be pointing. The actual string chars follow on from this.
  */
 inline str *stringof(object *o) { return static_cast<str *>(o); }
-inline bool isstring(object *o) { return o->isa(ICI_TC_STRING); }
+inline bool isstring(object *o) { return o->isa(TC_STRING); }
 
 /*
  * This flag (in o_flags) indicates that the lookup-lookaside mechanism
@@ -110,7 +110,7 @@ constexpr int ICI_S_SEP_ALLOC     = 0x40;
 #define ICI_STR_DECL(name, str) str *ici_str_##name;
 #endif
 #define ICISO(name)             (ICIS(name))
-#define ICI_STR_MAKE(name, str) (ICIS(name) = ici_str_new_nul_term(str)) == NULL ||
+#define ICI_STR_MAKE(name, str) (ICIS(name) = new_str_nul_term(str)) == NULL ||
 #define ICI_STR_REL(name, str)  (ICIS(name))->decref();
 #define ICI_STR                 ICI_STR_NORM
 /*
@@ -149,7 +149,7 @@ typedef struct sstring  sstring_t;
 struct sstring : object
 {
     sstring(const char *cs)
-        : object(ICI_TC_STRING)
+        : object(TC_STRING)
         , s_struct(nullptr)
         , s_slot(nullptr)
 #if ICI_KEEP_STRING_HAS

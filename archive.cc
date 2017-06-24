@@ -111,7 +111,7 @@ archive *archive::start(file *f, objwsup *scope)
     archive *ar = ici_talloc(archive);
     if (ar != NULL)
     {
-        ICI_OBJ_SET_TFNZ(ar, ICI_TC_ARCHIVE, 0, 1, 0);
+        set_tfnz(ar, TC_ARCHIVE, 0, 1, 0);
         if ((ar->a_sent = new_struct()) == NULL)
         {
             ici_tfree(ar, archive);
@@ -120,7 +120,7 @@ archive *archive::start(file *f, objwsup *scope)
 	ar->a_sent->decref();
         ar->a_file = f;
 	ar->a_scope = scope;
-        ici_rego(ar);
+        rego(ar);
     }
     return ar;
 }

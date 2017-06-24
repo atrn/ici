@@ -72,8 +72,8 @@ object *type::fetch_fail(object *o, object *k)
     char n1[objnamez];
     char n2[objnamez];
     set_error("attempt to read %s keyed by %s",
-        ici_objname(n1, o),
-        ici_objname(n2, k));
+              ici::objname(n1, o),
+              ici::objname(n2, k));
     return NULL;
 }
 
@@ -84,9 +84,9 @@ int type::assign_fail(object *o, object *k, object *v)
     char n3[objnamez];
 
     return set_error("attempt to set %s keyed by %s to %s",
-        ici_objname(n1, o),
-        ici_objname(n2, k),
-        ici_objname(n3, v));
+                     ici::objname(n1, o),
+                     ici::objname(n2, k),
+                     ici::objname(n3, v));
 }
 
 }

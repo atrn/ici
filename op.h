@@ -13,17 +13,17 @@ namespace ici
  */
 struct op : object
 {
-    op() : object(ICI_TC_OP) {}
+    op() : object(TC_OP) {}
 
     op(int (*func)())
-        : object(ICI_TC_OP)
+        : object(TC_OP)
         , op_func(func)
         , op_ecode(0)
         , op_code(0)
     {}
 
     op(int ecode, int code = 0)
-        : object(ICI_TC_OP)
+        : object(TC_OP)
         , op_func(nullptr)
         , op_ecode(ecode)
         , op_code(code)
@@ -35,7 +35,7 @@ struct op : object
 };
 
 inline op *opof(object *o) { return static_cast<op *>(o); }
-inline bool isop(object *o) { return o->isa(ICI_TC_OP); }
+inline bool isop(object *o) { return o->isa(TC_OP); }
 
 /*
  * Operator codes. These are stored in the op_ecode field and

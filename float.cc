@@ -29,11 +29,11 @@ ici_float *new_float(double v)
     ++supress_collect;
     if ((f = ici_talloc(ici_float)) == NULL)
         return NULL;
-    ICI_OBJ_SET_TFNZ(f, ICI_TC_FLOAT, ICI_O_ATOM, 1, sizeof (ici_float));
+    set_tfnz(f, TC_FLOAT, object::O_ATOM, 1, sizeof (ici_float));
     f->f_value = v;
-    ici_rego(f);
+    rego(f);
     --supress_collect;
-    ICI_STORE_ATOM_AND_COUNT(po, f);
+    store_atom_and_count(po, f);
     return f;
 }
 

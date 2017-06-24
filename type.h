@@ -73,23 +73,23 @@ public:
     inline bool can_call() const         { return _flags & has_call; }
 
     /*
-     * mark(o)              Must set the ICI_O_MARK flag in o->o_flags of this object
+     * mark(o)              Must set the O_MARK flag in o->o_flags of this object
      *                      and all objects referenced by this one which don't
-     *                      already have ICI_O_MARK set.  Returns the approximate
+     *                      already have O_MARK set.  Returns the approximate
      *                      memory cost of this and all other objects it sets the
-     *                      ICI_O_MARK of.  Typically recurses on all referenced
-     *                      objects which don't already have ICI_O_MARK set (this
+     *                      O_MARK of.  Typically recurses on all referenced
+     *                      objects which don't already have O_MARK set (this
      *                      recursion is a potential problem due to the
      *                      uncontrolled stack depth it can create).  This is only
      *                      used in the marking phase of garbage collection.
      *
      *                      The function ici_mark() calls the mark function of the
-     *                      object (based on object type) if the ICI_O_MARK flag of
+     *                      object (based on object type) if the O_MARK flag of
      *                      the object is clear, else it returns 0.  This is the
      *                      usual interface to an object's mark function.
      *
      *                      The mark function implemantation of objects can assume
-     *                      the ICI_O_MARK flag of the object they are being invoked
+     *                      the O_MARK flag of the object they are being invoked
      *                      on is clear.
      */
     virtual size_t          mark(object *o);
@@ -297,7 +297,7 @@ public:
      */
     str *ici_name() const
     {
-        if (_name == nullptr) _name = ici_str_new_nul_term(name);
+        if (_name == nullptr) _name = new_str_nul_term(name);
         return _name;
     }
 

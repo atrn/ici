@@ -116,9 +116,9 @@ int init()
         return 1;
     }
     enter(x);
-    ici_rego(&os);
-    ici_rego(&xs);
-    ici_rego(&vs);
+    rego(&os);
+    rego(&xs);
+    rego(&vs);
     if (engine_stack_check())
     {
         return 1;
@@ -131,7 +131,7 @@ int init()
     }
     for (cfp = ici_funcs; *cfp != NULL; ++cfp)
     {
-        if (ici_assign_cfuncs(scope->o_super, *cfp))
+        if (assign_cfuncs(scope->o_super, *cfp))
         {
             return 1;
         }

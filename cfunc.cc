@@ -357,7 +357,7 @@ int retcheck(const char *types, ...)
             break;
 
         case 's':
-            if ((s = ici_str_new_nul_term(*(char **)aptr)) == NULL)
+            if ((s = new_str_nul_term(*(char **)aptr)) == NULL)
                 goto ret1;
             if (ici_assign(o, o_zero, s))
                 goto ret1;
@@ -450,8 +450,8 @@ argerror(int i)
 
     return set_error("argument %d of %s incorrectly supplied as %s",
         i + 1,
-        ici_objname(n1, os.a_top[-1]),
-        ici_objname(n2, ARG(i)));
+        objname(n1, os.a_top[-1]),
+        objname(n2, ARG(i)));
 }
 
 /*
@@ -491,7 +491,7 @@ argcount(int n)
     char        n1[30];
 
     return set_error("%d arguments given to %s, but it takes %d",
-        NARGS(), ici_objname(n1, os.a_top[-1]), n);
+        NARGS(), objname(n1, os.a_top[-1]), n);
 }
 
 /*
@@ -516,7 +516,7 @@ argcount2(int m, int n)
     char        n1[30];
 
     return set_error("%d arguments given to %s, but it takes from %d to %d arguments",
-        NARGS(), ici_objname(n1, os.a_top[-1]), m, n);
+        NARGS(), objname(n1, os.a_top[-1]), m, n);
 }
 
 /*
@@ -608,7 +608,7 @@ float_ret(double ret)
 int
 str_ret(const char *str)
 {
-    return ret_with_decref(ici_str_new_nul_term(str));
+    return ret_with_decref(new_str_nul_term(str));
 }
 
 static object *
@@ -698,7 +698,7 @@ f_math()
         sprintf(n2, "%g", av[0]);
         if (NARGS() == 2)
             sprintf(n2 + strlen(n2), ", %g", av[1]);
-         return get_last_errno(ici_objname(n1, os.a_top[-1]), n2);
+         return get_last_errno(objname(n1, os.a_top[-1]), n2);
     }
     return float_ret(r);
 }
@@ -739,7 +739,7 @@ f_coreici(object *s)
     if (!f->can_call())
     {
         char    n1[30];
-        return set_error("attempt to call %s", ici_objname(n1, f));
+        return set_error("attempt to call %s", objname(n1, f));
     }
     /*
      * Over-write the definition of the function (which was us) with the
@@ -1000,7 +1000,7 @@ f_num()
         if (*s == '\0')
             return float_ret(f);
     }
-    return set_error("%s is not a number", ici_objname(n, o));
+    return set_error("%s is not a number", objname(n, o));
 }
 
 static int
@@ -1397,7 +1397,7 @@ f_tochar()
     if (typecheck("i", &i))
         return 1;
     buf[0] = (unsigned char)i;
-    return ret_with_decref(ici_str_new(buf, 1));
+    return ret_with_decref(new_str(buf, 1));
 }
 
 static int
@@ -1488,7 +1488,7 @@ f_interval()
 
     if (isstring(o))
     {
-        return ret_with_decref(ici_str_new(s->s_chars + start, (int)length));
+        return ret_with_decref(new_str(s->s_chars + start, (int)length));
     }
     else
     {
@@ -1544,7 +1544,7 @@ f_implode()
         else if (isstring(*o))
             i += stringof(*o)->s_nchars;
     }
-    if ((s = ici_str_alloc(i)) == NULL)
+    if ((s = str_alloc(i)) == NULL)
         return 1;
     p = s->s_chars;
     for (o = a->astart(); o != a->alimit(); o = a->anext(o))
@@ -1812,7 +1812,7 @@ ici_f_sprintf()
         case 'a':
             if (nargs <= 0)
                 goto lacking;
-            ici_objname(oname, *o);
+            objname(oname, *o);
             svalue = oname;
             if (chkbuf(i + objnamez + stars[0] + stars[1]))
                 return 1;
@@ -1915,7 +1915,7 @@ ici_f_sprintf()
         return int_ret((long)i);
 
     default: /* sprintf */
-        return ret_with_decref(ici_str_new(buf, i));
+        return ret_with_decref(new_str(buf, i));
     }
 
 type:
@@ -2408,7 +2408,7 @@ f_gettoken()
 
     } while (i == nseps);
 
-    if ((s = ici_str_new(buf, j)) == NULL)
+    if ((s = new_str(buf, j)) == NULL)
         return 1;
     return ret_with_decref(s);
 }
@@ -2435,7 +2435,7 @@ fast_gettokens(const char *str, const char *delims)
             (
                 a->stk_push_chk()
                 ||
-                (*a->a_top = ici_str_new(cp, k)) == NULL
+                (*a->a_top = new_str(cp, k)) == NULL
             )
             {
                 a->decref();
@@ -2646,7 +2646,7 @@ f_gettokens()
         case (S_INTOK << 8) + W_TERM:
             if (a->stk_push_chk())
                 goto fail;
-            if ((s = ici_str_new(buf, j)) == NULL)
+            if ((s = new_str(buf, j)) == NULL)
                 goto fail;
             *a->a_top++ = s;
             if (loose_it)
@@ -2661,7 +2661,7 @@ f_gettokens()
         case (S_INTOK << 8) + W_SEP:
             if (a->stk_push_chk())
                 goto fail;
-            if ((s = ici_str_new(buf, j)) == NULL)
+            if ((s = new_str(buf, j)) == NULL)
                 goto fail;
             *a->a_top++ = s;
             s->decref();
@@ -2677,7 +2677,7 @@ f_gettokens()
         case (S_INTOK << 8) + W_DELIM:
             if (a->stk_push_chk())
                 goto fail;
-            if ((s = ici_str_new(buf, j)) == NULL)
+            if ((s = new_str(buf, j)) == NULL)
                 goto fail;
             *a->a_top++ = s;
             s->decref();
@@ -2685,7 +2685,7 @@ f_gettokens()
             if (a->stk_push_chk())
                 goto fail;
             buf[0] = c;
-            if ((s = ici_str_new(buf, 1)) == NULL)
+            if ((s = new_str(buf, 1)) == NULL)
                 goto fail;
             *a->a_top++ = s;
             s->decref();
@@ -3115,7 +3115,7 @@ f_version()
     (
         ver_cache == NULL
         &&
-        (ver_cache = ici_str_new_nul_term(version_string)) == NULL
+        (ver_cache = new_str_nul_term(version_string)) == NULL
     )
         return 1;
     return ret_no_decref(ver_cache);
@@ -3295,7 +3295,7 @@ f_getchar()
         return null_ret();
     }
     buf[0] = c;
-    return ret_with_decref(ici_str_new(buf, 1));
+    return ret_with_decref(new_str(buf, 1));
 }
 
 static int
@@ -3376,7 +3376,7 @@ f_getline()
             clearerr(stdin);
         return null_ret();
     }
-    str = ici_str_new(b, i);
+    str = new_str(b, i);
     free(b);
     if (str == NULL)
         return 1;
@@ -3413,7 +3413,7 @@ f_getfile()
         if (!isfile(f))
         {
             char    n1[objnamez];
-            set_error("getfile() given %s instead of a file", ici_objname(n1, f));
+            set_error("getfile() given %s instead of a file", objname(n1, f));
             goto finish;
         }
     }
@@ -3442,7 +3442,7 @@ f_getfile()
     }
     if (b == NULL)
         goto nomem;
-    str = ici_str_new(b, i);
+    str = new_str(b, i);
     free(b);
     goto finish;
 
@@ -3931,7 +3931,7 @@ f_dir()
         {
             if
             (
-                (s = ici_str_new_nul_term(dirent->d_name)) == NULL
+                (s = new_str_nul_term(dirent->d_name)) == NULL
                 ||
                 a->stk_push_chk()
             )

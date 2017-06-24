@@ -113,10 +113,10 @@ f_channel(...)
         ici_tfree(chan, channel);
         return 1;
     }
-    ICI_OBJ_SET_TFNZ(chan, ICI_TC_CHANNEL, ICI_O_SUPER, 1, 0);
+    set_tfnz(chan, TC_CHANNEL, object::O_SUPER, 1, 0);
     chan->c_capacity = capacity;
     chan->c_altobj = NULL;
-    ici_rego(chan);
+    rego(chan);
     return ret_with_decref(chan);
 }
 

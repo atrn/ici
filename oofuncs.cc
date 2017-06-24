@@ -20,7 +20,7 @@ namespace ici
 /*
  * Return 0 if o (the subject object argument supplied to C implemented
  * methods) is present (indicating a method call was made) and is an
- * object with a super and, (if tcode != ICI_TC_NONE) has the given type
+ * object with a super and, (if tcode != TC_NONE) has the given type
  * code. Else return 1 and set error appropriately.
  *
  * This --func-- forms part of the --ici-api--.
@@ -34,13 +34,13 @@ ici_method_check(object *o, int tcode)
     if (o == NULL)
     {
         return set_error("attempt to call method %s as a function",
-            ici_objname(n1, os.a_top[-1]));
+            objname(n1, os.a_top[-1]));
     }
     if (tcode != 0 && o->o_tcode != tcode)
     {
         return set_error("attempt to apply method %s to %s",
-            ici_objname(n1, os.a_top[-1]),
-            ici_objname(n2, o));
+            objname(n1, os.a_top[-1]),
+            objname(n2, o));
     }
     return 0;
 }
@@ -97,7 +97,7 @@ m_respondsto(object *o)
     }
     if (isfunc(v))
     {
-        return ret_with_decref(ici_method_new(o, v));
+        return ret_with_decref(new_method(o, v));
     }
     return null_ret();
 }

@@ -238,7 +238,7 @@ file *open_charbuf(char *data, int size, object *ref, int readonly)
          */
         if (isstring(ref))
         {
-            if (ref->flags(ICI_O_ATOM|ICI_S_SEP_ALLOC) == ICI_S_SEP_ALLOC)
+            if (ref->flags(object::O_ATOM|ICI_S_SEP_ALLOC) == ICI_S_SEP_ALLOC)
                 f = new_file((char *)cb, strbuf_ftype, NULL, ref);
             else if (readonly)
                 f = new_file((char *)cb, charbuf_ftype, NULL, ref);
@@ -252,7 +252,7 @@ file *open_charbuf(char *data, int size, object *ref, int readonly)
         else if (!chkbuf(50))
         {
             char n[objnamez];
-            set_error("attempt to open %s as a char buffer", ici_objname(n, ref));
+            set_error("attempt to open %s as a char buffer", objname(n, ref));
         }
     }
     else

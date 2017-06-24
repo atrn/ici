@@ -19,7 +19,7 @@ struct channel : objwsup
 };
 
 inline channel *channelof(object *o) { return static_cast<channel *>(o); }
-inline bool ischannel(object *o) { return o->isa(ICI_TC_CHANNEL); }
+inline bool ischannel(object *o) { return o->isa(TC_CHANNEL); }
 
 /*
  * End of ici.h export. --ici.h-end--

@@ -40,7 +40,7 @@ struct file : object
  */
 
 inline file *fileof(object *o) { return static_cast<file *>(o); }
-inline bool isfile(object *o) { return o->isa(ICI_TC_FILE); }
+inline bool isfile(object *o) { return o->isa(TC_FILE); }
 
 constexpr int ICI_F_CLOSED = 0x20;    /* File is closed. */
 constexpr int ICI_F_NOCLOSE = 0x40;    /* Don't close on object free. */

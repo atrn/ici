@@ -21,7 +21,7 @@ struct set : object
 int unassign(set *, object *);
 
 inline set *setof(object *o) { return static_cast<set *>(o); }
-inline bool isset(object *o) { return o->isa(ICI_TC_SET); }
+inline bool isset(object *o) { return o->isa(TC_SET); }
 
 /*
  * End of ici.h export. --ici.h-end--

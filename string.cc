@@ -62,11 +62,11 @@ unsigned long hash_string(object *o)
  * string is not yet an atom, but must become so as it is *not* mutable.
  *
  * WARINING: This is *not* the normal way to make a string object. See
- * ici_str_new().
+ * new_str().
  *
  * This --func-- forms part of the --ici-api--.
  */
-str *ici_str_alloc(size_t nchars)
+str *str_alloc(size_t nchars)
 {
     str  *s;
     size_t              az;
@@ -76,7 +76,7 @@ str *ici_str_alloc(size_t nchars)
     {
         return NULL;
     }
-    ICI_OBJ_SET_TFNZ(s, ICI_TC_STRING, 0, 1, az <= 127 ? az : 0);
+    set_tfnz(s, TC_STRING, 0, 1, az <= 127 ? az : 0);
     s->s_chars = s->s_u.su_inline_chars;
     s->s_nchars = nchars;
     s->s_chars[nchars] = '\0';
@@ -86,7 +86,7 @@ str *ici_str_alloc(size_t nchars)
     s->s_hash = 0;
 #   endif
     s->s_vsver = 0;
-    ici_rego(s);
+    rego(s);
     return s;
 }
 
@@ -100,14 +100,14 @@ str *ici_str_alloc(size_t nchars)
  * The returned string has a reference count of 1 (which is caller is
  * expected to decrement, eventually).
  *
- * See also: 'ici_str_new_nul_term()' and 'ici_str_get_nul_term()'.
+ * See also: 'new_str_nul_term()' and 'str_get_nul_term()'.
  *
  * Returns NULL on error, usual conventions.
  *
  * This --func-- forms part of the --ici-api--.
  */
 str *
-ici_str_new(const char *p, size_t nchars)
+new_str(const char *p, size_t nchars)
 {
     str           *s;
     size_t              az;
@@ -143,18 +143,18 @@ ici_str_new(const char *p, size_t nchars)
             return NULL;
         }
         memcpy((char *)s, (char *)&proto.s, az);
-        ICI_OBJ_SET_TFNZ(s, ICI_TC_STRING, ICI_O_ATOM, 1, az);
+        set_tfnz(s, TC_STRING, object::O_ATOM, 1, az);
         s->s_chars = s->s_u.su_inline_chars;
-        ici_rego(s);
+        rego(s);
         --supress_collect;
-        ICI_STORE_ATOM_AND_COUNT(po, s);
+        store_atom_and_count(po, s);
         return s;
     }
     if ((s = (str *)ici_nalloc(az)) == NULL)
     {
         return NULL;
     }
-    ICI_OBJ_SET_TFNZ(s, ICI_TC_STRING, 0, 1, az <= 127 ? az : 0);
+    set_tfnz(s, TC_STRING, 0, 1, az <= 127 ? az : 0);
     s->s_chars = s->s_u.su_inline_chars;
     s->s_nchars = nchars;
     s->s_struct = NULL;
@@ -165,7 +165,7 @@ ici_str_new(const char *p, size_t nchars)
 #   if ICI_KEEP_STRING_HASH
     s->s_hash = 0;
 #   endif
-    ici_rego(s);
+    rego(s);
     return stringof(atom(s, 1));
 }
 
@@ -181,11 +181,11 @@ ici_str_new(const char *p, size_t nchars)
  * This --func-- forms part of the --ici-api--.
  */
 str *
-ici_str_new_nul_term(const char *p)
+new_str_nul_term(const char *p)
 {
     str  *s;
 
-    if ((s = ici_str_new(p, strlen(p))) == NULL)
+    if ((s = new_str(p, strlen(p))) == NULL)
     {
         return NULL;
     }
@@ -197,18 +197,17 @@ ici_str_new_nul_term(const char *p)
  * string of characters.
  *
  * The returned string has a reference count of 0, unlike
- * ici_str_new_nul_term() which is exactly the same in other respects.
+ * new_str_nul_term() which is exactly the same in other respects.
  *
  * Returns NULL on error, usual conventions.
  *
  * This --func-- forms part of the --ici-api--.
  */
-str *
-ici_str_get_nul_term(const char *p)
+str *str_get_nul_term(const char *p)
 {
     str   *s;
 
-    if ((s = ici_str_new(p, strlen(p))) == NULL)
+    if ((s = new_str(p, strlen(p))) == NULL)
     {
         return NULL;
     }
@@ -241,7 +240,7 @@ str *ici_str_buf_new(size_t n)
         ici_tfree(s, str);
         return NULL;
     }
-    ICI_OBJ_SET_TFNZ(s, ICI_TC_STRING, ICI_S_SEP_ALLOC, 1, 0);
+    set_tfnz(s, TC_STRING, ICI_S_SEP_ALLOC, 1, 0);
     s->s_u.su_nalloc = n;
     s->s_vsver = 0;
     s->s_nchars = 0;
@@ -249,7 +248,7 @@ str *ici_str_buf_new(size_t n)
     s->s_struct = NULL;
     s->s_slot = NULL;
     s->s_vsver = 0;
-    ici_rego(s);
+    rego(s);
     return s;
 }
 
@@ -266,9 +265,9 @@ int ici_str_need_size(str *s, size_t n)
     char                *chars;
     char                n1[30];
 
-    if (s->flags(ICI_O_ATOM|ICI_S_SEP_ALLOC) != ICI_S_SEP_ALLOC)
+    if (s->flags(object::O_ATOM|ICI_S_SEP_ALLOC) != ICI_S_SEP_ALLOC)
     {
-        return set_error("attempt to modify an atomic string %s", ici_objname(n1, s));
+        return set_error("attempt to modify an atomic string %s", objname(n1, s));
     }
     if (size_t(s->s_u.su_nalloc) >= n + 1)
     {
@@ -388,11 +387,11 @@ object *string_type::fetch(object *o, object *k)
     }
     if ((i = (int)intof(k)->i_value) < 0 || size_t(i) >= stringof(o)->s_nchars)
     {
-        k = ici_str_new("", 0);
+        k = new_str("", 0);
     }
     else
     {
-        k = ici_str_new(&stringof(o)->s_chars[i], 1);
+        k = new_str(&stringof(o)->s_chars[i], 1);
     }
     if (k != NULL)
     {
@@ -450,7 +449,7 @@ int string_type::forall(object *o)
         return -1;
     if (fa->fa_vaggr != ici_null)
     {
-        if ((s = ici_str_new(&s->s_chars[fa->fa_index], 1)) == NULL)
+        if ((s = new_str(&s->s_chars[fa->fa_index], 1)) == NULL)
             return 1;
         if (ici_assign(fa->fa_vaggr, fa->fa_vkey, s))
             return 1;

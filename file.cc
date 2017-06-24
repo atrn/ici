@@ -38,12 +38,12 @@ file *new_file(void *fp, ftype *ftype, str *name, object *ref)
 
     if ((f = ici_talloc(file)) == NULL)
         return NULL;
-    ICI_OBJ_SET_TFNZ(f, ICI_TC_FILE, 0, 1, 0);
+    set_tfnz(f, TC_FILE, 0, 1, 0);
     f->f_file = fp;
     f->f_type = ftype;
     f->f_name = name;
     f->f_ref = ref;
-    ici_rego(f);
+    rego(f);
     return f;
 }
 
