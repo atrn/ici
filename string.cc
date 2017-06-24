@@ -17,9 +17,9 @@ namespace ici
  */
 #define STR_ALLOCZ(n)   ((n) + sizeof (str) - sizeof (int))
 
-int (ici_str_char_at)(str *s, int index)
+int (ici_str_char_at)(str *s, size_t index)
 {
-    return index < 0 || index >= s->s_nchars ? 0 : s->s_chars[index];
+    return index >= s->s_nchars ? 0 : s->s_chars[index];
 }
 
 /*
@@ -271,7 +271,7 @@ int ici_str_need_size(str *s, size_t n)
     {
         return ici_set_error("attempt to modify an atomic string %s", ici_objname(n1, s));
     }
-    if (s->s_u.su_nalloc >= n + 1)
+    if (size_t(s->s_u.su_nalloc) >= n + 1)
     {
         return 0;
     }
@@ -387,7 +387,7 @@ object *string_type::fetch(object *o, object *k)
     {
         return fetch_fail(o, k);
     }
-    if ((i = (int)intof(k)->i_value) < 0 || i >= stringof(o)->s_nchars)
+    if ((i = (int)intof(k)->i_value) < 0 || size_t(i) >= stringof(o)->s_nchars)
     {
         k = ici_str_new("", 0);
     }
@@ -432,7 +432,7 @@ int string_type::assign(object *o, object *k, object *v)
     for (n = s->s_nchars; n < i; ++n)
         s->s_chars[n] = ' ';
     s->s_chars[i] = (char)intof(v)->i_value;
-    if (s->s_nchars < ++i)
+    if (s->s_nchars < size_t(++i))
     {
         s->s_nchars = i;
         s->s_chars[i] = '\0';

@@ -95,7 +95,7 @@ read64(archive *ar, int64_t *dword)
     {
     	return 1;
     }
-    *dword = ntohll(tmp);
+    *dword = ici_ntohll(tmp);
     return 0;
 }
 
@@ -650,7 +650,7 @@ restore_cfunc(archive *ar)
 }
 
 static object *
-restore_mark(archive *ar)
+restore_mark(archive *)
 {
     return &o_mark;
 }

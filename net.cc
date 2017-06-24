@@ -96,6 +96,8 @@ constexpr int SOCKET_ERROR = -1;
 #define INADDR_LOOPBACK         (uint32_t)0x7F000001
 #endif
 
+#undef isset
+
 namespace ici
 {
 
@@ -552,7 +554,7 @@ ici_net_connect(void)
         addr = stringof(arg)->s_chars;
     else if (isint(arg))
     {
-        sprintf(buf, "%lld", intof(arg)->i_value);
+        sprintf(buf, "%lld", static_cast<long long int>(intof(arg)->i_value));
         addr = buf;
     }
     else
@@ -607,7 +609,7 @@ ici_net_bind(void)
             addr = stringof(ARG(1))->s_chars;
         else if (isint(ARG(1)))
         {
-            sprintf(buf, "%lld", intof(ARG(1))->i_value);
+            sprintf(buf, "%lld", static_cast<long long int>(intof(ARG(1))->i_value));
             addr = buf;
         }
         else
@@ -648,7 +650,7 @@ select_add_result
 {
     set    *rset;
     SOCKET  fd;
-    int     i;
+    size_t  i;
     sslot  *sl;
 
     if ((rset = ici_set_new()) == NULL)
@@ -743,7 +745,7 @@ ici_net_select()
         }
         else if (isset(ARG(i)) || isnull(ARG(i)))
         {
-            int j;
+            size_t j;
 
             if (++whichset > 2)
                 return seterror("too many set/NULL params to select()", NULL);

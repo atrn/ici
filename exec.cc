@@ -585,9 +585,9 @@ object *evaluate(object *code, int n_operands)
                             goto fail;
                         }
                     }
-                    if (t->type()->can_fetch_method())
+                    if (t->otype()->can_fetch_method())
                     {
-                        if ((o = t->type()->fetch_method(t, ici_os.a_top[-1])) == NULL)
+                        if ((o = t->otype()->fetch_method(t, ici_os.a_top[-1])) == NULL)
                         {
                             goto fail;
                         }

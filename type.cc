@@ -51,11 +51,11 @@ object *type::fetch_base(object *o, object *k) {
     return fetch(o, k);
 }
 
-object *type::fetch_method(object *o, object *n) {
+object *type::fetch_method(object *, object *) {
     return nullptr;
 }
 
-int type::forall(object *o) {
+int type::forall(object *) {
     return 1;
 }
 

@@ -733,9 +733,9 @@ static int ici_sys_read()
 static int ici_sys_write()
 {
     long        fd;
-    object    *o;
+    object      *o;
     char        *addr;
-    long        sz;
+    int64_t     sz;
     int         havesz = 0;
 
     if (typecheck("io", &fd, &o))
@@ -747,7 +747,7 @@ static int ici_sys_write()
     if (isstring(o))
     {
         addr = (char *)stringof(o)->s_chars;
-        if (!havesz || sz > stringof(o)->s_nchars)
+        if (!havesz || size_t(sz) > stringof(o)->s_nchars)
             sz = stringof(o)->s_nchars;
     }
     else if (ismem(o))

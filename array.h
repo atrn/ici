@@ -106,7 +106,7 @@ struct array : object
 
     int grow_stack(ptrdiff_t n);
     int fault_stack(ptrdiff_t i);
-    ptrdiff_t len();
+    size_t len();
     object **span(int i, ptrdiff_t *np);
     int grow();
     int push(object *o);

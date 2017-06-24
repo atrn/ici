@@ -68,12 +68,12 @@ struct object
         return o_tcode == tcode;
     }
 
-    inline type *type() const noexcept {
+    inline type *otype() const noexcept {
         return types[o_tcode];
     }
 
     inline const char * type_name() const noexcept {
-        return type()->name;
+        return otype()->name;
     }
 
     inline uint8_t flags(uint8_t mask = 0xff) const noexcept {
@@ -116,11 +116,11 @@ struct object
             setmark();
             return o_leafz;
         }
-        return type()->mark(this);
+        return otype()->mark(this);
     }
 
     inline void free() {
-        type()->free(this);
+        otype()->free(this);
     }
 
 #ifndef BUGHUNT
@@ -137,59 +137,59 @@ struct object
 #endif
 
     inline unsigned long hash() noexcept {
-        return type()->hash(this);
+        return otype()->hash(this);
     }
 
     inline int cmp(object *that) noexcept {
-        return type()->cmp(this, that);
+        return otype()->cmp(this, that);
     }
 
     inline object *copy() {
-        return type()->copy(this);
+        return otype()->copy(this);
     }
 
     inline int assign(object *k, object *v) {
-        return type()->assign(this, k, v);
+        return otype()->assign(this, k, v);
     }
 
     inline object *fetch(object *k) {
-        return type()->fetch(this, k);
+        return otype()->fetch(this, k);
     }
 
     inline int assign_super(object *k, object *v, ici_struct *b) {
-        return type()->assign_super(this, k, v, b);
+        return otype()->assign_super(this, k, v, b);
     }
     
     inline int fetch_super(object *k, object **pv, ici_struct *b) {
-        return type()->fetch_super(this, k, pv, b);
+        return otype()->fetch_super(this, k, pv, b);
     }
 
     inline int assign_base(object *k, object *v) {
-        return type()->assign_base(this, k, v);
+        return otype()->assign_base(this, k, v);
     }
 
     inline object *fetch_base(object *k) {
-        return type()->fetch_base(this, k);
+        return otype()->fetch_base(this, k);
     }
 
     inline object *fetch_method(object *n) {
-        return type()->fetch_method(this, n);
+        return otype()->fetch_method(this, n);
     }
 
     inline bool can_call() const {
-        return type()->can_call();
+        return otype()->can_call();
     }
 
     inline int call(object *o) {
-        return type()->call(this, o);
+        return otype()->call(this, o);
     }
 
     inline int forall() {
-        return type()->forall(this);
+        return otype()->forall(this);
     }
     
     inline void objname(char n[ICI_OBJNAMEZ]) {
-        type()->objname(this, n);
+        otype()->objname(this, n);
     }
 };
 /*
@@ -226,7 +226,7 @@ struct object
  *
  * This --func-- forms part of the --ici-api--.
  */
-inline type_t *ici_typeof(object *o) { return o->type(); }
+inline type_t *ici_typeof(object *o) { return o->otype(); }
 
 /*
  * "Object with super." This is a specialised header for all objects that

@@ -13,7 +13,7 @@ namespace ici
  */
 struct forall : object
 {
-    int     fa_index;
+    size_t  fa_index;
     object *fa_aggr;
     object *fa_code;
     object *fa_vaggr;

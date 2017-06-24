@@ -57,7 +57,7 @@ inline int write32(archive *ar, int32_t aword)
 
 inline int write64(archive *ar, int64_t dword)
 {
-    auto swapped = htonll(dword);
+    auto swapped = ici_htonll(dword);
     return writef(ar, &swapped, sizeof swapped);
 }
 
@@ -190,7 +190,7 @@ save_set(archive *ar, object *obj)
 
     if (save_object_name(ar, obj) || write64(ar, s->s_nels))
         return 1;
-    for (; e - s->s_slots < s->s_nslots; ++e)
+    for (; size_t(e - s->s_slots) < s->s_nslots; ++e)
     {
         if (*e && archive_save(ar, *e))
             return 1;
@@ -211,7 +211,7 @@ save_struct(archive *ar, object *obj)
     }
     if (save_object_name(ar, obj) || archive_save(ar, super) || write64(ar, s->s_nels))
         return 1;
-    for (sl = s->s_slots; sl - s->s_slots < s->s_nslots; ++sl)
+    for (sl = s->s_slots; size_t(sl - s->s_slots) < s->s_nslots; ++sl)
     {
         if (sl->sl_key && sl->sl_value)
         {
@@ -363,7 +363,7 @@ fail:
 static str *
 tname(object *o)
 {
-    return o->type()->ici_name();
+    return o->otype()->ici_name();
 }
 
 static int

@@ -18,7 +18,7 @@ namespace ici
  *      src     the last source marker encountered.
  */
 static void
-ici_debug_error(char *err, src *src)
+ici_debug_error(char *, src *)
 {
 }
 
@@ -32,7 +32,7 @@ ici_debug_error(char *err, src *src)
  *      nargs   The number of parameters in that array.
  */
 static void
-ici_debug_fncall(object *o, object **ap, int nargs)
+ici_debug_fncall(object *, object **, int)
 {
 }
 
@@ -44,7 +44,7 @@ ici_debug_fncall(object *o, object **ap, int nargs)
  *      o       The result of the function.
  */
 static void
-ici_debug_fnresult(object *o)
+ici_debug_fnresult(object *)
 {
 }
 
@@ -56,7 +56,7 @@ ici_debug_fnresult(object *o)
  *      src     The source marker encountered.
  */
 static void
-ici_debug_src(src *src)
+ici_debug_src(src *)
 {
 }
 
@@ -72,7 +72,7 @@ ici_debug_src(src *src)
  *      v       The value being assigned to the object.
  */
 static void
-ici_debug_watch(object *o, object *k, object *v)
+ici_debug_watch(object *, object *, object *)
 {
 }
 

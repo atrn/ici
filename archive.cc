@@ -61,15 +61,18 @@ void uninit_restorer_map();
 int init_saver_map();
 void uninit_saver_map();
 
-#ifndef htonll
-long long htonll(long long v)
+long long ici_htonll(long long v)
 {
-  assert(sizeof (long long) == 8);
-  uint32_t msw = v >> 32ull;
-  uint32_t lsw = v & ((1ull<<32)-1);
-  return (long long)htonl(msw) | ((long long)htonl(lsw) << 32ull);
+    assert(sizeof (long long) == 8);
+    uint32_t msw = v >> 32ull;
+    uint32_t lsw = v & ((1ull<<32)-1);
+    return (long long)htonl(msw) | ((long long)htonl(lsw) << 32ull);
 }
-#endif
+
+long long ici_ntohll(long long v)
+{
+    return ici_htonll(v);
+}
 
 typedef int int_func();
 static int_func *op_funcs[7];
@@ -165,7 +168,7 @@ void archive::stop()
 
 int archive_op_func_code(int_func *fn)
 {
-    for (int i = 0; i < num_op_funcs; ++i)
+    for (size_t i = 0; i < num_op_funcs; ++i)
     {
         if (fn == op_funcs[i])
             return i;
@@ -175,7 +178,7 @@ int archive_op_func_code(int_func *fn)
 
 int_func *archive_op_func(int code)
 {
-    if (code < 0 || code >= num_op_funcs)
+    if (code < 0 || size_t(code) >= num_op_funcs)
     {
         return NULL;
     }
@@ -187,7 +190,7 @@ void archive_byteswap(void *ptr, int sz)
     if (sz == sizeof (long long))
     {
         long long *ll = (long long *)ptr;
-        *ll = htonll(*ll);
+        *ll = ici_htonll(*ll);
         return;
     }
 

@@ -63,6 +63,8 @@
     extern char         **environ;
 #endif
 
+#undef isset
+
 namespace ici
 {
 
@@ -851,7 +853,7 @@ f_keys()
     else if (isset(ARG(0)))
     {
         set *s = setof(ARG(0));
-        int i;
+        size_t i;
 
         if ((k = ici_array_new(s->s_nels)) == NULL)
             return 1;
@@ -887,7 +889,7 @@ f_typeof()
         return ici_argcount(1);
     if (ishandle(ARG(0)))
         return ici_ret_no_decref(handleof(ARG(0))->h_name);
-    return ici_ret_no_decref(ARG(0)->type()->ici_name());
+    return ici_ret_no_decref(ARG(0)->otype()->ici_name());
 }
 
 static int
@@ -1015,7 +1017,7 @@ f_string()
     if (isstring(o))
         return ici_ret_no_decref(o);
     if (isint(o))
-        sprintf(buf, "%lld", intof(o)->i_value);
+        sprintf(buf, "%lld", static_cast<long long int>(intof(o)->i_value));
     else if (isfloat(o))
         sprintf(buf, "%g", floatof(o)->f_value);
     else if (isregexp(o))
@@ -1433,10 +1435,10 @@ f_rand()
 static int
 f_interval()
 {
-    object           *o;
-    long                start;
-    long                length;
-    size_t              nel;
+    object        *o;
+    int64_t       start;
+    int64_t       length;
+    size_t        nel;
     str           *s = 0; /* init to shut up compiler */
     array         *a = 0; /* init to shut up compiler */
     array         *a1;
@@ -1482,9 +1484,9 @@ f_interval()
             start = 0;
         }
     }
-    else if (start > nel)
+    else if (start > int64_t(nel))
         start = nel;
-    if (start + length > nel)
+    if (start + length > int64_t(nel))
         length = nel - start;
 
     if (isstring(o))
@@ -2471,7 +2473,6 @@ f_gettokens()
     int                 ndelims;
     int                 hardsep;
     unsigned char       sep;
-    void                *file;
     array         *a;
     int                 c;
     int                 i;
@@ -2571,7 +2572,6 @@ f_gettokens()
     default:
         return ici_argcount(4);
     }
-    file = f->f_file;
 
 #define S_IDLE  0
 #define S_INTOK 1
@@ -3161,7 +3161,7 @@ f_strcat()
     int                 i;
     int                 si;
     int                 z;
-    int                 sz;
+    int64_t             sz;
 
 
     if (NARGS() < 2)
@@ -3173,7 +3173,7 @@ f_strcat()
     {
         si = 2;
         sz = intof(ARG(1))->i_value;
-        if (sz < 0 || sz > s1->s_nchars)
+        if (sz < 0 || sz > int64_t(s1->s_nchars))
             return ici_argerror(1);
     }
     else
@@ -3197,7 +3197,7 @@ f_strcat()
         memcpy(&s1->s_chars[z], s2->s_chars, s2->s_nchars);
         z += s2->s_nchars;
     }
-    if (s1->s_nchars < z)
+    if (s1->s_nchars < size_t(z))
         s1->s_nchars = z;
     s1->s_chars[s1->s_nchars] = '\0';
     return ici_ret_no_decref(s1);
@@ -3500,7 +3500,7 @@ f_puts()
         return ici_argerror(0);
     if (f->flags() & FT_NOMUTEX)
         x = ici_leave();
-    if (f->write(s->s_chars, s->s_nchars) != s->s_nchars)
+    if (f->write(s->s_chars, s->s_nchars) != int(s->s_nchars))
     {
         if (f->flags() & FT_NOMUTEX)
             ici_enter(x);

@@ -44,9 +44,9 @@ int          ici_ncollects;	/* Number of ici_collect() calls */
 char *
 ici_objname(char p[ICI_OBJNAMEZ], object *o)
 {
-    if (o->type()->can_objname())
+    if (o->otype()->can_objname())
     {
-        o->type()->objname(o, p);
+        o->otype()->objname(o, p);
         return p;
     }
     if (isstring(o))
@@ -57,7 +57,7 @@ ici_objname(char p[ICI_OBJNAMEZ], object *o)
             sprintf(p, "\"%s\"", stringof(o)->s_chars);
     }
     else if (isint(o))
-        sprintf(p, "%lld", intof(o)->i_value);
+        sprintf(p, "%lld", static_cast<long long int>(intof(o)->i_value));
     else if (isfloat(o))
         sprintf(p, "%g", floatof(o)->f_value);
     else if (strchr("aeiou", o->type_name()[0]) != NULL)

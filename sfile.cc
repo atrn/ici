@@ -163,7 +163,7 @@ public:
         const char *data = (const char *)ptr;
         charbuf *sb = (charbuf *)file;
         str   *s;
-        int   size;
+        size_t  size;
 
         if (sb->cb_readonly || count <= 0)
             return 0;

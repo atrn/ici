@@ -36,7 +36,7 @@ ici_op_forall()
         return 1;
     }
     ICI_OBJ_SET_TFNZ(fa, ICI_TC_FORALL, 0, 0, 0);
-    fa->fa_index = -1;
+    fa->fa_index = size_t(-1);
     fa->fa_code = *--ici_os.a_top;
     fa->fa_aggr = *--ici_os.a_top;
     fa->fa_kkey = *--ici_os.a_top;
@@ -59,7 +59,7 @@ int ici_exec_forall()
     type *t;
 
     fa = forallof(ici_xs.a_top[-1]);
-    t = fa->fa_aggr->type();
+    t = fa->fa_aggr->otype();
     if (!t->can_forall())
     {
         char n[ICI_OBJNAMEZ];

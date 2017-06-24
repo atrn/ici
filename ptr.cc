@@ -90,7 +90,7 @@ int ptr_type::assign(object *o, object *k, object *v)
     return 0;
 }
 
-int ptr_type::call(object *o, object *subject)
+int ptr_type::call(object *o, object *)
 {
     object   *f;
 

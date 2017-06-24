@@ -259,11 +259,11 @@ ici_free(void *p)
      * we have. Does a division - yuk.
      */
     z = ici_alloc_mem / ici_n_allocs;
-    if (z > ici_mem)
+    if (z > ptrdiff_t(ici_mem))
     {
         z = ici_mem;
     }
-    if (z > ici_alloc_mem)
+    if (z > ptrdiff_t(ici_alloc_mem))
     {
         z = ici_alloc_mem;
     }

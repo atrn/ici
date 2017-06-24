@@ -433,7 +433,7 @@ extern int             ici_init_sstrings();
 extern void            ici_drop_all_small_allocations();
 extern objwsup        *ici_outermost_writeable_struct();
 extern cfunc          *ici_cfunc_new(str *, int (*)(...), void *, void *);
-extern int             ici_str_char_at(str *, int);
+extern int             ici_str_char_at(str *, size_t);
 
 extern object        **ici_objs;
 extern object        **ici_objs_top;

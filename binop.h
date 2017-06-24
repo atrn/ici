@@ -553,7 +553,7 @@
         {
             ici_struct  *s;
             sslot       *sl;
-            int         i;
+            size_t      i;
 
             if ((s = structof(ici_copy(o0))) == NULL)
             {
@@ -579,9 +579,9 @@
     case ICI_TRI(ICI_TC_SET, ICI_TC_SET, T_PLUS):
     case ICI_TRI(ICI_TC_SET, ICI_TC_SET, T_PLUSEQ):
         {
-            set  *s;
+            set     *s;
             object  **sl;
-            int        i;
+            size_t  i;
 
             if ((s = setof(ici_copy(o0))) == NULL)
             {
@@ -607,9 +607,9 @@
     case ICI_TRI(ICI_TC_SET, ICI_TC_SET, T_MINUS):
     case ICI_TRI(ICI_TC_SET, ICI_TC_SET, T_MINUSEQ):
         {
-            set  *s;
+            set     *s;
             object  **sl;
-            int        i;
+            size_t  i;
 
             if ((s = setof(ici_copy(o0))) == NULL)
             {
@@ -635,9 +635,9 @@
     case ICI_TRI(ICI_TC_SET, ICI_TC_SET, T_ASTERIX):
     case ICI_TRI(ICI_TC_SET, ICI_TC_SET, T_ASTERIXEQ):
         {
-            set  *s;
+            set     *s;
             object  **sl;
-            int        i;
+            size_t  i;
 
             if (setof(o0)->s_nels > setof(o1)->s_nels)
             {
@@ -804,14 +804,14 @@
 	    MISMATCH();
 
         case t_subtype(T_EQEQ):
-            if (o0->type() == o1->type() && ici_cmp(o0, o1) == 0)
+            if (o0->otype() == o1->otype() && ici_cmp(o0, o1) == 0)
             {
                 USE1();
             }
             USE0();
 
         case t_subtype(T_EXCLAMEQ):
-            if (!(o0->type() == o1->type() && ici_cmp(o0, o1) == 0))
+            if (!(o0->otype() == o1->otype() && ici_cmp(o0, o1) == 0))
             {
                 USE1();
             }

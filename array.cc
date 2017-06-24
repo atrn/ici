@@ -85,14 +85,13 @@ array::fault_stack(ptrdiff_t i)
  *
  * This --func-- forms part of the --ici-api--.
  */
-ptrdiff_t
-array::len()
+size_t array::len()
 {
     if (a_top >= a_bot)
     {
-        return a_top - a_bot;
+        return size_t(a_top - a_bot);
     }
-    return (a_top - a_base) + (a_limit - a_bot);
+    return size_t((a_top - a_base) + (a_limit - a_bot));
 }
 
 /*

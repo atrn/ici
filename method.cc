@@ -51,7 +51,7 @@ object * method_type::fetch(object *o, object *k)
     return ici_null;
 }
 
-int method_type::call(object *o, object *subject)
+int method_type::call(object *o, object *)
 {
     auto m = methodof(o);
     if (!m->m_callable->can_call())
