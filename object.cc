@@ -203,7 +203,7 @@ object *atom(object *o, int lone)
         o = *po;
     }
     *po = o;
-    o->setflag(ICI_O_ATOM);
+    o->set(ICI_O_ATOM);
     if (++natoms > atomsz / 2)
         grow_atoms(atomsz * 2);
     if (!lone)
@@ -291,7 +291,7 @@ unatom(object *o)
     return 1;
 
 deleteo:
-    o->clrflag(ICI_O_ATOM);
+    o->clr(ICI_O_ATOM);
     --natoms;
     sl = ss;
     /*

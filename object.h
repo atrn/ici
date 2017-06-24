@@ -84,11 +84,11 @@ struct object
         return flags(mask) != 0;
     }
 
-    inline void setflag(uint8_t mask) noexcept {
+    inline void set(uint8_t mask) noexcept {
         o_flags |= mask;
     }
 
-    inline void clrflag(uint8_t mask) noexcept {
+    inline void clr(uint8_t mask) noexcept {
         o_flags &= ~mask;
     }
 
@@ -97,11 +97,11 @@ struct object
     }
 
     inline void setmark() noexcept {
-        setflag(ICI_O_MARK);
+        set(ICI_O_MARK);
     }
 
     inline void clrmark() noexcept {
-        clrflag(ICI_O_MARK);
+        clr(ICI_O_MARK);
     }
 
     inline bool marked() const noexcept {

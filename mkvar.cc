@@ -53,7 +53,7 @@ int ici_set_val(objwsup *s, str *name, int type, void *vp)
 
     case 'u':
         o = ici_file_new((char *)vp, stdio_ftype, name, NULL);
-        o->setflag(ICI_F_NOCLOSE);
+        o->set(ICI_F_NOCLOSE);
         break;
 
     case 'o':

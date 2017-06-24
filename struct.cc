@@ -30,7 +30,7 @@ uint32_t        vsver   = 1;
 /*
  * Hash a pointer to get the initial position in a struct has table.
  */
-inline size_t HASHINDEX(object *k, ici_struct *s) {
+inline size_t hashindex(object *k, ici_struct *s) {
     return ICI_PTR_HASH(k) & (s->s_nslots - 1);
 }
 
@@ -41,7 +41,7 @@ inline size_t HASHINDEX(object *k, ici_struct *s) {
 sslot *
 find_raw_slot(ici_struct *s, object *k)
 {
-    sslot *sl = &s->s_slots[HASHINDEX(k, s)];
+    sslot *sl = &s->s_slots[hashindex(k, s)];
     while (LIKELY(sl->sl_key != NULL))
     {
         if (LIKELY(sl->sl_key == k))
@@ -182,7 +182,7 @@ int unassign(ici_struct *s, object *k)
         {
             break;
         }
-        ws = &s->s_slots[HASHINDEX(sl->sl_key, s)];
+        ws = &s->s_slots[hashindex(sl->sl_key, s)];
         if
         (
             (sl < ss && (ws >= ss || ws < sl))
@@ -231,7 +231,7 @@ int struct_type::fetch_super(object *o, object *k, object **v, ici_struct *b)
 
     do
     {
-        sl = &structof(o)->s_slots[HASHINDEX(k, structof(o))];
+        sl = &structof(o)->s_slots[hashindex(k, structof(o))];
         while (sl->sl_key != NULL)
         {
             if (sl->sl_key == k)
@@ -243,11 +243,11 @@ int struct_type::fetch_super(object *o, object *k, object **v, ici_struct *b)
                     stringof(k)->s_slot = sl;
                     if (o->isatom())
                     {
-                        k->setflag(ICI_S_LOOKASIDE_IS_ATOM);
+                        k->set(ICI_S_LOOKASIDE_IS_ATOM);
                     }
                     else
                     {
-                        k->clrflag(ICI_S_LOOKASIDE_IS_ATOM);
+                        k->clr(ICI_S_LOOKASIDE_IS_ATOM);
                     }
                 }
                 *v = sl->sl_value;
@@ -447,7 +447,7 @@ int struct_type::assign_super(object *o, object *k, object *v, ici_struct *b)
     {
         if (!o->isatom())
         {
-            sl = &structof(o)->s_slots[HASHINDEX(k, structof(o))];
+            sl = &structof(o)->s_slots[hashindex(k, structof(o))];
             while (sl->sl_key != NULL)
             {
                 if (sl->sl_key == k)
@@ -458,7 +458,7 @@ int struct_type::assign_super(object *o, object *k, object *v, ici_struct *b)
                         stringof(k)->s_vsver = vsver;
                         stringof(k)->s_struct = b;
                         stringof(k)->s_slot = sl;
-                        k->clrflag(ICI_S_LOOKASIDE_IS_ATOM);
+                        k->clr(ICI_S_LOOKASIDE_IS_ATOM);
                     }
                     return 1;
                 }
@@ -510,7 +510,7 @@ int struct_type::assign(object *o, object *k, object *v)
     /*
      * Look for it in the base struct.
      */
-    sl = &structof(o)->s_slots[HASHINDEX(k, structof(o))];
+    sl = &structof(o)->s_slots[hashindex(k, structof(o))];
     while (sl->sl_key != NULL)
     {
         if (sl->sl_key == k)
@@ -549,7 +549,7 @@ int struct_type::assign(object *o, object *k, object *v)
         /*
          * Re-find our empty slot.
          */
-        sl = &structof(o)->s_slots[HASHINDEX(k, structof(o))];
+        sl = &structof(o)->s_slots[hashindex(k, structof(o))];
         while (sl->sl_key != NULL)
         {
             if (--sl < structof(o)->s_slots)
@@ -565,7 +565,7 @@ int struct_type::assign(object *o, object *k, object *v)
         stringof(k)->s_vsver = vsver;
         stringof(k)->s_struct = structof(o);
         stringof(k)->s_slot = sl;
-        k->clrflag(ICI_S_LOOKASIDE_IS_ATOM);
+        k->clr(ICI_S_LOOKASIDE_IS_ATOM);
     }
     return 0;
 }
@@ -605,7 +605,7 @@ int struct_type::assign_base(object *o, object *k, object *v)
         /*
          * Re-find out empty slot.
          */
-        sl = &s->s_slots[HASHINDEX(k, s)];
+        sl = &s->s_slots[hashindex(k, s)];
         while (LIKELY(sl->sl_key != NULL))
         {
             --sl;
@@ -624,7 +624,7 @@ int struct_type::assign_base(object *o, object *k, object *v)
         stringof(k)->s_vsver = vsver;
         stringof(k)->s_struct = s;
         stringof(k)->s_slot = sl;
-        k->clrflag(ICI_S_LOOKASIDE_IS_ATOM);
+        k->clr(ICI_S_LOOKASIDE_IS_ATOM);
     }
     return 0;
 }
@@ -702,11 +702,11 @@ object *struct_type::fetch_base(object *o, object *k)
         stringof(k)->s_slot = sl;
         if (o->isatom())
         {
-            k->setflag(ICI_S_LOOKASIDE_IS_ATOM);
+            k->set(ICI_S_LOOKASIDE_IS_ATOM);
         }
         else
         {
-            k->clrflag(ICI_S_LOOKASIDE_IS_ATOM);
+            k->clr(ICI_S_LOOKASIDE_IS_ATOM);
         }
     }
     return sl->sl_value;

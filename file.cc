@@ -66,11 +66,11 @@ int close_file(file *f)
     {
         return set_error("file already closed");
     }
-    f->setflag(ICI_F_CLOSED);
-    if (f->flags() & FT_NOMUTEX)
+    f->set(ICI_F_CLOSED);
+    if (f->flagged(FT_NOMUTEX))
         x = leave();
     r = f->close();
-    if (f->flags() & FT_NOMUTEX)
+    if (f->flagged(FT_NOMUTEX))
         enter(x);
     /*
      * If this is a pipe opened with popen(), 'r' is actually the exit status

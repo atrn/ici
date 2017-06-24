@@ -151,13 +151,13 @@ static handle *new_netsocket(SOCKET fd)
     long lfd = fd;
     if ((h = ici_handle_new((void *)lfd, SS(socket), NULL)) == NULL)
         return NULL;
-    h->clrflag(ICI_H_CLOSED);
+    h->clr(ICI_H_CLOSED);
     h->h_pre_free = socket_prefree;
     /*
      * Turn off super support. This means you can't assign or fetch
      * values with a socket.
      */
-    h->clrflag(ICI_O_SUPER);
+    h->clr(ICI_O_SUPER);
     return h;
 }
 
@@ -449,7 +449,7 @@ ici_net_close(void)
     if (isclosed(skt))
         return 1;
     closesocket(socket_fd(skt));
-    skt->setflag(ICI_H_CLOSED);
+    skt->set(ICI_H_CLOSED);
     return null_ret();
 }
 

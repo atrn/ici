@@ -475,7 +475,7 @@ int handle_type::assign_base(object *o, object *k, object *v)
         s->o_super = objwsupof(o)->o_super;
         objwsupof(o)->o_super = s;
         ++vsver;
-        o->setflag(ICI_H_HAS_PRIV_STRUCT);
+        o->set(ICI_H_HAS_PRIV_STRUCT);
     }
     return ici_assign_base(objwsupof(o)->o_super, k, v);
 }
