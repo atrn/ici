@@ -34,7 +34,7 @@ func *ici_new_func()
     return f;
 }
 
-int ici_op_return()
+int op_return()
 {
     static int   occasionally = 0;
     object     **x;
@@ -42,24 +42,24 @@ int ici_op_return()
 
     if (UNLIKELY(ici_debug_active))
     {
-        debugfunc->idbg_fnresult(ici_os.a_top[-1]);
+        debugfunc->idbg_fnresult(os.a_top[-1]);
     }
 
-    x = ici_xs.a_top - 1;
+    x = xs.a_top - 1;
     while
     (
         !ismark(*x)
         &&
-        --x >= ici_xs.a_base
+        --x >= xs.a_base
         &&
         !(iscatcher(*x) && isnull(catcherof(*x)->c_catcher))
     )
         ;
-    if (x < ici_xs.a_base || !ismark(*x))
+    if (x < xs.a_base || !ismark(*x))
     {
-        return ici_set_error("return not in function");
+        return set_error("return not in function");
     }
-    ici_xs.a_top = x;
+    xs.a_top = x;
 
     /*
      * If convenient, record the total nels of the autos that this function
@@ -68,24 +68,24 @@ int ici_op_return()
      */
     if
     (
-        SS(_func_)->s_struct == ici_vs.a_top[-1]
+        SS(_func_)->s_struct == vs.a_top[-1]
         &&
         SS(_func_)->s_vsver == vsver
         &&
         isfunc(f = SS(_func_)->s_slot->sl_value)
     )
     {
-        funcof(f)->f_nautos = structof(ici_vs.a_top[-1])->s_nels;
+        funcof(f)->f_nautos = structof(vs.a_top[-1])->s_nels;
     }
     else if (--occasionally <= 0)
     {
         occasionally = 10;
-        f = ici_fetch(ici_vs.a_top[-1], SS(_func_));
-        if (isstruct(ici_vs.a_top[-1]) && isfunc(f))
-            funcof(f)->f_nautos = structof(ici_vs.a_top[-1])->s_nels;
+        f = ici_fetch(vs.a_top[-1], SS(_func_));
+        if (isstruct(vs.a_top[-1]) && isfunc(f))
+            funcof(f)->f_nautos = structof(vs.a_top[-1])->s_nels;
     }
 
-    --ici_vs.a_top;
+    --vs.a_top;
 #ifndef NOPROFILE
     if (ici_profile_active)
         ici_profile_return();
@@ -126,7 +126,7 @@ object * func_type::fetch(object *o, object *k)
 {
     object           *r;
 
-    ici_error = NULL;
+    error = NULL;
     r = NULL;
     if (k == SS(vars))
     {
@@ -140,20 +140,20 @@ object * func_type::fetch(object *o, object *k)
     {
         r = funcof(o)->f_name;
     }
-    if (r == NULL && ici_error == NULL)
+    if (r == NULL && error == NULL)
     {
         r = ici_null;
     }
     return r;
 }
 
-void func_type::objname(object *o, char p[ICI_OBJNAMEZ])
+void func_type::objname(object *o, char p[objnamez])
 {
     str   *s;
 
     s = funcof(o)->f_name;
-    if (s->s_nchars > ICI_OBJNAMEZ - 2 - 1)
-        sprintf(p, "%.*s...()", ICI_OBJNAMEZ - 6, s->s_chars);
+    if (s->s_nchars > objnamez - 2 - 1)
+        sprintf(p, "%.*s...()", objnamez - 6, s->s_chars);
     else
         sprintf(p, "%s()", s->s_chars);
 }
@@ -162,7 +162,7 @@ void func_type::objname(object *o, char p[ICI_OBJNAMEZ])
 /*
  * arg(N-1) .. arg1 arg0 nargs func     => (os) OR
  * arg(N-1) .. arg1 arg0 nargs ptr      => (os) OR
- * arg(N-1) .. arg1 arg0 nargs aggr key => (os) iff ICI_OP_AGGR_KEY_CALL
+ * arg(N-1) .. arg1 arg0 nargs aggr key => (os) iff OP_AGGR_KEY_CALL
  *                                => auto-struct  (vs)
  *                      call      => mark pc      (xs)
  *
@@ -203,8 +203,8 @@ int func_type::call(object *o, object *subject)
          */
         if (UNLIKELY(!hassuper(subject)))
         {
-            char n1[ICI_OBJNAMEZ];
-            ici_set_error("attempt to call method on %s", ici_objname(n1, subject));
+            char n1[objnamez];
+            set_error("attempt to call method on %s", ici_objname(n1, subject));
             goto fail;
         }
         objwsupof(d)->o_super = objwsupof(subject);
@@ -265,7 +265,7 @@ int func_type::call(object *o, object *subject)
         (
             LIKELY
             (
-                (sl = ici_find_raw_slot(d, SS(vargs))) != NULL
+                (sl = find_raw_slot(d, SS(vargs))) != NULL
                 &&
                 (va = ici_array_new(n)) != NULL
             )
@@ -289,14 +289,14 @@ int func_type::call(object *o, object *subject)
      * That way, after the function returns, it will cause the current
      * source marker to be reset to the correct value.
      */
-    ici_xs.a_top[-1] = ici_exec->x_src;
+    xs.a_top[-1] = ex->x_src;
 
-    *ici_xs.a_top++ = &o_mark;
-    ici_get_pc(f->f_code, ici_xs.a_top);
-    ++ici_xs.a_top;
-    *ici_vs.a_top++ = d;
+    *xs.a_top++ = &o_mark;
+    ici_get_pc(f->f_code, xs.a_top);
+    ++xs.a_top;
+    *vs.a_top++ = d;
     d->decref();
-    ici_os.a_top -= NARGS() + 2;
+    os.a_top -= NARGS() + 2;
     return 0;
 
  fail:
@@ -307,9 +307,9 @@ int func_type::call(object *o, object *subject)
     return 1;
 }
 
-op    ici_o_return{ici_op_return};
-op    ici_o_call{ICI_OP_CALL};
-op    ici_o_method_call{ICI_OP_METHOD_CALL};
-op    ici_o_super_call{ICI_OP_SUPER_CALL};
+op    o_return{op_return};
+op    o_call{OP_CALL};
+op    o_method_call{OP_METHOD_CALL};
+op    o_super_call{OP_SUPER_CALL};
 
 } // namespace ici

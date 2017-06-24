@@ -121,7 +121,7 @@ inline bool iscfunc(object *o) { return o->isa(ICI_TC_CFUNC); }
  * The operand stack on entry to an intrinsic function:
  *
  * arg(n-1) ... arg(1) arg(0) NARGS FUNC
- *                                        ^-ici_os.a_top
+ *                                        ^-os.a_top
  *
  * NARGS is an ICI int and FUNC is the function object (us).
  */
@@ -137,8 +137,8 @@ inline bool iscfunc(object *o) { return o->isa(ICI_TC_CFUNC); }
  *
  * This --macro-- forms part of the --ici-api--.
  */
-#define ARG(n)          (ici_os.a_top[-3 - (n)])
-// inline object *ARG(int n) { return ici_os.a_top[-3 - (n)]; }
+#define ARG(n)          (os.a_top[-3 - (n)])
+// inline object *ARG(int n) { return os.a_top[-3 - (n)]; }
 
 /*
  * In a call from ICI to a function coded in C, this macro returns the
@@ -148,7 +148,7 @@ inline bool iscfunc(object *o) { return o->isa(ICI_TC_CFUNC); }
  *
  * This --macro-- forms part of the --ici-api--.
  */
-inline int NARGS() { return intof(ici_os.a_top[-2])->i_value; }
+inline int NARGS() { return intof(os.a_top[-2])->i_value; }
 
 /*
  * In a call from ICI to a function coded in C, this macro returns
@@ -159,7 +159,7 @@ inline int NARGS() { return intof(ici_os.a_top[-2])->i_value; }
  *
  * This --macro-- forms part of the --ici-api--.
  */
-#define ARGS()          (&ici_os.a_top[-3])
+#define ARGS()          (&os.a_top[-3])
 
 /*
  * In a call from ICI to a function coded in C, this macro returns the
@@ -171,8 +171,8 @@ inline int NARGS() { return intof(ici_os.a_top[-2])->i_value; }
  *
  * This --macro-- forms part of the --ici-api--.
  */
-#define ICI_CF_ARG1()       (cfuncof(ici_os.a_top[-1])->cf_arg1)
-#define ICI_CF_ARG2()       (cfuncof(ici_os.a_top[-1])->cf_arg2)
+#define ICI_CF_ARG1()       (cfuncof(os.a_top[-1])->cf_arg1)
+#define ICI_CF_ARG2()       (cfuncof(os.a_top[-1])->cf_arg2)
 
 /*
  * Defines a 'cfuncs' array.
@@ -208,7 +208,7 @@ public:
 
     size_t mark(object *o) override;
     object *fetch(object *o, object *k) override;
-    void objname(object *o, char p[ICI_OBJNAMEZ]) override;
+    void objname(object *o, char p[objnamez]) override;
     int call(object *o, object *subject) override;
 };
 

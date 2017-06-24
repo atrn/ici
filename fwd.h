@@ -86,28 +86,32 @@ namespace ici
  *
  * ANICI uses a major version of 5 and the word 'ANICI' in the string.
  */
-constexpr int ICI_VER_MAJOR   = 5;
-constexpr int ICI_VER_MINOR   = 0;
-constexpr int ICI_VER_RELEASE = 0;
+constexpr int major_version   = 5;
+constexpr int minor_version   = 0;
+constexpr int release_number  = 0;
 
 /*
  * The ICI version number composed into an 8.8.16 unsigned long for simple
- * comparisons. The components of this are also available as 'ICI_VER_MAJOR',
- * 'ICI_VER_MINOR', and 'ICI_VER_RELEASE'.
+ * comparisons. The components of this are also available as 'major_version',
+ * 'minor_version', and 'release_number'.
  *
  * This --constant-- forms part of the --ici-api--.
  */
-constexpr unsigned long ICI_VER = (((unsigned long)ICI_VER_MAJOR << 24) | ((unsigned long)ICI_VER_MINOR << 16) | ICI_VER_RELEASE);
+constexpr unsigned long version_number = (
+    ((unsigned long)major_version << 24) |
+    ((unsigned long)minor_version << 16) |
+    release_number
+);
 
 /*
  * The oldet version number for which the binary interface for seperately
  * compiled modules is backwards compatible. This is updated whenever
  * the exernal interface changes in a way that could break already compiled
- * modules. We aim to never to do that again. See 'ici_interface_check()'.
+ * modules. We aim to never to do that again. See 'check_interface()'.
  *
  * This --constant-- forms part of the --ici-api--.
  */
-constexpr unsigned long ICI_BACK_COMPAT_VER = (5UL << 24) | (0UL << 16) | 0;
+constexpr unsigned long back_compat_version = (5UL << 24) | (0UL << 16) | 0;
 
 /*
  * DLI is defined in some configurations (Windows, in the conf include file)
@@ -164,7 +168,7 @@ constexpr unsigned long ICI_BACK_COMPAT_VER = (5UL << 24) | (0UL << 16) | 0;
  * if it wasn't, this is what we use.
  */
 #ifndef ICI_PTR_HASH
-#define ICI_PTR_HASH(p) (ici_crc_table[((size_t)(p) >>  4) & 0xFF] ^ ici_crc_table[((size_t)(p) >> 12) & 0xFF])
+#define ICI_PTR_HASH(p) (crc_table[((size_t)(p) >>  4) & 0xFF] ^ crc_table[((size_t)(p) >> 12) & 0xFF])
 
 /*
  * This is an alternative that avoids looking up the crc table.
@@ -186,7 +190,7 @@ constexpr int ICI_EVENT_ERROR = 0x7A41B291;
 /*
  * Size of a char arrays used to hold formatted object names.
  */
-constexpr int ICI_OBJNAMEZ = 32;
+constexpr int objnamez = 32;
 
 /*
  * Standard types.
@@ -208,7 +212,7 @@ typedef struct mark             ici_mark_t;
 typedef struct null             ici_null_t;
 typedef struct object           ici_obj_t;
 typedef struct objwsup          ici_objwsup_t;
-typedef struct op               ici_op_t;
+typedef struct op               op_t;
 typedef struct pc               ici_pc_t;
 typedef struct ptr              ici_ptr_t;
 typedef struct regexp           ici_regexp_t;
@@ -227,29 +231,29 @@ typedef struct restorer         restorer_t;
 typedef struct saver            saver_t;
 typedef struct expr             expr_t;
 
-extern DLI ici_int              *ici_zero;
-extern DLI ici_int              *ici_one;
-extern DLI char                 *ici_error;
-extern DLI exec                 *ici_execs;
-extern DLI exec                 *ici_exec;
-extern DLI array                ici_xs;
-extern DLI array                ici_os;
-extern DLI array                ici_vs;
+constexpr int                   nsubexp = 10;
+
+extern DLI ici_int              *o_zero;
+extern DLI ici_int              *o_one;
+extern DLI char                 *error;
+extern DLI exec                 *execs;
+extern DLI exec                 *ex;
+extern DLI array                xs;
+extern DLI array                os;
+extern DLI array                vs;
 extern DLI uint32_t             vsver;
-constexpr int                   NSUBEXP = 10;
-extern DLI int                  re_bra[(NSUBEXP + 1) * 3];
+extern DLI int                  re_bra[(nsubexp + 1) * 3];
 extern DLI int                  re_nbra;
 extern DLI volatile int         aborted;                        /* See exec.c */
 extern DLI int                  record_line_nums;               /* See lex.c */
 extern DLI char                 *buf;                           /* See buf.h */
 extern DLI size_t               bufz;                           /* See buf.h */
 extern DLI mark                 o_mark;
-extern DLI null                 ici_o_null;
+extern DLI null                 o_null;
 extern DLI ici_debug_t          *debugfunc;
-extern char                     ici_version_string[];
-extern unsigned long const      ici_crc_table[256];
-extern int                      ici_exec_count;
-
+extern char                     version_string[];
+extern unsigned long const      crc_table[256];
+extern int                      exec_count;
 extern DLI ftype                *stdio_ftype;
 extern DLI ftype                *popen_ftype;
 extern DLI ftype                *parse_ftype;
@@ -259,57 +263,74 @@ extern DLI ftype                *parse_ftype;
  *
  * This --macro-- forms part of the --ici-api--.
  */
-#define ici_null                (&ici_o_null)
+#define ici_null                (&o_null)
 
 /*
- * Use 'return ici_null_ret();' to return a ICI NULL from an intrinsic
+ * Use 'return null_ret();' to return a ICI NULL from an intrinsic
  * fuction.
  *
  * This --macro-- forms part of the --ici-api--.
  */
-#define ici_null_ret()          ici_ret_no_decref(ici_null)
+extern object        *atom_probe(object *o);
+extern object        *atom(object *, int);
 
+extern int           parse_file(const char *, char *, ftype *);
+extern int           parse_file(file *, objwsup *);
+extern int           parse_file(const char *);
 
-extern object        *ici_atom_probe(object *o);
-extern object        *ici_atom(object *, int);
-extern int            ici_parse_file(const char *, char *, ftype *);
+extern exec          *new_exec();
+extern src           *new_src(int, str *);
+extern ptr           *new_ptr(object *, object *);
+extern set           *new_set();
+
+extern str           *ici_str_new(const char *, size_t);
+extern regexp        *ici_regexp_new(str *, int);
 extern array         *ici_array_new(ptrdiff_t);
 extern mem           *ici_mem_new(void *, size_t, int, void (*)(void *));
-extern src           *new_src(int, str *);
 extern str           *ici_str_alloc(size_t);
 extern str           *ici_str_new_nul_term(const char *);
 extern str           *ici_str_get_nul_term(const char *);
-extern set           *ici_set_new();
 extern ici_struct    *ici_struct_new();
 extern ici_float     *ici_float_new(double);
 extern file          *ici_file_new(void *, ftype *, str *, object *);
 extern ici_int       *ici_int_new(int64_t);
-extern int            ici_interface_check(unsigned long, unsigned long, char const *);
-extern str           *ici_str_new(const char *, size_t);
-extern ptr           *ici_ptr_new(object *, object *);
-extern regexp        *ici_regexp_new(str *, int);
-extern file          *ici_open_charbuf(char *, int, object *, int);
-extern int            ici_get_last_errno(const char *, const char *);
-extern int            ici_argcount(int);
-extern int            ici_argcount2(int, int);
-extern int            ici_argerror(int);
-extern void           ici_struct_unassign(ici_struct *, object *);
-extern int            ici_set_unassign(set *, object *);
-extern char          *ici_objname(char [ICI_OBJNAMEZ], object *);
-extern int            ici_file_close(file *f);
-extern int            ici_ret_with_decref(object *);
-extern int            ici_int_ret(int64_t);
-extern int            ici_ret_no_decref(object *);
+
+extern int            check_interface(unsigned long, unsigned long, char const *);
+
+extern file          *open_charbuf(char *, int, object *, int);
+extern int            get_last_errno(const char *, const char *);
+
+extern int            argcount(int);
+extern int            argcount2(int, int);
+extern int            argerror(int);
+
+extern int            unassign(ici_struct *, object *);
+extern int            unassign(set *, object *);
+
+extern char          *ici_objname(char [objnamez], object *);
+
+extern int            close_file(file *f);
+
+extern int            ret_with_decref(object *);
+extern int            ret_no_decref(object *);
+#define null_ret()    ret_no_decref(ici_null)
+extern int            int_ret(int64_t);
+extern int            float_ret(double);
+extern int            str_ret(const char *);
+
 extern int            typecheck(const char *, ...);
 extern int            retcheck(const char *, ...);
-extern int            ici_init();
-extern void           ici_uninit();
-extern file          *ici_need_stdin();
-extern file          *ici_need_stdout();
-extern array         *ici_need_path();
-extern void           ici_reclaim();
-extern int            ici_str_ret(const char *);
-extern int            ici_float_ret(double);
+
+extern int            main(int, char **);
+extern int            init();
+extern void           uninit();
+
+extern file          *need_stdin();
+extern file          *need_stdout();
+extern array         *need_path();
+
+extern void           reclaim();
+
 extern int            ici_func(object *, const char *, ...);
 extern int            ici_method(object *, str *, const char *, ...);
 extern int            ici_funcv(object *, object *, const char *, va_list);
@@ -321,30 +342,35 @@ extern int            ici_fetch_num(object *, object *, double *);
 extern int            ici_fetch_int(object *, object *, long *);
 extern int            ici_assign_cfuncs(objwsup *, cfunc *);
 extern int            ici_def_cfuncs(cfunc *);
-extern int            main(int, char **);
 extern method        *ici_method_new(object *, object *);
 extern handle        *ici_handle_new(void *, str *, objwsup *);
 extern handle        *ici_handle_probe(void *, str *);
+
 extern int            register_type(type *);
-extern void           ici_invalidate_struct_lookaside(ici_struct *);
-extern int            ici_engine_stack_check();
+
+extern void           invalidate_struct_lookaside(ici_struct *);
+extern int            engine_stack_check();
 extern void           ici_atexit(void (*)(), wrap *);
+
 extern objwsup       *ici_class_new(cfunc *cf, objwsup *super);
 extern objwsup       *ici_module_new(cfunc *cf);
 extern int            ici_handle_method_check(object *, str *, handle **, void **);
 extern int            ici_method_check(object *o, int tcode);
-extern unsigned long  ici_crc(unsigned long, unsigned char const *, ptrdiff_t);
+extern unsigned long  crc(unsigned long, unsigned char const *, ptrdiff_t);
+
 extern int            ici_str_need_size(str *, size_t);
 extern str           *ici_str_buf_new(size_t);
-extern int            ici_parse(file *, objwsup *);
+
 extern object        *eval(str *);
+
 extern object        *ici_make_handle_member_map(ici_name_id_t *);
-extern int            ici_parse_fname(const char *);
-extern exec          *ici_leave();
-extern void           ici_enter(exec *);
-extern void           ici_yield();
-extern int            ici_waitfor(object *);
-extern int            ici_wakeup(object *);
+
+extern exec          *leave();
+extern void           enter(exec *);
+extern void           yield();
+extern int            waitfor(object *);
+extern int            wakeup(object *);
+
 extern DLI int        ici_debug_enabled;
 extern int            ici_debug_ign_err;
 extern DLI void       ici_debug_ignore_errors();
@@ -352,9 +378,9 @@ extern DLI void       ici_debug_respect_errors();
 
 /*
  * ici_sopen() is now a macro that calls ici_open_charbuf() for read-only access.
- * Included only for backward compatibility; use ici_open_charbuf() instead.
+ * Included only for backward compatibility; use open_charbuf() instead.
  */
-#define ici_sopen(data, sz, ref) ici_open_charbuf((data), (sz), (ref), 1)
+#define sopen(data, sz, ref) open_charbuf((data), (sz), (ref), 1)
 
 #ifdef NODEBUGGING
     /*
@@ -371,78 +397,85 @@ extern DLI void       ici_debug_respect_errors();
 #   define ici_debug_active     ici_debug_enabled
 #endif
 
-extern volatile sigset_t        ici_signals_pending;
-extern volatile long            ici_signals_count[];
-extern void                     ici_signals_init();
-extern int                      ici_signals_invoke_handlers();
-extern int                      ici_signals_blocking_syscall(int);
+extern volatile sigset_t        signals_pending;
+extern volatile long            signal_count[];
+extern void                     signals_init();
+extern int                      invoke_signal_handlers();
+extern int                      blocking_syscall(int);
 
 /*
  * End of ici.h export. --ici.h-end--
  */
 
 extern object         *evaluate(object *, int);
-extern char          **ici_smash(char *, int);
-extern char          **ici_ssmash(char *, char *);
-extern int             ici_natoms;
-extern void            ici_grow_atoms(ptrdiff_t newz);
-extern int             ici_supress_collect;
-extern int             ici_ncollects;
+extern char          **smash(char *, int);
+extern char          **ssmash(char *, char *);
+extern void            grow_atoms(ptrdiff_t newz);
 extern const char     *binop_name(int);
-extern sslot          *ici_find_raw_slot(ici_struct *, object *);
-extern object         *ici_atom_probe2(object *, object ***);
-extern int             ici_parse_exec();
+extern sslot          *find_raw_slot(ici_struct *, object *);
+extern object         *atom_probe2(object *, object ***);
+extern int             parse_exec();
+
 extern parse          *ici_new_parse(file *);
 extern catcher        *ici_new_catcher(object *, int, int, int);
 extern func           *ici_new_func();
 extern op             *ici_new_op(int (*)(), int16_t, int16_t);
 extern pc             *ici_new_pc();
-extern catcher        *ici_unwind();
-extern void            ici_collect();
-extern unsigned long   ici_hash_float(double);
-extern unsigned long   ici_hash_string(object *);
-extern int             op_binop();
-extern int             ici_op_onerror();
-extern int             ici_op_for();
-extern int             ici_op_andand();
-extern int             ici_op_switcher();
-extern int             ici_op_switch();
-extern int             ici_op_forall();
-extern int             ici_op_return();
-extern int             ici_op_call();
-extern int             ici_op_mkptr();
-extern int             ici_op_openptr();
-extern int             ici_op_fetch();
-extern int             ici_op_unary();
-extern int             ici_op_call();
-extern void            ici_grow_objs(object *);
-extern int             ici_set_error(const char *, ...);
-extern void            ici_expand_error(int, str *);
-extern int             ici_lex(parse *, array *);
-extern void            ici_uninit_cfunc();
-extern int             ici_exec_forall();
-extern int             ici_compile_expr(array *, expr *, int);
-extern void            ici_uninit_compile();
-extern int             ici_set_issubset(set *, set *);
-extern int             ici_set_ispropersubset(set *, set *);
-extern exec           *ici_new_exec();
-extern long            ici_strtol(char const *, char **, int);
-extern int             ici_init_path(objwsup *externs);
-extern int             ici_find_on_path(char [FILENAME_MAX], const char *);
-extern int             ici_init_sstrings();
-extern void            ici_drop_all_small_allocations();
-extern objwsup        *ici_outermost_writeable_struct();
 extern cfunc          *ici_cfunc_new(str *, int (*)(...), void *, void *);
-extern int             ici_str_char_at(str *, size_t);
 
-extern object        **ici_objs;
-extern object        **ici_objs_top;
-extern object        **ici_objs_limit;
-extern object        **ici_atoms;
-extern int              ici_atomsz;
+extern catcher        *unwind();
+
+extern void            collect();
+
+extern unsigned long   hash_float(double);
+extern unsigned long   hash_string(object *);
+
+extern int             op_binop();
+extern int             op_onerror();
+extern int             op_for();
+extern int             op_andand();
+extern int             op_switcher();
+extern int             op_switch();
+extern int             op_forall();
+extern int             op_return();
+extern int             op_call();
+extern int             op_mkptr();
+extern int             op_openptr();
+extern int             op_fetch();
+extern int             op_unary();
+extern int             op_call();
+
+extern void            grow_objs(object *);
+extern int             set_error(const char *, ...);
+extern void            expand_error(int, str *);
+extern int             lex(parse *, array *);
+extern void            uninit_compile();
+extern void            uninit_cfunc();
+extern int             exec_forall();
+extern int             compile_expr(array *, expr *, int);
+extern int             set_issubset(set *, set *);
+extern int             set_ispropersubset(set *, set *);
+extern int64_t         xstrtol(char const *, char **, int);
+extern int             init_path(objwsup *externs);
+extern int             find_on_path(char [FILENAME_MAX], const char *);
+extern int             init_sstrings();
+extern void            drop_all_small_allocations();
+extern objwsup        *outermost_writeable_struct();
+extern int             str_char_at(str *, size_t);
+
+extern int             supress_collect;
+extern int             ncollects;
+
+extern object        **objs;
+extern object        **objs_top;
+extern object        **objs_limit;
+
+extern object        **atoms;
+extern size_t        natoms;
+extern size_t        atomsz;
 
 #if !defined(ICI_HAS_BSD_STRUCT_TM)
-extern int ici_set_timezone_vals(ici_struct *);
+extern int set_timezone_vals(ici_struct *);
 #endif
 
 template <typename T> inline T *ptr_to_instance_of() {

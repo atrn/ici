@@ -186,7 +186,7 @@ f_profile(...)
 
     /* Check parameters. */
     if (NARGS() > 1)
-        return ici_argcount(1);
+        return argcount(1);
     if (NARGS() == 1)
     {
         /* Check and store the path that profiling info will be saved to. */
@@ -197,7 +197,7 @@ f_profile(...)
 
     /* Start profiling. */
     ici_profile_active = 1;
-    return ici_null_ret();
+    return null_ret();
 }
 
 
@@ -256,7 +256,7 @@ static void write_outfile(FILE *of, profilecall *pc, int indent)
     {
         if (sl->sl_key != NULL)
         {
-            char    n1[ICI_OBJNAMEZ];
+            char    n1[objnamez];
 
             ici_objname(n1, sl->sl_key);
             fprintf(of, "%*s(\"", indent + 2, "");

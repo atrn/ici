@@ -263,11 +263,11 @@ int ici_sys_init(ici::objwsup *scp)
 static int
 sys_ret(int ret)
 {
-    char        n1[ICI_OBJNAMEZ];
+    char        n1[objnamez];
 
     if (ret < 0)
-        return ici_get_last_errno(ici_objname(n1, ici_os.a_top[-1]), NULL);
-    return ici_int_ret((long)ret);
+        return get_last_errno(ici_objname(n1, os.a_top[-1]), NULL);
+    return int_ret((long)ret);
 }
 
 /*
@@ -317,11 +317,11 @@ static int ici_sys_open()
         break;
 
     default:
-        return ici_argcount(3);
+        return argcount(3);
     }
     if (omode & O_CREAT && perms == -1)
     {
-        ici_set_error("permission bits not specified in open() with O_CREAT");
+        set_error("permission bits not specified in open() with O_CREAT");
         return 1;
     }
     return sys_ret(open(fname, omode, perms));
@@ -335,7 +335,7 @@ static int
 not_on_win32(const char *s)
 {
     sprintf(buf, "%s is not implemented on Win32 platforms", s);
-    ici_set_error(buf);
+    set_error(buf);
     return 1;
 }
 #endif
@@ -371,11 +371,11 @@ static int ici_sys_fdopen()
             return 1;
         break;
     default:
-        return ici_argcount(2);
+        return argcount(2);
     }
     if ((stream = fdopen(fd, mode)) == NULL)
     {
-        ici_set_error("can't fdopen");
+        set_error("can't fdopen");
         return 1;
     }
     setvbuf(stream, NULL, _IOLBF, 0);
@@ -384,7 +384,7 @@ static int ici_sys_fdopen()
         fclose(stream);
         return 1;
     }
-    return ici_ret_with_decref(f);
+    return ret_with_decref(f);
 #endif /* _WIN32 */
 }
 
@@ -402,7 +402,7 @@ static int ici_sys_close()
     object            *fd1;
 
     if (NARGS() != 1)
-        return ici_argcount(1);
+        return argcount(1);
     if (isint(ARG(0)))
         rc = close(intof(ARG(0))->i_value);
     else if (isarray(ARG(0)))
@@ -418,7 +418,7 @@ static int ici_sys_close()
             !isint(fd1 = a->get(1))
         )
         {
-            ici_set_error("invalid fd array passed to _close");
+            set_error("invalid fd array passed to _close");
             return 1;
         }
         rc = close(intof(fd0)->i_value);
@@ -426,7 +426,7 @@ static int ici_sys_close()
             rc = close(intof(fd1)->i_value);
     }
     else
-        return ici_argerror(0);
+        return argerror(0);
     return sys_ret(rc);
 }
 
@@ -466,7 +466,7 @@ struct_to_flock(ici_struct *d, struct flock *flock)
     else
     {
     bad_lock_type:
-        ici_set_error("invalid lock type");
+        set_error("invalid lock type");
         return 1;
     }
     if ((o = ici_fetch(d, SS(whence))) == ici_null)
@@ -555,10 +555,10 @@ static int ici_sys_fcntl()
         break;
 
     default:
-        return ici_argcount(3);
+        return argcount(3);
     }
     if (!isstring(what))
-        return ici_argerror(1);
+        return argerror(1);
     if (what == SS(dupfd))
         iwhat = F_DUPFD;
     else if (what == SS(getfd))
@@ -587,7 +587,7 @@ static int ici_sys_fcntl()
         goto ret;
     }
     else
-        return ici_argerror(1);
+        return argerror(1);
     r = fcntl(fd, iwhat, iarg);
  ret:
     return sys_ret(r);
@@ -617,10 +617,10 @@ static int ici_sys_fileno()
 #endif
     )
     {
-        ici_set_error("attempt to obtain file descriptor of non-stdio file");
+        set_error("attempt to obtain file descriptor of non-stdio file");
         return 1;
     }
-    return ici_int_ret(fileno((FILE *)f->f_file));
+    return int_ret(fileno((FILE *)f->f_file));
 }
 
 /*
@@ -638,7 +638,7 @@ static int ici_sys_mkdir()
     if (typecheck("s", &path))
         return 1;
     if (mkdir(path) == -1)
-        return ici_get_last_errno("mkdir", path);
+        return get_last_errno("mkdir", path);
 #else
     long        mode = 0777;
 
@@ -650,9 +650,9 @@ static int ici_sys_mkdir()
     else if (typecheck("si", &path, &mode))
         return 1;
     if (mkdir(path, mode) == -1)
-        return ici_get_last_errno("mkdir", path);
+        return get_last_errno("mkdir", path);
 #endif
-    return ici_ret_no_decref(ici_null);
+    return ret_no_decref(ici_null);
 }
 
 /*
@@ -674,8 +674,8 @@ static int ici_sys_mkfifo()
     if (typecheck("si", &path, &mode))
         return 1;
     if (mkfifo(path, mode) == -1)
-        return ici_get_last_errno("mkfifo", path);
-    return ici_ret_no_decref(ici_null);
+        return get_last_errno("mkfifo", path);
+    return ret_no_decref(ici_null);
 #endif /* _WIN32 */
 }
 
@@ -707,7 +707,7 @@ static int ici_sys_read()
 
     case 0:
         ici_free(msg);
-        return ici_null_ret();
+        return null_ret();
     }
     if ((s = ici_str_alloc(r)) == NULL)
     {
@@ -715,9 +715,9 @@ static int ici_sys_read()
         return 1;
     }
     memcpy(s->s_chars, msg, r);
-    s = stringof(ici_atom(s, 1));
+    s = stringof(atom(s, 1));
     ici_free(msg);
-    return ici_ret_with_decref(s);
+    return ret_with_decref(s);
 }
 
 /*
@@ -758,7 +758,7 @@ static int ici_sys_write()
     }
     else
     {
-        return ici_argerror(1);
+        return argerror(1);
     }
     return sys_ret(write((int)fd, addr, (size_t)sz));
 }
@@ -781,8 +781,8 @@ static int ici_sys_symlink()
     if (typecheck("ss", &a, &b))
         return 1;
     if (symlink(a, b) == -1)
-        return ici_get_last_errno("symlink", a);
-    return ici_ret_no_decref(ici_null);
+        return get_last_errno("symlink", a);
+    return ret_no_decref(ici_null);
 #endif /* _WIN32 */
 }
 
@@ -805,8 +805,8 @@ static int ici_sys_readlink()
     if (typecheck("s", &path))
         return 1;
     if (readlink(path, pbuf, sizeof pbuf) == -1)
-        return ici_get_last_errno("readlink", path);
-    return ici_ret_with_decref(ici_str_new_nul_term(pbuf));
+        return get_last_errno("readlink", path);
+    return ret_with_decref(ici_str_new_nul_term(pbuf));
 #endif /* _WIN32 */
 }
 
@@ -846,7 +846,7 @@ static int ici_sys_stat()
     ici_struct  *s;
 
     if (NARGS() != 1)
-        return ici_argcount(1);
+        return argcount(1);
     o = ARG(0);
     if (isint(o))
         rc = fstat(intof(o)->i_value, &statb);
@@ -855,7 +855,7 @@ static int ici_sys_stat()
     else if (isfile(o) && fileof(o)->f_type == stdio_ftype)
         rc = fstat(fileof(o)->fileno(), &statb);
     else
-        return ici_argerror(0);
+        return argerror(0);
     if (rc == -1)
         return sys_ret(rc);
     if ((s = ici_struct_new()) == NULL)
@@ -889,7 +889,7 @@ static int ici_sys_stat()
 
 #undef SETFIELD
 
-    return ici_ret_with_decref(s);
+    return ret_with_decref(s);
 
  fail:
     s->decref();
@@ -914,12 +914,12 @@ static int ici_sys_lstat()
     ici_struct  *s;
 
     if (NARGS() != 1)
-        return ici_argcount(1);
+        return argcount(1);
     o = ARG(0);
     if (isstring(o))
         rc = lstat(stringof(o)->s_chars, &statb);
     else
-        return ici_argerror(0);
+        return argerror(0);
     if (rc == -1)
         return sys_ret(rc);
     if ((s = ici_struct_new()) == NULL)
@@ -951,7 +951,7 @@ static int ici_sys_lstat()
 
 #undef SETFIELD
 
-    return ici_ret_with_decref(s);
+    return ret_with_decref(s);
 
  fail:
     s->decref();
@@ -978,7 +978,7 @@ static int ici_sys_ctime()
 
     if (typecheck("i", &timev) || (s = ici_str_new_nul_term(ctime(&timev))) == NULL)
         return 1;
-    return ici_ret_with_decref(s);
+    return ret_with_decref(s);
 }
 
 /*
@@ -993,7 +993,7 @@ static int ici_sys_ctime()
  */
 static int ici_sys_time()
 {
-    return ici_int_ret(time(NULL));
+    return int_ret(time(NULL));
 }
 
 #ifndef _WIN32
@@ -1066,7 +1066,7 @@ static int ici_sys_getitimer()
         if (typecheck("o", &o))
             return 1;
         if (!isstring(o))
-            return ici_argerror(0);
+            return argerror(0);
         if (o == SS(real))
             which = ITIMER_REAL;
         else if (o == SS(virtual))
@@ -1074,7 +1074,7 @@ static int ici_sys_getitimer()
         else if (o == SS(prof))
             which = ITIMER_PROF;
         else
-            return ici_argerror(0);
+            return argerror(0);
     }
     if (getitimer(which, &value) == -1)
         return sys_ret(-1);
@@ -1090,7 +1090,7 @@ static int ici_sys_getitimer()
         s->decref();
         return 1;
     }
-    return ici_ret_with_decref(s);
+    return ret_with_decref(s);
 }
 
 static int
@@ -1151,7 +1151,7 @@ static int ici_sys_setitimer()
         else if (o == SS(prof))
             which = ITIMER_PROF;
         else
-            return ici_argerror(0);
+            return argerror(0);
     }
     if ((o = ici_fetch(s, SS(interval))) == ici_null)
         value.it_interval.tv_sec = value.it_interval.tv_usec = 0;
@@ -1175,10 +1175,10 @@ static int ici_sys_setitimer()
         s->decref();
         return 1;
     }
-    return ici_ret_with_decref(s);
+    return ret_with_decref(s);
 
  invalid_itimerval:
-    ici_set_error("invalid itimer struct");
+    set_error("invalid itimer struct");
     return 1;
 }
 
@@ -1206,7 +1206,7 @@ static int ici_sys_gettimeofday()
         s->decref();
         return 1;
     }
-    return ici_ret_with_decref(s);
+    return ret_with_decref(s);
 }
 #endif /* _WIN32 */
 
@@ -1241,7 +1241,7 @@ static int ici_sys_access()
             return 1;
         break;
     default:
-        return ici_argcount(2);
+        return argcount(2);
     }
     return sys_ret(access(fname, bits));
 }
@@ -1278,7 +1278,7 @@ static int ici_sys_pipe()
         goto fail;
     *a->a_top++ = fd;
     fd->decref();
-    return ici_ret_with_decref(a);
+    return ret_with_decref(a);
 
  fail:
     a->decref();
@@ -1307,8 +1307,8 @@ static int ici_sys_creat()
     if (typecheck("si", &fname, &perms))
         return 1;
     if ((fd = creat(fname, perms)) == -1)
-        return ici_get_last_errno("creat", fname);
-    return ici_int_ret(fd);
+        return get_last_errno("creat", fname);
+    return int_ret(fd);
 }
 
 /*
@@ -1339,16 +1339,16 @@ static int ici_sys_dup()
             return 1;
         break;
     default:
-        return ici_argcount(2);
+        return argcount(2);
     }
     if (fd2 == -1)
     {
         fd2 = dup(fd1);
-        return fd2 < 0 ? sys_ret(fd2) : ici_int_ret(fd2);
+        return fd2 < 0 ? sys_ret(fd2) : int_ret(fd2);
     }
     if (dup2(fd1, fd2) < 0)
         return sys_ret(-1);
-    return ici_int_ret(fd2);
+    return int_ret(fd2);
 }
 
 /*
@@ -1402,9 +1402,9 @@ static int ici_sys_exec()
     }
 
     if ((n = NARGS()) < 2)
-        return ici_argcount(2);
+        return argcount(2);
     if (!isstring(*(o = ARGS())))
-        return ici_argerror(0);
+        return argerror(0);
     path = stringof(*o)->s_chars;
     --o;
     argc = 0;
@@ -1419,7 +1419,7 @@ static int ici_sys_exec()
         }
     }
     else if (!isarray(*o))
-        return ici_argerror(0);
+        return argerror(0);
     else
     {
         object **p;
@@ -1501,19 +1501,19 @@ static int ici_sys_spawn()
     }
 
     if ((n = NARGS()) < 2)
-        return ici_argcount(2);
+        return argcount(2);
     o = ARGS();
     if (isint(*o))
     {
         mode = intof(*o)->i_value;
         --o;
         if (--n < 2)
-            return ici_argcount(2);
+            return argcount(2);
         if (!isstring(*o))
-            return ici_argerror(1);
+            return argerror(1);
     }
     else if (!isstring(*o))
-        return ici_argerror(0);
+        return argerror(0);
     path = stringof(*o)->s_chars;
     --o;
     argc = 0;
@@ -1528,7 +1528,7 @@ static int ici_sys_spawn()
         }
     }
     else if (!isarray(*o))
-        return ici_argerror(0);
+        return argerror(0);
     else
     {
         object **p;
@@ -1545,7 +1545,7 @@ static int ici_sys_spawn()
         ici_free(argv);
     if (n == -1)
         return sys_ret(n);
-    return ici_int_ret(n);
+    return int_ret(n);
 }
 #endif /* WIN32 */
 
@@ -1579,7 +1579,7 @@ static int ici_sys_lseek()
         break;
 
     default:
-        return ici_argcount(3);
+        return argcount(3);
     }
     return sys_ret(lseek((int)fd, ofs, whence));
 }
@@ -1622,7 +1622,7 @@ static int ici_sys_wait()
         goto fail;
     }
     i->decref();
-    return ici_ret_with_decref(s);
+    return ret_with_decref(s);
 
  fail:
     s->decref();
@@ -1681,13 +1681,13 @@ static int ici_sys_passwd()
         else if (isstring(ARG(0)))
             pwent = getpwnam(stringof(ARG(0))->s_chars);
         else
-            return ici_argerror(0);
+            return argerror(0);
         if (pwent == NULL)
-            ici_set_error("no such user");
-        return ici_ret_with_decref(password_struct(pwent));
+            set_error("no such user");
+        return ret_with_decref(password_struct(pwent));
 
     default:
-        return ici_argcount(1);
+        return argcount(1);
     }
 
     if ((a = ici_array_new(0)) == NULL)
@@ -1705,7 +1705,7 @@ static int ici_sys_passwd()
         *a->a_top++ = s;
     }
     endpwent();
-    return ici_ret_with_decref(a);
+    return ret_with_decref(a);
 }
 
 static ici_struct *
@@ -1779,7 +1779,7 @@ static int ici_sys_getpass()
         if (typecheck("s", &prompt))
             return 1;
     }
-    return ici_str_ret(getpass(prompt));
+    return str_ret(getpass(prompt));
 }
 
 /*
@@ -1890,13 +1890,13 @@ static int ici_sys_truncate()
     {
         if (ftruncate(fd, len) == -1)
             return sys_ret(-1L);
-        return ici_null_ret();
+        return null_ret();
     }
     if (typecheck("si", &s, &len) == 0)
     {
         if (truncate(s, len) == -1)
-            return ici_get_last_errno("truncate", s);
-        return ici_null_ret();
+            return get_last_errno("truncate", s);
+        return null_ret();
     }
     return 1;
 }
@@ -1993,10 +1993,10 @@ static int ici_sys_getrlimit()
     else if (isstring(what))
     {
         if ((resource = string_to_resource(what)) == -1)
-            return ici_argerror(0);
+            return argerror(0);
     }
     else
-        return ici_argerror(0);
+        return argerror(0);
 
     if (getrlimit(resource, &rlimit) < 0)
         return sys_ret(-1);
@@ -2019,7 +2019,7 @@ static int ici_sys_getrlimit()
         goto fail;
     }
     iv->decref();
-    return ici_ret_with_decref(limit);
+    return ret_with_decref(limit);
 
  fail:
     limit->decref();
@@ -2052,10 +2052,10 @@ static int ici_sys_setrlimit()
     else if (isstring(what))
     {
         if ((resource = string_to_resource(what)) == -1)
-            return ici_argerror(0);
+            return argerror(0);
     }
     else
-        return ici_argerror(0);
+        return argerror(0);
 
     if (isint(value))
     {
@@ -2081,12 +2081,12 @@ static int ici_sys_setrlimit()
         rlimit.rlim_max = intof(iv)->i_value;
     }
     else
-        return ici_argerror(1);
+        return argerror(1);
 
     return sys_ret(setrlimit(resource, &rlimit));
 
  fail:
-    ici_set_error("invalid rlimit struct");
+    set_error("invalid rlimit struct");
     return 1;
 }
 
@@ -2104,12 +2104,12 @@ static int ici_sys_usleep()
 
     if (typecheck("i", &t))
         return 1;
-    ici_signals_blocking_syscall(1);
-    x = ici_leave();
+    blocking_syscall(1);
+    x = leave();
     usleep(t);
-    ici_enter(x);
-    ici_signals_blocking_syscall(0);
-    return ici_null_ret();
+    enter(x);
+    blocking_syscall(0);
+    return null_ret();
 }
 
 #endif /* #ifndef _WIN32 */

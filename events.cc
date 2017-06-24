@@ -24,25 +24,25 @@ f_eventloop()
     MSG   msg;
     exec  *x;
 
-    x = ici_leave();
+    x = leave();
     for (;;)
     {
         switch (GetMessage(&msg, NULL, 0, 0))
         {
         case 0:
-            ici_enter(x);
-            return ici_null_ret();
+            enter(x);
+            return null_ret();
 
         case -1:
-            ici_enter(x);
+            enter(x);
             return ici_get_last_win32_error();
         }
-        ici_enter(x);
+        enter(x);
         TranslateMessage(&msg);
-        ici_error = NULL;
-        if (DispatchMessage(&msg) == ICI_EVENT_ERROR && ici_error != NULL)
+        error = NULL;
+        if (DispatchMessage(&msg) == ICI_EVENT_ERROR && error != NULL)
             return 1;
-        x = ici_leave();
+        x = leave();
     }
 }
 

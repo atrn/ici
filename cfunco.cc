@@ -89,7 +89,7 @@ int ici_assign_cfuncs(objwsup *s, cfunc *cf)
  */
 int ici_def_cfuncs(cfunc *cf)
 {
-    return ici_assign_cfuncs(objwsupof(ici_vs.a_top[-1])->o_super, cf);
+    return ici_assign_cfuncs(objwsupof(vs.a_top[-1])->o_super, cf);
 }
 
 /*
@@ -114,7 +114,7 @@ objwsup *ici_class_new(cfunc *cf, objwsup *super)
         s->decref();
         return NULL;
     }
-    if (super == NULL && (super = ici_outermost_writeable_struct()) == NULL)
+    if (super == NULL && (super = outermost_writeable_struct()) == NULL)
         return NULL;
     s->o_super = super;
     return s;
@@ -153,12 +153,12 @@ object * cfunc_type::fetch(object *o, object *k)
     return ici_null;
 }
 
-void cfunc_type::objname(object *o, char p[ICI_OBJNAMEZ])
+void cfunc_type::objname(object *o, char p[objnamez])
 {
     const char    *n;
     n = cfuncof(o)->cf_name->s_chars;
-    if (strlen(n) > ICI_OBJNAMEZ - 2 - 1)
-        sprintf(p, "%.*s...()", ICI_OBJNAMEZ - 6, n);
+    if (strlen(n) > objnamez - 2 - 1)
+        sprintf(p, "%.*s...()", objnamez - 6, n);
     else
         sprintf(p, "%s()", n);
 }
@@ -183,9 +183,9 @@ int cfunc_type::call(object *o, object *subject)
          * execution stack at the same level are considered to be returning
          * now.
          */
-        xt = ici_xs.a_top - 1;
+        xt = xs.a_top - 1;
         result = (*cfuncof(o)->cf_cfunc)(subject);
-        if (xt != ici_xs.a_top)
+        if (xt != xs.a_top)
             return result;
 #ifndef NOPROFILE
         if (ici_profile_active)
@@ -193,7 +193,7 @@ int cfunc_type::call(object *o, object *subject)
 #endif
         if (UNLIKELY(ici_debug_active))
         {
-            debugfunc->idbg_fnresult(ici_os.a_top[-1]);
+            debugfunc->idbg_fnresult(os.a_top[-1]);
         }
         return result;
     }

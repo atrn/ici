@@ -3,7 +3,7 @@
 /*
  * This code is in an include file because some compilers may not handle
  * the large function and switch statement which happens in exec.c.
- * See ici_op_binop() in arith.c if you have this problem.
+ * See op_binop() in arith.c if you have this problem.
  *
  * This is where run-time binary operator "arithmetic" happens.
  */
@@ -15,8 +15,8 @@
 #define USE0()					\
     do						\
     {						\
-        ici_os.a_top[-2] = ici_zero;	        \
-	--ici_os.a_top;				\
+        os.a_top[-2] = o_zero;                  \
+	--os.a_top;				\
 	goto continue_with_same_pc;		\
     }						\
     while (0)
@@ -24,8 +24,8 @@
 #define USE1()					\
     do						\
     {						\
-	ici_os.a_top[-2] = ici_one;	        \
-	--ici_os.a_top;				\
+	os.a_top[-2] = o_one;                   \
+	--os.a_top;				\
 	goto continue_with_same_pc;		\
     }						\
     while (0)
@@ -33,8 +33,8 @@
 #define USEo()					\
     do						\
     {						\
-	ici_os.a_top[-2] = o;			\
-	--ici_os.a_top;				\
+	os.a_top[-2] = o;			\
+	--os.a_top;				\
 	goto continue_with_same_pc;		\
     }						\
     while (0)
@@ -43,8 +43,8 @@
     do						\
     {						\
 	o->decref();				\
-	ici_os.a_top[-2] = o;			\
-	--ici_os.a_top;				\
+	os.a_top[-2] = o;			\
+	--os.a_top;				\
 	goto continue_with_same_pc;		\
     }						\
     while (0)
@@ -62,7 +62,7 @@
 #define MISMATCH()      goto mismatch
 
 /*
- * On entry, o = ici_xs.a_top[-1], technically, but ici_xs.a_top has been pre-decremented
+ * On entry, o = xs.a_top[-1], technically, but xs.a_top has been pre-decremented
  * so it isn't really there.
  */
 {
@@ -74,9 +74,9 @@
 
 #define SWAP()          (o = o0, o0 = o1, o1 = o)
 
-    o0 = ici_os.a_top[-2];
-    o1 = ici_os.a_top[-1];
-    can_temp = opof(o)->op_ecode == ICI_OP_BINOP_FOR_TEMP;
+    o0 = os.a_top[-2];
+    o1 = os.a_top[-1];
+    can_temp = opof(o)->op_ecode == OP_BINOP_FOR_TEMP;
     if (o0->o_tcode > ICI_TC_MAX_BINOP || o1->o_tcode > ICI_TC_MAX_BINOP)
     {
         goto others;
@@ -94,7 +94,7 @@
     case ICI_TRI(ICI_TC_INT, ICI_TC_INT, T_SLASHEQ):
         if (intof(o1)->i_value == 0)
         {
-            ici_set_error("division by 0");
+            set_error("division by 0");
             FAIL();
         }
         USEi(intof(o0)->i_value / intof(o1)->i_value);
@@ -103,7 +103,7 @@
     case ICI_TRI(ICI_TC_INT, ICI_TC_INT, T_PERCENTEQ):
         if (intof(o1)->i_value == 0)
         {
-            ici_set_error("modulus by 0");
+            set_error("modulus by 0");
             FAIL();
         }
         USEi(intof(o0)->i_value % intof(o1)->i_value);
@@ -197,7 +197,7 @@
     case ICI_TRI(ICI_TC_FLOAT, ICI_TC_FLOAT, T_SLASHEQ):
         if (floatof(o1)->f_value == 0)
         {
-            ici_set_error("division by 0.0");
+            set_error("division by 0.0");
             FAIL();
         }
         USEf(floatof(o0)->f_value / floatof(o1)->f_value);
@@ -206,7 +206,7 @@
     case ICI_TRI(ICI_TC_FLOAT, ICI_TC_INT, T_SLASHEQ):
         if (intof(o1)->i_value == 0)
         {
-            ici_set_error("division by 0");
+            set_error("division by 0");
             FAIL();
         }
         USEf(floatof(o0)->f_value / intof(o1)->i_value);
@@ -215,7 +215,7 @@
     case ICI_TRI(ICI_TC_INT, ICI_TC_FLOAT, T_SLASHEQ):
         if (floatof(o1)->f_value == 0)
         {
-            ici_set_error("division by 0.0");
+            set_error("division by 0.0");
             FAIL();
         }
         USEf(intof(o0)->i_value / floatof(o1)->f_value);
@@ -480,7 +480,7 @@
             {
                 FAIL();
             }
-            if ((o = ici_ptr_new(ptrof(o0)->p_aggr, i)) == NULL)
+            if ((o = new_ptr(ptrof(o0)->p_aggr, i)) == NULL)
             {
                 FAIL();
             }
@@ -508,7 +508,7 @@
             {
                 FAIL();
             }
-            if ((o = ici_ptr_new(ptrof(o0)->p_aggr, i)) == NULL)
+            if ((o = new_ptr(ptrof(o0)->p_aggr, i)) == NULL)
             {
                 FAIL();
             }
@@ -524,7 +524,7 @@
         }
         memcpy(stringof(o)->s_chars, stringof(o0)->s_chars, stringof(o0)->s_nchars);
         memcpy(stringof(o)->s_chars + stringof(o0)->s_nchars, stringof(o1)->s_chars, stringof(o1)->s_nchars + 1);
-        o = ici_atom(o, 1);
+        o = atom(o, 1);
         LOOSEo();
 
     case ICI_TRI(ICI_TC_ARRAY, ICI_TC_ARRAY, T_PLUS):
@@ -594,7 +594,7 @@
                 {
                     continue;
                 }
-                if (ici_assign(s, *sl, ici_one))
+                if (ici_assign(s, *sl, o_one))
                 {
                     s->decref();
                     FAIL();
@@ -658,7 +658,7 @@
                 (
                     ici_fetch(o1, *sl) != ici_null
                     &&
-                    ici_assign(s, *sl, ici_one)
+                    ici_assign(s, *sl, o_one)
                 )
                 {
                     s->decref();
@@ -670,19 +670,19 @@
         LOOSEo();
 
     case ICI_TRI(ICI_TC_SET, ICI_TC_SET, T_GRTEQ):
-        o = ici_set_issubset(setof(o1), setof(o0)) ? ici_one : ici_zero;
+        o = set_issubset(setof(o1), setof(o0)) ? o_one : o_zero;
         USEo();
 
     case ICI_TRI(ICI_TC_SET, ICI_TC_SET, T_LESSEQ):
-        o = ici_set_issubset(setof(o0), setof(o1)) ? ici_one : ici_zero;
+        o = set_issubset(setof(o0), setof(o1)) ? o_one : o_zero;
         USEo();
 
     case ICI_TRI(ICI_TC_SET, ICI_TC_SET, T_GRT):
-        o = ici_set_ispropersubset(setof(o1), setof(o0)) ? ici_one : ici_zero;
+        o = set_ispropersubset(setof(o1), setof(o0)) ? o_one : o_zero;
         USEo();
 
     case ICI_TRI(ICI_TC_SET, ICI_TC_SET, T_LESS):
-        o = ici_set_ispropersubset(setof(o0), setof(o1)) ? ici_one : ici_zero;
+        o = set_ispropersubset(setof(o0), setof(o1)) ? o_one : o_zero;
         USEo();
 
     case ICI_TRI(ICI_TC_PTR, ICI_TC_PTR, T_MINUS):
@@ -782,7 +782,7 @@
         case t_subtype(T_PLUSEQ):
 	    if (o0->o_tcode == ICI_TC_SET)
 	    {
-		if (ici_assign(o0, o1, ici_one))
+		if (ici_assign(o0, o1, o_one))
                 {
 		    FAIL();
                 }
@@ -794,7 +794,7 @@
 	case t_subtype(T_MINUSEQ):
 	    if (o0->o_tcode == ICI_TC_SET)
 	    {
-		if (ici_set_unassign(setof(o0), o1))
+		if (unassign(setof(o0), o1))
                 {
 		    FAIL();
                 }
@@ -828,17 +828,17 @@
                 binop_name(opof(o)->op_code),
                 ici_objname(n2, o1));
         }
-        ici_error = buf;
+        error = buf;
         FAIL();
     }
 
 #ifdef BINOPFUNC
 use0:
-    ici_os.a_top[-2] = ici_zero;
+    os.a_top[-2] = o_zero;
     goto done;
 
 use1:
-    ici_os.a_top[-2] = ici_one;
+    os.a_top[-2] = o_one;
     goto done;
 #endif
 
@@ -847,18 +847,18 @@ usef:
     {
         int             n;
 
-        n = &ici_os.a_top[-2] - ici_os.a_base;
-        if (ici_exec->x_os_temp_cache->stk_probe(n))
+        n = &os.a_top[-2] - os.a_base;
+        if (ex->x_os_temp_cache->stk_probe(n))
         {
             FAIL();
         }
-        if ((o = ici_exec->x_os_temp_cache->a_base[n]) == ici_null)
+        if ((o = ex->x_os_temp_cache->a_base[n]) == ici_null)
         {
             if ((o = ici_object_cast(ici_talloc(ostemp))) == NULL)
             {
                 FAIL();
             }
-            ici_exec->x_os_temp_cache->a_base[n] = o;
+            ex->x_os_temp_cache->a_base[n] = o;
             ici_rego(o);
         }
         ICI_OBJ_SET_TFNZ(o, ICI_TC_FLOAT, ICI_O_TEMP, 0, sizeof (ostemp));
@@ -882,7 +882,7 @@ usef:
         unsigned long           h;
 
 #if 1
-        h = ici_hash_float(f);
+        h = hash_float(f);
 #else
         union
         {
@@ -903,9 +903,9 @@ usef:
 
         for
         (
-            po = &ici_atoms[ici_atom_hash_index(h)];
+            po = &atoms[ici_atom_hash_index(h)];
             (o = *po) != NULL;
-            --po < ici_atoms ? po = ici_atoms + ici_atomsz - 1 : NULL
+            --po < atoms ? po = atoms + atomsz - 1 : NULL
         )
         {
 #if 1
@@ -917,17 +917,17 @@ usef:
                 USEo();
             }
         }
-        ++ici_supress_collect;
+        ++supress_collect;
         if ((o = ici_talloc(ici_float)) == NULL)
         {
-            --ici_supress_collect;
+            --supress_collect;
             FAIL();
         }
         ICI_OBJ_SET_TFNZ(o, ICI_TC_FLOAT, ICI_O_ATOM, 1, sizeof (ici_float));
         floatof(o)->f_value = f;
         ici_rego(o);
         assert(h == ici_hash(o));
-        --ici_supress_collect;
+        --supress_collect;
         ICI_STORE_ATOM_AND_COUNT(po, o);
         LOOSEo();
     }
@@ -937,18 +937,18 @@ usei:
     {
         int             n;
 
-        n = &ici_os.a_top[-2] - ici_os.a_base;
-        if (UNLIKELY(ici_exec->x_os_temp_cache->stk_probe(n)))
+        n = &os.a_top[-2] - os.a_base;
+        if (UNLIKELY(ex->x_os_temp_cache->stk_probe(n)))
         {
             FAIL();
         }
-        if ((o = ici_exec->x_os_temp_cache->a_base[n]) == ici_null)
+        if ((o = ex->x_os_temp_cache->a_base[n]) == ici_null)
         {
             if ((o = ici_object_cast(ici_talloc(ostemp))) == NULL)
             {
                 FAIL();
             }
-            ici_exec->x_os_temp_cache->a_base[n] = o;
+            ex->x_os_temp_cache->a_base[n] = o;
             ici_rego(o);
         }
         ICI_OBJ_SET_TFNZ(o, ICI_TC_INT, ICI_O_TEMP, 0, sizeof (ostemp));
@@ -969,9 +969,9 @@ usei:
 
         for
         (
-            po = &ici_atoms[ici_atom_hash_index((unsigned long)i * INT_PRIME)];
+            po = &atoms[ici_atom_hash_index((unsigned long)i * INT_PRIME)];
             (o = *po) != NULL;
-            --po < ici_atoms ? po = ici_atoms + ici_atomsz - 1 : NULL
+            --po < atoms ? po = atoms + atomsz - 1 : NULL
         )
         {
             if (isint(o) && intof(o)->i_value == i)
@@ -979,16 +979,16 @@ usei:
                 USEo();
             }
         }
-        ++ici_supress_collect;
+        ++supress_collect;
         if ((o = ici_talloc(ici_int)) == NULL)
         {
-            --ici_supress_collect;
+            --supress_collect;
             FAIL();
         }
         ICI_OBJ_SET_TFNZ(o, ICI_TC_INT, ICI_O_ATOM, 1, sizeof (ici_int));
         intof(o)->i_value = i;
         ici_rego(o);
-        --ici_supress_collect;
+        --supress_collect;
         ICI_STORE_ATOM_AND_COUNT(po, o);
     }
 
@@ -996,12 +996,12 @@ usei:
 looseo:
     o->decref();
 useo:
-    ici_os.a_top[-2] = o;
+    os.a_top[-2] = o;
 done:
 #else // non-binop func version does not 'goto' the labels above
     o->decref();
-    ici_os.a_top[-2] = o;
+    os.a_top[-2] = o;
 #endif
-    --ici_os.a_top;
-    /*--ici_xs.a_top; Don't do this because it has been pre-done. */
+    --os.a_top;
+    /*--xs.a_top; Don't do this because it has been pre-done. */
 }

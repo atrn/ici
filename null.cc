@@ -9,6 +9,6 @@ void null_type::free(object *)
 {
 }
 
-null ici_o_null;
+null o_null;
 
 } // namespace ici

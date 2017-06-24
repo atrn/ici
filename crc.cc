@@ -8,7 +8,7 @@ namespace ici
  * Constants for use in the ici_crc() below. It is also indexed directly by
  * some hash functions.
  */
-extern unsigned long const ici_crc_table[256] =
+extern unsigned long const crc_table[256] =
 {
     0x00000000, 0x77073096, 0xEE0E612C, 0x990951BA, 0x076DC419, 0x706AF48F,
     0xE963A535, 0x9E6495A3, 0x0EDB8832, 0x79DCB8A4, 0xE0D5E91E, 0x97D2D988,
@@ -63,17 +63,17 @@ extern unsigned long const ici_crc_table[256] =
  * the improvement in hash performance outweighs the penalties.
  */
 unsigned long
-ici_crc(unsigned long crc, unsigned char const *p, ptrdiff_t n)
+crc(unsigned long val, unsigned char const *p, ptrdiff_t n)
 {
 #ifndef ICI_SW_CRC
-    extern uint32_t crc32c(uint32_t crc, const void *buf, size_t len);
-    return crc32c(crc, p, n) * 0x0020C323UL;
+    extern uint32_t crc32c(uint32_t, const void *, size_t);
+    return crc32c(val, p, n) * 0x0020C323UL;
 #else
     while (--n >= 0)
     {
-        crc = (crc >> 8) ^ ici_crc_table[(crc ^ *p++) & 0xFF];
+        val = (val >> 8) ^ crc_table[(val ^ *p++) & 0xFF];
     }
-    return crc;
+    return val;
 #endif
 }
 

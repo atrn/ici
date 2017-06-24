@@ -59,8 +59,8 @@ int type::forall(object *) {
     return 1;
 }
 
-void type::objname(object *, char n[ICI_OBJNAMEZ]) {
-    snprintf(n, ICI_OBJNAMEZ, "%s %p", name, (void *)this);
+void type::objname(object *, char n[objnamez]) {
+    snprintf(n, objnamez, "%s %p", name, (void *)this);
 }
 
 int type::call(object *, object *) {
@@ -69,9 +69,9 @@ int type::call(object *, object *) {
 
 object *type::fetch_fail(object *o, object *k)
 {
-    char n1[ICI_OBJNAMEZ];
-    char n2[ICI_OBJNAMEZ];
-    ici_set_error("attempt to read %s keyed by %s",
+    char n1[objnamez];
+    char n2[objnamez];
+    set_error("attempt to read %s keyed by %s",
         ici_objname(n1, o),
         ici_objname(n2, k));
     return NULL;
@@ -79,11 +79,11 @@ object *type::fetch_fail(object *o, object *k)
 
 int type::assign_fail(object *o, object *k, object *v)
 {
-    char n1[ICI_OBJNAMEZ];
-    char n2[ICI_OBJNAMEZ];
-    char n3[ICI_OBJNAMEZ];
+    char n1[objnamez];
+    char n2[objnamez];
+    char n3[objnamez];
 
-    return ici_set_error("attempt to set %s keyed by %s to %s",
+    return set_error("attempt to set %s keyed by %s to %s",
         ici_objname(n1, o),
         ici_objname(n2, k),
         ici_objname(n3, v));

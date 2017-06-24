@@ -28,7 +28,7 @@ convert(WCHAR *s)
     return len == 0 ? NULL : buffer;
 }
 
-int ici_set_timezone_vals(ici_struct *s)
+int set_timezone_vals(ici_struct *s)
 {
     TIME_ZONE_INFORMATION		info;
     char                                *zone;
@@ -53,7 +53,7 @@ int ici_set_timezone_vals(ici_struct *s)
     case TIME_ZONE_ID_INVALID:
         return ici_get_last_win32_error();
     default:
-        return ici_set_error("unexpected result, %ld, from GetDynamicTimeZoneInformation", result);
+        return set_error("unexpected result, %ld, from GetDynamicTimeZoneInformation", result);
     }
     if (zone == NULL)
     {

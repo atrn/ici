@@ -21,18 +21,18 @@ ici_float *ici_float_new(double v)
     static ici_float   proto;
 
     proto.f_value = v;
-    if ((f = floatof(ici_atom_probe2(&proto, &po))) != NULL)
+    if ((f = floatof(atom_probe2(&proto, &po))) != NULL)
     {
         f->incref();
         return f;
     }
-    ++ici_supress_collect;
+    ++supress_collect;
     if ((f = ici_talloc(ici_float)) == NULL)
         return NULL;
     ICI_OBJ_SET_TFNZ(f, ICI_TC_FLOAT, ICI_O_ATOM, 1, sizeof (ici_float));
     f->f_value = v;
     ici_rego(f);
-    --ici_supress_collect;
+    --supress_collect;
     ICI_STORE_ATOM_AND_COUNT(po, f);
     return f;
 }
@@ -45,10 +45,10 @@ int float_type::cmp(object *o1, object *o2)
 
 unsigned long float_type::hash(object *o)
 {
-    return ici_hash_float(floatof(o)->f_value);
+    return hash_float(floatof(o)->f_value);
 }
 
-unsigned long ici_hash_float(double v)
+unsigned long hash_float(double v)
 {
     unsigned long       h;
     int                 i;

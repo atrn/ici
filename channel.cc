@@ -99,7 +99,7 @@ f_channel(...)
             return 1;
         if (val < 0)
         {
-            ici_set_error("channel capacity must be non-negative");
+            set_error("channel capacity must be non-negative");
             return 1;
         }
         capacity = size_t(val);
@@ -117,7 +117,7 @@ f_channel(...)
     chan->c_capacity = capacity;
     chan->c_altobj = NULL;
     ici_rego(chan);
-    return ici_ret_with_decref(chan);
+    return ret_with_decref(chan);
 }
 
 /*
@@ -136,18 +136,18 @@ f_get(...)
     if (typecheck("o", &c))
         return 1;
     if (!ischannel(c))
-        return ici_argerror(0);
+        return argerror(0);
     q = channelof(c)->c_q;
     while (q->len() < 1)
     {
-        if (ici_waitfor(q))
+        if (waitfor(q))
             return 1;
     }
     o = q->rpop();
-    ici_wakeup(q);
+    wakeup(q);
     if (channelof(c)->c_altobj != NULL)
-	ici_wakeup(channelof(c)->c_altobj);
-    return ici_ret_no_decref(o);
+	wakeup(channelof(c)->c_altobj);
+    return ret_no_decref(o);
 }
 
 /*
@@ -179,7 +179,7 @@ f_put(...)
     {
         while (q->len() > 0)
         {
-            if (ici_waitfor(q))
+            if (waitfor(q))
                 return 1;
         }
     }
@@ -187,15 +187,15 @@ f_put(...)
     {
         while (q->len() >= channelof(c)->c_capacity)
         {
-            if (ici_waitfor(q))
+            if (waitfor(q))
                 return 1;
         }
     }
     q->push(o);
-    ici_wakeup(q);
+    wakeup(q);
     if (channelof(c)->c_altobj != NULL)
-        ici_wakeup(channelof(c)->c_altobj);
-    return ici_null_ret();
+        wakeup(channelof(c)->c_altobj);
+    return null_ret();
 }
 
 //================================================================
@@ -217,7 +217,7 @@ alt_setup(array *alts, object *obj)
 	}
 	else if (!isnull(o))
 	{
-	    ici_set_error("bad object in array passed to channel.alt");
+	    set_error("bad object in array passed to channel.alt");
 	    return 1;
 	}
     }
@@ -259,11 +259,11 @@ f_alt(...)
 	return 1;
     while ((idx = alt(alts)) == -1)
     {
-        if (ici_waitfor(alts))
+        if (waitfor(alts))
             return 1;
     }
     alt_setup(alts, NULL);
-    return ici_int_ret(idx);
+    return int_ret(idx);
 }
 
 ICI_DEFINE_CFUNCS(channel)

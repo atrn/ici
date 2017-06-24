@@ -14,7 +14,7 @@ ici_int *small_ints[small_int_count];
  * ints are intrinsically atomic, so if the given integer already exists, it
  * will just incref it and return it.
  *
- * Note, 0 and 1 are available directly as 'ici_zero' and 'ici_one'.
+ * Note, 0 and 1 are available directly as 'o_zero' and 'o_one'.
  *
  * This --func-- forms part of the --ici-api--.
  */
@@ -30,9 +30,9 @@ ici_int *ici_int_new(int64_t i)
     }
     for
     (
-        po = &ici_atoms[ici_atom_hash_index((unsigned long)i * INT_PRIME)];
+        po = &atoms[ici_atom_hash_index((unsigned long)i * INT_PRIME)];
         (o = *po) != NULL;
-        --po < ici_atoms ? po = ici_atoms + ici_atomsz - 1 : NULL
+        --po < atoms ? po = atoms + atomsz - 1 : NULL
     )
     {
         if (isint(o) && intof(o)->i_value == i)
@@ -41,16 +41,16 @@ ici_int *ici_int_new(int64_t i)
             return intof(o);
         }
     }
-    ++ici_supress_collect;
+    ++supress_collect;
     if ((o = ici_talloc(ici_int)) == NULL)
     {
-        --ici_supress_collect;
+        --supress_collect;
         return NULL;
     }
     ICI_OBJ_SET_TFNZ(o, ICI_TC_INT, ICI_O_ATOM, 1, sizeof (ici_int));
     ici_rego(o);
     intof(o)->i_value = i;
-    --ici_supress_collect;
+    --supress_collect;
     ICI_STORE_ATOM_AND_COUNT(po, o);
     return intof(o);
 }

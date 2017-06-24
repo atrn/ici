@@ -60,84 +60,84 @@ ici_funcv(object *subject, object *callable, const char *types, va_list va)
         ret_ptr = NULL;
     }
 
-    os_depth = ici_os.a_top - ici_os.a_base;
+    os_depth = os.a_top - os.a_base;
     /*
      * We include an extra 80 in our stk_push_chk, see start of evaluate().
      */
     nargs = strlen(types);
-    if (ici_os.stk_push_chk(nargs + 80))
+    if (os.stk_push_chk(nargs + 80))
     {
         return 1;
     }
     for (arg = 0; arg < nargs; ++arg)
     {
-        *ici_os.a_top++ = ici_null;
+        *os.a_top++ = ici_null;
     }
     for (arg = -1; arg >= -nargs; --arg)
     {
         switch (*types++)
         {
         case 'o':
-            ici_os.a_top[arg] = va_arg(va, object *);
+            os.a_top[arg] = va_arg(va, object *);
             break;
 
         case 'i':
-            if ((ici_os.a_top[arg] = ici_int_new(va_arg(va, long))) == NULL)
+            if ((os.a_top[arg] = ici_int_new(va_arg(va, long))) == NULL)
             {
                 goto fail;
             }
-            ici_os.a_top[arg]->decref();
+            os.a_top[arg]->decref();
             break;
 
         case 'q':
-            ici_os.a_top[arg] = &ici_o_quote;
+            os.a_top[arg] = &o_quote;
             --nargs;
             break;
 
         case 's':
-            if ((ici_os.a_top[arg] = ici_str_new_nul_term(va_arg(va, char *))) == NULL)
+            if ((os.a_top[arg] = ici_str_new_nul_term(va_arg(va, char *))) == NULL)
             {
                 goto fail;
             }
-            ici_os.a_top[arg]->decref();
+            os.a_top[arg]->decref();
             break;
 
         case 'f':
-            if ((ici_os.a_top[arg] = ici_float_new(va_arg(va, double))) == NULL)
+            if ((os.a_top[arg] = ici_float_new(va_arg(va, double))) == NULL)
             {
                 goto fail;
             }
-            ici_os.a_top[arg]->decref();
+            os.a_top[arg]->decref();
             break;
 
         default:
-            ici_set_error("error in function call");
+            set_error("error in function call");
             goto fail;
         }
     }
     if (member_obj != NULL)
     {
-        *ici_os.a_top++ = member_obj;
+        *os.a_top++ = member_obj;
         nargs++;
     }
     /*
      * Push the number of actual args, followed by the function
      * itself onto the operand stack.
      */
-    if ((*ici_os.a_top = ici_int_new(nargs)) == NULL)
+    if ((*os.a_top = ici_int_new(nargs)) == NULL)
     {
         goto fail;
     }
-    (*ici_os.a_top)->decref();
-    ++ici_os.a_top;
+    (*os.a_top)->decref();
+    ++os.a_top;
     if (subject != NULL)
     {
-        *ici_os.a_top++ = subject;
+        *os.a_top++ = subject;
     }
-    *ici_os.a_top++ = callable;
+    *os.a_top++ = callable;
 
-    os_depth = (ici_os.a_top - ici_os.a_base) - os_depth;
-    call_op = subject != NULL ? &ici_o_method_call : &ici_o_call;
+    os_depth = (os.a_top - os.a_base) - os_depth;
+    call_op = subject != NULL ? &o_method_call : &o_call;
     if ((ret_obj = evaluate(call_op, os_depth)) == NULL)
     {
         goto fail;
@@ -183,7 +183,7 @@ ici_funcv(object *subject, object *callable, const char *types, va_list va)
     default:
     typeclash:
         ret_obj->decref();
-        ici_set_error("incorrect return type");
+        set_error("incorrect return type");
         goto fail;
     }
     return 0;
@@ -214,13 +214,13 @@ ici_callv(str *func_name, const char *types, va_list va)
         member_obj = va_arg(tmp, object *);
         if ((func_obj = ici_fetch(member_obj, func_name)) == ici_null)
         {
-            return ici_set_error("\"%s\" undefined in object", func_name->s_chars);
+            return set_error("\"%s\" undefined in object", func_name->s_chars);
         }
         va_end(tmp);
     }
-    else if ((func_obj = ici_fetch(ici_vs.a_top[-1], func_name)) == ici_null)
+    else if ((func_obj = ici_fetch(vs.a_top[-1], func_name)) == ici_null)
     {
-        return ici_set_error("\"%s\" undefined", func_name->s_chars);
+        return set_error("\"%s\" undefined", func_name->s_chars);
     }
     return ici_funcv(NULL, func_obj, types, va);
 }
@@ -261,7 +261,7 @@ ici_callv(str *func_name, const char *types, va_list va)
  *          When an object is returned it has been ici_incref()ed (that is, it
  *          is held against garbage collection).
  *
- * Returns 0 on success, else 1, in which case ici_error has been set.
+ * Returns 0 on success, else 1, in which case error has been set.
  *
  * See also: ici_callv(), ici_method(), ici_call(), ici_funcv().
  *
@@ -328,12 +328,12 @@ ici_call(str *func_name, const char *types, ...)
         member_obj = va_arg(va, object *);
         if ((func_obj = ici_fetch(member_obj, func_name)) == ici_null)
         {
-            return ici_set_error("\"%s\" undefined in object", func_name->s_chars);
+            return set_error("\"%s\" undefined in object", func_name->s_chars);
         }
     }
-    else if ((func_obj = ici_fetch(ici_vs.a_top[-1], func_name)) == ici_null)
+    else if ((func_obj = ici_fetch(vs.a_top[-1], func_name)) == ici_null)
     {
-        return ici_set_error("\"%s\" undefined", func_name->s_chars);
+        return set_error("\"%s\" undefined", func_name->s_chars);
     }
     va_start(va, types);
     result = ici_funcv(NULL, func_obj, types, va);

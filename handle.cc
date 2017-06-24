@@ -82,12 +82,12 @@ handle *ici_handle_new(void *ptr, str *name, objwsup *super)
     ici_handle_proto.h_ptr = ptr;
     ici_handle_proto.h_name = name;
     ici_handle_proto.o_super = super;
-    if ((h = handleof(ici_atom_probe2(&ici_handle_proto, &po))) != NULL)
+    if ((h = handleof(atom_probe2(&ici_handle_proto, &po))) != NULL)
     {
         h->incref();
         return h;
     }
-    ++ici_supress_collect;
+    ++supress_collect;
     if ((h = ici_talloc(handle)) == NULL)
         return NULL;
     ICI_OBJ_SET_TFNZ(h, ICI_TC_HANDLE, (super != NULL ? ICI_O_SUPER : 0) | ICI_O_ATOM, 1, 0);
@@ -99,7 +99,7 @@ handle *ici_handle_new(void *ptr, str *name, objwsup *super)
     h->h_member_intf = NULL;
     h->h_general_intf = NULL;
     ici_rego(h);
-    --ici_supress_collect;
+    --supress_collect;
     ICI_STORE_ATOM_AND_COUNT(po, h);
     return h;
 }
@@ -124,7 +124,7 @@ ici_handle_probe(void *ptr, str *name)
 
     ici_handle_proto.h_ptr = ptr;
     ici_handle_proto.h_name = name;
-    if ((h = handleof(ici_atom_probe(&ici_handle_proto))) != NULL)
+    if ((h = handleof(atom_probe(&ici_handle_proto))) != NULL)
         h->incref();
     return h;
 }
@@ -134,7 +134,7 @@ ici_handle_probe(void *ptr, str *name)
  * particular, that 'inst' is not NULL and is a handle with the given 'name'.
  * If OK and 'h' is non-NULL, the handle is stored through it.  If 'p' is
  * non-NULL, the associted pointer ('h_ptr') is stored through it.  Return 1
- * on error and sets ici_error, else 0.
+ * on error and sets error, else 0.
  *
  * For example, a typical method where the instance should be a handle
  * of type 'XML_Parse' might look like this:
@@ -151,7 +151,7 @@ ici_handle_probe(void *ptr, str *name)
  *          return 1;
  *      if (!XML_SetBase(p, s))
  *          return ici_xml_error(p);
- *      return ici_null_ret();
+ *      return null_ret();
  *  }
  *
  *
@@ -167,8 +167,8 @@ ici_handle_method_check(object *inst, str *name, handle **h, void **p)
         return 1;
     if (handleof(inst)->h_name != name)
     {
-        return ici_set_error("attempt to apply method %s to %s",
-                             ici_objname(n1, ici_os.a_top[-1]),
+        return set_error("attempt to apply method %s to %s",
+                             ici_objname(n1, os.a_top[-1]),
                              ici_objname(n2, inst));
     }
     if (h != NULL)
@@ -195,21 +195,21 @@ ici_handle_method(object *inst)
         return 1;
     if (inst->flagged(ICI_H_CLOSED))
     {
-        return ici_set_error("attempt to apply method %s to %s which is dead",
-                             ici_objname(n1, ici_os.a_top[-1]),
+        return set_error("attempt to apply method %s to %s which is dead",
+                             ici_objname(n1, os.a_top[-1]),
                              ici_objname(n2, inst));
     }
     r = NULL;
-    id = (long)cfuncof(ici_os.a_top[-1])->cf_arg1;
+    id = (long)cfuncof(os.a_top[-1])->cf_arg1;
     if ((*handleof(inst)->h_member_intf)(handleof(inst)->h_ptr, id, NULL, &r))
         return 1;
     if (r == NULL)
     {
-        return ici_set_error("attempt to apply method %s to %s",
-                             ici_objname(n1, ici_os.a_top[-1]),
+        return set_error("attempt to apply method %s to %s",
+                             ici_objname(n1, os.a_top[-1]),
                              ici_objname(n2, inst));
     }
-    return ici_ret_no_decref(r);
+    return ret_no_decref(r);
 }
 
 /*
@@ -294,14 +294,14 @@ object *ici_make_handle_member_map(ici_name_id_t *ni)
 }
 
 
-void handle_type::objname(object *o, char p[ICI_OBJNAMEZ])
+void handle_type::objname(object *o, char p[objnamez])
 {
     if (handleof(o)->h_name == NULL)
         strcpy(p, "handle");
     else
     {
-        if (handleof(o)->h_name->s_nchars > ICI_OBJNAMEZ - 1)
-            sprintf(p, "%.*s...", ICI_OBJNAMEZ - 4, handleof(o)->h_name->s_chars);
+        if (handleof(o)->h_name->s_nchars > objnamez - 1)
+            sprintf(p, "%.*s...", objnamez - 4, handleof(o)->h_name->s_chars);
         else
             sprintf(p, "%s", handleof(o)->h_name->s_chars);
     }

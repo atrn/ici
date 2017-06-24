@@ -28,19 +28,19 @@ f_regexp(...)
     {
     case 2:
         if (!isint(ARG(1)))
-            return ici_argerror(1);
+            return argerror(1);
         opts = intof(ARG(1))->i_value;
         /* FALLTHROUGH */
     case 1:
         if (!isstring(ARG(0)))
-            return ici_argerror(0);
+            return argerror(0);
         break;
     default:
-        return ici_argcount(2);
+        return argcount(2);
     }
     if (ICI_CF_ARG2() != NULL)
         opts |= PCRE_CASELESS;
-    return ici_ret_with_decref(ici_regexp_new(stringof(ARG(0)), opts));
+    return ret_with_decref(ici_regexp_new(stringof(ARG(0)), opts));
 }
 
 /*
@@ -197,7 +197,7 @@ static array *do_smash
             if ((ns = ici_str_alloc(size)) == NULL)
                 goto fail;
             do_repl(s, repls[-i]->s_chars, repls[-i]->s_nchars, ns->s_chars);
-            if ((ns = stringof(ici_atom(ns, 1))) == NULL)
+            if ((ns = stringof(atom(ns, 1))) == NULL)
                 goto fail;
             *a->a_top++ = ns;
             ns->decref();
@@ -409,11 +409,11 @@ f_sub(...)
     if (typecheck("oos", &thestr, &o, &repl))
         return 1;
     if (!isstring(thestr))
-        return ici_argerror(0);
+        return argerror(0);
     if (isregexp(o))
         re = regexpof(o);
     else if (!isstring(o))
-        return ici_argerror(1);
+        return argerror(1);
     else if ((re = ici_regexp_new(stringof(o), 0)) == NULL)
         return 1;
     if ((rc = do_sub(stringof(thestr), re, repl, &ofs)) == NULL)
@@ -430,7 +430,7 @@ f_sub(...)
     if (regexpof(o) != re)
         re->decref();
 
-    return ici_ret_no_decref(rc);
+    return ret_no_decref(rc);
 }
 
 static int
@@ -452,17 +452,17 @@ f_gsub(...)
      */
     a = NULL;
     if (NARGS() < 3)
-        return ici_argcount(3);
+        return argcount(3);
     if (!isstring(ARG(0)))
-        return ici_argerror(0);
+        return argerror(0);
     thestr = stringof(ARG(0));
     if (!isstring(ARG(2)))
-        return ici_argerror(2);
+        return argerror(2);
     repl = stringof(ARG(2));
     if (!isregexp(ARG(1)))
     {
         if (!isstring(ARG(1)))
-            return ici_argerror(1);
+            return argerror(1);
         if ((re = ici_regexp_new(stringof(ARG(1)), 0)) == NULL)
             return 1;
     }
@@ -482,12 +482,12 @@ f_gsub(...)
         memcpy(s, stringof(*p)->s_chars, stringof(*p)->s_nchars);
         s += stringof(*p)->s_nchars;
     }
-    if ((ns = stringof(ici_atom(ns, 1))) == NULL)
+    if ((ns = stringof(atom(ns, 1))) == NULL)
         goto fail;
     a->decref();
     if (!isregexp(ARG(1)))
         re->decref();
-    return ici_ret_with_decref(ns);
+    return ret_with_decref(ns);
 
 fail:
     if (a != NULL)
@@ -527,12 +527,12 @@ f_old_smash()
         return 1;
     if (delim[0] == 0)
     {
-        return ici_set_error("bad delimiter string");
+        return set_error("bad delimiter string");
     }
     if (strlen(delim) == 1)
-        strs = ici_smash(s, delim[0]);
+        strs = smash(s, delim[0]);
     else
-        strs = ici_ssmash(s, delim);
+        strs = ssmash(s, delim);
     if (strs == NULL)
         return 1;
     if ((sa = ici_array_new(nptrs(strs))) == NULL)
@@ -544,7 +544,7 @@ f_old_smash()
         ++sa->a_top;
     }
     ici_free((char *)strs);
-    return ici_ret_with_decref(sa);
+    return ret_with_decref(sa);
 
 fail:
     if (sa != NULL)
@@ -553,7 +553,7 @@ fail:
     return 1;
 }
 
-regexp *ici_smash_default_re;
+regexp *smash_default_re;
 
 /*
  * f_smash()
@@ -574,7 +574,7 @@ f_smash(...)
     int            nargs;
 
     if (NARGS() < 1)
-        return ici_argcount(1);
+        return argcount(1);
 
     if (NARGS() == 2 && isstring(ARG(1)))
         return f_old_smash();
@@ -585,26 +585,26 @@ f_smash(...)
     {
         include_remainder = intof(ARG(NARGS() - 1))->i_value != 0;
         if (--nargs == 0)
-            return ici_argerror(0);
+            return argerror(0);
     }
 
     if (!isstring(ARG(0)))
-        return ici_argerror(0);
+        return argerror(0);
     thestr = stringof(ARG(0));
 
     if (nargs < 2)
     {
-        if (ici_smash_default_re == NULL)
+        if (smash_default_re == NULL)
         {
-            if ((ici_smash_default_re = ici_regexp_new(SS(sloshn), 0)) == NULL)
+            if ((smash_default_re = ici_regexp_new(SS(sloshn), 0)) == NULL)
                 return 1;
         }
-        re = ici_smash_default_re;
+        re = smash_default_re;
     }
     else
     {
         if (!isregexp(ARG(1)))
-            return ici_argerror(1);
+            return argerror(1);
         re = regexpof(ARG(1));
     }
 
@@ -621,12 +621,12 @@ f_smash(...)
         for (i = 0; i < n_repls; ++i)
         {
             if (!isstring(repls[-i]))
-                return ici_argerror(i + 2);
+                return argerror(i + 2);
         }
     }
 
     a = do_smash(thestr, re, repls, n_repls, include_remainder);
-    return ici_ret_with_decref(a);
+    return ret_with_decref(a);
 }
 
 ICI_DEFINE_CFUNCS(re)

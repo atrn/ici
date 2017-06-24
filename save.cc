@@ -249,7 +249,7 @@ save_func(archive *ar, object *obj)
     if ((autos = structof(f->f_autos->copy())) == NULL)
         return 1;
     autos->o_super = NULL;
-    ici_struct_unassign(autos, SS(_func_));
+    unassign(autos, SS(_func_));
     if (archive_save(ar, autos))
     {
         autos->decref();
@@ -369,7 +369,7 @@ tname(object *o)
 static int
 save_error(archive *, object *obj)
 {
-    return ici_set_error("%s: unable to save type", obj->type_name());
+    return set_error("%s: unable to save type", obj->type_name());
 }
 
 
@@ -400,7 +400,7 @@ archive_save(archive *ar, object *obj)
  */
 int f_archive_save(...)
 {
-    objwsup *scp = structof(ici_vs.a_top[-1])->o_super;
+    objwsup *scp = structof(vs.a_top[-1])->o_super;
     file *file;
     object *obj;
     archive *ar;
@@ -421,12 +421,12 @@ int f_archive_save(...)
     case 1:
         if (typecheck("o", &obj))
             return 1;
-        if ((file = ici_need_stdout()) == NULL)
+        if ((file = need_stdout()) == NULL)
             return 1;
         break;
 
     default:
-        return ici_argerror(2);
+        return argerror(2);
     }
 
     if ((ar = archive::start(file, scp)) != NULL)
@@ -435,7 +435,7 @@ int f_archive_save(...)
         ar->stop();
     }
 
-    return failed ? failed : ici_null_ret();
+    return failed ? failed : null_ret();
 }
 
 } // namespace ici

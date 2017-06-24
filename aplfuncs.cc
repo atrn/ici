@@ -81,7 +81,7 @@ buildxx(object **r, object **dnext, struct context *c)
         case 'a':
             if (!isarray(*c->c_cnext))
             {
-                return ici_set_error(
+                return set_error(
                     "build(..\"a\"..) given %s instead of an array for content",
                     ici_objname(n1, *c->c_cnext));
             }
@@ -117,8 +117,8 @@ buildxx(object **r, object **dnext, struct context *c)
             break;
 
         default:
-            return ici_set_error("option \"%c\" given to %s is not one of c, r, a, i or l",
-                c->c_option, ici_objname(n1, ici_os.a_top[-1]));
+            return set_error("option \"%c\" given to %s is not one of c, r, a, i or l",
+                c->c_option, ici_objname(n1, os.a_top[-1]));
         }
         return 0;
     }
@@ -179,8 +179,8 @@ buildxx(object **r, object **dnext, struct context *c)
     }
     else
     {
-        return ici_set_error("%s supplied as a dimension to %s",
-            ici_objname(n1, *dnext), ici_objname(n2, ici_os.a_top[-1]));
+        return set_error("%s supplied as a dimension to %s",
+            ici_objname(n1, *dnext), ici_objname(n2, os.a_top[-1]));
     }
     if (c->c_option == 'r')
         c->c_cnext = c->c_cstart;
@@ -206,7 +206,7 @@ f_build(...)
         if (isstring(ARG(i)))
         {
             c.c_dlimit = &ARG(i); /* Revise. */
-            c.c_option = ici_str_char_at(stringof(ARG(i)), 0);
+            c.c_option = str_char_at(stringof(ARG(i)), 0);
             if (++i < NARGS())
             {
                 c.c_cstart = &ARG(i);
@@ -217,7 +217,7 @@ f_build(...)
         }
     }
     if (dstart == c.c_dlimit)
-        return ici_null_ret();
+        return null_ret();
     if (c.c_cstart == NULL)
     {
         default_content = ici_null;
@@ -233,7 +233,7 @@ f_build(...)
         {
             if (!isint(*c.c_cnext))
             {
-                return ici_set_error("%s given as auto-increment start is not an int",
+                return set_error("%s given as auto-increment start is not an int",
                     ici_objname(n1, *c.c_cnext));
             }
             c.c_ccount = intof(*c.c_cnext)->i_value;
@@ -242,7 +242,7 @@ f_build(...)
             {
                 if (!isint(*c.c_cnext))
                 {
-                    return ici_set_error("%s given as auto-increment step is not an int",
+                    return set_error("%s given as auto-increment step is not an int",
                         ici_objname(n1, *c.c_cnext));
                 }
                 c.c_cstep = intof(*c.c_cnext)->i_value;
@@ -256,7 +256,7 @@ f_build(...)
 
     if (buildxx(&r, dstart, &c))
         return 1;
-    return ici_ret_with_decref(r);
+    return ret_with_decref(r);
 }
 
 ICI_DEFINE_CFUNCS(apl)

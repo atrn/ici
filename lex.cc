@@ -109,7 +109,7 @@ static void unget(int c, parse *p)
  * source line and file object at the end of the array. Returns T_ERORR
  * on error, in which case error is set.
  */
-int ici_lex(parse *p, array *a)
+int lex(parse *p, array *a)
 {
     int     c;
     int     t = 0;              /* init to shut up compiler */
@@ -512,7 +512,7 @@ int ici_lex(parse *p, array *a)
         }
         if (c == '\n')
         {
-            ici_set_error("newline in #...#");
+            set_error("newline in #...#");
             goto fail;
         }
         if ((p->p_got.t_obj = ici_str_new(buf, i)) == NULL)
@@ -607,7 +607,7 @@ int ici_lex(parse *p, array *a)
                     }
                     else
                     {
-                        ici_set_error("unknown \\ escape");
+                        set_error("unknown \\ escape");
                         goto fail;
                     }
                 }
@@ -617,7 +617,7 @@ int ici_lex(parse *p, array *a)
             {
                 if ((c = get(p, a)) != '\'')
                 {
-                    ici_set_error("too many chars in ' ' sequence");
+                    set_error("too many chars in ' ' sequence");
                     goto fail;
                 }
                 break;
@@ -632,7 +632,7 @@ int ici_lex(parse *p, array *a)
         {
             if (i == 0)
             {
-                ici_set_error("newline in ' '");
+                set_error("newline in ' '");
                 goto fail;
             }
             p->p_got.t_int = buf[0] & 0xFF;
@@ -641,7 +641,7 @@ int ici_lex(parse *p, array *a)
         {
             if (c == '\n')
             {
-                ici_set_error("newline in \"...\"");
+                set_error("newline in \"...\"");
                 goto fail;
             }
             if ((p->p_got.t_obj = ici_str_new(buf, i)) == NULL)
@@ -665,7 +665,7 @@ int ici_lex(parse *p, array *a)
             c != '.'
         )
         {
-            ici_set_error("lexical error");
+            set_error("lexical error");
             goto fail;
         }
 
@@ -744,7 +744,7 @@ int ici_lex(parse *p, array *a)
             break;
         }
         buf[i] = '\0';
-        l = ici_strtol(buf, &s, 0);
+        l = xstrtol(buf, &s, 0);
         if (*s == '\0')
         {
             p->p_got.t_int = l;

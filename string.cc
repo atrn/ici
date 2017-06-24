@@ -17,7 +17,7 @@ namespace ici
  */
 #define STR_ALLOCZ(n)   ((n) + sizeof (str) - sizeof (int))
 
-int (ici_str_char_at)(str *s, size_t index)
+int (str_char_at)(str *s, size_t index)
 {
     return index >= s->s_nchars ? 0 : s->s_chars[index];
 }
@@ -26,8 +26,7 @@ int (ici_str_char_at)(str *s, size_t index)
  * Return a hash sensitive to the value of the object.
  * See the comment on t_hash() in object.h
  */
-unsigned long
-ici_hash_string(object *o)
+unsigned long hash_string(object *o)
 {
     unsigned long       h;
 
@@ -49,7 +48,7 @@ ici_hash_string(object *o)
         h = STR_PRIME_0 * ici_murmur_hash((const unsigned char *)stringof(o)->s_chars, stringof(o)->s_nchars, 0);
     }
 #   else
-    h = ici_crc(STR_PRIME_0, (const unsigned char *)stringof(o)->s_chars, stringof(o)->s_nchars);
+    h = crc(STR_PRIME_0, (const unsigned char *)stringof(o)->s_chars, stringof(o)->s_nchars);
 #   endif
 #   if ICI_KEEP_STRING_HASH
     stringof(o)->s_hash = h;
@@ -131,23 +130,23 @@ ici_str_new(const char *p, size_t nchars)
 #       if ICI_KEEP_STRING_HASH
         proto.s.s_hash = 0;
 #       endif
-        if ((s = stringof(ici_atom_probe2(&proto.s, &po))) != NULL)
+        if ((s = stringof(atom_probe2(&proto.s, &po))) != NULL)
         {
             s->incref();
             return s;
         }
-        ++ici_supress_collect;
+        ++supress_collect;
         az = STR_ALLOCZ(nchars);
         if ((s = (str *)ici_nalloc(az)) == NULL)
         {
-            --ici_supress_collect;
+            --supress_collect;
             return NULL;
         }
         memcpy((char *)s, (char *)&proto.s, az);
         ICI_OBJ_SET_TFNZ(s, ICI_TC_STRING, ICI_O_ATOM, 1, az);
         s->s_chars = s->s_u.su_inline_chars;
         ici_rego(s);
-        --ici_supress_collect;
+        --supress_collect;
         ICI_STORE_ATOM_AND_COUNT(po, s);
         return s;
     }
@@ -167,7 +166,7 @@ ici_str_new(const char *p, size_t nchars)
     s->s_hash = 0;
 #   endif
     ici_rego(s);
-    return stringof(ici_atom(s, 1));
+    return stringof(atom(s, 1));
 }
 
 /*
@@ -269,7 +268,7 @@ int ici_str_need_size(str *s, size_t n)
 
     if (s->flags(ICI_O_ATOM|ICI_S_SEP_ALLOC) != ICI_S_SEP_ALLOC)
     {
-        return ici_set_error("attempt to modify an atomic string %s", ici_objname(n1, s));
+        return set_error("attempt to modify an atomic string %s", ici_objname(n1, s));
     }
     if (size_t(s->s_u.su_nalloc) >= n + 1)
     {
@@ -372,7 +371,7 @@ void string_type::free(object *o)
  */
 unsigned long string_type::hash(object *o)
 {
-    return ici_hash_string(o);
+    return hash_string(o);
 }
 
 /*
@@ -417,14 +416,14 @@ int string_type::assign(object *o, object *k, object *v)
 
     if (o->isatom())
     {
-        return ici_set_error("attempt to assign to an atomic string");
+        return set_error("attempt to assign to an atomic string");
     }
     if (!isint(k) || !isint(v))
         return assign_fail(o, k, v);
     i = intof(k)->i_value;
     if (i < 0)
     {
-        return ici_set_error("attempt to assign to negative string index");
+        return set_error("attempt to assign to negative string index");
     }
     s = stringof(o);
     if (ici_str_need_size(s, i + 1))

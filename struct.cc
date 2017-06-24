@@ -39,7 +39,7 @@ inline size_t HASHINDEX(object *k, ici_struct *s) {
  * not look down the super chain.
  */
 sslot *
-ici_find_raw_slot(ici_struct *s, object *k)
+find_raw_slot(ici_struct *s, object *k)
 {
     sslot *sl = &s->s_slots[HASHINDEX(k, s)];
     while (LIKELY(sl->sl_key != NULL))
@@ -98,8 +98,7 @@ ici_struct_new()
  * to ++vsver which completely invalidates all lookasides. Only
  * call this if you know exactly what you are doing.
  */
-void
-ici_invalidate_struct_lookaside(ici_struct *s)
+void invalidate_struct_lookaside(ici_struct *s)
 {
     sslot     *sl;
     sslot     *sle;
@@ -144,7 +143,7 @@ grow_struct(ici_struct *s)
     {
         if (oldslots[i].sl_key != NULL)
 	{
-            *ici_find_raw_slot(s, oldslots[i].sl_key) = oldslots[i];
+            *find_raw_slot(s, oldslots[i].sl_key) = oldslots[i];
 	}
     }
     ici_nfree((char *)oldslots, (s->s_nslots / 2) * sizeof (sslot));
@@ -157,16 +156,15 @@ grow_struct(ici_struct *s)
  *
  * This --func-- forms part of the --ici-api--.
  */
-void
-ici_struct_unassign(ici_struct *s, object *k)
+int unassign(ici_struct *s, object *k)
 {
     sslot *sl;
     sslot *ss;
     sslot *ws;    /* Wanted position. */
 
-    if ((ss = ici_find_raw_slot(s, k))->sl_key == NULL)
+    if ((ss = find_raw_slot(s, k))->sl_key == NULL)
     {
-        return;
+        return 0;
     }
     --s->s_nels;
     sl = ss;
@@ -215,6 +213,7 @@ ici_struct_unassign(ici_struct *s, object *k)
     }
     ss->sl_key = NULL;
     ss->sl_value = NULL;
+    return 0;
 }
 
 /*
@@ -373,7 +372,7 @@ int struct_type::cmp(object *o1, object *o2)
     {
         if (sl1->sl_key != NULL)
         {
-            sl2 = ici_find_raw_slot(structof(o2), sl1->sl_key);
+            sl2 = find_raw_slot(structof(o2), sl1->sl_key);
             if (sl1->sl_key != sl2->sl_key || sl1->sl_value != sl2->sl_value)
             {
                 return 1;
@@ -414,7 +413,7 @@ object *struct_type::copy(object *o)
     ns->s_nslots = s->s_nslots;
     if (ns->s_nslots <= 64)
     {
-        ici_invalidate_struct_lookaside(ns);
+        invalidate_struct_lookaside(ns);
     }
     else
     {
@@ -518,7 +517,7 @@ int struct_type::assign(object *o, object *k, object *v)
         {
             if (o->isatom())
             {
-                return ici_set_error("attempt to modify an atomic struct");
+                return set_error("attempt to modify an atomic struct");
             }
             goto do_assign;
         }
@@ -538,7 +537,7 @@ int struct_type::assign(object *o, object *k, object *v)
      */
     if (o->isatom())
     {
-        return ici_set_error("attempt to modify an atomic struct");
+        return set_error("attempt to modify an atomic struct");
     }
     if (structof(o)->s_nels >= structof(o)->s_nslots - structof(o)->s_nslots / 4)
     {
@@ -583,9 +582,9 @@ int struct_type::assign_base(object *o, object *k, object *v)
 
     if (UNLIKELY(o->isatom()))
     {
-        return ici_set_error("attempt to modify an atomic struct");
+        return set_error("attempt to modify an atomic struct");
     }
-    sl = ici_find_raw_slot(s, k);
+    sl = find_raw_slot(s, k);
     if (sl->sl_key != NULL)
     {
         goto do_assign;
@@ -691,7 +690,7 @@ object *struct_type::fetch_base(object *o, object *k)
 {
     sslot *sl;
 
-    sl = ici_find_raw_slot(structof(o), k);
+    sl = find_raw_slot(structof(o), k);
     if (sl->sl_key == NULL)
     {
         return ici_null;
@@ -713,11 +712,11 @@ object *struct_type::fetch_base(object *o, object *k)
     return sl->sl_value;
 }
 
-op    ici_o_namelvalue{ICI_OP_NAMELVALUE};
-op    ici_o_colon{ICI_OP_COLON};
-op    ici_o_coloncaret{ICI_OP_COLONCARET};
-op    ici_o_dot{ICI_OP_DOT};
-op    ici_o_dotkeep{ICI_OP_DOTKEEP};
-op    ici_o_dotrkeep{ICI_OP_DOTRKEEP};
+op    o_namelvalue{OP_NAMELVALUE};
+op    o_colon{OP_COLON};
+op    o_coloncaret{OP_COLONCARET};
+op    o_dot{OP_DOT};
+op    o_dotkeep{OP_DOTKEEP};
+op    o_dotrkeep{OP_DOTRKEEP};
 
 } // namespace ici

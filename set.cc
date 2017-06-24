@@ -41,7 +41,7 @@ object **ici_find_set_slot(set *s, object *k)
  *
  * This --func-- forms part of the --ici-api--.
  */
-set *ici_set_new()
+set *new_set()
 {
     set  *s;
 
@@ -94,7 +94,7 @@ static int grow_set(set *s)
 /*
  * Remove the key from the set.
  */
-int ici_set_unassign(set *s, object *k)
+int unassign(set *s, object *k)
 {
     object  **sl;
     object  **ss;
@@ -246,11 +246,11 @@ int set_type::assign(object *o, object *k, object *v)
 
     if (o->isatom())
     {
-        return ici_set_error("attempt to modify an atomic set");
+        return set_error("attempt to modify an atomic set");
     }
     if (isfalse(v))
     {
-        return ici_set_unassign(s, k);
+        return unassign(s, k);
     }
     if (*(e = ici_find_set_slot(s, k)) != NULL)
         return 0;
@@ -278,7 +278,7 @@ object * set_type::fetch(object *o, object *k)
     if (slot == NULL) {
         return ici_null;
     }
-    return ici_one;
+    return o_one;
 }
 
 int set_type::forall(object *o)
@@ -308,7 +308,7 @@ int set_type::forall(object *o)
         {
             if (fa->fa_vaggr != ici_null)
             {
-                if (ici_assign(fa->fa_vaggr, fa->fa_vkey, ici_one))
+                if (ici_assign(fa->fa_vaggr, fa->fa_vkey, o_one))
                     return 1;
             }
             if (ici_assign(fa->fa_kaggr, fa->fa_kkey, *sl))
@@ -324,8 +324,7 @@ int set_type::forall(object *o)
 /*
  * Return 1 if a is a subset of b, else 0.
  */
-int
-ici_set_issubset(set *a, set *b) /* a is a subset of b */
+int set_issubset(set *a, set *b) /* a is a subset of b */
 {
     object  **sl;
     size_t  i;
@@ -344,10 +343,9 @@ ici_set_issubset(set *a, set *b) /* a is a subset of b */
  * Return 1 if a is a proper subset of b, else 0. That is, is a subset
  * and not equal.
  */
-int
-ici_set_ispropersubset(set *a, set *b) /* a is a proper subset of b */
+int set_ispropersubset(set *a, set *b) /* a is a proper subset of b */
 {
-    return a->s_nels < b->s_nels && ici_set_issubset(a, b);
+    return a->s_nels < b->s_nels && set_issubset(a, b);
 }
 
 } // namespace ici

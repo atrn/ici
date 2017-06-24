@@ -52,11 +52,11 @@ unsigned long ptr_type::hash(object *o)
  */
 object * ptr_type::fetch(object *o, object *k)
 {
-    if (k == ici_zero)
+    if (k == o_zero)
         return ici_fetch(ptrof(o)->p_aggr, ptrof(o)->p_key);
     if (!isint(k) || !isint(ptrof(o)->p_key))
         return fetch_fail(o, k);
-    if (ptrof(o)->p_key == ici_zero)
+    if (ptrof(o)->p_key == o_zero)
         k->incref();
     else if ((k = ici_int_new(intof(k)->i_value + intof(ptrof(o)->p_key)->i_value)) == NULL)
         return NULL;
@@ -73,11 +73,11 @@ object * ptr_type::fetch(object *o, object *k)
  */
 int ptr_type::assign(object *o, object *k, object *v)
 {
-    if (k == ici_zero)
+    if (k == o_zero)
         return ici_assign(ptrof(o)->p_aggr, ptrof(o)->p_key, v);
     if (!isint(k) || !isint(ptrof(o)->p_key))
         return assign_fail(o, k, v);
-    if (ptrof(o)->p_key == ici_zero)
+    if (ptrof(o)->p_key == o_zero)
         k->incref();
     else if ((k = ici_int_new(intof(k)->i_value + intof(ptrof(o)->p_key)->i_value)) == NULL)
         return 1;
@@ -99,20 +99,20 @@ int ptr_type::call(object *o, object *)
     if (!f->can_call())
     {
         char    n1[30];
-        return ici_set_error("attempt to call a ptr pointing to %s", ici_objname(n1, o));
+        return set_error("attempt to call a ptr pointing to %s", ici_objname(n1, o));
     }
     /*
      * Replace ourselves on the operand stack with 'self' (our aggr) and
      * push on the new object being called.
      */
-    if ((ici_os.a_top[-1] = ici_int_new(NARGS() + 1)) == NULL)
+    if ((os.a_top[-1] = ici_int_new(NARGS() + 1)) == NULL)
         return 1;
-    (ici_os.a_top[-1])->decref();
-    ici_os.a_top[-2] = ptrof(o)->p_aggr;
-    if (ici_os.stk_push_chk())
+    (os.a_top[-1])->decref();
+    os.a_top[-2] = ptrof(o)->p_aggr;
+    if (os.stk_push_chk())
         return 1;
-    *ici_os.a_top++ = f;
-    ici_xs.a_top[-1] = &ici_o_call;
+    *os.a_top++ = f;
+    xs.a_top[-1] = &o_call;
     /*
      * Then behave as if the target had been called. Should this do the
      * debug hooks? Assume not for now.
@@ -130,7 +130,7 @@ int ptr_type::call(object *o, object *)
  *
  * This --func-- forms part of the --ici-api--.
  */
-ptr *ici_ptr_new(object *a, object *k)
+ptr *new_ptr(object *a, object *k)
 {
     ptr *p;
 
@@ -145,59 +145,59 @@ ptr *ici_ptr_new(object *a, object *k)
 /*
  * aggr key => ptr
  */
-int ici_op_mkptr()
+int op_mkptr()
 {
     object  *o;
 
-    if ((o = ici_ptr_new(ici_os.a_top[-2], ici_os.a_top[-1])) == NULL)
+    if ((o = new_ptr(os.a_top[-2], os.a_top[-1])) == NULL)
         return 1;
-    ici_os.a_top[-2] = o;
+    os.a_top[-2] = o;
     o->decref();
-    --ici_os.a_top;
-    --ici_xs.a_top;
+    --os.a_top;
+    --xs.a_top;
     return 0;
 }
 
 /*
  * ptr => aggr key
  */
-int ici_op_openptr()
+int op_openptr()
 {
     ptr  *p;
     char n[30];
 
-    if (!isptr(p = ptrof(ici_os.a_top[-1])))
+    if (!isptr(p = ptrof(os.a_top[-1])))
     {
-        return ici_set_error("pointer required, but %s given", ici_objname(n, ici_os.a_top[-1]));
+        return set_error("pointer required, but %s given", ici_objname(n, os.a_top[-1]));
     }
-    ici_os.a_top[-1] = p->p_aggr;
-    *ici_os.a_top++ = p->p_key;
-    --ici_xs.a_top;
+    os.a_top[-1] = p->p_aggr;
+    *os.a_top++ = p->p_key;
+    --xs.a_top;
     return 0;
 }
 
 /*
  * ptr => obj
  */
-int ici_op_fetch()
+int op_fetch()
 {
     ptr  *p;
     object  *o;
     char    n[30];
 
-    if (!isptr(p = ptrof(ici_os.a_top[-1])))
+    if (!isptr(p = ptrof(os.a_top[-1])))
     {
-        return ici_set_error("pointer required, but %s given", ici_objname(n, ici_os.a_top[-1]));
+        return set_error("pointer required, but %s given", ici_objname(n, os.a_top[-1]));
     }
     if ((o = ici_fetch(p->p_aggr, p->p_key)) == NULL)
         return 1;
-    ici_os.a_top[-1] = o;
-    --ici_xs.a_top;
+    os.a_top[-1] = o;
+    --xs.a_top;
     return 0;
 }
 
-op    ici_o_mkptr{ici_op_mkptr};
-op    ici_o_openptr{ici_op_openptr};
-op    ici_o_fetch{ici_op_fetch};
+op    o_mkptr{op_mkptr};
+op    o_openptr{op_openptr};
+op    o_fetch{op_fetch};
 
 } // namespace ici

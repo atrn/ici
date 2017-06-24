@@ -33,13 +33,13 @@ ici_method_check(object *o, int tcode)
 
     if (o == NULL)
     {
-        return ici_set_error("attempt to call method %s as a function",
-            ici_objname(n1, ici_os.a_top[-1]));
+        return set_error("attempt to call method %s as a function",
+            ici_objname(n1, os.a_top[-1]));
     }
     if (tcode != 0 && o->o_tcode != tcode)
     {
-        return ici_set_error("attempt to apply method %s to %s",
-            ici_objname(n1, ici_os.a_top[-1]),
+        return set_error("attempt to apply method %s to %s",
+            ici_objname(n1, os.a_top[-1]),
             ici_objname(n2, o));
     }
     return 0;
@@ -58,7 +58,7 @@ m_new(object *o)
     if ((s = ici_struct_new()) == NULL)
         return 1;
     s->o_super = objwsupof(o);
-    return ici_ret_with_decref(s);
+    return ret_with_decref(s);
 }
 
 static int
@@ -74,9 +74,9 @@ m_isa(object *o)
     for (s = objwsupof(o); s != NULL; s = s->o_super)
     {
         if (s == klass)
-            return ici_ret_no_decref(ici_one);
+            return ret_no_decref(o_one);
     }
-    return ici_ret_no_decref(ici_zero);
+    return ret_no_decref(o_zero);
 }
 
 static int
@@ -93,13 +93,13 @@ m_respondsto(object *o)
         return 1;
     if (ismethod(v))
     {
-        return ici_ret_no_decref(v);
+        return ret_no_decref(v);
     }
     if (isfunc(v))
     {
-        return ici_ret_with_decref(ici_method_new(o, v));
+        return ret_with_decref(ici_method_new(o, v));
     }
-    return ici_null_ret();
+    return null_ret();
 }
 
 static int
@@ -110,9 +110,9 @@ m_unknown_method(object *o)
     if (NARGS() > 0 && isstring(ARG(0)))
     {
         auto name = stringof(ARG(0));
-        return ici_set_error("attempt to call unknown method \"%s\"", name->s_chars);
+        return set_error("attempt to call unknown method \"%s\"", name->s_chars);
     }
-    return ici_set_error("attempt to call unknown method");
+    return set_error("attempt to call unknown method");
 }
 
 ICI_DEFINE_CFUNCS(oo)

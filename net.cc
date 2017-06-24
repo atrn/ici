@@ -115,13 +115,13 @@ seterror(const char *fallback, const char *fmt, ...)
     va_list     va;
 
     if (fmt == NULL || chkbuf(256))
-        ici_set_error(fallback);
+        set_error(fallback);
     else
     {
         va_start(va, fmt);
         vsprintf(buf, fmt, va);
         va_end(va);
-        ici_set_error(buf);
+        set_error(buf);
     }
     return 1;
 }
@@ -168,7 +168,7 @@ static int isclosed(handle *skt)
 {
     if (skt->flagged(ICI_H_CLOSED))
     {
-        ici_set_error("attempt to use closed socket");
+        set_error("attempt to use closed socket");
         return 1;
     }
     return 0;
@@ -180,14 +180,14 @@ static int isclosed(handle *skt)
  */
 static exec *potentially_block(void)
 {
-    ici_signals_blocking_syscall(1);
-    return ici_leave();
+    blocking_syscall(1);
+    return leave();
 }
 
 static void unblock(exec *x)
 {
-    ici_signals_blocking_syscall(0);
-    ici_enter(x);
+    blocking_syscall(0);
+    enter(x);
 }
 
 /*
@@ -408,7 +408,7 @@ ici_net_socket(void)
 
         if (typecheck("i", &i))
             return 1;
-        return ici_ret_with_decref(new_netsocket(i));
+        return ret_with_decref(new_netsocket(i));
     }
     if (proto == SS(tcp))
         type = SOCK_STREAM;
@@ -423,13 +423,13 @@ ici_net_socket(void)
         );
     }
     if ((fd = socket(PF_INET, type, 0)) == SOCKET_ERROR)
-        return ici_get_last_errno("net.socket", NULL);
+        return get_last_errno("net.socket", NULL);
     if ((skt = new_netsocket(fd)) == NULL)
     {
         closesocket(fd);
         return 1;
     }
-    return ici_ret_with_decref(skt);
+    return ret_with_decref(skt);
 }
 
 /*
@@ -450,7 +450,7 @@ ici_net_close(void)
         return 1;
     closesocket(socket_fd(skt));
     skt->setflag(ICI_H_CLOSED);
-    return ici_null_ret();
+    return null_ret();
 }
 
 /*
@@ -483,13 +483,13 @@ ici_net_listen(void)
         break;
 
     default:
-        return ici_argcount(2);
+        return argcount(2);
     }
     if (isclosed(skt))
         return 1;
     if (listen(socket_fd(skt), (int)backlog) == SOCKET_ERROR)
-        return ici_get_last_errno("net.listen", NULL);
-    return ici_ret_no_decref(skt);
+        return get_last_errno("net.listen", NULL);
+    return ret_no_decref(skt);
 }
 
 /*
@@ -521,9 +521,9 @@ ici_net_accept(void)
     unblock(x);
     if (fd == SOCKET_ERROR)
     {
-        return ici_get_last_errno("net.accept", NULL);
+        return get_last_errno("net.accept", NULL);
     }
-    return ici_ret_with_decref(new_netsocket(fd));
+    return ret_with_decref(new_netsocket(fd));
 }
 
 /*
@@ -558,7 +558,7 @@ ici_net_connect(void)
         addr = buf;
     }
     else
-        return ici_argerror(1);
+        return argerror(1);
     if (parseaddr(addr, INADDR_LOOPBACK, &saddr) == NULL)
         return 1;
     if (isclosed(skt))
@@ -566,7 +566,7 @@ ici_net_connect(void)
     x = potentially_block();
     rc = connect(socket_fd(skt), (struct sockaddr *)&saddr, sizeof saddr);
     unblock(x);
-    return rc == SOCKET_ERROR ? ici_get_last_errno("net.connect", NULL) : ici_ret_no_decref(skt);
+    return rc == SOCKET_ERROR ? get_last_errno("net.connect", NULL) : ret_no_decref(skt);
 }
 
 /*
@@ -604,7 +604,7 @@ ici_net_bind(void)
     {
         skt = handleof(ARG(0));
         if (!ishandleof(skt, SS(socket)))
-            return ici_argerror(0);
+            return argerror(0);
         if (isstring(ARG(1)))
             addr = stringof(ARG(1))->s_chars;
         else if (isint(ARG(1)))
@@ -613,7 +613,7 @@ ici_net_bind(void)
             addr = buf;
         }
         else
-            return ici_argerror(1);
+            return argerror(1);
     }
     else
     {
@@ -626,8 +626,8 @@ ici_net_bind(void)
     if (isclosed(skt))
         return 1;
     if (bind(socket_fd(skt), (struct sockaddr *)&saddr, sizeof saddr) == SOCKET_ERROR)
-        return ici_get_last_errno("net.bind", NULL);
-    return ici_ret_no_decref(skt);
+        return get_last_errno("net.bind", NULL);
+    return ret_no_decref(skt);
 }
 
 /*
@@ -653,7 +653,7 @@ select_add_result
     size_t  i;
     sslot  *sl;
 
-    if ((rset = ici_set_new()) == NULL)
+    if ((rset = new_set()) == NULL)
         return 1;
     if (theset != NULL)
     {
@@ -667,7 +667,7 @@ select_add_result
             if (FD_ISSET(fd, fds))
             {
                 --*n;
-                if (ici_assign(rset, handleof(sl->sl_key), ici_one))
+                if (ici_assign(rset, handleof(sl->sl_key), o_one))
                 {
                     goto fail;
                 }
@@ -807,7 +807,7 @@ ici_net_select()
         }
         else
         {
-            return ici_argerror(i);
+            return argerror(i);
         }
     }
     if (rfds == NULL && wfds == NULL && efds == NULL)
@@ -824,7 +824,7 @@ ici_net_select()
     n = select(dtabsize + 1, rfds, wfds, efds, tv);
     unblock(x);
     if (n < 0)
-        return ici_get_last_errno("net.select", NULL);
+        return get_last_errno("net.select", NULL);
     if ((result = ici_struct_new()) == NULL)
         return 1;
     /* Add in count */
@@ -850,13 +850,13 @@ ici_net_select()
         o = ici_fetch(result, SS(read));
         o->incref();
         result->decref();
-        return ici_ret_with_decref(o);
+        return ret_with_decref(o);
     }
     if (select_add_result(result, SS(write), wset, wfds, &n))
         goto fail;
     if (select_add_result(result, SS(except), eset, efds, &n))
         goto fail;
-    return ici_ret_with_decref(result);
+    return ret_with_decref(result);
 
 fail:
     result->decref();
@@ -886,7 +886,7 @@ ici_net_sendto()
     if (typecheck("hos", SS(socket), &skt, &msg, &addr))
         return 1;
     if (!isstring(msg))
-        return ici_argerror(1);
+        return argerror(1);
     if (parseaddr(addr, INADDR_LOOPBACK, &sockaddr) == NULL)
         return 1;
     if (isclosed(skt))
@@ -901,8 +901,8 @@ ici_net_sendto()
         sizeof sockaddr
     );
     if (n < 0)
-        return ici_get_last_errno("net.sendto", NULL);
-    return ici_int_ret(n);
+        return get_last_errno("net.sendto", NULL);
+    return int_ret(n);
 }
 
 #if 0
@@ -964,12 +964,12 @@ ici_net_recvfrom()
     if (nb == SOCKET_ERROR)
     {
         ici_nfree(msg, len + 1);
-        return ici_get_last_errno("net.recvfrom", NULL);
+        return get_last_errno("net.recvfrom", NULL);
     }
     if (nb == 0)
     {
         ici_nfree(msg, len + 1);
-        return ici_null_ret();
+        return null_ret();
     }
     if ((result = ici_struct_new()) == NULL)
     {
@@ -999,7 +999,7 @@ ici_net_recvfrom()
         goto fail;
     }
     s->decref();
-    return ici_ret_with_decref(result);
+    return ret_with_decref(result);
 
 fail:
     if (msg != NULL)
@@ -1028,13 +1028,13 @@ ici_net_send()
     if (typecheck("ho", SS(socket), &skt, &msg))
         return 1;
     if (!isstring(msg))
-        return ici_argerror(1);
+        return argerror(1);
     if (isclosed(skt))
         return 1;
     len = send(socket_fd(skt), msg->s_chars, msg->s_nchars, 0);
     if (len < 0)
-        return ici_get_last_errno("net.send", NULL);
-    return ici_int_ret(len);
+        return get_last_errno("net.send", NULL);
+    return int_ret(len);
 }
 
 /*
@@ -1074,17 +1074,17 @@ ici_net_recv()
     if (nb == SOCKET_ERROR)
     {
         ici_nfree(msg, len + 1);
-        return ici_get_last_errno("net.recv", NULL);
+        return get_last_errno("net.recv", NULL);
     }
     if (nb == 0)
     {
         ici_nfree(msg, len + 1);
-        return ici_null_ret();
+        return null_ret();
     }
     if ((s = ici_str_new(msg, nb)) == NULL)
         return 1;
     ici_nfree(msg, len + 1);
-    return ici_ret_with_decref(s);
+    return ret_with_decref(s);
 }
 
 
@@ -1238,7 +1238,7 @@ ici_net_getsockopt()
     if (isclosed(skt))
         return 1;
     if (getsockopt(socket_fd(skt), optlevel, o, optval, &optlen) == SOCKET_ERROR)
-        return ici_get_last_errno("net.getsockopt", NULL);
+        return get_last_errno("net.getsockopt", NULL);
     if (o == SO_LINGER)
         intvar = linger.l_onoff ? linger.l_linger : -1;
     else
@@ -1254,7 +1254,7 @@ ici_net_getsockopt()
             intvar = !!intvar;
         }
     }
-    return ici_int_ret(intvar);
+    return int_ret(intvar);
 
 bad:
     return seterror("bad socket option", "bad socket option \"%s\"", opt);
@@ -1341,8 +1341,8 @@ ici_net_setsockopt()
     if (isclosed(skt))
         return 1;
     if (setsockopt(socket_fd(skt), optlevel, optcode, optval, optlen) == SOCKET_ERROR)
-        return ici_get_last_errno("net.setsockopt", NULL);
-    return ici_ret_no_decref(skt);
+        return get_last_errno("net.setsockopt", NULL);
+    return ret_no_decref(skt);
 
 bad:
     return seterror("bad socket option", "bad socket option \"%s\"", opt);
@@ -1364,12 +1364,12 @@ ici_net_hostname()
     {
         char name_buf[MAXHOSTNAMELEN];
         if (gethostname(name_buf, sizeof name_buf) == -1)
-            return ici_get_last_errno("net.gethostname", NULL);
+            return get_last_errno("net.gethostname", NULL);
         if ((hostname = ici_str_new_nul_term(name_buf)) == NULL)
             return 1;
         hostname->incref();
     }
-    return ici_ret_no_decref(hostname);
+    return ret_no_decref(hostname);
 }
 
 #if 0
@@ -1409,7 +1409,7 @@ ici_net_username()
     }
     s = pwent->pw_name;
 #endif
-    return ici_str_ret(s);
+    return str_ret(s);
 }
 #endif
 
@@ -1434,8 +1434,8 @@ ici_net_getpeername()
     if (isclosed(skt))
         return 1;
     if (getpeername(socket_fd(skt), (struct sockaddr *)&addr, &len) == SOCKET_ERROR)
-        return ici_get_last_errno("net.getpeername", NULL);
-    return ici_str_ret(unparse_addr(&addr));
+        return get_last_errno("net.getpeername", NULL);
+    return str_ret(unparse_addr(&addr));
 }
 
 /*
@@ -1457,8 +1457,8 @@ ici_net_getsockname()
     if (isclosed(skt))
         return 1;
     if (getsockname(socket_fd(skt), (struct sockaddr *)&addr, &len) == SOCKET_ERROR)
-        return ici_get_last_errno("net.getsockname", NULL);
-    return ici_str_ret(unparse_addr(&addr));
+        return get_last_errno("net.getsockname", NULL);
+    return str_ret(unparse_addr(&addr));
 }
 
 /*
@@ -1480,8 +1480,8 @@ ici_net_getportno()
     if (isclosed(skt))
         return 1;
     if (getsockname(socket_fd(skt), (struct sockaddr *)&addr, &len) == SOCKET_ERROR)
-        return ici_get_last_errno("net.getsockname", NULL);
-    return ici_int_ret(ntohs(addr.sin_port));
+        return get_last_errno("net.getsockname", NULL);
+    return int_ret(ntohs(addr.sin_port));
 }
 
 /*
@@ -1506,7 +1506,7 @@ ici_net_gethostbyname()
     if ((hostent = gethostbyname(name)) == NULL)
         return seterror("no such host", "no such host: \"%.32s\"", name);
     memcpy(&addr, *hostent->h_addr_list, sizeof addr);
-    return ici_str_ret(inet_ntoa(addr));
+    return str_ret(inet_ntoa(addr));
 }
 
 /*
@@ -1531,7 +1531,7 @@ ici_net_gethostbyaddr(void)
     struct hostent      *hostent;
 
     if (NARGS() != 1)
-        return ici_argcount(1);
+        return argcount(1);
     if (isint(ARG(0)))
         addr = htonl((unsigned long)intof(ARG(0))->i_value);
     else if (typecheck("s", &s))
@@ -1540,7 +1540,7 @@ ici_net_gethostbyaddr(void)
         return seterror("invalid IP address", "invalid IP address: %32s", s);
     if ((hostent = gethostbyaddr((char *)&addr, sizeof addr, AF_INET)) == NULL)
         return seterror("unknown host", s != NULL ? "unknown host: %32s" : "unkown host", s);
-    return ici_str_ret((char *)hostent->h_name);
+    return str_ret((char *)hostent->h_name);
 }
 
 /*
@@ -1559,7 +1559,7 @@ ici_net_sktno()
         return 1;
     if (isclosed(skt))
         return 1;
-    return ici_int_ret((long)socket_fd(skt));
+    return int_ret((long)socket_fd(skt));
 }
 
 /*
@@ -1678,7 +1678,7 @@ public:
         (void)u;
         (void)o;
         (void)w;
-        ici_set_error("cannot seek on a socket");
+        set_error("cannot seek on a socket");
         return -1;
     }
 
@@ -1789,7 +1789,7 @@ ici_net_sktopen()
     {
         return 1;
     }
-    return ici_ret_with_decref(f);
+    return ret_with_decref(f);
 }
 
 #ifndef USE_WINSOCK
@@ -1810,7 +1810,7 @@ ici_net_socketpair()
     int     sv[2];
 
     if (socketpair(AF_UNIX, SOCK_STREAM, 0, sv) == -1)
-        return ici_get_last_errno("net.socketpair", NULL);
+        return get_last_errno("net.socketpair", NULL);
     if ((a = ici_array_new(2)) == NULL)
         goto fail1;
     if ((s = new_netsocket(sv[0])) == NULL)
@@ -1828,7 +1828,7 @@ ici_net_socketpair()
     }
     *a->a_top++ = s;
     s->decref();
-    return ici_ret_with_decref(a);
+    return ret_with_decref(a);
 
 fail1:
     close(sv[0]);
@@ -1868,10 +1868,10 @@ ici_net_shutdown()
         break;
 
     default:
-        return ici_argcount(2);
+        return argcount(2);
     }
     shutdown(socket_fd(skt), (int)flags);
-    return ici_ret_no_decref(skt);
+    return ret_no_decref(skt);
 }
 
 int ici_net_init()
@@ -1880,7 +1880,7 @@ int ici_net_init()
     WSADATA             wsadata;
     if (WSAStartup(MAKEWORD(1, 1), &wsadata))
     {
-        return ici_set_error("failed to initialise Windows socket");
+        return set_error("failed to initialise Windows socket");
     }
 #endif
     return 0;

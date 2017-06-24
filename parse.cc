@@ -41,43 +41,43 @@ opname(op *op)
 {
     switch (op->op_ecode)
     {
-    case ICI_OP_OTHER: return "ICI_OP_OTHER";
-    case ICI_OP_CALL: return "ICI_OP_CALL";
-    case ICI_OP_NAMELVALUE: return "ICI_OP_NAMELVALUE";
-    case ICI_OP_DOT: return "ICI_OP_DOT";
-    case ICI_OP_DOTKEEP: return "ICI_OP_DOTKEEP";
-    case ICI_OP_DOTRKEEP: return "ICI_OP_DOTRKEEP";
-    case ICI_OP_ASSIGN: return "ICI_OP_ASSIGN";
-    case ICI_OP_ASSIGN_TO_NAME: return "ICI_OP_ASSIGN_TO_NAME";
-    case ICI_OP_ASSIGNLOCAL: return "ICI_OP_ASSIGNLOCAL";
-    case ICI_OP_EXEC: return "ICI_OP_EXEC";
-    case ICI_OP_LOOP: return "ICI_OP_LOOP";
-    case ICI_OP_REWIND: return "ICI_OP_REWIND";
-    case ICI_OP_ENDCODE: return "ICI_OP_ENDCODE";
-    case ICI_OP_IF: return "ICI_OP_IF";
-    case ICI_OP_IFELSE: return "ICI_OP_IFELSE";
-    case ICI_OP_IFNOTBREAK: return "ICI_OP_IFNOTBREAK";
-    case ICI_OP_IFBREAK: return "ICI_OP_IFBREAK";
-    case ICI_OP_BREAK: return "ICI_OP_BREAK";
-    case ICI_OP_QUOTE: return "ICI_OP_QUOTE";
-    case ICI_OP_BINOP: return "ICI_OP_BINOP";
-    case ICI_OP_AT: return "ICI_OP_AT";
-    case ICI_OP_SWAP: return "ICI_OP_SWAP";
-    case ICI_OP_BINOP_FOR_TEMP: return "ICI_OP_BINOP_FOR_TEMP";
-    case ICI_OP_AGGR_KEY_CALL: return "ICI_OP_AGGR_KEY_CALL";
-    case ICI_OP_COLON: return "ICI_OP_COLON";
-    case ICI_OP_COLONCARET: return "ICI_OP_COLONCARET";
-    case ICI_OP_METHOD_CALL: return "ICI_OP_METHOD_CALL";
-    case ICI_OP_SUPER_CALL: return "ICI_OP_SUPER_CALL";
-    case ICI_OP_ASSIGNLOCALVAR: return "ICI_OP_ASSIGNLOCALVAR";
-    case ICI_OP_CRITSECT: return "ICI_OP_CRITSECT";
-    case ICI_OP_WAITFOR: return "ICI_OP_WAITFOR";
-    case ICI_OP_POP: return "ICI_OP_POP";
-    case ICI_OP_CONTINUE: return "ICI_OP_CONTINUE";
-    case ICI_OP_LOOPER: return "ICI_OP_LOOPER";
-    case ICI_OP_ANDAND: return "ICI_OP_ANDAND";
-    case ICI_OP_SWITCH: return "ICI_OP_SWITCH";
-    case ICI_OP_SWITCHER: return "ICI_OP_SWITCHER";
+    case OP_OTHER: return "OP_OTHER";
+    case OP_CALL: return "OP_CALL";
+    case OP_NAMELVALUE: return "OP_NAMELVALUE";
+    case OP_DOT: return "OP_DOT";
+    case OP_DOTKEEP: return "OP_DOTKEEP";
+    case OP_DOTRKEEP: return "OP_DOTRKEEP";
+    case OP_ASSIGN: return "OP_ASSIGN";
+    case OP_ASSIGN_TO_NAME: return "OP_ASSIGN_TO_NAME";
+    case OP_ASSIGNLOCAL: return "OP_ASSIGNLOCAL";
+    case OP_EXEC: return "OP_EXEC";
+    case OP_LOOP: return "OP_LOOP";
+    case OP_REWIND: return "OP_REWIND";
+    case OP_ENDCODE: return "OP_ENDCODE";
+    case OP_IF: return "OP_IF";
+    case OP_IFELSE: return "OP_IFELSE";
+    case OP_IFNOTBREAK: return "OP_IFNOTBREAK";
+    case OP_IFBREAK: return "OP_IFBREAK";
+    case OP_BREAK: return "OP_BREAK";
+    case OP_QUOTE: return "OP_QUOTE";
+    case OP_BINOP: return "OP_BINOP";
+    case OP_AT: return "OP_AT";
+    case OP_SWAP: return "OP_SWAP";
+    case OP_BINOP_FOR_TEMP: return "OP_BINOP_FOR_TEMP";
+    case OP_AGGR_KEY_CALL: return "OP_AGGR_KEY_CALL";
+    case OP_COLON: return "OP_COLON";
+    case OP_COLONCARET: return "OP_COLONCARET";
+    case OP_METHOD_CALL: return "OP_METHOD_CALL";
+    case OP_SUPER_CALL: return "OP_SUPER_CALL";
+    case OP_ASSIGNLOCALVAR: return "OP_ASSIGNLOCALVAR";
+    case OP_CRITSECT: return "OP_CRITSECT";
+    case OP_WAITFOR: return "OP_WAITFOR";
+    case OP_POP: return "OP_POP";
+    case OP_CONTINUE: return "OP_CONTINUE";
+    case OP_LOOPER: return "OP_LOOPER";
+    case OP_ANDAND: return "OP_ANDAND";
+    case OP_SWITCH: return "OP_SWITCH";
+    case OP_SWITCHER: return "OP_SWITCHER";
     default: return "op by function";
     }
 }
@@ -128,14 +128,14 @@ disassemble(int indent, array *a)
 
 /*
  * next(p, a) and reject(p) are the basic token fetching (and rejecting)
- * functions (or macros). See ici_lex() for the meanins of the 'a'. 'p' is a
+ * functions (or macros). See lex() for the meanins of the 'a'. 'p' is a
  * pointer to the subject parse sructure.
  */
 #if defined ICI_INLINE_PARSER_CODE
 
 #define next(p, a)  (p->p_ungot.t_what != T_NONE                        \
                      ? (p->p_got=p->p_ungot, p->p_ungot.t_what=T_NONE, curtok) \
-                     : ici_lex(p, a))
+                     : lex(p, a))
 
 #define reject(p) (p->p_ungot = p->p_got, curtok = T_NONE)
 
@@ -150,7 +150,7 @@ next(parse *p, array *a)
         p->p_ungot.t_what = T_NONE;
         return curtok;
     }
-    return ici_lex(p, a);
+    return lex(p, a);
 }
 
 static void
@@ -164,14 +164,14 @@ reject(parse *p)
 static int
 not_followed_by(const char *a, const char *b)
 {
-    ici_set_error("\"%s\" %s %s", a, not_by, b);
+    set_error("\"%s\" %s %s", a, not_by, b);
     return -1;
 }
 
 static int
 not_allowed(const char *what)
 {
-    ici_set_error("%s outside of %sable statement", what, what);
+    set_error("%s outside of %sable statement", what, what);
     return -1;
 }
 
@@ -232,7 +232,7 @@ ident_list(parse *p)
         if (next(p, NULL) != T_COMMA)
         {
             reject(p);
-            return arrayof(ici_atom(a, 1));
+            return arrayof(atom(a, 1));
         }
     }
 
@@ -293,7 +293,7 @@ function(parse *p, str *name)
             goto fail;
     }
     ici_assign(f->f_autos, SS(vargs), ici_null);
-    f->f_autos->o_super = objwsupof(ici_vs.a_top[-1])->o_super;
+    f->f_autos->o_super = objwsupof(vs.a_top[-1])->o_super;
     p->p_func = f;
     f->f_args = a;
     a->decref();
@@ -306,7 +306,7 @@ function(parse *p, str *name)
     }
     f->f_code = arrayof(p->p_got.t_obj);
     f->f_code->decref();
-    if (f->f_code->a_top[-1] == &ici_o_end)
+    if (f->f_code->a_top[-1] == &o_end)
     {
         --f->f_code->a_top;
     }
@@ -315,14 +315,14 @@ function(parse *p, str *name)
         goto fail;
     }
     *f->f_code->a_top++ = ici_null;
-    *f->f_code->a_top++ = &ici_o_return;
-    *f->f_code->a_top++ = &ici_o_end;
+    *f->f_code->a_top++ = &o_return;
+    *f->f_code->a_top++ = &o_end;
 #   if DISASSEMBLE
     printf("%s()\n", name == NULL ? "?" : name->s_chars);
     disassemble(4, f->f_code);
 #   endif
-    f->f_autos = structof(ici_atom(f->f_autos, 2));
-    p->p_got.t_obj = ici_atom(f, 1);
+    f->f_autos = structof(atom(f->f_autos, 2));
+    p->p_got.t_obj = atom(f, 1);
     p->p_func = saved_func;
     return 1;
 
@@ -361,7 +361,7 @@ data_def(parse *p, objwsup *ows)
         if (next(p, NULL) != T_NAME)
         {
             reject(p);
-            ici_set_error("syntax error in variable definition");
+            set_error("syntax error in variable definition");
             goto fail;
         }
         n = p->p_got.t_obj;
@@ -425,7 +425,7 @@ data_def(parse *p, objwsup *ows)
         case T_SEMICOLON: return 1;
         }
         reject(p);
-        ici_set_error("variable definition not followed by \";\" or \",\"");
+        set_error("variable definition not followed by \";\" or \",\"");
         goto fail;
     }
 
@@ -468,7 +468,7 @@ compound_statement(parse *p, ici_struct *sw)
     if (next(p, a) != T_OFFCURLY)
     {
         reject(p);
-        ici_set_error("badly formed statement");
+        set_error("badly formed statement");
         goto fail;
     }
     /*
@@ -483,7 +483,7 @@ compound_statement(parse *p, ici_struct *sw)
     {
         goto fail;
     }
-    *a->a_top++ = &ici_o_end;
+    *a->a_top++ = &o_end;
     p->p_got.t_obj = a;
     return 1;
 
@@ -650,7 +650,7 @@ primary(parse *p, expr **ep, int exclude)
         {
             e->e_what = T_INT;
             p->p_got.t_obj->decref();
-            e->e_obj = ici_zero;
+            e->e_obj = o_zero;
             e->e_obj->incref();
             break;
         }
@@ -658,7 +658,7 @@ primary(parse *p, expr **ep, int exclude)
         {
             e->e_what = T_INT;
             p->p_got.t_obj->decref();
-            e->e_obj = ici_one;
+            e->e_obj = o_one;
             e->e_obj->incref();
             break;
         }
@@ -755,7 +755,7 @@ primary(parse *p, expr **ep, int exclude)
                 }
                 if (!hassuper(o))
                 {
-                    ici_set_error("attempt to do [%s %c %s",
+                    set_error("attempt to do [%s %c %s",
                                   stringof(name)->s_chars,
                                   is_eq ? '=' : ':',
                                   ici_objname(n, o));
@@ -806,7 +806,7 @@ primary(parse *p, expr **ep, int exclude)
                 {
                     if (name != SS(struct))
                     {
-                        d->o_super = objwsupof(ici_vs.a_top[-1])->o_super;
+                        d->o_super = objwsupof(vs.a_top[-1])->o_super;
                     }
                 }
                 else
@@ -826,12 +826,12 @@ primary(parse *p, expr **ep, int exclude)
                     goto fail;
                 }
                 autos->o_super = objwsupof(d);
-                *ici_vs.a_top++ = autos;
+                *vs.a_top++ = autos;
                 autos->decref();
                 ++p->p_module_depth;
                 o = evaluate(p, 0);
                 --p->p_module_depth;
-                --ici_vs.a_top;
+                --vs.a_top;
                 if (o == NULL)
                 {
                     d->decref();
@@ -856,12 +856,12 @@ primary(parse *p, expr **ep, int exclude)
                     goto fail;
                 }
                 autos->o_super = objwsupof(d);
-                if (ici_vs.stk_push_chk(80)) /* ### Formalise */
+                if (vs.stk_push_chk(80)) /* ### Formalise */
                 {
                     d->decref();
                     goto fail;
                 }
-                *ici_vs.a_top++ = autos;
+                *vs.a_top++ = autos;
                 autos->decref();
             }
             for (;;)
@@ -963,7 +963,7 @@ primary(parse *p, expr **ep, int exclude)
                 /*
                  * That was a class definition. Restore the scope context.
                  */
-                --ici_vs.a_top;
+                --vs.a_top;
             }
             e->e_what = T_CONST;
             e->e_obj = d;
@@ -971,7 +971,7 @@ primary(parse *p, expr **ep, int exclude)
         else if (p->p_got.t_obj == SS(set))
         {
             p->p_got.t_obj->decref();
-            if ((s = ici_set_new()) == NULL)
+            if ((s = new_set()) == NULL)
             {
                 goto fail;
             }
@@ -984,7 +984,7 @@ primary(parse *p, expr **ep, int exclude)
                     goto fail;
 
                 case 1:
-                    if (ici_assign(s, o, ici_one))
+                    if (ici_assign(s, o, o_one))
                     {
                         s->decref();
                         goto fail;
@@ -1248,7 +1248,7 @@ primary(parse *p, expr **ep, int exclude)
             if (next(p, NULL) != T_OFFROUND)
             {
                 reject(p);
-                ici_set_error("error in function call arguments");
+                set_error("error in function call arguments");
                 goto fail;
             }
             if (next(p, NULL) == T_ONCURLY)
@@ -1256,7 +1256,7 @@ primary(parse *p, expr **ep, int exclude)
                 /*
                  * Gratuitous check to get a better error message.
                  */
-                ici_set_error("function definition without a storage class");
+                set_error("function definition without a storage class");
                 goto fail;
             }
             reject(p);
@@ -1311,7 +1311,7 @@ unary(parse *p, expr **ep, int exclude)
         what = curtok;
         switch (unary(p, ep, exclude))
         {
-        case 0: ici_set_error("badly formed expression");
+        case 0: set_error("badly formed expression");
         case -1: return -1;
         }
         if ((e = ici_talloc(expr)) == NULL)
@@ -1444,7 +1444,7 @@ expression(parse *p, expr **ep, int exclude)
         switch (unary(p, &e->e_arg[1], in_quest_colon ? T_COLON : exclude))
         {
         case 0:
-            ici_set_error("\"expr %s\" %s %s", binop_name(t_subtype(e->e_what)), not_by, an_expression);
+            set_error("\"expr %s\" %s %s", binop_name(t_subtype(e->e_what)), not_by, an_expression);
         case -1:
             ici_tfree(e, expr);
             return -1;
@@ -1467,7 +1467,7 @@ expression(parse *p, array *a, int why, int exclude)
     case 0: return 0;
     case -1: goto fail;
     }
-    if (ici_compile_expr(a, e, why))
+    if (compile_expr(a, e, why))
     {
         goto fail;
     }
@@ -1524,7 +1524,7 @@ const_expression(parse *p, object **po, int exclude)
     {
         goto fail;
     }
-    if (ici_compile_expr(a, e, FOR_VALUE))
+    if (compile_expr(a, e, FOR_VALUE))
     {
         goto fail;
     }
@@ -1532,7 +1532,7 @@ const_expression(parse *p, object **po, int exclude)
     {
         goto fail;
     }
-    *a->a_top++ = &ici_o_end;
+    *a->a_top++ = &o_end;
     free_expr(e);
     e = NULL;
     if ((*po = evaluate(a, 0)) == NULL)
@@ -1578,7 +1578,7 @@ xx_brac_expr_brac(parse *p, array *a, const char *xx)
     return 1;
 
  fail:
-    ici_set_error("%s", buf);
+    set_error("%s", buf);
     return -1;
 }
 
@@ -1586,7 +1586,7 @@ xx_brac_expr_brac(parse *p, array *a, const char *xx)
  * a    Code array being appended to.
  * sw   Switch structure, else NULL.
  * m    Who needs it, else NULL.
- * endme If non-zero, put an ici_o_end at the end of the code array before
+ * endme If non-zero, put an o_end at the end of the code array before
  *      returning.
  */
 static int
@@ -1616,7 +1616,7 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
         if (next(p, a) != T_OFFCURLY)
         {
             reject(p);
-            ici_set_error("badly formed statement");
+            set_error("badly formed statement");
             return -1;
         }
         break;
@@ -1637,12 +1637,12 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
             p->p_got.t_obj->decref();
             if
             (
-                (ows = objwsupof(ici_vs.a_top[-1])->o_super) == NULL
+                (ows = objwsupof(vs.a_top[-1])->o_super) == NULL
                 ||
                 (ows = ows->o_super) == NULL
             )
             {
-                ici_set_error("global declaration, but no global variable scope");
+                set_error("global declaration, but no global variable scope");
                 return -1;
             }
             goto decl;
@@ -1650,9 +1650,9 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
         if (p->p_got.t_obj == SS(local))
         {
             p->p_got.t_obj->decref();
-            if ((ows = objwsupof(ici_vs.a_top[-1])->o_super) == NULL)
+            if ((ows = objwsupof(vs.a_top[-1])->o_super) == NULL)
             {
-                ici_set_error("local declaration, but no local variable scope");
+                set_error("local declaration, but no local variable scope");
                 return -1;
             }
             goto decl;
@@ -1662,7 +1662,7 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
             p->p_got.t_obj->decref();
             if (p->p_func == NULL)
             {
-                ows = objwsupof(ici_vs.a_top[-1]);
+                ows = objwsupof(vs.a_top[-1]);
             }
             else
             {
@@ -1680,7 +1680,7 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
             p->p_got.t_obj->decref();
             if (sw == NULL)
             {
-                ici_set_error("\"case\" not at top level of switch body");
+                set_error("\"case\" not at top level of switch body");
                 return -1;
             }
             switch (const_expression(p, &o, T_COLON))
@@ -1726,7 +1726,7 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
             p->p_got.t_obj->decref();
             if (sw == NULL)
             {
-                ici_set_error("\"default\" not at top level of switch body");
+                set_error("\"default\" not at top level of switch body");
                 return -1;
             }
             if (next(p, a) != T_COLON)
@@ -1811,14 +1811,14 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
             }
             if (a2 != NULL)
             {
-                *a->a_top++ = &ici_o_ifelse;
+                *a->a_top++ = &o_ifelse;
                 *a->a_top++ = a1;
                 *a->a_top++ = a2;
                 a2->decref();
             }
             else
             {
-                *a->a_top++ = &ici_o_if;
+                *a->a_top++ = &o_if;
                 *a->a_top++ = a1;
             }
             a1->decref();
@@ -1841,7 +1841,7 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
                 a1->decref();
                 return -1;
             }
-            *a1->a_top++ = &ici_o_ifnotbreak;
+            *a1->a_top++ = &o_ifnotbreak;
             {
                 int rc;
                 increment_break_continue_depth(p);
@@ -1858,13 +1858,13 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
                 a1->decref();
                 return -1;
             }
-            *a1->a_top++ = &ici_o_rewind;
+            *a1->a_top++ = &o_rewind;
             if (a->stk_push_chk(2))
             {
                 a1->decref();
                 return -1;
             }
-            *a->a_top++ = &ici_o_loop;
+            *a->a_top++ = &o_loop;
             *a->a_top++ = a1;
             a1->decref();
             break;
@@ -1903,7 +1903,7 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
             }
             switch (expression(p, a1, FOR_VALUE, T_NONE))
             {
-            case 0: ici_set_error("syntax error");
+            case 0: set_error("syntax error");
             case -1: a1->decref(); return -1;
             }
             if (next(p, a1) != T_OFFROUND || next(p, NULL) != T_SEMICOLON)
@@ -1917,15 +1917,15 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
                 a1->decref();
                 return -1;
             }
-            *a1->a_top++ = &ici_o_ifnotbreak;
-            *a1->a_top++ = &ici_o_rewind;
+            *a1->a_top++ = &o_ifnotbreak;
+            *a1->a_top++ = &o_rewind;
 
             if (a->stk_push_chk(2))
             {
                 a1->decref();
                 return -1;
             }
-            *a->a_top++ = &ici_o_loop;
+            *a->a_top++ = &o_loop;
             *a->a_top++ = a1;
             a1->decref();
             break;
@@ -2012,7 +2012,7 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
             }
             *a->a_top++ = a1;
             a1->decref();
-            if ((*a->a_top = ici_new_op(ici_op_forall, 0, 0)) == NULL)
+            if ((*a->a_top = ici_new_op(op_forall, 0, 0)) == NULL)
             {
                 return -1;
             }
@@ -2071,7 +2071,7 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
                 /*
                  * Now compile in the test expression.
                  */
-                if (ici_compile_expr(a1, e, FOR_VALUE))
+                if (compile_expr(a1, e, FOR_VALUE))
                 {
                     free_expr(e);
                     a1->decref();
@@ -2083,7 +2083,7 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
                     a1->decref();
                     return -1;
                 }
-                *a1->a_top++ = &ici_o_ifnotbreak;
+                *a1->a_top++ = &o_ifnotbreak;
             }
             if (next(p, a1) != T_OFFROUND)
             {
@@ -2107,7 +2107,7 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
                 a1->decref();
                 return -1;
             }
-            *a1->a_top++ = &ici_o_rewind;
+            *a1->a_top++ = &o_rewind;
             if (a->stk_push_chk(2))
             {
                 a1->decref();
@@ -2115,7 +2115,7 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
             }
             *a->a_top++ = a1;
             a1->decref();
-            if ((*a->a_top = ici_new_op(ici_op_for, 0, stepz)) == NULL)
+            if ((*a->a_top = ici_new_op(op_for, 0, stepz)) == NULL)
             {
                 return -1;
             }
@@ -2157,7 +2157,7 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
             *a->a_top++ = p->p_got.t_obj;
             p->p_got.t_obj->decref();
             *a->a_top++ = d;
-            *a->a_top++ = &ici_o_switch;
+            *a->a_top++ = &o_switch;
             d->decref();
             break;
         }
@@ -2177,7 +2177,7 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
             {
                 return -1;
             }
-            *a->a_top++ = &ici_o_break;
+            *a->a_top++ = &o_break;
             break;
 
         }
@@ -2197,7 +2197,7 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
             {
                 return -1;
             }
-            *a->a_top++ = &ici_o_continue;
+            *a->a_top++ = &o_continue;
             break;
         }
         if (p->p_got.t_obj == SS(return))
@@ -2226,7 +2226,7 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
 	    {
                 return -1;
 	    }
-            *a->a_top++ = &ici_o_return;
+            *a->a_top++ = &o_return;
             break;
         }
         if (p->p_got.t_obj == SS(try))
@@ -2267,7 +2267,7 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
             }
             *a->a_top++ = a1;
             *a->a_top++ = a2;
-            *a->a_top++ = &ici_o_onerror;
+            *a->a_top++ = &o_onerror;
             a1->decref();
             a2->decref();
             break;
@@ -2293,7 +2293,7 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
             {
                 return -1;
             }
-            *a->a_top++ = &ici_o_critsect;
+            *a->a_top++ = &o_critsect;
             break;
         }
         if (p->p_got.t_obj == SS(waitfor))
@@ -2317,7 +2317,7 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
             }
             *a->a_top++ = a1;
             a1->decref();
-            *a->a_top++ = &ici_o_critsect;
+            *a->a_top++ = &o_critsect;
             /*
              * Start a new code array (a2) and establish it as the body of
              * a loop.
@@ -2330,7 +2330,7 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
             {
                 return -1;
             }
-            *a1->a_top++ = &ici_o_loop;
+            *a1->a_top++ = &o_loop;
             *a1->a_top++ = a2;
             a2->decref();
             /*
@@ -2354,7 +2354,7 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
             {
                 return -1;
             }
-            *a2->a_top++ = &ici_o_ifbreak;
+            *a2->a_top++ = &o_ifbreak;
             if (next(p, a2) != T_SEMICOLON)
             {
                 reject(p);
@@ -2369,8 +2369,8 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
             {
                 return -1;
             }
-            *a2->a_top++ = &ici_o_waitfor;
-            *a2->a_top++ = &ici_o_rewind;
+            *a2->a_top++ = &o_waitfor;
+            *a2->a_top++ = &o_rewind;
             /*
              * After we break out of the loop, we execute the statement,
              * but it is still on top of the critical section. After the
@@ -2408,7 +2408,7 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
 
         default:
             reject(p);
-            ici_set_error("badly formed expression, or missing \";\"");
+            set_error("badly formed expression, or missing \";\"");
             return -1;
         }
     }
@@ -2426,14 +2426,14 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
         {
             return -1;
         }
-        *a->a_top++ = &ici_o_end;
+        *a->a_top++ = &o_end;
     }
     return 1;
 
  none:
     if (m != NULL)
     {
-        ici_set_error("\"%s\" %s a reasonable statement", m, not_by);
+        set_error("\"%s\" %s a reasonable statement", m, not_by);
         return -1;
     }
     return 0;
@@ -2441,32 +2441,31 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
 
 /*
  * Parse the given file 'f' in the given scope 's'. It is common to call
- * this function with 's' being 'ici_vs.a_top[-1]', that is, the current
+ * this function with 's' being 'vs.a_top[-1]', that is, the current
  * scope.
  *
  * Returns non-zero on error, usual conventions.
  *
  * This --func-- forms part of the --ici-api--.
  */
-int
-ici_parse(file *f, objwsup *s)
+int parse_file(file *f, objwsup *s)
 {
-    parse         *p;
-    object           *o;
+    struct parse  *p;
+    object *o;
 
     if ((p = ici_new_parse(f)) == NULL)
     {
         return -1;
     }
 
-    *ici_vs.a_top++ = s;
+    *vs.a_top++ = s;
     if ((o = evaluate(p, 0)) == NULL)
     {
-        --ici_vs.a_top;
+        --vs.a_top;
         p->decref();
         return -1;
     }
-    --ici_vs.a_top;
+    --vs.a_top;
     o->decref();
     p->decref();
     return 0;
@@ -2490,8 +2489,7 @@ ici_parse(file *f, objwsup *s)
  *
  * This --func-- forms part of the --ici-api--.
  */
-int
-ici_parse_file(const char *mname, char *fileo, ftype *ftype)
+int parse_file(const char *mname, char *fileo, ftype *ftype)
 {
     objwsup       *s;     /* Statics. */
     objwsup       *a;     /* Autos. */
@@ -2517,13 +2515,13 @@ ici_parse_file(const char *mname, char *fileo, ftype *ftype)
         goto fail;
     }
     s->decref();
-    s->o_super = objwsupof(ici_vs.a_top[-1])->o_super;
+    s->o_super = objwsupof(vs.a_top[-1])->o_super;
 
-    if (ici_parse(f, a) < 0)
+    if (parse_file(f, a) < 0)
     {
         goto fail;
     }
-    ici_file_close(f);
+    close_file(f);
     a->decref();
     f->decref();
     return 0;
@@ -2544,30 +2542,28 @@ ici_parse_file(const char *mname, char *fileo, ftype *ftype)
  * Parse a file as a new top-level module.  This function create new auto and
  * static scopes, and makes the current static scope the exern scope of the
  * new module.  This function takes a file name which it opens with fopen (as
- * opposed to 'ici_parse_file' which can be used to parse more generic data
+ * opposed to 'parse_file' which can be used to parse more generic data
  * sources).
  *
  * Return 0 if ok, else -1, usual conventions.
  *
  * This --func-- forms part of the --ici-api--.
  */
-int
-ici_parse_fname(const char *fname)
+int parse_file(const char *fname)
 {
     FILE                *stream;
     int                 r;
 
     if ((stream = fopen(fname, "r")) == NULL)
     {
-        return ici_get_last_errno("fopen", fname);
+        return get_last_errno("fopen", fname);
     }
-    r = ici_parse_file(fname, (char *)stream, stdio_ftype);
+    r = parse_file(fname, (char *)stream, stdio_ftype);
     fclose(stream);
     return r;
 }
 
-int
-ici_parse_exec()
+int parse_exec()
 {
     parse *p;
     array *a;
@@ -2577,7 +2573,7 @@ ici_parse_exec()
         return 1;
     }
 
-    p = parseof(ici_xs.a_top[-1]);
+    p = parseof(xs.a_top[-1]);
 
     for (;;)
     {
@@ -2591,8 +2587,8 @@ ici_parse_exec()
 #           if DISASSEMBLE
             disassemble(4, a);
 #           endif
-            ici_get_pc(a, ici_xs.a_top);
-            ++ici_xs.a_top;
+            ici_get_pc(a, xs.a_top);
+            ++xs.a_top;
             a->decref();
             return 0;
 
@@ -2610,24 +2606,23 @@ ici_parse_exec()
             else if (curtok != T_EOF)
             {
                 reject(p);
-                ici_set_error("syntax error");
+                set_error("syntax error");
                 goto fail;
             }
-            --ici_xs.a_top;
+            --xs.a_top;
             a->decref();
             return 0;
 
         default:
         fail:
             a->decref();
-            ici_expand_error(p->p_lineno, p->p_file->f_name);
+            expand_error(p->p_lineno, p->p_file->f_name);
             return 1;
         }
     }
 }
 
-parse *
-ici_new_parse(file *f)
+parse *ici_new_parse(file *f)
 {
     parse    *p;
 
@@ -2719,7 +2714,7 @@ parse_file_argcheck()
     }
     if (f->f_type != parse_ftype)
     {
-        ici_argerror(0);
+        argerror(0);
         return NULL;
     }
     return parseof(f->f_file);
@@ -2745,7 +2740,7 @@ f_parseopen(...)
         parse->decref();
 	return 1;
     }
-    return ici_ret_with_decref(p);
+    return ret_with_decref(p);
 }
 
 static int
@@ -2762,7 +2757,7 @@ f_parsetoken(...)
     {
         return 1;
     }
-    return t == T_EOF ? ici_null_ret() : ici_str_ret(ici_token_name(t));
+    return t == T_EOF ? null_ret() : str_ret(ici_token_name(t));
 }
 
 static int
@@ -2777,17 +2772,17 @@ f_tokenobj(...)
     switch (p->p_got.t_what)
     {
     case T_INT:
-        return ici_int_ret(p->p_got.t_int);
+        return int_ret(p->p_got.t_int);
 
     case T_FLOAT:
-        return ici_float_ret(p->p_got.t_float);
+        return float_ret(p->p_got.t_float);
 
     case T_REGEXP:
     case T_NAME:
     case T_STRING:
-        return ici_ret_no_decref(p->p_got.t_obj);
+        return ret_no_decref(p->p_got.t_obj);
     }
-    return ici_null_ret();
+    return null_ret();
 }
 
 static int
@@ -2800,7 +2795,7 @@ f_rejecttoken(...)
         return 1;
     }
     reject(p);
-    return ici_null_ret();
+    return null_ret();
 }
 
 static int
@@ -2815,10 +2810,10 @@ f_parsevalue(...)
     }
     switch (const_expression(p, &o, T_COMMA))
     {
-    case  0: ici_set_error("missing expression");
+    case  0: set_error("missing expression");
     case -1: return 1;
     }
-    return ici_ret_with_decref(o);
+    return ret_with_decref(o);
 }
 
 static int
@@ -2833,15 +2828,15 @@ f_rejectchar(...)
     }
     if (f->f_type != parse_ftype)
     {
-        ici_argerror(0);
+        argerror(0);
         return 1;
     }
     if (!isstring(s) || s->s_nchars != 1)
     {
-        return ici_argerror(1);
+        return argerror(1);
     }
     f->ungetch(s->s_chars[0]);
-    return ici_ret_no_decref(s);
+    return ret_no_decref(s);
 }
 
 ICI_DEFINE_CFUNCS(parse)

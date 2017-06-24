@@ -19,17 +19,16 @@ namespace ici
  * than 10 chars long and include any leading dot (or NULL if not required).
  * Returns 1 if the expansion was made, else 0, never errors.
  */
-int
-ici_find_on_path(char name[FILENAME_MAX], const char *ext)
+int find_on_path(char name[FILENAME_MAX], const char *ext)
 {
     array   *a;
     char    *p;
-    char     realname[FILENAME_MAX];
     int      xlen;
     object **e;
     str     *s;
+    char     realname[FILENAME_MAX];
 
-    if ((a = ici_need_path()) == NULL)
+    if ((a = need_path()) == NULL)
         return 0;
     xlen = 1 + strlen(name) + (ext != NULL ? strlen(ext) : 0) + 1;
     for (e = a->astart(); e != a->alimit(); e = a->anext(e))

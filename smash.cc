@@ -9,8 +9,7 @@ namespace ici
  * str where each element is delimited by delim.  The return'ed array has
  * been malloced and may be free'd with a single free.
  */
-char **
-ici_smash(char *str, int delim)
+char **smash(char *str, int delim)
 {
     char       *p;
     int        i;
@@ -42,10 +41,9 @@ ici_smash(char *str, int delim)
 }
 
 /*
- * Just like ici_smash(), but allow delim to be a set of delimiters.
+ * Just like smash(), but allow delim to be a set of delimiters.
  */
-char **
-ici_ssmash(char *str, char *delims)
+char **ssmash(char *str, char *delims)
 {
     char       *p;
     int        i;

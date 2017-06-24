@@ -36,7 +36,7 @@ public:
     int cmp(object *o1, object *o2) override;
     unsigned long hash(object *o) override;
     object *fetch(object *o, object *k) override;
-    void objname(object *o, char p[ICI_OBJNAMEZ]) override;
+    void objname(object *o, char p[objnamez]) override;
     int call(object *o, object *subject) override;
 };
 

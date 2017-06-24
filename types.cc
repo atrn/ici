@@ -83,7 +83,7 @@ static int ntypes = ICI_TC_MAX_CORE + 1;
  * this function is retained and assumed to remain valid indefinetly
  * (it is normally a statically initialised structure).
  *
- * Returns the new type code, or zero on error in which case ici_error
+ * Returns the new type code, or zero on error in which case error
  * has been set.
  *
  * This --func-- forms part of the --ici-api--.
@@ -92,7 +92,7 @@ int register_type(type *t)
 {
     if (ntypes == max_types)
     {
-        ici_set_error("too many types");
+        set_error("too many types");
         return 0;
     }
     types[ntypes] = t;

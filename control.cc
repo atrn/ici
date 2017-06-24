@@ -21,34 +21,34 @@ namespace ici
  * and an exec operator to run it.
  */
 int
-ici_op_for()
+op_for()
 {
-    ici_get_pc(arrayof(ici_os.a_top[-1]), ici_xs.a_top + 1);
-    pcof(ici_xs.a_top[1])->pc_next += opof(ici_xs.a_top[-1])->op_code;
-    ici_xs.a_top[-1] = ici_os.a_top[-1];
-    *ici_xs.a_top++ = &ici_o_looper;
-    ++ici_xs.a_top; /* pc */
-    --ici_os.a_top;
+    ici_get_pc(arrayof(os.a_top[-1]), xs.a_top + 1);
+    pcof(xs.a_top[1])->pc_next += opof(xs.a_top[-1])->op_code;
+    xs.a_top[-1] = os.a_top[-1];
+    *xs.a_top++ = &o_looper;
+    ++xs.a_top; /* pc */
+    --os.a_top;
     return 0;
 }
 
-op    ici_o_exec{ICI_OP_EXEC};
-op    ici_o_looper{ICI_OP_LOOPER};
-op    ici_o_loop{ICI_OP_LOOP};
-op    ici_o_break{ICI_OP_BREAK};
-op    ici_o_continue{ICI_OP_CONTINUE};
-op    ici_o_if{ICI_OP_IF};
-op    ici_o_ifnotbreak{ICI_OP_IFNOTBREAK};
-op    ici_o_ifbreak{ICI_OP_IFBREAK};
-op    ici_o_ifelse{ICI_OP_IFELSE};
-op    ici_o_pop{ICI_OP_POP};
-op    ici_o_andand{ICI_OP_ANDAND, 1};
-op    ici_o_barbar{ICI_OP_ANDAND, 0};
-op    ici_o_switch{ICI_OP_SWITCH};
-op    ici_o_switcher{ICI_OP_SWITCHER};
-op    ici_o_critsect{ICI_OP_CRITSECT};
-op    ici_o_waitfor{ICI_OP_WAITFOR};
-op    ici_o_rewind{ICI_OP_REWIND};
-op    ici_o_end{ICI_OP_ENDCODE};
+op    o_exec{OP_EXEC};
+op    o_looper{OP_LOOPER};
+op    o_loop{OP_LOOP};
+op    o_break{OP_BREAK};
+op    o_continue{OP_CONTINUE};
+op    o_if{OP_IF};
+op    o_ifnotbreak{OP_IFNOTBREAK};
+op    o_ifbreak{OP_IFBREAK};
+op    o_ifelse{OP_IFELSE};
+op    o_pop{OP_POP};
+op    o_andand{OP_ANDAND, 1};
+op    o_barbar{OP_ANDAND, 0};
+op    o_switch{OP_SWITCH};
+op    o_switcher{OP_SWITCHER};
+op    o_critsect{OP_CRITSECT};
+op    o_waitfor{OP_WAITFOR};
+op    o_rewind{OP_REWIND};
+op    o_end{OP_ENDCODE};
 
 } // namespace ici

@@ -50,7 +50,7 @@ inline bool isexec(object *o) { return o->isa(ICI_TC_EXEC); }
  *                      pointers into code arrays. Entering blocks and
  *                      functions calls cause this stack to grow deeper.
  *                      NB: This stack is swapped into the global varable
- *                      ici_xs for the active thread. Accessing this field
+ *                      xs for the active thread. Accessing this field
  *                      directly is very rare.
  *
  * x_os                 The ICI interpreter operand stack. This is where
@@ -58,7 +58,7 @@ inline bool isexec(object *o) { return o->isa(ICI_TC_EXEC); }
  *                      evaluation (which includes function call argument
  *                      preparation).
  *                      NB: This stack is swapped into the global varable
- *                      ici_os for the active thread. Accessing this field
+ *                      os for the active thread. Accessing this field
  *                      directly is very rare.
  *
  * x_vs                 The ICI interpreter 'scope' or 'variable' stack. The
@@ -68,13 +68,13 @@ inline bool isexec(object *o) { return o->isa(ICI_TC_EXEC); }
  *                      the new scope of the function being entered is pushed
  *                      on the stack.
  *                      NB: This stack is swapped into the global varable
- *                      ici_vs for the active thread. Accessing this field
+ *                      vs for the active thread. Accessing this field
  *                      directly is very rare.
  *
  * x_count              A count-down until we should check such things as
  *                      whether the above stacks need growing. Various expensive
  *                      tests are delayed and done occasionally to save time.
- *                      NB: This is cached in ici_exec_count for the current
+ *                      NB: This is cached in exec_count for the current
  *                      thread.
  *
  * x_src                The most recently executed source line tag. These tags
@@ -136,7 +136,7 @@ enum
  * these structs.  If the flag is set, the interpreter calls these functions.
  * See 'ici_debug' and 'ici_debug_enabled'.
  *
- * idbg_error()         Called with the current value of ici_error (redundant,
+ * idbg_error()         Called with the current value of error (redundant,
  *                      for historical reasons) and a source line marker
  *                      object (see 'ici_src_t') on an uncaught error.
  *                      Actually, this is not so useful, because it is
@@ -179,22 +179,21 @@ struct debug
 /*
  * Test if an object represents a false value NULL or integer 0.
  */
-inline bool isfalse(object *o) { return isnull(o) || o == ici_zero; }
+inline bool isfalse(object *o) { return isnull(o) || o == o_zero; }
 
 /*
  * End of ici.h export. --ici.h-end--
  */
 
-#define ici_get_pc(code, xs) \
-    (*(xs) = ici_exec->x_pc_closet->a_base[(xs) - ici_xs.a_base], \
-    pcof(*(xs))->pc_code = code, \
-    pcof(*(xs))->pc_next = pcof(*(xs))->pc_code->a_base)
+#define ici_get_pc(code, x) \
+    (*(x) = ex->x_pc_closet->a_base[(x) - xs.a_base], \
+    pcof(*(x))->pc_code = code, \
+    pcof(*(x))->pc_next = pcof(*(x))->pc_code->a_base)
 
 class exec_type : public type
 {
 public:
     exec_type() : type("exec", sizeof (struct exec)) {}
-
     size_t mark(object *o) override;
     void free(object *o) override;
     object *fetch(object *o, object *k) override;

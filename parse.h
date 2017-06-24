@@ -154,7 +154,7 @@ constexpr int OPC_COLON_CALL      = 0x0002;  /* Don't form a method, just call i
 
 /*
  * Expression tree.  This is what the parseing functions build and
- * pass to ici_compile_expr().
+ * pass to compile_expr().
  */
 struct expr
 {

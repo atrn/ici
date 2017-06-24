@@ -204,7 +204,7 @@ array::push(object *o)
 {
     if (isatom())
     {
-        return ici_set_error("attempt to push atomic array");
+        return set_error("attempt to push atomic array");
     }
     if (a_bot <= a_top)
     {
@@ -266,7 +266,7 @@ array::rpush(object *o)
 {
     if (isatom())
     {
-        return ici_set_error("attempt to rpush atomic array");
+        return set_error("attempt to rpush atomic array");
     }
     if (a_bot <= a_top)
     {
@@ -321,7 +321,7 @@ array::pop()
 {
     if (isatom())
     {
-        ici_set_error("attempt to pop atomic array");
+        set_error("attempt to pop atomic array");
         return NULL;
     }
     if (a_bot <= a_top)
@@ -368,7 +368,7 @@ array::rpop()
 {
     if (isatom())
     {
-        ici_set_error("attempt to rpop atomic array");
+        set_error("attempt to rpop atomic array");
         return NULL;
     }
     if (a_bot <= a_top)
@@ -426,7 +426,7 @@ object **array::find_slot(ptrdiff_t i)
     }
     if (isatom())
     {
-        ici_set_error("attempt to modify an atomic array");
+        set_error("attempt to modify an atomic array");
         return NULL;
     }
     i = i - n + 1; /* Number of elements we need to add. */
@@ -499,7 +499,7 @@ array *ici_array_new(ptrdiff_t n)
 /*
  * obj => array 0 (the array contains the obj)
  */
-int ici_op_mklvalue()
+int op_mklvalue()
 {
     array *a;
 
@@ -507,11 +507,11 @@ int ici_op_mklvalue()
     {
         return 1;
     }
-    *a->a_top++ = ici_os.a_top[-1];
-    ici_os.a_top[-1] = a;
-    *ici_os.a_top++ = ici_zero;
+    *a->a_top++ = os.a_top[-1];
+    os.a_top[-1] = a;
+    *os.a_top++ = o_zero;
     a->decref();
-    --ici_xs.a_top;
+    --xs.a_top;
     return 0;
 }
 
@@ -637,7 +637,7 @@ int array_type::assign(object *o, object *k, object *v)
 
     if (o->isatom())
     {
-        return ici_set_error("attempt to assign to an atomic array");
+        return set_error("attempt to assign to an atomic array");
     }
     if (!isint(k))
     {
@@ -695,6 +695,6 @@ int array_type::forall(object *o)
     return 0;
 }
 
-op ici_o_mklvalue{ici_op_mklvalue};
+op o_mklvalue{op_mklvalue};
 
 } // namespace ici

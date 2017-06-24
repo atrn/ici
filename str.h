@@ -135,7 +135,7 @@ public:
 #ifdef  ICI_CORE
 /*
  * A structure to hold static (ie, not allocated) strings. These can
- * only be used where the ici_atom() operation is guaranteed to use the
+ * only be used where the atom() operation is guaranteed to use the
  * string given, and never find an existing one already in the atom pool.
  * They are only used by the ICI core on first initialisation. They
  * are not registered with the garbage collector. They are inserted into
@@ -178,7 +178,7 @@ struct sstring : object
 
 #define SS(name)         ((ici::str *)&ici_ss_##name)
 
-#define ici_str_char_at(s,i) ((s)->s_chars[i])
+#define str_char_at(s,i) ((s)->s_chars[i])
 
 #endif /* ICI_CORE */
 

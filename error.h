@@ -18,11 +18,11 @@ namespace ici
 constexpr int max_error_msg = 1024;
 
 /*
- * Set the global ici_error value.
+ * Set the global error value.
  *
  * This --func-- forms part of the --ici-api--.
  */
-int                     ici_set_error(const char *, ...);
+int set_error(const char *, ...);
 
 /*
  * End of ici.h export. --ici.h-end--

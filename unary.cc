@@ -13,32 +13,31 @@ namespace ici
 static int
 attempted(const char *what, const char *towhat)
 {
-    return ici_set_error("attempt to perform \"%s %s\"", what, towhat);
+    return set_error("attempt to perform \"%s %s\"", what, towhat);
 }
 
-int
-ici_op_unary()
+int op_unary()
 {
     ici_int *i;
 
-    switch (opof(ici_xs.a_top[-1])->op_code)
+    switch (opof(xs.a_top[-1])->op_code)
     {
     case t_subtype(T_EXCLAM):
-        if (isfalse(ici_os.a_top[-1]))
-            ici_os.a_top[-1] = ici_one;
+        if (isfalse(os.a_top[-1]))
+            os.a_top[-1] = o_one;
         else
-            ici_os.a_top[-1] = ici_zero;
-        --ici_xs.a_top;
+            os.a_top[-1] = o_zero;
+        --xs.a_top;
         return 0;
 
     case t_subtype(T_TILDE):
-        if (!isint(ici_os.a_top[-1]))
+        if (!isint(os.a_top[-1]))
             goto fail;
-        if ((i = ici_int_new(~intof(ici_os.a_top[-1])->i_value)) == NULL)
+        if ((i = ici_int_new(~intof(os.a_top[-1])->i_value)) == NULL)
             return 1;
-        ici_os.a_top[-1] = i;
+        os.a_top[-1] = i;
         i->decref();
-        --ici_xs.a_top;
+        --xs.a_top;
         return 0;
 
     case t_subtype(T_MINUS):
@@ -49,13 +48,13 @@ ici_op_unary()
         assert(0);
     fail:
     default:
-        switch (opof(ici_xs.a_top[-1])->op_code)
+        switch (opof(xs.a_top[-1])->op_code)
         {
-        case t_subtype(T_EXCLAM): return attempted("!", ici_os.a_top[-1]->type_name());
-        case t_subtype(T_TILDE): return attempted("~", ici_os.a_top[-1]->type_name());
-        case t_subtype(T_MINUS): return attempted("-", ici_os.a_top[-1]->type_name());
+        case t_subtype(T_EXCLAM): return attempted("!", os.a_top[-1]->type_name());
+        case t_subtype(T_TILDE): return attempted("~", os.a_top[-1]->type_name());
+        case t_subtype(T_MINUS): return attempted("-", os.a_top[-1]->type_name());
         }
-        return attempted("<unknown unary operator>", ici_os.a_top[-1]->type_name());
+        return attempted("<unknown unary operator>", os.a_top[-1]->type_name());
     }
 }
 

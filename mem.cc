@@ -32,7 +32,7 @@ mem *ici_mem_new(void *base, size_t length, int accessz, void (*free_func)(void 
     m->m_length = length;
     m->m_accessz = accessz;
     m->m_free = free_func;
-    return memof(ici_atom(m, 1));
+    return memof(atom(m, 1));
 }
 
 /*
@@ -81,7 +81,7 @@ int mem_type::assign(object *o, object *k, object *v)
     i = intof(k)->i_value;
     if (i < 0 || i >= (int64_t)m->m_length)
     {
-        return ici_set_error("attempt to write at mem index %ld\n", i);
+        return set_error("attempt to write at mem index %ld\n", i);
     }
     switch (m->m_accessz)
     {

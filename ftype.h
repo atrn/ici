@@ -19,7 +19,7 @@ namespace ici
  * function for details.
  *
  * FT_NOMUTEX           ICI will surround file I/O on this file with
- *                      ici_leave()/ici_enter().  Using this flag can increase
+ *                      leave()/enter().  Using this flag can increase
  *                      efficiency by allowing other threads to run during a
  *                      blocking I/O operation; however it must NOT be used if
  *                      the file's I/O functions can access ICI data.

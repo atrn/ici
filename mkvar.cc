@@ -62,7 +62,7 @@ int ici_set_val(objwsup *s, str *name, int type, void *vp)
         break;
 
     default:
-        return ici_set_error("illegal type key-letter given to ici_set_val");
+        return set_error("illegal type key-letter given to ici_set_val");
     }
 
     if (o == NULL)
@@ -84,7 +84,7 @@ ici_fetch_mismatch(object *o, object *k, object *v, const char *expected)
     char        n2[30];
     char        n3[30];
 
-    return ici_set_error("read %s from %s keyed by %s, but expected %s",
+    return set_error("read %s from %s keyed by %s, but expected %s",
         ici_objname(n1, v),
         ici_objname(n2, o),
         ici_objname(n3, k),

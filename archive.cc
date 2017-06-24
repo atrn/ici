@@ -87,12 +87,12 @@ size_t archive_type::mark(object *o)
 int archive_init()
 {
     op_funcs[0] = NULL;
-    op_funcs[1] = ici_o_mklvalue.op_func;
-    op_funcs[2] = ici_o_onerror.op_func;
-    op_funcs[3] = ici_o_return.op_func;
-    op_funcs[4] = ici_o_mkptr.op_func;
-    op_funcs[5] = ici_o_openptr.op_func;
-    op_funcs[6] = ici_o_fetch.op_func;
+    op_funcs[1] = o_mklvalue.op_func;
+    op_funcs[2] = o_onerror.op_func;
+    op_funcs[3] = o_return.op_func;
+    op_funcs[4] = o_mkptr.op_func;
+    op_funcs[5] = o_openptr.op_func;
+    op_funcs[6] = o_fetch.op_func;
     if (init_saver_map())
     {
         return 1;
@@ -145,7 +145,7 @@ void archive::uninsert(object *key)
 {
     if (auto k = make_key(key))
     {
-        ici_struct_unassign(a_sent, k);
+        unassign(a_sent, k);
         k->decref();
     }
 }

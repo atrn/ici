@@ -22,8 +22,8 @@ namespace ici
  * line ICI interpreter is expected to simply pass its given 'argc' and 'argv'
  * on to 'ici::main' then return its return value.
  *
- * 'ici::main' handles all calls to 'ici_init()' and 'ici_uninit()' within its
- * scope.  A program calling 'ici::main' should *not* call 'ici_init()'.
+ * 'ici::main' handles all calls to 'init()' and 'ici_uninit()' within its
+ * scope.  A program calling 'ici::main' should *not* call 'init()'.
  *
  * 'argc' and 'argv' are as standard for C 'main' functions.  For details on
  * the interpretation of the arguments, see documentation on normal command
@@ -54,7 +54,7 @@ main(int argc, char *argv[])
         fprintf(stderr, "%s: Warning - this is a debug build.\n", argv[0]);
 #   endif
 
-    if (ici_init())
+    if (init())
         goto fail;
 
     /*
@@ -111,7 +111,7 @@ main(int argc, char *argv[])
                     switch (argv[i][j])
                     {
                     case 'v':
-                        fprintf(stderr, "%s\n", ici_version_string);
+                        fprintf(stderr, "%s\n", version_string);
                         return 0;
 
                     case 'm':
@@ -192,9 +192,9 @@ main(int argc, char *argv[])
         long l = av->a_top - av->a_base;
         if
         (
-            ici_set_val(objwsupof(ici_vs.a_top[-1])->o_super, SS(argv), 'o', av)
+            ici_set_val(objwsupof(vs.a_top[-1])->o_super, SS(argv), 'o', av)
             ||
-            ici_set_val(objwsupof(ici_vs.a_top[-1])->o_super, SS(argc), 'i', &l)
+            ici_set_val(objwsupof(vs.a_top[-1])->o_super, SS(argc), 'i', &l)
         )
             goto fail;
         av->decref();
@@ -216,10 +216,10 @@ main(int argc, char *argv[])
     {
         if ((stream = fopen(argv[1], "r")) == NULL)
         {
-            ici_set_error("%s: Could not open %s.", argv[0], argv[1]);
+            set_error("%s: Could not open %s.", argv[0], argv[1]);
             goto fail;
         }
-        if (ici_parse_file(argv[1], (char *)stream, stdio_ftype))
+        if (parse_file(argv[1], (char *)stream, stdio_ftype))
             goto fail;
     }
     else
@@ -236,7 +236,7 @@ main(int argc, char *argv[])
                 continue;
             if (argv[i][1] == '\0')
             {
-                if (ici_parse_file("stdin", (char *)stdin, stdio_ftype))
+                if (parse_file("stdin", (char *)stdin, stdio_ftype))
                     goto fail;
                 continue;
             }
@@ -255,10 +255,10 @@ main(int argc, char *argv[])
                         goto usage;
                     else
                         s = argv[i];
-                    if ((f = ici_sopen(s, strlen(s), NULL)) == NULL)
+                    if ((f = sopen(s, strlen(s), NULL)) == NULL)
                         goto fail;
                     f->f_name = SS(empty_string);
-                    if (ici_parse(f, objwsupof(ici_vs.a_top[-1])) < 0)
+                    if (parse_file(f, objwsupof(vs.a_top[-1])) < 0)
                         goto fail;
                     f->decref();
                     break;
@@ -287,10 +287,10 @@ main(int argc, char *argv[])
                     sprintf(buf, fmt, s);
                     if ((stream = fopen(buf, "r")) == NULL)
                     {
-                        ici_set_error("%s: Could not open %s.", argv[0], s);
+                        set_error("%s: Could not open %s.", argv[0], s);
                         goto fail;
                     }
-                    if (ici_parse_file(buf, (char *)stream, stdio_ftype))
+                    if (parse_file(buf, (char *)stream, stdio_ftype))
                         goto fail;
                     break;
 
@@ -298,11 +298,11 @@ main(int argc, char *argv[])
                 case '5': case '6': case '7': case '8': case '9':
                     if ((stream = fdopen(argv[i][j] - '0', "r")) == NULL)
                     {
-                        ici_set_error("%s: Could not access file descriptor %d.",
+                        set_error("%s: Could not access file descriptor %d.",
                             argv[0], argv[i][j] - '0');
                         goto fail;
                     }
-                    if (ici_parse_file(arg0, (char *)stream, stdio_ftype))
+                    if (parse_file(arg0, (char *)stream, stdio_ftype))
                         goto fail;
                     continue;
                 }
@@ -319,7 +319,7 @@ main(int argc, char *argv[])
 
 #ifndef NDEBUG
     /* We don't bother with uninit freeing memory etc..., the OS will do it */
-    ici_uninit();
+    uninit();
 #endif
     return 0;
 
@@ -357,14 +357,14 @@ usage:
     }
     if (av != NULL)
         av->decref();
-    ici_uninit();
-    ici_set_error("invalid command line arguments");
+    uninit();
+    set_error("invalid command line arguments");
     return !help;
 
 fail:
     fflush(stdout);
-    fprintf(stderr, "%s\n", ici_error);
-    ici_uninit();
+    fprintf(stderr, "%s\n", error);
+    uninit();
     return 1;
 }
 

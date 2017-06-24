@@ -47,7 +47,7 @@ new_binop(int op, int why)
      * an in-line switch in exec(). The other case is when that blows
      * your compiler away and it is seperated out as a function.
      */
-    o = ici_new_op(NULL, why == FOR_TEMP ? ICI_OP_BINOP_FOR_TEMP : ICI_OP_BINOP, op);
+    o = ici_new_op(NULL, why == FOR_TEMP ? OP_BINOP_FOR_TEMP : OP_BINOP, op);
 #else
     o = ici_new_op(op_binop, 0, op);
 #endif
@@ -70,7 +70,7 @@ new_binop(int op, int why)
  * Compile the expression into the code array, for the reason given.
  * Returns 1 on failure, 0 on success.
  */
-int ici_compile_expr(array *a, expr *e, int why)
+int compile_expr(array *a, expr *e, int why)
 {
 
 #define NOTLV(why)      ((why) == FOR_LVALUE ? FOR_VALUE : (why))
@@ -84,11 +84,11 @@ int ici_compile_expr(array *a, expr *e, int why)
     {
         if (e->e_what == T_COMMA)
         {
-            if (ici_compile_expr(a, e->e_arg[0], FOR_EFFECT))
+            if (compile_expr(a, e->e_arg[0], FOR_EFFECT))
             {
                 return 1;
             }
-            if (ici_compile_expr(a, e->e_arg[1], why))
+            if (compile_expr(a, e->e_arg[1], why))
             {
                 return 1;
             }
@@ -101,9 +101,9 @@ int ici_compile_expr(array *a, expr *e, int why)
 
             if (e->e_arg[1]->e_what != T_COLON)
             {
-                return ici_set_error("syntax error in \"? :\" use");
+                return set_error("syntax error in \"? :\" use");
             }
-            if (ici_compile_expr(a, e->e_arg[0], FOR_VALUE))
+            if (compile_expr(a, e->e_arg[0], FOR_VALUE))
             {
                 return 1;
             }
@@ -111,12 +111,12 @@ int ici_compile_expr(array *a, expr *e, int why)
             {
                 return 1;
             }
-            if (ici_compile_expr(a1, e->e_arg[1]->e_arg[0], why) || a1->stk_push_chk())
+            if (compile_expr(a1, e->e_arg[1]->e_arg[0], why) || a1->stk_push_chk())
             {
                 a1->decref();
                 return 1;
             }
-            *a1->a_top++ = &ici_o_end;
+            *a1->a_top++ = &o_end;
             if ((a2 = ici_array_new(0)) == NULL)
             {
                 a1->decref();
@@ -124,7 +124,7 @@ int ici_compile_expr(array *a, expr *e, int why)
             }
             if
             (
-                ici_compile_expr(a2, e->e_arg[1]->e_arg[1], why)
+                compile_expr(a2, e->e_arg[1]->e_arg[1], why)
                 ||
                 a2->stk_push_chk()
                 ||
@@ -135,8 +135,8 @@ int ici_compile_expr(array *a, expr *e, int why)
                 a2->decref();
                 return 1;
             }
-            *a2->a_top++ = &ici_o_end;
-            *a->a_top++ = &ici_o_ifelse;
+            *a2->a_top++ = &o_end;
+            *a->a_top++ = &o_ifelse;
             *a->a_top++ = a1;
             *a->a_top++ = a2;
             a1->decref();
@@ -145,11 +145,11 @@ int ici_compile_expr(array *a, expr *e, int why)
         }
         if (e->e_what == T_LESSEQGRT)
         {
-            if (ici_compile_expr(a, e->e_arg[0], FOR_LVALUE))
+            if (compile_expr(a, e->e_arg[0], FOR_LVALUE))
             {
                 return 1;
             }
-            if (ici_compile_expr(a, e->e_arg[1], FOR_LVALUE))
+            if (compile_expr(a, e->e_arg[1], FOR_LVALUE))
             {
                 return 1;
             }
@@ -157,7 +157,7 @@ int ici_compile_expr(array *a, expr *e, int why)
             {
                 return 1;
             }
-            if ((*a->a_top = ici_new_op(NULL, ICI_OP_SWAP, NOTTEMP(why))) == NULL)
+            if ((*a->a_top = ici_new_op(NULL, OP_SWAP, NOTTEMP(why))) == NULL)
             {
                 return 1;
             }
@@ -176,9 +176,9 @@ int ici_compile_expr(array *a, expr *e, int why)
                 {
                     return 1;
                 }
-                *a->a_top++ = &ici_o_quote;
+                *a->a_top++ = &o_quote;
                 *a->a_top++ = e->e_arg[0]->e_obj;
-                if (ici_compile_expr(a, e->e_arg[1], FOR_VALUE))
+                if (compile_expr(a, e->e_arg[1], FOR_VALUE))
                 {
                     return 1;
                 }
@@ -186,7 +186,7 @@ int ici_compile_expr(array *a, expr *e, int why)
                 {
                     return 1;
                 }
-                if ((*a->a_top = ici_new_op(NULL, ICI_OP_ASSIGNLOCALVAR, NOTTEMP(why))) == NULL)
+                if ((*a->a_top = ici_new_op(NULL, OP_ASSIGNLOCALVAR, NOTTEMP(why))) == NULL)
                 {
                     return 1;
                 }
@@ -196,7 +196,7 @@ int ici_compile_expr(array *a, expr *e, int why)
             }
             if (e->e_arg[0]->e_what == T_NAME)
             {
-                if (ici_compile_expr(a, e->e_arg[1], FOR_VALUE))
+                if (compile_expr(a, e->e_arg[1], FOR_VALUE))
                 {
                     return 1;
                 }
@@ -204,7 +204,7 @@ int ici_compile_expr(array *a, expr *e, int why)
                 {
                     return 1;
                 }
-                if ((*a->a_top = ici_new_op(NULL, ICI_OP_ASSIGN_TO_NAME, NOTTEMP(why))) == NULL)
+                if ((*a->a_top = ici_new_op(NULL, OP_ASSIGN_TO_NAME, NOTTEMP(why))) == NULL)
                 {
                     return 1;
                 }
@@ -213,11 +213,11 @@ int ici_compile_expr(array *a, expr *e, int why)
                 *a->a_top++ = e->e_arg[0]->e_obj;
                 return 0;
             }
-            if (ici_compile_expr(a, e->e_arg[0], FOR_LVALUE))
+            if (compile_expr(a, e->e_arg[0], FOR_LVALUE))
             {
                 return 1;
             }
-            if (ici_compile_expr(a, e->e_arg[1], FOR_VALUE))
+            if (compile_expr(a, e->e_arg[1], FOR_VALUE))
             {
                 return 1;
             }
@@ -225,7 +225,7 @@ int ici_compile_expr(array *a, expr *e, int why)
             {
                 return 1;
             }
-            if ((*a->a_top = ici_new_op(NULL, e->e_what == T_EQ ? ICI_OP_ASSIGN : ICI_OP_ASSIGNLOCAL, NOTTEMP(why))) == NULL)
+            if ((*a->a_top = ici_new_op(NULL, e->e_what == T_EQ ? OP_ASSIGN : OP_ASSIGNLOCAL, NOTTEMP(why))) == NULL)
             {
                 return 1;
             }
@@ -238,7 +238,7 @@ int ici_compile_expr(array *a, expr *e, int why)
             /*
              * Assignment op.
              */
-            if (ici_compile_expr(a, e->e_arg[0], FOR_LVALUE))
+            if (compile_expr(a, e->e_arg[0], FOR_LVALUE))
             {
                 return 1;
             }
@@ -246,8 +246,8 @@ int ici_compile_expr(array *a, expr *e, int why)
             {
                 return 1;
             }
-            *a->a_top++ = &ici_o_dotkeep;
-            if (ici_compile_expr(a, e->e_arg[1], FOR_TEMP))
+            *a->a_top++ = &o_dotkeep;
+            if (compile_expr(a, e->e_arg[1], FOR_TEMP))
             {
                 return 1;
             }
@@ -260,7 +260,7 @@ int ici_compile_expr(array *a, expr *e, int why)
                 return 1;
             }
             ++a->a_top;
-            if ((*a->a_top = ici_new_op(NULL, ICI_OP_ASSIGN, NOTTEMP(why))) == NULL)
+            if ((*a->a_top = ici_new_op(NULL, OP_ASSIGN, NOTTEMP(why))) == NULL)
             {
                 return 1;
             }
@@ -276,7 +276,7 @@ int ici_compile_expr(array *a, expr *e, int why)
         {
             array    *a1;
 
-            if (ici_compile_expr(a, e->e_arg[0], FOR_VALUE))
+            if (compile_expr(a, e->e_arg[0], FOR_VALUE))
             {
                 return 1;
             }
@@ -286,7 +286,7 @@ int ici_compile_expr(array *a, expr *e, int why)
             }
             if
             (
-                ici_compile_expr(a1, e->e_arg[1], FOR_VALUE)
+                compile_expr(a1, e->e_arg[1], FOR_VALUE)
                 ||
                 a1->stk_push_chk(3)
                 ||
@@ -296,13 +296,13 @@ int ici_compile_expr(array *a, expr *e, int why)
                 a1->decref();
                 return 1;
             }
-            *a1->a_top++ = &ici_o_end;
+            *a1->a_top++ = &o_end;
             *a->a_top++ = a1;
             a1->decref();
-            *a->a_top++ = e->e_what == T_ANDAND ? &ici_o_andand : &ici_o_barbar;
+            *a->a_top++ = e->e_what == T_ANDAND ? &o_andand : &o_barbar;
             if (why == FOR_EFFECT)
             {
-                *a->a_top++ = &ici_o_pop;
+                *a->a_top++ = &o_pop;
             }
             return 0;
         }
@@ -310,11 +310,11 @@ int ici_compile_expr(array *a, expr *e, int why)
          * Ordinary binary op. All binary operators that take an int or a float
          * on either side can take a temp.
          */
-        if (ici_compile_expr(a, e->e_arg[0], why == FOR_VALUE ? FOR_TEMP : why))
+        if (compile_expr(a, e->e_arg[0], why == FOR_VALUE ? FOR_TEMP : why))
         {
             return 1;
         }
-        if (ici_compile_expr(a, e->e_arg[1], why == FOR_VALUE ? FOR_TEMP : why))
+        if (compile_expr(a, e->e_arg[1], why == FOR_VALUE ? FOR_TEMP : why))
         {
             return 1;
         }
@@ -365,7 +365,7 @@ int ici_compile_expr(array *a, expr *e, int why)
                 }
                 if
                 (
-                    ici_compile_expr(a1, e->e_arg[0], NOTLV(why))
+                    compile_expr(a1, e->e_arg[0], NOTLV(why))
                     ||
                     a1->stk_push_chk()
                 )
@@ -373,7 +373,7 @@ int ici_compile_expr(array *a, expr *e, int why)
                     a1->decref();
                     return 1;
                 }
-                *a1->a_top++ = &ici_o_end;
+                *a1->a_top++ = &o_end;
                 if ((e->e_obj = evaluate(a1, 0)) == NULL)
                 {
                     a1->decref();
@@ -394,7 +394,7 @@ int ici_compile_expr(array *a, expr *e, int why)
             {
                 if (isstring(e->e_obj))
                 {
-                    *a->a_top++ = &ici_o_quote;
+                    *a->a_top++ = &o_quote;
                 }
                 *a->a_top++ = e->e_obj;
             }
@@ -403,7 +403,7 @@ int ici_compile_expr(array *a, expr *e, int why)
         case T_NAME:
             if (why == FOR_LVALUE)
             {
-                *a->a_top++ = &ici_o_namelvalue;
+                *a->a_top++ = &o_namelvalue;
             }
             *a->a_top++ = e->e_obj;
             if (why == FOR_EFFECT)
@@ -413,12 +413,12 @@ int ici_compile_expr(array *a, expr *e, int why)
                  * they can have the side-effect of loading a module. But we
                  * then have to pop the value.
                  */
-                *a->a_top++ = &ici_o_pop;
+                *a->a_top++ = &o_pop;
             }
             return 0;
 
         case T_PLUS:
-            if (ici_compile_expr(a, e->e_arg[0], NOTLV(why)))
+            if (compile_expr(a, e->e_arg[0], NOTLV(why)))
             {
                 return 1;
             }
@@ -431,7 +431,7 @@ int ici_compile_expr(array *a, expr *e, int why)
                 /*
                  * Postfix.
                  */
-                if (ici_compile_expr(a, e->e_arg[1], FOR_LVALUE))
+                if (compile_expr(a, e->e_arg[1], FOR_LVALUE))
                 {
                     return 1;
                 }
@@ -444,14 +444,14 @@ int ici_compile_expr(array *a, expr *e, int why)
                 {
                     return 1;
                 }
-                *a->a_top++ = &ici_o_dotrkeep;
-                *a->a_top++ = ici_one;
+                *a->a_top++ = &o_dotrkeep;
+                *a->a_top++ = o_one;
                 if ((*a->a_top = new_binop(e->e_what == T_PLUSPLUS ? T_PLUS : T_MINUS, FOR_VALUE)) == NULL)
                 {
                     return 1;
                 }
                 ++a->a_top;
-                if ((*a->a_top = ici_new_op(NULL, ICI_OP_ASSIGN, FOR_EFFECT)) == NULL)
+                if ((*a->a_top = ici_new_op(NULL, OP_ASSIGN, FOR_EFFECT)) == NULL)
                 {
                     return 1;
                 }
@@ -463,7 +463,7 @@ int ici_compile_expr(array *a, expr *e, int why)
                 /*
                  * Prefix, (or possibly postfix for effect).
                  */
-                if (ici_compile_expr(a, e->e_arg[0], FOR_LVALUE))
+                if (compile_expr(a, e->e_arg[0], FOR_LVALUE))
                 {
                     return 1;
                 }
@@ -472,14 +472,14 @@ int ici_compile_expr(array *a, expr *e, int why)
                 {
                     return 1;
                 }
-                *a->a_top++ = &ici_o_dotkeep;
-                *a->a_top++ = ici_one;
+                *a->a_top++ = &o_dotkeep;
+                *a->a_top++ = o_one;
                 if ((*a->a_top = new_binop(e->e_what == T_PLUSPLUS ? T_PLUS : T_MINUS, FOR_VALUE)) == NULL)
                 {
                     return 1;
                 }
                 ++a->a_top;
-                if ((*a->a_top = ici_new_op(NULL, ICI_OP_ASSIGN, NOTTEMP(why))) == NULL)
+                if ((*a->a_top = ici_new_op(NULL, OP_ASSIGN, NOTTEMP(why))) == NULL)
                 {
                     return 1;
                 }
@@ -496,10 +496,10 @@ int ici_compile_expr(array *a, expr *e, int why)
              */
             if (why == FOR_EFFECT)
             {
-                return ici_compile_expr(a, e->e_arg[0], FOR_EFFECT);
+                return compile_expr(a, e->e_arg[0], FOR_EFFECT);
             }
-            *a->a_top++ = ici_zero;
-            if (ici_compile_expr(a, e->e_arg[0], NOTLV(why)))
+            *a->a_top++ = o_zero;
+            if (compile_expr(a, e->e_arg[0], NOTLV(why)))
             {
                 return 1;
             }
@@ -515,13 +515,13 @@ int ici_compile_expr(array *a, expr *e, int why)
             break;
 
         case T_TILDE:
-            if (ici_compile_expr(a, e->e_arg[0], why == FOR_VALUE ? FOR_TEMP : NOTLV(why)))
+            if (compile_expr(a, e->e_arg[0], why == FOR_VALUE ? FOR_TEMP : NOTLV(why)))
             {
                 return 1;
             }
             goto unary_arith;
         case T_EXCLAM:
-            if (ici_compile_expr(a, e->e_arg[0], why == FOR_TEMP ? FOR_VALUE : NOTLV(why)))
+            if (compile_expr(a, e->e_arg[0], why == FOR_TEMP ? FOR_VALUE : NOTLV(why)))
             {
                 return 1;
             }
@@ -534,7 +534,7 @@ int ici_compile_expr(array *a, expr *e, int why)
             {
                 return 1;
             }
-            if ((*a->a_top = ici_new_op(ici_op_unary, 0, t_subtype(e->e_what))) == NULL)
+            if ((*a->a_top = ici_new_op(op_unary, 0, t_subtype(e->e_what))) == NULL)
             {
                 return 1;
             }
@@ -543,7 +543,7 @@ int ici_compile_expr(array *a, expr *e, int why)
             break;
 
         case T_AT:
-            if (ici_compile_expr(a, e->e_arg[0], why != FOR_EFFECT ? FOR_VALUE : why))
+            if (compile_expr(a, e->e_arg[0], why != FOR_EFFECT ? FOR_VALUE : why))
             {
                 return 1;
             }
@@ -555,7 +555,7 @@ int ici_compile_expr(array *a, expr *e, int why)
             {
                 return 1;
             }
-            if ((*a->a_top = ici_new_op(NULL, ICI_OP_AT, 0)) == NULL)
+            if ((*a->a_top = ici_new_op(NULL, OP_AT, 0)) == NULL)
             {
                 return 1;
             }
@@ -564,7 +564,7 @@ int ici_compile_expr(array *a, expr *e, int why)
             break;
 
         case T_AND: /* Unary. */
-            if (ici_compile_expr(a, e->e_arg[0], why != FOR_EFFECT ? FOR_LVALUE : why))
+            if (compile_expr(a, e->e_arg[0], why != FOR_EFFECT ? FOR_LVALUE : why))
             {
                 return 1;
             }
@@ -576,11 +576,11 @@ int ici_compile_expr(array *a, expr *e, int why)
             {
                 return 1;
             }
-            *a->a_top++ = &ici_o_mkptr;
+            *a->a_top++ = &o_mkptr;
             break;
 
         case T_ASTERIX: /* Unary. */
-            if (ici_compile_expr(a, e->e_arg[0], why != FOR_EFFECT ? FOR_VALUE : why))
+            if (compile_expr(a, e->e_arg[0], why != FOR_EFFECT ? FOR_VALUE : why))
             {
                 return 1;
             }
@@ -594,21 +594,21 @@ int ici_compile_expr(array *a, expr *e, int why)
             }
             if (why == FOR_LVALUE)
             {
-                *a->a_top++ = &ici_o_openptr;
+                *a->a_top++ = &o_openptr;
                 return 0;
             }
             else
             {
-                *a->a_top++ = &ici_o_fetch;
+                *a->a_top++ = &o_fetch;
             }
             break;
 
         case T_ONSQUARE: /* Array or pointer index. */
-            if (ici_compile_expr(a, e->e_arg[0], why != FOR_EFFECT ? FOR_VALUE : why))
+            if (compile_expr(a, e->e_arg[0], why != FOR_EFFECT ? FOR_VALUE : why))
             {
                 return 1;
             }
-            if (ici_compile_expr(a, e->e_arg[1], why != FOR_EFFECT ? FOR_VALUE : why))
+            if (compile_expr(a, e->e_arg[1], why != FOR_EFFECT ? FOR_VALUE : why))
             {
                 return 1;
             }
@@ -624,16 +624,16 @@ int ici_compile_expr(array *a, expr *e, int why)
             {
                 return 0;
             }
-            *a->a_top++ = &ici_o_dot;
+            *a->a_top++ = &o_dot;
             break;
 
         case T_PRIMARYCOLON:
         case T_COLONCARET:
-            if (ici_compile_expr(a, e->e_arg[0], why != FOR_EFFECT ? FOR_VALUE : why))
+            if (compile_expr(a, e->e_arg[0], why != FOR_EFFECT ? FOR_VALUE : why))
             {
                 return 1;
             }
-            if (ici_compile_expr(a, e->e_arg[1], why != FOR_EFFECT ? FOR_VALUE : why))
+            if (compile_expr(a, e->e_arg[1], why != FOR_EFFECT ? FOR_VALUE : why))
             {
                 return 1;
             }
@@ -652,7 +652,7 @@ int ici_compile_expr(array *a, expr *e, int why)
             *a->a_top = ici_new_op
                 (
                     NULL,
-                    ICI_OP_COLON,
+                    OP_COLON,
                     e->e_what == T_COLONCARET ? OPC_COLON_CARET : 0
                 );
             if (*a->a_top == NULL)
@@ -664,7 +664,7 @@ int ici_compile_expr(array *a, expr *e, int why)
             break;
 
         case T_PTR:
-            if (ici_compile_expr(a, e->e_arg[0], why != FOR_EFFECT ? FOR_VALUE : why))
+            if (compile_expr(a, e->e_arg[0], why != FOR_EFFECT ? FOR_VALUE : why))
             {
                 return 1;
             }
@@ -674,16 +674,16 @@ int ici_compile_expr(array *a, expr *e, int why)
                 {
                     return 1;
                 }
-                *a->a_top++ = &ici_o_fetch;
+                *a->a_top++ = &o_fetch;
             }
             goto dot2;
         case T_DOT:
-            if (ici_compile_expr(a, e->e_arg[0], why != FOR_EFFECT ? FOR_VALUE : why))
+            if (compile_expr(a, e->e_arg[0], why != FOR_EFFECT ? FOR_VALUE : why))
             {
                 return 1;
             }
         dot2:
-            if (ici_compile_expr(a, e->e_arg[1], why != FOR_EFFECT ? FOR_VALUE : why))
+            if (compile_expr(a, e->e_arg[1], why != FOR_EFFECT ? FOR_VALUE : why))
             {
                 return 1;
             }
@@ -699,15 +699,15 @@ int ici_compile_expr(array *a, expr *e, int why)
             {
                 return 1;
             }
-            *a->a_top++ = &ici_o_dot;
+            *a->a_top++ = &o_dot;
             break;
 
         case T_BINAT:
-            if (ici_compile_expr(a, e->e_arg[0], why != FOR_EFFECT ? FOR_VALUE : why))
+            if (compile_expr(a, e->e_arg[0], why != FOR_EFFECT ? FOR_VALUE : why))
             {
                 return 1;
             }
-            if (ici_compile_expr(a, e->e_arg[1], why != FOR_EFFECT ? FOR_VALUE : why))
+            if (compile_expr(a, e->e_arg[1], why != FOR_EFFECT ? FOR_VALUE : why))
             {
                 return 1;
             }
@@ -723,7 +723,7 @@ int ici_compile_expr(array *a, expr *e, int why)
             {
                 return 1;
             }
-            *a->a_top++ = &ici_o_mkptr;
+            *a->a_top++ = &o_mkptr;
             break;
 
         case T_ONROUND: /* Function call. */
@@ -738,7 +738,7 @@ int ici_compile_expr(array *a, expr *e, int why)
                 nargs = 0;
                 for (e1 = e->e_arg[1]; e1 != NULL; e1 = e1->e_arg[1])
                 {
-                    if (ici_compile_expr(a, e1->e_arg[0], FOR_VALUE))
+                    if (compile_expr(a, e1->e_arg[0], FOR_VALUE))
                     {
                         return 1;
                     }
@@ -769,11 +769,11 @@ int ici_compile_expr(array *a, expr *e, int why)
                      * Use the direct method call to avoid ever forming
                      * the method object.
                      */
-                    if (ici_compile_expr(a, e->e_arg[0]->e_arg[0], FOR_VALUE))
+                    if (compile_expr(a, e->e_arg[0]->e_arg[0], FOR_VALUE))
                     {
                         return 1;
                     }
-                    if (ici_compile_expr(a, e->e_arg[0]->e_arg[1], FOR_VALUE))
+                    if (compile_expr(a, e->e_arg[0]->e_arg[1], FOR_VALUE))
                     {
                         return 1;
                     }
@@ -783,11 +783,11 @@ int ici_compile_expr(array *a, expr *e, int why)
                     }
                     if (e->e_arg[0]->e_what == T_COLONCARET)
                     {
-                        *a->a_top++ = &ici_o_super_call;
+                        *a->a_top++ = &o_super_call;
                     }
                     else
                     {
-                        *a->a_top++ = &ici_o_method_call;
+                        *a->a_top++ = &o_method_call;
                     }
                 }
                 else
@@ -796,7 +796,7 @@ int ici_compile_expr(array *a, expr *e, int why)
                      * Normal case. Code the thing being called and a call
                      * operation.
                      */
-                    if (ici_compile_expr(a, e->e_arg[0], FOR_VALUE))
+                    if (compile_expr(a, e->e_arg[0], FOR_VALUE))
                     {
                         return 1;
                     }
@@ -804,11 +804,11 @@ int ici_compile_expr(array *a, expr *e, int why)
                     {
                         return 1;
                     }
-                    *a->a_top++ = &ici_o_call;
+                    *a->a_top++ = &o_call;
                 }
                 if (why == FOR_EFFECT)
                 {
-                    *a->a_top++ = &ici_o_pop;
+                    *a->a_top++ = &o_pop;
                 }
             }
             break;
@@ -820,19 +820,18 @@ int ici_compile_expr(array *a, expr *e, int why)
         {
             return 1;
         }
-        *a->a_top++ = &ici_o_mklvalue;
+        *a->a_top++ = &o_mklvalue;
     }
     return 0;
 
 notlvalue:
-    return ici_set_error("lvalue required");
+    return set_error("lvalue required");
 }
 
 /*
  * Destroys static information created in this file.
  */
-void
-ici_uninit_compile()
+void uninit_compile()
 {
     int i;
 

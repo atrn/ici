@@ -23,16 +23,16 @@ namespace ici
  * All objects are in the objects list or completely static and
  * known to never require collection.
  */
-object       **ici_objs;         /* List of all objects. */
-object       **ici_objs_limit;   /* First element we can't use in list. */
-object       **ici_objs_top;     /* Next unused element in list. */
+object       **objs;         /* List of all objects. */
+object       **objs_limit;   /* First element we can't use in list. */
+object       **objs_top;     /* Next unused element in list. */
 
-object       **ici_atoms;    /* Hash table of atomic objects. */
-int          ici_atomsz;     /* Number of slots in hash table. */
-int          ici_natoms;     /* Number of atomic objects. */
+object       **atoms;    /* Hash table of atomic objects. */
+size_t       atomsz;     /* Number of slots in hash table. */
+size_t       natoms;     /* Number of atomic objects. */
 
-int          ici_supress_collect;
-int          ici_ncollects;	/* Number of ici_collect() calls */
+int          supress_collect;
+int          ncollects;	/* Number of collect() calls */
 
 /*
  * Format a human readable version of the object 'o' into the buffer
@@ -42,7 +42,7 @@ int          ici_ncollects;	/* Number of ici_collect() calls */
  * This --func-- forms part of the --ici-api--.
  */
 char *
-ici_objname(char p[ICI_OBJNAMEZ], object *o)
+ici_objname(char p[objnamez], object *o)
 {
     if (o->otype()->can_objname())
     {
@@ -51,7 +51,7 @@ ici_objname(char p[ICI_OBJNAMEZ], object *o)
     }
     if (isstring(o))
     {
-        if (stringof(o)->s_nchars > ICI_OBJNAMEZ - 6)
+        if (stringof(o)->s_nchars > objnamez - 6)
             sprintf(p, "\"%.24s...\"", stringof(o)->s_chars);
         else
             sprintf(p, "\"%s\"", stringof(o)->s_chars);
@@ -77,8 +77,7 @@ inline unsigned long hash(object *o)
  * Grow the hash table of atoms to the given size, which *must* be a
  * power of 2.
  */
-static void
-ici_grow_atoms_core(ptrdiff_t newz)
+static void grow_atoms_core(ptrdiff_t newz)
 {
     object  **po;
     int        i;
@@ -86,16 +85,16 @@ ici_grow_atoms_core(ptrdiff_t newz)
     ptrdiff_t           oldz;
 
     assert(((newz - 1) & newz) == 0); /* Assert power of 2. */
-    oldz = ici_atomsz;
-    ++ici_supress_collect;
+    oldz = atomsz;
+    ++supress_collect;
     po = (object **)ici_nalloc(newz * sizeof (object *));
-    --ici_supress_collect;
+    --supress_collect;
     if (po == NULL)
         return;
-    ici_atomsz = newz;
+    atomsz = newz;
     memset((char *)po, 0, newz * sizeof (object *));
-    olda = ici_atoms;
-    ici_atoms = po;
+    olda = atoms;
+    atoms = po;
     i = oldz;
     while (--i >= 0)
     {
@@ -105,9 +104,9 @@ ici_grow_atoms_core(ptrdiff_t newz)
         {
             for
             (
-                po = &ici_atoms[ici_atom_hash_index(hash(o))];
+                po = &atoms[ici_atom_hash_index(hash(o))];
                 *po != NULL;
-                --po < ici_atoms ? po = ici_atoms + ici_atomsz - 1 : NULL
+                --po < atoms ? po = atoms + atomsz - 1 : NULL
             )
                 ;
             *po = o;
@@ -120,8 +119,7 @@ ici_grow_atoms_core(ptrdiff_t newz)
  * Grow the hash table of atoms to the given size, which *must* be a
  * power of 2.
  */
-void
-ici_grow_atoms(ptrdiff_t newz)
+void grow_atoms(ptrdiff_t newz)
 {
     /*
      * If there are a lot of collectable atoms, it is better for performance
@@ -131,13 +129,13 @@ ici_grow_atoms(ptrdiff_t newz)
      */
     if (ici_mem * 3 / 2 > ici_mem_limit)
     {
-        ici_collect();
-        if (ici_natoms * 8 < newz)
+        collect();
+        if (natoms * 8 < size_t(newz))
         {
             return;
         }
     }
-    ici_grow_atoms_core(newz);
+    grow_atoms_core(newz);
 }
 
 /*
@@ -166,8 +164,7 @@ ici_grow_atoms(ptrdiff_t newz)
  *
  * This --func-- forms part of the --ici-api--.
  */
-object *
-ici_atom(object *o, int lone)
+object *atom(object *o, int lone)
 {
     object   **po;
 
@@ -177,9 +174,9 @@ ici_atom(object *o, int lone)
         return o;
     for
     (
-        po = &ici_atoms[ici_atom_hash_index(hash(o))];
+        po = &atoms[ici_atom_hash_index(hash(o))];
         *po != NULL;
-        --po < ici_atoms ? po = ici_atoms + ici_atomsz - 1 : NULL
+        --po < atoms ? po = atoms + atomsz - 1 : NULL
     )
     {
         if (o->o_tcode == (*po)->o_tcode && ici_cmp(o, *po) == 0)
@@ -198,17 +195,17 @@ ici_atom(object *o, int lone)
      */
     if (!lone)
     {
-        ++ici_supress_collect;
+        ++supress_collect;
         *po = ici_copy(o);
-        --ici_supress_collect;
+        --supress_collect;
         if (*po == NULL)
             return o;
         o = *po;
     }
     *po = o;
     o->setflag(ICI_O_ATOM);
-    if (++ici_natoms > ici_atomsz / 2)
-        ici_grow_atoms(ici_atomsz * 2);
+    if (++natoms > atomsz / 2)
+        grow_atoms(atomsz * 2);
     if (!lone)
         o->decref();
     return o;
@@ -224,16 +221,15 @@ ici_atom(object *o, int lone)
  * afterwards.  The macro ICI_STORE_ATOM_AND_COUNT() can be used for this.
  * Note that any call to collect() could disturb the atom pool.
  */
-object *
-ici_atom_probe2(object *o, object ***ppo)
+object *atom_probe2(object *o, object ***ppo)
 {
     object   **po;
 
     for
     (
-        po = &ici_atoms[ici_atom_hash_index(hash(o))];
+        po = &atoms[ici_atom_hash_index(hash(o))];
         *po != NULL;
-        --po < ici_atoms ? po = ici_atoms + ici_atomsz - 1 : NULL
+        --po < atoms ? po = atoms + atomsz - 1 : NULL
     )
     {
         if (o->o_tcode == (*po)->o_tcode && ici_cmp(o, *po) == 0)
@@ -254,10 +250,9 @@ ici_atom_probe2(object *o, object ***ppo)
  *
  * This --func-- forms part of the --ici-api--.
  */
-object *
-ici_atom_probe(object *o)
+object *atom_probe(object *o)
 {
-    return ici_atom_probe2(o, NULL);
+    return atom_probe2(o, NULL);
 }
 
 /*
@@ -279,9 +274,9 @@ unatom(object *o)
 
     for
     (
-        ss = &ici_atoms[ici_atom_hash_index(hash(o))];
+        ss = &atoms[ici_atom_hash_index(hash(o))];
         *ss != NULL;
-        --ss < ici_atoms ? ss = ici_atoms + ici_atomsz - 1 : NULL
+        --ss < atoms ? ss = atoms + atomsz - 1 : NULL
     )
     {
         if (o == *ss)
@@ -297,7 +292,7 @@ unatom(object *o)
 
 deleteo:
     o->clrflag(ICI_O_ATOM);
-    --ici_natoms;
+    --natoms;
     sl = ss;
     /*
      * Scan "forward" bubbling up entries which would rather be at our
@@ -305,11 +300,11 @@ deleteo:
      */
     for (;;)
     {
-        if (--sl < ici_atoms)
-            sl = ici_atoms + ici_atomsz - 1;
+        if (--sl < atoms)
+            sl = atoms + atomsz - 1;
         if (*sl == NULL)
             break;
-        ws = &ici_atoms[ici_atom_hash_index(hash(*sl))];
+        ws = &atoms[ici_atom_hash_index(hash(*sl))];
         if
         (
             (sl < ss && (ws >= ss || ws < sl))
@@ -330,29 +325,28 @@ deleteo:
     return 0;
 }
 
-void
-ici_grow_objs(object *o)
+void grow_objs(object *o)
 {
     object           **newobjs;
     ptrdiff_t           newz;
     ptrdiff_t           oldz;
 
-    oldz = ici_objs_limit - ici_objs;
+    oldz = objs_limit - objs;
     newz = 2 * oldz;
-    ++ici_supress_collect;
+    ++supress_collect;
     if ((newobjs = (object **)ici_nalloc(newz * sizeof (object *))) == NULL)
     {
-        --ici_supress_collect;
+        --supress_collect;
         return;
     }
-    --ici_supress_collect;
-    memcpy((char *)newobjs, (char *)ici_objs, (char *)ici_objs_limit - (char *)ici_objs);
-    ici_objs_limit = newobjs + newz;
-    ici_objs_top = newobjs + (ici_objs_top - ici_objs);
-    memset((char *)ici_objs_top, 0, (char *)ici_objs_limit - (char *)ici_objs_top);
-    ici_nfree(ici_objs, oldz * sizeof (object *));
-    ici_objs = newobjs;
-    *ici_objs_top++ = o;
+    --supress_collect;
+    memcpy((char *)newobjs, (char *)objs, (char *)objs_limit - (char *)objs);
+    objs_limit = newobjs + newz;
+    objs_top = newobjs + (objs_top - objs);
+    memset((char *)objs_top, 0, (char *)objs_limit - (char *)objs_top);
+    ici_nfree(objs, oldz * sizeof (object *));
+    objs = newobjs;
+    *objs_top++ = o;
 }
 
 /*
@@ -367,8 +361,7 @@ ici_grow_objs(object *o)
  * list or in the atom pool.  Thus statically declared objects which
  * reference other objects (very rare) must be appropriately registered.
  */
-void
-ici_collect()
+void collect()
 {
     object  **a;
     object  *o;
@@ -376,7 +369,7 @@ ici_collect()
     size_t  mem;    /* Total mem tied up in refed objects. */
     /*int        ndead_atoms;*/
 
-    if (ici_supress_collect)
+    if (supress_collect)
     {
         /*
          * There are some times when it is a bad idea to collect. Basicly
@@ -385,9 +378,9 @@ ici_collect()
          */
         return;
     }
-    ++ici_supress_collect;
+    ++supress_collect;
 
-    ++ici_ncollects;
+    ++ncollects;
 
 #   ifndef NDEBUG
     /*
@@ -401,14 +394,14 @@ ici_collect()
     {
         object **a;
 
-        if ((a = &ici_atoms[ici_atomsz]) != NULL)
+        if ((a = &atoms[atomsz]) != NULL)
         {
-            while (--a >= ici_atoms)
+            while (--a >= atoms)
             {
                 if (*a == NULL)
                     continue;
                 assert((*a)->isatom());
-                assert(ici_atom_probe2(*a, NULL) == *a);
+                assert(atom_probe2(*a, NULL) == *a);
             }
         }
     }
@@ -418,7 +411,7 @@ ici_collect()
      * Mark all objects which are referenced (and thus what they ref).
      */
     mem = 0;
-    for (a = ici_objs; a < ici_objs_top; ++a)
+    for (a = objs; a < objs_top; ++a)
     {
         if ((*a)->o_nrefs != 0)
 	{
@@ -432,7 +425,7 @@ ici_collect()
      * going to be lost so we can decide on the fastest method.
      */
     ndead_atoms = 0;
-    for (a = ici_objs; a < ici_objs_top; ++a)
+    for (a = objs; a < objs_top; ++a)
     {
         if ((*a)->flags(ICI_O_ATOM|ICI_O_MARK) == ICI_O_ATOM)
             ++ndead_atoms;
@@ -453,23 +446,23 @@ ici_collect()
          * atoms in the atom pool (thus breaking it) then rebuild
          * it (which doesn't care it isn't a hash table any more).
          */
-        a = &ici_atoms[ici_atomsz];
-        while (--a >= ici_atoms)
+        a = &atoms[atomsz];
+        while (--a >= atoms)
         {
             if ((o = *a) != NULL && o->o_nrefs == 0 && !o->marked())
                 *a = NULL;
         }
         ici_natoms -= ndead_atoms;
         /*
-         * Call ici_grow_atoms() to reuild the atom pool. On entry it isn't
-         * a legal hash table, but ici_grow_atoms() doesn't care. We make the
+         * Call grow_atoms() to reuild the atom pool. On entry it isn't
+         * a legal hash table, but grow_atoms() doesn't care. We make the
          * new one the same size as the old one. Should we?
          */
-        if (ici_natoms * 4 > ici_atomsz)
-            ici_atomsz *= 4;
-        ici_grow_atoms_core(ici_atomsz);
+        if (ici_natoms * 4 > atomsz)
+            atomsz *= 4;
+        grow_atoms_core(atomsz);
 
-        for (a = b = ici_objs; a < ici_objs_top; ++a)
+        for (a = b = objs; a < objs_top; ++a)
         {
             o = *a;
             if (!o->marked())
@@ -482,7 +475,7 @@ ici_collect()
                 *b++ = o;
             }
         }
-        ici_objs_top = b;
+        objs_top = b;
     }
     else
 #endif
@@ -490,7 +483,7 @@ ici_collect()
         /*
          * Faster to delete dead atoms as we go.
          */
-        for (a = b = ici_objs; a < ici_objs_top; ++a)
+        for (a = b = objs; a < objs_top; ++a)
         {
             o = *a;
             if (!o->marked())
@@ -506,7 +499,7 @@ ici_collect()
                 *b++ = o;
             }
         }
-        ici_objs_top = b;
+        objs_top = b;
     }
 /*
 printf("mem=%ld vs. %ld, nobjects=%d, ici_natoms=%d\n", mem, ici_mem, objs_top - objs, ici_natoms);
@@ -528,7 +521,7 @@ printf("mem=%ld vs. %ld, nobjects=%d, ici_natoms=%d\n", mem, ici_mem, objs_top -
 	ici_mem_limit = (ici_mem * 3) / 2;
     }
 #   endif
-    --ici_supress_collect;
+    --supress_collect;
 }
 
 #ifndef NDEBUG
@@ -540,7 +533,7 @@ ici_dump_refs()
     int                 spoken;
 
     spoken = 0;
-    for (a = ici_objs; a < ici_objs_top; ++a)
+    for (a = objs; a < objs_top; ++a)
     {
         if ((*a)->o_nrefs == 0)
         {
@@ -562,10 +555,9 @@ ici_dump_refs()
  * Don't do this unless you really must. It will free all memory it can
  * but will reduce subsequent performance.
  */
-void
-ici_reclaim()
+void reclaim()
 {
-    ici_collect();
+    collect();
 }
 
 
@@ -612,10 +604,10 @@ bughunt_rego(object *o)
         printf("rego traceobj(%d)\n", o->o_tcode);
     }
     o->o_leafz = 0;                     
-    if (ici_objs_top < ici_objs_limit)
-        *ici_objs_top++ = o;
+    if (objs_top < objs_limit)
+        *objs_top++ = o;
     else
-        ici_grow_objs(o);
+        grow_objs(o);
 }
 #endif
 

@@ -16,20 +16,23 @@ op *ici_new_op(int (*func)(), int16_t ecode, int16_t code)
     proto.op_func = func;
     proto.op_code = code;
     proto.op_ecode = ecode;
-    if ((o = opof(ici_atom_probe2(&proto, &po))) != NULL)
+    if ((o = opof(atom_probe2(&proto, &po))) != NULL)
     {
         o->incref();
         return o;
     }
-    ++ici_supress_collect;
+    ++supress_collect;
     if ((o = ici_talloc(op)) == NULL)
+    {
+        --supress_collect;
         return NULL;
+    }
     ICI_OBJ_SET_TFNZ(o, ICI_TC_OP, ICI_O_ATOM, 1, sizeof (op));
     o->op_code = code;
     o->op_ecode = ecode;
     o->op_func = func;
     ici_rego(o);
-    --ici_supress_collect;
+    --supress_collect;
     ICI_STORE_ATOM_AND_COUNT(po, o);
     return o;
 }

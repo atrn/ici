@@ -22,7 +22,7 @@ namespace ici
  * a multiple of three. See pcre.3 for an explanation.
  */
 
-int     re_bra[(NSUBEXP + 1) * 3];
+int     re_bra[(nsubexp + 1) * 3];
 int     re_nbra;
 
 /*
@@ -43,16 +43,16 @@ regexp *ici_regexp_new(str *s, int flags)
     /* Special test for possible failure of ici_str_new_nul_term() in lex.c */
     if (s == NULL)
         return NULL;
-    re = pcre_compile(s->s_chars, flags, (const char **)&ici_error, &errofs, NULL);
+    re = pcre_compile(s->s_chars, flags, (const char **)&error, &errofs, NULL);
     if (re == NULL)
         return NULL;
-    if (pcre_info(re, NULL, NULL) > NSUBEXP)
+    if (pcre_info(re, NULL, NULL) > nsubexp)
     {
-        ici_set_error("too many subexpressions in regexp, limit is %d", NSUBEXP);
+        set_error("too many subexpressions in regexp, limit is %d", nsubexp);
         goto fail;
     }
-    rex = pcre_study(re, 0, (const char **)&ici_error);
-    if (ici_error != NULL)
+    rex = pcre_study(re, 0, (const char **)&error);
+    if (error != NULL)
         goto fail;
     /* Note rex can be NULL if no extra info required */
     if ((r = (regexp *)ici_talloc(regexp)) == NULL)
@@ -60,9 +60,9 @@ regexp *ici_regexp_new(str *s, int flags)
     ICI_OBJ_SET_TFNZ(r, ICI_TC_REGEXP, 0, 1, 0);
     r->r_re  = re;
     r->r_rex = rex;
-    r->r_pat = stringof(ici_atom(s, 0));
+    r->r_pat = stringof(atom(s, 0));
     ici_rego(r);
-    return regexpof(ici_atom(r, 1));
+    return regexpof(atom(r, 1));
 
  fail:
     if (rex != NULL)

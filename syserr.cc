@@ -22,20 +22,19 @@ namespace ici
  *
  * This --func-- forms part of the --ici-api--.
  */
-int
-ici_get_last_errno(const char *dothis, const char *tothis)
+int get_last_errno(const char *dothis, const char *tothis)
 {
     const char          *e;
 
     if ((e = strerror(errno)) == NULL)
         e = "system call failure";
     if (dothis == NULL && tothis == NULL)
-        return ici_set_error("%s", e);
+        return set_error("%s", e);
     if (dothis != NULL && tothis == NULL)
-        return ici_set_error("failed to %s: %s", dothis, e);
+        return set_error("failed to %s: %s", dothis, e);
     if (dothis != NULL && tothis != NULL)
-        return ici_set_error("failed to %s %s: %s", dothis, tothis, e);
-    return ici_set_error("%s: %s", tothis, e);
+        return set_error("failed to %s %s: %s", dothis, tothis, e);
+    return set_error("%s: %s", tothis, e);
 }
 
 } // namespace ici

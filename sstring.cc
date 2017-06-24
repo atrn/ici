@@ -23,20 +23,19 @@ namespace ici
  * Make all our staticly initialised strings atoms. Note that they are
  * *not* registered with the garbage collector.
  */
-int
-ici_init_sstrings()
+int init_sstrings()
 {
     if
     (
 #define SSTRING(name, str) \
-    (SS(name)->s_chars = SS(name)->s_u.su_inline_chars, ici_atom(SS(name), 1)) == SS(name) \
+    (SS(name)->s_chars = SS(name)->s_u.su_inline_chars, atom(SS(name), 1)) == SS(name) \
     &&
 #include "sstring.h"
 #undef SSTRING
         1
     )
         return 0;
-    return ici_set_error("failed to setup static strings");
+    return set_error("failed to setup static strings");
 }
 
 } // namespace ici

@@ -47,21 +47,21 @@ namespace ici
 {
 
 /*
- * ici_signals_pending
+ * pending
  *
  *  A bit-set indicating if any signals are pending.  Used
  *  externally to determine if there is a need to call the
  *  function to process signals.
  *
- * ici_signals_count
+ * count
  *
  *  A per-signal counter that is presently unused. This is
  *  intended to count the number of signals that occur between
  *  handlers being invoked.
  */
 
-volatile sigset_t ici_signals_pending;
-volatile long   ici_signal_count[NSIG];
+volatile sigset_t signals_pending;
+volatile long   signal_count[NSIG];
 
 
 /*
@@ -98,15 +98,15 @@ call_signal_handler(object *func, int signo)
     ici_int           *isigno;
     object           *ret_obj;
 
-    if (ici_os.stk_push_chk(3 + 80)) /* see comment in ici/call.c */
+    if (os.stk_push_chk(3 + 80)) /* see comment in ici/call.c */
         return 1;
     if ((isigno = ici_int_new(signo)) == NULL)
         return 1;
-    *ici_os.a_top++ = isigno;
+    *os.a_top++ = isigno;
     isigno->decref();
-    *ici_os.a_top++ = ici_one; /* One argument. */
-    *ici_os.a_top++ = func;
-    if ((ret_obj = evaluate(&ici_o_call, 3)) == NULL)
+    *os.a_top++ = o_one; /* One argument. */
+    *os.a_top++ = func;
+    if ((ret_obj = evaluate(&o_call, 3)) == NULL)
         goto fail;
     ret_obj->decref();
     return 0;
@@ -242,11 +242,11 @@ ici_signal_handler(int signo)
     else
     {
 #if defined(__sun) || defined(__FreeBSD__) || defined(__linux__)
-        sigaddset((sigset_t *)&ici_signals_pending, signo);
+        sigaddset((sigset_t *)&signals_pending, signo);
 #else
-        ici_signals_pending |= sigmask(signo);
+        signals_pending |= sigmask(signo);
 #endif
-        ++ici_signal_count[signo_to_index(signo)];
+        ++signal_count[signo_to_index(signo)];
     }
 }
 
@@ -254,21 +254,20 @@ ici_signal_handler(int signo)
 /*
  * Initialize ici's signal handling.
  */
-void
-ici_signals_init()
+void signals_init()
 {
     int     signo;
 
 #if defined(__sun) || defined(__FreeBSD__) || defined(__linux__)
-    memset((void *)&ici_signals_pending, 0, sizeof (sigset_t));
+    memset((void *)&signals_pending, 0, sizeof (sigset_t));
 #else
-    ici_signals_pending = 0;
+    signals_pending = 0;
 #endif
     currently_blocked = 0;
     for (signo = 0; signo < NSIG; ++signo)
     {
         signal_handler[signo] = NULL;
-        ici_signal_count[signo] = 0;
+        signal_count[signo] = 0;
     }
 }
 
@@ -278,8 +277,7 @@ ici_signals_init()
  * we're probably blocked in a system call and the
  * execution loop isn't being processed.
  */
-int
-ici_signals_blocking_syscall(int state)
+int blocking_syscall(int state)
 {
     int previous;
 
@@ -292,8 +290,7 @@ ici_signals_blocking_syscall(int state)
 /*
  * Call handlers for any pending signals.
  */
-int
-ici_signals_invoke_handlers()
+int invoke_signal_handlers()
 {
     int     signo;
     object   *fn;
@@ -301,9 +298,9 @@ ici_signals_invoke_handlers()
     for (signo = 1; signo <= NSIG; ++signo)
     {
 #if defined(__sun) || defined(__FreeBSD__) || defined(__linux__)
-        if (sigismember((sigset_t *)&ici_signals_pending, signo))
+        if (sigismember((sigset_t *)&signals_pending, signo))
         {
-	    sigdelset((sigset_t *)&ici_signals_pending, signo);
+	    sigdelset((sigset_t *)&signals_pending, signo);
             if ((fn = signal_handler[signo_to_index(signo)]) != NULL)
                 if (call_signal_handler(fn, signo))
                     return 1;
@@ -311,13 +308,13 @@ ici_signals_invoke_handlers()
         }
 #else
         long mask = sigmask(signo);
-        if (ici_signals_pending & mask)
+        if (signals_pending & mask)
         {
-            ici_signals_pending &= ~mask;
+            signals_pending &= ~mask;
             if ((fn = signal_handler[signo_to_index(signo)]) != NULL)
                 if (call_signal_handler(fn, signo))
                     return 1;
-            ici_signal_count[signo_to_index(signo)] = 0;
+            signal_count[signo_to_index(signo)] = 0;
         }
 #endif
     }
@@ -356,14 +353,14 @@ f_signal(...)
         sigo = ARG(0);
         break;
     default:
-        return ici_argcount(2);
+        return argcount(2);
     }
 
     if (isstring(sigo))
     {
         if ((signo = signam_to_signo(stringof(sigo)->s_chars)) == 0)
         {
-            return ici_set_error("invalid signal name");
+            return set_error("invalid signal name");
         }
     }
     else if (isint(sigo))
@@ -371,12 +368,12 @@ f_signal(...)
         signo = intof(sigo)->i_value;
         if (signo < 1 || signo > NSIG)
         {
-            return ici_set_error("invalid signal number");
+            return set_error("invalid signal number");
         }
     }
     else
     {
-        return ici_argerror(0);
+        return argerror(0);
     }
 
     prev_handler = signal_handler[signo_to_index(signo)];
@@ -384,17 +381,17 @@ f_signal(...)
     if (handlero == NULL)
     {
         if (prev_handler)
-            return ici_ret_no_decref(handlero);
+            return ret_no_decref(handlero);
         signal(signo, handler = signal(signo, SIG_IGN));
         if (handler == ici_signal_handler)
         {
-            return ici_set_error("signals messed up, unrecorded handler present");
+            return set_error("signals messed up, unrecorded handler present");
         }
         if (handler == SIG_DFL)
-            return ici_ret_no_decref(SS(default));
+            return ret_no_decref(SS(default));
         if (handler == SIG_IGN)
-            return ici_ret_no_decref(SS(ignore));
-        return ici_set_error("signal in indeterminate state");
+            return ret_no_decref(SS(ignore));
+        return set_error("signal in indeterminate state");
     }
 
     if (stringof(handlero) == SS(default))
@@ -415,7 +412,7 @@ f_signal(...)
     }
     else
     {
-        return ici_argerror(1);
+        return argerror(1);
     }
 
     rc = signal(signo, handler);
@@ -423,7 +420,7 @@ f_signal(...)
     if (rc == SIG_ERR)
     {
         signal_handler[signo_to_index(signo)] = prev_handler;
-        return ici_set_error("%s", strerror(errno));
+        return set_error("%s", strerror(errno));
     }
 
     if (rc == ici_signal_handler)
@@ -435,10 +432,10 @@ f_signal(...)
     else
     {
         signal(signo, rc);
-        return ici_set_error("unexpected result from signal");
+        return set_error("unexpected result from signal");
     }
 
-    return ici_ret_no_decref(result);
+    return ret_no_decref(result);
 }
 
 
@@ -459,9 +456,9 @@ f_signam(...)
         return 1;
     if ((nam = (char *)signo_to_signam(signo)) == NULL)
     {
-        return ici_set_error("invalid signal number");
+        return set_error("invalid signal number");
     }
-    return ici_str_ret(nam);
+    return str_ret(nam);
 }
 
 

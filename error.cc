@@ -13,19 +13,18 @@ namespace ici
  *
  * This --variable-- forms part of the --ici-api--.
  */
-char            *ici_error;
+char            *error;
 
-static char msg[max_error_msg]; /* FIXME: should be per-thread if ici_error also per-thread. */
+static char msg[max_error_msg]; /* FIXME: should be per-thread if error also per-thread. */
 
-int
-ici_set_error(const char *fmt, ...)
+int set_error(const char *fmt, ...)
 {
     va_list     va;
 
     va_start(va, fmt);
     vsnprintf(msg, sizeof msg, fmt, va);
     va_end(va);
-    ici_error = msg;
+    error = msg;
     return 1;
 }
 

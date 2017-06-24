@@ -68,7 +68,7 @@ cfunc *ici_funcs[] =
  * Note that the version number also occurs in some defines in fwd.h (ICI_*_VER)
  * and Makefile.maint.
  */
-char ici_version_string[] =
+char version_string[] =
     "@(#)ANICI 5.0.0, "
     CONFIG_FILE ", "
     __DATE__ " " __TIME__ ", "
@@ -96,7 +96,7 @@ char ici_version_string[] =
 
 #else /* __STDC__ */
 
-char ici_version_string[] = "@(#)ICI 4.2.0";
+char version_string[] = "@(#)ANICI 5.0.0";
 
 #endif
 

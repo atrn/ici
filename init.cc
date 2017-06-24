@@ -27,12 +27,11 @@ extern cfunc *ici_funcs[];
  * extern scope of any files parsed at the top level.
  *
  * In systems supporting threads, on exit, the global ICI mutex has been
- * acquired (with ici_enter()). 
+ * acquired (with enter()). 
  *
  * This --func-- forms part of the --ici-api--.
  */
-int
-ici_init()
+int init()
 {
     extern int ici_sys_init(objwsup *);
     extern int ici_net_init();
@@ -66,8 +65,8 @@ ici_init()
          * Check that the #defines of version number are in sync with our version
          * string from conf.c.
          */
-        sprintf(v, "@(#)ANICI %d.%d.%d", ICI_VER_MAJOR, ICI_VER_MINOR, ICI_VER_RELEASE);
-        assert(strncmp(v, ici_version_string, strlen(v)) == 0);
+        sprintf(v, "@(#)ANICI %d.%d.%d", major_version, minor_version, release_number);
+        assert(strncmp(v, version_string, strlen(v)) == 0);
     }
 #   endif
 
@@ -75,19 +74,19 @@ ici_init()
     {
         return 1;
     }
-    if ((ici_atoms = (object **)ici_nalloc(INITIAL_ATOMSZ * sizeof (object *))) == NULL)
+    if ((atoms = (object **)ici_nalloc(INITIAL_ATOMSZ * sizeof (object *))) == NULL)
     {
         return 1;
     }
-    ici_atomsz = INITIAL_ATOMSZ;
-    memset((char *)ici_atoms, 0, ici_atomsz * sizeof (object *));
-    if ((ici_objs = (object **)ici_nalloc(INITIAL_OBJS * sizeof (object *))) == NULL)
+    atomsz = INITIAL_ATOMSZ;
+    memset((char *)atoms, 0, atomsz * sizeof (object *));
+    if ((objs = (object **)ici_nalloc(INITIAL_OBJS * sizeof (object *))) == NULL)
     {
         return 1;
     }
-    memset((char *)ici_objs, 0, INITIAL_OBJS * sizeof (object *));
-    ici_objs_limit = ici_objs + INITIAL_OBJS;
-    ici_objs_top = ici_objs;
+    memset((char *)objs, 0, INITIAL_OBJS * sizeof (object *));
+    objs_limit = objs + INITIAL_OBJS;
+    objs_top = objs;
     for (i = 0; i < (int)nels(small_ints); ++i)
     {
         if ((small_ints[i] = ici_int_new(i)) == NULL)
@@ -95,9 +94,9 @@ ici_init()
             return -1;
         }
     }
-    ici_zero = small_ints[0];
-    ici_one = small_ints[1];
-    if (ici_init_sstrings())
+    o_zero = small_ints[0];
+    o_one = small_ints[1];
+    if (init_sstrings())
     {
         return 1;
     }
@@ -112,21 +111,21 @@ ici_init()
         return 1;
     }
     externs->decref();
-    if ((x = ici_new_exec()) == NULL)
+    if ((x = new_exec()) == NULL)
     {
         return 1;
     }
-    ici_enter(x);
-    ici_rego(&ici_os);
-    ici_rego(&ici_xs);
-    ici_rego(&ici_vs);
-    if (ici_engine_stack_check())
+    enter(x);
+    ici_rego(&os);
+    ici_rego(&xs);
+    ici_rego(&vs);
+    if (engine_stack_check())
     {
         return 1;
     }
-    *ici_vs.a_top++ = scope;
+    *vs.a_top++ = scope;
     scope->decref();
-    if (ici_init_path(externs))
+    if (init_path(externs))
     {
         return 1;
     }
@@ -149,7 +148,7 @@ ici_init()
     {
         return 1;
     };
-    ici_signals_init();
+    signals_init();
 
     if
     (
@@ -180,7 +179,7 @@ ici_init()
  * compiled against a compatible versions of the ICI core that is now trying
  * to load it. An external module should call this like:
  *
- *     if (ici_interface_check(ICI_VER, ICI_BACK_COMPAT_VER, "myname"))
+ *     if (ici::check_interface(version_number, back_compat_version, "myname"))
  *         return NULL;
  *
  * As soon as it can on load.  ICI_VER and ICI_BACK_COMPAT_VER come from ici.h
@@ -190,16 +189,15 @@ ici_init()
  *
  * This --func-- forms part of the --ici-api--.
  */
-int
-ici_interface_check(unsigned long mver, unsigned long bver, char const *name)
+int check_interface(unsigned long mver, unsigned long bver, char const *name)
 {
-    if (ICI_VER < mver)
+    if (version_number < mver)
     {
         /*
          * Ooh, I'm an old ICI being called by a newer module. Does the module
          * think I'm recent enought?
          */
-        if (ICI_VER >= bver)
+        if (version_number >= bver)
         {
             return 0;
         }
@@ -210,21 +208,21 @@ ici_interface_check(unsigned long mver, unsigned long bver, char const *name)
          * I'm a relatively up-to-date ICI, but is that module new enough
          * for me?
          */
-        if (mver >= ICI_BACK_COMPAT_VER)
+        if (mver >= back_compat_version)
         {
             return 0;
         }
     }
-    return ici_set_error
+    return set_error
     (
         "%s module was built for ANICI %d.%d.%d, which is incompatible with this version %d.%d.%d",
         name,
         (int)(mver >> 24),
         (int)(mver >> 16) & 0xFF,
         (int)(mver & 0xFFFF),
-        ICI_VER_MAJOR,
-        ICI_VER_MINOR,
-        ICI_VER_RELEASE);
+        major_version,
+        minor_version,
+        release_number);
 
 }
 

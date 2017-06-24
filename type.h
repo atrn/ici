@@ -221,7 +221,7 @@ public:
      *                      implementations can be used in the implementation of
      *                      this function. The object being called can be assumed
      *                      to be on top of the operand stack
-     *                      (i.e. ici_os.a_top[-1])
+     *                      (i.e. os.a_top[-1])
      */
     virtual int               call(object *, object *);
 
@@ -288,7 +288,7 @@ public:
      *                      messages after an error has occured, but before
      *                      cleanup has completed.
      */
-    virtual void            objname(object *, char [ICI_OBJNAMEZ]);
+    virtual void            objname(object *, char [objnamez]);
 
     /*
      * The ici_name function returns the type's name as an ICI string object,
@@ -304,7 +304,7 @@ public:
     /*
      * This is a convenience function which can be used to implement
      * 'fetch' if the type doesn't support fetching.  It sets the
-     * 'ici_error' to a message of the form:
+     * 'error' to a message of the form:
      *
      *  attempt to read %s keyed by %
      *
@@ -318,7 +318,7 @@ public:
     /*
      * This is a convenience function which can be used to implement
      * 'assign' if the type doesn't support asignment.  It sets the
-     * 'ici_error' to a message of the form:
+     * 'error' to a message of the form:
      *
      *  attempt to set %s keyed by %s to %s
      *

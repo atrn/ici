@@ -18,6 +18,8 @@ struct set : object
     object **s_slots;
 };
 
+int unassign(set *, object *);
+
 inline set *setof(object *o) { return static_cast<set *>(o); }
 inline bool isset(object *o) { return o->isa(ICI_TC_SET); }
 

@@ -188,7 +188,7 @@ struct object
         return otype()->forall(this);
     }
     
-    inline void objname(char n[ICI_OBJNAMEZ]) {
+    inline void objname(char n[objnamez]) {
         otype()->objname(this, n);
     }
 };
@@ -418,10 +418,10 @@ inline int ici_assign_super(object *o, object *k, object *v, ici_struct *b) {
  * Inline function for ici_rego.
  */
 inline void ici_rego(object *o) {
-    if (ici_objs_top < ici_objs_limit) {
-        *ici_objs_top++ = o;
+    if (objs_top < objs_limit) {
+        *objs_top++ = o;
     } else {
-        ici_grow_objs(o);
+        grow_objs(o);
     }
 }
 #else
@@ -501,12 +501,12 @@ inline object *ici_copy(object *o) {
 
 inline void ICI_STORE_ATOM_AND_COUNT(object **po, object *s) {
     *po = s;
-    if (++ici_natoms > ici_atomsz / 2) {
-        ici_grow_atoms(ici_atomsz * 2);
+    if (++natoms > atomsz / 2) {
+        grow_atoms(atomsz * 2);
     }
 }
 
-inline long ici_atom_hash_index(long h)  { return h & (ici_atomsz - 1); }
+inline long ici_atom_hash_index(long h)  { return h & (atomsz - 1); }
 
 } // namespace ici
 

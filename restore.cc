@@ -51,7 +51,7 @@ static int readf(archive *ar, void *buf, int len)
 
         if ((ch = ar->get()) == -1)
         {
-            ici_set_error("eof");
+            set_error("eof");
 	    return 1;
         }
 	*p++ = ch;
@@ -127,7 +127,7 @@ inline int restore_object_name(archive *ar, object **name)
 static object *
 restore_error(archive *)
 {
-    ici_set_error("unable to restore object");
+    set_error("unable to restore object");
     return NULL;
 }
 
@@ -196,8 +196,8 @@ restore_string(archive *ar)
     {
         goto fail;
     }
-    ici_hash_string(s);
-    if ((obj = ici_atom(s, 1)) == NULL)
+    hash_string(s);
+    if ((obj = atom(s, 1)) == NULL)
     {
         goto fail;
     }
@@ -346,7 +346,7 @@ restore_set(archive *ar)
     {
         return NULL;
     }
-    if ((s = ici_set_new()) == NULL)
+    if ((s = new_set()) == NULL)
     {
         return NULL;
     }
@@ -366,7 +366,7 @@ restore_set(archive *ar)
         {
             goto fail1;
         }
-        if (ici_assign(s, o, ici_one))
+        if (ici_assign(s, o, o_one))
         {
             o->decref();
             goto fail1;
@@ -471,7 +471,7 @@ restore_ptr(archive *ar)
         aggr->decref();
         return NULL;
     }
-    ptr = ici_ptr_new(aggr, key);
+    ptr = new_ptr(aggr, key);
     aggr->decref();
     key->decref();
     return ptr ? ptr : NULL;
@@ -522,7 +522,7 @@ restore_func(archive *ar)
     fn->f_code = arrayof(code);
     fn->f_args = arrayof(args);
     fn->f_autos = structof(autos);
-    fn->f_autos->o_super = ar->scope(); /* structof(ici_vs.a_top[-1])->o_super; */
+    fn->f_autos->o_super = ar->scope(); /* structof(vs.a_top[-1])->o_super; */
     fn->f_name = stringof(name);
     fn->f_nautos = nautos;
 
@@ -594,7 +594,7 @@ restore_src(archive *ar)
     }
     if (!isstring(filename))
     {
-        ici_set_error("unexpected filename type (%s)", filename->type_name());
+        set_error("unexpected filename type (%s)", filename->type_name());
         filename->decref();
         return NULL;
     }
@@ -796,7 +796,7 @@ get_restorer(int tcode)
         r = fetch_restorer(-1);
         if (isnull(r))
         {
-            ici_set_error("archive module internal error");
+            set_error("archive module internal error");
             r = NULL;
         }
     }
@@ -818,7 +818,7 @@ restore(archive *ar)
         {
             if (flags & ICI_O_ATOM)
             {
-                obj = ici_atom(obj, 1);
+                obj = atom(obj, 1);
             }
         }
     }
@@ -833,11 +833,11 @@ f_archive_restore(...)
     objwsup *scp;
     object *obj = NULL;
 
-    scp = structof(ici_vs.a_top[-1])->o_super;
+    scp = structof(vs.a_top[-1])->o_super;
     switch (NARGS())
     {
     case 0:
-        if ((file = ici_need_stdin()) == NULL)
+        if ((file = need_stdin()) == NULL)
         {
             return 1;
         }
@@ -850,7 +850,7 @@ f_archive_restore(...)
             {
 		return 1;
             }
-	    if ((file = ici_need_stdin()) == NULL)
+	    if ((file = need_stdin()) == NULL)
             {
 		return 1;
             }
@@ -871,7 +871,7 @@ f_archive_restore(...)
         ar->stop();
     }
 
-    return obj == NULL ? 1 : ici_ret_with_decref(obj);
+    return obj == NULL ? 1 : ret_with_decref(obj);
 }
 
 } // namespace ici

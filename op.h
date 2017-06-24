@@ -30,7 +30,7 @@ struct op : object
     {}
 
     int     (*op_func)();
-    int16_t op_ecode;       /* See ICI_OP_* below. */
+    int16_t op_ecode;       /* See OP_* below. */
     int16_t op_code;
 };
 
@@ -42,49 +42,49 @@ op *ici_new_op(int (*func)(), int16_t ecode, int16_t code);
 /*
  * Operator codes. These are stored in the op_ecode field and
  * allow direct switching to the appropriate code in the main
- * execution loop. If op_ecode is ICI_OP_OTHER, then the op_func field
+ * execution loop. If op_ecode is OP_OTHER, then the op_func field
  * is significant instead.
  */
 enum
 {
-    ICI_OP_OTHER,
-    ICI_OP_CALL,
-    ICI_OP_NAMELVALUE,
-    ICI_OP_DOT,
-    ICI_OP_DOTKEEP,
-    ICI_OP_DOTRKEEP,
-    ICI_OP_ASSIGN,
-    ICI_OP_ASSIGN_TO_NAME,
-    ICI_OP_ASSIGNLOCAL,
-    ICI_OP_EXEC,
-    ICI_OP_LOOP,
-    ICI_OP_REWIND,
-    ICI_OP_ENDCODE,
-    ICI_OP_IF,
-    ICI_OP_IFELSE,
-    ICI_OP_IFNOTBREAK,
-    ICI_OP_IFBREAK,
-    ICI_OP_BREAK,
-    ICI_OP_QUOTE,
-    ICI_OP_BINOP,
-    ICI_OP_AT,
-    ICI_OP_SWAP,
-    ICI_OP_BINOP_FOR_TEMP,
-    ICI_OP_AGGR_KEY_CALL,
-    ICI_OP_COLON,
-    ICI_OP_COLONCARET,
-    ICI_OP_METHOD_CALL,
-    ICI_OP_SUPER_CALL,
-    ICI_OP_ASSIGNLOCALVAR,
-    ICI_OP_CRITSECT,
-    ICI_OP_WAITFOR,
-    ICI_OP_POP,
-    ICI_OP_CONTINUE,
-    ICI_OP_LOOPER,
-    ICI_OP_ANDAND,
-    ICI_OP_SWITCH,
-    ICI_OP_SWITCHER,
-    ICI_OP_GO
+    OP_OTHER,
+    OP_CALL,
+    OP_NAMELVALUE,
+    OP_DOT,
+    OP_DOTKEEP,
+    OP_DOTRKEEP,
+    OP_ASSIGN,
+    OP_ASSIGN_TO_NAME,
+    OP_ASSIGNLOCAL,
+    OP_EXEC,
+    OP_LOOP,
+    OP_REWIND,
+    OP_ENDCODE,
+    OP_IF,
+    OP_IFELSE,
+    OP_IFNOTBREAK,
+    OP_IFBREAK,
+    OP_BREAK,
+    OP_QUOTE,
+    OP_BINOP,
+    OP_AT,
+    OP_SWAP,
+    OP_BINOP_FOR_TEMP,
+    OP_AGGR_KEY_CALL,
+    OP_COLON,
+    OP_COLONCARET,
+    OP_METHOD_CALL,
+    OP_SUPER_CALL,
+    OP_ASSIGNLOCALVAR,
+    OP_CRITSECT,
+    OP_WAITFOR,
+    OP_POP,
+    OP_CONTINUE,
+    OP_LOOPER,
+    OP_ANDAND,
+    OP_SWITCH,
+    OP_SWITCHER,
+    OP_GO
 };
 
 /*
@@ -92,41 +92,41 @@ enum
  * Are defined in various source files. Generally where they are
  * implemented.
  */
-extern op         ici_o_quote;
-extern op         ici_o_looper;
-extern op         ici_o_loop;
-extern op         ici_o_rewind;
-extern op         ici_o_end;
-extern op         ici_o_break;
-extern op         ici_o_continue;
-extern op         ici_o_exec;
-extern op         ici_o_return;
-extern op         ici_o_call;
-extern op         ici_o_method_call;
-extern op         ici_o_super_call;
-extern op         ici_o_if;
-extern op         ici_o_ifnotbreak;
-extern op         ici_o_ifbreak;
-extern op         ici_o_ifelse;
-extern op         ici_o_pop;
-extern op         ici_o_colon;
-extern op         ici_o_coloncaret;
-extern op         ici_o_dot;
-extern op         ici_o_dotkeep;
-extern op         ici_o_dotrkeep;
-extern op         ici_o_mkptr;
-extern op         ici_o_openptr;
-extern op         ici_o_fetch;
-extern op         ici_o_for;
-extern op         ici_o_mklvalue;
-extern op         ici_o_onerror;
-extern op         ici_o_andand;
-extern op         ici_o_barbar;
-extern op         ici_o_namelvalue;
-extern op         ici_o_switch;
-extern op         ici_o_switcher;
-extern op         ici_o_critsect;
-extern op         ici_o_waitfor;
+extern op         o_quote;
+extern op         o_looper;
+extern op         o_loop;
+extern op         o_rewind;
+extern op         o_end;
+extern op         o_break;
+extern op         o_continue;
+extern op         o_exec;
+extern op         o_return;
+extern op         o_call;
+extern op         o_method_call;
+extern op         o_super_call;
+extern op         o_if;
+extern op         o_ifnotbreak;
+extern op         o_ifbreak;
+extern op         o_ifelse;
+extern op         o_pop;
+extern op         o_colon;
+extern op         o_coloncaret;
+extern op         o_dot;
+extern op         o_dotkeep;
+extern op         o_dotrkeep;
+extern op         o_mkptr;
+extern op         o_openptr;
+extern op         o_fetch;
+extern op         o_for;
+extern op         o_mklvalue;
+extern op         o_onerror;
+extern op         o_andand;
+extern op         o_barbar;
+extern op         o_namelvalue;
+extern op         o_switch;
+extern op         o_switcher;
+extern op         o_critsect;
+extern op         o_waitfor;
 
 /*
  * End of ici.h export. --ici.h-end--

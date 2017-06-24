@@ -129,7 +129,7 @@ reattach_string_buffer(charbuf *sb)
     {
 	str *s = stringof(sb->cb_ref);
 	s->s_hash = 0;
-	ici_hash_string(s);
+	hash_string(s);
     }
 #endif
 }
@@ -211,7 +211,7 @@ ftype *strbuf_ftype = ptr_to_instance_of<class stringbuf_ftype>();
  *
  * This --func-- forms part of the --ici-api--.
  */
-file *ici_open_charbuf(char *data, int size, object *ref, int readonly)
+file *open_charbuf(char *data, int size, object *ref, int readonly)
 {
     file     *f      = NULL;
     charbuf  *cb;
@@ -243,7 +243,7 @@ file *ici_open_charbuf(char *data, int size, object *ref, int readonly)
             else if (readonly)
                 f = ici_file_new((char *)cb, charbuf_ftype, NULL, ref);
             else
-                ici_set_error("attempt to open an atomic string for writing");
+                set_error("attempt to open an atomic string for writing");
         }
         else if (ismem(ref))
         {
@@ -251,8 +251,8 @@ file *ici_open_charbuf(char *data, int size, object *ref, int readonly)
         }
         else if (!chkbuf(50))
         {
-            char n[ICI_OBJNAMEZ];
-            ici_set_error("attempt to open %s as a char buffer", ici_objname(n, ref));
+            char n[objnamez];
+            set_error("attempt to open %s as a char buffer", ici_objname(n, ref));
         }
     }
     else
@@ -274,7 +274,7 @@ file *ici_open_charbuf(char *data, int size, object *ref, int readonly)
         }
         else
         {
-            ici_set_error("attempt to open non-object char buffer for writing");
+            set_error("attempt to open non-object char buffer for writing");
         }
     }
     if (f == NULL)

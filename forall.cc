@@ -20,15 +20,14 @@ namespace ici
  * va vk ka kk aggr code        => (os)
  *                              => forall (xs)
  */
-int
-ici_op_forall()
+int op_forall()
 {
     forall *fa;
 
-    if (ici_os.a_top[-2] == ici_null)
+    if (os.a_top[-2] == ici_null)
     {
-        ici_os.a_top -= 6;
-        --ici_xs.a_top;
+        os.a_top -= 6;
+        --xs.a_top;
         return 0;
     }
     if ((fa = ici_talloc(forall)) == NULL)
@@ -37,13 +36,13 @@ ici_op_forall()
     }
     ICI_OBJ_SET_TFNZ(fa, ICI_TC_FORALL, 0, 0, 0);
     fa->fa_index = size_t(-1);
-    fa->fa_code = *--ici_os.a_top;
-    fa->fa_aggr = *--ici_os.a_top;
-    fa->fa_kkey = *--ici_os.a_top;
-    fa->fa_kaggr = *--ici_os.a_top;
-    fa->fa_vkey = *--ici_os.a_top;
-    fa->fa_vaggr = *--ici_os.a_top;
-    ici_xs.a_top[-1] = fa;
+    fa->fa_code = *--os.a_top;
+    fa->fa_aggr = *--os.a_top;
+    fa->fa_kkey = *--os.a_top;
+    fa->fa_kaggr = *--os.a_top;
+    fa->fa_vkey = *--os.a_top;
+    fa->fa_vaggr = *--os.a_top;
+    xs.a_top[-1] = fa;
     ici_rego(fa);
     return 0;
 }
@@ -53,27 +52,27 @@ ici_op_forall()
  *  OR
  * forall => (xs)
  */
-int ici_exec_forall()
+int exec_forall()
 {
     forall *fa;
     type *t;
 
-    fa = forallof(ici_xs.a_top[-1]);
+    fa = forallof(xs.a_top[-1]);
     t = fa->fa_aggr->otype();
     if (!t->can_forall())
     {
-        char n[ICI_OBJNAMEZ];
-        return ici_set_error("attempt to forall over %s", ici_objname(n, fa->fa_aggr));
+        char n[objnamez];
+        return set_error("attempt to forall over %s", ici_objname(n, fa->fa_aggr));
     }
     switch (t->forall(fa))
     {
     case 0:
-        ici_get_pc(arrayof(fa->fa_code), ici_xs.a_top);
-        ++ici_xs.a_top;
+        ici_get_pc(arrayof(fa->fa_code), xs.a_top);
+        ++xs.a_top;
         return 0;
 
     case -1:
-        --ici_xs.a_top;
+        --xs.a_top;
         return 0;
 
     default:

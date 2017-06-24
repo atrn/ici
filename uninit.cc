@@ -13,11 +13,11 @@ static wrap *wraps;
 
 /*
  * Register the function 'func' to be called at ICI interpreter shutdown
- * (i.e. 'ici_uninit()' call).
+ * (i.e. 'uninit()' call).
  *
  * The caller must supply a 'wrap' struct, which is usually statically
  * allocated. This structure will be linked onto an internal list and
- * be unavailable till after 'ici_uninit()' is called.
+ * be unavailable till after 'uninit()' is called.
  *
  * This --func-- forms part of the --ici-api--.
  */
@@ -30,7 +30,7 @@ void ici_atexit(void (*func)(), wrap *w)
 
 /*
  * Shut down the interpreter and clean up any allocations.  This function is
- * the reverse of 'ici_init()'.  It's first action is to call any wrap-up
+ * the reverse of 'init()'.  It's first action is to call any wrap-up
  * functions registered through 'ici_atexit()'
  *
  * Calling 'ici_init()' again after calling this hasn't been adequately
@@ -42,20 +42,19 @@ void ici_atexit(void (*func)(), wrap *w)
  *
  * This --func-- forms part of the --ici-api--.
  */
-void
-ici_uninit()
+void uninit()
 {
     int           i;
     exec    *x;
-    extern str    *ici_ver_cache;
-    extern regexp *ici_smash_default_re;
+    extern str    *ver_cache;
+    extern regexp *smash_default_re;
 
     /*
-     * This catches the case where ici_uninit() is called without ici_init
+     * This catches the case where uninit() is called without ici_init
      * ever being called.
      */
-    assert(ici_zero != NULL);
-    if (ici_zero == NULL)
+    assert(o_zero != NULL);
+    if (o_zero == NULL)
         return;
 
     /*
@@ -78,20 +77,20 @@ ici_uninit()
         small_ints[i]->decref();
         small_ints[i] = NULL;
     }
-    if (ici_ver_cache != NULL)
-        ici_ver_cache->decref();
-    if (ici_smash_default_re != NULL)
-        ici_smash_default_re->decref();
+    if (ver_cache != NULL)
+        ver_cache->decref();
+    if (smash_default_re != NULL)
+        smash_default_re->decref();
 
     /* Call uninitialisation functions for compulsory bits of ICI. */
-    ici_uninit_compile();
-    ici_uninit_cfunc();
+    uninit_compile();
+    uninit_cfunc();
 
     /*
      * Do a GC to free things that might require reference to the
      * exec state before we discard it.
      */
-    ici_reclaim();
+    reclaim();
 
     /*
      * Active threads, including the main one, will count reference counts
@@ -101,7 +100,7 @@ ici_uninit()
      * threads running (not that they can actually be running -- we have the
      * mutex).
      */
-    for (x = ici_execs; x != NULL; x = x->x_next)
+    for (x = execs; x != NULL; x = x->x_next)
         x->o_nrefs = 0;
 
     /*
@@ -109,27 +108,27 @@ ici_uninit()
      * did the garbage collector would try to free them (they are static
      * objects, so that would be bad).  However we do empty the stacks.
      */
-    ici_vs.a_top = ici_vs.a_base;
-    ici_os.a_top = ici_os.a_base;
-    ici_xs.a_top = ici_xs.a_base;
+    vs.a_top = vs.a_base;
+    os.a_top = os.a_base;
+    xs.a_top = xs.a_base;
 
     /*
      * OK, so do one final garbage collect to free all this stuff that should
      * now be unreferenced.
      */
-    ici_reclaim();
+    reclaim();
 
     /*
      * Now free the allocated part of our three special static stacks.
      */
-    ici_nfree(ici_vs.a_base, (ici_vs.a_limit - ici_vs.a_base) * sizeof (object *));
-    ici_nfree(ici_os.a_base, (ici_os.a_limit - ici_os.a_base) * sizeof (object *));
-    ici_nfree(ici_xs.a_base, (ici_xs.a_limit - ici_xs.a_base) * sizeof (object *));
+    ici_nfree(vs.a_base, (vs.a_limit - vs.a_base) * sizeof (object *));
+    ici_nfree(os.a_base, (os.a_limit - os.a_base) * sizeof (object *));
+    ici_nfree(xs.a_base, (xs.a_limit - xs.a_base) * sizeof (object *));
 
 #if 1 && !defined(NDEBUG)
-    ici_vs.decref();
-    ici_os.decref();
-    ici_xs.decref();
+    vs.decref();
+    os.decref();
+    xs.decref();
     {
         extern void ici_dump_refs();
 
@@ -137,10 +136,10 @@ ici_uninit()
     }
 #endif
 
-    if (buf != ici_error)
+    if (buf != error)
     {
         /* Free the general purpose buffer. ### Hmm... If we do this we can't
-        return ici_error from ici_main.*/
+        return error from ici_main.*/
         ici_nfree(buf, bufz + 1);
     }
     buf = NULL;
@@ -149,12 +148,12 @@ ici_uninit()
     /*
      * Destroy the now empty atom pool and list of registered objects.
      */
-    ici_nfree(ici_atoms, ici_atomsz * sizeof (object *));
-    ici_atoms = NULL;
-    ici_nfree(ici_objs, (ici_objs_limit - ici_objs) * sizeof (object *));
-    ici_objs = NULL;
+    ici_nfree(atoms, atomsz * sizeof (object *));
+    atoms = NULL;
+    ici_nfree(objs, (objs_limit - objs) * sizeof (object *));
+    objs = NULL;
 
-    ici_drop_all_small_allocations();
+    drop_all_small_allocations();
     /*fprintf(stderr, "ici_mem = %ld, n = %d\n", ici_mem, ici_n_allocs);*/
 
 #if 1 && defined(_WIN32) && !defined(NDEBUG)

@@ -86,7 +86,7 @@ ici_nalloc(size_t z)
 
     if ((ici_mem += z) > ici_mem_limit)
     {
-        ici_collect();
+        collect();
     }
 
 #if !ICI_ALLALLOC
@@ -130,7 +130,7 @@ ici_nalloc(size_t z)
          */
         if ((c = (achunk_t *)malloc(sizeof (achunk_t))) == NULL)
         {
-            ici_collect();
+            collect();
             if ((c = (achunk_t *)malloc(sizeof (achunk_t))) == NULL)
                 goto fail;
         }
@@ -146,14 +146,14 @@ ici_nalloc(size_t z)
 
     if ((r = (char *)malloc(z)) == NULL)
     {
-        ici_collect();
+        collect();
         if ((r = (char *)malloc(z)) == NULL)
             goto fail;
     }
     return r;
 
 fail:
-    ici_set_error("ran out of memory");
+    set_error("ran out of memory");
     return NULL;
 }
 
@@ -217,11 +217,11 @@ ici_alloc(size_t z)
     void                *p;
 
 #if ALLCOLLECT
-    ici_collect();
+    collect();
 #else
     if ((ici_mem += z) > ici_mem_limit)
     {
-        ici_collect();
+        collect();
     }
 #endif
 
@@ -229,10 +229,10 @@ ici_alloc(size_t z)
     ici_alloc_mem += z;
     if ((p = malloc(z)) == NULL)
     {
-        ici_collect();
+        collect();
         if ((p = malloc(z)) == NULL)
         {
-            ici_set_error("ran out of memory");
+            set_error("ran out of memory");
             return NULL;
         }
     }
@@ -278,8 +278,7 @@ ici_free(void *p)
  * objects and fast free lists. For use in interpreter shutdown. Will
  * cause total disaster if called at any other time.
  */
-void
-ici_drop_all_small_allocations()
+void drop_all_small_allocations()
 {
 #if !ICI_ALLALLOC
     achunk_t            *c;

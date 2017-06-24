@@ -57,31 +57,31 @@ file *ici_file_new(void *fp, ftype *ftype, str *name, object *ref)
  *
  * This --func-- forms part of the --ici-api--.
  */
-int ici_file_close(file *f)
+int close_file(file *f)
 {
     exec *x = NULL;
     int   r;
 
     if (f->flagged(ICI_F_CLOSED))
     {
-        return ici_set_error("file already closed");
+        return set_error("file already closed");
     }
     f->setflag(ICI_F_CLOSED);
     if (f->flags() & FT_NOMUTEX)
-        x = ici_leave();
+        x = leave();
     r = f->close();
     if (f->flags() & FT_NOMUTEX)
-        ici_enter(x);
+        enter(x);
     /*
      * If this is a pipe opened with popen(), 'r' is actually the exit status
      * of the process.  If this is non-zero, format it into an error message.
      * Note: we can't do this within popen_ftype's close(), because
-     * modifying ici_error between calls to ici_leave()/ici_enter() is not
+     * modifying error between calls to leave()/enter() is not
      * allowed.
      */
     if (r != 0 && f->f_type == popen_ftype)
     {
-        ici_set_error("popen command exit status %d", r);
+        set_error("popen command exit status %d", r);
     }
     return r;
 }
@@ -99,7 +99,7 @@ void file_type::free(object *o)
         if (o->flagged(ICI_F_NOCLOSE))
             fileof(o)->flush();
         else
-            ici_file_close(fileof(o));
+            close_file(fileof(o));
     }
     ici_tfree(o, file);
 }

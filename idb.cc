@@ -70,7 +70,7 @@ f_debug(...)
             return 1;
         ici_debug_enabled = v;
     }
-    return ici_int_ret(t);
+    return int_ret(t);
 }
 
 ICI_DEFINE_CFUNCS(debug)

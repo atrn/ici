@@ -18,19 +18,19 @@ namespace ici
  * the scope and operand stacks to the matching depth (but only if it is).
  * Returns the catcher, or NULL if there wasn't one.
  */
-catcher *ici_unwind()
+catcher *unwind()
 {
     object   **p;
     catcher *c;
 
-    for (p = ici_xs.a_top - 1; p >= ici_xs.a_base; --p)
+    for (p = xs.a_top - 1; p >= xs.a_base; --p)
     {
         if (iscatcher(*p))
         {
             c = catcherof(*p);
-            ici_xs.a_top = p;
-            ici_os.a_top = &ici_os.a_base[c->c_odepth];
-            ici_vs.a_top = &ici_vs.a_base[c->c_vdepth];
+            xs.a_top = p;
+            os.a_top = &os.a_base[c->c_odepth];
+            vs.a_top = &vs.a_base[c->c_vdepth];
             return c;
         }
     }
@@ -65,13 +65,13 @@ catcher *ici_new_catcher(object *o, int odepth, int vdepth, int flags)
  *                      => catcher pc (xs)
  *                      => catcher (vs)
  */
-int ici_op_onerror()
+int op_onerror()
 {
-    if ((ici_xs.a_top[-1] = ici_new_catcher(ici_os.a_top[-1], ici_os.a_top - ici_os.a_base - 2, ici_vs.a_top - ici_vs.a_base, 0)) == NULL)
+    if ((xs.a_top[-1] = ici_new_catcher(os.a_top[-1], os.a_top - os.a_base - 2, vs.a_top - vs.a_base, 0)) == NULL)
         return 1;
-    ici_get_pc(arrayof(ici_os.a_top[-2]), ici_xs.a_top);
-    ++ici_xs.a_top;
-    ici_os.a_top -= 2;
+    ici_get_pc(arrayof(os.a_top[-2]), xs.a_top);
+    ++xs.a_top;
+    os.a_top -= 2;
     return 0;
 }
 
@@ -87,6 +87,6 @@ void catcher_type::free(object *o)
     ici_tfree(o, catcher);
 }
 
-op ici_o_onerror{ici_op_onerror};
+op o_onerror{op_onerror};
 
 } // namespace ici

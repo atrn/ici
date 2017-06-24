@@ -27,19 +27,19 @@ namespace ici
 /*
  * List of all active execution structures.
  */
-exec      *ici_execs;
+exec      *execs;
 
 /*
  * The global pointer to the current execution context and cached pointers
  * to the three stacks (execution, operand and variable (scope)). These are
  * set every time we switch ICI threads.
  */
-exec      *ici_exec;
+exec      *ex;
 
 /*
- * A cached copy of ici_exec->x_count for the current thread.
+ * A cached copy of ex->x_count for the current thread.
  */
-int        ici_exec_count;
+int        exec_count;
 
 /*
  * The arrays that form the current execution, operand and variable (scope)
@@ -53,12 +53,12 @@ int        ici_exec_count;
  * from a particular context, we copies these stacks back to real array
  * structs (see thread.c).
  */
-array     ici_xs;
-array     ici_os;
-array     ici_vs;
+array     xs;
+array     os;
+array     vs;
 
-ici_int   *ici_zero;
-ici_int   *ici_one;
+ici_int   *o_zero;
+ici_int   *o_one;
 
 /*
  * Set this to non-zero to cause an "aborted" failure even when the ICI
@@ -88,10 +88,9 @@ inline bool isempty(const sigset_t *s)
  * On return, all stacks (execution, operand and variable) are empty.
  * Returns NULL on failure, in which case error has been set.
  * The new exec struct is linked onto the global list of all exec
- * structs (ici_execs).
+ * structs (execs).
  */
-exec *
-ici_new_exec()
+exec *new_exec()
 {
     exec          *x;
     static src    default_src;
@@ -133,9 +132,9 @@ ici_new_exec()
     x->x_state = ICI_XS_ACTIVE;
     x->x_count = 100;
     x->x_n_engine_recurse = 0;
-    x->x_next = ici_execs;
+    x->x_next = execs;
     x->x_error = NULL;
-    ici_execs = x;
+    execs = x;
     return x;
 
 fail:
@@ -149,26 +148,25 @@ fail:
  * at a time. Knowing this, every N times round the loop it checks that
  * there is room for N * 3 objects.
  */
-int
-ici_engine_stack_check()
+int engine_stack_check()
 {
     array *pcs;
     int   depth;
 
-    if (ici_xs.stk_push_chk(60))
+    if (xs.stk_push_chk(60))
     {
         return 1;
     }
-    if (ici_os.stk_push_chk(60))
+    if (os.stk_push_chk(60))
     {
         return 1;
     }
-    if (ici_vs.stk_push_chk(60))
+    if (vs.stk_push_chk(60))
     {
         return 1;
     }
-    pcs = ici_exec->x_pc_closet;
-    depth = (ici_xs.a_top - ici_xs.a_base) + 60;
+    pcs = ex->x_pc_closet;
+    depth = (xs.a_top - xs.a_base) + 60;
     if ((depth -= (pcs->a_top - pcs->a_base)) > 0)
     {
         if (pcs->stk_push_chk(depth))
@@ -194,7 +192,7 @@ ici_engine_stack_check()
  * the execution stack again returns to the level it was when entered.  It
  * then returns the object left on the operand stack, or ici_null if there
  * wasn't one.  The returned object is ici_incref()ed.  Returns NULL on error,
- * usual conventions (i.e.  'ici_error' points to the error message).
+ * usual conventions (i.e.  'error' points to the error message).
  *
  * n_operands is the number of objects on the operand stack that are arguments
  * to this call.  They will all be poped off before evaluate returns.
@@ -232,13 +230,13 @@ object *evaluate(object *code, int n_operands)
         : ici_fetch(s, k)                                       \
     )
 
-    if (++ici_exec->x_n_engine_recurse > evaluate_recursion_limit)
+    if (++ex->x_n_engine_recurse > evaluate_recursion_limit)
     {
-        ici_set_error("excessive recursive invocations of main interpreter");
+        set_error("excessive recursive invocations of main interpreter");
         goto badfail;
     }
 
-    if (ici_engine_stack_check())
+    if (engine_stack_check())
     {
         goto badfail;
     }
@@ -257,45 +255,45 @@ object *evaluate(object *code, int n_operands)
      */
     ICI_OBJ_SET_TFNZ(&frame, ICI_TC_CATCHER, CF_EVAL_BASE, 0, 0);
     frame.c_catcher = NULL;
-    frame.c_odepth = (ici_os.a_top - ici_os.a_base) - n_operands;
-    frame.c_vdepth = ici_vs.a_top - ici_vs.a_base;
-    *ici_xs.a_top++ = &frame;
+    frame.c_odepth = (os.a_top - os.a_base) - n_operands;
+    frame.c_vdepth = vs.a_top - vs.a_base;
+    *xs.a_top++ = &frame;
 
     if (isarray(code))
     {
-        ici_get_pc(arrayof(code), ici_xs.a_top);
+        ici_get_pc(arrayof(code), xs.a_top);
     }
     else
     {
-        *ici_xs.a_top = code;
+        *xs.a_top = code;
     }
-    ++ici_xs.a_top;
+    ++xs.a_top;
 
     /*
      * The execution loop.
      */
     for (;;)
     {
-        if (UNLIKELY(--ici_exec_count == 0))
+        if (UNLIKELY(--exec_count == 0))
         {
             if (UNLIKELY(aborted))
             {
-                ici_set_error("aborted");
+                set_error("aborted");
                 goto fail;
             }
             /*
              * Ensure that there is enough room on all stacks for at
              * least 20 more worst case operations.  See also f_call().
              */
-            if (UNLIKELY(ici_engine_stack_check()))
+            if (UNLIKELY(engine_stack_check()))
             {
                 goto fail;
             }
-            ici_exec_count = 100;
-            if (UNLIKELY(++ici_exec->x_yield_count > 10))
+            exec_count = 100;
+            if (UNLIKELY(++ex->x_yield_count > 10))
             {
-                ici_yield();
-                ici_exec->x_yield_count = 0;
+                yield();
+                ex->x_yield_count = 0;
             }
         }
 
@@ -303,10 +301,10 @@ object *evaluate(object *code, int n_operands)
 	 * Check for, and handle, pending signals.
 	 */
         {
-            sigset_t *p = (sigset_t *)(void *)&ici_signals_pending;
+            sigset_t *p = (sigset_t *)(void *)&signals_pending;
             if (UNLIKELY(!isempty(p)))
 	    {
-                ici_signals_invoke_handlers();
+                invoke_signal_handlers();
 	    }
         }
         /*
@@ -333,8 +331,8 @@ object *evaluate(object *code, int n_operands)
          * indirecting the pc is not a pc, so there is no general case
          * in the switch.
          */
-        assert(ici_os.a_top >= ici_os.a_base);
-        if (ispc(pc = ici_xs.a_top[-1]))
+        assert(os.a_top >= os.a_base);
+        if (ispc(pc = xs.a_top[-1]))
         {
     continue_with_same_pc:
             o = *pcof(pc)->pc_next++;
@@ -346,7 +344,7 @@ object *evaluate(object *code, int n_operands)
         else
         {
             o = pc;
-            --ici_xs.a_top;
+            --xs.a_top;
         }
 
         /*
@@ -362,19 +360,19 @@ object *evaluate(object *code, int n_operands)
         switch (o->o_tcode)
         {
         case ICI_TC_SRC:
-            ici_exec->x_src = srcof(o);
+            ex->x_src = srcof(o);
             if (UNLIKELY(ici_debug_active))
             {
-                *ici_xs.a_top++ = o; /* Restore formal state. */
+                *xs.a_top++ = o; /* Restore formal state. */
                 debugfunc->idbg_src(srcof(o));
-                --ici_xs.a_top;
+                --xs.a_top;
                 continue;
             }
             goto stable_stacks_continue;
 
         case ICI_TC_PARSE:
-            *ici_xs.a_top++ = o; /* Restore formal state. */
-            if (ici_parse_exec())
+            *xs.a_top++ = o; /* Restore formal state. */
+            if (parse_exec())
 	    {
                 goto fail;
 	    }
@@ -391,7 +389,7 @@ object *evaluate(object *code, int n_operands)
              */
             if
             (
-                stringof(o)->s_struct == structof(ici_vs.a_top[-1])
+                stringof(o)->s_struct == structof(vs.a_top[-1])
                 &&
                 stringof(o)->s_vsver == vsver
             )
@@ -401,9 +399,9 @@ object *evaluate(object *code, int n_operands)
                  * looked up this name since the last change to the scope
                  * or structures etc.
                  */
-                assert(ici_fetch_super(ici_vs.a_top[-1], o, ici_os.a_top, NULL) == 1);
-                assert(*ici_os.a_top == stringof(o)->s_slot->sl_value);
-                *ici_os.a_top++ = stringof(o)->s_slot->sl_value;
+                assert(ici_fetch_super(vs.a_top[-1], o, os.a_top, NULL) == 1);
+                assert(*os.a_top == stringof(o)->s_slot->sl_value);
+                *os.a_top++ = stringof(o)->s_slot->sl_value;
             }
             else
             {
@@ -419,10 +417,10 @@ object *evaluate(object *code, int n_operands)
                 (
                     ici_fetch_super
                     (
-                        ici_vs.a_top[-1],
+                        vs.a_top[-1],
                         o,
-                        ici_os.a_top,
-                        structof(ici_vs.a_top[-1])
+                        os.a_top,
+                        structof(vs.a_top[-1])
                     )
                 )
                 {
@@ -435,32 +433,32 @@ object *evaluate(object *code, int n_operands)
                      * Try to load a library of that name and repeat
                      * the lookup before deciding it is undefined.
                      */
-                    if ((f = ici_fetch(ici_vs.a_top[-1], SS(load))) == ici_null)
+                    if ((f = ici_fetch(vs.a_top[-1], SS(load))) == ici_null)
                     {
-                        ici_set_error("\"%s\" undefined", stringof(o)->s_chars);
+                        set_error("\"%s\" undefined", stringof(o)->s_chars);
                         goto fail;
                     }
-                    *ici_xs.a_top++ = o; /* Temp restore formal state. */
+                    *xs.a_top++ = o; /* Temp restore formal state. */
                     {
-                        src *srco = ici_exec->x_src;
+                        src *srco = ex->x_src;
                         srco->incref();
                         if (ici_func(f, "o", o))
                         {
                             srco->decref();
                             goto fail;
                         }
-                        ici_exec->x_src = srco;
+                        ex->x_src = srco;
                         srco->decref();
                     }
-                    --ici_xs.a_top;
+                    --xs.a_top;
                     switch
                     (
                         ici_fetch_super
                         (
-                            ici_vs.a_top[-1],
+                            vs.a_top[-1],
                             o,
-                            ici_os.a_top,
-                            structof(ici_vs.a_top[-1])
+                            os.a_top,
+                            structof(vs.a_top[-1])
                         )
                     )
                     {
@@ -468,11 +466,11 @@ object *evaluate(object *code, int n_operands)
                         goto fail;
 
                     case 0:
-                        ici_set_error("load() failed to define \"%s\"", stringof(o)->s_chars);
+                        set_error("load() failed to define \"%s\"", stringof(o)->s_chars);
                         goto fail;
                     }
                 }
-                ++ici_os.a_top;
+                ++os.a_top;
             }
             continue;
 
@@ -487,74 +485,74 @@ object *evaluate(object *code, int n_operands)
              * on it, it becomes the return value, else we return ici_null.
              * The caller knows if there is really a value to return.
              */
-            *ici_xs.a_top++ = o; /* Restore formal state. */
+            *xs.a_top++ = o; /* Restore formal state. */
             if (o->flagged(CF_EVAL_BASE))
             {
                 /*
                  * This is the base of a call to evaluate().  It is now
                  * time to return.
                  */
-                if (catcherof(o)->c_odepth < ici_os.a_top - ici_os.a_base)
+                if (catcherof(o)->c_odepth < os.a_top - os.a_base)
                 {
-                    o = ici_os.a_top[-1];
+                    o = os.a_top[-1];
                 }
                 else
                 {
                     o = ici_null;
                 }
                 o->incref();
-                ici_unwind();
-                --ici_exec->x_n_engine_recurse;
+                unwind();
+                --ex->x_n_engine_recurse;
                 return o;
             }
             if (o->flagged(CF_CRIT_SECT))
             {
-                // --ici_exec->x_critsect;
-		__sync_fetch_and_sub(&ici_exec->x_critsect, 1);
+                // --ex->x_critsect;
+		__sync_fetch_and_sub(&ex->x_critsect, 1);
                 /*
                  * Force a check for a yield (see top of loop). If we
                  * don't do this, there is a chance a loop that spends
                  * much of its time in critsects could sync with the
                  * stack check countdown and never yield.
                  */
-                ici_exec_count = 1;
+                exec_count = 1;
             }
-            ici_unwind();
+            unwind();
             goto stable_stacks_continue;
 
         case ICI_TC_FORALL:
-            *ici_xs.a_top++ = o; /* Restore formal state. */
-            if (ici_exec_forall())
+            *xs.a_top++ = o; /* Restore formal state. */
+            if (exec_forall())
             {
                 goto fail;
             }
             continue;
 
         default:
-            *ici_os.a_top++ = o;
+            *os.a_top++ = o;
             continue;
 
         case ICI_TC_OP:
         an_op:
             switch (opof(o)->op_ecode)
             {
-            case ICI_OP_OTHER:
-                *ici_xs.a_top++ = o; /* Restore to formal state. */
+            case OP_OTHER:
+                *xs.a_top++ = o; /* Restore to formal state. */
                 if ((*opof(o)->op_func)())
                 {
                     goto fail;
                 }
                 continue;
 
-            case ICI_OP_SUPER_CALL:
+            case OP_SUPER_CALL:
                 flags = OPC_COLON_CALL | OPC_COLON_CARET;
                 goto do_colon;
 
-            case ICI_OP_METHOD_CALL:
+            case OP_METHOD_CALL:
                 flags = OPC_COLON_CALL;
                 goto do_colon;
 
-            case ICI_OP_COLON:
+            case OP_COLON:
                 /*
                  * aggr key => method (os) (normal case)
                  */
@@ -565,10 +563,10 @@ object *evaluate(object *code, int n_operands)
                     flags = opof(o)->op_code;
                 do_colon:
                     o1 = o;
-                    t = ici_os.a_top[-2];
+                    t = os.a_top[-2];
                     if (flags & OPC_COLON_CARET)
                     {
-                        if ((o = FETCH(ici_vs.a_top[-1], SS(class))) == NULL)
+                        if ((o = FETCH(vs.a_top[-1], SS(class))) == NULL)
                         {
                             goto fail;
                         }
@@ -576,25 +574,25 @@ object *evaluate(object *code, int n_operands)
                         {
                             char        n1[30];
 
-                            ici_set_error("\"class\" evaluated to %s in :^ operation", ici_objname(n1, o));
+                            set_error("\"class\" evaluated to %s in :^ operation", ici_objname(n1, o));
                             goto fail;
                         }
                         if ((t = objwsupof(o)->o_super) == NULL)
                         {
-                            ici_set_error("class has no super class in :^ operation");
+                            set_error("class has no super class in :^ operation");
                             goto fail;
                         }
                     }
                     if (t->otype()->can_fetch_method())
                     {
-                        if ((o = t->otype()->fetch_method(t, ici_os.a_top[-1])) == NULL)
+                        if ((o = t->otype()->fetch_method(t, os.a_top[-1])) == NULL)
                         {
                             goto fail;
                         }
                     }
                     else
                     {
-                        if ((o = FETCH(t, ici_os.a_top[-1])) == NULL)
+                        if ((o = FETCH(t, os.a_top[-1])) == NULL)
                         {
                             goto fail;
                         }
@@ -606,18 +604,18 @@ object *evaluate(object *code, int n_operands)
                             }
                             if (!isnull(o))
                             {
-                                object *nam = ici_os.a_top[-1];
-                                long nargs = intof(ici_os.a_top[-3])->i_value;
+                                object *nam = os.a_top[-1];
+                                long nargs = intof(os.a_top[-3])->i_value;
                                 
-                                ++ici_os.a_top;
-                                ici_os.a_top[-1] = SS(unknown_method);
-                                ici_os.a_top[-2] = ici_os.a_top[-3];
-                                if ((ici_os.a_top[-3] = ici_int_new(nargs + 1)) == NULL)
+                                ++os.a_top;
+                                os.a_top[-1] = SS(unknown_method);
+                                os.a_top[-2] = os.a_top[-3];
+                                if ((os.a_top[-3] = ici_int_new(nargs + 1)) == NULL)
                                 {
                                     goto fail;
                                 }
-                                ici_os.a_top[-3]->decref();
-                                ici_os.a_top[-4] = nam;
+                                os.a_top[-3]->decref();
+                                os.a_top[-4] = nam;
                             }
                         }
                     }
@@ -625,36 +623,36 @@ object *evaluate(object *code, int n_operands)
                     {
                         method *m;
 
-                        if ((m = ici_method_new(ici_os.a_top[-2], o)) == NULL)
+                        if ((m = ici_method_new(os.a_top[-2], o)) == NULL)
                         {
                             goto fail;
                         }
-                        --ici_os.a_top;
-                        ici_os.a_top[-1] = m;
+                        --os.a_top;
+                        os.a_top[-1] = m;
                         m->decref();
                         goto stable_stacks_continue;
                     }
                     /*
                      * This is a direct call, don't form the method object.
                      */
-                    *ici_xs.a_top++ = o1;  /* Restore xs to formal state. */
-                    o1 = ici_os.a_top[-2]; /* The subject object. */
-                    --ici_os.a_top;
-                    ici_os.a_top[-1] = o;  /* The callable object. */
+                    *xs.a_top++ = o1;  /* Restore xs to formal state. */
+                    o1 = os.a_top[-2]; /* The subject object. */
+                    --os.a_top;
+                    os.a_top[-1] = o;  /* The callable object. */
                     o = o1;
                     o->incref();
                     goto do_call;
                 }
 
-            case ICI_OP_CALL:
-                *ici_xs.a_top++ = o;        /* Restore to formal state. */
+            case OP_CALL:
+                *xs.a_top++ = o;        /* Restore to formal state. */
                 o = NULL;                   /* No subject object. */
             do_call:
-                if (UNLIKELY(!ici_os.a_top[-1]->can_call()))
+                if (UNLIKELY(!os.a_top[-1]->can_call()))
                 {
                     char    n1[30];
 
-                    ici_set_error("attempt to call %s", ici_objname(n1, ici_os.a_top[-1]));
+                    set_error("attempt to call %s", ici_objname(n1, os.a_top[-1]));
                     if (o != NULL)
                     {
                         o->decref();
@@ -663,9 +661,9 @@ object *evaluate(object *code, int n_operands)
                 }
                 if (UNLIKELY(ici_debug_active))
 		{
-                    debugfunc->idbg_fncall(ici_os.a_top[-1], ARGS(), NARGS());
+                    debugfunc->idbg_fncall(os.a_top[-1], ARGS(), NARGS());
 		}
-                if (ici_os.a_top[-1]->call(o))
+                if (os.a_top[-1]->call(o))
                 {
                     if (o != NULL)
                     {
@@ -679,111 +677,111 @@ object *evaluate(object *code, int n_operands)
                 }
                 continue;
 
-            case ICI_OP_QUOTE:
+            case OP_QUOTE:
                 /*
                  * pc           => pc+1 (xs)
                  *              => *pc (os)
                  */
-                o = ici_xs.a_top[-1];
-                *ici_os.a_top++ = *pcof(o)->pc_next++;
+                o = xs.a_top[-1];
+                *os.a_top++ = *pcof(o)->pc_next++;
                 continue;
 
-            case ICI_OP_AT:
+            case OP_AT:
                 /*
                  * obj => obj (os)
                  */
-                ici_os.a_top[-1] = ici_atom(ici_os.a_top[-1], 0);
+                os.a_top[-1] = atom(os.a_top[-1], 0);
                 goto stable_stacks_continue;
 
-            case ICI_OP_NAMELVALUE:
+            case OP_NAMELVALUE:
                 /*
                  * pc (xs)      => pc+1 (xs)
                  *              => struct *pc (os)
                  * (Ie. the next thing in the code array is a name, put its
                  * lvalue on the operand stack.)
                  */
-                *ici_os.a_top++ = ici_vs.a_top[-1];
-                *ici_os.a_top++ = *pcof(ici_xs.a_top[-1])->pc_next++;
+                *os.a_top++ = vs.a_top[-1];
+                *os.a_top++ = *pcof(xs.a_top[-1])->pc_next++;
                 continue;
 
-            case ICI_OP_DOT:
+            case OP_DOT:
                 /*
                  * aggr key => value (os)
                  */
-                if ((o = FETCH(ici_os.a_top[-2], ici_os.a_top[-1])) == NULL)
+                if ((o = FETCH(os.a_top[-2], os.a_top[-1])) == NULL)
                 {
                     goto fail;
                 }
-                --ici_os.a_top;
-                ici_os.a_top[-1] = o;
+                --os.a_top;
+                os.a_top[-1] = o;
                 goto stable_stacks_continue;
 
-            case ICI_OP_DOTKEEP:
+            case OP_DOTKEEP:
                 /*
                  * aggr key => aggr key value (os)
                  */
-                if ((o = FETCH(ici_os.a_top[-2], ici_os.a_top[-1])) == NULL)
+                if ((o = FETCH(os.a_top[-2], os.a_top[-1])) == NULL)
                 {
                     goto fail;
                 }
-                *ici_os.a_top++ = o;
+                *os.a_top++ = o;
                 continue;
 
-            case ICI_OP_DOTRKEEP:
+            case OP_DOTRKEEP:
                 /*
                  * aggr key => value aggr key value (os)
                  *
                  * Used in postfix ++/-- for value.
                  */
-                if ((o = FETCH(ici_os.a_top[-2], ici_os.a_top[-1])) == NULL)
+                if ((o = FETCH(os.a_top[-2], os.a_top[-1])) == NULL)
                 {
                     goto fail;
                 }
-                ici_os.a_top += 2;
-                ici_os.a_top[-1] = o;
-                ici_os.a_top[-2] = ici_os.a_top[-3];
-                ici_os.a_top[-3] = ici_os.a_top[-4];
-                ici_os.a_top[-4] = o;
+                os.a_top += 2;
+                os.a_top[-1] = o;
+                os.a_top[-2] = os.a_top[-3];
+                os.a_top[-3] = os.a_top[-4];
+                os.a_top[-4] = o;
                 continue;
 
-            case ICI_OP_ASSIGNLOCALVAR:
+            case OP_ASSIGNLOCALVAR:
                 /*
                  * name value => - (os, for effect)
                  *                => value (os, for value)
                  *                => aggr key (os, for lvalue)
                  */
-                if (ici_assign_base(ici_vs.a_top[-1], ici_os.a_top[-2],ici_os.a_top[-1]))
+                if (ici_assign_base(vs.a_top[-1], os.a_top[-2],os.a_top[-1]))
                 {
                     goto fail;
                 }
                 switch (opof(o)->op_code)
                 {
                 case FOR_EFFECT:
-                    ici_os.a_top -= 2;
+                    os.a_top -= 2;
                     break;
 
                 case FOR_VALUE:
-                    ici_os.a_top[-2] = ici_os.a_top[-1];
-                    --ici_os.a_top;
+                    os.a_top[-2] = os.a_top[-1];
+                    --os.a_top;
                     break;
 
                 case FOR_LVALUE:
-                    ici_os.a_top[-1] = ici_os.a_top[-2];
-                    ici_os.a_top[-2] = ici_vs.a_top[-1];
+                    os.a_top[-1] = os.a_top[-2];
+                    os.a_top[-2] = vs.a_top[-1];
                     break;
                 }
                 continue;
 
-            case ICI_OP_ASSIGN_TO_NAME:
+            case OP_ASSIGN_TO_NAME:
                 /*
                  * value on os, next item in code is name.
                  */
-                ici_os.a_top += 2;
-                ici_os.a_top[-1] = ici_os.a_top[-3];
-                ici_os.a_top[-2] = *pcof(ici_xs.a_top[-1])->pc_next++;
-                ici_os.a_top[-3] = ici_vs.a_top[-1];
+                os.a_top += 2;
+                os.a_top[-1] = os.a_top[-3];
+                os.a_top[-2] = *pcof(xs.a_top[-1])->pc_next++;
+                os.a_top[-3] = vs.a_top[-1];
                 /* Fall through. */
-            case ICI_OP_ASSIGN:
+            case OP_ASSIGN:
                 /*
                  * aggr key value => - (os, for effect)
                  *                => value (os, for value)
@@ -791,40 +789,40 @@ object *evaluate(object *code, int n_operands)
                  */
                 if
                 (
-                    stringof(ici_os.a_top[-2])->s_struct == structof(ici_os.a_top[-3])
+                    stringof(os.a_top[-2])->s_struct == structof(os.a_top[-3])
                     &&
-                    stringof(ici_os.a_top[-2])->s_vsver == vsver
+                    stringof(os.a_top[-2])->s_vsver == vsver
                     &&
-                    isstring(ici_os.a_top[-2])
+                    isstring(os.a_top[-2])
                     &&
-                    !ici_os.a_top[-2]->flagged(ICI_S_LOOKASIDE_IS_ATOM)
+                    !os.a_top[-2]->flagged(ICI_S_LOOKASIDE_IS_ATOM)
                 )
                 {
-                    stringof(ici_os.a_top[-2])->s_slot->sl_value = ici_os.a_top[-1];
+                    stringof(os.a_top[-2])->s_slot->sl_value = os.a_top[-1];
                     goto assign_finish;
                 }
-                if (ici_assign(ici_os.a_top[-3], ici_os.a_top[-2], ici_os.a_top[-1]))
+                if (ici_assign(os.a_top[-3], os.a_top[-2], os.a_top[-1]))
 		{
                     goto fail;
 		}
                 goto assign_finish;
 
-            case ICI_OP_ASSIGNLOCAL:
+            case OP_ASSIGNLOCAL:
                 /*
                  * aggr key value => - (os, for effect)
                  *                => value (os, for value)
                  *                => aggr key (os, for lvalue)
                  */
-                if (hassuper(ici_os.a_top[-3]))
+                if (hassuper(os.a_top[-3]))
                 {
-                    if (ici_assign_base(ici_os.a_top[-3], ici_os.a_top[-2], ici_os.a_top[-1]))
+                    if (ici_assign_base(os.a_top[-3], os.a_top[-2], os.a_top[-1]))
                     {
                         goto fail;
                     }
                 }
                 else
                 {
-                    if (ici_assign(ici_os.a_top[-3], ici_os.a_top[-2], ici_os.a_top[-1]))
+                    if (ici_assign(os.a_top[-3], os.a_top[-2], os.a_top[-1]))
                     {
                         goto fail;
                     }
@@ -833,21 +831,21 @@ object *evaluate(object *code, int n_operands)
                 switch (opof(o)->op_code)
                 {
                 case FOR_EFFECT:
-                    ici_os.a_top -= 3;
+                    os.a_top -= 3;
                     break;
 
                 case FOR_VALUE:
-                    ici_os.a_top[-3] = ici_os.a_top[-1];
-                    ici_os.a_top -= 2;
+                    os.a_top[-3] = os.a_top[-1];
+                    os.a_top -= 2;
                     break;
 
                 case FOR_LVALUE:
-                    --ici_os.a_top;
+                    --os.a_top;
                     break;
                 }
                 continue;
 
-            case ICI_OP_SWAP:
+            case OP_SWAP:
                 /*
                  * aggr1 key1 aggr2 key2        =>
                  *                              => value1
@@ -857,24 +855,24 @@ object *evaluate(object *code, int n_operands)
                     object  *v1;
                     object  *v2;
 
-                    if ((v1 = ici_fetch(ici_os.a_top[-4], ici_os.a_top[-3])) == NULL)
+                    if ((v1 = ici_fetch(os.a_top[-4], os.a_top[-3])) == NULL)
                     {
                         goto fail;
                     }
                     v1->incref();
-                    if ((v2 = ici_fetch(ici_os.a_top[-2], ici_os.a_top[-1])) == NULL)
+                    if ((v2 = ici_fetch(os.a_top[-2], os.a_top[-1])) == NULL)
                     {
                         v1->decref();
                         goto fail;
                     }
                     v2->incref();
-                    if (ici_assign(ici_os.a_top[-2], ici_os.a_top[-1], v1))
+                    if (ici_assign(os.a_top[-2], os.a_top[-1], v1))
                     {
                         v1->decref();
                         v2->decref();
                         goto fail;
                     }
-                    if (ici_assign(ici_os.a_top[-4], ici_os.a_top[-3], v2))
+                    if (ici_assign(os.a_top[-4], os.a_top[-3], v2))
                     {
                         v1->decref();
                         v2->decref();
@@ -883,16 +881,16 @@ object *evaluate(object *code, int n_operands)
                     switch (opof(o)->op_code)
                     {
                     case FOR_EFFECT:
-                        ici_os.a_top -= 4;
+                        os.a_top -= 4;
                         break;
 
                     case FOR_VALUE:
-                        ici_os.a_top[-4] = v2;
-                        ici_os.a_top -= 3;
+                        os.a_top[-4] = v2;
+                        os.a_top -= 3;
                         break;
 
                     case FOR_LVALUE:
-                        ici_os.a_top -= 2;
+                        os.a_top -= 2;
                         break;
                     }
                     v1->decref();
@@ -900,68 +898,68 @@ object *evaluate(object *code, int n_operands)
                 }
                 continue;
 
-            case ICI_OP_IF:
+            case OP_IF:
                 /*
                  * bool => - (os)
                  *
                  */
-                if (isfalse(ici_os.a_top[-1]))
+                if (isfalse(os.a_top[-1]))
                 {
-                    --ici_os.a_top;
-                    ++pcof(ici_xs.a_top[-1])->pc_next;
+                    --os.a_top;
+                    ++pcof(xs.a_top[-1])->pc_next;
                     goto stable_stacks_continue;
                 }
-                o = *pcof(ici_xs.a_top[-1])->pc_next++;
-                ici_get_pc(arrayof(o), ici_xs.a_top);
-                --ici_os.a_top;
-                ++ici_xs.a_top;
+                o = *pcof(xs.a_top[-1])->pc_next++;
+                ici_get_pc(arrayof(o), xs.a_top);
+                --os.a_top;
+                ++xs.a_top;
                 continue;
 
-            case ICI_OP_IFELSE:
+            case OP_IFELSE:
                 /*
                  * bool => -
                  */
-                if (isfalse(ici_os.a_top[-1]))
+                if (isfalse(os.a_top[-1]))
                 {
-                    ++pcof(ici_xs.a_top[-1])->pc_next;
-                    o = *pcof(ici_xs.a_top[-1])->pc_next++;
+                    ++pcof(xs.a_top[-1])->pc_next;
+                    o = *pcof(xs.a_top[-1])->pc_next++;
                 }
                 else
                 {
-                    o = *pcof(ici_xs.a_top[-1])->pc_next++;
-                    ++pcof(ici_xs.a_top[-1])->pc_next;
+                    o = *pcof(xs.a_top[-1])->pc_next++;
+                    ++pcof(xs.a_top[-1])->pc_next;
                 }
-                ici_get_pc(arrayof(o), ici_xs.a_top);
-                --ici_os.a_top;
-                ++ici_xs.a_top;
+                ici_get_pc(arrayof(o), xs.a_top);
+                --os.a_top;
+                ++xs.a_top;
                 goto stable_stacks_continue;
 
-            case ICI_OP_IFBREAK:
+            case OP_IFBREAK:
                 /*
                  * bool => - (os)
                  *      => [o_break] (xs)
                  */
-                if (isfalse(ici_os.a_top[-1]))
+                if (isfalse(os.a_top[-1]))
                 {
-                    --ici_os.a_top;
+                    --os.a_top;
                     continue;
                 }
-                --ici_os.a_top;
+                --os.a_top;
                 goto do_break;
 
-             case ICI_OP_IFNOTBREAK:
+             case OP_IFNOTBREAK:
                 /*
                  * bool => - (os)
                  *      => [o_break] (xs)
                  */
-                if (!isfalse(ici_os.a_top[-1]))
+                if (!isfalse(os.a_top[-1]))
                 {
-                    --ici_os.a_top;
+                    --os.a_top;
                     continue;
                 }
-                --ici_os.a_top;
+                --os.a_top;
                 /* Falling through. */
-            case ICI_OP_BREAK:
+            case OP_BREAK:
             do_break:
                 /*
                  * Pop the execution stack until a looper or switcher
@@ -972,15 +970,15 @@ object *evaluate(object *code, int n_operands)
                 {
                     object  **s;
 
-                    for (s = ici_xs.a_top; s > ici_xs.a_base + 1; --s)
+                    for (s = xs.a_top; s > xs.a_base + 1; --s)
                     {
                         if (iscatcher(s[-1]))
                         {
                             if (s[-1]->flagged(CF_CRIT_SECT))
                             {
-                                // --ici_exec->x_critsect;
-				__sync_fetch_and_sub(&ici_exec->x_critsect, 1);
-                                ici_exec_count = 1;
+                                // --ex->x_critsect;
+				__sync_fetch_and_sub(&ex->x_critsect, 1);
+                                exec_count = 1;
                             }
                             else if (s[-1]->flagged(CF_EVAL_BASE))
                             {
@@ -989,59 +987,59 @@ object *evaluate(object *code, int n_operands)
                         }
                         else if
                         (
-                            s[-1] == &ici_o_looper
+                            s[-1] == &o_looper
                             ||
-                            s[-1] == &ici_o_switcher
+                            s[-1] == &o_switcher
                         )
                         {
-                            ici_xs.a_top = s - 2;
+                            xs.a_top = s - 2;
                             goto stable_stacks_continue;
                         }
                         else if (isforall(s[-1]))
                         {
-                            ici_xs.a_top = s - 1;
+                            xs.a_top = s - 1;
                             goto stable_stacks_continue;
                         }
                     }
                 }
-                ici_set_error("break not within loop or switch");
+                set_error("break not within loop or switch");
                 goto fail;
 
-            case ICI_OP_ANDAND:
+            case OP_ANDAND:
                 /*
                  * bool obj => bool (os) OR pc (xs)
                  */
                 {
                     int         c;
 
-                    if ((c = !isfalse(ici_os.a_top[-2])) == opof(o)->op_code)
+                    if ((c = !isfalse(os.a_top[-2])) == opof(o)->op_code)
                     {
                         /*
                          * Have to test next part of the condition.
                          */
-                        ici_get_pc(arrayof(ici_os.a_top[-1]), ici_xs.a_top);
-                        ++ici_xs.a_top;
-                        ici_os.a_top -= 2;
+                        ici_get_pc(arrayof(os.a_top[-1]), xs.a_top);
+                        ++xs.a_top;
+                        os.a_top -= 2;
                         goto stable_stacks_continue;
                     }
                     /*
                      * This is the old behaviour of ICI 4.0.3 and before
                      * where the value was reduced to 0 or 1 exactly.
                      *
-                     * ici_os.a_top[-2] = c ? ici_one : ici_zero;
+                     * os.a_top[-2] = c ? o_one : o_zero;
                      */
-                    --ici_os.a_top;
+                    --os.a_top;
                 }
                 goto stable_stacks_continue;
 
-            case ICI_OP_CONTINUE:
+            case OP_CONTINUE:
                 /*
                  * Pop the execution stack until a looper is found.
                  */
                 {
                     object   **s;
 
-                    for (s = ici_xs.a_top; s > ici_xs.a_base + 1; --s)
+                    for (s = xs.a_top; s > xs.a_base + 1; --s)
                     {
                         if (iscatcher(s[-1]))
                         {
@@ -1051,31 +1049,31 @@ object *evaluate(object *code, int n_operands)
                             }
                             if (s[-1]->flagged(CF_CRIT_SECT))
                             {
-                                // --ici_exec->x_critsect;
-				__sync_fetch_and_sub(&ici_exec->x_critsect, 1);
-                                ici_exec_count = 1;
+                                // --ex->x_critsect;
+				__sync_fetch_and_sub(&ex->x_critsect, 1);
+                                exec_count = 1;
                             }
                         }
-                        if (s[-1] == &ici_o_looper || isforall(s[-1]))
+                        if (s[-1] == &o_looper || isforall(s[-1]))
                         {
-                            ici_xs.a_top = s;
+                            xs.a_top = s;
                             goto stable_stacks_continue;
                         }
                     }
                 }
-                ici_set_error("continue not within loop");
+                set_error("continue not within loop");
                 goto fail;
 
-            case ICI_OP_REWIND:
+            case OP_REWIND:
                 /*
                  * This is the end of a code array that is the subject
                  * of a loop. Rewind the pc back to its start.
                  */
-                o = ici_xs.a_top[-1];
+                o = xs.a_top[-1];
                 pcof(o)->pc_next = pcof(o)->pc_code->a_base;
                 goto continue_with_same_pc;
 
-            case ICI_OP_LOOPER:
+            case OP_LOOPER:
                 /*
                  * obj self     => obj self pc (xs)
                  *              => (os)
@@ -1083,50 +1081,50 @@ object *evaluate(object *code, int n_operands)
                  * We have fallen out of a code array that is the subject of
                  * a loop. Push a new pc pointing to the start of the code array
                  * back on the stack. This doesn't happen very often now, because
-                 * the ICI_OP_REWIND (above) does the common case of comming to the
+                 * the OP_REWIND (above) does the common case of comming to the
                  * end of a code array that should loop.
                  */
-                *ici_xs.a_top++ = o; /* Restore formal state.*/
-                ici_get_pc(arrayof(ici_xs.a_top[-2]), ici_xs.a_top);
-                ++ici_xs.a_top;
+                *xs.a_top++ = o; /* Restore formal state.*/
+                ici_get_pc(arrayof(xs.a_top[-2]), xs.a_top);
+                ++xs.a_top;
                 goto stable_stacks_continue;
 
-            case ICI_OP_ENDCODE:
+            case OP_ENDCODE:
                 /*
                  * pc => - (xs)
                  */
-                --ici_xs.a_top;
+                --xs.a_top;
                 goto stable_stacks_continue;
 
-            case ICI_OP_LOOP:
-                o = *pcof(ici_xs.a_top[-1])->pc_next++;
-                *ici_xs.a_top++ = o;
-                *ici_xs.a_top++ = &ici_o_looper;
-                ici_get_pc(arrayof(o), ici_xs.a_top);
-                ++ici_xs.a_top;
+            case OP_LOOP:
+                o = *pcof(xs.a_top[-1])->pc_next++;
+                *xs.a_top++ = o;
+                *xs.a_top++ = &o_looper;
+                ici_get_pc(arrayof(o), xs.a_top);
+                ++xs.a_top;
                 break;
 
-            case ICI_OP_EXEC:
+            case OP_EXEC:
                 /*
                  * array => - (os)
                  *       => pc (xs)
                  */
-                ici_get_pc(arrayof(ici_os.a_top[-1]), ici_xs.a_top);
-                ++ici_xs.a_top;
-                --ici_os.a_top;
+                ici_get_pc(arrayof(os.a_top[-1]), xs.a_top);
+                ++xs.a_top;
+                --os.a_top;
                 continue;
 
-            case ICI_OP_SWITCHER:
+            case OP_SWITCHER:
                 /*
                  * NULL self (xs) =>
                  *
                  * This only happens when we fall of the bottom of a switch
                  * without a break.
                  */
-                --ici_xs.a_top;
+                --xs.a_top;
                 goto stable_stacks_continue;
 
-            case ICI_OP_SWITCH:
+            case OP_SWITCH:
                 /*
                  * value array struct => (os)
                  *           => NULL switcher (pc(array) + struct.value) (xs)
@@ -1134,68 +1132,68 @@ object *evaluate(object *code, int n_operands)
                 {
                     sslot *sl;
 
-                    if ((sl = ici_find_raw_slot(structof(ici_os.a_top[-1]), ici_os.a_top[-3]))->sl_key == NULL)
+                    if ((sl = find_raw_slot(structof(os.a_top[-1]), os.a_top[-3]))->sl_key == NULL)
                     {
-                        if ((sl = ici_find_raw_slot(structof(ici_os.a_top[-1]), &o_mark))->sl_key == NULL)
+                        if ((sl = find_raw_slot(structof(os.a_top[-1]), &o_mark))->sl_key == NULL)
                         {
                             /*
                              * No matching case, no default. Pop everything off and
                              * continue;
                              */
-                            ici_os.a_top -= 3;
+                            os.a_top -= 3;
                             goto stable_stacks_continue;
                         }
                     }
-                    *ici_xs.a_top++ = ici_null;
-                    *ici_xs.a_top++ = &ici_o_switcher;
-                    ici_get_pc(arrayof(ici_os.a_top[-2]), ici_xs.a_top);
-                    pcof(*ici_xs.a_top)->pc_next += intof(sl->sl_value)->i_value;
-                    ++ici_xs.a_top;
-                    ici_os.a_top -= 3;
+                    *xs.a_top++ = ici_null;
+                    *xs.a_top++ = &o_switcher;
+                    ici_get_pc(arrayof(os.a_top[-2]), xs.a_top);
+                    pcof(*xs.a_top)->pc_next += intof(sl->sl_value)->i_value;
+                    ++xs.a_top;
+                    os.a_top -= 3;
                 }
                 goto stable_stacks_continue;
 
-            case ICI_OP_CRITSECT:
+            case OP_CRITSECT:
                 {
-                    *ici_xs.a_top = (object *)ici_new_catcher
+                    *xs.a_top = (object *)ici_new_catcher
                     (
                         NULL,
-                        (ici_os.a_top - ici_os.a_base) - 1,
-                        ici_vs.a_top - ici_vs.a_base,
+                        (os.a_top - os.a_base) - 1,
+                        vs.a_top - vs.a_base,
                         CF_CRIT_SECT
                     );
-                    if (*ici_xs.a_top == NULL)
+                    if (*xs.a_top == NULL)
                     {
                         goto fail;
                     }
-                    ++ici_xs.a_top;
-                    ici_get_pc(arrayof(ici_os.a_top[-1]), ici_xs.a_top);
-                    ++ici_xs.a_top;
-                    --ici_os.a_top;
-                    // ++ici_exec->x_critsect;
-		    __sync_fetch_and_add(&ici_exec->x_critsect, 1);
+                    ++xs.a_top;
+                    ici_get_pc(arrayof(os.a_top[-1]), xs.a_top);
+                    ++xs.a_top;
+                    --os.a_top;
+                    // ++ex->x_critsect;
+		    __sync_fetch_and_add(&ex->x_critsect, 1);
                 }
                 continue;
 
 
-            case ICI_OP_WAITFOR:
+            case OP_WAITFOR:
                 /*
                  * obj => - (os)
                  */
-                // --ici_exec->x_critsect;
-		__sync_fetch_and_sub(&ici_exec->x_critsect, 1);
-                ici_waitfor(ici_os.a_top[-1]);
-                // ++ici_exec->x_critsect;
-		__sync_fetch_and_add(&ici_exec->x_critsect, 1);
-                --ici_os.a_top;
+                // --ex->x_critsect;
+		__sync_fetch_and_sub(&ex->x_critsect, 1);
+                waitfor(os.a_top[-1]);
+                // ++ex->x_critsect;
+		__sync_fetch_and_add(&ex->x_critsect, 1);
+                --os.a_top;
                 goto stable_stacks_continue;
 
-            case ICI_OP_POP:
-                --ici_os.a_top;
+            case OP_POP:
+                --os.a_top;
                 goto stable_stacks_continue;
 
-            case ICI_OP_BINOP:
-            case ICI_OP_BINOP_FOR_TEMP:
+            case OP_BINOP:
+            case OP_BINOP_FOR_TEMP:
 #ifndef BINOPFUNC
 #include        "binop.h"
 #else
@@ -1216,21 +1214,21 @@ object *evaluate(object *code, int n_operands)
         {
             catcher *c;
 
-            if (ici_error == NULL)
+            if (error == NULL)
             {
-                ici_set_error("error");
+                set_error("error");
             }
             for (;;)
             {
-                if ((c = ici_unwind()) == NULL || c->flagged(CF_EVAL_BASE))
+                if ((c = unwind()) == NULL || c->flagged(CF_EVAL_BASE))
                 {
                     goto badfail;
                 }
                 if (c->flagged(CF_CRIT_SECT))
                 {
-                    // --ici_exec->x_critsect;
-		    __sync_fetch_and_sub(&ici_exec->x_critsect, 1);
-                    ici_exec_count = 1;
+                    // --ex->x_critsect;
+		    __sync_fetch_and_sub(&ex->x_critsect, 1);
+                    exec_count = 1;
                     continue;
                 }
                 break;
@@ -1238,18 +1236,18 @@ object *evaluate(object *code, int n_operands)
             c->incref();
             if
             (
-                ici_set_val(objwsupof(ici_vs.a_top[-1]), SS(error), 's', ici_error)
+                ici_set_val(objwsupof(vs.a_top[-1]), SS(error), 's', error)
                 ||
-                ici_set_val(objwsupof(ici_vs.a_top[-1]), SS(errorline), 'i', &ici_exec->x_src->s_lineno)
+                ici_set_val(objwsupof(vs.a_top[-1]), SS(errorline), 'i', &ex->x_src->s_lineno)
                 ||
-                ici_set_val(objwsupof(ici_vs.a_top[-1]), SS(errorfile), 'o', ici_exec->x_src->s_filename)
+                ici_set_val(objwsupof(vs.a_top[-1]), SS(errorfile), 'o', ex->x_src->s_filename)
             )
             {
                 c->decref();
                 goto badfail;
             }
-            ici_get_pc(arrayof(c->c_catcher), ici_xs.a_top);
-            ++ici_xs.a_top;
+            ici_get_pc(arrayof(c->c_catcher), xs.a_top);
+            ++xs.a_top;
             c->decref();
             continue;
 
@@ -1263,11 +1261,11 @@ object *evaluate(object *code, int n_operands)
              */
             if (UNLIKELY(ici_debug_active && !ici_debug_ign_err))
 	    {
-                debugfunc->idbg_error(ici_error, ici_exec->x_src);
+                debugfunc->idbg_error(error, ex->x_src);
 	    }
 #endif
-            ici_expand_error(ici_exec->x_src->s_lineno, ici_exec->x_src->s_filename);
-            --ici_exec->x_n_engine_recurse;
+            expand_error(ex->x_src->s_lineno, ex->x_src->s_filename);
+            --ex->x_n_engine_recurse;
             return NULL;
         }
     }
@@ -1279,7 +1277,7 @@ object *evaluate(object *code, int n_operands)
  * will attempt to load extension modules in an attemot to get it defined.
  *
  * This is slightly different from fetching the name from the top element
- * of the scope stack (i.e. 'ici_vs.a_top[-1]') because it will attempt to
+ * of the scope stack (i.e. 'vs.a_top[-1]') because it will attempt to
  * auto-load, and fail if the name is not defined.
  *
  * The returned object has had it's reference count incremented.
@@ -1315,7 +1313,7 @@ void exec_type::free(object *o)
     exec *x;
     exec **xp;
 
-    for (xp = &ici_execs; (x = *xp) != NULL; xp = &x->x_next)
+    for (xp = &execs; (x = *xp) != NULL; xp = &x->x_next)
     {
         if (x == execof(o))
         {
@@ -1361,7 +1359,7 @@ object *exec_type::fetch(object *o, object *k)
             return x->x_result;
 
         case ICI_XS_FAILED:
-            ici_set_error("%s", x->x_result == NULL  ? "failed" : stringof(x->x_result)->s_chars);
+            set_error("%s", x->x_result == NULL  ? "failed" : stringof(x->x_result)->s_chars);
             return NULL;
 
         default:
@@ -1381,6 +1379,6 @@ object *exec_type::fetch(object *o, object *k)
     return ici_null;
 }
 
-op    ici_o_quote{ICI_OP_QUOTE};
+op    o_quote{OP_QUOTE};
 
 } // namespace ici

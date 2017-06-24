@@ -48,13 +48,13 @@ static const char   ici_prefix[] = "anici-";
  * and is also the typical parent for top level classes made by dynamically
  * loaded modules. Usual error conventions.
  */
-objwsup *ici_outermost_writeable_struct()
+objwsup *outermost_writeable_struct()
 {
     objwsup       *outer;
     objwsup       *ows;
 
     outer = NULL;
-    for (ows = objwsupof(ici_vs.a_top[-1]); ows != NULL; ows = ows->o_super)
+    for (ows = objwsupof(vs.a_top[-1]); ows != NULL; ows = ows->o_super)
     {
         if (ows->isatom())
             continue;
@@ -63,7 +63,7 @@ objwsup *ici_outermost_writeable_struct()
         outer = ows;
     }
     if (outer == NULL)
-        ici_set_error("no writeable structs in current scope");
+        set_error("no writeable structs in current scope");
     return outer;
 }
 
@@ -108,12 +108,12 @@ f_load(...)
     if (typecheck("o", &name))
         return 1;
     if (!isstring(name))
-        return ici_argerror(0);
+        return argerror(0);
     /*
      * Find the outer-most writeable scope. This is where the new name
      * will be defined should it be loadable as a library.
      */
-    if ((outer = ici_outermost_writeable_struct()) == NULL)
+    if ((outer = outermost_writeable_struct()) == NULL)
         return 0;
 
     /*
@@ -129,7 +129,7 @@ f_load(...)
     strcpy(fname, ici_prefix);
     strcat(fname, name->s_chars);
 
-    if (ici_find_on_path(fname, ICI_DLL_EXT))
+    if (find_on_path(fname, ICI_DLL_EXT))
     {
         dll_t           lib;
         object       *(*library_init)();
@@ -145,7 +145,7 @@ f_load(...)
 
             if ((err = (char *)dlerror()) == NULL)
                 err = "dynamic link error";
-            ici_set_error("failed to load \"%s\", %s", fname, err);
+            set_error("failed to load \"%s\", %s", fname, err);
             return -1;
         }
 #ifdef NEED_UNDERSCORE_ON_SYMBOLS
@@ -160,10 +160,10 @@ f_load(...)
             dlclose(lib);
 #endif
             if (chkbuf(strlen(entry_symbol) + strlen(fname)))
-                ici_set_error("failed to find library entry point");
+                set_error("failed to find library entry point");
             else
             {
-                ici_set_error("failed to find the entry symbol %s in \"%s\"",
+                set_error("failed to find the entry symbol %s in \"%s\"",
                     entry_symbol, fname);
             }
             return -1;
@@ -177,13 +177,13 @@ f_load(...)
         if (ici_assign(outer, name, o))
             goto fail;
         if (!isstruct(o))
-            return ici_ret_with_decref(o);
+            return ret_with_decref(o);
         externs = structof(o);
     }
 
     strcpy(fname, ici_prefix);
     strcat(fname, name->s_chars);
-    if (ici_find_on_path(fname, ".ici"))
+    if (find_on_path(fname, ".ici"))
     {
         str       *fn;
         /*
@@ -192,7 +192,7 @@ f_load(...)
          * the given name, then parse the new module.
          */
         if ((stream = fopen(fname, "r")) == NULL)
-            return ici_get_last_errno("open", fname);
+            return get_last_errno("open", fname);
         if ((fn = ici_str_new_nul_term(fname)) == NULL)
         {
             fclose(stream);
@@ -229,17 +229,17 @@ f_load(...)
         }
         statics->o_super = objwsupof(externs);
         externs->o_super = outer;
-        if (ici_parse(file, objwsupof(autos)) < 0)
+        if (parse_file(file, objwsupof(autos)) < 0)
         {
             goto fail;
         }
-        ici_file_close(file);
+        close_file(file);
         autos->decref();
         file->decref();
     }
     if (result == NULL)
     {
-        ici_set_error("\"%s\" undefined and could not find %s%s%s or %s%s.ici ",
+        set_error("\"%s\" undefined and could not find %s%s%s or %s%s.ici ",
             name->s_chars,
             ici_prefix,
             name->s_chars,
@@ -248,7 +248,7 @@ f_load(...)
             name->s_chars);
         goto fail;
     }
-    return ici_ret_with_decref(result);
+    return ret_with_decref(result);
 
 fail:
     if (file != NULL)
@@ -405,7 +405,7 @@ static int push_path_elements(array *a, const char *path)
  * Set the path variable in externs to be an array of all the directories
  * that should be searched in for ICI extension modules and stuff.
  */
-int ici_init_path(objwsup *externs)
+int init_path(objwsup *externs)
 {
     array *a;
     int    r;

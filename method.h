@@ -31,7 +31,7 @@ public:
     size_t mark(object *o) override;
     object *fetch(object *o, object *k) override;
     int call(object *o, object *subject) override;
-    void objname(object *o, char p[ICI_OBJNAMEZ]) override;
+    void objname(object *o, char p[objnamez]) override;
 };
 
 } // namespace ici

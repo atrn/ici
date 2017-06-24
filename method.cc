@@ -56,20 +56,20 @@ int method_type::call(object *o, object *)
     auto m = methodof(o);
     if (!m->m_callable->can_call())
     {
-        char    n1[ICI_OBJNAMEZ];
-        char    n2[ICI_OBJNAMEZ];
+        char    n1[objnamez];
+        char    n2[objnamez];
 
-        return ici_set_error("attempt to call %s:%s",
+        return set_error("attempt to call %s:%s",
                              ici_objname(n1, m->m_subject),
                              ici_objname(n2, m->m_callable));
     }
     return m->m_callable->call(m->m_subject);
 }
 
-void method_type::objname(object *o, char p[ICI_OBJNAMEZ])
+void method_type::objname(object *o, char p[objnamez])
 {
-    char    n1[ICI_OBJNAMEZ];
-    char    n2[ICI_OBJNAMEZ];
+    char    n1[objnamez];
+    char    n2[objnamez];
 
     ici_objname(n1, methodof(o)->m_subject);
     ici_objname(n2, methodof(o)->m_callable);

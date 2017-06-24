@@ -161,7 +161,7 @@ public:
     int assign_base(object *o, object *k, object *v) override;
     int assign(object *o, object *k, object *v) override;
     int assign_super(object *o, object *k, object *v, ici_struct *b) override;
-    void objname(object *o, char p[ICI_OBJNAMEZ]) override;
+    void objname(object *o, char p[objnamez]) override;
 };
 
 } // namespace ici

@@ -80,7 +80,7 @@ long stdio_ftype::seek(void *file, long offset, int whence)
 {
     if (::fseek((FILE *)file, offset, whence) == -1)
     {
-        ici_set_error("seek failed");
+        set_error("seek failed");
         return -1;
     }
     return ::ftell((FILE *)file);
