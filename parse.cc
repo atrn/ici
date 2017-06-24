@@ -2577,7 +2577,7 @@ ici_parse_exec()
         return 1;
     }
 
-    p = ici_parseof(ici_xs.a_top[-1]);
+    p = parseof(ici_xs.a_top[-1]);
 
     for (;;)
     {
@@ -2648,17 +2648,8 @@ ici_new_parse(file *f)
 
 size_t parse_type::mark(object *o)
 {
-    o->setmark();
-    auto mem = typesize();
-    if (ici_parseof(o)->p_func != NULL)
-    {
-        mem += ici_mark(ici_parseof(o)->p_func);
-    }
-    if (ici_parseof(o)->p_file != NULL)
-    {
-        mem += ici_mark(ici_parseof(o)->p_file);
-    }
-    return mem;
+    auto p = parseof(o);
+    return setmark(p) + maybe_mark(p->p_func) + maybe_mark(p->p_file);
 }
 
 /*
@@ -2667,15 +2658,15 @@ size_t parse_type::mark(object *o)
  */
 void parse_type::free(object *o)
 {
-    if (ici_parseof(o)->p_got.t_what & TM_HASOBJ)
+    if (parseof(o)->p_got.t_what & TM_HASOBJ)
     {
-        ici_parseof(o)->p_got.t_obj->decref();
+        parseof(o)->p_got.t_obj->decref();
     }
-    if (ici_parseof(o)->p_ungot.t_what & TM_HASOBJ)
+    if (parseof(o)->p_ungot.t_what & TM_HASOBJ)
     {
-        ici_parseof(o)->p_ungot.t_obj->decref();
+        parseof(o)->p_ungot.t_obj->decref();
     }
-    ici_parseof(o)->p_ungot.t_what = T_NONE;
+    parseof(o)->p_ungot.t_what = T_NONE;
     ici_tfree(o, parse);
 }
 
@@ -2720,7 +2711,7 @@ ici_token_name(int t)
 static parse *
 parse_file_argcheck()
 {
-    file          *f;
+    file *f;
 
     if (typecheck("u", &f))
     {
@@ -2731,15 +2722,15 @@ parse_file_argcheck()
         ici_argerror(0);
         return NULL;
     }
-    return ici_parseof(f->f_file);
+    return parseof(f->f_file);
 }
 
 static int
 f_parseopen(...)
 {
-    file		*f;
-    file		*p;
-    parse		*parse;
+    file  *f;
+    file  *p;
+    parse *parse;
 
     if (typecheck("u", &f))
     {
@@ -2760,8 +2751,8 @@ f_parseopen(...)
 static int
 f_parsetoken(...)
 {
-    parse         *p;
-    int                 t;
+    parse *p;
+    int    t;
 
     if ((p = parse_file_argcheck()) == NULL)
     {
@@ -2777,7 +2768,7 @@ f_parsetoken(...)
 static int
 f_tokenobj(...)
 {
-    parse         *p;
+    parse *p;
 
     if ((p = parse_file_argcheck()) == NULL)
     {
@@ -2802,7 +2793,7 @@ f_tokenobj(...)
 static int
 f_rejecttoken(...)
 {
-    parse         *p;
+    parse *p;
 
     if ((p = parse_file_argcheck()) == NULL)
     {
@@ -2833,8 +2824,8 @@ f_parsevalue(...)
 static int
 f_rejectchar(...)
 {
-    file          *f;
-    str           *s;
+    file *f;
+    str  *s;
 
     if (typecheck("uo", &f, &s))
     {

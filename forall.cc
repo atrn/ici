@@ -23,7 +23,7 @@ namespace ici
 int
 ici_op_forall()
 {
-    ici_forall_t   *fa;
+    forall *fa;
 
     if (ici_os.a_top[-2] == ici_null)
     {
@@ -31,12 +31,11 @@ ici_op_forall()
         --ici_xs.a_top;
         return 0;
     }
-    if ((fa = ici_talloc(ici_forall_t)) == NULL)
+    if ((fa = ici_talloc(forall)) == NULL)
     {
         return 1;
     }
     ICI_OBJ_SET_TFNZ(fa, ICI_TC_FORALL, 0, 0, 0);
-    ici_rego(fa);
     fa->fa_index = -1;
     fa->fa_code = *--ici_os.a_top;
     fa->fa_aggr = *--ici_os.a_top;
@@ -45,6 +44,7 @@ ici_op_forall()
     fa->fa_vkey = *--ici_os.a_top;
     fa->fa_vaggr = *--ici_os.a_top;
     ici_xs.a_top[-1] = fa;
+    ici_rego(fa);
     return 0;
 }
 
@@ -53,8 +53,7 @@ ici_op_forall()
  *  OR
  * forall => (xs)
  */
-int
-ici_exec_forall()
+int ici_exec_forall()
 {
     forall *fa;
     type *t;
@@ -84,9 +83,8 @@ ici_exec_forall()
 
 size_t forall_type::mark(object *o)
 {
-    o->setmark();
     auto fa = forallof(o);
-    auto mem = typesize();
+    auto mem = setmark(o);
     mem += maybe_mark(fa->fa_aggr);
     mem += maybe_mark(fa->fa_code);
     mem += maybe_mark(fa->fa_vaggr);

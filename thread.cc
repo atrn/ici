@@ -5,7 +5,7 @@
 #include "null.h"
 #include "cfunc.h"
 #include "op.h"
-#include "catch.h"
+#include "catcher.h"
 
 #include <atomic>
 #include <errno.h>

@@ -8,7 +8,7 @@
 #include "pc.h"
 #include "int.h"
 #include "str.h"
-#include "catch.h"
+#include "catcher.h"
 #include "buf.h"
 #include "mark.h"
 #include "null.h"

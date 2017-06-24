@@ -40,8 +40,8 @@ struct exec : object
     char                    *x_error;
 };
 
-inline ici_exec_t *ici_execof(object *o) { return static_cast<exec *>(o); }
-inline bool ici_isexec(object *o) { return o->isa(ICI_TC_EXEC); }
+inline exec *execof(object *o) { return static_cast<exec *>(o); }
+inline bool isexec(object *o) { return o->isa(ICI_TC_EXEC); }
 
 /*
  * x_xs                 The ICI interpreter execution stack. This contains

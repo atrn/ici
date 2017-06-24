@@ -54,14 +54,14 @@ int ici_profile_active = 0;
 /*
  * The call currently being executed.
  */
-ici_profilecall_t *ici_prof_cur_call = NULL;
+profilecall *ici_prof_cur_call = NULL;
 
 
 /*
  * The function to call when profiling completes.  This might (for example)
  * display the call graph in a dialog box.
  */
-void (*ici_prof_done_callback)(ici_profilecall_t *) = NULL;
+void (*ici_prof_done_callback)(profilecall *) = NULL;
 
 
 /*
@@ -99,22 +99,21 @@ char ici_prof_outfile[512] = "";
  */
 size_t profilecall_type::mark(object *o)
 {
-    o->setmark();
-    auto pf = ici_profilecallof(o);
-    return typesize() + ici_mark(pf->pc_calls) + (pf->pc_calledby == NULL ? 0 : ici_mark(pf->pc_calledby));
+    auto pf = profilecallof(o);
+    return setmark(pf) + ici_mark(pf->pc_calls) + maybe_mark(pf->pc_calledby);
 }
 
 /*
  * Parameters:
- *  called_by   The ici_profilecall_t for the function calling this 'f'.
+ *  called_by   The profilecall for the function calling this 'f'.
  *
  * Returns:
- *  A new ici_profilecall_t object.
+ *  A new profilecall object.
  */
-ici_profilecall_t *
-ici_profilecall_new(ici_profilecall_t *called_by)
+profilecall *
+ici_profilecall_new(profilecall *called_by)
 {
-    ici_profilecall_t *pc;
+    profilecall *pc;
 
     /*
      * We always explicitly create these buggers, they aren't atomic.
@@ -127,7 +126,7 @@ ici_profilecall_new(ici_profilecall_t *called_by)
      */
 
     /* Allocate storage for it. */
-    if ((pc = ici_talloc(ici_profilecall_t)) == NULL)
+    if ((pc = ici_talloc(profilecall)) == NULL)
         return NULL;
 
     /* Fill in the bits common to all ICI objects. */
@@ -138,7 +137,7 @@ ici_profilecall_new(ici_profilecall_t *called_by)
     pc->pc_calls = ici_struct_new();
     if (pc->pc_calls == NULL)
     {
-        ici_tfree(pc, ici_profilecall_t);
+        ici_tfree(pc, profilecall);
         return NULL;
     }
     pc->pc_calls->decref();
@@ -159,7 +158,7 @@ ici_profilecall_new(ici_profilecall_t *called_by)
  *              parameter is the root of the profiling call graph.
  */
 void
-ici_profile_set_done_callback(void (*done)(ici_profilecall_t *))
+ici_profile_set_done_callback(void (*done)(profilecall *))
 {
     ici_prof_done_callback = done;
 }
@@ -208,13 +207,13 @@ f_profile(...)
 void
 ici_profile_call(ici_func_t *f)
 {
-    ici_profilecall_t *pc;
+    profilecall *pc;
     time_t start;
     start = time_in_ms();
 
     /* Has this function been called from the current function before? */
     assert(ici_prof_cur_call != NULL);
-    if (isnull(pc = ici_profilecallof(ici_fetch(ici_prof_cur_call->pc_calls, f))))
+    if (isnull(pc = profilecallof(ici_fetch(ici_prof_cur_call->pc_calls, f))))
     {
         /* No, create a new record. */
         pc = ici_profilecall_new(ici_prof_cur_call);
@@ -233,7 +232,7 @@ ici_profile_call(ici_func_t *f)
 
 
 /*
- *  Dumps a ici_profilecall_t to a file.  Warning: this is recursive.
+ *  Dumps a profilecall to a file.  Warning: this is recursive.
  *
  * Parameters:
  *  of      Output file.
@@ -241,7 +240,7 @@ ici_profile_call(ici_func_t *f)
  *  indent  Number of spaces to indent with.
  */
 static void
-write_outfile(FILE *of, ici_profilecall_t *pc, int indent)
+write_outfile(FILE *of, profilecall *pc, int indent)
 {
     ici_sslot_t*sl;
     char    *p;
@@ -271,7 +270,7 @@ write_outfile(FILE *of, ici_profilecall_t *pc, int indent)
                 }
             }
             fprintf(of, "\") = ");
-            write_outfile(of, ici_profilecallof(sl->sl_value), indent + 2);
+            write_outfile(of, profilecallof(sl->sl_value), indent + 2);
             fputs(",\n", of);
         }
     }

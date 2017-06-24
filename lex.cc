@@ -784,18 +784,18 @@ class parse_ftype : public ftype
 {
     int getch(void *file) override
     {
-        return get(ici_parseof(file), NULL);
+        return get(parseof(file), NULL);
     }
 
     int ungetch(int c, void *file) override
     {
-        unget(c, ici_parseof(file));
+        unget(c, parseof(file));
         return c;
     }
 
     int eof(void *file) override
     {
-        return ici_parseof(file)->p_file->eof();
+        return parseof(file)->p_file->eof();
     }
 
 };

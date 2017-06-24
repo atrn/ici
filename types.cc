@@ -4,7 +4,7 @@
 #include "archive.h"
 #include "array.h"
 #include "buf.h"
-#include "catch.h"
+#include "catcher.h"
 #include "channel.h"
 #include "exec.h"
 #include "file.h"
@@ -45,7 +45,7 @@ type *types[max_types] =
     ptr_to_instance_of<parse_type>(),
     ptr_to_instance_of<op_type>(),
     ptr_to_instance_of<string_type>(),
-    ptr_to_instance_of<catch_type>(),
+    ptr_to_instance_of<catcher_type>(),
     ptr_to_instance_of<forall_type>(),
     ptr_to_instance_of<int_type>(),
     ptr_to_instance_of<float_type>(),

@@ -1,7 +1,7 @@
 #define ICI_CORE
 #include "exec.h"
 #include "op.h"
-#include "catch.h"
+#include "catcher.h"
 #include "ptr.h"
 #include "func.h"
 #include "str.h"
@@ -200,7 +200,7 @@ ici_engine_stack_check()
  * to this call.  They will all be poped off before evaluate returns.
  *
  * The execution loop knows when the execution stack returns to its origional
- * level because it puts a ici_catch_t object on it.  This object also records
+ * level because it puts a catcher object on it.  This object also records
  * the levels of the other two stacks that match.
  *
  * This is the main execution loop.  All of the nasty optimisations are
@@ -255,7 +255,7 @@ object *evaluate(object *code, int n_operands)
      * one.  This is likely to cause a good memory integrity checking system
      * to complain.
      */
-    ICI_OBJ_SET_TFNZ(&frame, ICI_TC_CATCH, CF_EVAL_BASE, 0, 0);
+    ICI_OBJ_SET_TFNZ(&frame, ICI_TC_CATCHER, CF_EVAL_BASE, 0, 0);
     frame.c_catcher = NULL;
     frame.c_odepth = (ici_os.a_top - ici_os.a_base) - n_operands;
     frame.c_vdepth = ici_vs.a_top - ici_vs.a_base;
@@ -476,7 +476,7 @@ object *evaluate(object *code, int n_operands)
             }
             continue;
 
-        case ICI_TC_CATCH:
+        case ICI_TC_CATCHER:
             /*
              * This can either be an error catcher which is being poped
              * off (having done its job, but it never got used) or it
@@ -494,7 +494,7 @@ object *evaluate(object *code, int n_operands)
                  * This is the base of a call to evaluate().  It is now
                  * time to return.
                  */
-                if (ici_catchof(o)->c_odepth < ici_os.a_top - ici_os.a_base)
+                if (catcherof(o)->c_odepth < ici_os.a_top - ici_os.a_base)
                 {
                     o = ici_os.a_top[-1];
                 }
@@ -974,7 +974,7 @@ object *evaluate(object *code, int n_operands)
 
                     for (s = ici_xs.a_top; s > ici_xs.a_base + 1; --s)
                     {
-                        if (ici_iscatch(s[-1]))
+                        if (iscatcher(s[-1]))
                         {
                             if (s[-1]->flagged(CF_CRIT_SECT))
                             {
@@ -1043,7 +1043,7 @@ object *evaluate(object *code, int n_operands)
 
                     for (s = ici_xs.a_top; s > ici_xs.a_base + 1; --s)
                     {
-                        if (ici_iscatch(s[-1]))
+                        if (iscatcher(s[-1]))
                         {
                             if (s[-1]->flagged(CF_EVAL_BASE))
                             {
@@ -1157,7 +1157,7 @@ object *evaluate(object *code, int n_operands)
 
             case ICI_OP_CRITSECT:
                 {
-                    *ici_xs.a_top = (object *)ici_new_catch
+                    *ici_xs.a_top = (object *)ici_new_catcher
                     (
                         NULL,
                         (ici_os.a_top - ici_os.a_base) - 1,
@@ -1214,7 +1214,7 @@ object *evaluate(object *code, int n_operands)
 
     fail:
         {
-            ici_catch_t *c;
+            catcher *c;
 
             if (ici_error == NULL)
             {
@@ -1297,7 +1297,7 @@ object *eval(str *name)
 size_t exec_type::mark(object *o)
 {
     o->setmark();
-    auto x = ici_execof(o);
+    auto x = execof(o);
     return typesize()
         + (x->x_xs != NULL ? ici_mark(x->x_xs) : 0)
         + (x->x_os != NULL ? ici_mark(x->x_os) : 0)
@@ -1317,7 +1317,7 @@ void exec_type::free(object *o)
 
     for (xp = &ici_execs; (x = *xp) != NULL; xp = &x->x_next)
     {
-        if (x == ici_execof(o))
+        if (x == execof(o))
         {
             *xp = x->x_next;
             break;
@@ -1336,7 +1336,7 @@ object *exec_type::fetch(object *o, object *k)
 {
     exec *x;
 
-    x = ici_execof(o);
+    x = execof(o);
     if (k == SS(error))
     {
         if (x->x_error == NULL)

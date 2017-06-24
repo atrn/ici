@@ -35,9 +35,9 @@ struct parse : object
 /*
  * The following portion of this file exports to ici.h. --ici.h-start--
  */
-inline parse *ici_parseof(object *o) { return static_cast<parse *>(o); }
-inline parse *ici_parseof(void *f) { return reinterpret_cast<parse *>(f); }
-inline bool ici_isparse(object *o) { return o->isa(ICI_TC_PARSE); }
+inline parse *parseof(object *o) { return static_cast<parse *>(o); }
+inline parse *parseof(void *f) { return reinterpret_cast<parse *>(f); }
+inline bool isparse(object *o) { return o->isa(ICI_TC_PARSE); }
 
 /*
  * End of ici.h export. --ici.h-end--

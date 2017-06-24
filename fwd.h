@@ -193,7 +193,7 @@ constexpr int ICI_OBJNAMEZ = 32;
  */
 typedef class  archive          ici_archive_t;
 typedef struct array            ici_array_t;
-typedef struct catcher          ici_catch_t;
+typedef struct catcher          ici_catcher_t;
 typedef struct sslot            ici_sslot_t;
 typedef struct set              ici_set_t;
 typedef struct ici_struct       ici_struct_t;
@@ -393,7 +393,7 @@ extern sslot          *ici_find_raw_slot(ici_struct *, object *);
 extern object         *ici_atom_probe2(object *, object ***);
 extern int             ici_parse_exec();
 extern parse          *ici_new_parse(file *);
-extern catcher        *ici_new_catch(object *, int, int, int);
+extern catcher        *ici_new_catcher(object *, int, int, int);
 extern func           *ici_new_func();
 extern op             *ici_new_op(int (*)(), int16_t, int16_t);
 extern pc             *ici_new_pc();

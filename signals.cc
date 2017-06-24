@@ -407,7 +407,7 @@ f_signal(...)
         signal_handler[signo_to_index(signo)] = NULL;
         handler = SIG_IGN;
     }
-    else if (isfunc(handlero) || ici_ismethod(handlero))
+    else if (isfunc(handlero) || ismethod(handlero))
     {
         signal_handler[signo_to_index(signo)] = handlero;
         handlero->incref();

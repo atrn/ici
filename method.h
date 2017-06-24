@@ -17,8 +17,8 @@ struct method : object
     object   *m_callable;
 };
 
-inline ici_method_t *ici_methodof(object *o) { return static_cast<method *>(o); }
-inline bool ici_ismethod(object *o) { return o->isa(ICI_TC_METHOD); }
+inline method *methodof(object *o) { return static_cast<method *>(o); }
+inline bool ismethod(object *o) { return o->isa(ICI_TC_METHOD); }
 
 /*
  * End of ici.h export. --ici.h-end--

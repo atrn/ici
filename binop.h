@@ -469,18 +469,18 @@
      */
     case ICI_TRI(ICI_TC_PTR, ICI_TC_INT, T_MINUS):
     case ICI_TRI(ICI_TC_PTR, ICI_TC_INT, T_MINUSEQ):
-        if (!isint(ici_ptrof(o0)->p_key))
+        if (!isint(ptrof(o0)->p_key))
         {
             MISMATCH();
         }
         {
             object   *i;
 
-            if ((i = ici_int_new(intof(ici_ptrof(o0)->p_key)->i_value - intof(o1)->i_value)) == NULL)
+            if ((i = ici_int_new(intof(ptrof(o0)->p_key)->i_value - intof(o1)->i_value)) == NULL)
             {
                 FAIL();
             }
-            if ((o = ici_ptr_new(ici_ptrof(o0)->p_aggr, i)) == NULL)
+            if ((o = ici_ptr_new(ptrof(o0)->p_aggr, i)) == NULL)
             {
                 FAIL();
             }
@@ -490,25 +490,25 @@
         
     case ICI_TRI(ICI_TC_INT, ICI_TC_PTR, T_PLUS):
     case ICI_TRI(ICI_TC_INT, ICI_TC_PTR, T_PLUSEQ):
-        if (!isint(ici_ptrof(o1)->p_key))
+        if (!isint(ptrof(o1)->p_key))
         {
             MISMATCH();
         }
         SWAP();
     case ICI_TRI(ICI_TC_PTR, ICI_TC_INT, T_PLUS):
     case ICI_TRI(ICI_TC_PTR, ICI_TC_INT, T_PLUSEQ):
-        if (!isint(ici_ptrof(o0)->p_key))
+        if (!isint(ptrof(o0)->p_key))
         {
             MISMATCH();
         }
         {
             object   *i;
 
-            if ((i = ici_int_new(intof(ici_ptrof(o0)->p_key)->i_value + intof(o1)->i_value)) == NULL)
+            if ((i = ici_int_new(intof(ptrof(o0)->p_key)->i_value + intof(o1)->i_value)) == NULL)
             {
                 FAIL();
             }
-            if ((o = ici_ptr_new(ici_ptrof(o0)->p_aggr, i)) == NULL)
+            if ((o = ici_ptr_new(ptrof(o0)->p_aggr, i)) == NULL)
             {
                 FAIL();
             }
@@ -687,11 +687,11 @@
 
     case ICI_TRI(ICI_TC_PTR, ICI_TC_PTR, T_MINUS):
     case ICI_TRI(ICI_TC_PTR, ICI_TC_PTR, T_MINUSEQ):
-        if (!isint(ici_ptrof(o1)->p_key) || !isint(ici_ptrof(o0)->p_key))
+        if (!isint(ptrof(o1)->p_key) || !isint(ptrof(o0)->p_key))
         {
             MISMATCH();
         }
-        if ((o = ici_int_new(intof(ici_ptrof(o0)->p_key)->i_value - intof(ici_ptrof(o1)->p_key)->i_value)) == NULL)
+        if ((o = ici_int_new(intof(ptrof(o0)->p_key)->i_value - intof(ptrof(o1)->p_key)->i_value)) == NULL)
         {
               FAIL();
         }
@@ -732,44 +732,44 @@
         USE0();
 
     case ICI_TRI(ICI_TC_PTR, ICI_TC_PTR, T_LESS):
-        if (!isint(ici_ptrof(o1)->p_key) || !isint(ici_ptrof(o0)->p_key))
+        if (!isint(ptrof(o1)->p_key) || !isint(ptrof(o0)->p_key))
         {
             MISMATCH();
         }
-        if (intof(ici_ptrof(o0)->p_key)->i_value < intof(ici_ptrof(o1)->p_key)->i_value)
+        if (intof(ptrof(o0)->p_key)->i_value < intof(ptrof(o1)->p_key)->i_value)
         {
             USE1();
         }
         USE0();
 
     case ICI_TRI(ICI_TC_PTR, ICI_TC_PTR, T_GRTEQ):
-        if (!isint(ici_ptrof(o1)->p_key) || !isint(ici_ptrof(o0)->p_key))
+        if (!isint(ptrof(o1)->p_key) || !isint(ptrof(o0)->p_key))
         {
             MISMATCH();
         }
-        if (intof(ici_ptrof(o0)->p_key)->i_value >=intof(ici_ptrof(o1)->p_key)->i_value)
+        if (intof(ptrof(o0)->p_key)->i_value >=intof(ptrof(o1)->p_key)->i_value)
         {
             USE1();
         }
         USE0();
 
     case ICI_TRI(ICI_TC_PTR, ICI_TC_PTR, T_LESSEQ):
-        if (!isint(ici_ptrof(o1)->p_key) || !isint(ici_ptrof(o0)->p_key))
+        if (!isint(ptrof(o1)->p_key) || !isint(ptrof(o0)->p_key))
         {
             MISMATCH();
         }
-        if (intof(ici_ptrof(o0)->p_key)->i_value <=intof(ici_ptrof(o1)->p_key)->i_value)
+        if (intof(ptrof(o0)->p_key)->i_value <=intof(ptrof(o1)->p_key)->i_value)
         {
             USE1();
         }
         USE0();
 
     case ICI_TRI(ICI_TC_PTR, ICI_TC_PTR, T_GRT):
-        if (!isint(ici_ptrof(o1)->p_key) || !isint(ici_ptrof(o0)->p_key))
+        if (!isint(ptrof(o1)->p_key) || !isint(ptrof(o0)->p_key))
         {
             MISMATCH();
         }
-        if (intof(ici_ptrof(o0)->p_key)->i_value > intof(ici_ptrof(o1)->p_key)->i_value)
+        if (intof(ptrof(o0)->p_key)->i_value > intof(ptrof(o1)->p_key)->i_value)
         {
             USE1();
         }

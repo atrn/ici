@@ -37,14 +37,13 @@ method *ici_method_new(object *subject, object *callable)
 
 size_t method_type::mark(object *o)
 {
-    auto m = ici_methodof(o);
-    m->setmark();
-    return typesize() + ici_mark(m->m_subject) + ici_mark(m->m_callable);
+    auto m = methodof(o);
+    return setmark(m) + ici_mark(m->m_subject) + ici_mark(m->m_callable);
 }
 
 object * method_type::fetch(object *o, object *k)
 {
-    auto m = ici_methodof(o);
+    auto m = methodof(o);
     if (k == SS(subject))
         return m->m_subject;
     if (k == SS(callable))
@@ -54,7 +53,7 @@ object * method_type::fetch(object *o, object *k)
 
 int method_type::call(object *o, object *subject)
 {
-    auto m = ici_methodof(o);
+    auto m = methodof(o);
     if (!m->m_callable->can_call())
     {
         char    n1[ICI_OBJNAMEZ];
@@ -72,8 +71,8 @@ void method_type::objname(object *o, char p[ICI_OBJNAMEZ])
     char    n1[ICI_OBJNAMEZ];
     char    n2[ICI_OBJNAMEZ];
 
-    ici_objname(n1, ici_methodof(o)->m_subject);
-    ici_objname(n2, ici_methodof(o)->m_callable);
+    ici_objname(n1, methodof(o)->m_subject);
+    ici_objname(n2, methodof(o)->m_callable);
     sprintf(p, "(%.13s:%.13s)", n1, n2);
 }
 

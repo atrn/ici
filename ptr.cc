@@ -17,9 +17,8 @@ namespace ici
  */
 size_t ptr_type::mark(object *o)
 {
-    auto p = ici_ptrof(o);
-    p->setmark();
-    return typesize() + ici_mark(p->p_aggr) + ici_mark(p->p_key);
+    auto p = ptrof(o);
+    return setmark(p) + ici_mark(p->p_aggr) + ici_mark(p->p_key);
 }
 
 /*
@@ -28,8 +27,8 @@ size_t ptr_type::mark(object *o)
  */
 int ptr_type::cmp(object *o1, object *o2)
 {
-    return ici_ptrof(o1)->p_aggr != ici_ptrof(o2)->p_aggr
-        || ici_ptrof(o1)->p_key != ici_ptrof(o2)->p_key;
+    return ptrof(o1)->p_aggr != ptrof(o2)->p_aggr
+        || ptrof(o1)->p_key != ptrof(o2)->p_key;
 }
 
 /*
@@ -38,8 +37,8 @@ int ptr_type::cmp(object *o1, object *o2)
  */
 unsigned long ptr_type::hash(object *o)
 {
-    return (unsigned long)ici_ptrof(o)->p_aggr * PTR_PRIME_0
-        + (unsigned long)ici_ptrof(o)->p_key * PTR_PRIME_1;
+    return (unsigned long)ptrof(o)->p_aggr * PTR_PRIME_0
+        + (unsigned long)ptrof(o)->p_key * PTR_PRIME_1;
 }
 
 /*
@@ -54,14 +53,14 @@ unsigned long ptr_type::hash(object *o)
 object * ptr_type::fetch(object *o, object *k)
 {
     if (k == ici_zero)
-        return ici_fetch(ici_ptrof(o)->p_aggr, ici_ptrof(o)->p_key);
-    if (!isint(k) || !isint(ici_ptrof(o)->p_key))
+        return ici_fetch(ptrof(o)->p_aggr, ptrof(o)->p_key);
+    if (!isint(k) || !isint(ptrof(o)->p_key))
         return fetch_fail(o, k);
-    if (ici_ptrof(o)->p_key == ici_zero)
+    if (ptrof(o)->p_key == ici_zero)
         k->incref();
-    else if ((k = ici_int_new(intof(k)->i_value + intof(ici_ptrof(o)->p_key)->i_value)) == NULL)
+    else if ((k = ici_int_new(intof(k)->i_value + intof(ptrof(o)->p_key)->i_value)) == NULL)
         return NULL;
-    o = ici_fetch(ici_ptrof(o)->p_aggr, k);
+    o = ici_fetch(ptrof(o)->p_aggr, k);
     k->decref();
     return o;
 }
@@ -75,14 +74,14 @@ object * ptr_type::fetch(object *o, object *k)
 int ptr_type::assign(object *o, object *k, object *v)
 {
     if (k == ici_zero)
-        return ici_assign(ici_ptrof(o)->p_aggr, ici_ptrof(o)->p_key, v);
-    if (!isint(k) || !isint(ici_ptrof(o)->p_key))
+        return ici_assign(ptrof(o)->p_aggr, ptrof(o)->p_key, v);
+    if (!isint(k) || !isint(ptrof(o)->p_key))
         return assign_fail(o, k, v);
-    if (ici_ptrof(o)->p_key == ici_zero)
+    if (ptrof(o)->p_key == ici_zero)
         k->incref();
-    else if ((k = ici_int_new(intof(k)->i_value + intof(ici_ptrof(o)->p_key)->i_value)) == NULL)
+    else if ((k = ici_int_new(intof(k)->i_value + intof(ptrof(o)->p_key)->i_value)) == NULL)
         return 1;
-    if (ici_assign(ici_ptrof(o)->p_aggr, k, v))
+    if (ici_assign(ptrof(o)->p_aggr, k, v))
     {
         k->decref();
         return 1;
@@ -95,7 +94,7 @@ int ptr_type::call(object *o, object *subject)
 {
     object   *f;
 
-    if ((f = ici_fetch(ici_ptrof(o)->p_aggr, ici_ptrof(o)->p_key)) == NULL)
+    if ((f = ici_fetch(ptrof(o)->p_aggr, ptrof(o)->p_key)) == NULL)
         return 1;
     if (!f->can_call())
     {
@@ -109,7 +108,7 @@ int ptr_type::call(object *o, object *subject)
     if ((ici_os.a_top[-1] = ici_int_new(NARGS() + 1)) == NULL)
         return 1;
     (ici_os.a_top[-1])->decref();
-    ici_os.a_top[-2] = ici_ptrof(o)->p_aggr;
+    ici_os.a_top[-2] = ptrof(o)->p_aggr;
     if (ici_os.stk_push_chk())
         return 1;
     *ici_os.a_top++ = f;
@@ -131,12 +130,11 @@ int ptr_type::call(object *o, object *subject)
  *
  * This --func-- forms part of the --ici-api--.
  */
-ici_ptr_t *
-ici_ptr_new(object *a, object *k)
+ptr *ici_ptr_new(object *a, object *k)
 {
-    ici_ptr_t  *p;
+    ptr *p;
 
-    if ((p = ici_talloc(ici_ptr_t)) == NULL)
+    if ((p = ici_talloc(ptr)) == NULL)
         return NULL;
     ICI_OBJ_SET_TFNZ(p, ICI_TC_PTR, 0, 1, 0);
     p->p_aggr = a;
@@ -147,8 +145,7 @@ ici_ptr_new(object *a, object *k)
 /*
  * aggr key => ptr
  */
-int
-ici_op_mkptr()
+int ici_op_mkptr()
 {
     object  *o;
 
@@ -164,13 +161,12 @@ ici_op_mkptr()
 /*
  * ptr => aggr key
  */
-int
-ici_op_openptr()
+int ici_op_openptr()
 {
-    ici_ptr_t  *p;
-    char                n[30];
+    ptr  *p;
+    char n[30];
 
-    if (!ici_isptr(p = ici_ptrof(ici_os.a_top[-1])))
+    if (!isptr(p = ptrof(ici_os.a_top[-1])))
     {
         return ici_set_error("pointer required, but %s given", ici_objname(n, ici_os.a_top[-1]));
     }
@@ -183,14 +179,13 @@ ici_op_openptr()
 /*
  * ptr => obj
  */
-int
-ici_op_fetch()
+int ici_op_fetch()
 {
-    ici_ptr_t  *p;
+    ptr  *p;
     object  *o;
     char    n[30];
 
-    if (!ici_isptr(p = ici_ptrof(ici_os.a_top[-1])))
+    if (!isptr(p = ptrof(ici_os.a_top[-1])))
     {
         return ici_set_error("pointer required, but %s given", ici_objname(n, ici_os.a_top[-1]));
     }

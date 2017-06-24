@@ -175,7 +175,7 @@ int typecheck(const char *types, ...)
         ptr = va_arg(va, char *);
         if (tcode >= 'A' && tcode <= 'Z')
         {
-            if (!ici_isptr(*ap))
+            if (!isptr(*ap))
                 goto fail;
             if ((o = ici_fetch(*ap, ici_zero)) == NULL)
                 goto fail;
@@ -200,9 +200,9 @@ int typecheck(const char *types, ...)
             break;
 
         case 'p': /* Any pointer. */
-            if (!ici_isptr(o))
+            if (!isptr(o))
                 goto fail;
-            *(ici_ptr_t **)ptr = ici_ptrof(o);
+            *(ici_ptr_t **)ptr = ptrof(o);
             break;
 
         case 'i': /* An int -> long. */
@@ -329,7 +329,7 @@ int retcheck(const char *types, ...)
             continue;
 
         o = *ap;
-        if (!ici_isptr(o))
+        if (!isptr(o))
             goto fail;
 
         ptr = va_arg(va, char *);
@@ -341,9 +341,9 @@ int retcheck(const char *types, ...)
             break;
 
         case 'p': /* Any pointer. */
-            if (!ici_isptr(o))
+            if (!isptr(o))
                 goto fail;
-            *(ici_ptr_t **)ptr = ici_ptrof(o);
+            *(ici_ptr_t **)ptr = ptrof(o);
             break;
 
         case 'i':
@@ -1936,11 +1936,11 @@ f_currentfile()
     raw = NARGS() > 0 && ARG(0) == SS(raw);
     for (o = ici_xs.a_top - 1; o >= ici_xs.a_base; --o)
     {
-        if (ici_isparse(*o))
+        if (isparse(*o))
         {
             if (raw)
-                return ici_ret_no_decref(ici_parseof(*o)->p_file);
-            f = ici_file_new(*o, parse_ftype, ici_parseof(*o)->p_file->f_name, *o);
+                return ici_ret_no_decref(parseof(*o)->p_file);
+            f = ici_file_new(*o, parse_ftype, parseof(*o)->p_file->f_name, *o);
             if (f == NULL)
                 return 1;
             return ici_ret_with_decref(f);

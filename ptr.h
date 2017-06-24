@@ -17,8 +17,8 @@ struct ptr : object
     object   *p_key;         /* The key which references it. */
 };
 
-inline ici_ptr_t *ici_ptrof(object *o) { return static_cast<ici_ptr_t *>(o); }
-inline bool ici_isptr(object *o) { return o->isa(ICI_TC_PTR); }
+inline ptr *ptrof(object *o) { return static_cast<ptr *>(o); }
+inline bool isptr(object *o) { return o->isa(ICI_TC_PTR); }
 
 /*
  * End of ici.h export. --ici.h-end--

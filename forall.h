@@ -13,16 +13,16 @@ namespace ici
  */
 struct forall : object
 {
-    int         fa_index;
-    object   *fa_aggr;
-    object   * fa_code;
-    object   * fa_vaggr;
-    object   * fa_vkey;
-    object   * fa_kaggr;
-    object   * fa_kkey;
+    int     fa_index;
+    object *fa_aggr;
+    object *fa_code;
+    object *fa_vaggr;
+    object *fa_vkey;
+    object *fa_kaggr;
+    object *fa_kkey;
 };
 
-inline ici_forall_t *forallof(object *o) { return static_cast<ici_forall_t *>(o); }
+inline forall *forallof(object *o) { return static_cast<forall *>(o); }
 inline bool isforall(object *o) { return o->isa(ICI_TC_FORALL); }
 
 /*

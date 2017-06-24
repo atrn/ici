@@ -7,7 +7,7 @@
 #include "struct.h"
 #include "null.h"
 #include "forall.h"
-#include "catch.h"
+#include "catcher.h"
 
 namespace ici
 {

@@ -1,7 +1,7 @@
 // -*- mode:c++ -*-
 
-#ifndef ICI_CATCH_H
-#define ICI_CATCH_H
+#ifndef ICI_CATCHER_H
+#define ICI_CATCHER_H
 
 namespace ici
 {
@@ -19,12 +19,12 @@ namespace ici
 struct catcher : object
 {
     object   *c_catcher;
-    uint32_t    c_odepth;       /* Operand stack depth. */
-    uint32_t    c_vdepth;       /* Variable stack depth. */
+    uint32_t c_odepth;       /* Operand stack depth. */
+    uint32_t c_vdepth;       /* Variable stack depth. */
 };
 
-inline ici_catch_t *ici_catchof(object *o) { return static_cast<ici_catch_t *>(o); }
-inline bool ici_iscatch(object *o) { return o->isa(ICI_TC_CATCH); }
+inline catcher *catcherof(object *o) { return static_cast<catcher *>(o); }
+inline bool iscatcher(object *o) { return o->isa(ICI_TC_CATCHER); }
 
 /*
  * Flags set stored in the upper nibble of o_flags (which is
@@ -41,14 +41,14 @@ constexpr int CF_CRIT_SECT = 0x40;    /* Critical section guard. */
  * End of ici.h export. --ici.h-end--
  */
 
-class catch_type : public type
+class catcher_type : public type
 {
 public:
-    catch_type() : type("catch", sizeof (struct catcher)) {}
+    catcher_type() : type("catcher", sizeof (struct catcher)) {}
     size_t mark(object *o) override;
     void free(object *o) override;
 };
 
 } // namespace ici
 
-#endif /* ICI_CATCH_H */
+#endif /* ICI_CATCHER_H */

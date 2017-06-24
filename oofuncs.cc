@@ -91,7 +91,7 @@ m_respondsto(object *o)
         return 1;
     if ((v = ici_fetch(o, classname)) == NULL)
         return 1;
-    if (ici_ismethod(v))
+    if (ismethod(v))
     {
         return ici_ret_no_decref(v);
     }

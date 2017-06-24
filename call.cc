@@ -7,7 +7,7 @@
 #include "float.h"
 #include "str.h"
 #include "null.h"
-#include "catch.h"
+#include "catcher.h"
 
 namespace ici
 {

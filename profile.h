@@ -12,14 +12,6 @@ namespace ici
  * The following portion of this file exports to ici.h. --ici.h-start--
  */
 
-typedef struct ici_profilecall ici_profilecall_t;
-extern int ici_profile_active;
-void ici_profile_call(ici_func_t *f);
-void ici_profile_return();
-void ici_profile_set_done_callback(void (*)(ici_profilecall_t *));
-ici_profilecall_t *ici_profilecall_new(ici_profilecall_t *called_by);
-
-
 /*
  * Type used to store profiling call graph.
  *
@@ -27,13 +19,13 @@ ici_profilecall_t *ici_profilecall_new(ici_profilecall_t *called_by);
  * of these.  If a function is called more than once from the same function
  * then the object is reused.
  */
-struct ici_profilecall : object
+struct profilecall : object
 {
-    ici_profilecall_t   *pc_calledby;
-    ici_struct_t    *pc_calls;
-    long            pc_total;
-    long            pc_laststart;
-    long            pc_call_count;
+    profilecall *pc_calledby;
+    ici_struct  *pc_calls;
+    long         pc_total;
+    long         pc_laststart;
+    long         pc_call_count;
 };
 /*
  * pc_caller        The records for the function that called this function.
@@ -47,8 +39,14 @@ struct ici_profilecall : object
  * pc_call_count    The number of times this function was called.
  */
 
-inline ici_profilecall_t *ici_profilecallof(object *o) { return static_cast<ici_profilecall_t *>(o); }
-inline bool ici_isprofilecall(object *o) { return o->isa(ICI_TC_PROFILECALL); }
+inline profilecall *profilecallof(object *o) { return static_cast<profilecall *>(o); }
+inline bool isprofilecall(object *o) { return o->isa(ICI_TC_PROFILECALL); }
+
+extern int ici_profile_active;
+void ici_profile_call(func *f);
+void ici_profile_return();
+void ici_profile_set_done_callback(void (*)(profilecall *));
+profilecall *ici_profilecall_new(profilecall *called_by);
 
 /*
  * End of ici.h export. --ici.h-end--
@@ -56,7 +54,7 @@ inline bool ici_isprofilecall(object *o) { return o->isa(ICI_TC_PROFILECALL); }
 class profilecall_type : public type
 {
 public:
-    profilecall_type() : type("profile call", sizeof (struct ici_profilecall)) {}
+    profilecall_type() : type("profile call", sizeof (struct profilecall)) {}
     size_t mark(object *o) override;
 };
 

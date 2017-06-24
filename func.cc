@@ -8,7 +8,7 @@
 #include "pc.h"
 #include "src.h"
 #include "str.h"
-#include "catch.h"
+#include "catcher.h"
 #include "buf.h"
 #include "mark.h"
 #include "null.h"
@@ -20,8 +20,7 @@
 namespace ici
 {
 
-func *
-ici_new_func()
+func *ici_new_func()
 {
     func *f;
 
@@ -35,12 +34,11 @@ ici_new_func()
     return f;
 }
 
-int
-ici_op_return()
+int ici_op_return()
 {
-    object              **x;
-    static int          occasionally;
-    object           *f;
+    static int   occasionally = 0;
+    object     **x;
+    object      *f;
 
     if (UNLIKELY(ici_debug_active))
     {
@@ -50,14 +48,14 @@ ici_op_return()
     x = ici_xs.a_top - 1;
     while
     (
-        !ici_ismark(*x)
+        !ismark(*x)
         &&
         --x >= ici_xs.a_base
         &&
-        !(ici_iscatch(*x) && isnull(ici_catchof(*x)->c_catcher))
+        !(iscatcher(*x) && isnull(catcherof(*x)->c_catcher))
     )
         ;
-    if (x < ici_xs.a_base || !ici_ismark(*x))
+    if (x < ici_xs.a_base || !ismark(*x))
     {
         return ici_set_error("return not in function");
     }

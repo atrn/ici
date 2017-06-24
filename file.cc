@@ -124,7 +124,7 @@ object * file_type::fetch(object *o, object *k)
     {
         ici_int_t   *l;
 
-        if ((l = ici_int_new(ici_parseof(fileof(o)->f_file)->p_lineno)) != NULL)
+        if ((l = ici_int_new(parseof(fileof(o)->f_file)->p_lineno)) != NULL)
             l->decref();
         return l;
     }

@@ -227,7 +227,7 @@ save_struct(archive *ar, object *obj)
 static int
 save_ptr(archive *ar, object *obj)
 {
-    return archive_save(ar, ici_ptrof(obj)->p_aggr) || archive_save(ar, ici_ptrof(obj)->p_key);
+    return archive_save(ar, ptrof(obj)->p_aggr) || archive_save(ar, ptrof(obj)->p_key);
 }
 
 // func
