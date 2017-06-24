@@ -105,7 +105,7 @@ f_channel(...)
         }
         capacity = size_t(val);
     }
-    // chan = ici_nalloc(sizeof (ici_channel_t));
+    // chan = ici_nalloc(sizeof (channel));
     chan = ici_talloc(channel);
     if (chan == NULL)
         return 1;

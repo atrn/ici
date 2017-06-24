@@ -33,7 +33,7 @@ int     re_nbra;
  *
  * Returns NULL on error, usual conventions.
  */
-regexp *ici_regexp_new(ici_str_t *s, int flags)
+regexp *ici_regexp_new(str *s, int flags)
 {
     regexp     *r;
     pcre       *re;
@@ -55,7 +55,7 @@ regexp *ici_regexp_new(ici_str_t *s, int flags)
     if (ici_error != NULL)
         goto fail;
     /* Note rex can be NULL if no extra info required */
-    if ((r = (ici_regexp_t *)ici_talloc(ici_regexp_t)) == NULL)
+    if ((r = (regexp *)ici_talloc(regexp)) == NULL)
         goto fail;
     ICI_OBJ_SET_TFNZ(r, ICI_TC_REGEXP, 0, 1, 0);
     r->r_re  = re;
@@ -77,7 +77,7 @@ regexp *ici_regexp_new(ici_str_t *s, int flags)
  * don't need to drag in the whole definition of pcre's include files.
  */
 int
-ici_pcre(ici_regexp_t *r,
+ici_pcre(regexp *r,
          const char *subject, int length, int start_offset,
          int options, int *offsets, int offsetcount)
 {
@@ -94,7 +94,7 @@ ici_pcre(ici_regexp_t *r,
     );
 }
 
-int ici_pcre_exec_simple(ici_regexp_t *r, ici_str_t *s)
+int ici_pcre_exec_simple(regexp *r, str *s)
 {
     return pcre_exec
     (
@@ -162,8 +162,8 @@ object *regexp_type::fetch(object *o, object *k)
         return regexpof(o)->r_pat;
     if (k == SS(options))
     {
-        int         options;
-        ici_int_t   *io;
+        int       options;
+        ici_int   *io;
 
         pcre_info(regexpof(o)->r_re, &options, NULL);
         if ((io = ici_int_new(options)) == NULL)

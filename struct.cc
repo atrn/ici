@@ -78,12 +78,12 @@ ici_struct_new()
     s->s_slots = NULL;
     s->s_nels = 0;
     s->s_nslots = 4; /* Must be power of 2. */
-    if ((s->s_slots = (sslot*)ici_nalloc(4 * sizeof(sslot))) == NULL)
+    if ((s->s_slots = (sslot*)ici_nalloc(4 * sizeof (sslot))) == NULL)
     {
         ici_tfree(s, ici_struct);
         return NULL;
     }
-    memset(s->s_slots, 0, 4 * sizeof(sslot));
+    memset(s->s_slots, 0, 4 * sizeof (sslot));
     ici_rego(s);
     return s;
 }
@@ -132,7 +132,7 @@ grow_struct(ici_struct *s)
     sslot *oldslots;
     int   i;
 
-    i = (s->s_nslots * 2) * sizeof(sslot);
+    i = (s->s_nslots * 2) * sizeof (sslot);
     if ((sl = (sslot*)ici_nalloc(i)) == NULL)
         return 1;
     memset((char *)sl, 0, i);
@@ -147,7 +147,7 @@ grow_struct(ici_struct *s)
             *ici_find_raw_slot(s, oldslots[i].sl_key) = oldslots[i];
 	}
     }
-    ici_nfree((char *)oldslots, (s->s_nslots / 2) * sizeof(sslot));
+    ici_nfree((char *)oldslots, (s->s_nslots / 2) * sizeof (sslot));
     ++vsver;
     return 0;
 }
@@ -281,7 +281,7 @@ size_t struct_type::mark(object *o)
     do /* Merge tail recursion on o_super. */
     {
         o->setmark();
-        mem = typesize() + structof(o)->s_nslots * sizeof(sslot);
+        mem = typesize() + structof(o)->s_nslots * sizeof (sslot);
         if (structof(o)->s_nels != 0)
         {
             for
@@ -316,7 +316,7 @@ void struct_type::free(object *o)
 {
     if (structof(o)->s_slots != NULL)
     {
-        ici_nfree(structof(o)->s_slots, structof(o)->s_nslots * sizeof(sslot));
+        ici_nfree(structof(o)->s_slots, structof(o)->s_nslots * sizeof (sslot));
     }
     ici_tfree(o, ici_struct);
     ++vsver;
@@ -405,11 +405,11 @@ object *struct_type::copy(object *o)
     ns->s_nslots = 0;
     ns->s_slots = NULL;
     ici_rego(ns);
-    if ((ns->s_slots = (sslot*)ici_nalloc(s->s_nslots * sizeof(sslot))) == NULL)
+    if ((ns->s_slots = (sslot*)ici_nalloc(s->s_nslots * sizeof (sslot))) == NULL)
     {
         goto fail;
     }
-    memcpy((char *)ns->s_slots, (char *)s->s_slots, s->s_nslots*sizeof(sslot));
+    memcpy((char *)ns->s_slots, (char *)s->s_slots, s->s_nslots * sizeof (sslot));
     ns->s_nels = s->s_nels;
     ns->s_nslots = s->s_nslots;
     if (ns->s_nslots <= 64)
@@ -713,11 +713,11 @@ object *struct_type::fetch_base(object *o, object *k)
     return sl->sl_value;
 }
 
-ici_op_t    ici_o_namelvalue{ICI_OP_NAMELVALUE};
-ici_op_t    ici_o_colon{ICI_OP_COLON};
-ici_op_t    ici_o_coloncaret{ICI_OP_COLONCARET};
-ici_op_t    ici_o_dot{ICI_OP_DOT};
-ici_op_t    ici_o_dotkeep{ICI_OP_DOTKEEP};
-ici_op_t    ici_o_dotrkeep{ICI_OP_DOTRKEEP};
+op    ici_o_namelvalue{ICI_OP_NAMELVALUE};
+op    ici_o_colon{ICI_OP_COLON};
+op    ici_o_coloncaret{ICI_OP_COLONCARET};
+op    ici_o_dot{ICI_OP_DOT};
+op    ici_o_dotkeep{ICI_OP_DOTKEEP};
+op    ici_o_dotrkeep{ICI_OP_DOTRKEEP};
 
 } // namespace ici

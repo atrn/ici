@@ -26,7 +26,7 @@ mem *ici_mem_new(void *base, size_t length, int accessz, void (*free_func)(void 
 
     if ((m = ici_talloc(mem)) == NULL)
         return NULL;
-    ICI_OBJ_SET_TFNZ(m, ICI_TC_MEM, 0, 1, sizeof(mem));
+    ICI_OBJ_SET_TFNZ(m, ICI_TC_MEM, 0, 1, sizeof (mem));
     ici_rego(m);
     m->m_base = base;
     m->m_length = length;
@@ -55,9 +55,10 @@ int mem_type::cmp(object *o1, object *o2)
  */
 unsigned long mem_type::hash(object *o)
 {
-    return (unsigned long)memof(o)->m_base * MEM_PRIME_0
-    + (unsigned long)memof(o)->m_length * MEM_PRIME_1
-    + (unsigned long)memof(o)->m_accessz * MEM_PRIME_2;
+    auto m = memof(o);
+    return (unsigned long)m->m_base * MEM_PRIME_0
+        + (unsigned long)m->m_length * MEM_PRIME_1
+        + (unsigned long)m->m_accessz * MEM_PRIME_2;
 }
 
 void mem_type::free(object *o)
@@ -72,31 +73,32 @@ void mem_type::free(object *o)
 
 int mem_type::assign(object *o, object *k, object *v)
 {
+    auto m = memof(o);
     int64_t i;
 
     if (!isint(k) || !isint(v))
         return assign_fail(o, k, v);
     i = intof(k)->i_value;
-    if (i < 0 || i >= (int64_t)memof(o)->m_length)
+    if (i < 0 || i >= (int64_t)m->m_length)
     {
         return ici_set_error("attempt to write at mem index %ld\n", i);
     }
-    switch (memof(o)->m_accessz)
+    switch (m->m_accessz)
     {
     case 1:
-        ((unsigned char *)memof(o)->m_base)[i] = (unsigned char)intof(v)->i_value;
+        ((uint8_t *)m->m_base)[i] = intof(v)->i_value;
         break;
 
     case 2:
-        ((unsigned short *)memof(o)->m_base)[i] = (unsigned short)intof(v)->i_value;
+        ((uint16_t *)m->m_base)[i] = intof(v)->i_value;
         break;
 
     case 4:
-        ((int *)memof(o)->m_base)[i] = (int32_t)intof(v)->i_value;
+        ((uint32_t *)m->m_base)[i] = intof(v)->i_value;
         break;
 
     case 8:
-        ((int *)memof(o)->m_base)[i] = (int64_t)intof(v)->i_value;
+        ((int64_t *)memof(o)->m_base)[i] = intof(v)->i_value;
         break;
     }
     return 0;
@@ -104,25 +106,26 @@ int mem_type::assign(object *o, object *k, object *v)
 
 object * mem_type::fetch(object *o, object *k)
 {
+    auto m = memof(o);
     int64_t i;
 
     if (!isint(k))
         return fetch_fail(o, k);
     i = intof(k)->i_value;
-    if (i < 0 || i >= (int64_t)memof(o)->m_length)
+    if (i < 0 || i >= (int64_t)m->m_length)
         return ici_null;
-    switch (memof(o)->m_accessz)
+    switch (m->m_accessz)
     {
     case 1:
-        i = ((unsigned char *)memof(o)->m_base)[i];
+        i = ((uint8_t *)memof(o)->m_base)[i];
         break;
 
     case 2:
-        i = ((unsigned short *)memof(o)->m_base)[i];
+        i = ((uint16_t *)memof(o)->m_base)[i];
         break;
 
     case 4:
-        i = ((int32_t *)memof(o)->m_base)[i];
+        i = ((uint32_t *)memof(o)->m_base)[i];
         break;
 
     case 8:

@@ -22,21 +22,21 @@ namespace ici
  * If 'subject' is NULL, then 'callable' is taken to be a callable object
  * (could be a function, a method, or something else) and is called directly.
  * If 'subject' is non-NULL, it is taken to be an instance object and 
- * 'callable' should be the name of one of its methods (i.e. an 'ici_str_t *').
+ * 'callable' should be the name of one of its methods (i.e. an 'str *').
  *
  * This --func-- forms part of the --ici-api--.
  */
 int
 ici_funcv(object *subject, object *callable, const char *types, va_list va)
 {
-    size_t              nargs;
-    size_t              arg;
-    object           *member_obj;
-    object           *ret_obj;
-    char                ret_type;
-    char                *ret_ptr;
-    ptrdiff_t           os_depth;
-    ici_op_t            *call_op;
+    size_t     nargs;
+    size_t     arg;
+    object    *member_obj;
+    object    *ret_obj;
+    char       ret_type;
+    char      *ret_ptr;
+    ptrdiff_t  os_depth;
+    op        *call_op;
 
     if (types[0] != '\0' && types[1] == '@')
     {
@@ -201,7 +201,7 @@ fail:
  * This --func-- forms part of the --ici-api--.
  */
 int
-ici_callv(ici_str_t *func_name, const char *types, va_list va)
+ici_callv(str *func_name, const char *types, va_list va)
 {
     object           *func_obj;
     object           *member_obj;
@@ -289,7 +289,7 @@ ici_func(object *callable, const char *types, ...)
  * This --func-- forms part of the --ici-api--.
  */
 int
-ici_method(object *inst, ici_str_t *mname, const char *types, ...)
+ici_method(object *inst, str *mname, const char *types, ...)
 {
     va_list     va;
     int         result;
@@ -314,7 +314,7 @@ ici_method(object *inst, ici_str_t *mname, const char *types, ...)
  * This --func-- forms part of the --ici-api--.
  */
 int
-ici_call(ici_str_t *func_name, const char *types, ...)
+ici_call(str *func_name, const char *types, ...)
 {
     object           *func_obj;
     object           *member_obj;

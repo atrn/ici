@@ -14,7 +14,7 @@ namespace ici
 #define	INITIAL_ATOMSZ  (1024) /* Must be power of two. */
 #define INITIAL_OBJS    (4096)
 
-extern ici_cfunc_t  *ici_funcs[];
+extern cfunc *ici_funcs[];
 
 /*
  * Perform basic interpreter setup. Return non-zero on failure, usual
@@ -49,7 +49,7 @@ ici_init()
      * hope they are. Nothing actually assumes this. But it would
      * represent a significant inefficiency if they were padded.
      */
-    assert(sizeof(object) == 4);
+    assert(sizeof (object) == 4);
 
     /*
      * The following assertion is only valid on some architectures.
@@ -75,7 +75,7 @@ ici_init()
     {
         return 1;
     }
-    if ((ici_atoms = (object **)ici_nalloc(INITIAL_ATOMSZ * sizeof(object *))) == NULL)
+    if ((ici_atoms = (object **)ici_nalloc(INITIAL_ATOMSZ * sizeof (object *))) == NULL)
     {
         return 1;
     }
@@ -85,7 +85,7 @@ ici_init()
     {
         return 1;
     }
-    memset((char *)ici_objs, 0, INITIAL_OBJS * sizeof(object *));
+    memset((char *)ici_objs, 0, INITIAL_OBJS * sizeof (object *));
     ici_objs_limit = ici_objs + INITIAL_OBJS;
     ici_objs_top = ici_objs;
     for (i = 0; i < (int)nels(small_ints); ++i)

@@ -2,7 +2,7 @@
  * cfunc.c
  *
  * Implementations of many (not all) of the core language intrinsic functions.
- * For historical reasons this is *NOT* the code associated with the ici_cfunc_t
+ * For historical reasons this is *NOT* the code associated with the cfunc
  * type. That's in cfunco.c
  *
  * This is public domain source. Please do not add any copyrighted material.
@@ -88,7 +88,7 @@ namespace ici
  * h        An ICI handle object.  The next available vararg must be an ICI
  *          string object.  The corresponding ICI argument must be a handle
  *          with that name.  The next (again) available vararg after that is a
- *          pointer to store the '(ici_handle_t *)' through.
+ *          pointer to store the '(handle *)' through.
  *
  * p        An ICI ptr object is required in the actuals, then as for 'o'.
  *
@@ -144,13 +144,13 @@ namespace ici
  */
 int typecheck(const char *types, ...)
 {
-    va_list             va;
-    object  **ap;   /* Argument pointer. */
-    int        nargs;
-    int        i;
-    char                *ptr;   /* Subsequent things from va_alist. */
-    int        tcode;
-    object  *o;
+    va_list   va;
+    object  **ap;               /* Argument pointer. */
+    int       nargs;
+    int       i;
+    char     *aptr;              /* Subsequent things from va_alist. */
+    int       tcode;
+    object   *o;
 
     va_start(va, types);
     nargs = NARGS();
@@ -172,7 +172,7 @@ int typecheck(const char *types, ...)
         if ((tcode = types[i]) == '-')
             continue;
 
-        ptr = va_arg(va, char *);
+        aptr = va_arg(va, char *);
         if (tcode >= 'A' && tcode <= 'Z')
         {
             if (!isptr(*ap))
@@ -189,77 +189,77 @@ int typecheck(const char *types, ...)
         switch (tcode)
         {
         case 'o': /* Any object. */
-            *(object **)ptr = o;
+            *(object **)aptr = o;
             break;
 
         case 'h': /* A handle with a particular name. */
-            if (!ishandleof(o, (str *)ptr))
+            if (!ishandleof(o, (str *)aptr))
                 goto fail;
-            ptr = va_arg(va, char *);
-            *(handle **)ptr = handleof(o);
+            aptr = va_arg(va, char *);
+            *(handle **)aptr = handleof(o);
             break;
 
         case 'p': /* Any pointer. */
             if (!isptr(o))
                 goto fail;
-            *(ici_ptr_t **)ptr = ptrof(o);
+            *(ptr **)aptr = ptrof(o);
             break;
 
         case 'i': /* An int -> long. */
             if (!isint(o))
                 goto fail;
-            *(long *)ptr = intof(o)->i_value;
+            *(long *)aptr = intof(o)->i_value;
             break;
 
         case 's': /* A string -> (char *). */
             if (!isstring(o))
                 goto fail;
-            *(char **)ptr = stringof(o)->s_chars;
+            *(char **)aptr = stringof(o)->s_chars;
             break;
 
         case 'f': /* A float -> double. */
             if (!isfloat(o))
                 goto fail;
-            *(double *)ptr = floatof(o)->f_value;
+            *(double *)aptr = floatof(o)->f_value;
             break;
 
         case 'n': /* A number, int or float -> double. */
             if (isint(o))
-                *(double *)ptr = intof(o)->i_value;
+                *(double *)aptr = intof(o)->i_value;
             else if (isfloat(o))
-                *(double *)ptr = floatof(o)->f_value;
+                *(double *)aptr = floatof(o)->f_value;
             else
                 goto fail;
             break;
 
-        case 'd': /* A struct ("dict") -> (ici_struct_t *). */
+        case 'd': /* A struct ("dict") -> (ici_struct *). */
             if (!isstruct(o))
                 goto fail;
-            *(ici_struct_t **)ptr = structof(o);
+            *(ici_struct **)aptr = structof(o);
             break;
 
         case 'a': /* An array -> (array *). */
             if (!isarray(o))
                 goto fail;
-            *(array **)ptr = arrayof(o);
+            *(array **)aptr = arrayof(o);
             break;
 
         case 'u': /* A file -> (file *). */
             if (!isfile(o))
                 goto fail;
-            *(file **)ptr = fileof(o);
+            *(file **)aptr = fileof(o);
             break;
 
         case 'r': /* A regular expression -> (regexpr_t *). */
             if (!isregexp(o))
                 goto fail;
-            *(regexp **)ptr = regexpof(o);
+            *(regexp **)aptr = regexpof(o);
             break;
 
-        case 'm': /* A mem -> (ici_mem_t *). */
+        case 'm': /* A mem -> (mem *). */
             if (!ismem(o))
                 goto fail;
-            *(ici_mem_t **)ptr = memof(o);
+            *(mem **)aptr = memof(o);
             break;
 
         default:
@@ -303,7 +303,7 @@ int retcheck(const char *types, ...)
     int       i;
     int       nargs;
     object  **ap;
-    char     *ptr;
+    char     *aptr;
     int       tcode;
     object   *o;
     object   *s;
@@ -332,22 +332,22 @@ int retcheck(const char *types, ...)
         if (!isptr(o))
             goto fail;
 
-        ptr = va_arg(va, char *);
+        aptr = va_arg(va, char *);
 
         switch (tcode)
         {
         case 'o': /* Any object. */
-            *(object **)ptr = o;
+            *(object **)aptr = o;
             break;
 
         case 'p': /* Any pointer. */
             if (!isptr(o))
                 goto fail;
-            *(ici_ptr_t **)ptr = ptrof(o);
+            *(ptr **)aptr = ptrof(o);
             break;
 
         case 'i':
-            if ((s = ici_int_new(*(long *)ptr)) == NULL)
+            if ((s = ici_int_new(*(long *)aptr)) == NULL)
                 goto ret1;
             if (ici_assign(o, ici_zero, s))
                 goto ret1;
@@ -355,7 +355,7 @@ int retcheck(const char *types, ...)
             break;
 
         case 's':
-            if ((s = ici_str_new_nul_term(*(char **)ptr)) == NULL)
+            if ((s = ici_str_new_nul_term(*(char **)aptr)) == NULL)
                 goto ret1;
             if (ici_assign(o, ici_zero, s))
                 goto ret1;
@@ -363,7 +363,7 @@ int retcheck(const char *types, ...)
             break;
 
         case 'f':
-            if ((s = ici_float_new(*(double *)ptr)) == NULL)
+            if ((s = ici_float_new(*(double *)aptr)) == NULL)
                 goto ret1;
             if (ici_assign(o, ici_zero, s))
                 goto ret1;
@@ -373,19 +373,19 @@ int retcheck(const char *types, ...)
         case 'd':
             if (!isstruct(o))
                 goto fail;
-            *(ici_struct_t **)ptr = structof(o);
+            *(ici_struct **)aptr = structof(o);
             break;
 
         case 'a':
             if (!isarray(o))
                 goto fail;
-            *(array **)ptr = arrayof(o);
+            *(array **)aptr = arrayof(o);
             break;
 
         case 'u':
             if (!isfile(o))
                 goto fail;
-            *(file **)ptr = fileof(o);
+            *(file **)aptr = fileof(o);
             break;
 
         case '*':
@@ -776,10 +776,10 @@ f_array(...)
 static int
 f_struct()
 {
-    object           **o;
-    int                 nargs;
-    ici_struct_t        *s;
-    objwsup       *super;
+    object     **o;
+    int          nargs;
+    ici_struct  *s;
+    objwsup     *super;
 
     nargs = NARGS();
     o = ARGS();
@@ -837,8 +837,8 @@ f_keys()
         return ici_argcount(1);
     if (isstruct(ARG(0)))
     {
-        ici_struct_t *s = structof(ARG(0));
-        ici_sslot_t *sl;
+        ici_struct *s = structof(ARG(0));
+        sslot *sl;
 
         if ((k = ici_array_new(s->s_nels)) == NULL)
             return 1;
@@ -1114,10 +1114,10 @@ f_top()
 static int
 f_parse()
 {
-    object   *o;
-    file  *f;
-    ici_struct_t    *s;     /* Statics. */
-    ici_struct_t    *a;     /* Autos. */
+    object     *o;
+    file       *f;
+    ici_struct *s;              /* Statics. */
+    ici_struct *a;              /* Autos. */
 
     switch (NARGS())
     {
@@ -1175,10 +1175,10 @@ fail:
 
 static int f_include()
 {
-    str   *filename;
-    ici_struct_t    *a;
+    str        *filename;
+    ici_struct *a;
     int         rc;
-    file  *f;
+    file       *f;
 
     switch (NARGS())
     {
@@ -1233,13 +1233,13 @@ static int f_include()
 static int
 f_call()
 {
-    array *aa;        /* The array with extra arguments, or NULL. */
-    int         nargs;      /* Number of args to target function. */
-    int         naargs;     /* Number of args comming from the array. */
-    object   **base;
-    object   **e;
-    int         i;
-    ici_int_t   *nargso;
+    array    *aa;               /* The array with extra arguments, or NULL. */
+    int       nargs;            /* Number of args to target function. */
+    int       naargs;           /* Number of args comming from the array. */
+    object  **base;
+    object  **e;
+    int       i;
+    ici_int  *nargso;
     object   *func;
 
     if (NARGS() < 2)
@@ -1287,7 +1287,7 @@ f_call()
      * First move the arguments that we want to keep up to the stack
      * to their new position (all except the func and the array).
      */
-    memmove(base + naargs, base + 1, (NARGS() - 2) * sizeof(object *));
+    memmove(base + naargs, base + 1, (NARGS() - 2) * sizeof (object *));
     ici_os.a_top += naargs - 2;
     if (naargs > 0)
     {
@@ -1592,9 +1592,9 @@ f_sopen()
 static int
 f_mopen()
 {
-    ici_mem_t   *mem;
-    file  *f;
-    const char  *mode;
+    mem        *mem;
+    file       *f;
+    const char *mode;
     int         readonly;
 
     mode = "r";
@@ -1967,10 +1967,10 @@ f_del()
     }
     else if (isarray(s))
     {
-        array     *a;
-        object       **e;
-        long            i;
-        ptrdiff_t       n;
+        array      *a;
+        object    **e;
+        long        i;
+        ptrdiff_t   n;
 
         
         if (!isint(o))
@@ -2098,7 +2098,7 @@ f_super()
 static int
 f_scope()
 {
-    ici_struct_t    *s;
+    ici_struct *s;
 
     s = structof(ici_vs.a_top[-1]);
     if (NARGS() > 0)
@@ -2230,7 +2230,7 @@ f_assign()
 static int
 f_fetch()
 {
-    ici_struct_t    *s;
+    ici_struct *s;
     object   *k;
 
     if (typecheck("oo", &s, &k))
@@ -2784,8 +2784,8 @@ f_sort()
     n = a->len();
     if (a->a_bot > a->a_top)
     {
-        ptrdiff_t       m;
-        object       **e;
+        ptrdiff_t   m;
+        object    **e;
 
         /*
          * Can't sort in-place because the array has wrapped. Force the
@@ -2793,10 +2793,10 @@ f_sort()
          * in array.c.
          */
         m = a->a_limit - a->a_base;
-        if ((e = (object **)ici_nalloc(m * sizeof(object *))) == NULL)
+        if ((e = (object **)ici_nalloc(m * sizeof (object *))) == NULL)
             goto fail;
         a->gather(e, 0, n);
-        ici_nfree(a->a_base, m * sizeof(object *));
+        ici_nfree(a->a_base, m * sizeof (object *));
         a->a_base = e;
         a->a_bot = e;
         a->a_top = e + n;

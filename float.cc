@@ -14,12 +14,11 @@ namespace ici
  *
  * This --func-- forms part of the --ici-api--.
  */
-ici_float_t *
-ici_float_new(double v)
+ici_float *ici_float_new(double v)
 {
-    ici_float_t          *f;
+    ici_float          *f;
     object           **po;
-    static ici_float_t   proto;
+    static ici_float   proto;
 
     proto.f_value = v;
     if ((f = floatof(ici_atom_probe2(&proto, &po))) != NULL)
@@ -28,9 +27,9 @@ ici_float_new(double v)
         return f;
     }
     ++ici_supress_collect;
-    if ((f = ici_talloc(ici_float_t)) == NULL)
+    if ((f = ici_talloc(ici_float)) == NULL)
         return NULL;
-    ICI_OBJ_SET_TFNZ(f, ICI_TC_FLOAT, ICI_O_ATOM, 1, sizeof(ici_float_t));
+    ICI_OBJ_SET_TFNZ(f, ICI_TC_FLOAT, ICI_O_ATOM, 1, sizeof (ici_float));
     f->f_value = v;
     ici_rego(f);
     --ici_supress_collect;
@@ -40,7 +39,7 @@ ici_float_new(double v)
 
 int float_type::cmp(object *o1, object *o2)
 {
-    assert(sizeof(double) == 2 * sizeof(int32_t));
+    assert(sizeof (double) == 2 * sizeof (int32_t));
     return !DBL_BIT_CMP(&floatof(o1)->f_value, &floatof(o2)->f_value);
 }
 
@@ -62,7 +61,7 @@ unsigned long ici_hash_float(double v)
      *
      * WARNING: there is an in-line expansion of this in binop.h.
      */
-    if (sizeof v == 2 * sizeof(int32_t))
+    if (sizeof v == 2 * sizeof (int32_t))
     {
         /*
          * The little dance of getting the address of the double into

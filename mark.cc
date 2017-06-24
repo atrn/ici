@@ -9,6 +9,6 @@ void mark_type::free(object *)
 {
 }
 
-ici_mark_t  o_mark;
+mark o_mark;
 
 } // namespace ici

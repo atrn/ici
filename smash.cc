@@ -24,11 +24,11 @@ ici_smash(char *str, int delim)
      * XENIX compiler bug workaround:
      */
     n = strlen(str);
-    n += (i + 2) * sizeof(char *) + 1;
+    n += (i + 2) * sizeof (char *) + 1;
     if ((ptrs = (char **)ici_alloc(n)) == NULL)
         return NULL;
 
-    p = (char *)ptrs + (i + 2) * sizeof(char *);
+    p = (char *)ptrs + (i + 2) * sizeof (char *);
     strcpy(p, str);
     ptrs[0] = p;
     i = 1;
@@ -59,11 +59,11 @@ ici_ssmash(char *str, char *delims)
      * XENIX compiler bug workaround:
      */
     n = strlen(str);
-    n += (i + 2) * sizeof(char *) + 1;
+    n += (i + 2) * sizeof (char *) + 1;
     if ((ptrs = (char **)ici_alloc(n)) == NULL)
         return NULL;
 
-    p = (char *)ptrs + (i + 2) * sizeof(char *);
+    p = (char *)ptrs + (i + 2) * sizeof (char *);
     strcpy(p, str);
     ptrs[0] = p;
     i = 1;

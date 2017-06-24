@@ -37,7 +37,7 @@ static int      statement(parse *, array *, ici_struct *, const char *, int);
 #define DISASSEMBLE   0
 #if DISASSEMBLE
 static char *
-opname(ici_op_t *op)
+opname(op *op)
 {
     switch (op->op_ecode)
     {
@@ -2635,7 +2635,7 @@ ici_new_parse(file *f)
     {
         return NULL;
     }
-    memset(p, 0, sizeof(parse));
+    memset(p, 0, sizeof (parse));
     ICI_OBJ_SET_TFNZ(p, ICI_TC_PARSE, 0, 1, 0);
     ici_rego(p);
     p->p_file = f;

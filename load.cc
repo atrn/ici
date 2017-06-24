@@ -9,7 +9,7 @@
 namespace ici
 {
 
-static                  int push_path_elements(ici_array_t *a, const char *path); /* Forward. */
+static                  int push_path_elements(array *a, const char *path); /* Forward. */
 #define PUSH(A, B)      if (push_path_elements((A), (B))) return 1
 
 /*
@@ -185,7 +185,7 @@ f_load(...)
     strcat(fname, name->s_chars);
     if (ici_find_on_path(fname, ".ici"))
     {
-        ici_str_t       *fn;
+        str       *fn;
         /*
          * We have a file .../iciX.ici, open the file, make new statics
          * and autos, assign the statics into the extern scope under
@@ -268,8 +268,7 @@ fail:
  * the search behaviour of LoadLibrary() (that being the Windows thing to
  * do).
  */
-static int
-push_os_path_elements(ici_array_t *a)
+static int push_os_path_elements(array *a)
 {
     char                fname[MAX_PATH];
     char                *p;
@@ -317,8 +316,7 @@ push_os_path_elements(ici_array_t *a)
  * is the ICI path array used for finding dynamically loaded modules and
  * stuff). These are in addition to the ANICIPATH environment variable.
  */
-static int
-push_os_path_elements(ici_array_t *a)
+static int push_os_path_elements(array *a)
 {
     char                *p;
     char                *q;
@@ -357,13 +355,12 @@ push_os_path_elements(ici_array_t *a)
  * Push one or more file names from path, seperated by the local system
  * seperator character (eg. : or ;), onto a. Usual error conventions.
  */
-static int
-push_path_elements(ici_array_t *a, const char *path)
+static int push_path_elements(array *a, const char *path)
 {
-    const char          *p;
-    const char          *q;
-    ici_str_t           *s;
-    object           **e;
+    const char  *p;
+    const char  *q;
+    str         *s;
+    object     **e;
 
     for (p = path; *p != '\0'; p = *q == '\0' ? q : q + 1)
     {

@@ -378,13 +378,13 @@ compile_block.ctypes = re->tables + ctypes_offset;
 
 /* See if we can find a fixed set of initial characters for the pattern. */
 
-memset(start_bits, 0, 32 * sizeof(uschar));
+memset(start_bits, 0, 32 * sizeof (uschar));
 if (!set_start_bits(re->code, start_bits, (re->options & PCRE_CASELESS) != 0,
   &compile_block)) return NULL;
 
 /* Get an "extra" block and put the information therein. */
 
-extra = (real_pcre_extra *)(pcre_malloc)(sizeof(real_pcre_extra));
+extra = (real_pcre_extra *)(pcre_malloc)(sizeof (real_pcre_extra));
 
 if (extra == NULL)
   {
@@ -393,7 +393,7 @@ if (extra == NULL)
   }
 
 extra->options = PCRE_STUDY_MAPPED;
-memcpy(extra->start_bits, start_bits, sizeof(start_bits));
+memcpy(extra->start_bits, start_bits, sizeof (start_bits));
 
 return (pcre_extra *)extra;
 }

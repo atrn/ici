@@ -34,7 +34,7 @@ namespace ici
 constexpr int ICI_O_MARK  =         0x01;    /* Garbage collection mark. */
 constexpr int ICI_O_ATOM  =         0x02;    /* Is a member of the atom pool. */
 constexpr int ICI_O_TEMP  =         0x04;    /* Is a re-usable temp (flag for asserts). */
-constexpr int ICI_O_SUPER =         0x08;    /* Has super (is ici_objwsup_t derived). */
+constexpr int ICI_O_SUPER =         0x08;    /* Has super (is objwsup derived). */
 
 /*
  * This is the universal header of all objects.  Each object inherits
@@ -156,11 +156,11 @@ struct object
         return type()->fetch(this, k);
     }
 
-    inline int assign_super(object *k, object *v, ici_struct_t *b) {
+    inline int assign_super(object *k, object *v, ici_struct *b) {
         return type()->assign_super(this, k, v, b);
     }
     
-    inline int fetch_super(object *k, object **pv, ici_struct_t *b) {
+    inline int fetch_super(object *k, object **pv, ici_struct *b) {
         return type()->fetch_super(this, k, pv, b);
     }
 
@@ -222,7 +222,7 @@ struct object
  */
 
 /*
- * Return a pointer to the 'ici_type_t' struct of the given object.
+ * Return a pointer to the 'type' struct of the given object.
  *
  * This --func-- forms part of the --ici-api--.
  */
@@ -248,7 +248,7 @@ struct objwsup : object
     objwsup *o_super;
 };
 
-inline ici_objwsup_t *ici_objwsupof(object *o) { return static_cast<ici_objwsup_t *>(o); }
+inline objwsup *ici_objwsupof(object *o) { return static_cast<objwsup *>(o); }
 
 /*
  * Test if this object supports a super type.  (It may or may not have a super
@@ -374,7 +374,7 @@ inline object *ici_fetch_base(object *o, object *k) {
  *
  * This --macro-- forms part of the --ici-api--.
  */
-inline int ici_fetch_super(object *o, object *k, object **v, ici_struct_t *b) {
+inline int ici_fetch_super(object *o, object *k, object **v, ici_struct *b) {
     return o->fetch_super(k, v, b);
 }
 
@@ -393,7 +393,7 @@ inline int ici_fetch_super(object *o, object *k, object **v, ici_struct_t *b) {
  *
  * This --macro-- forms part of the --ici-api--.
  */
-inline int ici_assign_super(object *o, object *k, object *v, ici_struct_t *b) {
+inline int ici_assign_super(object *o, object *k, object *v, ici_struct *b) {
     return o->assign_super(k, v, b);
 }
 
@@ -405,7 +405,7 @@ inline int ici_assign_super(object *o, object *k, object *v, ici_struct_t *b) {
  * can *only* be freed by the garbage collector.
  *
  * (Not all objects are registered with the garabage collector. The main
- * exception is staticly defined objects. For example, the 'ici_cfunt_t'
+ * exception is staticly defined objects. For example, the 'cfunt'
  * objects that are the ICI objects representing functions coded in C
  * are typically staticly defined and never registered. However there
  * are problems with unregistered objects that reference other objects,

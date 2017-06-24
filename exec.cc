@@ -188,8 +188,8 @@ ici_engine_stack_check()
 }
 
 /*
- * Execute 'code' (any object, normally an ici_array_t of code or a
- * ici_parse_t).  The execution procedes on top of the current stacks
+ * Execute 'code' (any object, normally an array of code or a
+ * parse).  The execution procedes on top of the current stacks
  * (execution, operand and variable).  This call to evaluate will return when
  * the execution stack again returns to the level it was when entered.  It
  * then returns the object left on the operand stack, or ici_null if there
@@ -442,15 +442,15 @@ object *evaluate(object *code, int n_operands)
                     }
                     *ici_xs.a_top++ = o; /* Temp restore formal state. */
                     {
-                        ici_src_t *src = ici_exec->x_src;
-                        src->incref();
+                        src *srco = ici_exec->x_src;
+                        srco->incref();
                         if (ici_func(f, "o", o))
                         {
-                            src->decref();
+                            srco->decref();
                             goto fail;
                         }
-                        ici_exec->x_src = src;
-                        src->decref();
+                        ici_exec->x_src = srco;
+                        srco->decref();
                     }
                     --ici_xs.a_top;
                     switch
@@ -623,7 +623,7 @@ object *evaluate(object *code, int n_operands)
                     }
                     if ((flags & OPC_COLON_CALL) == 0)
                     {
-                        ici_method_t        *m;
+                        method *m;
 
                         if ((m = ici_method_new(ici_os.a_top[-2], o)) == NULL)
                         {
@@ -1132,7 +1132,7 @@ object *evaluate(object *code, int n_operands)
                  *           => NULL switcher (pc(array) + struct.value) (xs)
                  */
                 {
-                    ici_sslot_t *sl;
+                    sslot *sl;
 
                     if ((sl = ici_find_raw_slot(structof(ici_os.a_top[-1]), ici_os.a_top[-3]))->sl_key == NULL)
                     {
@@ -1343,7 +1343,7 @@ object *exec_type::fetch(object *o, object *k)
         {
             return ici_null;
         }
-        ici_str_t *s = ici_str_new_nul_term(x->x_error);
+        str *s = ici_str_new_nul_term(x->x_error);
         if (s != NULL)
         {
             s->decref();
@@ -1381,6 +1381,6 @@ object *exec_type::fetch(object *o, object *k)
     return ici_null;
 }
 
-ici_op_t    ici_o_quote{ICI_OP_QUOTE};
+op    ici_o_quote{ICI_OP_QUOTE};
 
 } // namespace ici

@@ -124,8 +124,8 @@ buildxx(object **r, object **dnext, struct context *c)
     }
     if (isint(*dnext))
     {
-        ici_array_t     *a;
-        int             n;
+        array     *a;
+        int       n;
 
         /*
          * We have an int dimension. We must make an array that big and
@@ -148,10 +148,10 @@ buildxx(object **r, object **dnext, struct context *c)
     }
     else if (isarray(*dnext))
     {
-        ici_array_t     *a;
-        ici_struct_t    *s;
-        object       **e;
-        object       *o;
+        array      *a;
+        ici_struct *s;
+        object     **e;
+        object     *o;
 
         /*
          * We have an array dimension. This means a struct with the elements

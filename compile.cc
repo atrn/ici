@@ -96,8 +96,8 @@ int ici_compile_expr(array *a, expr *e, int why)
         }
         if (e->e_what == T_QUESTION)
         {
-            ici_array_t *a1;
-            ici_array_t *a2;
+            array *a1;
+            array *a2;
 
             if (e->e_arg[1]->e_what != T_COLON)
             {
@@ -274,7 +274,7 @@ int ici_compile_expr(array *a, expr *e, int why)
         }
         if (e->e_what == T_ANDAND || e->e_what == T_BARBAR)
         {
-            ici_array_t    *a1;
+            array    *a1;
 
             if (ici_compile_expr(a, e->e_arg[0], FOR_VALUE))
             {
@@ -353,7 +353,7 @@ int ici_compile_expr(array *a, expr *e, int why)
 
         case T_DOLLAR:
             {
-                ici_array_t *a1;
+                array *a1;
 
                 if ((a1 = ici_array_new(0)) == NULL)
                 {

@@ -104,10 +104,10 @@ struct handle : objwsup
 
     void    *h_ptr;
     str     *h_name;
-    void    (*h_pre_free)(ici_handle_t *h);
+    void    (*h_pre_free)(handle *h);
     object   *h_member_map;
     int     (*h_member_intf)(void *ptr, int id, object *setv, object **retv);
-    int     (*h_general_intf)(ici_handle_t *h, object *k, object *setv, object **retv);
+    int     (*h_general_intf)(handle *h, object *k, object *setv, object **retv);
 };
 
 inline handle *handleof(object *o) { return static_cast<handle *>(o); }

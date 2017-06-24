@@ -9,20 +9,19 @@
 namespace ici
 {
 
-static ici_wrap_t       *wraps;
+static wrap *wraps;
 
 /*
  * Register the function 'func' to be called at ICI interpreter shutdown
  * (i.e. 'ici_uninit()' call).
  *
- * The caller must supply a 'ici_wrap_t' struct, which is usually statically
+ * The caller must supply a 'wrap' struct, which is usually statically
  * allocated. This structure will be linked onto an internal list and
  * be unavailable till after 'ici_uninit()' is called.
  *
  * This --func-- forms part of the --ici-api--.
  */
-void
-ici_atexit(void (*func)(), ici_wrap_t *w)
+void ici_atexit(void (*func)(), wrap *w)
 {
     w->w_next = wraps;
     w->w_func = func;
@@ -46,10 +45,10 @@ ici_atexit(void (*func)(), ici_wrap_t *w)
 void
 ici_uninit()
 {
-    int                 i;
-    ici_exec_t          *x;
-    extern ici_str_t    *ici_ver_cache;
-    extern ici_regexp_t *ici_smash_default_re;
+    int           i;
+    exec    *x;
+    extern str    *ici_ver_cache;
+    extern regexp *ici_smash_default_re;
 
     /*
      * This catches the case where ici_uninit() is called without ici_init
@@ -123,9 +122,9 @@ ici_uninit()
     /*
      * Now free the allocated part of our three special static stacks.
      */
-    ici_nfree(ici_vs.a_base, (ici_vs.a_limit - ici_vs.a_base) * sizeof(object *));
-    ici_nfree(ici_os.a_base, (ici_os.a_limit - ici_os.a_base) * sizeof(object *));
-    ici_nfree(ici_xs.a_base, (ici_xs.a_limit - ici_xs.a_base) * sizeof(object *));
+    ici_nfree(ici_vs.a_base, (ici_vs.a_limit - ici_vs.a_base) * sizeof (object *));
+    ici_nfree(ici_os.a_base, (ici_os.a_limit - ici_os.a_base) * sizeof (object *));
+    ici_nfree(ici_xs.a_base, (ici_xs.a_limit - ici_xs.a_base) * sizeof (object *));
 
 #if 1 && !defined(NDEBUG)
     ici_vs.decref();

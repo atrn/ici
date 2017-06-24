@@ -204,8 +204,7 @@ f_profile(...)
 /*
  *  This is called whenever ICI calls a function.
  */
-void
-ici_profile_call(ici_func_t *f)
+void ici_profile_call(func *f)
 {
     profilecall *pc;
     time_t start;
@@ -239,11 +238,10 @@ ici_profile_call(ici_func_t *f)
  *  pc      The call to write out.
  *  indent  Number of spaces to indent with.
  */
-static void
-write_outfile(FILE *of, profilecall *pc, int indent)
+static void write_outfile(FILE *of, profilecall *pc, int indent)
 {
-    ici_sslot_t*sl;
-    char    *p;
+    sslot *sl;
+    char  *p;
 
     fputs("[struct\n", of);
     fprintf(of, "%*stotal = %ld,\n", indent + 1, "", pc->pc_total);

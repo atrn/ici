@@ -148,10 +148,10 @@ do_repl
 static array *do_smash
 (
     str   *thestr,
-    ici_regexp_t *re,
+    regexp *re,
     str   **repls,
-    int         n_repls,
-    int         include_remainder
+    int     n_repls,
+    int     include_remainder
 )
 {
     char  *s;                   /* Where we are up to in the string. */
@@ -237,7 +237,7 @@ fail:
  *              matching what it has replaced (which can cause infinite
  *              loops).
  */
-static str *do_sub(str *thestr, ici_regexp_t *re, char *repl, int *ofs)
+static str *do_sub(str *thestr, regexp *re, char *repl, int *ofs)
 {
     char *dst;
     int   normal;
@@ -386,7 +386,7 @@ static str *do_sub(str *thestr, ici_regexp_t *re, char *repl, int *ofs)
     rc = ici_str_new_nul_term(dst);
     ici_free(dst);
     if (rc == NULL)
-        return (ici_str_t *)-1;
+        return (str *)-1;
     return rc;
 }
 
@@ -398,7 +398,7 @@ f_sub(...)
 {
     object   *thestr;
     object   *o;
-    ici_regexp_t    *re;
+    regexp    *re;
     char        *repl;
     str   *rc;
     int         ofs = 0;
@@ -418,7 +418,7 @@ f_sub(...)
         return 1;
     if ((rc = do_sub(stringof(thestr), re, repl, &ofs)) == NULL)
         rc = stringof(thestr);
-    else if (rc == (ici_str_t*)-1)
+    else if (rc == (str *)-1)
     {
         if (regexpof(o) != re)
             re->decref();
@@ -438,7 +438,7 @@ f_gsub(...)
 {
 
     str           *thestr;
-    ici_regexp_t  *re;
+    regexp  *re;
     str           *repl;
     str           *repls[2];
     char          *s;
@@ -553,7 +553,7 @@ fail:
     return 1;
 }
 
-ici_regexp_t *ici_smash_default_re;
+regexp *ici_smash_default_re;
 
 /*
  * f_smash()
@@ -564,7 +564,7 @@ static int
 f_smash(...)
 {
     str           *thestr;
-    ici_regexp_t  *re;
+    regexp  *re;
     str          **repls;
     int            n_repls;
     array         *a;

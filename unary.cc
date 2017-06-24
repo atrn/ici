@@ -19,7 +19,7 @@ attempted(const char *what, const char *towhat)
 int
 ici_op_unary()
 {
-    ici_int_t   *i;
+    ici_int *i;
 
     switch (opof(ici_xs.a_top[-1])->op_code)
     {

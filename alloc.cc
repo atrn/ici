@@ -128,10 +128,10 @@ ici_nalloc(size_t z)
         /*
          * Current chunk empty. Allocate another one.
          */
-        if ((c = (achunk_t *)malloc(sizeof(achunk_t))) == NULL)
+        if ((c = (achunk_t *)malloc(sizeof (achunk_t))) == NULL)
         {
             ici_collect();
-            if ((c = (achunk_t *)malloc(sizeof(achunk_t))) == NULL)
+            if ((c = (achunk_t *)malloc(sizeof (achunk_t))) == NULL)
                 goto fail;
         }
         c->c_next = ici_achunks;

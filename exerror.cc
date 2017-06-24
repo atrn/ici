@@ -12,7 +12,7 @@ namespace ici
  * argument values are ignored.
  */
 void
-ici_expand_error(int lineno, ici_str_t *fname)
+ici_expand_error(int lineno, str *fname)
 {
     char        *s;
     int         z;

@@ -32,12 +32,11 @@ namespace ici
  *
  * This --func-- forms part of the --ici-api--.
  */
-ici_file_t *
-ici_file_new(void *fp, ftype *ftype, str *name, object *ref)
+file *ici_file_new(void *fp, ftype *ftype, str *name, object *ref)
 {
-    ici_file_t *f;
+    file *f;
 
-    if ((f = ici_talloc(ici_file_t)) == NULL)
+    if ((f = ici_talloc(file)) == NULL)
         return NULL;
     ICI_OBJ_SET_TFNZ(f, ICI_TC_FILE, 0, 1, 0);
     f->f_file = fp;
@@ -58,11 +57,10 @@ ici_file_new(void *fp, ftype *ftype, str *name, object *ref)
  *
  * This --func-- forms part of the --ici-api--.
  */
-int
-ici_file_close(ici_file_t *f)
+int ici_file_close(file *f)
 {
-    ici_exec_t  *x = NULL;
-    int         r;
+    exec *x = NULL;
+    int   r;
 
     if (f->flagged(ICI_F_CLOSED))
     {
@@ -103,7 +101,7 @@ void file_type::free(object *o)
         else
             ici_file_close(fileof(o));
     }
-    ici_tfree(o, ici_file_t);
+    ici_tfree(o, file);
 }
 
 int file_type::cmp(object *o1, object *o2)
@@ -122,7 +120,7 @@ object * file_type::fetch(object *o, object *k)
     }
     if (fileof(o)->f_type == parse_ftype && k == SS(line))
     {
-        ici_int_t   *l;
+        ici_int *l;
 
         if ((l = ici_int_new(parseof(fileof(o)->f_file)->p_lineno)) != NULL)
             l->decref();

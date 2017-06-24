@@ -61,7 +61,7 @@ static handle ici_handle_proto;
  *
  * Handles can support an interface function that allows C code to implement
  * fetch and assign operations, as well as method invocation on fields of the
- * handle.  See the 'h_member_intf' in the 'ici_handle_t' type description
+ * handle.  See the 'h_member_intf' in the 'handle' type description
  * (and the 'Common tasks' section of this chapter.)
  *
  * Handles can also be used as instances of an ICI class.  Typically the class
@@ -88,7 +88,7 @@ handle *ici_handle_new(void *ptr, str *name, objwsup *super)
         return h;
     }
     ++ici_supress_collect;
-    if ((h = ici_talloc(ici_handle_t)) == NULL)
+    if ((h = ici_talloc(handle)) == NULL)
         return NULL;
     ICI_OBJ_SET_TFNZ(h, ICI_TC_HANDLE, (super != NULL ? ICI_O_SUPER : 0) | ICI_O_ATOM, 1, 0);
     h->h_ptr = ptr;
@@ -213,7 +213,7 @@ ici_handle_method(object *inst)
 }
 
 /*
- * Build the map that 'ici_handle_t' objects use to map a member name (used in
+ * Build the map that 'handle' objects use to map a member name (used in
  * ICI code) to an integer ID (used in the C code). The returned map is actually
  * an ICI struct. It is returned with 1 refernce count.
  *
@@ -247,8 +247,7 @@ ici_handle_method(object *inst)
  *
  * This --func-- forms part of the --ici-api--.
  */
-object *
-ici_make_handle_member_map(ici_name_id_t *ni)
+object *ici_make_handle_member_map(ici_name_id_t *ni)
 {
     object       *m;
     str          *n;
@@ -375,7 +374,7 @@ object * handle_type::fetch(object *o, object *k)
  * If not NULL, b is a struct that was the base element of this
  * assignment. This is used to mantain the lookup lookaside mechanism.
  */
-int handle_type::fetch_super(object *o, object *k, object **v, ici_struct_t *b)
+int handle_type::fetch_super(object *o, object *k, object **v, ici_struct *b)
 {
     if (!ici_hassuper(o))
     {
@@ -549,7 +548,7 @@ int handle_type::assign(object *o, object *k, object *v)
  * If not NULL, b is a struct that was the base element of this
  * assignment. This is used to mantain the lookup lookaside mechanism.
  */
-int handle_type::assign_super(object *o, object *k, object *v, ici_struct_t *b)
+int handle_type::assign_super(object *o, object *k, object *v, ici_struct *b)
 {
     if (!ici_hassuper(o))
         return assign_fail(o, k, v);
@@ -566,7 +565,7 @@ void handle_type::free(object *o)
 {
     if (handleof(o)->h_pre_free != NULL)
         (*handleof(o)->h_pre_free)(handleof(o));
-    ici_tfree(o, ici_handle_t);
+    ici_tfree(o, handle);
 }
 
 } // namespace ici

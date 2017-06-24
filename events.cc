@@ -21,8 +21,8 @@ namespace ici
 static int
 f_eventloop()
 {
-    MSG         msg;
-    ici_exec_t  *x;
+    MSG   msg;
+    exec  *x;
 
     x = ici_leave();
     for (;;)

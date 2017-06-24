@@ -87,7 +87,7 @@ constexpr int ICI_S_SEP_ALLOC     = 0x40;
  *
  * etc. Include that file in any files that access ICI strings.
  * Access them with either ICIS(fred) or ICISO(fred) which return
- * ici_str_t* and object* pointers respectively. For example:
+ * str* and object* pointers respectively. For example:
  *
  *  o = ici_fetch(s, ICIS(fred));
  *

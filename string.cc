@@ -15,7 +15,7 @@ namespace ici
  * How many bytes of memory we need for a string of n chars (single
  * allocation).
  */
-#define STR_ALLOCZ(n)   ((n) + sizeof (ici_str_t) - sizeof (int))
+#define STR_ALLOCZ(n)   ((n) + sizeof (str) - sizeof (int))
 
 int (ici_str_char_at)(str *s, int index)
 {
@@ -67,13 +67,13 @@ ici_hash_string(object *o)
  *
  * This --func-- forms part of the --ici-api--.
  */
-ici_str_t *ici_str_alloc(size_t nchars)
+str *ici_str_alloc(size_t nchars)
 {
-    ici_str_t  *s;
+    str  *s;
     size_t              az;
 
     az = STR_ALLOCZ(nchars);
-    if ((s = (ici_str_t *)ici_nalloc(az)) == NULL)
+    if ((s = (str *)ici_nalloc(az)) == NULL)
     {
         return NULL;
     }
@@ -107,14 +107,14 @@ ici_str_t *ici_str_alloc(size_t nchars)
  *
  * This --func-- forms part of the --ici-api--.
  */
-ici_str_t *
+str *
 ici_str_new(const char *p, size_t nchars)
 {
-    ici_str_t           *s;
+    str           *s;
     size_t              az;
     static struct
     {
-        ici_str_t       s;
+        str       s;
         char            d[40];
     }
     proto;
@@ -138,7 +138,7 @@ ici_str_new(const char *p, size_t nchars)
         }
         ++ici_supress_collect;
         az = STR_ALLOCZ(nchars);
-        if ((s = (ici_str_t *)ici_nalloc(az)) == NULL)
+        if ((s = (str *)ici_nalloc(az)) == NULL)
         {
             --ici_supress_collect;
             return NULL;
@@ -151,7 +151,7 @@ ici_str_new(const char *p, size_t nchars)
         ICI_STORE_ATOM_AND_COUNT(po, s);
         return s;
     }
-    if ((s = (ici_str_t *)ici_nalloc(az)) == NULL)
+    if ((s = (str *)ici_nalloc(az)) == NULL)
     {
         return NULL;
     }
@@ -181,10 +181,10 @@ ici_str_new(const char *p, size_t nchars)
  *
  * This --func-- forms part of the --ici-api--.
  */
-ici_str_t *
+str *
 ici_str_new_nul_term(const char *p)
 {
-    ici_str_t  *s;
+    str  *s;
 
     if ((s = ici_str_new(p, strlen(p))) == NULL)
     {
@@ -204,10 +204,10 @@ ici_str_new_nul_term(const char *p)
  *
  * This --func-- forms part of the --ici-api--.
  */
-ici_str_t *
+str *
 ici_str_get_nul_term(const char *p)
 {
-    ici_str_t   *s;
+    str   *s;
 
     if ((s = ici_str_new(p, strlen(p))) == NULL)
     {
@@ -229,17 +229,17 @@ ici_str_get_nul_term(const char *p)
  *
  * This --func-- forms part of the --ici-api--.
  */
-ici_str_t *ici_str_buf_new(size_t n)
+str *ici_str_buf_new(size_t n)
 {
     str *s;
 
-    if ((s = ici_talloc(ici_str_t)) == NULL)
+    if ((s = ici_talloc(str)) == NULL)
     {
         return NULL;
     }
     if ((s->s_chars = (char *)ici_nalloc(n)) == NULL)
     {
-        ici_tfree(s, ici_str_t);
+        ici_tfree(s, str);
         return NULL;
     }
     ICI_OBJ_SET_TFNZ(s, ICI_TC_STRING, ICI_S_SEP_ALLOC, 1, 0);
@@ -262,7 +262,7 @@ ici_str_t *ici_str_buf_new(size_t n)
  *
  * This --func-- forms part of the --ici-api--.
  */
-int ici_str_need_size(ici_str_t *s, size_t n)
+int ici_str_need_size(str *s, size_t n)
 {
     char                *chars;
     char                n1[30];
@@ -358,7 +358,7 @@ void string_type::free(object *o)
     if (o->flagged(ICI_S_SEP_ALLOC))
     {
         ici_nfree(stringof(o)->s_chars, stringof(o)->s_u.su_nalloc);
-        ici_tfree(o, ici_str_t);
+        ici_tfree(o, str);
     }
     else
     {

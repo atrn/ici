@@ -53,7 +53,7 @@ template <typename T> T *ici_talloc() { return (T *)ici_nalloc(sizeof (T)); }
  *
  * This --macro-- forms part of the --ici-api--.
  */
-#define ici_tfree(p, t) ici_nfree((p), sizeof(t))
+#define ici_tfree(p, t) ici_nfree((p), sizeof (t))
 // template <typename T> void ici_tfree(T *p) { ici_nfree(p, sizeof (T)); }
 
 /*
@@ -74,11 +74,11 @@ template <typename T> T *ici_talloc() { return (T *)ici_nalloc(sizeof (T)); }
  * compiler will reduce this constant expression to a constant at
  * compile time.
  */
-#define ICI_FLIST(t)    ( sizeof(t) <=  8 ? 0 \
-                        : sizeof(t) <= 16 ? 1 \
-                        : sizeof(t) <= 32 ? 2 \
-                        : sizeof(t) <= 64 ? 3 \
-                        : sizeof(t)	      \
+#define ICI_FLIST(t)    ( sizeof (t) <=  8 ? 0 \
+                        : sizeof (t) <= 16 ? 1 \
+                        : sizeof (t) <= 32 ? 2 \
+                        : sizeof (t) <= 64 ? 3 \
+                        : sizeof (t)	       \
 			)
 
 /*

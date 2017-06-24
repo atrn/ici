@@ -43,7 +43,7 @@ int array::grow_stack(ptrdiff_t n)
     {
         n = (a_limit - a_base) * 3 / 2;
     }
-    if ((e = (object **)ici_nalloc(n * sizeof(object *))) == NULL)
+    if ((e = (object **)ici_nalloc(n * sizeof (object *))) == NULL)
     {
         return 1;
     }
@@ -178,13 +178,13 @@ int array::grow()
     {
         m = 8;
     }
-    if ((e = (object **)ici_nalloc(m * sizeof(object *))) == NULL)
+    if ((e = (object **)ici_nalloc(m * sizeof (object *))) == NULL)
     {
         return 1;
     }
     nel = len();
     gather(e + 1, 0, nel);
-    ici_nfree(a_base, n * sizeof(object *));
+    ici_nfree(a_base, n * sizeof (object *));
     a_base = e;
     a_limit = e + m;
     a_bot = e + 1;
@@ -485,7 +485,7 @@ array *ici_array_new(ptrdiff_t n)
     {
         n = 16;
     }
-    if ((a->a_base = (object **)ici_nalloc(n * sizeof(object *))) == NULL)
+    if ((a->a_base = (object **)ici_nalloc(n * sizeof (object *))) == NULL)
     {
         ici_tfree(a, array);
         return NULL;
@@ -608,7 +608,7 @@ int array_type::cmp(object *o1, object *o2)
         n2 = n1;
         e1 = arrayof(o1)->span(i, &n2);
         e2 = arrayof(o2)->span(i, &n2);
-        if (memcmp(e1, e2, n2 * sizeof(object *)))
+        if (memcmp(e1, e2, n2 * sizeof (object *)))
         {
             return 1;
         }
@@ -696,6 +696,6 @@ int array_type::forall(object *o)
     return 0;
 }
 
-ici_op_t    ici_o_mklvalue{ici_op_mklvalue};
+op ici_o_mklvalue{ici_op_mklvalue};
 
 } // namespace ici

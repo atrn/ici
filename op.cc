@@ -24,7 +24,7 @@ op *ici_new_op(int (*func)(), int16_t ecode, int16_t code)
     ++ici_supress_collect;
     if ((o = ici_talloc(op)) == NULL)
         return NULL;
-    ICI_OBJ_SET_TFNZ(o, ICI_TC_OP, ICI_O_ATOM, 1, sizeof(op));
+    ICI_OBJ_SET_TFNZ(o, ICI_TC_OP, ICI_O_ATOM, 1, sizeof (op));
     o->op_code = code;
     o->op_ecode = ecode;
     o->op_func = func;

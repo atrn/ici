@@ -196,8 +196,8 @@ int ici_op_fetch()
     return 0;
 }
 
-ici_op_t    ici_o_mkptr{ici_op_mkptr};
-ici_op_t    ici_o_openptr{ici_op_openptr};
-ici_op_t    ici_o_fetch{ici_op_fetch};
+op    ici_o_mkptr{ici_op_mkptr};
+op    ici_o_openptr{ici_op_openptr};
+op    ici_o_fetch{ici_op_fetch};
 
 } // namespace ici

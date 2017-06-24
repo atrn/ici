@@ -124,8 +124,7 @@ seterror(const char *fallback, const char *fmt, ...)
     return 1;
 }
 
-static int
-socket_fd(ici_handle_t *h) {
+static int socket_fd(handle *h) {
     void *p = h->h_ptr;
     long l = (long)p;
     return int(l);
@@ -135,8 +134,7 @@ socket_fd(ici_handle_t *h) {
  * The handle representing our socket it about to be freed. Close the
  * socket if it isn't already.
  */
-static void
-socket_prefree(ici_handle_t *h)
+static void socket_prefree(handle *h)
 {
     if (!h->flagged(ICI_H_CLOSED))
         closesocket(socket_fd(h));
@@ -145,10 +143,9 @@ socket_prefree(ici_handle_t *h)
 /*
  * Create a new socket object with the given descriptor.
  */
-static ici_handle_t *
-new_netsocket(SOCKET fd)
+static handle *new_netsocket(SOCKET fd)
 {
-    ici_handle_t *h;
+    handle *h;
     long lfd = fd;
     if ((h = ici_handle_new((void *)lfd, SS(socket), NULL)) == NULL)
         return NULL;
@@ -165,8 +162,7 @@ new_netsocket(SOCKET fd)
 /*
  * Is a socket closed? Set error if so.
  */
-static int
-isclosed(ici_handle_t *skt)
+static int isclosed(handle *skt)
 {
     if (skt->flagged(ICI_H_CLOSED))
     {
@@ -180,15 +176,13 @@ isclosed(ici_handle_t *skt)
  * Do what needs to be done just before calling a potentially
  * blocking system call.
  */
-static ici_exec_t *
-potentially_block(void)
+static exec *potentially_block(void)
 {
     ici_signals_blocking_syscall(1);
     return ici_leave();
 }
 
-static void
-unblock(ici_exec_t *x)
+static void unblock(exec *x)
 {
     ici_signals_blocking_syscall(0);
     ici_enter(x);
@@ -399,10 +393,10 @@ unparse_addr(struct sockaddr_in *addr)
 static int
 ici_net_socket(void)
 {
-    ici_handle_t        *skt;
-    ici_str_t            *proto;
-    int                 type;
-    SOCKET              fd;
+    handle *skt;
+    str    *proto;
+    int     type;
+    SOCKET  fd;
 
     if (NARGS() == 0)
         proto = SS(tcp);
@@ -446,7 +440,7 @@ ici_net_socket(void)
 static int
 ici_net_close(void)
 {
-    ici_handle_t *skt;
+    handle *skt;
 
     if (typecheck("h", SS(socket), &skt))
         return 1;
@@ -471,8 +465,8 @@ ici_net_close(void)
 static int
 ici_net_listen(void)
 {
-    ici_handle_t *skt;
-    long         backlog = 5;    /* ain't tradition grand */
+    handle *skt;
+    long    backlog = 5;    /* ain't tradition grand */
 
     switch (NARGS())
     {
@@ -512,9 +506,9 @@ ici_net_listen(void)
 static int
 ici_net_accept(void)
 {
-    ici_handle_t  *skt;
-    SOCKET        fd;
-    ici_exec_t        *x;
+    handle *skt;
+    SOCKET  fd;
+    exec   *x;
 
     if (typecheck("h", SS(socket), &skt))
         return 1;
@@ -545,11 +539,11 @@ ici_net_accept(void)
 static int
 ici_net_connect(void)
 {
-    ici_handle_t        *skt;
-    char                *addr;
-    object            *arg;
+    handle             *skt;
+    char               *addr;
+    object             *arg;
     struct sockaddr_in  saddr;
-    ici_exec_t              *x;
+    exec               *x;
     int                 rc;
 
     if (typecheck("ho", SS(socket), &skt, &arg))
@@ -600,8 +594,8 @@ ici_net_connect(void)
 static int
 ici_net_bind(void)
 {
-    ici_handle_t        *skt;
-    const char          *addr;
+    handle             *skt;
+    const char         *addr;
     struct sockaddr_in  saddr;
 
     if (NARGS() == 2)
@@ -645,25 +639,25 @@ ici_net_bind(void)
 static int
 select_add_result
 (
-    ici_struct_t            *result,
-    ici_str_t            *key,
-    ici_set_t               *set,
-    fd_set              *fds,
-    int                 *n
+    ici_struct *result,
+    str        *key,
+    set        *theset,
+    fd_set     *fds,
+    int        *n
 )
 {
-    ici_set_t       *rset;
-    SOCKET      fd;
-    int         i;
-    ici_sslot_t      *sl;
+    set    *rset;
+    SOCKET  fd;
+    int     i;
+    sslot  *sl;
 
     if ((rset = ici_set_new()) == NULL)
         return 1;
-    if (set != NULL)
+    if (theset != NULL)
     {
-        for (i = 0; *n > 0 && i < set->s_nslots; ++i)
+        for (i = 0; *n > 0 && i < theset->s_nslots; ++i)
         {
-            if ((sl = (ici_sslot_t *)&set->s_slots[i])->sl_key == NULL)
+            if ((sl = (sslot *)&theset->s_slots[i])->sl_key == NULL)
                 continue;
             if (!ishandleof(sl->sl_key, SS(socket)))
                 continue;
@@ -716,24 +710,24 @@ fail:
 static int
 ici_net_select()
 {
-    int                 i;
-    int                 n;
-    int                 dtabsize = -1;
-    long                timeout  = -1;
-    fd_set              fds[3];
-    fd_set              *rfds = NULL;
-    ici_set_t           *rset = NULL;
-    fd_set              *wfds = NULL;
-    ici_set_t           *wset = NULL;
-    fd_set              *efds = NULL;
-    ici_set_t           *eset = NULL;
-    struct timeval      timeval;
-    struct timeval      *tv;
-    ici_struct_t        *result;
-    ici_set_t           *set  = NULL; /* Init. to remove compiler warning */
-    int                 whichset = -1;  /* 0 == read, 1 == write, 2 == except*/
-    ici_sslot_t          *sl;
-    ici_exec_t          *x;
+    int             i;
+    int             n;
+    int             dtabsize     = -1;
+    long            timeout      = -1;
+    fd_set          fds[3];
+    fd_set         *rfds         = NULL;
+    set            *rset         = NULL;
+    fd_set         *wfds         = NULL;
+    set            *wset         = NULL;
+    fd_set         *efds         = NULL;
+    set            *eset         = NULL;
+    struct timeval  timeval;
+    struct timeval *tv;
+    ici_struct     *result;
+    set            *theset          = NULL; /* Init. to remove compiler warning */
+    int             whichset = -1; /* 0 == read, 1 == write, 2 == except*/
+    sslot          *sl;
+    exec           *x;
 
     if (NARGS() == 0)
         return seterror("incorrect number of arguments for net.select()", NULL);
@@ -761,23 +755,23 @@ ici_net_select()
                 {
                 case 0:
                     fs = rfds = &fds[0];
-                    set = rset = setof(ARG(i));
+                    theset = rset = setof(ARG(i));
                     break;
                 case 1:
                     fs = wfds = &fds[1];
-                    set = wset = setof(ARG(i));
+                    theset = wset = setof(ARG(i));
                     break;
                 case 2:
                     fs = efds = &fds[2];
-                    set = eset = setof(ARG(i));
+                    theset = eset = setof(ARG(i));
                     break;
                 }
                 FD_ZERO(fs);
-                for (n = j = 0; j < set->s_nslots; ++j)
+                for (n = j = 0; j < theset->s_nslots; ++j)
                 {
                     int k;
 
-                    if ((sl = (ici_sslot_t *)&set->s_slots[j])->sl_key == NULL)
+                    if ((sl = (sslot *)&theset->s_slots[j])->sl_key == NULL)
                         continue;
                     if (!ishandleof(sl->sl_key, SS(socket)))
                         continue;
@@ -833,7 +827,7 @@ ici_net_select()
         return 1;
     /* Add in count */
     {
-        ici_int_t   *nobj;
+        ici_int  *nobj;
 
         if ((nobj = ici_int_new(n)) == NULL)
             goto fail;
@@ -944,15 +938,15 @@ char *flag;
 static int
 ici_net_recvfrom()
 {
-    ici_handle_t        *skt;
+    handle             *skt;
     int                 len;
     int                 nb;
-    char                *msg;
+    char               *msg;
     struct sockaddr_in  addr;
     socklen_t           addrsz = sizeof addr;
-    ici_struct_t            *result;
-    ici_str_t            *s;
-    ici_exec_t              *x;
+    ici_struct         *result;
+    str                *s;
+    exec               *x;
 
     if (typecheck("hi", SS(socket), &skt, &len))
         return 1;
@@ -1025,9 +1019,9 @@ fail:
 static int
 ici_net_send()
 {
-    ici_handle_t *skt;
+    handle *skt;
     int          len;
-    ici_str_t     *msg;
+    str     *msg;
 
     if (typecheck("ho", SS(socket), &skt, &msg))
         return 1;
@@ -1057,12 +1051,12 @@ ici_net_send()
 static int
 ici_net_recv()
 {
-    ici_handle_t *skt;
-    int          len;
-    int          nb;
-    char         *msg;
-    ici_str_t     *s;
-    ici_exec_t       *x;
+    handle *skt;
+    int     len;
+    int     nb;
+    char   *msg;
+    str    *s;
+    exec   *x;
 
     if (typecheck("hi", SS(socket), &skt, &len))
         return 1;
@@ -1178,7 +1172,7 @@ sockopt(char *opt, int *level)
 static int
 ici_net_getsockopt()
 {
-    ici_handle_t        *skt;
+    handle        *skt;
     char                *opt;
     int                 o;
     char                *optval;
@@ -1279,7 +1273,7 @@ bad:
 static int
 ici_net_setsockopt()
 {
-    ici_handle_t        *skt;
+    handle        *skt;
     char                *opt;
     int                 optcode;
     int                 optlevel;
@@ -1431,7 +1425,7 @@ ici_net_getpeername()
 {
     struct sockaddr_in  addr;
     socklen_t           len = sizeof addr;
-    ici_handle_t        *skt;
+    handle        *skt;
 
     if (typecheck("h", SS(socket), &skt))
         return 1;
@@ -1454,7 +1448,7 @@ ici_net_getsockname()
 {
     struct sockaddr_in  addr;
     socklen_t           len = sizeof addr;
-    ici_handle_t        *skt;
+    handle        *skt;
 
     if (typecheck("h", SS(socket), &skt))
         return 1;
@@ -1477,7 +1471,7 @@ ici_net_getportno()
 {
     struct sockaddr_in  addr;
     socklen_t           len = sizeof addr;
-    ici_handle_t        *skt;
+    handle        *skt;
 
     if (typecheck("h", SS(socket), &skt))
         return 1;
@@ -1557,7 +1551,7 @@ ici_net_gethostbyaddr(void)
 static int
 ici_net_sktno()
 {
-    ici_handle_t *skt;
+    handle *skt;
 
     if (typecheck("h", SS(socket), &skt))
         return 1;
@@ -1581,16 +1575,15 @@ enum
     SF_EOF      = 4     /* EOF read */
 };
 
-typedef struct
+struct skt_file
 {
-    ici_handle_t *sf_socket;
-    char         sf_buf[SF_BUFSIZ];
-    char         *sf_bufp;
-    int          sf_nbuf;
-    int         sf_pbchar;
-    int         sf_flags;
-}
-skt_file_t;
+    handle *sf_socket;
+    char    sf_buf[SF_BUFSIZ];
+    char   *sf_bufp;
+    int     sf_nbuf;
+    int     sf_pbchar;
+    int     sf_flags;
+};
 
 class skt_ftype : public ftype
 {
@@ -1600,7 +1593,7 @@ public:
 
     int getch(void *u) override
     {
-        skt_file_t *sf = (skt_file_t *)u;
+        skt_file *sf = (skt_file *)u;
         char        c;
 
         if (!(sf->sf_flags & SF_READ) || (sf->sf_flags & SF_EOF))
@@ -1614,7 +1607,7 @@ public:
         {
             if (sf->sf_nbuf == 0)
             {
-                ici_exec_t *x = potentially_block();
+                exec *x = potentially_block();
                 sf->sf_nbuf = recv(socket_fd(sf->sf_socket), sf->sf_buf, SF_BUFSIZ, 0);
                 unblock(x);
                 if (sf->sf_nbuf <= 0)
@@ -1633,7 +1626,7 @@ public:
     int
     ungetch(int c, void *u) override
     {
-        skt_file_t *sf = (skt_file_t *)u;
+        skt_file *sf = (skt_file *)u;
         if (!(sf->sf_flags & SF_READ))
             return EOF;
         if (sf->sf_pbchar != EOF)
@@ -1645,11 +1638,11 @@ public:
     int
     flush(void *u) override
     {
-        skt_file_t *sf = (skt_file_t *)u;
+        skt_file *sf = (skt_file *)u;
         if (sf->sf_flags & SF_WRITE && sf->sf_nbuf > 0)
         {
             int     rc;
-            ici_exec_t *x = potentially_block();
+            exec *x = potentially_block();
             rc = send(socket_fd(sf->sf_socket), sf->sf_buf, sf->sf_nbuf, 0);
             unblock(x);
             if (rc != sf->sf_nbuf)
@@ -1667,13 +1660,13 @@ public:
     int
     close(void *u) override
     {
-        skt_file_t *sf = (skt_file_t *)u;
+        skt_file *sf = (skt_file *)u;
         int         rc = 0;
 
         if (sf->sf_flags & SF_WRITE)
             rc = flush(u);
         sf->sf_socket->decref();
-        ici_tfree(sf, skt_file_t);
+        ici_tfree(sf, skt_file);
         return rc;
     }
 
@@ -1690,7 +1683,7 @@ public:
     int
     eof(void *u) override
     {
-        skt_file_t *sf = (skt_file_t *)u;
+        skt_file *sf = (skt_file *)u;
         return sf->sf_flags & SF_EOF;
     }
 
@@ -1698,7 +1691,7 @@ public:
     write(const void *p, long n, void *u) override
     {
         const char *buf = (const char *)p;
-        skt_file_t	*sf = (skt_file_t *)u;
+        skt_file	*sf = (skt_file *)u;
         int         nb;
         int         rc;
 
@@ -1722,14 +1715,14 @@ public:
 
 static ftype *skt_ftype = ptr_to_instance_of<class skt_ftype>();
 
-static skt_file_t *
-skt_open(ici_handle_t *s, const char *mode)
+static skt_file *
+skt_open(handle *s, const char *mode)
 {
-    skt_file_t  *sf;
+    skt_file  *sf;
 
-    ici_talloc(skt_file_t);
+    ici_talloc(skt_file);
 
-    if ((sf = ici_talloc(skt_file_t)) != NULL)
+    if ((sf = ici_talloc(skt_file)) != NULL)
     {
         sf->sf_socket = s;
         sf->sf_socket->incref();
@@ -1775,10 +1768,10 @@ skt_open(ici_handle_t *s, const char *mode)
 static int
 ici_net_sktopen()
 {
-    ici_handle_t        *skt;
-    const char          *mode;
-    ici_file_t          *f;
-    skt_file_t          *sf;
+    handle     *skt;
+    const char *mode;
+    file       *f;
+    skt_file *sf;
 
     if (typecheck("hs", SS(socket), &skt, &mode))
     {
@@ -1810,9 +1803,9 @@ ici_net_sktopen()
 static int
 ici_net_socketpair()
 {
-    ici_array_t         *a;
-    ici_handle_t        *s;
-    int                 sv[2];
+    array  *a;
+    handle *s;
+    int     sv[2];
 
     if (socketpair(AF_UNIX, SOCK_STREAM, 0, sv) == -1)
         return ici_get_last_errno("net.socketpair", NULL);
@@ -1856,8 +1849,8 @@ fail:
 static int
 ici_net_shutdown()
 {
-    ici_handle_t    *skt;
-    long            flags;
+    handle *skt;
+    long    flags;
 
     switch (NARGS())
     {

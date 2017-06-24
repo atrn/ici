@@ -30,8 +30,7 @@ int     record_line_nums = 1;
  * and file object at the end of the array. Also maintains the start of line
  * flag (p_sol) in the parse context.
  */
-static int
-get(ici_parse_t *p, ici_array_t *a)
+static int get(parse *p, array *a)
 {
     int         c;
 
@@ -95,8 +94,7 @@ get(ici_parse_t *p, ici_array_t *a)
  * Unget the character c from the parse context p. Tries to behave as if
  * the character had never been fetched.
  */
-static void
-unget(int c, ici_parse_t *p)
+static void unget(int c, parse *p)
 {
     p->p_file->ungetch(c);
     if (c == '\n')
@@ -111,16 +109,15 @@ unget(int c, ici_parse_t *p)
  * source line and file object at the end of the array. Returns T_ERORR
  * on error, in which case error is set.
  */
-int
-ici_lex(ici_parse_t *p, ici_array_t *a)
+int ici_lex(parse *p, array *a)
 {
-    int                 c;
-    int                 t = 0; /* init to shut up compiler */
-    int                 i;
-    int                 fstate;
-    char                *s;
-    long                l;
-    double              d;
+    int     c;
+    int     t = 0;              /* init to shut up compiler */
+    int     i;
+    int     fstate;
+    char   *s;
+    long    l;
+    double  d;
 
     if (p->p_got.t_what & TM_HASOBJ)
     {

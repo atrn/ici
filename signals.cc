@@ -95,7 +95,7 @@ static int  currently_blocked;
 static int
 call_signal_handler(object *func, int signo)
 {
-    ici_int_t           *isigno;
+    ici_int           *isigno;
     object           *ret_obj;
 
     if (ici_os.stk_push_chk(3 + 80)) /* see comment in ici/call.c */
@@ -260,7 +260,7 @@ ici_signals_init()
     int     signo;
 
 #if defined(__sun) || defined(__FreeBSD__) || defined(__linux__)
-    memset((void *)&ici_signals_pending, 0, sizeof(sigset_t));
+    memset((void *)&ici_signals_pending, 0, sizeof (sigset_t));
 #else
     ici_signals_pending = 0;
 #endif

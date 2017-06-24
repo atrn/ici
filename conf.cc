@@ -5,29 +5,29 @@
 namespace ici
 {
 
-extern ici_cfunc_t  ici_std_cfuncs[];
-extern ici_cfunc_t  ici_save_restore_cfuncs[];
-extern ici_cfunc_t  ici_re_cfuncs[];
-extern ici_cfunc_t  ici_oo_cfuncs[];
-extern ici_cfunc_t  ici_apl_cfuncs[];
-extern ici_cfunc_t  ici_load_cfuncs[];
-extern ici_cfunc_t  ici_parse_cfuncs[];
-extern ici_cfunc_t  ici_sys_cfuncs[];
-extern ici_cfunc_t  ici_signals_cfuncs[];
-extern ici_cfunc_t  ici_thread_cfuncs[];
-extern ici_cfunc_t  ici_channel_cfuncs[];
-extern ici_cfunc_t  ici_net_cfuncs[];
+extern cfunc  ici_std_cfuncs[];
+extern cfunc  ici_save_restore_cfuncs[];
+extern cfunc  ici_re_cfuncs[];
+extern cfunc  ici_oo_cfuncs[];
+extern cfunc  ici_apl_cfuncs[];
+extern cfunc  ici_load_cfuncs[];
+extern cfunc  ici_parse_cfuncs[];
+extern cfunc  ici_sys_cfuncs[];
+extern cfunc  ici_signals_cfuncs[];
+extern cfunc  ici_thread_cfuncs[];
+extern cfunc  ici_channel_cfuncs[];
+extern cfunc  ici_net_cfuncs[];
 #ifndef NOEVENTS
-extern ici_cfunc_t  ici_event_cfuncs[];
+extern cfunc  ici_event_cfuncs[];
 #endif
 #ifndef NOPROFILE
-extern ici_cfunc_t  ici_profile_cfuncs[];
+extern cfunc  ici_profile_cfuncs[];
 #endif
 #ifndef NODEBUGGING
-extern ici_cfunc_t  ici_debug_cfuncs[];
+extern cfunc  ici_debug_cfuncs[];
 #endif
 
-ici_cfunc_t *ici_funcs[] =
+cfunc *ici_funcs[] =
 {
     ici_std_cfuncs,
     ici_save_restore_cfuncs,

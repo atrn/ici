@@ -27,14 +27,13 @@ namespace ici
  * assigned to cf_arg1 and cf_arg2 respectively.  The returned object has a
  * refernce of 1.
  */
-ici_cfunc_t *
-ici_cfunc_new(ici_str_t *name, int (*func)(...), void *arg1, void *arg2)
+cfunc *ici_cfunc_new(str *name, int (*func)(...), void *arg1, void *arg2)
 {
-    ici_cfunc_t         *cf;
+    cfunc *cf;
 
-    if ((cf = ici_talloc(ici_cfunc_t)) == NULL)
+    if ((cf = ici_talloc(cfunc)) == NULL)
         return NULL;
-    ICI_OBJ_SET_TFNZ(cf, ICI_TC_CFUNC, 0, 1, sizeof(ici_cfunc_t));
+    ICI_OBJ_SET_TFNZ(cf, ICI_TC_CFUNC, 0, 1, sizeof (cfunc));
     cf->cf_name = name;
     cf->cf_cfunc = func;
     cf->cf_arg1 = arg1;
@@ -45,7 +44,7 @@ ici_cfunc_new(ici_str_t *name, int (*func)(...), void *arg1, void *arg2)
 
 /*
  * Assign into the structure 's' all the intrinsic functions listed in the
- * array of 'ici_cfunc_t' structures pointed to by 'cf'.  The array must be
+ * array of 'cfunc' structures pointed to by 'cf'.  The array must be
  * terminated by an entry with a 'cf_name' of NULL.  Typically, entries in the
  * array are formated as:
  *
@@ -59,8 +58,7 @@ ici_cfunc_new(ici_str_t *name, int (*func)(...), void *arg1, void *arg2)
  *
  * This --func-- forms part of the --ici-api--.
  */
-int
-ici_assign_cfuncs(objwsup *s, ici_cfunc_t *cf)
+int ici_assign_cfuncs(objwsup *s, cfunc *cf)
 {
     while (cf->cf_name != NULL)
     {
@@ -89,8 +87,7 @@ ici_assign_cfuncs(objwsup *s, ici_cfunc_t *cf)
  *
  * This --func-- forms part of the --ici-api--.
  */
-int
-ici_def_cfuncs(ici_cfunc_t *cf)
+int ici_def_cfuncs(cfunc *cf)
 {
     return ici_assign_cfuncs(ici_objwsupof(ici_vs.a_top[-1])->o_super, cf);
 }
@@ -106,8 +103,7 @@ ici_def_cfuncs(ici_cfunc_t *cf)
  *
  * This --func-- forms part of the --ici-api--.
  */
-objwsup *
-ici_class_new(ici_cfunc_t *cf, objwsup *super)
+objwsup *ici_class_new(cfunc *cf, objwsup *super)
 {
     objwsup       *s;
 
@@ -140,7 +136,7 @@ objwsup *ici_module_new(cfunc *cf)
 static int
 call_cfunc_nodebug(object *o, object *subject)
 {
-    return (*cfuncof(o)->cf_cfunc)(subject);
+    return cfuncof(o)->cf_cfunc(subject);
 }
 #endif
 

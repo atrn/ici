@@ -32,23 +32,23 @@ ici_op_for()
     return 0;
 }
 
-ici_op_t    ici_o_exec{ICI_OP_EXEC};
-ici_op_t    ici_o_looper{ICI_OP_LOOPER};
-ici_op_t    ici_o_loop{ICI_OP_LOOP};
-ici_op_t    ici_o_break{ICI_OP_BREAK};
-ici_op_t    ici_o_continue{ICI_OP_CONTINUE};
-ici_op_t    ici_o_if{ICI_OP_IF};
-ici_op_t    ici_o_ifnotbreak{ICI_OP_IFNOTBREAK};
-ici_op_t    ici_o_ifbreak{ICI_OP_IFBREAK};
-ici_op_t    ici_o_ifelse{ICI_OP_IFELSE};
-ici_op_t    ici_o_pop{ICI_OP_POP};
-ici_op_t    ici_o_andand{ICI_OP_ANDAND, 1};
-ici_op_t    ici_o_barbar{ICI_OP_ANDAND, 0};
-ici_op_t    ici_o_switch{ICI_OP_SWITCH};
-ici_op_t    ici_o_switcher{ICI_OP_SWITCHER};
-ici_op_t    ici_o_critsect{ICI_OP_CRITSECT};
-ici_op_t    ici_o_waitfor{ICI_OP_WAITFOR};
-ici_op_t    ici_o_rewind{ICI_OP_REWIND};
-ici_op_t    ici_o_end{ICI_OP_ENDCODE};
+op    ici_o_exec{ICI_OP_EXEC};
+op    ici_o_looper{ICI_OP_LOOPER};
+op    ici_o_loop{ICI_OP_LOOP};
+op    ici_o_break{ICI_OP_BREAK};
+op    ici_o_continue{ICI_OP_CONTINUE};
+op    ici_o_if{ICI_OP_IF};
+op    ici_o_ifnotbreak{ICI_OP_IFNOTBREAK};
+op    ici_o_ifbreak{ICI_OP_IFBREAK};
+op    ici_o_ifelse{ICI_OP_IFELSE};
+op    ici_o_pop{ICI_OP_POP};
+op    ici_o_andand{ICI_OP_ANDAND, 1};
+op    ici_o_barbar{ICI_OP_ANDAND, 0};
+op    ici_o_switch{ICI_OP_SWITCH};
+op    ici_o_switcher{ICI_OP_SWITCHER};
+op    ici_o_critsect{ICI_OP_CRITSECT};
+op    ici_o_waitfor{ICI_OP_WAITFOR};
+op    ici_o_rewind{ICI_OP_REWIND};
+op    ici_o_end{ICI_OP_ENDCODE};
 
 } // namespace ici

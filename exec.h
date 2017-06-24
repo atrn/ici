@@ -169,10 +169,10 @@ enum
  */
 struct debug
 {
-    void    (*idbg_error)(char *, ici_src_t *);
+    void    (*idbg_error)(char *, src *);
     void    (*idbg_fncall)(object *, object **, int);
     void    (*idbg_fnresult)(object *);
-    void    (*idbg_src)(ici_src_t *);
+    void    (*idbg_src)(src *);
     void    (*idbg_watch)(object *, object *, object *);
 };
 

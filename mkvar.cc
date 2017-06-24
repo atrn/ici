@@ -32,7 +32,7 @@ namespace ici
  *
  * Returns 0 on succcess, else non-zerro, usual conventions.
  */
-int ici_set_val(objwsup *s, ici_str_t *name, int type, void *vp)
+int ici_set_val(objwsup *s, str *name, int type, void *vp)
 {
     object   *o;
     int       i;
@@ -94,7 +94,7 @@ ici_fetch_mismatch(object *o, object *k, object *v, const char *expected)
 int
 ici_assign_float(object *o, object *k, double v)
 {
-    ici_float_t  *f;
+    ici_float  *f;
 
     if ((f = ici_float_new(v)) == NULL)
         return 1;
@@ -163,7 +163,7 @@ ici_fetch_int(object *o, object *k, long *vp)
  */
 int ici_cmkvar(objwsup *scope, const char *name, int type, void *vp)
 {
-    ici_str_t   *s;
+    str   *s;
     int         i;
 
     if ((s = ici_str_new_nul_term(name)) == NULL)

@@ -28,10 +28,9 @@ convert(WCHAR *s)
     return len == 0 ? NULL : buffer;
 }
 
-int
-ici_set_timezone_vals(ici_struct_t *s)
+int ici_set_timezone_vals(ici_struct *s)
 {
-    TIME_ZONE_INFORMATION				info;
+    TIME_ZONE_INFORMATION		info;
     char                                *zone;
     long                                gmtoff;
     DWORD                               result;

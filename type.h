@@ -45,7 +45,7 @@ public:
 private:
     const size_t        _size;  // size of type's ici object
     const int           _flags; // type features
-    mutable ici_str_t * _name;  // str name created upon demand
+    mutable str * _name;  // str name created upon demand
 
 protected:
     explicit type(const char *name, size_t size, int flags = 0)
@@ -228,12 +228,12 @@ public:
     /*
      * Assign into the super of an objwsup.
      */
-    virtual int                 assign_super(object *o, object *k, object *v, ici_struct_t *b);
+    virtual int                 assign_super(object *o, object *k, object *v, ici_struct *b);
 
     /*
      * Fetch from  the super of an objwsup.
      */
-    virtual int                 fetch_super(object *o, object *k, object **pv, ici_struct_t *b);
+    virtual int                 fetch_super(object *o, object *k, object **pv, ici_struct *b);
 
     /*
      * Assign into the base of an objwsup.
@@ -295,7 +295,7 @@ public:
      * created upon demand. As per convention this may return a nullptr if
      * string object creation fails (out of memory).
      */
-    ici_str_t *ici_name() const
+    str *ici_name() const
     {
         if (_name == nullptr) _name = ici_str_new_nul_term(name);
         return _name;

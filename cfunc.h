@@ -25,7 +25,7 @@ namespace ici
  */
 struct cfunc : object
 {
-    ici_str_t * cf_name;
+    str         *cf_name;
     int         (*cf_cfunc)(...);
     const void  *cf_arg1;
     const void  *cf_arg2;
@@ -39,7 +39,7 @@ struct cfunc : object
     {}
 
     template <typename F>
-    cfunc(ici_str_t *name, F *f)
+    cfunc(str *name, F *f)
         : object{ICI_TC_CFUNC, 0, 1, 0}
         , cf_name(name)
         , cf_cfunc(reinterpret_cast<int (*)(...)>(f))
@@ -49,7 +49,7 @@ struct cfunc : object
     }
 
     template <typename F>
-    cfunc(ici_str_t *name, F *f, void *arg1)
+    cfunc(str *name, F *f, void *arg1)
         : object{ICI_TC_CFUNC, 0, 1, 0}
         , cf_name(name)
         , cf_cfunc(reinterpret_cast<int (*)(...)>(f))
@@ -58,7 +58,7 @@ struct cfunc : object
     {
     }
 
-    cfunc(ici_str_t *name, int (*f)(), long arg1)
+    cfunc(str *name, int (*f)(), long arg1)
         : object{ICI_TC_CFUNC, 0, 1, 0}
         , cf_name(name)
         , cf_cfunc(reinterpret_cast<int (*)(...)>(f))
@@ -67,7 +67,7 @@ struct cfunc : object
     {
     }
 
-    cfunc(ici_str_t *name, double (*f)(...), const char *arg1)
+    cfunc(str *name, double (*f)(...), const char *arg1)
         : object{ICI_TC_CFUNC, 0, 1, 0}
         , cf_name(name)
         , cf_cfunc(reinterpret_cast<int (*)(...)>(f))
@@ -77,7 +77,7 @@ struct cfunc : object
     }
 
     template <typename F>
-    cfunc(ici_str_t *name, F *f, void *arg1, void *arg2)
+    cfunc(str *name, F *f, void *arg1, void *arg2)
         : object{ICI_TC_CFUNC, 0, 1, 0}
         , cf_name(name)
         , cf_cfunc(reinterpret_cast<int (*)(...)>(f))
@@ -89,7 +89,7 @@ struct cfunc : object
 };
 
 /*
- * 'ici_cfunc_t' objects are often declared staticly (in an array) when
+ * 'cfunc' objects are often declared staticly (in an array) when
  * setting up a group of C functions to be called from ICI. When doing
  * this, the macro 'ICI_CF_OBJ' can be used as the initialiser of the
  * 'object' header.
@@ -164,7 +164,7 @@ inline int NARGS() { return intof(ici_os.a_top[-2])->i_value; }
 /*
  * In a call from ICI to a function coded in C, this macro returns the
  * 'cf_arg1' field of the current C function.  The macro 'ICI_CF_ARG2()' can also
- * be used to obtain the 'cf_arg2' field. See the 'ici_cfunc_t' type.
+ * be used to obtain the 'cf_arg2' field. See the 'cfunc' type.
  *
  * They are both (void *) (Prior to ICI 4.0, 'ICI_CF_ARG1()' was a function
  * pointer.)
@@ -177,7 +177,7 @@ inline int NARGS() { return intof(ici_os.a_top[-2])->i_value; }
 /*
  * Defines a 'cfuncs' array.
  */
-#define ICI_DEFINE_CFUNCS(NAME) ici_cfunc_t ici_ ## NAME ## _cfuncs[] =
+#define ICI_DEFINE_CFUNCS(NAME) cfunc ici_ ## NAME ## _cfuncs[] =
 
 /*
  * Marks the end of the initializers of a cfuncs array.

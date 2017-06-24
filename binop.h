@@ -861,7 +861,7 @@ usef:
             ici_exec->x_os_temp_cache->a_base[n] = o;
             ici_rego(o);
         }
-        ICI_OBJ_SET_TFNZ(o, ICI_TC_FLOAT, ICI_O_TEMP, 0, sizeof(ostemp));
+        ICI_OBJ_SET_TFNZ(o, ICI_TC_FLOAT, ICI_O_TEMP, 0, sizeof (ostemp));
         floatof(o)->f_value = f;
         USEo();
     }
@@ -895,7 +895,7 @@ usef:
          * If this assert fails, we should switch back to a an explicit call
          * to hash_float().
          */
-        assert(sizeof floatof(o)->f_value == 2 * sizeof(int32_t));
+        assert(sizeof floatof(o)->f_value == 2 * sizeof (int32_t));
         v.f = f;
         h = FLOAT_PRIME + v.l[0] + v.l[1] * 31;
         h ^= (h >> 12) ^ (h >> 24);
@@ -923,7 +923,7 @@ usef:
             --ici_supress_collect;
             FAIL();
         }
-        ICI_OBJ_SET_TFNZ(o, ICI_TC_FLOAT, ICI_O_ATOM, 1, sizeof(ici_float));
+        ICI_OBJ_SET_TFNZ(o, ICI_TC_FLOAT, ICI_O_ATOM, 1, sizeof (ici_float));
         floatof(o)->f_value = f;
         ici_rego(o);
         assert(h == ici_hash(o));
@@ -951,7 +951,7 @@ usei:
             ici_exec->x_os_temp_cache->a_base[n] = o;
             ici_rego(o);
         }
-        ICI_OBJ_SET_TFNZ(o, ICI_TC_INT, ICI_O_TEMP, 0, sizeof(ostemp));
+        ICI_OBJ_SET_TFNZ(o, ICI_TC_INT, ICI_O_TEMP, 0, sizeof (ostemp));
         intof(o)->i_value = i;
         USEo();
     }
@@ -985,7 +985,7 @@ usei:
             --ici_supress_collect;
             FAIL();
         }
-        ICI_OBJ_SET_TFNZ(o, ICI_TC_INT, ICI_O_ATOM, 1, sizeof(ici_int));
+        ICI_OBJ_SET_TFNZ(o, ICI_TC_INT, ICI_O_ATOM, 1, sizeof (ici_int));
         intof(o)->i_value = i;
         ici_rego(o);
         --ici_supress_collect;

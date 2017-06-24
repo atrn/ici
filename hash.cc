@@ -24,7 +24,7 @@ ici_superfast_hash(const char * data, int len)
         hash  += get16bits (data);
         tmp    = (get16bits (data+2) << 11) ^ hash;
         hash   = (hash << 16) ^ tmp;
-        data  += 2*sizeof (uint16_t);
+        data  += 2 * sizeof (uint16_t);
         hash  += hash >> 11;
     }
 

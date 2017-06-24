@@ -46,18 +46,16 @@ std::atomic<int>        ici_n_active_threads;
  * This --func-- forms part of the --ici-api--.
  */
 
-static ici_exec_t *ici_leave2(bool unlock);
+static exec *ici_leave2(bool unlock);
 
-ici_exec_t *
-ici_leave()
+exec *ici_leave()
 {
     return ici_leave2(true);
 }
 
-static ici_exec_t *
-ici_leave2(bool unlock)
+static exec *ici_leave2(bool unlock)
 {
-    ici_exec_t          *x;
+    exec          *x;
 
     x = ici_exec;
     // if (!x->x_critsect)
@@ -100,8 +98,7 @@ ici_leave2(bool unlock)
  *
  * This --func-- forms part of the --ici-api--.
  */
-void
-ici_enter(ici_exec_t *x)
+void ici_enter(exec *x)
 {
     // if (!x->x_critsect)
     if (!__sync_fetch_and_add(&x->x_critsect, 0))
@@ -146,7 +143,7 @@ ici_enter(ici_exec_t *x)
 void
 ici_yield()
 {
-    ici_exec_t          *x;
+    exec  *x;
 
     x = ici_exec;
     // if (ici_n_active_threads > 1 && x->x_critsect == 0)
@@ -208,8 +205,8 @@ ici_yield()
 int
 ici_waitfor(object *o)
 {
-    ici_exec_t          *x;
-    const char          *e;
+    exec       *x;
+    const char *e;
 
     e = NULL;
     ici_exec->x_waitfor = o;
@@ -237,7 +234,7 @@ ici_waitfor(object *o)
 int
 ici_wakeup(object *o)
 {
-    ici_exec_t          *x;
+    exec *x;
 
     for (x = ici_execs; x != NULL; x = x->x_next)
     {
@@ -260,8 +257,8 @@ ici_wakeup(object *o)
  */
 static void ici_thread_base(void *arg)
 {
-    ici_exec_t      *x = (ici_exec_t *)arg;
-    int                 n_ops;
+    exec *x = (exec *)arg;
+    int  n_ops;
 
     ici_enter(x);
     n_ops = ici_os.a_top - ici_os.a_base;
@@ -287,8 +284,8 @@ static void ici_thread_base(void *arg)
 static int
 f_go(...)
 {
-    ici_exec_t          *x;
-    int                 i;
+    exec *x;
+    int  i;
 
     if (NARGS() < 1 || !ARG(0)->can_call())
         return ici_argerror(0);

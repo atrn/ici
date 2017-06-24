@@ -751,7 +751,7 @@ for (;; ptr++)
     character, because in that case the compiled code doesn't use the
     bit map. */
 
-    memset(class, 0, 32 * sizeof(uschar));
+    memset(class, 0, 32 * sizeof (uschar));
 
     /* Process characters until ] is reached. By writing this as a "do" it
     means that an initial ] is taken as a data character. */
@@ -2406,7 +2406,7 @@ while ((c = *(++ptr)) != 0)
     the new value. If non-zero, this will either be 2 for a (?imsx: group, or 3
     for a lookbehind assertion. */
 
-    if (brastackptr >= sizeof(brastack)/sizeof(int))
+    if (brastackptr >= sizeof (brastack)/sizeof (int))
       {
       *errorptr = ERR19;
       goto PCRE_ERROR_RETURN;
@@ -4251,7 +4251,7 @@ ocount = offsetcount - (offsetcount % 3);
 if (re->top_backref > 0 && re->top_backref >= ocount/3)
   {
   ocount = re->top_backref * 3 + 3;
-  match_block.offset_vector = (int *)(pcre_malloc)(ocount * sizeof(int));
+  match_block.offset_vector = (int *)(pcre_malloc)(ocount * sizeof (int));
   if (match_block.offset_vector == NULL) return PCRE_ERROR_NOMEMORY;
   using_temporary_offsets = TRUE;
   DPRINTF(("Got memory to hold back references\n"));
@@ -4439,7 +4439,7 @@ do
     if (offsetcount >= 4)
       {
       memcpy(offsets + 2, match_block.offset_vector + 2,
-        (offsetcount - 2) * sizeof(int));
+        (offsetcount - 2) * sizeof (int));
       DPRINTF(("Copied offsets from temporary memory\n"));
       }
     if (match_block.end_offset_top > offsetcount)

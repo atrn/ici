@@ -357,7 +357,7 @@ static int ici_sys_fdopen()
     long        fd;
     const char  *mode;
     FILE        *stream;
-    ici_file_t  *f;
+    file  *f;
 
     switch (NARGS())
     {
@@ -407,7 +407,7 @@ static int ici_sys_close()
         rc = close(intof(ARG(0))->i_value);
     else if (isarray(ARG(0)))
     {
-        ici_array_t *a = arrayof(ARG(0));
+        array *a = arrayof(ARG(0));
 
         if
         (
@@ -436,7 +436,7 @@ static int ici_sys_close()
 /* Convert a struct to a struct flock for fcntl's F_SETLK */
 
 static int
-struct_to_flock(ici_struct_t *d, struct flock *flock)
+struct_to_flock(ici_struct *d, struct flock *flock)
 {
     object    *o;
 
@@ -530,7 +530,7 @@ static int ici_sys_fcntl()
     return not_on_win32("fcntl");
 #else
     long        fd;
-    ici_str_t    *what;
+    str    *what;
     object    *arg;
     int         iarg;
     int         iwhat;
@@ -604,7 +604,7 @@ static int ici_sys_fcntl()
  */
 static int ici_sys_fileno()
 {
-    ici_file_t      *f;
+    file      *f;
 
     if (typecheck("u", &f))
         return 1;
@@ -691,7 +691,7 @@ static int ici_sys_read()
 {
     long        fd;
     long        len;
-    ici_str_t    *s;
+    str    *s;
     int         r;
     char        *msg;
 
@@ -843,7 +843,7 @@ static int ici_sys_stat()
     object    *o;
     struct stat statb;
     int         rc;
-    ici_struct_t    *s;
+    ici_struct  *s;
 
     if (NARGS() != 1)
         return ici_argcount(1);
@@ -911,7 +911,7 @@ static int ici_sys_lstat()
     object    *o;
     struct stat statb;
     int         rc;
-    ici_struct_t    *s;
+    ici_struct  *s;
 
     if (NARGS() != 1)
         return ici_argcount(1);
@@ -973,8 +973,8 @@ static int ici_sys_lstat()
  */
 static int ici_sys_ctime()
 {
-    time_t      timev;
-    ici_str_t    *s;
+    time_t  timev;
+    str    *s;
 
     if (typecheck("i", &timev) || (s = ici_str_new_nul_term(ctime(&timev))) == NULL)
         return 1;
@@ -1423,7 +1423,7 @@ static int ici_sys_exec()
     else
     {
         object **p;
-        ici_array_t *a;
+        array *a;
 
         a = arrayof(*o);
         for (p = a->astart(); p < a->alimit(); p = a->anext(p))
@@ -1532,7 +1532,7 @@ static int ici_sys_spawn()
     else
     {
         object **p;
-        ici_array_t *a;
+        array *a;
 
         a = arrayof(*o);
         for (p = a->astart(); p < a->alimit(); p = a->anext(p))
@@ -1695,7 +1695,7 @@ static int ici_sys_passwd()
     setpwent();
     while ((pwent = getpwent()) != NULL)
     {
-        ici_struct_t        *s;
+        ici_struct *s;
 
         if (a->stk_push_chk() || (s = password_struct(pwent)) == NULL)
         {

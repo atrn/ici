@@ -18,7 +18,7 @@ namespace ici
  *      src     the last source marker encountered.
  */
 static void
-ici_debug_error(char *err, ici_src_t *src)
+ici_debug_error(char *err, src *src)
 {
 }
 
@@ -56,7 +56,7 @@ ici_debug_fnresult(object *o)
  *      src     The source marker encountered.
  */
 static void
-ici_debug_src(ici_src_t *src)
+ici_debug_src(src *src)
 {
 }
 

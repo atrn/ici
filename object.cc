@@ -88,12 +88,12 @@ ici_grow_atoms_core(ptrdiff_t newz)
     assert(((newz - 1) & newz) == 0); /* Assert power of 2. */
     oldz = ici_atomsz;
     ++ici_supress_collect;
-    po = (object **)ici_nalloc(newz * sizeof(object *));
+    po = (object **)ici_nalloc(newz * sizeof (object *));
     --ici_supress_collect;
     if (po == NULL)
         return;
     ici_atomsz = newz;
-    memset((char *)po, 0, newz * sizeof(object *));
+    memset((char *)po, 0, newz * sizeof (object *));
     olda = ici_atoms;
     ici_atoms = po;
     i = oldz;
@@ -113,7 +113,7 @@ ici_grow_atoms_core(ptrdiff_t newz)
             *po = o;
         }
     }
-    ici_nfree(olda, oldz * sizeof(object *));
+    ici_nfree(olda, oldz * sizeof (object *));
 }
 
 /*
@@ -340,7 +340,7 @@ ici_grow_objs(object *o)
     oldz = ici_objs_limit - ici_objs;
     newz = 2 * oldz;
     ++ici_supress_collect;
-    if ((newobjs = (object **)ici_nalloc(newz * sizeof(object *))) == NULL)
+    if ((newobjs = (object **)ici_nalloc(newz * sizeof (object *))) == NULL)
     {
         --ici_supress_collect;
         return;
@@ -350,7 +350,7 @@ ici_grow_objs(object *o)
     ici_objs_limit = newobjs + newz;
     ici_objs_top = newobjs + (ici_objs_top - ici_objs);
     memset((char *)ici_objs_top, 0, (char *)ici_objs_limit - (char *)ici_objs_top);
-    ici_nfree(ici_objs, oldz * sizeof(object *));
+    ici_nfree(ici_objs, oldz * sizeof (object *));
     ici_objs = newobjs;
     *ici_objs_top++ = o;
 }

@@ -28,7 +28,7 @@ func *ici_new_func()
     {
         return NULL;
     }
-    memset((char *)f, 0, sizeof(ici_func_t));
+    memset((char *)f, 0, sizeof (func));
     ICI_OBJ_SET_TFNZ(f, ICI_TC_FUNC, 0, 1, 0);
     ici_rego(f);
     return f;
@@ -149,7 +149,7 @@ object * func_type::fetch(object *o, object *k)
 
 void func_type::objname(object *o, char p[ICI_OBJNAMEZ])
 {
-    ici_str_t   *s;
+    str   *s;
 
     s = funcof(o)->f_name;
     if (s->s_nchars > ICI_OBJNAMEZ - 2 - 1)
@@ -178,7 +178,7 @@ int func_type::call(object *o, object *subject)
     ici_struct *d;     /* The local variable structure. */
     object  **ap;   /* Actual parameter. */
     object  **fp;   /* Formal parameter. */
-    ici_sslot_t *sl;
+    sslot *sl;
     array       *va;
     int         n;
 
@@ -307,9 +307,9 @@ int func_type::call(object *o, object *subject)
     return 1;
 }
 
-ici_op_t    ici_o_return{ici_op_return};
-ici_op_t    ici_o_call{ICI_OP_CALL};
-ici_op_t    ici_o_method_call{ICI_OP_METHOD_CALL};
-ici_op_t    ici_o_super_call{ICI_OP_SUPER_CALL};
+op    ici_o_return{ici_op_return};
+op    ici_o_call{ICI_OP_CALL};
+op    ici_o_method_call{ICI_OP_METHOD_CALL};
+op    ici_o_super_call{ICI_OP_SUPER_CALL};
 
 } // namespace ici
