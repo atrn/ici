@@ -304,7 +304,7 @@ int invoke_signal_handlers()
             if ((fn = signal_handler[signo_to_index(signo)]) != NULL)
                 if (call_signal_handler(fn, signo))
                     return 1;
-            ici_signal_count[signo_to_index(signo)] = 0;
+            signal_count[signo_to_index(signo)] = 0;
         }
 #else
         long mask = sigmask(signo);

@@ -23,7 +23,7 @@ int debug_enabled = 0;
 /*
  * Flag indicating if error trapping should be ignored.
  */
-int debug_ign_err = 0;
+int debug_ignore_err = 0;
 
 /*
  * Ignore errors within exec loop. Used by internal calls to
@@ -32,7 +32,7 @@ int debug_ign_err = 0;
 void
 debug_ignore_errors()
 {
-    debug_ign_err = 1;
+    debug_ignore_err = 1;
 }
 
 /*
@@ -41,7 +41,7 @@ debug_ignore_errors()
 void
 debug_respect_errors()
 {
-    debug_ign_err = 0;
+    debug_ignore_err = 0;
 }
 
 /*
