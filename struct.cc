@@ -109,10 +109,10 @@ ici_invalidate_struct_lookaside(ici_struct *s)
     sle = sl + s->s_nslots;
     while (sl < sle)
     {
-        if (sl->sl_key != NULL && ici_isstring(sl->sl_key))
+        if (sl->sl_key != NULL && isstring(sl->sl_key))
         {
-            str = ici_stringof(sl->sl_key);
-            /*ici_stringof(sl->sl_key)->s_vsver = 0;*/
+            str = stringof(sl->sl_key);
+            /*stringof(sl->sl_key)->s_vsver = 0;*/
             str->s_vsver = vsver;
             str->s_struct = s;
             str->s_slot = sl;
@@ -203,15 +203,15 @@ ici_struct_unassign(ici_struct *s, object *k)
              * If we've moved a slot keyed by a string, that string's
              * look-aside value may be wrong. Trash it.
              */
-            if (ici_isstring(ss->sl_key))
+            if (isstring(ss->sl_key))
 	    {
-                ici_stringof(ss->sl_key)->s_vsver = 0;
+                stringof(ss->sl_key)->s_vsver = 0;
 	    }
         }
     }
-    if (ici_isstring(k))
+    if (isstring(k))
     {
-        ici_stringof(k)->s_vsver = 0;
+        stringof(k)->s_vsver = 0;
     }
     ss->sl_key = NULL;
     ss->sl_value = NULL;
@@ -237,11 +237,11 @@ int struct_type::fetch_super(object *o, object *k, object **v, ici_struct *b)
         {
             if (sl->sl_key == k)
             {
-                if (b != NULL && ici_isstring(k))
+                if (b != NULL && isstring(k))
                 {
-                    ici_stringof(k)->s_vsver = vsver;
-                    ici_stringof(k)->s_struct = b;
-                    ici_stringof(k)->s_slot = sl;
+                    stringof(k)->s_vsver = vsver;
+                    stringof(k)->s_struct = b;
+                    stringof(k)->s_slot = sl;
                     if (o->isatom())
                     {
                         k->setflag(ICI_S_LOOKASIDE_IS_ATOM);
@@ -454,11 +454,11 @@ int struct_type::assign_super(object *o, object *k, object *v, ici_struct *b)
                 if (sl->sl_key == k)
                 {
                     sl->sl_value = v;
-                    if (b != NULL && ici_isstring(k))
+                    if (b != NULL && isstring(k))
                     {
-                        ici_stringof(k)->s_vsver = vsver;
-                        ici_stringof(k)->s_struct = b;
-                        ici_stringof(k)->s_slot = sl;
+                        stringof(k)->s_vsver = vsver;
+                        stringof(k)->s_struct = b;
+                        stringof(k)->s_slot = sl;
                         k->clrflag(ICI_S_LOOKASIDE_IS_ATOM);
                     }
                     return 1;
@@ -491,11 +491,11 @@ int struct_type::assign(object *o, object *k, object *v)
 
     if
     (
-        ici_isstring(k)
+        isstring(k)
         &&
-        ici_stringof(k)->s_struct == ici_structof(o)
+        stringof(k)->s_struct == ici_structof(o)
         &&
-        ici_stringof(k)->s_vsver == vsver
+        stringof(k)->s_vsver == vsver
         &&
         !k->flagged(ICI_S_LOOKASIDE_IS_ATOM)
     )
@@ -503,9 +503,9 @@ int struct_type::assign(object *o, object *k, object *v)
 #ifndef NDEBUG
         object       *av;
         assert(fetch_super(o, k, &av, NULL) == 1);
-        assert(ici_stringof(k)->s_slot->sl_value == av);
+        assert(stringof(k)->s_slot->sl_value == av);
 #endif
-        ici_stringof(k)->s_slot->sl_value = v;
+        stringof(k)->s_slot->sl_value = v;
         return 0;
     }
     /*
@@ -561,11 +561,11 @@ int struct_type::assign(object *o, object *k, object *v)
     sl->sl_key = k;
  do_assign:
     sl->sl_value = v;
-    if (ici_isstring(k))
+    if (isstring(k))
     {
-        ici_stringof(k)->s_vsver = vsver;
-        ici_stringof(k)->s_struct = ici_structof(o);
-        ici_stringof(k)->s_slot = sl;
+        stringof(k)->s_vsver = vsver;
+        stringof(k)->s_struct = ici_structof(o);
+        stringof(k)->s_slot = sl;
         k->clrflag(ICI_S_LOOKASIDE_IS_ATOM);
     }
     return 0;
@@ -620,11 +620,11 @@ int struct_type::assign_base(object *o, object *k, object *v)
     sl->sl_key = k;
  do_assign:
     sl->sl_value = v;
-    if (LIKELY(ici_isstring(k)))
+    if (LIKELY(isstring(k)))
     {
-        ici_stringof(k)->s_vsver = vsver;
-        ici_stringof(k)->s_struct = s;
-        ici_stringof(k)->s_slot = sl;
+        stringof(k)->s_vsver = vsver;
+        stringof(k)->s_struct = s;
+        stringof(k)->s_slot = sl;
         k->clrflag(ICI_S_LOOKASIDE_IS_ATOM);
     }
     return 0;
@@ -668,16 +668,16 @@ object *struct_type::fetch(object *o, object *k)
 
     if
     (
-        ici_isstring(k)
+        isstring(k)
         &&
-        ici_stringof(k)->s_struct == ici_structof(o)
+        stringof(k)->s_struct == ici_structof(o)
         &&
-        ici_stringof(k)->s_vsver == vsver
+        stringof(k)->s_vsver == vsver
     )
     {
         assert(fetch_super(o, k, &v, NULL) == 1);
-        assert(ici_stringof(k)->s_slot->sl_value == v);
-        return ici_stringof(k)->s_slot->sl_value;
+        assert(stringof(k)->s_slot->sl_value == v);
+        return stringof(k)->s_slot->sl_value;
     }
     switch (fetch_super(o, k, &v, ici_structof(o)))
     {
@@ -696,11 +696,11 @@ object *struct_type::fetch_base(object *o, object *k)
     {
         return ici_null;
     }
-    if (ici_isstring(k))
+    if (isstring(k))
     {
-        ici_stringof(k)->s_vsver = vsver;
-        ici_stringof(k)->s_struct = ici_structof(o);
-        ici_stringof(k)->s_slot = sl;
+        stringof(k)->s_vsver = vsver;
+        stringof(k)->s_struct = ici_structof(o);
+        stringof(k)->s_slot = sl;
         if (o->isatom())
         {
             k->setflag(ICI_S_LOOKASIDE_IS_ATOM);

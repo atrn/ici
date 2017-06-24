@@ -32,7 +32,7 @@ ici_debug_error(char *err, ici_src_t *src)
  *      nargs   The number of parameters in that array.
  */
 static void
-ici_debug_fncall(ici_obj_t *o, ici_obj_t **ap, int nargs)
+ici_debug_fncall(object *o, object **ap, int nargs)
 {
 }
 
@@ -44,7 +44,7 @@ ici_debug_fncall(ici_obj_t *o, ici_obj_t **ap, int nargs)
  *      o       The result of the function.
  */
 static void
-ici_debug_fnresult(ici_obj_t *o)
+ici_debug_fnresult(object *o)
 {
 }
 
@@ -72,7 +72,7 @@ ici_debug_src(ici_src_t *src)
  *      v       The value being assigned to the object.
  */
 static void
-ici_debug_watch(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v)
+ici_debug_watch(object *o, object *k, object *v)
 {
 }
 

@@ -67,14 +67,14 @@
 namespace ici
 {
 
-size_t channel_type::mark(ici_obj_t *o)
+size_t channel_type::mark(object *o)
 {
     o->setmark();
     auto mem = typesize();
     mem += ici_mark(ici_objwsupof(o)->o_super);
-    mem += ici_mark(ici_channelof(o)->c_q);
-    if (ici_channelof(o)->c_altobj != NULL)
-        mem += ici_mark(ici_channelof(o)->c_altobj);
+    mem += ici_mark(channelof(o)->c_q);
+    if (channelof(o)->c_altobj != NULL)
+        mem += ici_mark(channelof(o)->c_altobj);
     return mem;
 }
 
@@ -90,8 +90,8 @@ size_t channel_type::mark(ici_obj_t *o)
 static int
 f_channel(...)
 {
-    size_t              capacity = 0;
-    ici_channel_t       *chan;
+    size_t  capacity = 0;
+    channel *chan;
 
     if (NARGS() != 0)
     {
@@ -106,12 +106,12 @@ f_channel(...)
         capacity = size_t(val);
     }
     // chan = ici_nalloc(sizeof (ici_channel_t));
-    chan = ici_talloc(ici_channel_t);
+    chan = ici_talloc(channel);
     if (chan == NULL)
         return 1;
     if ((chan->c_q = ici_array_new(capacity ? capacity : 1)) == NULL)
     {
-        ici_tfree(chan, ici_channel_t);
+        ici_tfree(chan, channel);
         return 1;
     }
     ICI_OBJ_SET_TFNZ(chan, ICI_TC_CHANNEL, ICI_O_SUPER, 1, 0);
@@ -130,15 +130,15 @@ f_channel(...)
 static int
 f_get(...)
 {
-    ici_obj_t *c;
-    ici_obj_t *o;
-    ici_array_t *q;
+    object *c;
+    object *o;
+    array *q;
 
     if (typecheck("o", &c))
         return 1;
-    if (!ici_ischannel(c))
+    if (!ischannel(c))
         return ici_argerror(0);
-    q = ici_channelof(c)->c_q;
+    q = channelof(c)->c_q;
     while (q->len() < 1)
     {
         if (ici_waitfor(q))
@@ -146,8 +146,8 @@ f_get(...)
     }
     o = q->rpop();
     ici_wakeup(q);
-    if (ici_channelof(c)->c_altobj != NULL)
-	ici_wakeup(ici_channelof(c)->c_altobj);
+    if (channelof(c)->c_altobj != NULL)
+	ici_wakeup(channelof(c)->c_altobj);
     return ici_ret_no_decref(o);
 }
 
@@ -165,18 +165,18 @@ f_get(...)
 static int
 f_put(...)
 {
-    ici_obj_t *c;
-    ici_obj_t *o;
-    ici_array_t *q;
+    object *c;
+    object *o;
+    array *q;
 
     if (typecheck("oo", &c, &o))
         return 1;
-    if (!ici_ischannel(c))
+    if (!ischannel(c))
         return 1;
-    q = ici_channelof(c)->c_q;
+    q = channelof(c)->c_q;
 
     // unbuffered
-    if (ici_channelof(c)->c_capacity == 0)
+    if (channelof(c)->c_capacity == 0)
     {
         while (q->len() > 0)
         {
@@ -186,7 +186,7 @@ f_put(...)
     }
     else
     {
-        while (q->len() >= ici_channelof(c)->c_capacity)
+        while (q->len() >= channelof(c)->c_capacity)
         {
             if (ici_waitfor(q))
                 return 1;
@@ -194,26 +194,26 @@ f_put(...)
     }
     q->push(o);
     ici_wakeup(q);
-    if (ici_channelof(c)->c_altobj != NULL)
-        ici_wakeup(ici_channelof(c)->c_altobj);
+    if (channelof(c)->c_altobj != NULL)
+        ici_wakeup(channelof(c)->c_altobj);
     return ici_null_ret();
 }
 
 //================================================================
 
 static int
-alt_setup(ici_array_t *alts, ici_obj_t *obj)
+alt_setup(array *alts, object *obj)
 {
     int n = alts->len();
     int i;
 
     for (i = 0; i < n; ++i)
     {
-	ici_obj_t *o = alts->get(i);
-        ici_channel_t *chan;
-	if (ici_ischannel(o))
+	object *o = alts->get(i);
+        channel *chan;
+	if (ischannel(o))
 	{
-	    chan = ici_channelof(o);
+	    chan = channelof(o);
 	    chan->c_altobj = obj;
 	}
 	else if (!isnull(o))
@@ -226,7 +226,7 @@ alt_setup(ici_array_t *alts, ici_obj_t *obj)
 }
 
 static int
-alt(ici_array_t *alts)
+alt(array *alts)
 {
     int idx = -1;
     int n = alts->len();
@@ -234,8 +234,8 @@ alt(ici_array_t *alts)
 
     for (i = 0; i < n && idx == -1; ++i)
     {
-        ici_obj_t *o = alts->get(i);
-        if (ici_ischannel(o) && ici_channelof(o)->c_q->len() > 0)
+        object *o = alts->get(i);
+        if (ischannel(o) && channelof(o)->c_q->len() > 0)
             idx = i;
     }
     return idx;
@@ -252,7 +252,7 @@ static int
 f_alt(...)
 {
     int idx;
-    ici_array_t *alts;
+    array *alts;
 
     if (typecheck("a", &alts))
         return 1;

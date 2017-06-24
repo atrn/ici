@@ -170,10 +170,10 @@ enum
 struct debug
 {
     void    (*idbg_error)(char *, ici_src_t *);
-    void    (*idbg_fncall)(ici_obj_t *, ici_obj_t **, int);
-    void    (*idbg_fnresult)(ici_obj_t *);
+    void    (*idbg_fncall)(object *, object **, int);
+    void    (*idbg_fnresult)(object *);
     void    (*idbg_src)(ici_src_t *);
-    void    (*idbg_watch)(ici_obj_t *, ici_obj_t *, ici_obj_t *);
+    void    (*idbg_watch)(object *, object *, object *);
 };
 
 /*
@@ -195,9 +195,9 @@ class exec_type : public type
 public:
     exec_type() : type("exec", sizeof (struct exec)) {}
 
-    size_t mark(ici_obj_t *o) override;
-    void free(ici_obj_t *o) override;
-    ici_obj_t *fetch(ici_obj_t *o, ici_obj_t *k) override;
+    size_t mark(object *o) override;
+    void free(object *o) override;
+    object *fetch(object *o, object *k) override;
 };
 
 } // namespace ici

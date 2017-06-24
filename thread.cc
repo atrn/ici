@@ -206,7 +206,7 @@ ici_yield()
  * This --func-- forms part of the --ici-api--.
  */
 int
-ici_waitfor(ici_obj_t *o)
+ici_waitfor(object *o)
 {
     ici_exec_t          *x;
     const char          *e;
@@ -235,7 +235,7 @@ ici_waitfor(ici_obj_t *o)
  * This --func-- forms part of the --ici-api--.
  */
 int
-ici_wakeup(ici_obj_t *o)
+ici_wakeup(object *o)
 {
     ici_exec_t          *x;
 

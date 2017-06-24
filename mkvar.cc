@@ -28,14 +28,14 @@ namespace ici
  *      f       float           double *
  *      s       string          char *
  *      u       file            FILE *
- *      o       any             ici_obj_t *
+ *      o       any             object *
  *
  * Returns 0 on succcess, else non-zerro, usual conventions.
  */
 int
 ici_set_val(ici_objwsup_t *s, ici_str_t *name, int type, void *vp)
 {
-    ici_obj_t   *o;
+    object   *o;
     int         i;
 
     switch (type)
@@ -58,7 +58,7 @@ ici_set_val(ici_objwsup_t *s, ici_str_t *name, int type, void *vp)
         break;
 
     case 'o':
-        o = (ici_obj_t *)vp;
+        o = (object *)vp;
         o->incref(); /* so can decref below */
         break;
 
@@ -79,7 +79,7 @@ ici_set_val(ici_objwsup_t *s, ici_str_t *name, int type, void *vp)
  * it can be used directly in typical error returns.
  */
 int
-ici_fetch_mismatch(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v, const char *expected)
+ici_fetch_mismatch(object *o, object *k, object *v, const char *expected)
 {
     char        n1[30];
     char        n2[30];
@@ -93,7 +93,7 @@ ici_fetch_mismatch(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v, const char *expecte
 }
 
 int
-ici_assign_float(ici_obj_t *o, ici_obj_t *k, double v)
+ici_assign_float(object *o, object *k, double v)
 {
     ici_float_t  *f;
 
@@ -110,9 +110,9 @@ ici_assign_float(ici_obj_t *o, ici_obj_t *k, double v)
  * non-zero on error, usual conventions.
  */
 int
-ici_fetch_num(ici_obj_t *o, ici_obj_t *k, double *vp)
+ici_fetch_num(object *o, object *k, double *vp)
 {
-    ici_obj_t   *v;
+    object   *v;
 
     if ((v = ici_fetch(o, k)) == NULL)
         return 1;
@@ -131,9 +131,9 @@ ici_fetch_num(ici_obj_t *o, ici_obj_t *k, double *vp)
  * non-zero on error, usual conventions.
  */
 int
-ici_fetch_int(ici_obj_t *o, ici_obj_t *k, long *vp)
+ici_fetch_int(object *o, object *k, long *vp)
 {
-    ici_obj_t   *v;
+    object   *v;
 
     if ((v = ici_fetch(o, k)) == NULL)
         return 1;
@@ -160,7 +160,7 @@ ici_fetch_int(ici_obj_t *o, ici_obj_t *k, long *vp)
  *      f       float           double *
  *      s       string          char *
  *      u       file            FILE *
- *      o       any             ici_obj_t *
+ *      o       any             object *
  */
 int
 ici_cmkvar(ici_objwsup_t *scope, const char *name, int type, void *vp)

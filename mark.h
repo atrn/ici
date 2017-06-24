@@ -23,8 +23,8 @@ struct mark : object
     mark() : object(ICI_TC_MARK) {}
 };
 
-inline ici_mark_t *ici_markof(ici_obj_t *o) { return static_cast<ici_mark_t *>(o); }
-inline bool ici_ismark(ici_obj_t *o) { return o == &ici_o_mark; }
+inline ici_mark_t *ici_markof(object *o) { return static_cast<ici_mark_t *>(o); }
+inline bool ici_ismark(object *o) { return o == &ici_o_mark; }
 
 /*
  * End of ici.h export. --ici.h-end--
@@ -34,7 +34,7 @@ class mark_type : public type
 {
 public:
     mark_type() : type("mark", sizeof (struct mark)) {}
-    void free(ici_obj_t *) override;
+    void free(object *) override;
 };
 
 } // namespace ici

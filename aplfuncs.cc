@@ -18,12 +18,12 @@ namespace ici
  */
 struct context
 {
-    ici_obj_t   **c_dlimit;
+    object   **c_dlimit;
     int         c_dstep;
     char        c_option;
-    ici_obj_t   **c_cstart;
-    ici_obj_t   **c_climit;
-    ici_obj_t   **c_cnext;
+    object   **c_cstart;
+    object   **c_climit;
+    object   **c_cnext;
     long        c_ccount;
     long        c_cstep;
 };
@@ -57,7 +57,7 @@ struct context
  * independent of the recursion. See above.
  */
 static int
-buildxx(ici_obj_t **r, ici_obj_t **dnext, struct context *c)
+buildxx(object **r, object **dnext, struct context *c)
 {
     int         i;
     char        n1[30];
@@ -150,8 +150,8 @@ buildxx(ici_obj_t **r, ici_obj_t **dnext, struct context *c)
     {
         ici_array_t     *a;
         ici_struct_t    *s;
-        ici_obj_t       **e;
-        ici_obj_t       *o;
+        object       **e;
+        object       *o;
 
         /*
          * We have an array dimension. This means a struct with the elements
@@ -190,12 +190,12 @@ buildxx(ici_obj_t **r, ici_obj_t **dnext, struct context *c)
 static int
 f_build(...)
 {
-    ici_obj_t           **dstart;
-    int                 i;
-    ici_obj_t           *r;
-    ici_obj_t           *default_content;
-    char                n1[30];
-    struct context      c;
+    object         **dstart;
+    int              i;
+    object          *r;
+    object          *default_content;
+    char             n1[30];
+    struct context   c;
 
     memset(&c, 0, sizeof c);
     dstart = &ARG(0);
@@ -203,10 +203,10 @@ f_build(...)
     c.c_dstep = -1;
     for (i = 0; i < NARGS(); ++i)
     {
-        if (ici_isstring(ARG(i)))
+        if (isstring(ARG(i)))
         {
             c.c_dlimit = &ARG(i); /* Revise. */
-            c.c_option = ici_str_char_at(ici_stringof(ARG(i)), 0);
+            c.c_option = ici_str_char_at(stringof(ARG(i)), 0);
             if (++i < NARGS())
             {
                 c.c_cstart = &ARG(i);

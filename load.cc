@@ -84,7 +84,7 @@ static int
 f_load(...)
 {
     ici_str_t   *name;
-    ici_obj_t   *result;
+    object   *result;
     char        fname[FILENAME_MAX];
     char        entry_symbol[64];
     ici_struct_t    *statics;
@@ -108,7 +108,7 @@ f_load(...)
 
     if (typecheck("o", &name))
         return 1;
-    if (!ici_isstring(name))
+    if (!isstring(name))
         return ici_argerror(0);
     /*
      * Find the outer-most writeable scope. This is where the new name
@@ -133,8 +133,8 @@ f_load(...)
     if (ici_find_on_path(fname, ICI_DLL_EXT))
     {
         dll_t           lib;
-        ici_obj_t       *(*library_init)();
-        ici_obj_t       *o;
+        object       *(*library_init)();
+        object       *o;
 
         /*
          * We have a file .../iciX.EXT. Attempt to dynamically load it.
@@ -154,7 +154,7 @@ f_load(...)
 #else
         sprintf(entry_symbol, "anici_%s_init", name->s_chars);
 #endif
-        library_init = (ici_obj_t *(*)())dlsym(lib, entry_symbol);
+        library_init = (object *(*)())dlsym(lib, entry_symbol);
         if (library_init == NULL)
         {
 #ifndef SUNOS5 /* Doing the dlclose results in a crash under Solaris - why? */
@@ -364,7 +364,7 @@ push_path_elements(ici_array_t *a, const char *path)
     const char          *p;
     const char          *q;
     ici_str_t           *s;
-    ici_obj_t           **e;
+    object           **e;
 
     for (p = path; *p != '\0'; p = *q == '\0' ? q : q + 1)
     {

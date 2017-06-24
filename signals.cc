@@ -81,7 +81,7 @@ volatile long   ici_signal_count[NSIG];
  *      occurs rather than postponing the call to within the execution
  *      loop.
  */
-static ici_obj_t *signal_handler[NSIG];
+static object *signal_handler[NSIG];
 static int  currently_blocked;
 
 
@@ -93,10 +93,10 @@ static int  currently_blocked;
  * Returns non-zero on error, zero if okay.
  */
 static int
-call_signal_handler(ici_obj_t *func, int signo)
+call_signal_handler(object *func, int signo)
 {
     ici_int_t           *isigno;
-    ici_obj_t           *ret_obj;
+    object           *ret_obj;
 
     if (ici_os.stk_push_chk(3 + 80)) /* see comment in ici/call.c */
         return 1;
@@ -226,7 +226,7 @@ signo_to_signam(int signo)
 static void
 ici_signal_handler(int signo)
 {
-    ici_obj_t   *func;
+    object   *func;
 
     if (currently_blocked)
     {
@@ -296,7 +296,7 @@ int
 ici_signals_invoke_handlers()
 {
     int     signo;
-    ici_obj_t   *fn;
+    object   *fn;
 
     for (signo = 1; signo <= NSIG; ++signo)
     {
@@ -338,13 +338,13 @@ ici_signals_invoke_handlers()
 static int
 f_signal(...)
 {
-    ici_obj_t   *sigo;
-    ici_obj_t   *handlero;
+    object   *sigo;
+    object   *handlero;
     int         signo;
     void        (*handler)(int);
     void        (*rc)(int);
-    ici_obj_t   *prev_handler;
-    ici_obj_t   *result;
+    object   *prev_handler;
+    object   *result;
 
     handlero = NULL;
     switch (NARGS())
@@ -359,9 +359,9 @@ f_signal(...)
         return ici_argcount(2);
     }
 
-    if (ici_isstring(sigo))
+    if (isstring(sigo))
     {
-        if ((signo = signam_to_signo(ici_stringof(sigo)->s_chars)) == 0)
+        if ((signo = signam_to_signo(stringof(sigo)->s_chars)) == 0)
         {
             return ici_set_error("invalid signal name");
         }
@@ -397,12 +397,12 @@ f_signal(...)
         return ici_set_error("signal in indeterminate state");
     }
 
-    if (ici_stringof(handlero) == SS(default))
+    if (stringof(handlero) == SS(default))
     {
         signal_handler[signo_to_index(signo)] = NULL;
         handler = SIG_DFL;
     }
-    else if (ici_stringof(handlero) == SS(ignore))
+    else if (stringof(handlero) == SS(ignore))
     {
         signal_handler[signo_to_index(signo)] = NULL;
         handler = SIG_IGN;

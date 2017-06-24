@@ -107,9 +107,9 @@ m_unknown_method(object *o)
 {
     if (ici_method_check(o, 0))
 	return 1;
-    if (NARGS() > 0 && ici_isstring(ARG(0)))
+    if (NARGS() > 0 && isstring(ARG(0)))
     {
-        ici_str_t *name = ici_stringof(ARG(0));
+        auto name = stringof(ARG(0));
         return ici_set_error("attempt to call unknown method \"%s\"", name->s_chars);
     }
     return ici_set_error("attempt to call unknown method");

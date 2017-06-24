@@ -226,10 +226,10 @@ ici_evaluate(object *code, int n_operands)
 
 #define FETCH(s, k)                                     	\
     (                                                           \
-        ici_isstring(k)                                         \
-        	&& ici_stringof(k)->s_struct == ici_structof(s) \
-        	&& ici_stringof(k)->s_vsver == vsver            \
-        ? ici_stringof(k)->s_slot->sl_value                     \
+        isstring(k)                                             \
+            && stringof(k)->s_struct == ici_structof(s)         \
+            && stringof(k)->s_vsver == vsver                    \
+        ? stringof(k)->s_slot->sl_value                         \
         : ici_fetch(s, k)                                       \
     )
 
@@ -392,9 +392,9 @@ ici_evaluate(object *code, int n_operands)
              */
             if
             (
-                ici_stringof(o)->s_struct == ici_structof(ici_vs.a_top[-1])
+                stringof(o)->s_struct == ici_structof(ici_vs.a_top[-1])
                 &&
-                ici_stringof(o)->s_vsver == vsver
+                stringof(o)->s_vsver == vsver
             )
             {
                 /*
@@ -403,8 +403,8 @@ ici_evaluate(object *code, int n_operands)
                  * or structures etc.
                  */
                 assert(ici_fetch_super(ici_vs.a_top[-1], o, ici_os.a_top, NULL) == 1);
-                assert(*ici_os.a_top == ici_stringof(o)->s_slot->sl_value);
-                *ici_os.a_top++ = ici_stringof(o)->s_slot->sl_value;
+                assert(*ici_os.a_top == stringof(o)->s_slot->sl_value);
+                *ici_os.a_top++ = stringof(o)->s_slot->sl_value;
             }
             else
             {
@@ -438,7 +438,7 @@ ici_evaluate(object *code, int n_operands)
                      */
                     if ((f = ici_fetch(ici_vs.a_top[-1], SS(load))) == ici_null)
                     {
-                        ici_set_error("\"%s\" undefined", ici_stringof(o)->s_chars);
+                        ici_set_error("\"%s\" undefined", stringof(o)->s_chars);
                         goto fail;
                     }
                     *ici_xs.a_top++ = o; /* Temp restore formal state. */
@@ -469,7 +469,7 @@ ici_evaluate(object *code, int n_operands)
                         goto fail;
 
                     case 0:
-                        ici_set_error("load() failed to define \"%s\"", ici_stringof(o)->s_chars);
+                        ici_set_error("load() failed to define \"%s\"", stringof(o)->s_chars);
                         goto fail;
                     }
                 }
@@ -792,16 +792,16 @@ ici_evaluate(object *code, int n_operands)
                  */
                 if
                 (
-                    ici_stringof(ici_os.a_top[-2])->s_struct == ici_structof(ici_os.a_top[-3])
+                    stringof(ici_os.a_top[-2])->s_struct == ici_structof(ici_os.a_top[-3])
                     &&
-                    ici_stringof(ici_os.a_top[-2])->s_vsver == vsver
+                    stringof(ici_os.a_top[-2])->s_vsver == vsver
                     &&
-                    ici_isstring(ici_os.a_top[-2])
+                    isstring(ici_os.a_top[-2])
                     &&
                     !ici_os.a_top[-2]->flagged(ICI_S_LOOKASIDE_IS_ATOM)
                 )
                 {
-                    ici_stringof(ici_os.a_top[-2])->s_slot->sl_value = ici_os.a_top[-1];
+                    stringof(ici_os.a_top[-2])->s_slot->sl_value = ici_os.a_top[-1];
                     goto assign_finish;
                 }
                 if (ici_assign(ici_os.a_top[-3], ici_os.a_top[-2], ici_os.a_top[-1]))
@@ -1292,7 +1292,7 @@ ici_evaluate(object *code, int n_operands)
 object *
 ici_eval(ici_str_t *name)
 {
-    assert(ici_isstring(name));
+    assert(isstring(name));
     return ici_evaluate(name, 0);
 }
 
@@ -1363,7 +1363,7 @@ object *exec_type::fetch(object *o, object *k)
             return x->x_result;
 
         case ICI_XS_FAILED:
-            ici_set_error("%s", x->x_result == NULL  ? "failed" : ici_stringof(x->x_result)->s_chars);
+            ici_set_error("%s", x->x_result == NULL  ? "failed" : stringof(x->x_result)->s_chars);
             return NULL;
 
         default:

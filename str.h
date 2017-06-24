@@ -60,8 +60,8 @@ struct str : object
  * su.su_inline_chars   If ICI_S_SEP_ALLOC is *not* set, this is where s_chars will
  *                      be pointing. The actual string chars follow on from this.
  */
-inline ici_str_t * ici_stringof(object *o) { return static_cast<ici_str_t *>(o); }
-inline bool ici_isstring(object *o) { return o->isa(ICI_TC_STRING); }
+inline str *stringof(object *o) { return static_cast<str *>(o); }
+inline bool isstring(object *o) { return o->isa(ICI_TC_STRING); }
 
 /*
  * This flag (in o_flags) indicates that the lookup-lookaside mechanism
@@ -102,12 +102,12 @@ constexpr int ICI_S_SEP_ALLOC     = 0x40;
 #define ICIS_SYM_EXP(module, name) ici_##module##_str_##name
 #define ICIS_SYM(module, name)  ICIS_SYM_EXP(module, name)
 #define ICIS(name)              (ICIS_SYM(ICI_MODULE_NAME, name))
-#define ICI_STR_NORM(name, str) extern ici_str_t *ICIS_SYM(ICI_MODULE_NAME, name);
-#define ICI_STR_DECL(name, str) ici_str_t *ICIS_SYM(ICI_MODULE_NAME, name);
+#define ICI_STR_NORM(name, str) extern str *ICIS_SYM(ICI_MODULE_NAME, name);
+#define ICI_STR_DECL(name, str) str *ICIS_SYM(ICI_MODULE_NAME, name);
 #else
 #define ICIS(name)              (ici_str_##name)
-#define ICI_STR_NORM(name, str) extern ici_str_t *ici_str_##name;
-#define ICI_STR_DECL(name, str) ici_str_t *ici_str_##name;
+#define ICI_STR_NORM(name, str) extern str *ici_str_##name;
+#define ICI_STR_DECL(name, str) str *ici_str_##name;
 #endif
 #define ICISO(name)             (ICIS(name))
 #define ICI_STR_MAKE(name, str) (ICIS(name) = ici_str_new_nul_term(str)) == NULL ||
@@ -161,8 +161,8 @@ struct sstring : object
         memcpy(s_inline_chars, cs, s_nchars);
     }
 
-    ici_struct_t *s_struct;     /* Where we were last found on the vs. */
-    ici_sslot_t *s_slot;        /* And our slot. */
+    ici_struct *s_struct;     /* Where we were last found on the vs. */
+    sslot *s_slot;        /* And our slot. */
     uint32_t    s_vsver;        /* The vs version at that time. */
 #   if ICI_KEEP_STRING_HASH
     unsigned long s_hash;       /* String hash code or 0 if not yet computed */
@@ -176,7 +176,7 @@ struct sstring : object
 #include "sstring.h"
 #undef SSTRING
 
-#define SS(name)         ((ici_str_t *)&ici_ss_##name)
+#define SS(name)         ((ici::str *)&ici_ss_##name)
 
 #define ici_str_char_at(s,i) ((s)->s_chars[i])
 

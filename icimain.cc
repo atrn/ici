@@ -179,11 +179,11 @@ main(int argc, char *argv[])
     }
     else
     {
-        arg0 = ici_stringof(av->a_base[0])->s_chars;
+        arg0 = stringof(av->a_base[0])->s_chars;
     }
 
     /* Patch around Bourne shell "$@" with no args bug. */
-    if (av->a_top - av->a_base == 2 && ici_stringof(av->a_base[1])->s_nchars == 0)
+    if (av->a_top - av->a_base == 2 && stringof(av->a_base[1])->s_nchars == 0)
     {
         --av->a_top;
     }

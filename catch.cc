@@ -21,7 +21,7 @@ namespace ici
 ici_catch_t *
 ici_unwind()
 {
-    ici_obj_t   **p;
+    object   **p;
     ici_catch_t *c;
 
     for (p = ici_xs.a_top - 1; p >= ici_xs.a_base; --p)
@@ -48,7 +48,7 @@ ici_unwind()
  * returns its object with a ref count of 0 not 1.
  */
 ici_catch_t *
-ici_new_catch(ici_obj_t *o, int odepth, int vdepth, int flags)
+ici_new_catch(object *o, int odepth, int vdepth, int flags)
 {
      ici_catch_t    *c;
 
@@ -78,7 +78,7 @@ ici_op_onerror()
     return 0;
 }
 
-size_t catch_type::mark(ici_obj_t *o)
+size_t catch_type::mark(object *o)
 {
     o->setmark();
     auto mem = typesize();
@@ -87,7 +87,7 @@ size_t catch_type::mark(ici_obj_t *o)
     return mem;
 }
 
-void catch_type::free(ici_obj_t *o)
+void catch_type::free(object *o)
 {
     assert(!o->flagged(CF_EVAL_BASE));
     ici_tfree(o, ici_catch_t);

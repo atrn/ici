@@ -40,7 +40,7 @@ ici_op_return()
 {
     object              **x;
     static int          occasionally;
-    ici_obj_t           *f;
+    object           *f;
 
     if (UNLIKELY(ici_debug_active))
     {
@@ -95,7 +95,7 @@ ici_op_return()
     return 0;
 }
 
-size_t func_type::mark(ici_obj_t *o)
+size_t func_type::mark(object *o)
 {
     auto fn = ici_funcof(o);
     o->setmark();
@@ -111,7 +111,7 @@ size_t func_type::mark(ici_obj_t *o)
     return mem;
 }
 
-int func_type::cmp(ici_obj_t *o1, ici_obj_t *o2)
+int func_type::cmp(object *o1, object *o2)
 {
     return ici_funcof(o1)->f_code != ici_funcof(o2)->f_code
         || ici_funcof(o1)->f_autos != ici_funcof(o2)->f_autos
@@ -119,14 +119,14 @@ int func_type::cmp(ici_obj_t *o1, ici_obj_t *o2)
         || ici_funcof(o1)->f_name != ici_funcof(o2)->f_name;
 }
 
-unsigned long func_type::hash(ici_obj_t *o)
+unsigned long func_type::hash(object *o)
 {
     return (unsigned long)ici_funcof(o)->f_code * FUNC_PRIME;
 }
 
-ici_obj_t * func_type::fetch(ici_obj_t *o, ici_obj_t *k)
+object * func_type::fetch(object *o, object *k)
 {
-    ici_obj_t           *r;
+    object           *r;
 
     ici_error = NULL;
     r = NULL;
@@ -149,7 +149,7 @@ ici_obj_t * func_type::fetch(ici_obj_t *o, ici_obj_t *k)
     return r;
 }
 
-void func_type::objname(ici_obj_t *o, char p[ICI_OBJNAMEZ])
+void func_type::objname(object *o, char p[ICI_OBJNAMEZ])
 {
     ici_str_t   *s;
 
@@ -174,12 +174,12 @@ void func_type::objname(ici_obj_t *o, char p[ICI_OBJNAMEZ])
  * assigned to the corresponding formal argument names in the auto var
  * structure.
  */
-int func_type::call(ici_obj_t *o, ici_obj_t *subject)
+int func_type::call(object *o, object *subject)
 {
     func *f;
     ici_struct *d;     /* The local variable structure. */
-    ici_obj_t  **ap;   /* Actual parameter. */
-    ici_obj_t  **fp;   /* Formal parameter. */
+    object  **ap;   /* Actual parameter. */
+    object  **fp;   /* Formal parameter. */
     ici_sslot_t *sl;
     array       *va;
     int         n;
@@ -243,10 +243,10 @@ int func_type::call(ici_obj_t *o, ici_obj_t *subject)
          */
         while (fp < f->f_args->a_top && n > 0)
         {
-            assert(ici_isstring(*fp));
-            if (LIKELY(ici_stringof(*fp)->s_struct == d && ici_stringof(*fp)->s_vsver == vsver))
+            assert(isstring(*fp));
+            if (LIKELY(stringof(*fp)->s_struct == d && stringof(*fp)->s_vsver == vsver))
             {
-                ici_stringof(*fp)->s_slot->sl_value = *ap;
+                stringof(*fp)->s_slot->sl_value = *ap;
             }
             else
             {

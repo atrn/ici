@@ -49,7 +49,7 @@ ici_init()
      * hope they are. Nothing actually assumes this. But it would
      * represent a significant inefficiency if they were padded.
      */
-    assert(sizeof(ici_obj_t) == 4);
+    assert(sizeof(object) == 4);
 
     /*
      * The following assertion is only valid on some architectures.
@@ -75,17 +75,17 @@ ici_init()
     {
         return 1;
     }
-    if ((ici_atoms = (ici_obj_t **)ici_nalloc(INITIAL_ATOMSZ * sizeof(ici_obj_t *))) == NULL)
+    if ((ici_atoms = (object **)ici_nalloc(INITIAL_ATOMSZ * sizeof(object *))) == NULL)
     {
         return 1;
     }
     ici_atomsz = INITIAL_ATOMSZ;
-    memset((char *)ici_atoms, 0, ici_atomsz * sizeof (ici_obj_t *));
-    if ((ici_objs = (ici_obj_t **)ici_nalloc(INITIAL_OBJS * sizeof (ici_obj_t *))) == NULL)
+    memset((char *)ici_atoms, 0, ici_atomsz * sizeof (object *));
+    if ((ici_objs = (object **)ici_nalloc(INITIAL_OBJS * sizeof (object *))) == NULL)
     {
         return 1;
     }
-    memset((char *)ici_objs, 0, INITIAL_OBJS * sizeof(ici_obj_t *));
+    memset((char *)ici_objs, 0, INITIAL_OBJS * sizeof(object *));
     ici_objs_limit = ici_objs + INITIAL_OBJS;
     ici_objs_top = ici_objs;
     for (i = 0; i < (int)nels(small_ints); ++i)

@@ -5,7 +5,7 @@
 namespace ici
 {
 
-void null_type::free(ici_obj_t *o)
+void null_type::free(object *o)
 {
 }
 

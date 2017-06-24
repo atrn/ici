@@ -231,7 +231,7 @@ restore_regexp(archive *ar)
     {
         return NULL;
     }
-    if ((s = ici_stringof(restore_string(ar))) == NULL)
+    if ((s = stringof(restore_string(ar))) == NULL)
     {
         return NULL;
     }
@@ -523,7 +523,7 @@ restore_func(archive *ar)
     fn->f_args = arrayof(args);
     fn->f_autos = ici_structof(autos);
     fn->f_autos->o_super = ar->scope(); /* structof(ici_vs.a_top[-1])->o_super; */
-    fn->f_name = ici_stringof(name);
+    fn->f_name = stringof(name);
     fn->f_nautos = nautos;
 
     code->decref();
@@ -592,13 +592,13 @@ restore_src(archive *ar)
     {
         return NULL;
     }
-    if (!ici_isstring(filename))
+    if (!isstring(filename))
     {
-        ici_set_error("unexpected type of filename");
+        ici_set_error("unexpected filename type (%s)", filename->type_name());
         filename->decref();
         return NULL;
     }
-    if ((result = new_src(line, ici_stringof(filename))) == NULL)
+    if ((result = new_src(line, stringof(filename))) == NULL)
     {
         filename->decref();
         return NULL;

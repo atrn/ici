@@ -27,12 +27,12 @@ namespace ici
  * This --func-- forms part of the --ici-api--.
  */
 int
-ici_funcv(ici_obj_t *subject, ici_obj_t *callable, const char *types, va_list va)
+ici_funcv(object *subject, object *callable, const char *types, va_list va)
 {
     size_t              nargs;
     size_t              arg;
-    ici_obj_t           *member_obj;
-    ici_obj_t           *ret_obj;
+    object           *member_obj;
+    object           *ret_obj;
     char                ret_type;
     char                *ret_ptr;
     ptrdiff_t           os_depth;
@@ -40,7 +40,7 @@ ici_funcv(ici_obj_t *subject, ici_obj_t *callable, const char *types, va_list va
 
     if (types[0] != '\0' && types[1] == '@')
     {
-        member_obj = va_arg(va, ici_obj_t *);
+        member_obj = va_arg(va, object *);
         types += 2;
     }
     else
@@ -78,7 +78,7 @@ ici_funcv(ici_obj_t *subject, ici_obj_t *callable, const char *types, va_list va
         switch (*types++)
         {
         case 'o':
-            ici_os.a_top[arg] = va_arg(va, ici_obj_t *);
+            ici_os.a_top[arg] = va_arg(va, object *);
             break;
 
         case 'i':
@@ -150,7 +150,7 @@ ici_funcv(ici_obj_t *subject, ici_obj_t *callable, const char *types, va_list va
         break;
 
     case 'o':
-        *(ici_obj_t **)ret_ptr = ret_obj;
+        *(object **)ret_ptr = ret_obj;
         break;
 
     case 'i':
@@ -172,11 +172,11 @@ ici_funcv(ici_obj_t *subject, ici_obj_t *callable, const char *types, va_list va
         break;
 
     case 's':
-        if (!ici_isstring(ret_obj))
+        if (!isstring(ret_obj))
         {
             goto typeclash;
         }
-        *(char **)ret_ptr = ici_stringof(ret_obj)->s_chars;
+        *(char **)ret_ptr = stringof(ret_obj)->s_chars;
         ret_obj->decref();
         break;
 
@@ -203,15 +203,15 @@ fail:
 int
 ici_callv(ici_str_t *func_name, const char *types, va_list va)
 {
-    ici_obj_t           *func_obj;
-    ici_obj_t           *member_obj;
+    object           *func_obj;
+    object           *member_obj;
 
     func_obj = NULL;
     if (types[0] != '\0' && types[1] == '@')
     {
         va_list tmp;
         va_copy(tmp, va);
-        member_obj = va_arg(tmp, ici_obj_t *);
+        member_obj = va_arg(tmp, object *);
         if ((func_obj = ici_fetch(member_obj, func_name)) == ici_null)
         {
             return ici_set_error("\"%s\" undefined in object", func_name->s_chars);
@@ -268,7 +268,7 @@ ici_callv(ici_str_t *func_name, const char *types, va_list va)
  * This --func-- forms part of the --ici-api--.
  */
 int
-ici_func(ici_obj_t *callable, const char *types, ...)
+ici_func(object *callable, const char *types, ...)
 {
     va_list     va;
     int         result;
@@ -289,7 +289,7 @@ ici_func(ici_obj_t *callable, const char *types, ...)
  * This --func-- forms part of the --ici-api--.
  */
 int
-ici_method(ici_obj_t *inst, ici_str_t *mname, const char *types, ...)
+ici_method(object *inst, ici_str_t *mname, const char *types, ...)
 {
     va_list     va;
     int         result;
@@ -316,8 +316,8 @@ ici_method(ici_obj_t *inst, ici_str_t *mname, const char *types, ...)
 int
 ici_call(ici_str_t *func_name, const char *types, ...)
 {
-    ici_obj_t           *func_obj;
-    ici_obj_t           *member_obj;
+    object           *func_obj;
+    object           *member_obj;
     va_list             va;
     int                 result;
 
@@ -325,7 +325,7 @@ ici_call(ici_str_t *func_name, const char *types, ...)
     if (types[0] != '\0' && types[1] == '@')
     {
         va_start(va, types);
-        member_obj = va_arg(va, ici_obj_t *);
+        member_obj = va_arg(va, object *);
         if ((func_obj = ici_fetch(member_obj, func_name)) == ici_null)
         {
             return ici_set_error("\"%s\" undefined in object", func_name->s_chars);

@@ -31,8 +31,8 @@ struct regexp : object
     ici_str_t   *r_pat;
 };
 
-inline ici_regexp_t *ici_regexpof(ici_obj_t *o) { return static_cast<ici_regexp_t *>(o); }
-inline bool ici_isregexp(ici_obj_t *o) { return o->isa(ICI_TC_REGEXP); }
+inline ici_regexp_t *ici_regexpof(object *o) { return static_cast<ici_regexp_t *>(o); }
+inline bool ici_isregexp(object *o) { return o->isa(ICI_TC_REGEXP); }
 
 int ici_pcre_exec_simple(ici_regexp_t *, ici_str_t *);
 
@@ -56,11 +56,11 @@ class regexp_type : public type
 public:
     regexp_type() : type("regexp", sizeof (struct regexp)) {}
 
-    size_t mark(ici_obj_t *o) override;
-    void free(ici_obj_t *o) override;
-    unsigned long hash(ici_obj_t *o) override;
-    int cmp(ici_obj_t *o1, ici_obj_t *o2) override;
-    ici_obj_t *fetch(ici_obj_t *o, ici_obj_t *k) override;
+    size_t mark(object *o) override;
+    void free(object *o) override;
+    unsigned long hash(object *o) override;
+    int cmp(object *o1, object *o2) override;
+    object *fetch(object *o, object *k) override;
 };
 
 } // namespace ici

@@ -136,7 +136,7 @@ save_float(archive *ar, object *obj)
 static int
 save_string(archive *ar, object *obj)
 {
-    return save_object_name(ar, obj) || writestr(ar, ici_stringof(obj));
+    return save_object_name(ar, obj) || writestr(ar, stringof(obj));
 }
 
 // regexp

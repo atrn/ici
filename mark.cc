@@ -5,7 +5,7 @@
 namespace ici
 {
 
-void mark_type::free(ici_obj_t *)
+void mark_type::free(object *)
 {
 }
 

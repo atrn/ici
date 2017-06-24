@@ -11,17 +11,15 @@ namespace ici
 /*
  * This --struct-- forms part of the --ici-api--.
  */
-struct ici_channel : object
+struct channel : object
 {
-    ici_array_t *       c_q;
-    size_t              c_capacity;
-    ici_obj_t *         c_altobj;
+    array *  c_q;
+    size_t   c_capacity;
+    object * c_altobj;
 };
 
-typedef struct ici_channel ici_channel_t;
-
-inline ici_channel_t *ici_channelof(ici_obj_t *o) { return static_cast<ici_channel_t *>(o); }
-inline bool ici_ischannel(ici_obj_t *o) { return o->isa(ICI_TC_CHANNEL); }
+inline channel *channelof(object *o) { return static_cast<channel *>(o); }
+inline bool ischannel(object *o) { return o->isa(ICI_TC_CHANNEL); }
 
 /*
  * End of ici.h export. --ici.h-end--
@@ -30,8 +28,8 @@ inline bool ici_ischannel(ici_obj_t *o) { return o->isa(ICI_TC_CHANNEL); }
 class channel_type : public type
 {
 public:
-    channel_type() : type("channel", sizeof (struct ici_channel)) {}
-    size_t mark(ici_obj_t *o) override;
+    channel_type() : type("channel", sizeof (struct channel)) {}
+    size_t mark(object *o) override;
 };
 
 } // namespace ici

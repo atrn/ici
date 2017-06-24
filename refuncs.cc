@@ -10,6 +10,7 @@
 #include "null.h"
 #include "op.h"
 #include "array.h"
+
 #include <stdio.h>
 #include <ctype.h>
 
@@ -31,7 +32,7 @@ f_regexp(...)
         opts = intof(ARG(1))->i_value;
         /* FALLTHROUGH */
     case 1:
-        if (!ici_isstring(ARG(0)))
+        if (!isstring(ARG(0)))
             return ici_argerror(0);
         break;
     default:
@@ -39,7 +40,7 @@ f_regexp(...)
     }
     if (ICI_CF_ARG2() != NULL)
         opts |= PCRE_CASELESS;
-    return ici_ret_with_decref(ici_regexp_new(ici_stringof(ARG(0)), opts));
+    return ici_ret_with_decref(ici_regexp_new(stringof(ARG(0)), opts));
 }
 
 /*
@@ -144,26 +145,25 @@ do_repl
  *
  * Return an array, or NULL on error. The array has been increfed.
  */
-static ici_array_t *
-do_smash
+static array *do_smash
 (
-    ici_str_t   *str,
-    ici_regexp_t    *re,
-    ici_str_t   **repls,
+    str   *thestr,
+    ici_regexp_t *re,
+    str   **repls,
     int         n_repls,
     int         include_remainder
 )
 {
-    char        *s;         /* Where we are up to in the string. */
-    char        *se;        /* The end of the string. */
-    int         i;
-    ici_array_t *a;
-    ici_str_t   *ns;
-    int         size;
+    char  *s;                   /* Where we are up to in the string. */
+    char  *se;                  /* The end of the string. */
+    int    i;
+    array *a;
+    str   *ns;
+    int    size;
 
     if ((a = ici_array_new(0)) == NULL)
         goto fail;
-    for (s = str->s_chars, se = s + str->s_nchars; ; s = END(0))
+    for (s = thestr->s_chars, se = s + thestr->s_nchars; ; s = END(0))
     {
         /*
          * Match the regexp against the input string.
@@ -177,7 +177,7 @@ do_smash
                 s,
                 se - s,
                 0,
-                s > str->s_chars ? PCRE_NOTBOL : 0,
+                s > thestr->s_chars ? PCRE_NOTBOL : 0,
                 ici_re_bra,
                 nels(ici_re_bra)
             )
@@ -197,7 +197,7 @@ do_smash
             if ((ns = ici_str_alloc(size)) == NULL)
                 goto fail;
             do_repl(s, repls[-i]->s_chars, repls[-i]->s_nchars, ns->s_chars);
-            if ((ns = ici_stringof(ici_atom(ns, 1))) == NULL)
+            if ((ns = stringof(ici_atom(ns, 1))) == NULL)
                 goto fail;
             *a->a_top++ = ns;
             ns->decref();
@@ -237,18 +237,17 @@ fail:
  *              matching what it has replaced (which can cause infinite
  *              loops).
  */
-static ici_str_t *
-do_sub(ici_str_t *str, ici_regexp_t *re, char *repl, int *ofs)
+static str *do_sub(str *thestr, ici_regexp_t *re, char *repl, int *ofs)
 {
-    char        *dst;
-    int         normal;
-    char        *p;
-    ici_str_t   *rc;
-    int         len;
-    char        *d;
-    char        *s;
+    char *dst;
+    int   normal;
+    char *p;
+    str  *rc;
+    int   len;
+    char *d;
+    char *s;
 
-    s = ici_stringof(str)->s_chars + *ofs;
+    s = thestr->s_chars + *ofs;
 
     /*
      * Match the regexp against the input string.
@@ -260,7 +259,7 @@ do_sub(ici_str_t *str, ici_regexp_t *re, char *repl, int *ofs)
             re->r_re,
             re->r_rex,
             s,
-            ici_stringof(str)->s_nchars - *ofs,
+            thestr->s_nchars - *ofs,
             0,
             *ofs > 0 ? PCRE_NOTBOL : 0,
             ici_re_bra,
@@ -287,7 +286,7 @@ do_sub(ici_str_t *str, ici_regexp_t *re, char *repl, int *ofs)
      * some space for it. Initially we know the size of the areas that
      * aren't within the match.
      */
-    len = ici_stringof(str)->s_nchars - (END(0) - START(0)) + 1;
+    len = thestr->s_nchars - (END(0) - START(0)) + 1;
 
     /*
      * Determine size of matched area. This depends on the replacement
@@ -324,13 +323,13 @@ do_sub(ici_str_t *str, ici_regexp_t *re, char *repl, int *ofs)
      * the NUL character at the end of the string.
      */
     if ((dst = (char *)ici_alloc(len + 1)) == NULL)
-        return (ici_str_t *)-1;
+        return (str *)-1;
 
     /*
      * Copy across the part of the source as far as the start of the match.
      */
-    memcpy(dst, ici_stringof(str)->s_chars, START(0) - ici_stringof(str)->s_chars);
-    d = &dst[START(0) - ici_stringof(str)->s_chars];
+    memcpy(dst, thestr->s_chars, START(0) - thestr->s_chars);
+    d = &dst[START(0) - thestr->s_chars];
 
     /*
      * Copy across the replacement expression.
@@ -381,7 +380,7 @@ do_sub(ici_str_t *str, ici_regexp_t *re, char *repl, int *ofs)
      * So far, `dst' is just the replaced string.  Now copy across
      * the remainder of the source (from the end of the match onwards).
      */
-    len = (ici_stringof(str)->s_chars + ici_stringof(str)->s_nchars) - END(0) + 1;
+    len = (thestr->s_chars + thestr->s_nchars) - END(0) + 1;
     memcpy(d, END(0), len);
     d[len] = '\0';
     rc = ici_str_new_nul_term(dst);
@@ -397,28 +396,28 @@ do_sub(ici_str_t *str, ici_regexp_t *re, char *repl, int *ofs)
 static int
 f_sub(...)
 {
-    ici_obj_t   *str;
-    ici_obj_t   *o;
+    object   *thestr;
+    object   *o;
     ici_regexp_t    *re;
     char        *repl;
-    ici_str_t   *rc;
+    str   *rc;
     int         ofs = 0;
 
     /*
      * Get the ICI arguments.
      */
-    if (typecheck("oos", &str, &o, &repl))
+    if (typecheck("oos", &thestr, &o, &repl))
         return 1;
-    if (!ici_isstring(str))
+    if (!isstring(thestr))
         return ici_argerror(0);
     if (ici_isregexp(o))
         re = ici_regexpof(o);
-    else if (!ici_isstring(o))
+    else if (!isstring(o))
         return ici_argerror(1);
-    else if ((re = ici_regexp_new(ici_stringof(o), 0)) == NULL)
+    else if ((re = ici_regexp_new(stringof(o), 0)) == NULL)
         return 1;
-    if ((rc = do_sub(ici_stringof(str), re, repl, &ofs)) == NULL)
-        rc = ici_stringof(str);
+    if ((rc = do_sub(stringof(thestr), re, repl, &ofs)) == NULL)
+        rc = stringof(thestr);
     else if (rc == (ici_str_t*)-1)
     {
         if (ici_regexpof(o) != re)
@@ -437,15 +436,16 @@ f_sub(...)
 static int
 f_gsub(...)
 {
-    ici_str_t   *str;
-    ici_regexp_t    *re;
-    ici_str_t   *repl;
-    ici_str_t   *repls[2];
-    char        *s;
-    ici_obj_t   **p;
-    int         size;
-    ici_str_t   *ns;
-    ici_array_t *a;
+
+    str           *thestr;
+    ici_regexp_t  *re;
+    str           *repl;
+    str           *repls[2];
+    char          *s;
+    object       **p;
+    int            size;
+    str           *ns;
+    array         *a;
 
     /*
      * Get the ICI arguments.
@@ -453,17 +453,17 @@ f_gsub(...)
     a = NULL;
     if (NARGS() < 3)
         return ici_argcount(3);
-    if (!ici_isstring(ARG(0)))
+    if (!isstring(ARG(0)))
         return ici_argerror(0);
-    str = ici_stringof(ARG(0));
-    if (!ici_isstring(ARG(2)))
+    thestr = stringof(ARG(0));
+    if (!isstring(ARG(2)))
         return ici_argerror(2);
-    repl = ici_stringof(ARG(2));
+    repl = stringof(ARG(2));
     if (!ici_isregexp(ARG(1)))
     {
-        if (!ici_isstring(ARG(1)))
+        if (!isstring(ARG(1)))
             return ici_argerror(1);
-        if ((re = ici_regexp_new(ici_stringof(ARG(1)), 0)) == NULL)
+        if ((re = ici_regexp_new(stringof(ARG(1)), 0)) == NULL)
             return 1;
     }
     else
@@ -471,18 +471,18 @@ f_gsub(...)
 
     repls[0] = repl;
     repls[1] = SS(slosh0);
-    if ((a = do_smash(str, re, &repls[1], 2, 1)) == NULL)
+    if ((a = do_smash(thestr, re, &repls[1], 2, 1)) == NULL)
         goto fail;
     for (p = a->a_base, size = 0; p < a->a_top; ++p)
-        size += ici_stringof(*p)->s_nchars;
+        size += stringof(*p)->s_nchars;
     if ((ns = ici_str_alloc(size)) == NULL)
         goto fail;
     for (p = a->a_base, s = ns->s_chars; p < a->a_top; ++p)
     {
-        memcpy(s, ici_stringof(*p)->s_chars, ici_stringof(*p)->s_nchars);
-        s += ici_stringof(*p)->s_nchars;
+        memcpy(s, stringof(*p)->s_chars, stringof(*p)->s_nchars);
+        s += stringof(*p)->s_nchars;
     }
-    if ((ns = ici_stringof(ici_atom(ns, 1))) == NULL)
+    if ((ns = stringof(ici_atom(ns, 1))) == NULL)
         goto fail;
     a->decref();
     if (!ici_isregexp(ARG(1)))
@@ -517,11 +517,11 @@ nptrs(char **p)
 static int
 f_old_smash()
 {
-    char                *s;
-    char                *delim;
-    char       **p;
-    ici_array_t    *sa;
-    char       **strs;
+    char   *s;
+    char   *delim;
+    char  **p;
+    array  *sa;
+    char  **strs;
 
     if (typecheck("ss", &s, &delim))
         return 1;
@@ -563,20 +563,20 @@ ici_regexp_t *ici_smash_default_re;
 static int
 f_smash(...)
 {
-    ici_str_t           *str;
-    ici_regexp_t        *re;
-    ici_str_t           **repls;
-    int                 n_repls;
-    ici_array_t         *a;
-    ici_str_t           *default_repl[2];
-    int                 i;
-    int                 include_remainder;
-    int                 nargs;
+    str           *thestr;
+    ici_regexp_t  *re;
+    str          **repls;
+    int            n_repls;
+    array         *a;
+    str           *default_repl[2];
+    int            i;
+    int            include_remainder;
+    int            nargs;
 
     if (NARGS() < 1)
         return ici_argcount(1);
 
-    if (NARGS() == 2 && ici_isstring(ARG(1)))
+    if (NARGS() == 2 && isstring(ARG(1)))
         return f_old_smash();
 
     nargs = NARGS();
@@ -588,9 +588,9 @@ f_smash(...)
             return ici_argerror(0);
     }
 
-    if (!ici_isstring(ARG(0)))
+    if (!isstring(ARG(0)))
         return ici_argerror(0);
-    str = ici_stringof(ARG(0));
+    thestr = stringof(ARG(0));
 
     if (nargs < 2)
     {
@@ -617,15 +617,15 @@ f_smash(...)
     else
     {
         n_repls = nargs - 2;
-        repls = (ici_str_t **)(ARGS() - 2);
+        repls = (str **)(ARGS() - 2);
         for (i = 0; i < n_repls; ++i)
         {
-            if (!ici_isstring(repls[-i]))
+            if (!isstring(repls[-i]))
                 return ici_argerror(i + 2);
         }
     }
 
-    a = do_smash(str, re, repls, n_repls, include_remainder);
+    a = do_smash(thestr, re, repls, n_repls, include_remainder);
     return ici_ret_with_decref(a);
 }
 

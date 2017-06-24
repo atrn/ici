@@ -554,8 +554,8 @@ ici_net_connect(void)
 
     if (typecheck("ho", SS(socket), &skt, &arg))
         return 1;
-    if (ici_isstring(arg))
-        addr = ici_stringof(arg)->s_chars;
+    if (isstring(arg))
+        addr = stringof(arg)->s_chars;
     else if (isint(arg))
     {
         sprintf(buf, "%lld", intof(arg)->i_value);
@@ -609,8 +609,8 @@ ici_net_bind(void)
         skt = ici_handleof(ARG(0));
         if (!ici_ishandleof(skt, SS(socket)))
             return ici_argerror(0);
-        if (ici_isstring(ARG(1)))
-            addr = ici_stringof(ARG(1))->s_chars;
+        if (isstring(ARG(1)))
+            addr = stringof(ARG(1))->s_chars;
         else if (isint(ARG(1)))
         {
             sprintf(buf, "%lld", intof(ARG(1))->i_value);
@@ -889,7 +889,7 @@ ici_net_sendto()
 
     if (typecheck("hos", SS(socket), &skt, &msg, &addr))
         return 1;
-    if (!ici_isstring(msg))
+    if (!isstring(msg))
         return ici_argerror(1);
     if (parseaddr(addr, INADDR_LOOPBACK, &sockaddr) == NULL)
         return 1;
@@ -1031,7 +1031,7 @@ ici_net_send()
 
     if (typecheck("ho", SS(socket), &skt, &msg))
         return 1;
-    if (!ici_isstring(msg))
+    if (!isstring(msg))
         return ici_argerror(1);
     if (isclosed(skt))
         return 1;

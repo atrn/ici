@@ -93,7 +93,7 @@ ici_file_close(ici_file_t *f)
  * See comments on t_mark() in object.h.
  */
 
-size_t file_type::mark(ici_obj_t *o)
+size_t file_type::mark(object *o)
 {
     o->setmark();
     auto mem = typesize();
@@ -104,7 +104,7 @@ size_t file_type::mark(ici_obj_t *o)
     return mem;
 }
 
-void file_type::free(ici_obj_t *o)
+void file_type::free(object *o)
 {
     if (!o->flagged(ICI_F_CLOSED))
     {
@@ -116,13 +116,13 @@ void file_type::free(ici_obj_t *o)
     ici_tfree(o, ici_file_t);
 }
 
-int file_type::cmp(ici_obj_t *o1, ici_obj_t *o2)
+int file_type::cmp(object *o1, object *o2)
 {
     return ici_fileof(o1)->f_file != ici_fileof(o2)->f_file
     || ici_fileof(o1)->f_type != ici_fileof(o2)->f_type;
 }
 
-ici_obj_t * file_type::fetch(ici_obj_t *o, ici_obj_t *k)
+object * file_type::fetch(object *o, object *k)
 {
     if (k == SS(name))
     {

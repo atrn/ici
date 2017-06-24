@@ -123,9 +123,9 @@ ici_uninit()
     /*
      * Now free the allocated part of our three special static stacks.
      */
-    ici_nfree(ici_vs.a_base, (ici_vs.a_limit - ici_vs.a_base) * sizeof(ici_obj_t *));
-    ici_nfree(ici_os.a_base, (ici_os.a_limit - ici_os.a_base) * sizeof(ici_obj_t *));
-    ici_nfree(ici_xs.a_base, (ici_xs.a_limit - ici_xs.a_base) * sizeof(ici_obj_t *));
+    ici_nfree(ici_vs.a_base, (ici_vs.a_limit - ici_vs.a_base) * sizeof(object *));
+    ici_nfree(ici_os.a_base, (ici_os.a_limit - ici_os.a_base) * sizeof(object *));
+    ici_nfree(ici_xs.a_base, (ici_xs.a_limit - ici_xs.a_base) * sizeof(object *));
 
 #if 1 && !defined(NDEBUG)
     ici_vs.decref();
@@ -150,9 +150,9 @@ ici_uninit()
     /*
      * Destroy the now empty atom pool and list of registered objects.
      */
-    ici_nfree(ici_atoms, ici_atomsz * sizeof (ici_obj_t *));
+    ici_nfree(ici_atoms, ici_atomsz * sizeof (object *));
     ici_atoms = NULL;
-    ici_nfree(ici_objs, (ici_objs_limit - ici_objs) * sizeof (ici_obj_t *));
+    ici_nfree(ici_objs, (ici_objs_limit - ici_objs) * sizeof (object *));
     ici_objs = NULL;
 
     ici_drop_all_small_allocations();

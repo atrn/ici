@@ -26,7 +26,7 @@ class null_type : public type
 {
 public:
     null_type() : type("NULL", sizeof (struct null)) {}
-    void free(ici_obj_t *) override;
+    void free(object *) override;
 };
 
 } // namespace ici

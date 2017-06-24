@@ -383,7 +383,7 @@ data_def(parse *p, objwsup *ows)
 
         case T_ONROUND:
             reject(p);
-            if (function(p, ici_stringof(n)) < 0)
+            if (function(p, stringof(n)) < 0)
             {
                 goto fail;
             }
@@ -600,19 +600,19 @@ primary(parse *p, expr_t **ep, int exclude)
         {
             int        i;
 
-            i = ici_stringof(p->p_got.t_obj)->s_nchars;
-            if (chkbuf(ici_stringof(o)->s_nchars + i + 1))
+            i = stringof(p->p_got.t_obj)->s_nchars;
+            if (chkbuf(stringof(o)->s_nchars + i + 1))
             {
                 goto fail;
             }
-            memcpy(buf, ici_stringof(o)->s_chars, ici_stringof(o)->s_nchars);
+            memcpy(buf, stringof(o)->s_chars, stringof(o)->s_nchars);
             memcpy
             (
-                buf + ici_stringof(o)->s_nchars,
-                ici_stringof(p->p_got.t_obj)->s_chars,
+                buf + stringof(o)->s_nchars,
+                stringof(p->p_got.t_obj)->s_chars,
                 i
             );
-            i += ici_stringof(o)->s_nchars;
+            i += stringof(o)->s_nchars;
             o->decref();
             this = T_NONE; /* Take ownership of obj. */
             p->p_got.t_obj->decref();
@@ -625,7 +625,7 @@ primary(parse *p, expr_t **ep, int exclude)
         reject(p);
         if (token == T_REGEXP)
         {
-            e->e_obj = ici_regexp_new(ici_stringof(o), 0);
+            e->e_obj = ici_regexp_new(stringof(o), 0);
             o->decref();
             if (e->e_obj == NULL)
             {
@@ -748,7 +748,7 @@ primary(parse *p, expr_t **ep, int exclude)
                 switch (const_expression(p, &o, T_COMMA))
                 {
                 case 0:
-                    sprintf(n, "[%s %c", ici_stringof(name)->s_chars, is_eq ? '=' : ':');
+                    sprintf(n, "[%s %c", stringof(name)->s_chars, is_eq ? '=' : ':');
                     not_followed_by(n, an_expression);
                 case -1:
                     goto fail;
@@ -756,7 +756,7 @@ primary(parse *p, expr_t **ep, int exclude)
                 if (!ici_hassuper(o))
                 {
                     ici_set_error("attempt to do [%s %c %s",
-                                  ici_stringof(name)->s_chars,
+                                  stringof(name)->s_chars,
                                   is_eq ? '=' : ':',
                                   ici_objname(n, o));
                     o->decref();
@@ -787,7 +787,7 @@ primary(parse *p, expr_t **ep, int exclude)
                     {
                         o->decref();
                     }
-                    sprintf(n, "[%s %c expr", ici_stringof(name)->s_chars, is_eq ? '=' : ':');
+                    sprintf(n, "[%s %c expr", stringof(name)->s_chars, is_eq ? '=' : ':');
                     not_followed_by(n, "\",\" or \"]\"");
                     goto fail;
                 }
@@ -895,7 +895,7 @@ primary(parse *p, expr_t **ep, int exclude)
                     if (next(p, NULL) == T_ONROUND)
                     {
                         reject(p);
-                        if (function(p, ici_stringof(n)) < 0)
+                        if (function(p, stringof(n)) < 0)
                         {
                             d->decref();
                             goto fail;
@@ -1036,7 +1036,7 @@ primary(parse *p, expr_t **ep, int exclude)
             f = NULL;
             n = NULL;
             c = NULL;
-            s = ici_stringof(p->p_got.t_obj);
+            s = stringof(p->p_got.t_obj);
             if ((o = ici_eval(s)) == NULL)
             {
                 goto fail_user_parse;
@@ -2845,7 +2845,7 @@ f_rejectchar(...)
         ici_argerror(0);
         return 1;
     }
-    if (!ici_isstring(s) || s->s_nchars != 1)
+    if (!isstring(s) || s->s_nchars != 1)
     {
         return ici_argerror(1);
     }

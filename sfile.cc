@@ -122,12 +122,12 @@ reattach_string_buffer(charbuf *sb)
     int     index;
 
     index = sb->cb_ptr - sb->cb_data;
-    sb->cb_data = ici_stringof(sb->cb_ref)->s_chars;
-    sb->cb_size = ici_stringof(sb->cb_ref)->s_nchars;
+    sb->cb_data = stringof(sb->cb_ref)->s_chars;
+    sb->cb_size = stringof(sb->cb_ref)->s_nchars;
     sb->cb_ptr = sb->cb_data + index;
 #if ICI_KEEP_STRING_HASH
     {
-	str *s = ici_stringof(sb->cb_ref);
+	str *s = stringof(sb->cb_ref);
 	s->s_hash = 0;
 	ici_hash_string(s);
     }
@@ -169,7 +169,7 @@ public:
             return 0;
         if (sb->cb_ptr < sb->cb_data || sb->cb_ptr > sb->cb_data + sb->cb_size)
             return 0;
-        s = ici_stringof(sb->cb_ref);
+        s = stringof(sb->cb_ref);
         size = sb->cb_ptr - sb->cb_data + count;
         if (ici_str_need_size(s, size))
             return 0;
@@ -236,7 +236,7 @@ file *ici_open_charbuf(char *data, int size, object *ref, int readonly)
          * more efficient to use charbuf_ftype.  Of course an atomic
          * string can't be opened for writing.
          */
-        if (ici_isstring(ref))
+        if (isstring(ref))
         {
             if (ref->flags(ICI_O_ATOM|ICI_S_SEP_ALLOC) == ICI_S_SEP_ALLOC)
                 f = ici_file_new((char *)cb, strbuf_ftype, NULL, ref);

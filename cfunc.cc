@@ -212,9 +212,9 @@ int typecheck(const char *types, ...)
             break;
 
         case 's': /* A string -> (char *). */
-            if (!ici_isstring(o))
+            if (!isstring(o))
                 goto fail;
-            *(char **)ptr = ici_stringof(o)->s_chars;
+            *(char **)ptr = stringof(o)->s_chars;
             break;
 
         case 'f': /* A float -> double. */
@@ -899,8 +899,8 @@ f_nels()
     if (NARGS() != 1)
         return ici_argcount(1);
     o = ARG(0);
-    if (ici_isstring(o))
-        size = ici_stringof(o)->s_nchars;
+    if (isstring(o))
+        size = stringof(o)->s_nchars;
     else if (isarray(o))
         size = arrayof(o)->len();
     else if (ici_isstruct(o))
@@ -909,8 +909,8 @@ f_nels()
         size = setof(o)->s_nels;
     else if (ismem(o))
         size = memof(o)->m_length;
-    else if (ici_ischannel(o))
-        size = ici_channelof(o)->c_capacity;
+    else if (ischannel(o))
+        size = channelof(o)->c_capacity;
     else
         size = 1;
     return ici_int_ret(size);
@@ -927,9 +927,9 @@ f_int()
     o = ARG(0);
     if (isint(o))
         return ici_ret_no_decref(o);
-    else if (ici_isstring(o))
+    else if (isstring(o))
     {
-        int             base = 0;
+        int base = 0;
 
         if (NARGS() > 1)
         {
@@ -939,7 +939,7 @@ f_int()
             if (base != 0 && (base < 2 || base > 36))
                 return ici_argerror(1);
         }
-        v = ici_strtol(ici_stringof(o)->s_chars, NULL, base);
+        v = ici_strtol(stringof(o)->s_chars, NULL, base);
     }
     else if (isfloat(o))
         v = (long)floatof(o)->f_value;
@@ -959,8 +959,8 @@ f_float()
     o = ARG(0);
     if (isfloat(o))
         return ici_ret_no_decref(o);
-    else if (ici_isstring(o))
-        v = strtod(ici_stringof(o)->s_chars, NULL);
+    else if (isstring(o))
+        v = strtod(stringof(o)->s_chars, NULL);
     else if (isint(o))
         v = (double)intof(o)->i_value;
     else
@@ -982,7 +982,7 @@ f_num()
     o = ARG(0);
     if (isfloat(o) || isint(o))
         return ici_ret_no_decref(o);
-    else if (ici_isstring(o))
+    else if (isstring(o))
     {
         int             base = 0;
 
@@ -994,10 +994,10 @@ f_num()
             if (base != 0 && (base < 2 || base > 36))
                 return ici_argerror(1);
         }
-        i = ici_strtol(ici_stringof(o)->s_chars, &s, base);
+        i = ici_strtol(stringof(o)->s_chars, &s, base);
         if (*s == '\0')
             return ici_int_ret(i);
-        f = strtod(ici_stringof(o)->s_chars, &s);
+        f = strtod(stringof(o)->s_chars, &s);
         if (*s == '\0')
             return ici_float_ret(f);
     }
@@ -1012,7 +1012,7 @@ f_string()
     if (NARGS() != 1)
         return ici_argcount(1);
     o = ARG(0);
-    if (ici_isstring(o))
+    if (isstring(o))
         return ici_ret_no_decref(o);
     if (isint(o))
         sprintf(buf, "%lld", intof(o)->i_value);
@@ -1142,9 +1142,9 @@ f_parse()
         break;
     }
 
-    if (ici_isstring(o))
+    if (isstring(o))
     {
-        if ((f = ici_sopen(ici_stringof(o)->s_chars, ici_stringof(o)->s_nchars, o)) == NULL)
+        if ((f = ici_sopen(stringof(o)->s_chars, stringof(o)->s_nchars, o)) == NULL)
         {
             a->decref();
             return 1;
@@ -1162,12 +1162,12 @@ f_parse()
     if (ici_parse(f, ici_objwsupof(a)) < 0)
         goto fail;
 
-    if (ici_isstring(o))
+    if (isstring(o))
         f->decref();
     return ici_ret_with_decref(a);
 
 fail:
-    if (ici_isstring(o))
+    if (isstring(o))
         f->decref();
     a->decref();
     return 1;
@@ -1196,7 +1196,7 @@ static int f_include()
     default:
         return ici_argcount(2);
     }
-    if (!ici_isstring(filename))
+    if (!isstring(filename))
         return ici_argerror(0);
 #ifndef NODEBUGGING
     ici_debug_ignore_errors();
@@ -1350,16 +1350,16 @@ f_exit()
         status = (int)intof(rc)->i_value;
     else if (rc == ici_null)
         status = 0;
-    else if (ici_isstring(rc))
+    else if (isstring(rc))
     {
-        if (ici_stringof(rc)->s_nchars == 0)
+        if (stringof(rc)->s_nchars == 0)
             status = 0;
         else
         {
-            if (strchr(ici_stringof(rc)->s_chars, ':') != NULL)
-                fprintf(stderr, "%s\n", ici_stringof(rc)->s_chars);
+            if (strchr(stringof(rc)->s_chars, ':') != NULL)
+                fprintf(stderr, "%s\n", stringof(rc)->s_chars);
             else
-                fprintf(stderr, "exit: %s\n", ici_stringof(rc)->s_chars);
+                fprintf(stderr, "exit: %s\n", stringof(rc)->s_chars);
             status = 1;
         }
     }
@@ -1444,9 +1444,9 @@ f_interval()
 
     if (typecheck("oi*", &o, &start))
         return 1;
-    if (ici_isstring(o))
+    if (isstring(o))
     {
-        s = ici_stringof(o);
+        s = stringof(o);
         nel = s->s_nchars;
     }
     else if (isarray(o))
@@ -1487,7 +1487,7 @@ f_interval()
     if (start + length > nel)
         length = nel - start;
 
-    if (ici_isstring(o))
+    if (isstring(o))
     {
         return ici_ret_with_decref(ici_str_new(s->s_chars + start, (int)length));
     }
@@ -1510,7 +1510,7 @@ f_explode()
 
     if (typecheck("s", &s))
         return 1;
-    i = ici_stringof(ARG(0))->s_nchars;
+    i = stringof(ARG(0))->s_nchars;
     if ((x = ici_array_new(i)) == NULL)
         return 1;
     while (--i >= 0)
@@ -1542,8 +1542,8 @@ f_implode()
     {
         if (isint(*o))
             ++i;
-        else if (ici_isstring(*o))
-            i += ici_stringof(*o)->s_nchars;
+        else if (isstring(*o))
+            i += stringof(*o)->s_nchars;
     }
     if ((s = ici_str_alloc(i)) == NULL)
         return 1;
@@ -1552,13 +1552,13 @@ f_implode()
     {
         if (isint(*o))
             *p++ = (char)intof(*o)->i_value;
-        else if (ici_isstring(*o))
+        else if (isstring(*o))
         {
-            memcpy(p, ici_stringof(*o)->s_chars, ici_stringof(*o)->s_nchars);
-            p += ici_stringof(*o)->s_nchars;
+            memcpy(p, stringof(*o)->s_chars, stringof(*o)->s_nchars);
+            p += stringof(*o)->s_nchars;
         }
     }
-    if ((s = ici_stringof(ici_atom(s, 1))) == NULL)
+    if ((s = stringof(ici_atom(s, 1))) == NULL)
         return 1;
     return ici_ret_with_decref(s);
 }
@@ -1583,7 +1583,7 @@ f_sopen()
         }
         readonly = 0;
     }
-    if ((f = ici_open_charbuf(str, ici_stringof(ARG(0))->s_nchars, ARG(0), readonly)) == NULL)
+    if ((f = ici_open_charbuf(str, stringof(ARG(0))->s_nchars, ARG(0), readonly)) == NULL)
         return 1;
     f->f_name = SS(empty_string);
     return ici_ret_with_decref(f);
@@ -1787,10 +1787,10 @@ ici_f_sprintf()
         case 's':
             if (nargs <= 0)
                 goto lacking;
-            if (!ici_isstring(*o))
+            if (!isstring(*o))
                 goto type;
-            svalue = ici_stringof(*o)->s_chars;
-            if (chkbuf(i + ici_stringof(*o)->s_nchars + stars[0] + stars[1]))
+            svalue = stringof(*o)->s_chars;
+            if (chkbuf(i + stringof(*o)->s_nchars + stars[0] + stars[1]))
                 return 1;
             switch (nstars)
             {
@@ -2346,9 +2346,9 @@ f_gettoken()
     case 1:
         if (typecheck("o", &fo))
             return 1;
-        if (ici_isstring(fo))
+        if (isstring(fo))
         {
-            if ((f = ici_sopen(ici_stringof(fo)->s_chars, ici_stringof(fo)->s_nchars, fo)) == NULL)
+            if ((f = ici_sopen(stringof(fo)->s_chars, stringof(fo)->s_nchars, fo)) == NULL)
                 return 1;
             f->decref();
         }
@@ -2361,9 +2361,9 @@ f_gettoken()
     default:
         if (typecheck("oo", &fo, &s))
             return 1;
-        if (ici_isstring(fo))
+        if (isstring(fo))
         {
-            if ((f = ici_sopen(ici_stringof(fo)->s_chars, ici_stringof(fo)->s_nchars, fo)) == NULL)
+            if ((f = ici_sopen(stringof(fo)->s_chars, stringof(fo)->s_nchars, fo)) == NULL)
                 return 1;
             f->decref();
         }
@@ -2371,7 +2371,7 @@ f_gettoken()
             return ici_argerror(0);
         else
             f = ici_fileof(fo);
-        if (!ici_isstring(s))
+        if (!isstring(s))
             return ici_argerror(1);
         seps = (unsigned char *)s->s_chars;
         nseps = s->s_nchars;
@@ -2496,9 +2496,9 @@ f_gettokens()
     case 1:
         if (typecheck("o", &fo))
             return 1;
-        if (ici_isstring(fo))
+        if (isstring(fo))
         {
-            return fast_gettokens(ici_stringof(fo)->s_chars, " \t");
+            return fast_gettokens(stringof(fo)->s_chars, " \t");
         }
         else if (!ici_isfile(fo))
             return ici_argerror(0);
@@ -2511,13 +2511,13 @@ f_gettokens()
     case 4:
         if (typecheck("oo*", &fo, &s))
             return 1;
-        if (NARGS() == 2 && ici_isstring(fo) && ici_isstring(s))
+        if (NARGS() == 2 && isstring(fo) && isstring(s))
         {
-            return fast_gettokens(ici_stringof(fo)->s_chars, ici_stringof(s)->s_chars);
+            return fast_gettokens(stringof(fo)->s_chars, stringof(s)->s_chars);
         }
-        if (ici_isstring(fo))
+        if (isstring(fo))
         {
-            if ((f = ici_sopen(ici_stringof(fo)->s_chars, ici_stringof(fo)->s_nchars, fo)) == NULL)
+            if ((f = ici_sopen(stringof(fo)->s_chars, stringof(fo)->s_nchars, fo)) == NULL)
                 return 1;
             loose_it = 1;
         }
@@ -2533,7 +2533,7 @@ f_gettokens()
             seps = (unsigned char *)&sep;
             nseps = 1;
         }
-        else if (ici_isstring(s))
+        else if (isstring(s))
         {
             seps = (unsigned char *)s->s_chars;
             nseps = s->s_nchars;
@@ -2546,24 +2546,24 @@ f_gettokens()
         }
         if (NARGS() > 2)
         {
-            if (!ici_isstring(ARG(2)))
+            if (!isstring(ARG(2)))
             {
                 if (loose_it)
                     f->decref();
                 return ici_argerror(2);
             }
-            terms = (unsigned char *)ici_stringof(ARG(2))->s_chars;
-            nterms = ici_stringof(ARG(2))->s_nchars;
+            terms = (unsigned char *)stringof(ARG(2))->s_chars;
+            nterms = stringof(ARG(2))->s_nchars;
             if (NARGS() > 3)
             {
-                if (!ici_isstring(ARG(3)))
+                if (!isstring(ARG(3)))
                 {
                     if (loose_it)
                         f->decref();
                     return ici_argerror(3);
                 }
-                delims = (unsigned char *)ici_stringof(ARG(3))->s_chars;
-                ndelims = ici_stringof(ARG(3))->s_nchars;
+                delims = (unsigned char *)stringof(ARG(3))->s_chars;
+                ndelims = stringof(ARG(3))->s_nchars;
             }
         }
         break;
@@ -3135,9 +3135,9 @@ f_strbuf()
     n = 10;
     if (NARGS() > 0)
     {
-        if (!ici_isstring(ARG(0)))
+        if (!isstring(ARG(0)))
             return ici_argerror(0);
-        is = ici_stringof(ARG(0));
+        is = stringof(ARG(0));
         n = is->s_nchars;
     }
     if ((s = ici_str_buf_new(n)) == NULL)
@@ -3166,9 +3166,9 @@ f_strcat()
 
     if (NARGS() < 2)
         return ici_argcount(2);
-    if (!ici_isstring(ARG(0)))
+    if (!isstring(ARG(0)))
         return ici_argerror(0);
-    s1 = ici_stringof(ARG(0));
+    s1 = stringof(ARG(0));
     if (isint(ARG(1)))
     {
         si = 2;
@@ -3184,8 +3184,8 @@ f_strcat()
     n = NARGS();
     for (i = si, z = sz; i < n; ++i)
     {
-        s2 = ici_stringof(ARG(i));
-        if (!ici_isstring(s2))
+        s2 = stringof(ARG(i));
+        if (!isstring(s2))
             return ici_argerror(i);
         z += s2->s_nchars;
     }
@@ -3193,7 +3193,7 @@ f_strcat()
         return 1;
     for (i = si, z = sz; i < n; ++i)
     {
-        s2 = ici_stringof(ARG(i));
+        s2 = stringof(ARG(i));
         memcpy(&s1->s_chars[z], s2->s_chars, s2->s_nchars);
         z += s2->s_nchars;
     }
@@ -3408,7 +3408,7 @@ f_getfile()
     str = NULL; /* Pessimistic. */
     if (NARGS() != 0)
     {
-        if (ici_isstring(ARG(0)))
+        if (isstring(ARG(0)))
         {
             if (ici_call(SS(fopen), "o=o", &f, ARG(0)))
                 goto finish;
@@ -3496,7 +3496,7 @@ f_puts()
         if ((f = ici_need_stdout()) == NULL)
             return 1;
     }
-    if (!ici_isstring(s))
+    if (!isstring(s))
         return ici_argerror(0);
     if (f->flags() & FT_NOMUTEX)
         x = ici_leave();
@@ -3565,7 +3565,7 @@ f_fopen()
         return ici_get_last_errno("open", name);
     }
     ici_enter(x);
-    if ((f = ici_file_new((char *)stream, stdio_ftype, ici_stringof(ARG(0)), NULL)) == NULL)
+    if ((f = ici_file_new((char *)stream, stdio_ftype, stringof(ARG(0)), NULL)) == NULL)
     {
         fclose(stream);
         return 1;
@@ -3624,7 +3624,7 @@ f_popen()
         return ici_get_last_errno("popen", name);
     }
     ici_enter(x);
-    if ((f = ici_file_new((char *)stream, popen_ftype, ici_stringof(ARG(0)), NULL)) == NULL)
+    if ((f = ici_file_new((char *)stream, popen_ftype, stringof(ARG(0)), NULL)) == NULL)
     {
         pclose(stream);
         return 1;
@@ -3800,8 +3800,8 @@ f_dir()
 
     case 1:
         o = ARG(0);
-        if (ici_isstring(o))
-            path = ici_stringof(o)->s_chars;
+        if (isstring(o))
+            path = stringof(o)->s_chars;
         else if (isnull(o))
             ;   /* leave path as is */
         else if (ici_isregexp(o))
@@ -3812,8 +3812,8 @@ f_dir()
 
     case 2:
         o = ARG(0);
-        if (ici_isstring(o))
-            path = ici_stringof(o)->s_chars;
+        if (isstring(o))
+            path = stringof(o)->s_chars;
         else if (isnull(o))
             ;   /* leave path as is */
         else if (ici_isregexp(o))
@@ -3827,16 +3827,16 @@ f_dir()
                 return ici_argerror(1);
             regexp = ici_regexpof(o);
         }
-        else if (ici_isstring(o))
-            format = ici_stringof(o)->s_chars;
+        else if (isstring(o))
+            format = stringof(o)->s_chars;
         else
             return ici_argerror(1);
         break;
 
     case 3:
         o = ARG(0);
-        if (ici_isstring(o))
-            path = ici_stringof(o)->s_chars;
+        if (isstring(o))
+            path = stringof(o)->s_chars;
         else if (isnull(o))
             ;   /* leave path as is */
         else
@@ -3846,9 +3846,9 @@ f_dir()
             return ici_argerror(1);
         regexp = ici_regexpof(o);
         o = ARG(2);
-        if (!ici_isstring(o))
+        if (!isstring(o))
             return ici_argerror(2);
-        format = ici_stringof(o)->s_chars;
+        format = stringof(o)->s_chars;
         break;
 
     default:
@@ -4027,9 +4027,9 @@ f_getenv()
 
     if (NARGS() != 1)
         return ici_argcount(1);
-    if (!ici_isstring(ARG(0)))
+    if (!isstring(ARG(0)))
         return ici_argerror(0);
-    n = ici_stringof(ARG(0));
+    n = stringof(ARG(0));
 
     for (p = environ; *p != NULL; ++p)
     {

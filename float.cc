@@ -18,7 +18,7 @@ ici_float_t *
 ici_float_new(double v)
 {
     ici_float_t          *f;
-    ici_obj_t           **po;
+    object           **po;
     static ici_float_t   proto;
 
     proto.f_value = v;
@@ -38,13 +38,13 @@ ici_float_new(double v)
     return f;
 }
 
-int float_type::cmp(ici_obj_t *o1, ici_obj_t *o2)
+int float_type::cmp(object *o1, object *o2)
 {
     assert(sizeof(double) == 2 * sizeof(int32_t));
     return !DBL_BIT_CMP(&floatof(o1)->f_value, &floatof(o2)->f_value);
 }
 
-unsigned long float_type::hash(ici_obj_t *o)
+unsigned long float_type::hash(object *o)
 {
     return ici_hash_float(floatof(o)->f_value);
 }

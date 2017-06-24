@@ -32,27 +32,27 @@ ici_hash_string(object *o)
     unsigned long       h;
 
 #   if ICI_KEEP_STRING_HASH
-    if (ici_stringof(o)->s_hash != 0)
+    if (stringof(o)->s_hash != 0)
     {
-        return ici_stringof(o)->s_hash;
+        return stringof(o)->s_hash;
     }
 #   endif
 
 #   if defined(ICI_USE_SF_HASH)
     {
         extern uint32_t ici_superfast_hash(const char *, int);
-        h = STR_PRIME_0 * ici_superfast_hash(ici_stringof(o)->s_chars, ici_stringof(o)->s_nchars);
+        h = STR_PRIME_0 * ici_superfast_hash(stringof(o)->s_chars, stringof(o)->s_nchars);
     }
 #   elif defined(ICI_USE_MURMUR_HASH)
     {
         unsigned int ici_murmur_hash(const unsigned char * data, int len, unsigned int h);
-        h = STR_PRIME_0 * ici_murmur_hash((const unsigned char *)ici_stringof(o)->s_chars, ici_stringof(o)->s_nchars, 0);
+        h = STR_PRIME_0 * ici_murmur_hash((const unsigned char *)stringof(o)->s_chars, stringof(o)->s_nchars, 0);
     }
 #   else
-    h = ici_crc(STR_PRIME_0, (const unsigned char *)ici_stringof(o)->s_chars, ici_stringof(o)->s_nchars);
+    h = ici_crc(STR_PRIME_0, (const unsigned char *)stringof(o)->s_chars, stringof(o)->s_nchars);
 #   endif
 #   if ICI_KEEP_STRING_HASH
-    ici_stringof(o)->s_hash = h;
+    stringof(o)->s_hash = h;
 #   endif
     return h;
 }
@@ -131,7 +131,7 @@ ici_str_new(const char *p, size_t nchars)
 #       if ICI_KEEP_STRING_HASH
         proto.s.s_hash = 0;
 #       endif
-        if ((s = ici_stringof(ici_atom_probe2(&proto.s, &po))) != NULL)
+        if ((s = stringof(ici_atom_probe2(&proto.s, &po))) != NULL)
         {
             s->incref();
             return s;
@@ -167,7 +167,7 @@ ici_str_new(const char *p, size_t nchars)
     s->s_hash = 0;
 #   endif
     ici_rego(s);
-    return ici_stringof(ici_atom(s, 1));
+    return stringof(ici_atom(s, 1));
 }
 
 /*
@@ -297,11 +297,11 @@ size_t string_type::mark(object *o)
     o->setmark();
     if (o->flagged(ICI_S_SEP_ALLOC))
     {
-        return typesize() + ici_stringof(o)->s_u.su_nalloc;
+        return typesize() + stringof(o)->s_u.su_nalloc;
     }
     else
     {
-        return STR_ALLOCZ(ici_stringof(o)->s_nchars);
+        return STR_ALLOCZ(stringof(o)->s_nchars);
     }
 }
 
@@ -311,23 +311,23 @@ size_t string_type::mark(object *o)
  */
 int string_type::cmp(object *o1, object *o2)
 {
-    if (ici_stringof(o1)->s_nchars != ici_stringof(o2)->s_nchars)
+    if (stringof(o1)->s_nchars != stringof(o2)->s_nchars)
     {
         return 1;
     }
-    if (ici_stringof(o1)->s_nchars == 0)
+    if (stringof(o1)->s_nchars == 0)
     {
         return 0;
     }
-    if (ici_stringof(o1)->s_chars[0] != ici_stringof(o2)->s_chars[0])
+    if (stringof(o1)->s_chars[0] != stringof(o2)->s_chars[0])
     {
         return 1;
     }
     return memcmp
     (
-        ici_stringof(o1)->s_chars,
-        ici_stringof(o2)->s_chars,
-        ici_stringof(o1)->s_nchars
+        stringof(o1)->s_chars,
+        stringof(o2)->s_chars,
+        stringof(o1)->s_nchars
     );
 }
 
@@ -339,12 +339,12 @@ object *string_type::copy(object *o)
 {
     str *ns;
 
-    if ((ns = ici_str_buf_new(ici_stringof(o)->s_nchars + 1)) == NULL)
+    if ((ns = ici_str_buf_new(stringof(o)->s_nchars + 1)) == NULL)
     {
         return NULL;
     }
-    ns->s_nchars = ici_stringof(o)->s_nchars;
-    memcpy(ns->s_chars, ici_stringof(o)->s_chars, ns->s_nchars);
+    ns->s_nchars = stringof(o)->s_nchars;
+    memcpy(ns->s_chars, stringof(o)->s_chars, ns->s_nchars);
     ns->s_chars[ns->s_nchars] = '\0';
     return ns;
 }
@@ -357,12 +357,12 @@ void string_type::free(object *o)
 {
     if (o->flagged(ICI_S_SEP_ALLOC))
     {
-        ici_nfree(ici_stringof(o)->s_chars, ici_stringof(o)->s_u.su_nalloc);
+        ici_nfree(stringof(o)->s_chars, stringof(o)->s_u.su_nalloc);
         ici_tfree(o, ici_str_t);
     }
     else
     {
-        ici_nfree(o, STR_ALLOCZ(ici_stringof(o)->s_nchars));
+        ici_nfree(o, STR_ALLOCZ(stringof(o)->s_nchars));
     }
 }
 
@@ -387,13 +387,13 @@ object *string_type::fetch(object *o, object *k)
     {
         return fetch_fail(o, k);
     }
-    if ((i = (int)intof(k)->i_value) < 0 || i >= ici_stringof(o)->s_nchars)
+    if ((i = (int)intof(k)->i_value) < 0 || i >= stringof(o)->s_nchars)
     {
         k = ici_str_new("", 0);
     }
     else
     {
-        k = ici_str_new(&ici_stringof(o)->s_chars[i], 1);
+        k = ici_str_new(&stringof(o)->s_chars[i], 1);
     }
     if (k != NULL)
     {
@@ -426,7 +426,7 @@ int string_type::assign(object *o, object *k, object *v)
     {
         return ici_set_error("attempt to assign to negative string index");
     }
-    s = ici_stringof(o);
+    s = stringof(o);
     if (ici_str_need_size(s, i + 1))
         return 1;
     for (n = s->s_nchars; n < i; ++n)
@@ -446,7 +446,7 @@ int string_type::forall(object *o)
     str *s;
     ici_int *i;
 
-    s = ici_stringof(fa->fa_aggr);
+    s = stringof(fa->fa_aggr);
     if (++fa->fa_index >= s->s_nchars)
         return -1;
     if (fa->fa_vaggr != ici_null)

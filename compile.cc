@@ -13,18 +13,18 @@ namespace ici
 /*
  * A cache of binary opperators created by new_binop.
  */
-static ici_obj_t *binops[BINOP_MAX + 1];
-static ici_obj_t *binops_temps[BINOP_MAX + 1];
+static object *binops[BINOP_MAX + 1];
+static object *binops_temps[BINOP_MAX + 1];
 
 /*
  * Return a new op object corresponding to the binary operation of the
  * given token, which is a binary operator. The returned object does
  * not have an extra reference (unlike most new_* functions).
  */
-static ici_obj_t *
+static object *
 new_binop(int op, int why)
 {
-    ici_obj_t           *o;
+    object           *o;
 
     op = t_subtype(op);
     if (why != FOR_TEMP)
@@ -393,7 +393,7 @@ ici_compile_expr(ici_array_t *a, expr_t *e, int why)
             }
             if (why != FOR_EFFECT)
             {
-                if (ici_isstring(e->e_obj))
+                if (isstring(e->e_obj))
                 {
                     *a->a_top++ = &ici_o_quote;
                 }

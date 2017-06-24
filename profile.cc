@@ -97,7 +97,7 @@ char ici_prof_outfile[512] = "";
  * Mark this and referenced unmarked objects, return memory costs.
  * See comments on t_mark() in object.h.
  */
-size_t profilecall_type::mark(ici_obj_t *o)
+size_t profilecall_type::mark(object *o)
 {
     o->setmark();
     auto pf = ici_profilecallof(o);

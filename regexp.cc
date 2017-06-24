@@ -61,7 +61,7 @@ ici_regexp_new(ici_str_t *s, int flags)
     ICI_OBJ_SET_TFNZ(r, ICI_TC_REGEXP, 0, 1, 0);
     r->r_re  = re;
     r->r_rex = rex;
-    r->r_pat = ici_stringof(ici_atom(s, 0));
+    r->r_pat = stringof(ici_atom(s, 0));
     ici_rego(r);
     return ici_regexpof(ici_atom(r, 1));
 
@@ -114,7 +114,7 @@ int ici_pcre_exec_simple(ici_regexp_t *r, ici_str_t *s)
  * Mark this and referenced unmarked objects, return memory costs.
  * See comments on t_mark() in object.h.
  */
-size_t regexp_type::mark(ici_obj_t *o)
+size_t regexp_type::mark(object *o)
 {
     o->setmark();
     return typesize() + ici_mark(ici_regexpof(o)->r_pat) + ((real_pcre *)ici_regexpof(o)->r_re)->size;
@@ -124,7 +124,7 @@ size_t regexp_type::mark(ici_obj_t *o)
  * Free this object and associated memory (but not other objects).
  * See the comments on t_free() in object.h.
  */
-void regexp_type::free(ici_obj_t *o)
+void regexp_type::free(object *o)
 {
     if (ici_regexpof(o)->r_rex != NULL)
         ici_free(ici_regexpof(o)->r_rex);
@@ -136,7 +136,7 @@ void regexp_type::free(ici_obj_t *o)
  * Return a hash sensitive to the value of the object.
  * See the comment on t_hash() in object.h
  */
-unsigned long regexp_type::hash(ici_obj_t *o)
+unsigned long regexp_type::hash(object *o)
 {
     /* static unsigned long     primes[] = {0xBF8D, 0x9A4F, 0x1C81, 0x6DDB}; */
     int re_options;
@@ -148,7 +148,7 @@ unsigned long regexp_type::hash(ici_obj_t *o)
  * Returns 0 if these objects are equal, else non-zero.
  * See the comments on t_cmp() in object.h.
  */
-int regexp_type::cmp(ici_obj_t *o1, ici_obj_t *o2)
+int regexp_type::cmp(object *o1, object *o2)
 {
     int re1_options;
     int re2_options;
@@ -157,7 +157,7 @@ int regexp_type::cmp(ici_obj_t *o1, ici_obj_t *o2)
     return re1_options != re2_options ? 1 : ici_cmp(ici_regexpof(o1)->r_pat, ici_regexpof(o2)->r_pat);
 }
 
-ici_obj_t *regexp_type::fetch(ici_obj_t *o, ici_obj_t *k)
+object *regexp_type::fetch(object *o, object *k)
 {
     if (k == SS(pattern))
         return ici_regexpof(o)->r_pat;

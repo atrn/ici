@@ -47,8 +47,8 @@ struct ici_profilecall : object
  * pc_call_count    The number of times this function was called.
  */
 
-inline ici_profilecall_t *ici_profilecallof(ici_obj_t *o) { return static_cast<ici_profilecall_t *>(o); }
-inline bool ici_isprofilecall(ici_obj_t *o) { return o->isa(ICI_TC_PROFILECALL); }
+inline ici_profilecall_t *ici_profilecallof(object *o) { return static_cast<ici_profilecall_t *>(o); }
+inline bool ici_isprofilecall(object *o) { return o->isa(ICI_TC_PROFILECALL); }
 
 /*
  * End of ici.h export. --ici.h-end--
@@ -57,7 +57,7 @@ class profilecall_type : public type
 {
 public:
     profilecall_type() : type("profile call", sizeof (struct ici_profilecall)) {}
-    size_t mark(ici_obj_t *o) override;
+    size_t mark(object *o) override;
 };
 
 

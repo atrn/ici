@@ -86,7 +86,7 @@ const char *binop_name(int op)
  * See the comment in binop.h.
  */
 int
-op_binop(ici_obj_t *o)
+op_binop(object *o)
 {
 #include "binop.h"
     return 0;

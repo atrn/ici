@@ -18,13 +18,13 @@ namespace ici
 
 struct catcher : object
 {
-    ici_obj_t   *c_catcher;
+    object   *c_catcher;
     uint32_t    c_odepth;       /* Operand stack depth. */
     uint32_t    c_vdepth;       /* Variable stack depth. */
 };
 
-inline ici_catch_t *ici_catchof(ici_obj_t *o) { return static_cast<ici_catch_t *>(o); }
-inline bool ici_iscatch(ici_obj_t *o) { return o->isa(ICI_TC_CATCH); }
+inline ici_catch_t *ici_catchof(object *o) { return static_cast<ici_catch_t *>(o); }
+inline bool ici_iscatch(object *o) { return o->isa(ICI_TC_CATCH); }
 
 /*
  * Flags set stored in the upper nibble of o_flags (which is
@@ -45,8 +45,8 @@ class catch_type : public type
 {
 public:
     catch_type() : type("catch", sizeof (struct catcher)) {}
-    size_t mark(ici_obj_t *o) override;
-    void free(ici_obj_t *o) override;
+    size_t mark(object *o) override;
+    void free(object *o) override;
 };
 
 } // namespace ici

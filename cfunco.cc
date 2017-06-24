@@ -139,26 +139,26 @@ ici_module_new(ici_cfunc_t *cf)
 
 #ifdef NOTDEF
 static int
-call_cfunc_nodebug(ici_obj_t *o, ici_obj_t *subject)
+call_cfunc_nodebug(object *o, object *subject)
 {
     return (*ici_cfuncof(o)->cf_cfunc)(subject);
 }
 #endif
 
-size_t cfunc_type::mark(ici_obj_t *o)
+size_t cfunc_type::mark(object *o)
 {
     o->setmark();
     return typesize() + ici_mark(ici_cfuncof(o)->cf_name);
 }
 
-ici_obj_t * cfunc_type::fetch(ici_obj_t *o, ici_obj_t *k)
+object * cfunc_type::fetch(object *o, object *k)
 {
     if (k == SS(name))
         return ici_cfuncof(o)->cf_name;
     return ici_null;
 }
 
-void cfunc_type::objname(ici_obj_t *o, char p[ICI_OBJNAMEZ])
+void cfunc_type::objname(object *o, char p[ICI_OBJNAMEZ])
 {
     const char    *n;
     n = ici_cfuncof(o)->cf_name->s_chars;
@@ -168,7 +168,7 @@ void cfunc_type::objname(ici_obj_t *o, char p[ICI_OBJNAMEZ])
         sprintf(p, "%s()", n);
 }
 
-int cfunc_type::call(ici_obj_t *o, ici_obj_t *subject)
+int cfunc_type::call(object *o, object *subject)
 {
     if (UNLIKELY(ici_debug_active)
 #ifndef NOPROFILE
@@ -177,7 +177,7 @@ int cfunc_type::call(ici_obj_t *o, ici_obj_t *subject)
 #endif  
     )
     {
-        ici_obj_t       **xt;
+        object       **xt;
         int             result;
 
         /*

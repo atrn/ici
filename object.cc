@@ -49,12 +49,12 @@ ici_objname(char p[ICI_OBJNAMEZ], object *o)
         o->type()->objname(o, p);
         return p;
     }
-    if (ici_isstring(o))
+    if (isstring(o))
     {
-        if (ici_stringof(o)->s_nchars > ICI_OBJNAMEZ - 6)
-            sprintf(p, "\"%.24s...\"", ici_stringof(o)->s_chars);
+        if (stringof(o)->s_nchars > ICI_OBJNAMEZ - 6)
+            sprintf(p, "\"%.24s...\"", stringof(o)->s_chars);
         else
-            sprintf(p, "\"%s\"", ici_stringof(o)->s_chars);
+            sprintf(p, "\"%s\"", stringof(o)->s_chars);
     }
     else if (isint(o))
         sprintf(p, "%lld", intof(o)->i_value);

@@ -398,8 +398,8 @@ static int ici_sys_fdopen()
 static int ici_sys_close()
 {
     int                 rc;
-    ici_obj_t            *fd0;
-    ici_obj_t            *fd1;
+    object            *fd0;
+    object            *fd1;
 
     if (NARGS() != 1)
         return ici_argcount(1);
@@ -438,7 +438,7 @@ static int ici_sys_close()
 static int
 struct_to_flock(ici_struct_t *d, struct flock *flock)
 {
-    ici_obj_t    *o;
+    object    *o;
 
     if ((o = ici_fetch(d, SS(start))) == ici_null)
         flock->l_start = 0;
@@ -450,7 +450,7 @@ struct_to_flock(ici_struct_t *d, struct flock *flock)
         flock->l_len = intof(o)->i_value;
     if ((o = ici_fetch(d, SS(type))) == ici_null)
         flock->l_type = F_RDLCK;
-    else if (ici_isstring(o))
+    else if (isstring(o))
     {
         if (o == SS(rdlck))
             flock->l_type = F_RDLCK;
@@ -531,7 +531,7 @@ static int ici_sys_fcntl()
 #else
     long        fd;
     ici_str_t    *what;
-    ici_obj_t    *arg;
+    object    *arg;
     int         iarg;
     int         iwhat;
     int         r;
@@ -557,7 +557,7 @@ static int ici_sys_fcntl()
     default:
         return ici_argcount(3);
     }
-    if (!ici_isstring(what))
+    if (!isstring(what))
         return ici_argerror(1);
     if (what == SS(dupfd))
         iwhat = F_DUPFD;
@@ -715,7 +715,7 @@ static int ici_sys_read()
         return 1;
     }
     memcpy(s->s_chars, msg, r);
-    s = ici_stringof(ici_atom(s, 1));
+    s = stringof(ici_atom(s, 1));
     ici_free(msg);
     return ici_ret_with_decref(s);
 }
@@ -733,7 +733,7 @@ static int ici_sys_read()
 static int ici_sys_write()
 {
     long        fd;
-    ici_obj_t    *o;
+    object    *o;
     char        *addr;
     long        sz;
     int         havesz = 0;
@@ -744,11 +744,11 @@ static int ici_sys_write()
             return 1;
         havesz = 1;
     }
-    if (ici_isstring(o))
+    if (isstring(o))
     {
-        addr = (char *)ici_stringof(o)->s_chars;
-        if (!havesz || sz > ici_stringof(o)->s_nchars)
-            sz = ici_stringof(o)->s_nchars;
+        addr = (char *)stringof(o)->s_chars;
+        if (!havesz || sz > stringof(o)->s_nchars)
+            sz = stringof(o)->s_nchars;
     }
     else if (ismem(o))
     {
@@ -840,7 +840,7 @@ static int ici_sys_readlink()
  */
 static int ici_sys_stat()
 {
-    ici_obj_t    *o;
+    object    *o;
     struct stat statb;
     int         rc;
     ici_struct_t    *s;
@@ -850,8 +850,8 @@ static int ici_sys_stat()
     o = ARG(0);
     if (isint(o))
         rc = fstat(intof(o)->i_value, &statb);
-    else if (ici_isstring(o))
-        rc = stat(ici_stringof(o)->s_chars, &statb);
+    else if (isstring(o))
+        rc = stat(stringof(o)->s_chars, &statb);
     else if (ici_isfile(o) && ici_fileof(o)->f_type == stdio_ftype)
         rc = fstat(ici_fileof(o)->fileno(), &statb);
     else
@@ -908,7 +908,7 @@ static int ici_sys_stat()
  */
 static int ici_sys_lstat()
 {
-    ici_obj_t    *o;
+    object    *o;
     struct stat statb;
     int         rc;
     ici_struct_t    *s;
@@ -916,8 +916,8 @@ static int ici_sys_lstat()
     if (NARGS() != 1)
         return ici_argcount(1);
     o = ARG(0);
-    if (ici_isstring(o))
-        rc = lstat(ici_stringof(o)->s_chars, &statb);
+    if (isstring(o))
+        rc = lstat(stringof(o)->s_chars, &statb);
     else
         return ici_argerror(0);
     if (rc == -1)
@@ -1059,13 +1059,13 @@ static int ici_sys_getitimer()
     long                which = ITIMER_VIRTUAL;
     ici_struct_t            *s;
     struct itimerval    value;
-    ici_obj_t            *o;
+    object            *o;
 
     if (NARGS() != 0)
     {
         if (typecheck("o", &o))
             return 1;
-        if (!ici_isstring(o))
+        if (!isstring(o))
             return ici_argerror(0);
         if (o == SS(real))
             which = ITIMER_REAL;
@@ -1094,9 +1094,9 @@ static int ici_sys_getitimer()
 }
 
 static int
-fetch_timeval(ici_obj_t *s, struct timeval *tv)
+fetch_timeval(object *s, struct timeval *tv)
 {
-    ici_obj_t    *o;
+    object    *o;
 
     if (!ici_isstruct(s))
         return 1;
@@ -1133,7 +1133,7 @@ static int ici_sys_setitimer()
     ici_struct_t            *s;
     struct itimerval    value;
     struct itimerval    ovalue;
-    ici_obj_t            *o;
+    object            *o;
 
     if (NARGS() == 1)
     {
@@ -1372,7 +1372,7 @@ static int ici_sys_exec()
     char        **argv;
     int         maxargv;
     int         n;
-    ici_obj_t    **o;
+    object    **o;
     char        *path;
     int         argc;
 
@@ -1403,18 +1403,18 @@ static int ici_sys_exec()
 
     if ((n = NARGS()) < 2)
         return ici_argcount(2);
-    if (!ici_isstring(*(o = ARGS())))
+    if (!isstring(*(o = ARGS())))
         return ici_argerror(0);
-    path = ici_stringof(*o)->s_chars;
+    path = stringof(*o)->s_chars;
     --o;
     argc = 0;
     argv = sargv;
     maxargv = 16;
-    if (n > 2 || ici_isstring(*o))
+    if (n > 2 || isstring(*o))
     {
         while (--n > 0)
         {
-            ADDARG(ici_stringof(*o)->s_chars);
+            ADDARG(stringof(*o)->s_chars);
             --o;
         }
     }
@@ -1422,13 +1422,13 @@ static int ici_sys_exec()
         return ici_argerror(0);
     else
     {
-        ici_obj_t **p;
+        object **p;
         ici_array_t *a;
 
         a = arrayof(*o);
         for (p = a->astart(); p < a->alimit(); p = a->anext(p))
-            if (ici_isstring(*p))
-                ADDARG(ici_stringof(*p)->s_chars);
+            if (isstring(*p))
+                ADDARG(stringof(*p)->s_chars);
     }
     ADDARG(NULL);
     n = (*(int (*)(...))ICI_CF_ARG1())(path, argv);
@@ -1470,7 +1470,7 @@ static int ici_sys_spawn()
     char        **argv;
     int         maxargv;
     int         n;
-    ici_obj_t    **o;
+    object    **o;
     char        *path;
     int         argc;
     int         mode = _P_NOWAIT;
@@ -1509,17 +1509,17 @@ static int ici_sys_spawn()
         --o;
         if (--n < 2)
             return ici_argcount(2);
-        if (!ici_isstring(*o))
+        if (!isstring(*o))
             return ici_argerror(1);
     }
-    else if (!ici_isstring(*o))
+    else if (!isstring(*o))
         return ici_argerror(0);
     path = stringof(*o)->s_chars;
     --o;
     argc = 0;
     argv = sargv;
     maxargv = 16;
-    if (n > 2 || ici_isstring(*o))
+    if (n > 2 || isstring(*o))
     {
         while (--n > 0)
         {
@@ -1531,12 +1531,12 @@ static int ici_sys_spawn()
         return ici_argerror(0);
     else
     {
-        ici_obj_t **p;
+        object **p;
         ici_array_t *a;
 
         a = arrayof(*o);
         for (p = a->astart(); p < a->alimit(); p = a->anext(p))
-            if (ici_isstring(*p))
+            if (isstring(*p))
                 ADDARG(stringof(*p)->s_chars);
     }
     ADDARG(NULL);
@@ -1678,8 +1678,8 @@ static int ici_sys_passwd()
     case 1:
         if (isint(ARG(0)))
             pwent = getpwuid((uid_t)intof(ARG(0))->i_value);
-        else if (ici_isstring(ARG(0)))
-            pwent = getpwnam(ici_stringof(ARG(0))->s_chars);
+        else if (isstring(ARG(0)))
+            pwent = getpwnam(stringof(ARG(0))->s_chars);
         else
             return ici_argerror(0);
         if (pwent == NULL)
@@ -1712,7 +1712,7 @@ static ici_struct_t *
 password_struct(struct passwd *pwent)
 {
     ici_struct_t    *d;
-    ici_obj_t    *o;
+    object    *o;
 
     if (pwent == NULL)
         return NULL;
@@ -1904,7 +1904,7 @@ static int ici_sys_truncate()
 #ifndef _WIN32
 
 static int
-string_to_resource(ici_obj_t *what)
+string_to_resource(object *what)
 {
     if (what == SS(core))
         return RLIMIT_CORE;
@@ -1980,7 +1980,7 @@ string_to_resource(ici_obj_t *what)
  */
 static int ici_sys_getrlimit()
 {
-    ici_obj_t            *what;
+    object            *what;
     int                 resource;
     struct rlimit       rlimit;
     ici_struct_t            *limit;
@@ -1990,7 +1990,7 @@ static int ici_sys_getrlimit()
         return 1;
     if (isint(what))
         resource = intof(what)->i_value;
-    else if (ici_isstring(what))
+    else if (isstring(what))
     {
         if ((resource = string_to_resource(what)) == -1)
             return ici_argerror(0);
@@ -2039,17 +2039,17 @@ static int ici_sys_getrlimit()
  */
 static int ici_sys_setrlimit()
 {
-    ici_obj_t            *what;
-    ici_obj_t            *value;
+    object            *what;
+    object            *value;
     struct rlimit       rlimit;
     int                 resource;
-    ici_obj_t            *iv;
+    object            *iv;
 
     if (typecheck("oo", &what, &value))
         return 1;
     if (isint(what))
         resource = intof(what)->i_value;
-    else if (ici_isstring(what))
+    else if (isstring(what))
     {
         if ((resource = string_to_resource(what)) == -1)
             return ici_argerror(0);

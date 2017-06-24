@@ -66,8 +66,8 @@
  * so it isn't really there.
  */
 {
-    ici_obj_t  *o0;
-    ici_obj_t  *o1;
+    object  *o0;
+    object  *o1;
     long        i;
     double      f;
     bool        can_temp;
@@ -376,7 +376,7 @@
     case ICI_TRI(ICI_TC_STRING, ICI_TC_REGEXP, T_TILDE):
         SWAP();
     case ICI_TRI(ICI_TC_REGEXP, ICI_TC_STRING, T_TILDE):
-        if (ici_pcre_exec_simple(ici_regexpof(o0), ici_stringof(o1)) >= 0)
+        if (ici_pcre_exec_simple(ici_regexpof(o0), stringof(o1)) >= 0)
         {
             USE1();
         }
@@ -385,7 +385,7 @@
     case ICI_TRI(ICI_TC_STRING, ICI_TC_REGEXP, T_EXCLAMTILDE):
         SWAP();
     case ICI_TRI(ICI_TC_REGEXP, ICI_TC_STRING, T_EXCLAMTILDE):
-        if (ici_pcre_exec_simple(ici_regexpof(o0), ici_stringof(o1)) < 0)
+        if (ici_pcre_exec_simple(ici_regexpof(o0), stringof(o1)) < 0)
         {
             USE1();
         }
@@ -397,7 +397,7 @@
     case ICI_TRI(ICI_TC_REGEXP, ICI_TC_STRING, T_2TILDE):
     case ICI_TRI(ICI_TC_REGEXP, ICI_TC_STRING, T_2TILDEEQ):
         memset(ici_re_bra, 0, sizeof ici_re_bra);
-        if (ici_pcre_exec_simple(ici_regexpof(o0), ici_stringof(o1)) < 0
+        if (ici_pcre_exec_simple(ici_regexpof(o0), stringof(o1)) < 0
             ||
             ici_re_bra[2] < 0 || ici_re_bra[3] < 0
         )
@@ -409,7 +409,7 @@
         {
             o = ici_str_new
             (
-                ici_stringof(o1)->s_chars + ici_re_bra[2],
+                stringof(o1)->s_chars + ici_re_bra[2],
                 ici_re_bra[3] - ici_re_bra[2]
             );
             if (o == NULL)
@@ -423,7 +423,7 @@
         SWAP();
     case ICI_TRI(ICI_TC_REGEXP, ICI_TC_STRING, T_3TILDE):
         memset(ici_re_bra, 0, sizeof ici_re_bra);
-        ici_re_nbra = ici_pcre_exec_simple(ici_regexpof(o0), ici_stringof(o1));
+        ici_re_nbra = ici_pcre_exec_simple(ici_regexpof(o0), stringof(o1));
         if (ici_re_nbra < 0)
         {
             o = ici_null;
@@ -449,7 +449,7 @@
                     =
                     ici_str_new
                     (
-                        ici_stringof(o1)->s_chars + ici_re_bra[i*2],
+                        stringof(o1)->s_chars + ici_re_bra[i*2],
                         ici_re_bra[(i * 2) + 1 ] - ici_re_bra[i * 2]
                     )
                 )
@@ -474,7 +474,7 @@
             MISMATCH();
         }
         {
-            ici_obj_t   *i;
+            object   *i;
 
             if ((i = ici_int_new(intof(ici_ptrof(o0)->p_key)->i_value - intof(o1)->i_value)) == NULL)
             {
@@ -502,7 +502,7 @@
             MISMATCH();
         }
         {
-            ici_obj_t   *i;
+            object   *i;
 
             if ((i = ici_int_new(intof(ici_ptrof(o0)->p_key)->i_value + intof(o1)->i_value)) == NULL)
             {
@@ -518,21 +518,21 @@
 
     case ICI_TRI(ICI_TC_STRING, ICI_TC_STRING, T_PLUS):
     case ICI_TRI(ICI_TC_STRING, ICI_TC_STRING, T_PLUSEQ):
-        if ((o = ici_str_alloc(ici_stringof(o1)->s_nchars + ici_stringof(o0)->s_nchars)) == NULL)
+        if ((o = ici_str_alloc(stringof(o1)->s_nchars + stringof(o0)->s_nchars)) == NULL)
         {
             FAIL();
         }
         memcpy
         (
-            ici_stringof(o)->s_chars,
-            ici_stringof(o0)->s_chars,
-            ici_stringof(o0)->s_nchars
+            stringof(o)->s_chars,
+            stringof(o0)->s_chars,
+            stringof(o0)->s_nchars
         );
         memcpy
         (
-            ici_stringof(o)->s_chars + ici_stringof(o0)->s_nchars,
-            ici_stringof(o1)->s_chars,
-            ici_stringof(o1)->s_nchars + 1
+            stringof(o)->s_chars + stringof(o0)->s_nchars,
+            stringof(o1)->s_chars,
+            stringof(o1)->s_nchars + 1
         );
         o = ici_atom(o, 1);
         LOOSEo();
@@ -590,7 +590,7 @@
     case ICI_TRI(ICI_TC_SET, ICI_TC_SET, T_PLUSEQ):
         {
             ici_set_t  *s;
-            ici_obj_t  **sl;
+            object  **sl;
             int        i;
 
             if ((s = setof(ici_copy(o0))) == NULL)
@@ -618,7 +618,7 @@
     case ICI_TRI(ICI_TC_SET, ICI_TC_SET, T_MINUSEQ):
         {
             ici_set_t  *s;
-            ici_obj_t  **sl;
+            object  **sl;
             int        i;
 
             if ((s = setof(ici_copy(o0))) == NULL)
@@ -646,7 +646,7 @@
     case ICI_TRI(ICI_TC_SET, ICI_TC_SET, T_ASTERIXEQ):
         {
             ici_set_t  *s;
-            ici_obj_t  **sl;
+            object  **sl;
             int        i;
 
             if (setof(o0)->s_nels > setof(o1)->s_nels)
@@ -712,12 +712,12 @@
     case ICI_TRI(ICI_TC_STRING, ICI_TC_STRING, T_LESSEQ):
     case ICI_TRI(ICI_TC_STRING, ICI_TC_STRING, T_GRTEQ):
         {
-            int         compare;
-            ici_str_t   *s1;
-            ici_str_t   *s2;
+            int   compare;
+            str   *s1;
+            str   *s2;
 
-            s1 = ici_stringof(o0);
-            s2 = ici_stringof(o1);
+            s1 = stringof(o0);
+            s2 = stringof(o1);
             compare = s1->s_nchars < s2->s_nchars ? s1->s_nchars : s2->s_nchars;
             compare = memcmp(s1->s_chars, s2->s_chars, compare);
             if (compare == 0)
@@ -888,7 +888,7 @@ usef:
      * In-line expansion of float creation.
      */
     {
-        ici_obj_t               **po;
+        object               **po;
         unsigned long           h;
 
 #if 1
@@ -975,7 +975,7 @@ usei:
         USEo();
     }
     {
-        ici_obj_t      **po;
+        object      **po;
 
         for
         (

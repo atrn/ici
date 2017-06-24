@@ -13,12 +13,12 @@ namespace ici
  */
 struct ptr : object
 {
-    ici_obj_t   *p_aggr;        /* The aggregate which contains the object. */
-    ici_obj_t   *p_key;         /* The key which references it. */
+    object   *p_aggr;        /* The aggregate which contains the object. */
+    object   *p_key;         /* The key which references it. */
 };
 
-inline ici_ptr_t *ici_ptrof(ici_obj_t *o) { return static_cast<ici_ptr_t *>(o); }
-inline bool ici_isptr(ici_obj_t *o) { return o->isa(ICI_TC_PTR); }
+inline ici_ptr_t *ici_ptrof(object *o) { return static_cast<ici_ptr_t *>(o); }
+inline bool ici_isptr(object *o) { return o->isa(ICI_TC_PTR); }
 
 /*
  * End of ici.h export. --ici.h-end--
@@ -29,12 +29,12 @@ class ptr_type : public type
 public:
     ptr_type() : type("ptr", sizeof (struct ptr), type::has_call) {}
 
-    size_t mark(ici_obj_t *o) override;
-    int cmp(ici_obj_t *o1, ici_obj_t *o2) override;
-    unsigned long hash(ici_obj_t *o) override;
-    ici_obj_t *fetch(ici_obj_t *o, ici_obj_t *k) override;
-    int assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v) override;
-    int call(ici_obj_t *o, ici_obj_t *subject) override;
+    size_t mark(object *o) override;
+    int cmp(object *o1, object *o2) override;
+    unsigned long hash(object *o) override;
+    object *fetch(object *o, object *k) override;
+    int assign(object *o, object *k, object *v) override;
+    int call(object *o, object *subject) override;
 };
 
 } // namespace ici

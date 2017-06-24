@@ -4,70 +4,70 @@
 namespace ici
 {
 
-size_t type::mark(ici_obj_t *o) {
+size_t type::mark(object *o) {
     o->setmark();
     return typesize();
 }
 
-void type::free(ici_obj_t *o) {
+void type::free(object *o) {
     ici_nfree(o, typesize());
 }
 
-unsigned long type::hash(ici_obj_t *o) {
+unsigned long type::hash(object *o) {
     return ICI_PTR_HASH(o);
 }
 
-int type::cmp(ici_obj_t *o1, ici_obj_t *o2) {
+int type::cmp(object *o1, object *o2) {
     return o1 != o2;
 }
 
-ici_obj_t *type::copy(ici_obj_t *o) {
+object *type::copy(object *o) {
     o->incref();
     return o;
 }
 
-int type::assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v) {
+int type::assign(object *o, object *k, object *v) {
     return assign_fail(o, k, v);
 }
 
-ici_obj_t * type::fetch(ici_obj_t *o, ici_obj_t *k) {
+object * type::fetch(object *o, object *k) {
     return fetch_fail(o, k);
 }
 
-int type::assign_super(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v, ici_struct_t *) {
+int type::assign_super(object *o, object *k, object *v, ici_struct_t *) {
     return assign_fail(o, k, v);
 }
 
-int type::fetch_super(ici_obj_t *o, ici_obj_t *k, ici_obj_t **pv, ici_struct_t *) {
+int type::fetch_super(object *o, object *k, object **pv, ici_struct_t *) {
     *pv = fetch_fail(o, k);
     return 1;
 }
 
-int type::assign_base(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v) {
+int type::assign_base(object *o, object *k, object *v) {
     return assign(o, k, v);
 }
 
-ici_obj_t *type::fetch_base(ici_obj_t *o, ici_obj_t *k) {
+object *type::fetch_base(object *o, object *k) {
     return fetch(o, k);
 }
 
-ici_obj_t *type::fetch_method(ici_obj_t *o, ici_obj_t *n) {
+object *type::fetch_method(object *o, object *n) {
     return nullptr;
 }
 
-int type::forall(ici_obj_t *o) {
+int type::forall(object *o) {
     return 1;
 }
 
-void type::objname(ici_obj_t *, char n[ICI_OBJNAMEZ]) {
+void type::objname(object *, char n[ICI_OBJNAMEZ]) {
     snprintf(n, ICI_OBJNAMEZ, "%s %p", name, (void *)this);
 }
 
-int type::call(ici_obj_t *, ici_obj_t *) {
+int type::call(object *, object *) {
     return 1;
 }
 
-ici_obj_t *type::fetch_fail(ici_obj_t *o, ici_obj_t *k)
+object *type::fetch_fail(object *o, object *k)
 {
     char n1[ICI_OBJNAMEZ];
     char n2[ICI_OBJNAMEZ];
@@ -77,7 +77,7 @@ ici_obj_t *type::fetch_fail(ici_obj_t *o, ici_obj_t *k)
     return NULL;
 }
 
-int type::assign_fail(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v)
+int type::assign_fail(object *o, object *k, object *v)
 {
     char n1[ICI_OBJNAMEZ];
     char n2[ICI_OBJNAMEZ];

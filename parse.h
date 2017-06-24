@@ -158,9 +158,9 @@ constexpr int OPC_COLON_CALL      = 0x0002;  /* Don't form a method, just call i
  */
 struct expr
 {
-    int         e_what;         /* A token identifier, ie. T_*. */
-    expr_t      *e_arg[2];
-    ici_obj_t   *e_obj;
+    int      e_what;         /* A token identifier, ie. T_*. */
+    expr     *e_arg[2];
+    object   *e_obj;
 };
 
 class parse_type : public type
@@ -168,8 +168,8 @@ class parse_type : public type
 public:
     parse_type() : type("parse", sizeof (struct parse)) {}
 
-    size_t mark(ici_obj_t *o) override;
-    void free(ici_obj_t *o) override;
+    size_t mark(object *o) override;
+    void free(object *o) override;
 };
 
 } // namespace ici

@@ -114,8 +114,8 @@ struct cfunc : object
  * This comment is also part of the --ici-api--.
  */
 
-inline ici_cfunc_t *ici_cfuncof(ici_obj_t *o) { return static_cast<ici_cfunc_t *>(o); }
-inline bool ici_iscfunc(ici_obj_t *o) { return o->isa(ICI_TC_CFUNC); }
+inline ici_cfunc_t *ici_cfuncof(object *o) { return static_cast<ici_cfunc_t *>(o); }
+inline bool ici_iscfunc(object *o) { return o->isa(ICI_TC_CFUNC); }
 
 /*
  * The operand stack on entry to an intrinsic function:
@@ -129,7 +129,7 @@ inline bool ici_iscfunc(ici_obj_t *o) { return o->isa(ICI_TC_CFUNC); }
 /*
  * In a call from ICI to a function coded in C, this macro returns the object
  * passed as the 'i'th actual parameter (the first parameter is ARG(0)).  The
- * type of the result is an '(ici_obj_t *)'.  There is no actual or implied
+ * type of the result is an '(object *)'.  There is no actual or implied
  * incref associated with this.  Parameters are known to be on the ICI operand
  * stack, and so can be assumed to be referenced and not garbage collected.
  *
@@ -206,10 +206,10 @@ class cfunc_type : public type
 public:
     cfunc_type() : type("func", sizeof (cfunc), type::has_objname | type::has_call) {}
 
-    size_t mark(ici_obj_t *o) override;
-    ici_obj_t *fetch(ici_obj_t *o, ici_obj_t *k) override;
-    void objname(ici_obj_t *o, char p[ICI_OBJNAMEZ]) override;
-    int call(ici_obj_t *o, ici_obj_t *subject) override;
+    size_t mark(object *o) override;
+    object *fetch(object *o, object *k) override;
+    void objname(object *o, char p[ICI_OBJNAMEZ]) override;
+    int call(object *o, object *subject) override;
 };
 
 } // namespace ici

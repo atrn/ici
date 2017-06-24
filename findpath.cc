@@ -22,21 +22,21 @@ namespace ici
 int
 ici_find_on_path(char name[FILENAME_MAX], const char *ext)
 {
-    ici_array_t         *a;
-    char                *p;
-    char                realname[FILENAME_MAX];
-    int                 xlen;
-    ici_obj_t           **e;
-    ici_str_t           *s;
+    array   *a;
+    char    *p;
+    char     realname[FILENAME_MAX];
+    int      xlen;
+    object **e;
+    str     *s;
 
     if ((a = ici_need_path()) == NULL)
         return 0;
     xlen = 1 + strlen(name) + (ext != NULL ? strlen(ext) : 0) + 1;
     for (e = a->astart(); e != a->alimit(); e = a->anext(e))
     {
-        if (!ici_isstring(*e))
+        if (!isstring(*e))
             continue;
-        s = ici_stringof(*e);
+        s = stringof(*e);
         if (s->s_nchars + xlen > FILENAME_MAX)
             continue;
         strcpy(realname, s->s_chars);
