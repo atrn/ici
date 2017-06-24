@@ -198,18 +198,18 @@ f_load(...)
             fclose(stream);
             goto fail;
         }
-        file = ici_file_new((char *)stream, stdio_ftype, fn, NULL);
+        file = new_file((char *)stream, stdio_ftype, fn, NULL);
         fn->decref();
         if (file == NULL)
         {
             fclose(stream);
             goto fail;
         }
-        if ((autos = ici_struct_new()) == NULL)
+        if ((autos = new_struct()) == NULL)
         {
             goto fail;
         }
-        if ((statics = ici_struct_new()) == NULL)
+        if ((statics = new_struct()) == NULL)
         {
             goto fail;
         }
@@ -217,7 +217,7 @@ f_load(...)
         statics->decref();
         if (externs == NULL)
         {
-            if ((externs = ici_struct_new()) == NULL)
+            if ((externs = new_struct()) == NULL)
             {
                 goto fail;
             }
@@ -411,7 +411,7 @@ int init_path(objwsup *externs)
     int    r;
     char  *path;
 
-    if ((a = ici_array_new(0)) == NULL)
+    if ((a = new_array(0)) == NULL)
     {
         return 1;
     }

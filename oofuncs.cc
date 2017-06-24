@@ -55,7 +55,7 @@ m_new(object *o)
 
     if (ici_method_check(o, 0))
         return 1;
-    if ((s = ici_struct_new()) == NULL)
+    if ((s = new_struct()) == NULL)
         return 1;
     s->o_super = objwsupof(o);
     return ret_with_decref(s);

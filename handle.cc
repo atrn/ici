@@ -253,7 +253,7 @@ object *ici_make_handle_member_map(ici_name_id_t *ni)
     str          *n;
     object       *id;
 
-    if ((m = ici_struct_new()) == NULL)
+    if ((m = new_struct()) == NULL)
         return NULL;
     for (; ni->ni_name != NULL; ++ni)
     {
@@ -262,7 +262,7 @@ object *ici_make_handle_member_map(ici_name_id_t *ni)
             goto fail;
         if (ni->ni_id & ICI_H_METHOD)
         {
-            id = (object *)ici_cfunc_new
+            id = new_cfunc
             (
                 n,
                 (int (*)(...))(ici_handle_method),
@@ -274,7 +274,7 @@ object *ici_make_handle_member_map(ici_name_id_t *ni)
         }
         else
         {
-            if ((id = ici_int_new(ni->ni_id)) == NULL)
+            if ((id = new_int(ni->ni_id)) == NULL)
                 goto fail;
         }
         if (ici_assign(m, n, id))
@@ -469,7 +469,7 @@ int handle_type::assign_base(object *o, object *k, object *v)
          * This operation disturbs the struct-lookup lookaside mechanism.
          * We invalidate all existing entries by incrementing vsver.
          */
-        if ((s = objwsupof(ici_struct_new())) == NULL)
+        if ((s = objwsupof(new_struct())) == NULL)
             return 1;
         s->o_super = objwsupof(o)->o_super;
         objwsupof(o)->o_super = s;

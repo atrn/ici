@@ -103,27 +103,27 @@ exec *new_exec()
     ICI_OBJ_SET_TFNZ(x, ICI_TC_EXEC, 0, 1, 0);
     ici_rego(x);
     x->x_src = &default_src;
-    if ((x->x_xs = ici_array_new(80)) == NULL)
+    if ((x->x_xs = new_array(80)) == NULL)
     {
         goto fail;
     }
     x->x_xs->decref();
-    if ((x->x_os = ici_array_new(80)) == NULL)
+    if ((x->x_os = new_array(80)) == NULL)
     {
         goto fail;
     }
     x->x_os->decref();
-    if ((x->x_vs = ici_array_new(80)) == NULL)
+    if ((x->x_vs = new_array(80)) == NULL)
     {
         goto fail;
     }
     x->x_vs->decref();
-    if ((x->x_pc_closet = ici_array_new(80)) == NULL)
+    if ((x->x_pc_closet = new_array(80)) == NULL)
     {
         goto fail;
     }
     x->x_pc_closet->decref();
-    if ((x->x_os_temp_cache = ici_array_new(80)) == NULL)
+    if ((x->x_os_temp_cache = new_array(80)) == NULL)
     {
         goto fail;
     }
@@ -175,7 +175,7 @@ int engine_stack_check()
         }
         while (pcs->a_top < pcs->a_limit)
         {
-            if ((*pcs->a_top = ici_new_pc()) == NULL)
+            if ((*pcs->a_top = new_pc()) == NULL)
             {
                 return 1;
             }
@@ -261,7 +261,7 @@ object *evaluate(object *code, int n_operands)
 
     if (isarray(code))
     {
-        ici_get_pc(arrayof(code), xs.a_top);
+        get_pc(arrayof(code), xs.a_top);
     }
     else
     {
@@ -610,7 +610,7 @@ object *evaluate(object *code, int n_operands)
                                 ++os.a_top;
                                 os.a_top[-1] = SS(unknown_method);
                                 os.a_top[-2] = os.a_top[-3];
-                                if ((os.a_top[-3] = ici_int_new(nargs + 1)) == NULL)
+                                if ((os.a_top[-3] = new_int(nargs + 1)) == NULL)
                                 {
                                     goto fail;
                                 }
@@ -910,7 +910,7 @@ object *evaluate(object *code, int n_operands)
                     goto stable_stacks_continue;
                 }
                 o = *pcof(xs.a_top[-1])->pc_next++;
-                ici_get_pc(arrayof(o), xs.a_top);
+                get_pc(arrayof(o), xs.a_top);
                 --os.a_top;
                 ++xs.a_top;
                 continue;
@@ -929,7 +929,7 @@ object *evaluate(object *code, int n_operands)
                     o = *pcof(xs.a_top[-1])->pc_next++;
                     ++pcof(xs.a_top[-1])->pc_next;
                 }
-                ici_get_pc(arrayof(o), xs.a_top);
+                get_pc(arrayof(o), xs.a_top);
                 --os.a_top;
                 ++xs.a_top;
                 goto stable_stacks_continue;
@@ -1017,7 +1017,7 @@ object *evaluate(object *code, int n_operands)
                         /*
                          * Have to test next part of the condition.
                          */
-                        ici_get_pc(arrayof(os.a_top[-1]), xs.a_top);
+                        get_pc(arrayof(os.a_top[-1]), xs.a_top);
                         ++xs.a_top;
                         os.a_top -= 2;
                         goto stable_stacks_continue;
@@ -1085,7 +1085,7 @@ object *evaluate(object *code, int n_operands)
                  * end of a code array that should loop.
                  */
                 *xs.a_top++ = o; /* Restore formal state.*/
-                ici_get_pc(arrayof(xs.a_top[-2]), xs.a_top);
+                get_pc(arrayof(xs.a_top[-2]), xs.a_top);
                 ++xs.a_top;
                 goto stable_stacks_continue;
 
@@ -1100,7 +1100,7 @@ object *evaluate(object *code, int n_operands)
                 o = *pcof(xs.a_top[-1])->pc_next++;
                 *xs.a_top++ = o;
                 *xs.a_top++ = &o_looper;
-                ici_get_pc(arrayof(o), xs.a_top);
+                get_pc(arrayof(o), xs.a_top);
                 ++xs.a_top;
                 break;
 
@@ -1109,7 +1109,7 @@ object *evaluate(object *code, int n_operands)
                  * array => - (os)
                  *       => pc (xs)
                  */
-                ici_get_pc(arrayof(os.a_top[-1]), xs.a_top);
+                get_pc(arrayof(os.a_top[-1]), xs.a_top);
                 ++xs.a_top;
                 --os.a_top;
                 continue;
@@ -1146,7 +1146,7 @@ object *evaluate(object *code, int n_operands)
                     }
                     *xs.a_top++ = ici_null;
                     *xs.a_top++ = &o_switcher;
-                    ici_get_pc(arrayof(os.a_top[-2]), xs.a_top);
+                    get_pc(arrayof(os.a_top[-2]), xs.a_top);
                     pcof(*xs.a_top)->pc_next += intof(sl->sl_value)->i_value;
                     ++xs.a_top;
                     os.a_top -= 3;
@@ -1155,7 +1155,7 @@ object *evaluate(object *code, int n_operands)
 
             case OP_CRITSECT:
                 {
-                    *xs.a_top = (object *)ici_new_catcher
+                    *xs.a_top = new_catcher
                     (
                         NULL,
                         (os.a_top - os.a_base) - 1,
@@ -1167,7 +1167,7 @@ object *evaluate(object *code, int n_operands)
                         goto fail;
                     }
                     ++xs.a_top;
-                    ici_get_pc(arrayof(os.a_top[-1]), xs.a_top);
+                    get_pc(arrayof(os.a_top[-1]), xs.a_top);
                     ++xs.a_top;
                     --os.a_top;
                     // ++ex->x_critsect;
@@ -1246,7 +1246,7 @@ object *evaluate(object *code, int n_operands)
                 c->decref();
                 goto badfail;
             }
-            ici_get_pc(arrayof(c->c_catcher), xs.a_top);
+            get_pc(arrayof(c->c_catcher), xs.a_top);
             ++xs.a_top;
             c->decref();
             continue;

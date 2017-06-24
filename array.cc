@@ -467,7 +467,7 @@ object *array::get(ptrdiff_t i)
  *
  * This --func-- forms part of the --ici-api--.
  */
-array *ici_array_new(ptrdiff_t n)
+array *new_array(ptrdiff_t n)
 {
     array *a;
 
@@ -503,7 +503,7 @@ int op_mklvalue()
 {
     array *a;
 
-    if ((a = ici_array_new(1)) == NULL)
+    if ((a = new_array(1)) == NULL)
     {
         return 1;
     }
@@ -619,7 +619,7 @@ object * array_type::copy(object *o)
     ptrdiff_t  n;
 
     n = arrayof(o)->len();
-    if ((na = ici_array_new(n)) == NULL)
+    if ((na = new_array(n)) == NULL)
     {
         return NULL;
     }
@@ -684,7 +684,7 @@ int array_type::forall(object *o)
     }
     if (fa->fa_kaggr != ici_null)
     {
-        if ((i = ici_int_new((long)fa->fa_index)) == NULL)
+        if ((i = new_int((long)fa->fa_index)) == NULL)
             return 1;
         if (ici_assign(fa->fa_kaggr, fa->fa_kkey, i))
             return 1;

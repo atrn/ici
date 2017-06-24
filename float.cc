@@ -14,7 +14,7 @@ namespace ici
  *
  * This --func-- forms part of the --ici-api--.
  */
-ici_float *ici_float_new(double v)
+ici_float *new_float(double v)
 {
     ici_float          *f;
     object           **po;

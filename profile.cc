@@ -134,7 +134,7 @@ ici_profilecall_new(profilecall *called_by)
 
     /* Fill in ici_profilecall specific bits. */
     pc->pc_calledby = called_by;
-    pc->pc_calls = ici_struct_new();
+    pc->pc_calls = new_struct();
     if (pc->pc_calls == NULL)
     {
         ici_tfree(pc, profilecall);

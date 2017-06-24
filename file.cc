@@ -32,7 +32,7 @@ namespace ici
  *
  * This --func-- forms part of the --ici-api--.
  */
-file *ici_file_new(void *fp, ftype *ftype, str *name, object *ref)
+file *new_file(void *fp, ftype *ftype, str *name, object *ref)
 {
     file *f;
 
@@ -122,7 +122,7 @@ object * file_type::fetch(object *o, object *k)
     {
         ici_int *l;
 
-        if ((l = ici_int_new(parseof(fileof(o)->f_file)->p_lineno)) != NULL)
+        if ((l = new_int(parseof(fileof(o)->f_file)->p_lineno)) != NULL)
             l->decref();
         return l;
     }

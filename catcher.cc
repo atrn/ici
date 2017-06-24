@@ -20,7 +20,7 @@ namespace ici
  */
 catcher *unwind()
 {
-    object   **p;
+    object  **p;
     catcher *c;
 
     for (p = xs.a_top - 1; p >= xs.a_base; --p)
@@ -43,10 +43,10 @@ catcher *unwind()
  * corresponding to the operand and variable stack depths given.
  * The catcher, o, may be NULL.
  *
- * Note: catch's are special. Unlike most types this ici_new_catch function
+ * Note: catch's are special. Unlike most types this new_catcher function
  * returns its object with a ref count of 0 not 1.
  */
-catcher *ici_new_catcher(object *o, int odepth, int vdepth, int flags)
+catcher *new_catcher(object *o, int odepth, int vdepth, int flags)
 {
      catcher *c;
 
@@ -67,9 +67,9 @@ catcher *ici_new_catcher(object *o, int odepth, int vdepth, int flags)
  */
 int op_onerror()
 {
-    if ((xs.a_top[-1] = ici_new_catcher(os.a_top[-1], os.a_top - os.a_base - 2, vs.a_top - vs.a_base, 0)) == NULL)
+    if ((xs.a_top[-1] = new_catcher(os.a_top[-1], os.a_top - os.a_base - 2, vs.a_top - vs.a_base, 0)) == NULL)
         return 1;
-    ici_get_pc(arrayof(os.a_top[-2]), xs.a_top);
+    get_pc(arrayof(os.a_top[-2]), xs.a_top);
     ++xs.a_top;
     os.a_top -= 2;
     return 0;

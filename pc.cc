@@ -10,7 +10,7 @@ namespace ici
  *
  * NOTE: pc's come back ready-decref'ed.
  */
-pc *ici_new_pc()
+pc *new_pc()
 {
     pc *p;
 

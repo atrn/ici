@@ -23,7 +23,7 @@ namespace ici
 int
 op_for()
 {
-    ici_get_pc(arrayof(os.a_top[-1]), xs.a_top + 1);
+    get_pc(arrayof(os.a_top[-1]), xs.a_top + 1);
     pcof(xs.a_top[1])->pc_next += opof(xs.a_top[-1])->op_code;
     xs.a_top[-1] = os.a_top[-1];
     *xs.a_top++ = &o_looper;

@@ -458,7 +458,7 @@ int string_type::forall(object *o)
     }
     if (fa->fa_kaggr != ici_null)
     {
-        if ((i = ici_int_new((long)fa->fa_index)) == NULL)
+        if ((i = new_int((long)fa->fa_index)) == NULL)
             return 1;
         if (ici_assign(fa->fa_kaggr, fa->fa_kkey, i))
             return 1;

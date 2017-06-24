@@ -20,7 +20,7 @@
 namespace ici
 {
 
-func *ici_new_func()
+func *new_func()
 {
     func *f;
 
@@ -261,7 +261,7 @@ int func_type::call(object *o, object *subject)
             (
                 (sl = find_raw_slot(d, SS(vargs))) != NULL
                 &&
-                (va = ici_array_new(n)) != NULL
+                (va = new_array(n)) != NULL
             )
         )
         {
@@ -286,7 +286,7 @@ int func_type::call(object *o, object *subject)
     xs.a_top[-1] = ex->x_src;
 
     *xs.a_top++ = &o_mark;
-    ici_get_pc(f->f_code, xs.a_top);
+    get_pc(f->f_code, xs.a_top);
     ++xs.a_top;
     *vs.a_top++ = d;
     d->decref();

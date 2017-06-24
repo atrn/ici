@@ -18,7 +18,7 @@ ici_int *small_ints[small_int_count];
  *
  * This --func-- forms part of the --ici-api--.
  */
-ici_int *ici_int_new(int64_t i)
+ici_int *new_int(int64_t i)
 {
     object *o;
     object **po;

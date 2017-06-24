@@ -62,7 +62,7 @@ main(int argc, char *argv[])
      * ie, arguments which are passed into the ICI code.  Stash these in
      * the array av.  NB: must be in sync with the second pass below.
      */
-    if ((av = ici_array_new(1)) == NULL)
+    if ((av = new_array(1)) == NULL)
         goto fail;
     *av->a_top++ = ici_null; /* Leave room for argv[0]. */
     arg0 = NULL;

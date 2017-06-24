@@ -825,13 +825,13 @@ ici_net_select()
     unblock(x);
     if (n < 0)
         return get_last_errno("net.select", NULL);
-    if ((result = ici_struct_new()) == NULL)
+    if ((result = new_struct()) == NULL)
         return 1;
     /* Add in count */
     {
         ici_int  *nobj;
 
-        if ((nobj = ici_int_new(n)) == NULL)
+        if ((nobj = new_int(n)) == NULL)
             goto fail;
         if (ici_assign(result, SS(n), nobj))
         {
@@ -971,7 +971,7 @@ ici_net_recvfrom()
         ici_nfree(msg, len + 1);
         return null_ret();
     }
-    if ((result = ici_struct_new()) == NULL)
+    if ((result = new_struct()) == NULL)
     {
         ici_nfree(msg, len + 1);
         return 1;
@@ -1785,7 +1785,7 @@ ici_net_sktopen()
         return 1;
     if ((sf = skt_open(skt, mode)) == NULL)
         return 1;
-    if ((f = ici_file_new((char *)sf, skt_ftype, NULL, NULL)) == NULL)
+    if ((f = new_file((char *)sf, skt_ftype, NULL, NULL)) == NULL)
     {
         return 1;
     }
@@ -1811,7 +1811,7 @@ ici_net_socketpair()
 
     if (socketpair(AF_UNIX, SOCK_STREAM, 0, sv) == -1)
         return get_last_errno("net.socketpair", NULL);
-    if ((a = ici_array_new(2)) == NULL)
+    if ((a = new_array(2)) == NULL)
         goto fail1;
     if ((s = new_netsocket(sv[0])) == NULL)
     {

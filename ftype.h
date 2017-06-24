@@ -15,7 +15,7 @@ namespace ici
 
 /*
  * The flags that may appear in flags.  NOTE: If any flag greater than 0x80
- * is specified, file creation with ici_file_new() will fail.  See that
+ * is specified, file creation with new_file() will fail.  See that
  * function for details.
  *
  * FT_NOMUTEX           ICI will surround file I/O on this file with

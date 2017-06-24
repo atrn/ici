@@ -82,7 +82,7 @@ ici_funcv(object *subject, object *callable, const char *types, va_list va)
             break;
 
         case 'i':
-            if ((os.a_top[arg] = ici_int_new(va_arg(va, long))) == NULL)
+            if ((os.a_top[arg] = new_int(va_arg(va, long))) == NULL)
             {
                 goto fail;
             }
@@ -103,7 +103,7 @@ ici_funcv(object *subject, object *callable, const char *types, va_list va)
             break;
 
         case 'f':
-            if ((os.a_top[arg] = ici_float_new(va_arg(va, double))) == NULL)
+            if ((os.a_top[arg] = new_float(va_arg(va, double))) == NULL)
             {
                 goto fail;
             }
@@ -124,7 +124,7 @@ ici_funcv(object *subject, object *callable, const char *types, va_list va)
      * Push the number of actual args, followed by the function
      * itself onto the operand stack.
      */
-    if ((*os.a_top = ici_int_new(nargs)) == NULL)
+    if ((*os.a_top = new_int(nargs)) == NULL)
     {
         goto fail;
     }

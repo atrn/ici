@@ -150,7 +150,7 @@ restore_int(archive *ar)
     {
         return NULL;
     }
-    return ici_int_new(value);
+    return new_int(value);
 }
 
 // float
@@ -167,7 +167,7 @@ restore_float(archive *ar)
 #if ICI_ARCHIVE_LITTLE_ENDIAN_HOST
     archive_byteswap(&val, sizeof val);
 #endif
-    return ici_float_new(val);
+    return new_float(val);
 }
 
 // string
@@ -235,7 +235,7 @@ restore_regexp(archive *ar)
     {
         return NULL;
     }
-    r = ici_regexp_new(s, options);
+    r = new_regexp(s, options);
     if (r == NULL)
     {
         s->decref();
@@ -269,7 +269,7 @@ restore_mem(archive *ar)
     sz = size_t(len) * size_t(accessz);
     if ((p = ici_alloc(sz)) != NULL)
     {
-        if ((m = ici_mem_new(p, len, accessz, ici_free)) == NULL)
+        if ((m = new_mem(p, len, accessz, ici_free)) == NULL)
         {
             ici_free(p);
         }
@@ -299,7 +299,7 @@ restore_array(archive *ar)
     {
         return NULL;
     }
-    if ((a = ici_array_new(n)) == NULL)
+    if ((a = new_array(n)) == NULL)
     {
         return NULL;
     }
@@ -398,7 +398,7 @@ restore_struct(archive *ar)
     {
         return NULL;
     }
-    if ((s = ici_struct_new()) == NULL)
+    if ((s = new_struct()) == NULL)
     {
         return NULL;
     }
@@ -514,7 +514,7 @@ restore_func(archive *ar)
     {
         goto fail;
     }
-    if ((fn = ici_new_func()) == NULL)
+    if ((fn = new_func()) == NULL)
     {
         goto fail;
     }
@@ -574,7 +574,7 @@ restore_op(archive *ar)
         return 0;
     }
 
-    return ici_new_op(archive_op_func(op_func_code), op_ecode, op_code);
+    return new_op(archive_op_func(op_func_code), op_ecode, op_code);
 }
 
 static object *
@@ -702,7 +702,7 @@ add_restorer(int tcode, object *(*fn)(archive *))
     {
         return 1;
     }
-    if ((t = ici_int_new(tcode)) == NULL)
+    if ((t = new_int(tcode)) == NULL)
     {
         goto fail;
     }
@@ -726,7 +726,7 @@ fetch_restorer(int key)
     object   *k;
     object   *v = NULL;
 
-    if ((k = ici_int_new(key)) != NULL)
+    if ((k = new_int(key)) != NULL)
     {
         v = ici_fetch(restorer_map, k);
         k->decref();
@@ -771,7 +771,7 @@ init_restorer_map()
         {ICI_TC_REF,    restore_ref}
     };
 
-    if ((restorer_map = ici_struct_new()) == NULL)
+    if ((restorer_map = new_struct()) == NULL)
     {
         return 1;
     }

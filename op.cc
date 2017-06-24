@@ -7,7 +7,7 @@
 namespace ici
 {
 
-op *ici_new_op(int (*func)(), int16_t ecode, int16_t code)
+op *new_op(int (*func)(), int16_t ecode, int16_t code)
 {
     op         *o;
     object     **po;

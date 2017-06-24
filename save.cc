@@ -335,7 +335,7 @@ init_saver_map()
         {SS(op), save_op},
     };
 
-    if ((saver_map = ici_struct_new()) == NULL)
+    if ((saver_map = new_struct()) == NULL)
     {
         return 1;
     }

@@ -40,11 +40,11 @@ int ici_set_val(objwsup *s, str *name, int type, void *vp)
     switch (type)
     {
     case 'i':
-        o = ici_int_new(*(long *)vp);
+        o = new_int(*(long *)vp);
         break;
 
     case 'f':
-        o = ici_float_new(*(double *)vp);
+        o = new_float(*(double *)vp);
         break;
         
     case 's':
@@ -52,7 +52,7 @@ int ici_set_val(objwsup *s, str *name, int type, void *vp)
         break;
 
     case 'u':
-        o = ici_file_new((char *)vp, stdio_ftype, name, NULL);
+        o = new_file((char *)vp, stdio_ftype, name, NULL);
         o->set(ICI_F_NOCLOSE);
         break;
 
@@ -96,7 +96,7 @@ ici_assign_float(object *o, object *k, double v)
 {
     ici_float  *f;
 
-    if ((f = ici_float_new(v)) == NULL)
+    if ((f = new_float(v)) == NULL)
         return 1;
     if (ici_assign(o, k, f))
         return 1;

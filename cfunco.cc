@@ -27,7 +27,7 @@ namespace ici
  * assigned to cf_arg1 and cf_arg2 respectively.  The returned object has a
  * refernce of 1.
  */
-cfunc *ici_cfunc_new(str *name, int (*func)(...), void *arg1, void *arg2)
+cfunc *new_cfunc(str *name, int (*func)(...), void *arg1, void *arg2)
 {
     cfunc *cf;
 
@@ -107,7 +107,7 @@ objwsup *ici_class_new(cfunc *cf, objwsup *super)
 {
     objwsup       *s;
 
-    if ((s = objwsupof(ici_struct_new())) == NULL)
+    if ((s = objwsupof(new_struct())) == NULL)
         return NULL;
     if (ici_assign_cfuncs(s, cf))
     {

@@ -58,7 +58,7 @@ object * ptr_type::fetch(object *o, object *k)
         return fetch_fail(o, k);
     if (ptrof(o)->p_key == o_zero)
         k->incref();
-    else if ((k = ici_int_new(intof(k)->i_value + intof(ptrof(o)->p_key)->i_value)) == NULL)
+    else if ((k = new_int(intof(k)->i_value + intof(ptrof(o)->p_key)->i_value)) == NULL)
         return NULL;
     o = ici_fetch(ptrof(o)->p_aggr, k);
     k->decref();
@@ -79,7 +79,7 @@ int ptr_type::assign(object *o, object *k, object *v)
         return assign_fail(o, k, v);
     if (ptrof(o)->p_key == o_zero)
         k->incref();
-    else if ((k = ici_int_new(intof(k)->i_value + intof(ptrof(o)->p_key)->i_value)) == NULL)
+    else if ((k = new_int(intof(k)->i_value + intof(ptrof(o)->p_key)->i_value)) == NULL)
         return 1;
     if (ici_assign(ptrof(o)->p_aggr, k, v))
     {
@@ -105,7 +105,7 @@ int ptr_type::call(object *o, object *)
      * Replace ourselves on the operand stack with 'self' (our aggr) and
      * push on the new object being called.
      */
-    if ((os.a_top[-1] = ici_int_new(NARGS() + 1)) == NULL)
+    if ((os.a_top[-1] = new_int(NARGS() + 1)) == NULL)
         return 1;
     (os.a_top[-1])->decref();
     os.a_top[-2] = ptrof(o)->p_aggr;

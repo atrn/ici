@@ -89,7 +89,7 @@ int init()
     objs_top = objs;
     for (i = 0; i < (int)nels(small_ints); ++i)
     {
-        if ((small_ints[i] = ici_int_new(i)) == NULL)
+        if ((small_ints[i] = new_int(i)) == NULL)
         {
             return -1;
         }
@@ -102,11 +102,11 @@ int init()
     }
     pcre_free = ici_free;
     pcre_malloc = (void *(*)(size_t))ici_alloc;
-    if ((scope = ici_struct_new()) == NULL)
+    if ((scope = new_struct()) == NULL)
     {
         return 1;
     }
-    if ((scope->o_super = externs = objwsupof(ici_struct_new())) == NULL)
+    if ((scope->o_super = externs = objwsupof(new_struct())) == NULL)
     {
         return 1;
     }

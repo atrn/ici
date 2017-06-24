@@ -108,7 +108,7 @@ f_channel(...)
     chan = ici_talloc(channel);
     if (chan == NULL)
         return 1;
-    if ((chan->c_q = ici_array_new(capacity ? capacity : 1)) == NULL)
+    if ((chan->c_q = new_array(capacity ? capacity : 1)) == NULL)
     {
         ici_tfree(chan, channel);
         return 1;

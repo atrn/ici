@@ -40,7 +40,7 @@ f_regexp(...)
     }
     if (ICI_CF_ARG2() != NULL)
         opts |= PCRE_CASELESS;
-    return ret_with_decref(ici_regexp_new(stringof(ARG(0)), opts));
+    return ret_with_decref(new_regexp(stringof(ARG(0)), opts));
 }
 
 /*
@@ -161,7 +161,7 @@ static array *do_smash
     str   *ns;
     int    size;
 
-    if ((a = ici_array_new(0)) == NULL)
+    if ((a = new_array(0)) == NULL)
         goto fail;
     for (s = thestr->s_chars, se = s + thestr->s_nchars; ; s = END(0))
     {
@@ -414,7 +414,7 @@ f_sub(...)
         re = regexpof(o);
     else if (!isstring(o))
         return argerror(1);
-    else if ((re = ici_regexp_new(stringof(o), 0)) == NULL)
+    else if ((re = new_regexp(stringof(o), 0)) == NULL)
         return 1;
     if ((rc = do_sub(stringof(thestr), re, repl, &ofs)) == NULL)
         rc = stringof(thestr);
@@ -463,7 +463,7 @@ f_gsub(...)
     {
         if (!isstring(ARG(1)))
             return argerror(1);
-        if ((re = ici_regexp_new(stringof(ARG(1)), 0)) == NULL)
+        if ((re = new_regexp(stringof(ARG(1)), 0)) == NULL)
             return 1;
     }
     else
@@ -535,7 +535,7 @@ f_old_smash()
         strs = ssmash(s, delim);
     if (strs == NULL)
         return 1;
-    if ((sa = ici_array_new(nptrs(strs))) == NULL)
+    if ((sa = new_array(nptrs(strs))) == NULL)
         goto fail;
     for (p = strs; *p != NULL; ++p)
     {
@@ -596,7 +596,7 @@ f_smash(...)
     {
         if (smash_default_re == NULL)
         {
-            if ((smash_default_re = ici_regexp_new(SS(sloshn), 0)) == NULL)
+            if ((smash_default_re = new_regexp(SS(sloshn), 0)) == NULL)
                 return 1;
         }
         re = smash_default_re;

@@ -306,7 +306,7 @@ f_go(...)
      * Now push the number of actuals and the object to call on the
      * new operand stack.
      */
-    if ((*x->x_os->a_top = ici_int_new(NARGS() - 1)) == NULL)
+    if ((*x->x_os->a_top = new_int(NARGS() - 1)) == NULL)
         goto fail;
     (*x->x_os->a_top)->decref();
     ++x->x_os->a_top;

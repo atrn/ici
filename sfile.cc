@@ -239,15 +239,15 @@ file *open_charbuf(char *data, int size, object *ref, int readonly)
         if (isstring(ref))
         {
             if (ref->flags(ICI_O_ATOM|ICI_S_SEP_ALLOC) == ICI_S_SEP_ALLOC)
-                f = ici_file_new((char *)cb, strbuf_ftype, NULL, ref);
+                f = new_file((char *)cb, strbuf_ftype, NULL, ref);
             else if (readonly)
-                f = ici_file_new((char *)cb, charbuf_ftype, NULL, ref);
+                f = new_file((char *)cb, charbuf_ftype, NULL, ref);
             else
                 set_error("attempt to open an atomic string for writing");
         }
         else if (ismem(ref))
         {
-            f = ici_file_new((char *)cb, charbuf_ftype, NULL, ref);
+            f = new_file((char *)cb, charbuf_ftype, NULL, ref);
         }
         else if (!chkbuf(50))
         {
@@ -267,7 +267,7 @@ file *open_charbuf(char *data, int size, object *ref, int readonly)
             {
                 memcpy(cb->cb_data, data, size);
                 cb->cb_ptr = cb->cb_data;
-                f = ici_file_new((char *)cb, charbuf_ftype, NULL, ref);
+                f = new_file((char *)cb, charbuf_ftype, NULL, ref);
                 if (f == NULL)
                     ici_free(cb->cb_data);
             }

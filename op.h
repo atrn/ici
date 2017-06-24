@@ -37,8 +37,6 @@ struct op : object
 inline op *opof(object *o) { return static_cast<op *>(o); }
 inline bool isop(object *o) { return o->isa(ICI_TC_OP); }
 
-op *ici_new_op(int (*func)(), int16_t ecode, int16_t code);
-
 /*
  * Operator codes. These are stored in the op_ecode field and
  * allow direct switching to the appropriate code in the main

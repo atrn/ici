@@ -47,9 +47,9 @@ new_binop(int op, int why)
      * an in-line switch in exec(). The other case is when that blows
      * your compiler away and it is seperated out as a function.
      */
-    o = ici_new_op(NULL, why == FOR_TEMP ? OP_BINOP_FOR_TEMP : OP_BINOP, op);
+    o = new_op(NULL, why == FOR_TEMP ? OP_BINOP_FOR_TEMP : OP_BINOP, op);
 #else
-    o = ici_new_op(op_binop, 0, op);
+    o = new_op(op_binop, 0, op);
 #endif
     if (o == NULL)
     {
@@ -107,7 +107,7 @@ int compile_expr(array *a, expr *e, int why)
             {
                 return 1;
             }
-            if ((a1 = ici_array_new(0)) == NULL)
+            if ((a1 = new_array(0)) == NULL)
             {
                 return 1;
             }
@@ -117,7 +117,7 @@ int compile_expr(array *a, expr *e, int why)
                 return 1;
             }
             *a1->a_top++ = &o_end;
-            if ((a2 = ici_array_new(0)) == NULL)
+            if ((a2 = new_array(0)) == NULL)
             {
                 a1->decref();
                 return 1;
@@ -157,7 +157,7 @@ int compile_expr(array *a, expr *e, int why)
             {
                 return 1;
             }
-            if ((*a->a_top = ici_new_op(NULL, OP_SWAP, NOTTEMP(why))) == NULL)
+            if ((*a->a_top = new_op(NULL, OP_SWAP, NOTTEMP(why))) == NULL)
             {
                 return 1;
             }
@@ -186,7 +186,7 @@ int compile_expr(array *a, expr *e, int why)
                 {
                     return 1;
                 }
-                if ((*a->a_top = ici_new_op(NULL, OP_ASSIGNLOCALVAR, NOTTEMP(why))) == NULL)
+                if ((*a->a_top = new_op(NULL, OP_ASSIGNLOCALVAR, NOTTEMP(why))) == NULL)
                 {
                     return 1;
                 }
@@ -204,7 +204,7 @@ int compile_expr(array *a, expr *e, int why)
                 {
                     return 1;
                 }
-                if ((*a->a_top = ici_new_op(NULL, OP_ASSIGN_TO_NAME, NOTTEMP(why))) == NULL)
+                if ((*a->a_top = new_op(NULL, OP_ASSIGN_TO_NAME, NOTTEMP(why))) == NULL)
                 {
                     return 1;
                 }
@@ -225,7 +225,7 @@ int compile_expr(array *a, expr *e, int why)
             {
                 return 1;
             }
-            if ((*a->a_top = ici_new_op(NULL, e->e_what == T_EQ ? OP_ASSIGN : OP_ASSIGNLOCAL, NOTTEMP(why))) == NULL)
+            if ((*a->a_top = new_op(NULL, e->e_what == T_EQ ? OP_ASSIGN : OP_ASSIGNLOCAL, NOTTEMP(why))) == NULL)
             {
                 return 1;
             }
@@ -260,7 +260,7 @@ int compile_expr(array *a, expr *e, int why)
                 return 1;
             }
             ++a->a_top;
-            if ((*a->a_top = ici_new_op(NULL, OP_ASSIGN, NOTTEMP(why))) == NULL)
+            if ((*a->a_top = new_op(NULL, OP_ASSIGN, NOTTEMP(why))) == NULL)
             {
                 return 1;
             }
@@ -280,7 +280,7 @@ int compile_expr(array *a, expr *e, int why)
             {
                 return 1;
             }
-            if ((a1 = ici_array_new(0)) == NULL)
+            if ((a1 = new_array(0)) == NULL)
             {
                 return 1;
             }
@@ -355,7 +355,7 @@ int compile_expr(array *a, expr *e, int why)
             {
                 array *a1;
 
-                if ((a1 = ici_array_new(0)) == NULL)
+                if ((a1 = new_array(0)) == NULL)
                 {
                     return 1;
                 }
@@ -451,7 +451,7 @@ int compile_expr(array *a, expr *e, int why)
                     return 1;
                 }
                 ++a->a_top;
-                if ((*a->a_top = ici_new_op(NULL, OP_ASSIGN, FOR_EFFECT)) == NULL)
+                if ((*a->a_top = new_op(NULL, OP_ASSIGN, FOR_EFFECT)) == NULL)
                 {
                     return 1;
                 }
@@ -479,7 +479,7 @@ int compile_expr(array *a, expr *e, int why)
                     return 1;
                 }
                 ++a->a_top;
-                if ((*a->a_top = ici_new_op(NULL, OP_ASSIGN, NOTTEMP(why))) == NULL)
+                if ((*a->a_top = new_op(NULL, OP_ASSIGN, NOTTEMP(why))) == NULL)
                 {
                     return 1;
                 }
@@ -534,7 +534,7 @@ int compile_expr(array *a, expr *e, int why)
             {
                 return 1;
             }
-            if ((*a->a_top = ici_new_op(op_unary, 0, t_subtype(e->e_what))) == NULL)
+            if ((*a->a_top = new_op(op_unary, 0, t_subtype(e->e_what))) == NULL)
             {
                 return 1;
             }
@@ -555,7 +555,7 @@ int compile_expr(array *a, expr *e, int why)
             {
                 return 1;
             }
-            if ((*a->a_top = ici_new_op(NULL, OP_AT, 0)) == NULL)
+            if ((*a->a_top = new_op(NULL, OP_AT, 0)) == NULL)
             {
                 return 1;
             }
@@ -649,7 +649,7 @@ int compile_expr(array *a, expr *e, int why)
             {
                 return 1;
             }
-            *a->a_top = ici_new_op
+            *a->a_top = new_op
                 (
                     NULL,
                     OP_COLON,
@@ -748,7 +748,7 @@ int compile_expr(array *a, expr *e, int why)
                 {
                     return 1;
                 }
-                if ((*a->a_top = ici_int_new(nargs)) == NULL)
+                if ((*a->a_top = new_int(nargs)) == NULL)
                 {
                     return 1;
                 }

@@ -33,7 +33,7 @@ int op_unary()
     case t_subtype(T_TILDE):
         if (!isint(os.a_top[-1]))
             goto fail;
-        if ((i = ici_int_new(~intof(os.a_top[-1])->i_value)) == NULL)
+        if ((i = new_int(~intof(os.a_top[-1])->i_value)) == NULL)
             return 1;
         os.a_top[-1] = i;
         i->decref();

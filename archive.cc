@@ -112,7 +112,7 @@ archive *archive::start(file *f, objwsup *scope)
     if (ar != NULL)
     {
         ICI_OBJ_SET_TFNZ(ar, ICI_TC_ARCHIVE, 0, 1, 0);
-        if ((ar->a_sent = ici_struct_new()) == NULL)
+        if ((ar->a_sent = new_struct()) == NULL)
         {
             ici_tfree(ar, archive);
             return NULL;
@@ -127,7 +127,7 @@ archive *archive::start(file *f, objwsup *scope)
 
 inline object *make_key(object *obj)
 {
-    return ici_int_new((int64_t)obj);
+    return new_int((int64_t)obj);
 }
 
 int archive::insert(object *key, object *val)

@@ -33,7 +33,7 @@ int     re_nbra;
  *
  * Returns NULL on error, usual conventions.
  */
-regexp *ici_regexp_new(str *s, int flags)
+regexp *new_regexp(str *s, int flags)
 {
     regexp     *r;
     pcre       *re;
@@ -165,7 +165,7 @@ object *regexp_type::fetch(object *o, object *k)
         ici_int   *io;
 
         pcre_info(regexpof(o)->r_re, &options, NULL);
-        if ((io = ici_int_new(options)) == NULL)
+        if ((io = new_int(options)) == NULL)
             return NULL;
         io->decref();
         return io;

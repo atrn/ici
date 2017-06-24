@@ -210,7 +210,7 @@ ident_list(parse *p)
 {
     array *a;
 
-    if ((a = ici_array_new(0)) == NULL)
+    if ((a = new_array(0)) == NULL)
     {
         return NULL;
     }
@@ -274,11 +274,11 @@ function(parse *p, str *name)
         not_followed_by("ident ( [args]", "\")\"");
         goto fail;
     }
-    if ((f = ici_new_func()) == NULL)
+    if ((f = new_func()) == NULL)
     {
         goto fail;
     }
-    if ((f->f_autos = ici_struct_new()) == NULL)
+    if ((f->f_autos = new_struct()) == NULL)
     {
         goto fail;
     }
@@ -452,7 +452,7 @@ compound_statement(parse *p, ici_struct *sw)
         reject(p);
         return 0;
     }
-    if ((a = ici_array_new(0)) == NULL)
+    if ((a = new_array(0)) == NULL)
     {
         goto fail;
     }
@@ -571,7 +571,7 @@ primary(parse *p, expr **ep, int exclude)
     {
     case T_INT:
         e->e_what = T_INT;
-        if ((e->e_obj = ici_int_new(p->p_got.t_int)) == NULL)
+        if ((e->e_obj = new_int(p->p_got.t_int)) == NULL)
         {
             goto fail;
         }
@@ -579,7 +579,7 @@ primary(parse *p, expr **ep, int exclude)
 
     case T_FLOAT:
         e->e_what = T_FLOAT;
-        if ((e->e_obj = ici_float_new(p->p_got.t_float)) == NULL)
+        if ((e->e_obj = new_float(p->p_got.t_float)) == NULL)
         {
             goto fail;
         }
@@ -625,7 +625,7 @@ primary(parse *p, expr **ep, int exclude)
         reject(p);
         if (token == T_REGEXP)
         {
-            e->e_obj = ici_regexp_new(stringof(o), 0);
+            e->e_obj = new_regexp(stringof(o), 0);
             o->decref();
             if (e->e_obj == NULL)
             {
@@ -686,7 +686,7 @@ primary(parse *p, expr **ep, int exclude)
         if (p->p_got.t_obj == SS(array))
         {
             p->p_got.t_obj->decref();
-            if ((a = ici_array_new(0)) == NULL)
+            if ((a = new_array(0)) == NULL)
             {
                 goto fail;
             }
@@ -798,7 +798,7 @@ primary(parse *p, expr **ep, int exclude)
             }
             if (d == NULL)
             {
-                if ((d = ici_struct_new()) == NULL)
+                if ((d = new_struct()) == NULL)
                 {
                     goto fail;
                 }
@@ -820,7 +820,7 @@ primary(parse *p, expr **ep, int exclude)
             {
                 ici_struct    *autos;
 
-                if ((autos = ici_struct_new()) == NULL)
+                if ((autos = new_struct()) == NULL)
                 {
                     d->decref();
                     goto fail;
@@ -850,7 +850,7 @@ primary(parse *p, expr **ep, int exclude)
                  * A class definition operates within the scope context of
                  * the class. Create autos with the new struct as the super.
                  */
-                if ((autos = ici_struct_new()) == NULL)
+                if ((autos = new_struct()) == NULL)
                 {
                     d->decref();
                     goto fail;
@@ -1053,7 +1053,7 @@ primary(parse *p, expr **ep, int exclude)
                     goto fail_user_parse;
                 }
             }
-            f = ici_file_new(p, parse_ftype, p->p_file->f_name, p);
+            f = new_file(p, parse_ftype, p->p_file->f_name, p);
             if (f == NULL)
                 goto fail_user_parse;
             c->incref();
@@ -1520,7 +1520,7 @@ const_expression(parse *p, object **po, int exclude)
         free_expr(e);
         return 1;
     }
-    if ((a = ici_array_new(0)) == NULL)
+    if ((a = new_array(0)) == NULL)
     {
         goto fail;
     }
@@ -1701,7 +1701,7 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
                  */
                 --stepz;
             }
-            if ((i = ici_int_new((long)stepz)) == NULL)
+            if ((i = new_int((long)stepz)) == NULL)
             {
                 o->decref();
                 return -1;
@@ -1747,7 +1747,7 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
                  */
                 --stepz;
             }
-            if ((i = ici_int_new((long)stepz)) == NULL)
+            if ((i = new_int((long)stepz)) == NULL)
             {
                 return -1;
             }
@@ -1766,7 +1766,7 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
             {
                 return -1;
             }
-            if ((a1 = ici_array_new(0)) == NULL)
+            if ((a1 = new_array(0)) == NULL)
             {
                 return -1;
             }
@@ -1784,7 +1784,7 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
             {
                 curtok = T_NONE; /* Take ownership of name. */
                 p->p_got.t_obj->decref();
-                if ((a2 = ici_array_new(0)) == NULL)
+                if ((a2 = new_array(0)) == NULL)
                 {
                     a1->decref();
                     return -1;
@@ -1827,7 +1827,7 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
         if (p->p_got.t_obj == SS(while))
         {
             p->p_got.t_obj->decref();
-            if ((a1 = ici_array_new(0)) == NULL)
+            if ((a1 = new_array(0)) == NULL)
             {
                 return -1;
             }
@@ -1872,7 +1872,7 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
         if (p->p_got.t_obj == SS(do))
         {
             p->p_got.t_obj->decref();
-            if ((a1 = ici_array_new(0)) == NULL)
+            if ((a1 = new_array(0)) == NULL)
             {
                 return -1;
             }
@@ -1990,7 +1990,7 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
                 reject(p);
                 return not_followed_by("forall (expr [, expr] in expr", "\")\"");
             }
-            if ((a1 = ici_array_new(0)) == NULL)
+            if ((a1 = new_array(0)) == NULL)
             {
                 return -1;
             }
@@ -2012,7 +2012,7 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
             }
             *a->a_top++ = a1;
             a1->decref();
-            if ((*a->a_top = ici_new_op(op_forall, 0, 0)) == NULL)
+            if ((*a->a_top = new_op(op_forall, 0, 0)) == NULL)
             {
                 return -1;
             }
@@ -2055,7 +2055,7 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
             /*
              * a1 is the body of the loop.  Get the step expression.
              */
-            if ((a1 = ici_array_new(0)) == NULL)
+            if ((a1 = new_array(0)) == NULL)
             {
                 return -1;
             }
@@ -2115,7 +2115,7 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
             }
             *a->a_top++ = a1;
             a1->decref();
-            if ((*a->a_top = ici_new_op(op_for, 0, stepz)) == NULL)
+            if ((*a->a_top = new_op(op_for, 0, stepz)) == NULL)
             {
                 return -1;
             }
@@ -2130,7 +2130,7 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
             {
                 return -1;
             }
-            if ((d = ici_struct_new()) == NULL)
+            if ((d = new_struct()) == NULL)
             {
                 return -1;
             }
@@ -2232,7 +2232,7 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
         if (p->p_got.t_obj == SS(try))
         {
             p->p_got.t_obj->decref();
-            if ((a1 = ici_array_new(0)) == NULL)
+            if ((a1 = new_array(0)) == NULL)
             {
                 return -1;
             }
@@ -2249,7 +2249,7 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
             }
             curtok = T_NONE; /* Take ownership of name. */
             p->p_got.t_obj->decref();
-            if ((a2 = ici_array_new(0)) == NULL)
+            if ((a2 = new_array(0)) == NULL)
             {
                 return -1;
             }
@@ -2283,7 +2283,7 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
             {
                 return -1;
             }
-            if ((a1 = ici_array_new(1)) == NULL)
+            if ((a1 = new_array(1)) == NULL)
             {
                 return -1;
             }
@@ -2311,7 +2311,7 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
             {
                 return -1;
             }
-            if ((a1 = ici_array_new(2)) == NULL)
+            if ((a1 = new_array(2)) == NULL)
             {
                 return -1;
             }
@@ -2326,7 +2326,7 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
             {
                 return -1;
             }
-            if ((a2 = ici_array_new(2)) == NULL)
+            if ((a2 = new_array(2)) == NULL)
             {
                 return -1;
             }
@@ -2453,7 +2453,7 @@ int parse_file(file *f, objwsup *s)
     struct parse  *p;
     object *o;
 
-    if ((p = ici_new_parse(f)) == NULL)
+    if ((p = new_parse(f)) == NULL)
     {
         return -1;
     }
@@ -2497,12 +2497,12 @@ int parse_file(const char *mname, char *fileo, ftype *ftype)
 
     a = NULL;
     f = NULL;
-    if ((f = ici_file_new(fileo, ftype, ici_str_get_nul_term(mname), NULL)) == NULL)
+    if ((f = new_file(fileo, ftype, ici_str_get_nul_term(mname), NULL)) == NULL)
     {
         goto fail;
     }
 
-    if ((a = objwsupof(ici_struct_new())) == NULL)
+    if ((a = objwsupof(new_struct())) == NULL)
     {
         goto fail;
     }
@@ -2510,7 +2510,7 @@ int parse_file(const char *mname, char *fileo, ftype *ftype)
     {
         goto fail;
     }
-    if ((a->o_super = s = objwsupof(ici_struct_new())) == NULL)
+    if ((a->o_super = s = objwsupof(new_struct())) == NULL)
     {
         goto fail;
     }
@@ -2568,7 +2568,7 @@ int parse_exec()
     parse *p;
     array *a;
 
-    if ((a = ici_array_new(0)) == NULL)
+    if ((a = new_array(0)) == NULL)
     {
         return 1;
     }
@@ -2587,7 +2587,7 @@ int parse_exec()
 #           if DISASSEMBLE
             disassemble(4, a);
 #           endif
-            ici_get_pc(a, xs.a_top);
+            get_pc(a, xs.a_top);
             ++xs.a_top;
             a->decref();
             return 0;
@@ -2622,7 +2622,7 @@ int parse_exec()
     }
 }
 
-parse *ici_new_parse(file *f)
+parse *new_parse(file *f)
 {
     parse    *p;
 
@@ -2724,23 +2724,24 @@ static int
 f_parseopen(...)
 {
     file  *f;
-    file  *p;
-    parse *parse;
+    file  *pf;
+    parse *p;
 
     if (typecheck("u", &f))
     {
 	return 1;
     }
-    if ((parse = ici_new_parse(f)) == NULL)
+    if ((p = new_parse(f)) == NULL)
     {
 	return 1;
     }
-    if ((p = ici_file_new((char *)parse, parse_ftype, f->f_name, NULL)) == NULL)
+    if ((pf = new_file((char *)p, parse_ftype, f->f_name, NULL)) == NULL)
     {
-        parse->decref();
+        p->decref();
 	return 1;
     }
-    return ret_with_decref(p);
+    p->decref();
+    return ret_with_decref(pf);
 }
 
 static int

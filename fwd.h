@@ -282,18 +282,18 @@ extern exec          *new_exec();
 extern src           *new_src(int, str *);
 extern ptr           *new_ptr(object *, object *);
 extern set           *new_set();
+extern array         *new_array(ptrdiff_t);
+extern ici_struct    *new_struct();
+extern ici_int       *new_int(int64_t);
+extern ici_float     *new_float(double);
+extern file          *new_file(void *, ftype *, str *, object *);
+extern mem           *new_mem(void *, size_t, int, void (*)(void *));
+extern regexp        *new_regexp(str *, int);
 
-extern str           *ici_str_new(const char *, size_t);
-extern regexp        *ici_regexp_new(str *, int);
-extern array         *ici_array_new(ptrdiff_t);
-extern mem           *ici_mem_new(void *, size_t, int, void (*)(void *));
 extern str           *ici_str_alloc(size_t);
+extern str           *ici_str_new(const char *, size_t);
 extern str           *ici_str_new_nul_term(const char *);
 extern str           *ici_str_get_nul_term(const char *);
-extern ici_struct    *ici_struct_new();
-extern ici_float     *ici_float_new(double);
-extern file          *ici_file_new(void *, ftype *, str *, object *);
-extern ici_int       *ici_int_new(int64_t);
 
 extern int            check_interface(unsigned long, unsigned long, char const *);
 
@@ -416,12 +416,13 @@ extern sslot          *find_raw_slot(ici_struct *, object *);
 extern object         *atom_probe2(object *, object ***);
 extern int             parse_exec();
 
-extern parse          *ici_new_parse(file *);
-extern catcher        *ici_new_catcher(object *, int, int, int);
-extern func           *ici_new_func();
-extern op             *ici_new_op(int (*)(), int16_t, int16_t);
-extern pc             *ici_new_pc();
-extern cfunc          *ici_cfunc_new(str *, int (*)(...), void *, void *);
+extern catcher        *new_catcher(object *, int, int, int);
+extern cfunc          *new_cfunc(str *, int (*)(...), void *, void *);
+extern pc             *new_pc();
+extern func           *new_func();
+extern op             *new_op(int (*)(), int16_t, int16_t);
+
+extern parse          *new_parse(file *);
 
 extern catcher        *unwind();
 

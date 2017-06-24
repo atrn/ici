@@ -73,7 +73,7 @@ buildxx(object **r, object **dnext, struct context *c)
         switch (c->c_option)
         {
         case 'i':
-            if ((*r = ici_int_new(c->c_ccount)) == NULL)
+            if ((*r = new_int(c->c_ccount)) == NULL)
                 return 1;
             c->c_ccount += c->c_cstep;
             break;
@@ -132,7 +132,7 @@ buildxx(object **r, object **dnext, struct context *c)
          * recursively fill it based on the next dimension or content.
          */
         n = intof(*dnext)->i_value;
-        if ((a = ici_array_new(n)) == NULL)
+        if ((a = new_array(n)) == NULL)
             return 1;
         for (i = 0; i < n; ++i)
         {
@@ -159,7 +159,7 @@ buildxx(object **r, object **dnext, struct context *c)
          * with the next dimension or content.
          */
         a = arrayof(*dnext);
-        if ((s = ici_struct_new()) == NULL)
+        if ((s = new_struct()) == NULL)
             return 1;
         for (e = a->astart(); e != a->alimit(); e = a->anext(e))
         {

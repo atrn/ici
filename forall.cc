@@ -67,7 +67,7 @@ int exec_forall()
     switch (t->forall(fa))
     {
     case 0:
-        ici_get_pc(arrayof(fa->fa_code), xs.a_top);
+        get_pc(arrayof(fa->fa_code), xs.a_top);
         ++xs.a_top;
         return 0;
 

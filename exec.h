@@ -185,7 +185,7 @@ inline bool isfalse(object *o) { return isnull(o) || o == o_zero; }
  * End of ici.h export. --ici.h-end--
  */
 
-#define ici_get_pc(code, x) \
+#define get_pc(code, x) \
     (*(x) = ex->x_pc_closet->a_base[(x) - xs.a_base], \
     pcof(*(x))->pc_code = code, \
     pcof(*(x))->pc_next = pcof(*(x))->pc_code->a_base)

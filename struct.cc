@@ -63,8 +63,7 @@ find_raw_slot(ici_struct *s, object *k)
  *
  * This --func-- forms part of the --ici-api--.
  */
-ici_struct *
-ici_struct_new()
+ici_struct *new_struct()
 {
     ici_struct   *s;
 

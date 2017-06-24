@@ -20,7 +20,7 @@ namespace ici
  *
  * This --func-- forms part of the --ici-api--.
  */
-mem *ici_mem_new(void *base, size_t length, int accessz, void (*free_func)(void *))
+mem *new_mem(void *base, size_t length, int accessz, void (*free_func)(void *))
 {
     mem  *m;
 
@@ -132,7 +132,7 @@ object * mem_type::fetch(object *o, object *k)
         i = ((int64_t *)memof(o)->m_base)[i];
         break;
     }
-    o = ici_int_new(i);
+    o = new_int(i);
     o->decref();
     return o;
 }

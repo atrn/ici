@@ -349,7 +349,7 @@ int retcheck(const char *types, ...)
             break;
 
         case 'i':
-            if ((s = ici_int_new(*(long *)aptr)) == NULL)
+            if ((s = new_int(*(long *)aptr)) == NULL)
                 goto ret1;
             if (ici_assign(o, o_zero, s))
                 goto ret1;
@@ -365,7 +365,7 @@ int retcheck(const char *types, ...)
             break;
 
         case 'f':
-            if ((s = ici_float_new(*(double *)aptr)) == NULL)
+            if ((s = new_float(*(double *)aptr)) == NULL)
                 goto ret1;
             if (ici_assign(o, o_zero, s))
                 goto ret1;
@@ -528,7 +528,7 @@ argcount2(int m, int n)
  * This is suitable for using as a return from an intrinsic function
  * as say:
  *
- *      return ret_with_decref(ici_int_new(2));
+ *      return ret_with_decref(new_int(2));
  *
  * (Although see int_ret().) If the object you wish to return does
  * not have an extra reference, use ret_no_decref().
@@ -582,7 +582,7 @@ ret_no_decref(object *o)
 int
 int_ret(int64_t ret)
 {
-    return ret_with_decref(ici_int_new(ret));
+    return ret_with_decref(new_int(ret));
 }
 
 /*
@@ -596,7 +596,7 @@ int_ret(int64_t ret)
 int
 float_ret(double ret)
 {
-    return ret_with_decref(ici_float_new(ret));
+    return ret_with_decref(new_float(ret));
 }
 
 /*
@@ -765,7 +765,7 @@ f_array(...)
     object  **o;
 
     nargs = NARGS();
-    if ((a = ici_array_new(nargs)) == NULL)
+    if ((a = new_array(nargs)) == NULL)
         return 1;
     for (o = ARGS(); nargs > 0; --nargs)
         *a->a_top++ = *o--;
@@ -793,7 +793,7 @@ f_struct()
         --nargs;
         --o;
     }
-    if ((s = ici_struct_new()) == NULL)
+    if ((s = new_struct()) == NULL)
         return 1;
     for (; nargs >= 2; nargs -= 2, o -= 2)
     {
@@ -839,7 +839,7 @@ f_keys()
         ici_struct *s = structof(ARG(0));
         sslot *sl;
 
-        if ((k = ici_array_new(s->s_nels)) == NULL)
+        if ((k = new_array(s->s_nels)) == NULL)
             return 1;
         for (sl = s->s_slots; sl < s->s_slots + s->s_nslots; ++sl)
         {
@@ -852,7 +852,7 @@ f_keys()
         set *s = setof(ARG(0));
         size_t i;
 
-        if ((k = ici_array_new(s->s_nels)) == NULL)
+        if ((k = new_array(s->s_nels)) == NULL)
             return 1;
         for (i = 0; i < s->s_nslots; ++i)
         {
@@ -1123,9 +1123,9 @@ f_parse()
     case 1:
         if (typecheck("o", &o))
             return 1;
-        if ((a = ici_struct_new()) == NULL)
+        if ((a = new_struct()) == NULL)
             return 1;
-        if ((a->o_super = objwsupof(s = ici_struct_new())) == NULL)
+        if ((a->o_super = objwsupof(s = new_struct())) == NULL)
         {
             a->decref();
             return 1;
@@ -1280,7 +1280,7 @@ f_call()
     base = &ARG(NARGS() - 1);
     if (aa != NULL)
         aa = arrayof(*base);
-    if ((nargso = ici_int_new(nargs)) == NULL)
+    if ((nargso = new_int(nargs)) == NULL)
         goto fail;
     /*
      * First move the arguments that we want to keep up to the stack
@@ -1492,7 +1492,7 @@ f_interval()
     }
     else
     {
-        if ((a1 = ici_array_new(length)) == NULL)
+        if ((a1 = new_array(length)) == NULL)
             return 1;
         a->gather(a1->a_base, start, length);
         a1->a_top += length;
@@ -1510,11 +1510,11 @@ f_explode()
     if (typecheck("s", &s))
         return 1;
     i = stringof(ARG(0))->s_nchars;
-    if ((x = ici_array_new(i)) == NULL)
+    if ((x = new_array(i)) == NULL)
         return 1;
     while (--i >= 0)
     {
-        if ((*x->a_top = ici_int_new(*s++ & 0xFFL)) == NULL)
+        if ((*x->a_top = new_int(*s++ & 0xFFL)) == NULL)
         {
             x->decref();
             return 1;
@@ -1939,7 +1939,7 @@ f_currentfile()
         {
             if (raw)
                 return ret_no_decref(parseof(*o)->p_file);
-            f = ici_file_new(*o, parse_ftype, parseof(*o)->p_file->f_name, *o);
+            f = new_file(*o, parse_ftype, parseof(*o)->p_file->f_name, *o);
             if (f == NULL)
                 return 1;
             return ret_with_decref(f);
@@ -2152,7 +2152,7 @@ f_alloc()
     if ((p = (char *)ici_alloc((size_t)length * accessz)) == NULL)
         return 1;
     memset(p, 0, (size_t)length * accessz);
-    return ret_with_decref(ici_mem_new(p, (unsigned long)length, accessz, ici_free));
+    return ret_with_decref(new_mem(p, (unsigned long)length, accessz, ici_free));
 }
 
 #ifndef NOMEM
@@ -2183,7 +2183,7 @@ f_mem()
     }
     else
         accessz = 1;
-    return ret_with_decref(ici_mem_new((char *)base, (unsigned long)length, accessz, NULL));
+    return ret_with_decref(new_mem((char *)base, (unsigned long)length, accessz, NULL));
 }
 #endif
 
@@ -2423,7 +2423,7 @@ fast_gettokens(const char *str, const char *delims)
     int         k       = 0;
     const char *cp     = str;
 
-    if ((a = ici_array_new(0)) == NULL)
+    if ((a = new_array(0)) == NULL)
         return 1;
     while (*cp)
     {
@@ -2580,7 +2580,7 @@ f_gettokens()
 #define W_DELIM 4
 
     state = S_IDLE;
-    if ((a = ici_array_new(0)) == NULL)
+    if ((a = new_array(0)) == NULL)
         goto fail;
     for (;;)
     {
@@ -2959,7 +2959,7 @@ f_calendar()
          */
         t = epoch_time + (time_t)floatof(ARG(0))->f_value;
         tm = localtime(&t);
-        if ((s = objwsupof(ici_struct_new())) == NULL)
+        if ((s = objwsupof(new_struct())) == NULL)
             return 1;
         if
         (
@@ -3559,7 +3559,7 @@ f_fopen()
         return get_last_errno("open", name);
     }
     enter(x);
-    if ((f = ici_file_new((char *)stream, stdio_ftype, stringof(ARG(0)), NULL)) == NULL)
+    if ((f = new_file((char *)stream, stdio_ftype, stringof(ARG(0)), NULL)) == NULL)
     {
         fclose(stream);
         return 1;
@@ -3618,7 +3618,7 @@ f_popen()
         return get_last_errno("popen", name);
     }
     enter(x);
-    if ((f = ici_file_new((char *)stream, popen_ftype, stringof(ARG(0)), NULL)) == NULL)
+    if ((f = new_file((char *)stream, popen_ftype, stringof(ARG(0)), NULL)) == NULL)
     {
         pclose(stream);
         return 1;
@@ -3876,7 +3876,7 @@ f_dir()
             return set_error("bad directory format specifier");
         }
     }
-    if ((a = ici_array_new(0)) == NULL)
+    if ((a = new_array(0)) == NULL)
         return 1;
     if ((dir = opendir(path)) == NULL)
     {

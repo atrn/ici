@@ -100,7 +100,7 @@ call_signal_handler(object *func, int signo)
 
     if (os.stk_push_chk(3 + 80)) /* see comment in ici/call.c */
         return 1;
-    if ((isigno = ici_int_new(signo)) == NULL)
+    if ((isigno = new_int(signo)) == NULL)
         return 1;
     *os.a_top++ = isigno;
     isigno->decref();

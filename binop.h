@@ -429,7 +429,7 @@
             o = ici_null;
             USEo();
         }
-        if ((o = ici_array_new(re_nbra)) == NULL)
+        if ((o = new_array(re_nbra)) == NULL)
         {
             FAIL();
         }
@@ -476,7 +476,7 @@
         {
             object   *i;
 
-            if ((i = ici_int_new(intof(ptrof(o0)->p_key)->i_value - intof(o1)->i_value)) == NULL)
+            if ((i = new_int(intof(ptrof(o0)->p_key)->i_value - intof(o1)->i_value)) == NULL)
             {
                 FAIL();
             }
@@ -504,7 +504,7 @@
         {
             object   *i;
 
-            if ((i = ici_int_new(intof(ptrof(o0)->p_key)->i_value + intof(o1)->i_value)) == NULL)
+            if ((i = new_int(intof(ptrof(o0)->p_key)->i_value + intof(o1)->i_value)) == NULL)
             {
                 FAIL();
             }
@@ -536,7 +536,7 @@
 
             z0 = arrayof(o0)->len();
             z1 = arrayof(o1)->len();
-            if ((a = ici_array_new(z0 + z1)) == NULL)
+            if ((a = new_array(z0 + z1)) == NULL)
             {
                 FAIL();
             }
@@ -691,7 +691,7 @@
         {
             MISMATCH();
         }
-        if ((o = ici_int_new(intof(ptrof(o0)->p_key)->i_value - intof(ptrof(o1)->p_key)->i_value)) == NULL)
+        if ((o = new_int(intof(ptrof(o0)->p_key)->i_value - intof(ptrof(o1)->p_key)->i_value)) == NULL)
         {
               FAIL();
         }
@@ -869,7 +869,7 @@ usef:
      * The following in-line expansion of float creation replaces, and
      * this should be equivalent to, this old code:
      *
-     * if ((o = ici_float_new(f)) == NULL)
+     * if ((o = new_float(f)) == NULL)
      *     FAIL();
      * LOOSEo();
      */

@@ -379,7 +379,7 @@ static int ici_sys_fdopen()
         return 1;
     }
     setvbuf(stream, NULL, _IOLBF, 0);
-    if ((f = ici_file_new((char *)stream, stdio_ftype, NULL, NULL)) == NULL)
+    if ((f = new_file((char *)stream, stdio_ftype, NULL, NULL)) == NULL)
     {
         fclose(stream);
         return 1;
@@ -858,10 +858,10 @@ static int ici_sys_stat()
         return argerror(0);
     if (rc == -1)
         return sys_ret(rc);
-    if ((s = ici_struct_new()) == NULL)
+    if ((s = new_struct()) == NULL)
         return 1;
 #define SETFIELD(x)                                     \
-    if ((o = ici_int_new(statb.st_ ##x)) == NULL)       \
+    if ((o = new_int(statb.st_ ##x)) == NULL)       \
         goto fail;                                      \
     else if (ici_assign(s, SS(x), o))                  \
     {                                                   \
@@ -922,10 +922,10 @@ static int ici_sys_lstat()
         return argerror(0);
     if (rc == -1)
         return sys_ret(rc);
-    if ((s = ici_struct_new()) == NULL)
+    if ((s = new_struct()) == NULL)
         return 1;
 #define SETFIELD(x)                                     \
-    if ((o = ici_int_new(statb.st_ ##x)) == NULL)       \
+    if ((o = new_int(statb.st_ ##x)) == NULL)       \
         goto fail;                                      \
     else if (ici_assign(s, SS(x), o))                  \
     {                                                   \
@@ -1006,9 +1006,9 @@ assign_timeval(ici_struct *s, str *k, struct timeval *tv)
 
     if (k == NULL)
         ss = s;
-    else if ((ss = ici_struct_new()) == NULL)
+    else if ((ss = new_struct()) == NULL)
         return 1;
-    if ((i = ici_int_new(tv->tv_usec)) == NULL)
+    if ((i = new_int(tv->tv_usec)) == NULL)
         goto fail;
     if (ici_assign(ss, SS(usec), i))
     {
@@ -1016,7 +1016,7 @@ assign_timeval(ici_struct *s, str *k, struct timeval *tv)
         goto fail;
     }
     i->decref();
-    if ((i = ici_int_new(tv->tv_sec)) == NULL)
+    if ((i = new_int(tv->tv_sec)) == NULL)
         goto fail;
     if (ici_assign(ss, SS(sec), i))
     {
@@ -1078,7 +1078,7 @@ static int ici_sys_getitimer()
     }
     if (getitimer(which, &value) == -1)
         return sys_ret(-1);
-    if ((s = ici_struct_new()) == NULL)
+    if ((s = new_struct()) == NULL)
         return 1;
     if
     (
@@ -1163,7 +1163,7 @@ static int ici_sys_setitimer()
         goto invalid_itimerval;
     if (setitimer(which, &value, &ovalue) == -1)
         return sys_ret(-1);
-    if ((s = ici_struct_new()) == NULL)
+    if ((s = new_struct()) == NULL)
         return 1;
     if
     (
@@ -1199,7 +1199,7 @@ static int ici_sys_gettimeofday()
 
     if (gettimeofday(&tv, NULL) == -1)
         return sys_ret(-1);
-    if ((s = ici_struct_new()) == NULL)
+    if ((s = new_struct()) == NULL)
         return 1;
     if (assign_timeval(s, NULL, &tv))
     {
@@ -1263,18 +1263,18 @@ static int ici_sys_pipe()
     array     *a;
     ici_int   *fd;
 
-    if ((a = ici_array_new(2)) == NULL)
+    if ((a = new_array(2)) == NULL)
         return 1;
     if (pipe(pfd) == -1)
     {
         a->decref();
         return sys_ret(-1);
     }
-    if ((fd = ici_int_new(pfd[0])) == NULL)
+    if ((fd = new_int(pfd[0])) == NULL)
         goto fail;
     *a->a_top++ = fd;
     fd->decref();
-    if ((fd = ici_int_new(pfd[1])) == NULL)
+    if ((fd = new_int(pfd[1])) == NULL)
         goto fail;
     *a->a_top++ = fd;
     fd->decref();
@@ -1604,9 +1604,9 @@ static int ici_sys_wait()
 
     if ((pid = wait(&status)) < 0)
         return sys_ret(-1);
-    if ((s = ici_struct_new()) == NULL)
+    if ((s = new_struct()) == NULL)
         return 1;
-    if ((i = ici_int_new(pid)) == NULL)
+    if ((i = new_int(pid)) == NULL)
         goto fail;
     if (ici_assign(s, SS(pid), i))
     {
@@ -1614,7 +1614,7 @@ static int ici_sys_wait()
         goto fail;
     }
     i->decref();
-    if ((i = ici_int_new(status)) == NULL)
+    if ((i = new_int(status)) == NULL)
         goto fail;
     if (ici_assign(s, SS(status), i))
     {
@@ -1690,7 +1690,7 @@ static int ici_sys_passwd()
         return argcount(1);
     }
 
-    if ((a = ici_array_new(0)) == NULL)
+    if ((a = new_array(0)) == NULL)
         return 1;
     setpwent();
     while ((pwent = getpwent()) != NULL)
@@ -1716,11 +1716,11 @@ password_struct(struct passwd *pwent)
 
     if (pwent == NULL)
         return NULL;
-    if ((d = ici_struct_new()) != NULL)
+    if ((d = new_struct()) != NULL)
     {
 
 #define SET_INT_FIELD(x)                                \
-        if ((o = ici_int_new(pwent->pw_ ##x)) == NULL)  \
+        if ((o = new_int(pwent->pw_ ##x)) == NULL)  \
             goto fail;                                  \
         else if (ici_assign(d, SS(x), o))              \
         {                                               \
@@ -2001,9 +2001,9 @@ static int ici_sys_getrlimit()
     if (getrlimit(resource, &rlimit) < 0)
         return sys_ret(-1);
 
-    if ((limit = ici_struct_new()) == NULL)
+    if ((limit = new_struct()) == NULL)
         return 1;
-    if ((iv = ici_int_new(rlimit.rlim_cur)) == NULL)
+    if ((iv = new_int(rlimit.rlim_cur)) == NULL)
         goto fail;
     if (ici_assign(limit, SS(cur), iv))
     {
@@ -2011,7 +2011,7 @@ static int ici_sys_getrlimit()
         goto fail;
     }
     iv->decref();
-    if ((iv = ici_int_new(rlimit.rlim_max)) == NULL)
+    if ((iv = new_int(rlimit.rlim_max)) == NULL)
         goto fail;
     if (ici_assign(limit, SS(max), iv))
     {
