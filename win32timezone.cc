@@ -59,11 +59,7 @@ int set_timezone_vals(ici_struct *s)
     {
         return ici_get_last_win32_error();
     }
-    if
-	(
-		ici_set_val(objwsupof(s), SS(zone), 's', zone)
-		|| ici_set_val(objwsupof(s), SS(gmtoff), 'i', &gmtoff)
-	)
+    if (set_val(objwsupof(s), SS(zone), 's', zone) || set_val(objwsupof(s), SS(gmtoff), 'i', &gmtoff))
     {
         return 1;
     }

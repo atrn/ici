@@ -171,7 +171,7 @@ public:
             return 0;
         s = stringof(sb->cb_ref);
         size = sb->cb_ptr - sb->cb_data + count;
-        if (ici_str_need_size(s, size))
+        if (str_need_size(s, size))
             return 0;
         if (s->s_nchars < size)
             s->s_nchars = size;
@@ -202,7 +202,7 @@ ftype *strbuf_ftype = ptr_to_instance_of<class stringbuf_ftype>();
  *
  * If 'readonly' is non-zero, the returned file gives read-only access to the
  * data.  If 'readonly' is zero, 'ref' must refer to either a mutable string
- * buffer object (created by ici_str_buf_new()) or a memory object, and the
+ * buffer object (created by new_str_buf()) or a memory object, and the
  * file gives read/write access to the object's data.  The object's initial
  * data is preserved.  Writing past the end of a string buffer will extend it;
  * writing past the end of a memory object gets truncated.

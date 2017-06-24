@@ -1200,7 +1200,7 @@ static int f_include()
 #ifndef NODEBUGGING
     ici_debug_ignore_errors();
 #endif
-    if (ici_call(SS(fopen), "o=o", &f, filename))
+    if (call(SS(fopen), "o=o", &f, filename))
     {
         char    fname[1024];
 
@@ -1212,7 +1212,7 @@ static int f_include()
 #endif
             return set_error("could not find \"%s\" on path", fname);
         }
-        if (ici_call(SS(fopen), "o=s", &f, fname))
+        if (call(SS(fopen), "o=s", &f, fname))
         {
 #ifndef NODEBUGGING
             ici_debug_respect_errors();
@@ -1224,7 +1224,7 @@ static int f_include()
     ici_debug_respect_errors();
 #endif
     rc = parse_file(f, objwsupof(a));
-    ici_call(SS(close), "o", f);
+    call(SS(close), "o", f);
     f->decref();
     return rc < 0 ? 1 : ret_no_decref(a);
 }
@@ -2741,7 +2741,7 @@ f_sort()
  * Macro for swapping elements.
  */
 #define SWAP(a, b)      {o = base[a]; base[a] = base[b]; base[b] = o;}
-#define CMP(rp, a, b)   ici_func(f, "i=ooo", rp, base[a], base[b], uarg)
+#define CMP(rp, a, b)   call(f, "i=ooo", rp, base[a], base[b], uarg)
 
     uarg = ici_null;
     switch (NARGS())
@@ -2963,18 +2963,18 @@ f_calendar()
             return 1;
         if
         (
-               ici_set_val(s, SS(second), 'f', (d = tm->tm_sec, &d))
-            || ici_set_val(s, SS(minute), 'i', (l = tm->tm_min, &l))
-            || ici_set_val(s, SS(hour), 'i', (l = tm->tm_hour, &l))
-            || ici_set_val(s, SS(day), 'i', (l = tm->tm_mday, &l))
-            || ici_set_val(s, SS(month), 'i', (l = tm->tm_mon, &l))
-            || ici_set_val(s, SS(year), 'i', (l = tm->tm_year + 1900, &l))
-            || ici_set_val(s, SS(wday), 'i', (l = tm->tm_wday, &l))
-            || ici_set_val(s, SS(yday), 'i', (l = tm->tm_yday, &l))
-            || ici_set_val(s, SS(isdst), 'i', (l = tm->tm_isdst, &l))
+               set_val(s, SS(second), 'f', (d = tm->tm_sec, &d))
+            || set_val(s, SS(minute), 'i', (l = tm->tm_min, &l))
+            || set_val(s, SS(hour), 'i', (l = tm->tm_hour, &l))
+            || set_val(s, SS(day), 'i', (l = tm->tm_mday, &l))
+            || set_val(s, SS(month), 'i', (l = tm->tm_mon, &l))
+            || set_val(s, SS(year), 'i', (l = tm->tm_year + 1900, &l))
+            || set_val(s, SS(wday), 'i', (l = tm->tm_wday, &l))
+            || set_val(s, SS(yday), 'i', (l = tm->tm_yday, &l))
+            || set_val(s, SS(isdst), 'i', (l = tm->tm_isdst, &l))
 #ifdef ICI_HAS_BSD_STRUCT_TM
-            || ici_set_val(s, SS(zone), 's', (char *)tm->tm_zone)
-	    || ici_set_val(s, SS(gmtoff), 'i', &tm->tm_gmtoff)
+            || set_val(s, SS(zone), 's', (char *)tm->tm_zone)
+	    || set_val(s, SS(gmtoff), 'i', &tm->tm_gmtoff)
 #else
             || set_timezone_vals(structof(s))
 #endif
@@ -2992,25 +2992,25 @@ f_calendar()
 
         memset(&tm, 0, sizeof tm);
         s = objwsupof(ARG(0));
-        if (ici_fetch_num(s, SS(second), &d))
+        if (fetch_num(s, SS(second), &d))
             return 1;
         tm.tm_sec = (int)d;
-        if (ici_fetch_int(s, SS(minute), &l))
+        if (fetch_int(s, SS(minute), &l))
             return 1;
         tm.tm_min = l;
-        if (ici_fetch_int(s, SS(hour), &l))
+        if (fetch_int(s, SS(hour), &l))
             return 1;
         tm.tm_hour = l;
-        if (ici_fetch_int(s, SS(day), &l))
+        if (fetch_int(s, SS(day), &l))
             return 1;
         tm.tm_mday = l;
-        if (ici_fetch_int(s, SS(month), &l))
+        if (fetch_int(s, SS(month), &l))
             return 1;
         tm.tm_mon = l;
-        if (ici_fetch_int(s, SS(year), &l))
+        if (fetch_int(s, SS(year), &l))
             return 1;
         tm.tm_year = l - 1900;
-        if (ici_fetch_int(s, SS(isdst), &l))
+        if (fetch_int(s, SS(isdst), &l))
             tm.tm_isdst = -1;
         else
             tm.tm_isdst = l;
@@ -3137,7 +3137,7 @@ f_strbuf()
         is = stringof(ARG(0));
         n = is->s_nchars;
     }
-    if ((s = ici_str_buf_new(n)) == NULL)
+    if ((s = new_str_buf(n)) == NULL)
     {
         return 1;
     }
@@ -3186,7 +3186,7 @@ f_strcat()
             return argerror(i);
         z += s2->s_nchars;
     }
-    if (ici_str_need_size(s1, z))
+    if (str_need_size(s1, z))
         return 1;
     for (i = si, z = sz; i < n; ++i)
     {
@@ -3404,7 +3404,7 @@ f_getfile()
     {
         if (isstring(ARG(0)))
         {
-            if (ici_call(SS(fopen), "o=o", &f, ARG(0)))
+            if (call(SS(fopen), "o=o", &f, ARG(0)))
                 goto finish;
             must_close = 1;
         }
@@ -3452,7 +3452,7 @@ nomem:
 finish:
     if (must_close)
     {
-        ici_call(SS(close), "o", f);
+        call(SS(close), "o", f);
         f->decref();
     }
     return ret_with_decref(str);

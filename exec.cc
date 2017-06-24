@@ -442,7 +442,7 @@ object *evaluate(object *code, int n_operands)
                     {
                         src *srco = ex->x_src;
                         srco->incref();
-                        if (ici_func(f, "o", o))
+                        if (call(f, "o", o))
                         {
                             srco->decref();
                             goto fail;
@@ -1236,11 +1236,11 @@ object *evaluate(object *code, int n_operands)
             c->incref();
             if
             (
-                ici_set_val(objwsupof(vs.a_top[-1]), SS(error), 's', error)
+                set_val(objwsupof(vs.a_top[-1]), SS(error), 's', error)
                 ||
-                ici_set_val(objwsupof(vs.a_top[-1]), SS(errorline), 'i', &ex->x_src->s_lineno)
+                set_val(objwsupof(vs.a_top[-1]), SS(errorline), 'i', &ex->x_src->s_lineno)
                 ||
-                ici_set_val(objwsupof(vs.a_top[-1]), SS(errorfile), 'o', ex->x_src->s_filename)
+                set_val(objwsupof(vs.a_top[-1]), SS(errorfile), 'o', ex->x_src->s_filename)
             )
             {
                 c->decref();

@@ -152,20 +152,20 @@ int init()
 
     if
     (
-        ici_set_val(externs, SS(_stdin),  'u', stdin)
+        set_val(externs, SS(_stdin),  'u', stdin)
         ||
-        ici_set_val(externs, SS(_stdout), 'u', stdout)
+        set_val(externs, SS(_stdout), 'u', stdout)
         ||
-        ici_set_val(externs, SS(_stderr), 'u', stderr)
+        set_val(externs, SS(_stderr), 'u', stderr)
         ||
-        ici_set_val(externs, SS(pi), 'f', &pi)
+        set_val(externs, SS(pi), 'f', &pi)
     )
     {
         return 1;
     }
 
 #ifndef NOSTARTUPFILE
-    if (ici_call(SS(load), "o", SS(core)))
+    if (call(SS(load), "o", SS(core)))
     {
         return 1;
     }

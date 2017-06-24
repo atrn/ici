@@ -44,7 +44,7 @@ static handle ici_handle_proto;
  * its handle object may still be referenced from ICI code.  You don't want to
  * have it passed back to you and inadvertently try to access your freed data.
  * To prevent this you can set the ICI_H_CLOSED flag in the handle's object header
- * when you free the C data (see 'ici_handle_probe()').  Note that in
+ * when you free the C data (see 'handle_probe()').  Note that in
  * callbacks where you are passed the handle object directly, you are
  * reponsible to checking ICI_H_CLOSED.  Also, once you use this mechanism, you
  * must *clear* the ICI_H_CLOSED field after a real new handle allocation (because
@@ -117,8 +117,7 @@ handle *new_handle(void *ptr, str *name, objwsup *super)
  *
  * This --func-- forms part of the --ici-api--.
  */
-handle *
-ici_handle_probe(void *ptr, str *name)
+handle *handle_probe(void *ptr, str *name)
 {
     handle *h;
 
@@ -145,7 +144,7 @@ ici_handle_probe(void *ptr, str *name)
  *      char                *s;
  *      XML_Parser          p;
  *
- *      if (ici_handle_method_check(inst, ICIS(XML_Parser), NULL, &p))
+ *      if (handle_method_check(inst, ICIS(XML_Parser), NULL, &p))
  *          return 1;
  *      if (typecheck("s", &s))
  *          return 1;
@@ -157,13 +156,12 @@ ici_handle_probe(void *ptr, str *name)
  *
  * This --func-- forms part of the --ici-api--.
  */
-int
-ici_handle_method_check(object *inst, str *name, handle **h, void **p)
+int handle_method_check(object *inst, str *name, handle **h, void **p)
 {
     char                n1[30];
     char                n2[30];
 
-    if (ici_method_check(inst, TC_HANDLE))
+    if (method_check(inst, TC_HANDLE))
         return 1;
     if (handleof(inst)->h_name != name)
     {
@@ -191,7 +189,7 @@ ici_handle_method(object *inst)
     char                n2[30];
     long                id;
 
-    if (ici_method_check(inst, TC_HANDLE))
+    if (method_check(inst, TC_HANDLE))
         return 1;
     if (inst->flagged(ICI_H_CLOSED))
     {
@@ -241,13 +239,13 @@ ici_handle_method(object *inst)
  *  object   *ici_member_map;
  *
  *  ...
- *      ici_member_map = ici_make_handle_member_map(member_name_ids)
- *      if (ici_member_map == NULL)
+ *      member_map = make_handle_member_map(member_name_ids)
+ *      if (member_map == NULL)
  *          ...
  *
  * This --func-- forms part of the --ici-api--.
  */
-object *ici_make_handle_member_map(ici_name_id_t *ni)
+object *make_handle_member_map(ici_name_id_t *ni)
 {
     object       *m;
     str          *n;

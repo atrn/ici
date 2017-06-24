@@ -34,7 +34,7 @@ namespace ici
  *                      NULL if not needed.
  *
  * h_member_map         An optional map (NULL if not needed) as made by
- *                      'ici_make_handle_member_map()' and used internally
+ *                      'make_handle_member_map()' and used internally
  *                      when the 'h_member_intf' function is used.
  *
  * h_member_intf        An optional function (NULL if not needed) to implement

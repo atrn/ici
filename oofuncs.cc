@@ -25,8 +25,7 @@ namespace ici
  *
  * This --func-- forms part of the --ici-api--.
  */
-int
-ici_method_check(object *o, int tcode)
+int method_check(object *o, int tcode)
 {
     char        n1[30];
     char        n2[30];
@@ -53,7 +52,7 @@ m_new(object *o)
 {
     ici_struct *s;
 
-    if (ici_method_check(o, 0))
+    if (method_check(o, 0))
         return 1;
     if ((s = new_struct()) == NULL)
         return 1;
@@ -67,7 +66,7 @@ m_isa(object *o)
     objwsup  *s;
     object   *klass;
 
-    if (ici_method_check(o, 0))
+    if (method_check(o, 0))
         return 1;
     if (typecheck("o", &klass))
         return 1;
@@ -85,7 +84,7 @@ m_respondsto(object *o)
     object   *classname;
     object   *v;
 
-    if (ici_method_check(o, 0))
+    if (method_check(o, 0))
         return 1;
     if (typecheck("o", &classname))
         return 1;
@@ -105,7 +104,7 @@ m_respondsto(object *o)
 static int
 m_unknown_method(object *o)
 {
-    if (ici_method_check(o, 0))
+    if (method_check(o, 0))
 	return 1;
     if (NARGS() > 0 && isstring(ARG(0)))
     {

@@ -335,16 +335,19 @@ extern array         *need_path();
 
 extern void           reclaim();
 
-extern int            ici_func(object *, const char *, ...);
-extern int            ici_method(object *, str *, const char *, ...);
-extern int            ici_funcv(object *, object *, const char *, va_list);
-extern int            ici_call(str *, const char *, ...);
-extern int            ici_callv(str *, const char *, va_list);
-extern int            ici_cmkvar(objwsup *, const char *, int, void *);
-extern int            ici_set_val(objwsup *, str *, int, void *);
-extern int            ici_fetch_num(object *, object *, double *);
-extern int            ici_fetch_int(object *, object *, long *);
-extern handle        *ici_handle_probe(void *, str *);
+extern int            call(object *, const char *, ...);
+extern int            call(object *, object *, const char *, va_list);
+extern int            call(str *, const char *, ...);
+extern int            call(str *, const char *, va_list);
+extern int            call_method(object *, str *, const char *, ...);
+
+extern int            cmkvar(objwsup *, const char *, int, void *);
+extern int            set_val(objwsup *, str *, int, void *);
+
+extern int            fetch_num(object *, object *, double *);
+extern int            fetch_int(object *, object *, long *);
+
+extern handle        *handle_probe(void *, str *);
 
 extern int            assign_cfuncs(objwsup *, cfunc *);
 extern int            define_cfuncs(cfunc *);
@@ -352,18 +355,20 @@ extern int            register_type(type *);
 
 extern void           invalidate_struct_lookaside(ici_struct *);
 extern int            engine_stack_check();
+
 extern void           ici_atexit(void (*)(), wrap *);
 
-extern int            ici_handle_method_check(object *, str *, handle **, void **);
-extern int            ici_method_check(object *o, int tcode);
+extern int            handle_method_check(object *, str *, handle **, void **);
+extern int            method_check(object *o, int tcode);
+
 extern unsigned long  crc(unsigned long, unsigned char const *, ptrdiff_t);
 
-extern int            ici_str_need_size(str *, size_t);
-extern str           *ici_str_buf_new(size_t);
+extern int            str_need_size(str *, size_t);
+extern str           *new_str_buf(size_t);
 
 extern object        *eval(str *);
 
-extern object        *ici_make_handle_member_map(ici_name_id_t *);
+extern object        *make_handle_member_map(ici_name_id_t *);
 
 extern exec          *leave();
 extern void           enter(exec *);

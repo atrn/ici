@@ -227,7 +227,7 @@ str *str_get_nul_term(const char *p)
  *
  * This --func-- forms part of the --ici-api--.
  */
-str *ici_str_buf_new(size_t n)
+str *new_str_buf(size_t n)
 {
     str *s;
 
@@ -260,7 +260,7 @@ str *ici_str_buf_new(size_t n)
  *
  * This --func-- forms part of the --ici-api--.
  */
-int ici_str_need_size(str *s, size_t n)
+int str_need_size(str *s, size_t n)
 {
     char                *chars;
     char                n1[30];
@@ -337,7 +337,7 @@ object *string_type::copy(object *o)
 {
     str *ns;
 
-    if ((ns = ici_str_buf_new(stringof(o)->s_nchars + 1)) == NULL)
+    if ((ns = new_str_buf(stringof(o)->s_nchars + 1)) == NULL)
     {
         return NULL;
     }
@@ -425,7 +425,7 @@ int string_type::assign(object *o, object *k, object *v)
         return set_error("attempt to assign to negative string index");
     }
     s = stringof(o);
-    if (ici_str_need_size(s, i + 1))
+    if (str_need_size(s, i + 1))
         return 1;
     for (n = s->s_nchars; n < i; ++n)
         s->s_chars[n] = ' ';

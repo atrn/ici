@@ -192,9 +192,9 @@ main(int argc, char *argv[])
         long l = av->a_top - av->a_base;
         if
         (
-            ici_set_val(objwsupof(vs.a_top[-1])->o_super, SS(argv), 'o', av)
+            set_val(objwsupof(vs.a_top[-1])->o_super, SS(argv), 'o', av)
             ||
-            ici_set_val(objwsupof(vs.a_top[-1])->o_super, SS(argc), 'i', &l)
+            set_val(objwsupof(vs.a_top[-1])->o_super, SS(argc), 'i', &l)
         )
             goto fail;
         av->decref();
@@ -270,7 +270,7 @@ main(int argc, char *argv[])
                         goto usage;
                     else
                         s = argv[i];
-                    if (ici_call(SS(load), "s", s))
+                    if (call(SS(load), "s", s))
                         goto fail;
                     break;
 

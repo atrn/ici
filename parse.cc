@@ -1057,7 +1057,7 @@ primary(parse *p, expr **ep, int exclude)
             if (f == NULL)
                 goto fail_user_parse;
             c->incref();
-            if (ici_func(c, "o=o", &n, f))
+            if (call(c, "o=o", &n, f))
             {
                 goto fail_user_parse;
             }

@@ -11,7 +11,7 @@ namespace ici
 {
 
 /*
- * ici_set_val(scope, name, typespec, value)
+ * set_val(scope, name, typespec, value)
  *
  * Set the value of the given name in given struct to the given raw C value,
  * which is first converted to an ICI value on the assumption that it is of the
@@ -32,7 +32,7 @@ namespace ici
  *
  * Returns 0 on succcess, else non-zerro, usual conventions.
  */
-int ici_set_val(objwsup *s, str *name, int type, void *vp)
+int set_val(objwsup *s, str *name, int type, void *vp)
 {
     object   *o;
     int       i;
@@ -62,7 +62,7 @@ int ici_set_val(objwsup *s, str *name, int type, void *vp)
         break;
 
     default:
-        return set_error("illegal type key-letter given to ici_set_val");
+        return set_error("illegal type key-letter given to set_val");
     }
 
     if (o == NULL)
@@ -77,8 +77,7 @@ int ici_set_val(objwsup *s, str *name, int type, void *vp)
  * find a particular value or type of value fails to do so. Returns 1 so
  * it can be used directly in typical error returns.
  */
-int
-ici_fetch_mismatch(object *o, object *k, object *v, const char *expected)
+int ici_fetch_mismatch(object *o, object *k, object *v, const char *expected)
 {
     char        n1[30];
     char        n2[30];
@@ -91,8 +90,7 @@ ici_fetch_mismatch(object *o, object *k, object *v, const char *expected)
         expected);
 }
 
-int
-ici_assign_float(object *o, object *k, double v)
+int ici_assign_float(object *o, object *k, double v)
 {
     ici_float  *f;
 
@@ -108,8 +106,7 @@ ici_assign_float(object *o, object *k, double v)
  * The result is stored as a double through the given pointer. Returns
  * non-zero on error, usual conventions.
  */
-int
-ici_fetch_num(object *o, object *k, double *vp)
+int fetch_num(object *o, object *k, double *vp)
 {
     object   *v;
 
@@ -129,8 +126,7 @@ ici_fetch_num(object *o, object *k, double *vp)
  * The result is stored as a long through the given pointer. Returns
  * non-zero on error, usual conventions.
  */
-int
-ici_fetch_int(object *o, object *k, long *vp)
+int fetch_int(object *o, object *k, long *vp)
 {
     object   *v;
 
@@ -143,7 +139,7 @@ ici_fetch_int(object *o, object *k, long *vp)
 }
 
 /*
- * ici_cmkvar(scope, name, typespec, value)
+ * cmkvar(scope, name, typespec, value)
  *
  * This function is a simple way to define variables (to the ICI level).
  * It takes a scope structure, name for the variable, a type specification
@@ -161,14 +157,14 @@ ici_fetch_int(object *o, object *k, long *vp)
  *      u       file            FILE *
  *      o       any             object *
  */
-int ici_cmkvar(objwsup *scope, const char *name, int type, void *vp)
+int cmkvar(objwsup *scope, const char *name, int type, void *vp)
 {
     str   *s;
     int         i;
 
     if ((s = new_str_nul_term(name)) == NULL)
         return 1;
-    i = ici_set_val(scope, s, type, vp);
+    i = set_val(scope, s, type, vp);
     s->decref();
     return i;
 }

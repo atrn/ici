@@ -250,7 +250,7 @@ int ici_sys_init(ici::objwsup *scp)
 #undef VALOF
 
     for (i = 0; i < sizeof var/sizeof var[0]; ++i)
-        if (ici_cmkvar(scp, var[i].name, 'i', &var[i].val))
+        if (cmkvar(scp, var[i].name, 'i', &var[i].val))
             return 1;
     return 0;
 }

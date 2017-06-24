@@ -26,8 +26,7 @@ namespace ici
  *
  * This --func-- forms part of the --ici-api--.
  */
-int
-ici_funcv(object *subject, object *callable, const char *types, va_list va)
+int call(object *subject, object *callable, const char *types, va_list va)
 {
     size_t     nargs;
     size_t     arg;
@@ -200,8 +199,7 @@ fail:
  *
  * This --func-- forms part of the --ici-api--.
  */
-int
-ici_callv(str *func_name, const char *types, va_list va)
+int ici_callv(str *func_name, const char *types, va_list va)
 {
     object *func_obj;
     object *member_obj;
@@ -222,7 +220,7 @@ ici_callv(str *func_name, const char *types, va_list va)
     {
         return set_error("\"%s\" undefined", func_name->s_chars);
     }
-    return ici_funcv(NULL, func_obj, types, va);
+    return call((object *)nullptr, func_obj, types, va);
 }
 
 /*
@@ -263,18 +261,17 @@ ici_callv(str *func_name, const char *types, va_list va)
  *
  * Returns 0 on success, else 1, in which case error has been set.
  *
- * See also: ici_callv(), ici_method(), ici_call(), ici_funcv().
+ * See also: call(), call_method(), call(), call().
  *
  * This --func-- forms part of the --ici-api--.
  */
-int
-ici_func(object *callable, const char *types, ...)
+int call(object *callable, const char *types, ...)
 {
     va_list     va;
     int         result;
 
     va_start(va, types);
-    result = ici_funcv(NULL, callable, types, va);
+    result = call((object *)nullptr, callable, types, va);
     va_end(va);
     return result;
 }
@@ -288,14 +285,13 @@ ici_func(object *callable, const char *types, ...)
  *
  * This --func-- forms part of the --ici-api--.
  */
-int
-ici_method(object *inst, str *mname, const char *types, ...)
+int call_method(object *inst, str *mname, const char *types, ...)
 {
     va_list     va;
     int         result;
 
     va_start(va, types);
-    result = ici_funcv(inst, mname, types, va);
+    result = call(inst, mname, types, va);
     va_end(va);
     return result;
 }
@@ -313,8 +309,7 @@ ici_method(object *inst, str *mname, const char *types, ...)
  *
  * This --func-- forms part of the --ici-api--.
  */
-int
-ici_call(str *func_name, const char *types, ...)
+int call(str *func_name, const char *types, ...)
 {
     object  *func_obj;
     object  *member_obj;
@@ -336,7 +331,7 @@ ici_call(str *func_name, const char *types, ...)
         return set_error("\"%s\" undefined", func_name->s_chars);
     }
     va_start(va, types);
-    result = ici_funcv(NULL, func_obj, types, va);
+    result = call((object *)NULL, func_obj, types, va);
     va_end(va);
     return result;
 }
