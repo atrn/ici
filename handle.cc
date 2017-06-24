@@ -309,8 +309,7 @@ void handle_type::objname(object *o, char p[objnamez])
 
 size_t handle_type::mark(object *o)
 {
-    o->setmark();
-    auto mem = typesize();
+    auto mem = type::mark(o);
     if (objwsupof(o)->o_super != NULL)
         mem += ici_mark(objwsupof(o)->o_super);
     if (handleof(o)->h_name != NULL)

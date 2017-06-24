@@ -81,7 +81,7 @@ constexpr auto num_op_funcs = nels(op_funcs);
 size_t archive_type::mark(object *o)
 {
     auto ar = archive_of(o);
-    return setmark(ar) + ici_mark(ar->a_file) + ici_mark(ar->a_sent) + ici_mark(ar->a_scope);
+    return type::mark(ar) + ici_mark(ar->a_file) + ici_mark(ar->a_sent) + ici_mark(ar->a_scope);
 }
 
 int archive_init()

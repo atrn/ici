@@ -142,7 +142,7 @@ int unassign(set *s, object *k)
 size_t set_type::mark(object *o)
 {
     auto s = setof(o);
-    auto mem = setmark(s) + s->s_nslots * sizeof (object *);
+    auto mem = type::mark(s) + s->s_nslots * sizeof (object *);
     if (s->s_nels == 0)
         return mem;
     for (object **e = &s->s_slots[s->s_nslots - 1]; e >= s->s_slots; --e)

@@ -96,17 +96,11 @@ int op_return()
 size_t func_type::mark(object *o)
 {
     auto fn = funcof(o);
-    o->setmark();
-    auto mem = typesize();
-    if (fn->f_code != NULL)
-        mem += ici_mark(fn->f_code);
-    if (fn->f_args != NULL)
-        mem += ici_mark(fn->f_args);
-    if (fn->f_autos != NULL)
-        mem += ici_mark(fn->f_autos);
-    if (fn->f_name != NULL)
-        mem += ici_mark(fn->f_name);
-    return mem;
+    return type::mark(fn)
+        + maybe_mark(fn->f_code)
+        + maybe_mark(fn->f_args)
+        + maybe_mark(fn->f_autos)
+        + maybe_mark(fn->f_name);
 }
 
 int func_type::cmp(object *o1, object *o2)

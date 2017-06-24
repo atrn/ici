@@ -115,8 +115,7 @@ int ici_pcre_exec_simple(regexp *r, str *s)
  */
 size_t regexp_type::mark(object *o)
 {
-    o->setmark();
-    return typesize() + ici_mark(regexpof(o)->r_pat) + ((real_pcre *)regexpof(o)->r_re)->size;
+    return type::mark(o) + ici_mark(regexpof(o)->r_pat) + ((real_pcre *)regexpof(o)->r_re)->size;
 }
 
 /*

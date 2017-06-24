@@ -293,13 +293,13 @@ int ici_str_need_size(str *s, size_t n)
  */
 size_t string_type::mark(object *o)
 {
-    o->setmark();
     if (o->flagged(ICI_S_SEP_ALLOC))
     {
-        return typesize() + stringof(o)->s_u.su_nalloc;
+        return type::mark(o) + stringof(o)->s_u.su_nalloc;
     }
     else
     {
+        o->setmark();
         return STR_ALLOCZ(stringof(o)->s_nchars);
     }
 }

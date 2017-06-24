@@ -2644,7 +2644,7 @@ parse *ici_new_parse(file *f)
 size_t parse_type::mark(object *o)
 {
     auto p = parseof(o);
-    return setmark(p) + maybe_mark(p->p_func) + maybe_mark(p->p_file);
+    return type::mark(p) + maybe_mark(p->p_func) + maybe_mark(p->p_file);
 }
 
 /*

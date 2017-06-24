@@ -142,8 +142,7 @@ call_cfunc_nodebug(object *o, object *subject)
 
 size_t cfunc_type::mark(object *o)
 {
-    o->setmark();
-    return typesize() + ici_mark(cfuncof(o)->cf_name);
+    return type::mark(o) + ici_mark(cfuncof(o)->cf_name);
 }
 
 object * cfunc_type::fetch(object *o, object *k)

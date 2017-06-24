@@ -83,7 +83,7 @@ int exec_forall()
 size_t forall_type::mark(object *o)
 {
     auto fa = forallof(o);
-    auto mem = setmark(o);
+    auto mem = type::mark(o);
     mem += maybe_mark(fa->fa_aggr);
     mem += maybe_mark(fa->fa_code);
     mem += maybe_mark(fa->fa_vaggr);

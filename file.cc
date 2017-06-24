@@ -89,7 +89,7 @@ int close_file(file *f)
 size_t file_type::mark(object *o)
 {
     auto f = fileof(o);
-    return setmark(f) + maybe_mark(f->f_name) + maybe_mark(f->f_ref);
+    return type::mark(f) + maybe_mark(f->f_name) + maybe_mark(f->f_ref);
 }
 
 void file_type::free(object *o)

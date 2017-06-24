@@ -520,28 +520,26 @@ int op_mklvalue()
 size_t array_type::mark(object *o)
 {
     auto a = arrayof(o);
-    object **e;
-
-    a->setmark();
+    auto mem = type::mark(a);
     if (a->a_base == NULL)
     {
-        return typesize();
+        return mem;
     }
-    auto mem = typesize() + (a->a_limit - a->a_base) * sizeof (object *);
+    mem += (a->a_limit - a->a_base) * sizeof (object *);
     if (a->a_bot <= a->a_top)
     {
-        for (e = a->a_bot; e < a->a_top; ++e)
+        for (object **e = a->a_bot; e < a->a_top; ++e)
         {
             mem += ici_mark(*e);
         }
     }
     else
     {
-        for (e = a->a_base; e < a->a_top; ++e)
+        for (object **e = a->a_base; e < a->a_top; ++e)
         {
             mem += ici_mark(*e);
         }
-        for (e = a->a_bot; e < a->a_limit; ++e)
+        for (object **e = a->a_bot; e < a->a_limit; ++e)
         {
             mem += ici_mark(*e);
         }

@@ -18,7 +18,7 @@ namespace ici
 size_t ptr_type::mark(object *o)
 {
     auto p = ptrof(o);
-    return setmark(p) + ici_mark(p->p_aggr) + ici_mark(p->p_key);
+    return type::mark(p) + ici_mark(p->p_aggr) + ici_mark(p->p_key);
 }
 
 /*

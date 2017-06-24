@@ -78,7 +78,7 @@ int op_onerror()
 size_t catcher_type::mark(object *o)
 {
     auto c = catcherof(o);
-    return setmark(c) + maybe_mark(c->c_catcher);
+    return type::mark(c) + maybe_mark(c->c_catcher);
 }
 
 void catcher_type::free(object *o)

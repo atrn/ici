@@ -38,7 +38,7 @@ method *ici_method_new(object *subject, object *callable)
 size_t method_type::mark(object *o)
 {
     auto m = methodof(o);
-    return setmark(m) + ici_mark(m->m_subject) + ici_mark(m->m_callable);
+    return type::mark(m) + ici_mark(m->m_subject) + ici_mark(m->m_callable);
 }
 
 object * method_type::fetch(object *o, object *k)

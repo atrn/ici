@@ -89,10 +89,4 @@ int type::assign_fail(object *o, object *k, object *v)
         ici_objname(n3, v));
 }
 
-size_t type::setmark(object *o)
-{
-    o->setmark();
-    return typesize();
-}
-
 }

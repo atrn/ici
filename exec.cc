@@ -1294,17 +1294,16 @@ object *eval(str *name)
 
 size_t exec_type::mark(object *o)
 {
-    o->setmark();
     auto x = execof(o);
-    return typesize()
-        + (x->x_xs != NULL ? ici_mark(x->x_xs) : 0)
-        + (x->x_os != NULL ? ici_mark(x->x_os) : 0)
-        + (x->x_vs != NULL ? ici_mark(x->x_vs) : 0)
-        + ici_mark(x->x_src)
-        + (x->x_pc_closet != NULL ? ici_mark(x->x_pc_closet) : 0)
-        + (x->x_os_temp_cache != NULL ? ici_mark(x->x_os_temp_cache) : 0)
-        + (x->x_waitfor != NULL ? ici_mark(x->x_waitfor) : 0)
-        + (x->x_result != NULL ? ici_mark(x->x_result) : 0)
+    return type::mark(o)
+        + maybe_mark(x->x_xs)
+        + maybe_mark(x->x_os)
+        + maybe_mark(x->x_vs)
+        + maybe_mark(x->x_src)
+        + maybe_mark(x->x_pc_closet)
+        + maybe_mark(x->x_os_temp_cache)
+        + maybe_mark(x->x_waitfor)
+        + maybe_mark(x->x_result)
         + (x->x_error != NULL ? strlen(x->x_error) + 1: 0);
 }
 
