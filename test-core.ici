@@ -1,12 +1,10 @@
-rpush(path, "c:\\timl\\ici-modules\\xml");
-
 /*
  * Basic installation confidence test. Each feature is tested on the
  * assumption that all other features, other than the one being teste, work.
  *
  * The tests are a bit patchy. Some areas are done thoroughly, others not.
  */
-printf("Should finish with \"deliberate failure\".\n");
+// printf("Should finish with \"deliberate failure\".\n");
 
 printf("parse...\n");
 [module
@@ -1459,7 +1457,6 @@ printf("misc...\n");
         fail("argv[0] is not a string");
 ];
 
-printf("xml...");
 [module
     x = NULL;
     try
@@ -1477,10 +1474,11 @@ printf("xml...");
 
     if (x == NULL)
     {
-        printf("not available, skipped.\n");
+        ; // printf("not available, skipped.\n");
     }
     else
     {
+        printf("xml...");
         printf("\n");
         z = xml.read(sopen(y));
         if (typeof(z) != "array")
@@ -1565,6 +1563,6 @@ printf("onerror...\n");
         fail("wrong scope in setting error");
     }
 
-    fail("deliberate failure");
+//  fail("deliberate failure");
 ];
 

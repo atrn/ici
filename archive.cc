@@ -117,9 +117,9 @@ archive *archive::start(file *f, objwsup *scope)
             ici_tfree(ar, archive);
             return NULL;
         }
-	    ar->a_sent->decref();
+	ar->a_sent->decref();
         ar->a_file = f;
-	    ar->a_scope = scope;
+	ar->a_scope = scope;
         ici_rego(ar);
     }
     return ar;

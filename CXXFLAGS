@@ -7,7 +7,7 @@
 
 # RELEASE - Ofast and Oz seem to be best
 -DNDEBUG
--Ofast -Oz
+-Ofast -Oz -flto
 
 # DEBUG (pcre uses DEBUG, ICI !NDEBUG)
 #-g -O0

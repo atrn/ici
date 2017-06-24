@@ -643,7 +643,7 @@
             {
                 SWAP();
             }
-            if ((s = ici_set_new()) == NULL)
+            if ((s = new_set()) == NULL)
             {
                 FAIL();
             }
