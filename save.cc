@@ -204,7 +204,7 @@ save_set(archive *ar, object *obj)
 static int
 save_struct(archive *ar, object *obj)
 {
-    ici_struct *s = ici_structof(obj);
+    ici_struct *s = structof(obj);
     object *super = ici_objwsupof(s)->o_super;
     struct sslot *sl;
     if (super == nullptr) {
@@ -236,18 +236,18 @@ save_ptr(archive *ar, object *obj)
 static int
 save_func(archive *ar, object *obj)
 {
-    func *f = ici_funcof(obj);
+    auto f = funcof(obj);
     ici_struct *autos;
 
-    if (ici_iscfunc(obj))
+    if (iscfunc(obj))
     {
-        cfunc *cf = ici_cfuncof(obj);
+        auto cf = cfuncof(obj);
         return write16(ar, cf->cf_name->s_nchars) || writef(ar, cf->cf_name->s_chars, cf->cf_name->s_nchars);
     }
 
     if (save_object_name(ar, obj) || archive_save(ar, f->f_code) || archive_save(ar, f->f_args))
         return 1;
-    if ((autos = ici_structof(f->f_autos->copy())) == NULL)
+    if ((autos = structof(f->f_autos->copy())) == NULL)
         return 1;
     autos->o_super = NULL;
     ici_struct_unassign(autos, SS(_func_));
@@ -275,11 +275,11 @@ static int
 save_op(archive *ar, object *obj)
 {
     return
-        write16(ar, archive_op_func_code(ici_opof(obj)->op_func))
+        write16(ar, archive_op_func_code(opof(obj)->op_func))
         ||
-        write16(ar, ici_opof(obj)->op_ecode)
+        write16(ar, opof(obj)->op_ecode)
         ||
-        write16(ar, ici_opof(obj)->op_code);
+        write16(ar, opof(obj)->op_code);
 }
 
 //
@@ -401,7 +401,7 @@ archive_save(archive *ar, object *obj)
  */
 int f_archive_save(...)
 {
-    objwsup *scp = ici_structof(ici_vs.a_top[-1])->o_super;
+    objwsup *scp = structof(ici_vs.a_top[-1])->o_super;
     file *file;
     object *obj;
     archive *ar;

@@ -95,7 +95,7 @@ m_respondsto(object *o)
     {
         return ici_ret_no_decref(v);
     }
-    if (ici_isfunc(v))
+    if (isfunc(v))
     {
         return ici_ret_with_decref(ici_method_new(o, v));
     }

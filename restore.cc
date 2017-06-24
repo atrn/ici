@@ -521,7 +521,7 @@ restore_func(archive *ar)
 
     fn->f_code = arrayof(code);
     fn->f_args = arrayof(args);
-    fn->f_autos = ici_structof(autos);
+    fn->f_autos = structof(autos);
     fn->f_autos->o_super = ar->scope(); /* structof(ici_vs.a_top[-1])->o_super; */
     fn->f_name = stringof(name);
     fn->f_nautos = nautos;
@@ -833,7 +833,7 @@ f_archive_restore(...)
     objwsup *scp;
     object *obj = NULL;
 
-    scp = ici_structof(ici_vs.a_top[-1])->o_super;
+    scp = structof(ici_vs.a_top[-1])->o_super;
     switch (NARGS())
     {
     case 0:

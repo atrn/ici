@@ -7,25 +7,24 @@
 namespace ici
 {
 
-ici_op_t *
-ici_new_op(int (*func)(), int16_t ecode, int16_t code)
+op *ici_new_op(int (*func)(), int16_t ecode, int16_t code)
 {
-    ici_op_t         *o;
-    object           **po;
-    static ici_op_t  proto = {ICI_TC_OP};
+    op         *o;
+    object     **po;
+    static op  proto = {ICI_TC_OP};
 
     proto.op_func = func;
     proto.op_code = code;
     proto.op_ecode = ecode;
-    if ((o = ici_opof(ici_atom_probe2(&proto, &po))) != NULL)
+    if ((o = opof(ici_atom_probe2(&proto, &po))) != NULL)
     {
         o->incref();
         return o;
     }
     ++ici_supress_collect;
-    if ((o = ici_talloc(ici_op_t)) == NULL)
+    if ((o = ici_talloc(op)) == NULL)
         return NULL;
-    ICI_OBJ_SET_TFNZ(o, ICI_TC_OP, ICI_O_ATOM, 1, sizeof(ici_op_t));
+    ICI_OBJ_SET_TFNZ(o, ICI_TC_OP, ICI_O_ATOM, 1, sizeof(op));
     o->op_code = code;
     o->op_ecode = ecode;
     o->op_func = func;
@@ -41,9 +40,9 @@ ici_new_op(int (*func)(), int16_t ecode, int16_t code)
  */
 int op_type::cmp(object *o1, object *o2)
 {
-    return ici_opof(o1)->op_func != ici_opof(o2)->op_func
-        || ici_opof(o1)->op_code != ici_opof(o2)->op_code
-        || ici_opof(o1)->op_ecode != ici_opof(o2)->op_ecode;
+    return opof(o1)->op_func != opof(o2)->op_func
+        || opof(o1)->op_code != opof(o2)->op_code
+        || opof(o1)->op_ecode != opof(o2)->op_ecode;
 }
 
 /*
@@ -52,9 +51,9 @@ int op_type::cmp(object *o1, object *o2)
  */
 unsigned long op_type::hash(object *o)
 {
-    return OP_PRIME * ((unsigned long)ici_opof(o)->op_func
-                       + ici_opof(o)->op_code
-                       + ici_opof(o)->op_ecode);
+    return OP_PRIME * ((unsigned long)opof(o)->op_func
+                       + opof(o)->op_code
+                       + opof(o)->op_ecode);
 }
 
 } // namespace ici

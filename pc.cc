@@ -14,7 +14,7 @@ pc *ici_new_pc()
 {
     pc *p;
 
-    if ((p = ici_pcof(ici_talloc(pc))) == NULL)
+    if ((p = ici_talloc(pc)) == NULL)
         return NULL;
     ICI_OBJ_SET_TFNZ(p, ICI_TC_PC, 0, 0, 0);
     p->pc_code = NULL;
@@ -28,7 +28,7 @@ pc *ici_new_pc()
  */
 size_t pc_type::mark(object *o)
 {
-    auto p = ici_pcof(o);
+    auto p = pcof(o);
     auto mem = typesize();
     p->setmark();
     if (p->pc_code != NULL)

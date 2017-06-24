@@ -227,7 +227,7 @@ ici_evaluate(object *code, int n_operands)
 #define FETCH(s, k)                                     	\
     (                                                           \
         isstring(k)                                             \
-            && stringof(k)->s_struct == ici_structof(s)         \
+            && stringof(k)->s_struct == structof(s)         \
             && stringof(k)->s_vsver == vsver                    \
         ? stringof(k)->s_slot->sl_value                         \
         : ici_fetch(s, k)                                       \
@@ -335,11 +335,11 @@ ici_evaluate(object *code, int n_operands)
          * in the switch.
          */
         assert(ici_os.a_top >= ici_os.a_base);
-        if (ici_ispc(pc = ici_xs.a_top[-1]))
+        if (ispc(pc = ici_xs.a_top[-1]))
         {
     continue_with_same_pc:
-            o = *ici_pcof(pc)->pc_next++;
-            if (ici_isop(o))
+            o = *pcof(pc)->pc_next++;
+            if (isop(o))
             {
                 goto an_op;
             }
@@ -392,7 +392,7 @@ ici_evaluate(object *code, int n_operands)
              */
             if
             (
-                stringof(o)->s_struct == ici_structof(ici_vs.a_top[-1])
+                stringof(o)->s_struct == structof(ici_vs.a_top[-1])
                 &&
                 stringof(o)->s_vsver == vsver
             )
@@ -423,7 +423,7 @@ ici_evaluate(object *code, int n_operands)
                         ici_vs.a_top[-1],
                         o,
                         ici_os.a_top,
-                        ici_structof(ici_vs.a_top[-1])
+                        structof(ici_vs.a_top[-1])
                     )
                 )
                 {
@@ -461,7 +461,7 @@ ici_evaluate(object *code, int n_operands)
                             ici_vs.a_top[-1],
                             o,
                             ici_os.a_top,
-                            ici_structof(ici_vs.a_top[-1])
+                            structof(ici_vs.a_top[-1])
                         )
                     )
                     {
@@ -537,11 +537,11 @@ ici_evaluate(object *code, int n_operands)
 
         case ICI_TC_OP:
         an_op:
-            switch (ici_opof(o)->op_ecode)
+            switch (opof(o)->op_ecode)
             {
             case ICI_OP_OTHER:
                 *ici_xs.a_top++ = o; /* Restore to formal state. */
-                if ((*ici_opof(o)->op_func)())
+                if ((*opof(o)->op_func)())
                 {
                     goto fail;
                 }
@@ -563,7 +563,7 @@ ici_evaluate(object *code, int n_operands)
                     object           *o1;
                     object           *t;
 
-                    flags = ici_opof(o)->op_code;
+                    flags = opof(o)->op_code;
                 do_colon:
                     o1 = o;
                     t = ici_os.a_top[-2];
@@ -686,7 +686,7 @@ ici_evaluate(object *code, int n_operands)
                  *              => *pc (os)
                  */
                 o = ici_xs.a_top[-1];
-                *ici_os.a_top++ = *ici_pcof(o)->pc_next++;
+                *ici_os.a_top++ = *pcof(o)->pc_next++;
                 continue;
 
             case ICI_OP_AT:
@@ -704,7 +704,7 @@ ici_evaluate(object *code, int n_operands)
                  * lvalue on the operand stack.)
                  */
                 *ici_os.a_top++ = ici_vs.a_top[-1];
-                *ici_os.a_top++ = *ici_pcof(ici_xs.a_top[-1])->pc_next++;
+                *ici_os.a_top++ = *pcof(ici_xs.a_top[-1])->pc_next++;
                 continue;
 
             case ICI_OP_DOT:
@@ -757,7 +757,7 @@ ici_evaluate(object *code, int n_operands)
                 {
                     goto fail;
                 }
-                switch (ici_opof(o)->op_code)
+                switch (opof(o)->op_code)
                 {
                 case FOR_EFFECT:
                     ici_os.a_top -= 2;
@@ -781,7 +781,7 @@ ici_evaluate(object *code, int n_operands)
                  */
                 ici_os.a_top += 2;
                 ici_os.a_top[-1] = ici_os.a_top[-3];
-                ici_os.a_top[-2] = *ici_pcof(ici_xs.a_top[-1])->pc_next++;
+                ici_os.a_top[-2] = *pcof(ici_xs.a_top[-1])->pc_next++;
                 ici_os.a_top[-3] = ici_vs.a_top[-1];
                 /* Fall through. */
             case ICI_OP_ASSIGN:
@@ -792,7 +792,7 @@ ici_evaluate(object *code, int n_operands)
                  */
                 if
                 (
-                    stringof(ici_os.a_top[-2])->s_struct == ici_structof(ici_os.a_top[-3])
+                    stringof(ici_os.a_top[-2])->s_struct == structof(ici_os.a_top[-3])
                     &&
                     stringof(ici_os.a_top[-2])->s_vsver == vsver
                     &&
@@ -831,7 +831,7 @@ ici_evaluate(object *code, int n_operands)
                     }
                 }
             assign_finish:
-                switch (ici_opof(o)->op_code)
+                switch (opof(o)->op_code)
                 {
                 case FOR_EFFECT:
                     ici_os.a_top -= 3;
@@ -881,7 +881,7 @@ ici_evaluate(object *code, int n_operands)
                         v2->decref();
                         goto fail;
                     }
-                    switch (ici_opof(o)->op_code)
+                    switch (opof(o)->op_code)
                     {
                     case FOR_EFFECT:
                         ici_os.a_top -= 4;
@@ -909,10 +909,10 @@ ici_evaluate(object *code, int n_operands)
                 if (isfalse(ici_os.a_top[-1]))
                 {
                     --ici_os.a_top;
-                    ++ici_pcof(ici_xs.a_top[-1])->pc_next;
+                    ++pcof(ici_xs.a_top[-1])->pc_next;
                     goto stable_stacks_continue;
                 }
-                o = *ici_pcof(ici_xs.a_top[-1])->pc_next++;
+                o = *pcof(ici_xs.a_top[-1])->pc_next++;
                 ici_get_pc(arrayof(o), ici_xs.a_top);
                 --ici_os.a_top;
                 ++ici_xs.a_top;
@@ -924,13 +924,13 @@ ici_evaluate(object *code, int n_operands)
                  */
                 if (isfalse(ici_os.a_top[-1]))
                 {
-                    ++ici_pcof(ici_xs.a_top[-1])->pc_next;
-                    o = *ici_pcof(ici_xs.a_top[-1])->pc_next++;
+                    ++pcof(ici_xs.a_top[-1])->pc_next;
+                    o = *pcof(ici_xs.a_top[-1])->pc_next++;
                 }
                 else
                 {
-                    o = *ici_pcof(ici_xs.a_top[-1])->pc_next++;
-                    ++ici_pcof(ici_xs.a_top[-1])->pc_next;
+                    o = *pcof(ici_xs.a_top[-1])->pc_next++;
+                    ++pcof(ici_xs.a_top[-1])->pc_next;
                 }
                 ici_get_pc(arrayof(o), ici_xs.a_top);
                 --ici_os.a_top;
@@ -1015,7 +1015,7 @@ ici_evaluate(object *code, int n_operands)
                 {
                     int         c;
 
-                    if ((c = !isfalse(ici_os.a_top[-2])) == ici_opof(o)->op_code)
+                    if ((c = !isfalse(ici_os.a_top[-2])) == opof(o)->op_code)
                     {
                         /*
                          * Have to test next part of the condition.
@@ -1073,7 +1073,7 @@ ici_evaluate(object *code, int n_operands)
                  * of a loop. Rewind the pc back to its start.
                  */
                 o = ici_xs.a_top[-1];
-                ici_pcof(o)->pc_next = ici_pcof(o)->pc_code->a_base;
+                pcof(o)->pc_next = pcof(o)->pc_code->a_base;
                 goto continue_with_same_pc;
 
             case ICI_OP_LOOPER:
@@ -1100,7 +1100,7 @@ ici_evaluate(object *code, int n_operands)
                 goto stable_stacks_continue;
 
             case ICI_OP_LOOP:
-                o = *ici_pcof(ici_xs.a_top[-1])->pc_next++;
+                o = *pcof(ici_xs.a_top[-1])->pc_next++;
                 *ici_xs.a_top++ = o;
                 *ici_xs.a_top++ = &ici_o_looper;
                 ici_get_pc(arrayof(o), ici_xs.a_top);
@@ -1135,9 +1135,9 @@ ici_evaluate(object *code, int n_operands)
                 {
                     ici_sslot_t *sl;
 
-                    if ((sl = ici_find_raw_slot(ici_structof(ici_os.a_top[-1]), ici_os.a_top[-3]))->sl_key == NULL)
+                    if ((sl = ici_find_raw_slot(structof(ici_os.a_top[-1]), ici_os.a_top[-3]))->sl_key == NULL)
                     {
-                        if ((sl = ici_find_raw_slot(ici_structof(ici_os.a_top[-1]), &ici_o_mark))->sl_key == NULL)
+                        if ((sl = ici_find_raw_slot(structof(ici_os.a_top[-1]), &ici_o_mark))->sl_key == NULL)
                         {
                             /*
                              * No matching case, no default. Pop everything off and
@@ -1150,7 +1150,7 @@ ici_evaluate(object *code, int n_operands)
                     *ici_xs.a_top++ = ici_null;
                     *ici_xs.a_top++ = &ici_o_switcher;
                     ici_get_pc(arrayof(ici_os.a_top[-2]), ici_xs.a_top);
-                    ici_pcof(*ici_xs.a_top)->pc_next += intof(sl->sl_value)->i_value;
+                    pcof(*ici_xs.a_top)->pc_next += intof(sl->sl_value)->i_value;
                     ++ici_xs.a_top;
                     ici_os.a_top -= 3;
                 }

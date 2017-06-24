@@ -15,10 +15,10 @@ namespace ici
 
 struct file : object
 {
-    void        *f_file;
-    ici_ftype_t *f_type;
-    ici_str_t   *f_name;    /* Reasonable name to call it by. */
-    object   *f_ref;
+    void   *f_file;
+    ftype  *f_type;
+    str    *f_name;    /* Reasonable name to call it by. */
+    object *f_ref;
 
     inline int flags() const { return f_type->flags; }
     inline int getch() { return f_type->getch(f_file); }
@@ -39,8 +39,8 @@ struct file : object
  *                      is an implicit reference to some object. May be NULL.
  */
 
-inline ici_file_t *ici_fileof(object *o) { return static_cast<ici_file_t *>(o); }
-inline bool ici_isfile(object *o) { return o->isa(ICI_TC_FILE); }
+inline file *fileof(object *o) { return static_cast<file *>(o); }
+inline bool isfile(object *o) { return o->isa(ICI_TC_FILE); }
 
 constexpr int ICI_F_CLOSED = 0x20;    /* File is closed. */
 constexpr int ICI_F_NOCLOSE = 0x40;    /* Don't close on object free. */

@@ -20,8 +20,8 @@ struct func : object
     size_t      f_nautos;   /* If !=0, a hint for auto struct alloc. */
 };
 
-inline func *ici_funcof(object *o) { return static_cast<func *>(o); }
-inline bool ici_isfunc(object *o) {return o->isa(ICI_TC_FUNC); }
+inline func *funcof(object *o) { return static_cast<func *>(o); }
+inline bool isfunc(object *o) {return o->isa(ICI_TC_FUNC); }
 
 /*
  * End of ici.h export. --ici.h-end--

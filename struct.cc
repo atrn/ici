@@ -232,7 +232,7 @@ int struct_type::fetch_super(object *o, object *k, object **v, ici_struct *b)
 
     do
     {
-        sl = &ici_structof(o)->s_slots[HASHINDEX(k, ici_structof(o))];
+        sl = &structof(o)->s_slots[HASHINDEX(k, structof(o))];
         while (sl->sl_key != NULL)
         {
             if (sl->sl_key == k)
@@ -254,17 +254,17 @@ int struct_type::fetch_super(object *o, object *k, object **v, ici_struct *b)
                 *v = sl->sl_value;
                 return 1;
             }
-            if (--sl < ici_structof(o)->s_slots)
+            if (--sl < structof(o)->s_slots)
             {
-                sl = ici_structof(o)->s_slots + ici_structof(o)->s_nslots - 1;
+                sl = structof(o)->s_slots + structof(o)->s_nslots - 1;
             }
         }
-        if ((o = ici_structof(o)->o_super) == NULL)
+        if ((o = structof(o)->o_super) == NULL)
         {
             return 0;
         }
 
-    } while (ici_isstruct(o)); /* Merge tail recursion on structs. */
+    } while (isstruct(o)); /* Merge tail recursion on structs. */
 
     return ici_fetch_super(o, k, v, b);
 }
@@ -281,13 +281,13 @@ size_t struct_type::mark(object *o)
     do /* Merge tail recursion on o_super. */
     {
         o->setmark();
-        mem = typesize() + ici_structof(o)->s_nslots * sizeof(sslot);
-        if (ici_structof(o)->s_nels != 0)
+        mem = typesize() + structof(o)->s_nslots * sizeof(sslot);
+        if (structof(o)->s_nels != 0)
         {
             for
             (
-                sl = &ici_structof(o)->s_slots[ici_structof(o)->s_nslots - 1];
-                sl >= ici_structof(o)->s_slots;
+                sl = &structof(o)->s_slots[structof(o)->s_nslots - 1];
+                sl >= structof(o)->s_slots;
                 --sl
             )
             {
@@ -300,7 +300,7 @@ size_t struct_type::mark(object *o)
 
     } while
         (
-            (o = ici_structof(o)->o_super) != NULL
+            (o = structof(o)->o_super) != NULL
             &&
             !o->marked()
         );
@@ -314,9 +314,9 @@ size_t struct_type::mark(object *o)
  */
 void struct_type::free(object *o)
 {
-    if (ici_structof(o)->s_slots != NULL)
+    if (structof(o)->s_slots != NULL)
     {
-        ici_nfree(ici_structof(o)->s_slots, ici_structof(o)->s_nslots * sizeof(sslot));
+        ici_nfree(structof(o)->s_slots, structof(o)->s_nslots * sizeof(sslot));
     }
     ici_tfree(o, ici_struct);
     ++vsver;
@@ -331,8 +331,8 @@ unsigned long struct_type::hash(object *o)
 
     hk = 0;
     hv = 0;
-    sl = ici_structof(o)->s_slots;
-    i = ici_structof(o)->s_nels;
+    sl = structof(o)->s_slots;
+    i = structof(o)->s_nels;
     /*
      * This assumes NULL will become zero when cast to unsigned long.
      */
@@ -355,25 +355,25 @@ int struct_type::cmp(object *o1, object *o2)
     sslot *sl1;
     sslot *sl2;
 
-    if (ici_structof(o1) == ici_structof(o2))
+    if (structof(o1) == structof(o2))
     {
         return 0;
     }
-    if (ici_structof(o1)->s_nels != ici_structof(o2)->s_nels)
+    if (structof(o1)->s_nels != structof(o2)->s_nels)
     {
         return 1;
     }
-    if (ici_structof(o1)->o_super != ici_structof(o2)->o_super)
+    if (structof(o1)->o_super != structof(o2)->o_super)
     {
         return 1;
     }
-    sl1 = ici_structof(o1)->s_slots;
-    i = ici_structof(o1)->s_nslots;
+    sl1 = structof(o1)->s_slots;
+    i = structof(o1)->s_nslots;
     while (i-- > 0)
     {
         if (sl1->sl_key != NULL)
         {
-            sl2 = ici_find_raw_slot(ici_structof(o2), sl1->sl_key);
+            sl2 = ici_find_raw_slot(structof(o2), sl1->sl_key);
             if (sl1->sl_key != sl2->sl_key || sl1->sl_value != sl2->sl_value)
             {
                 return 1;
@@ -394,7 +394,7 @@ object *struct_type::copy(object *o)
     ici_struct    *s;
     ici_struct    *ns;
 
-    s = ici_structof(o);
+    s = structof(o);
     if ((ns = (ici_struct *)ici_talloc(ici_struct)) == NULL)
     {
         return NULL;
@@ -448,7 +448,7 @@ int struct_type::assign_super(object *o, object *k, object *v, ici_struct *b)
     {
         if (!o->isatom())
         {
-            sl = &ici_structof(o)->s_slots[HASHINDEX(k, ici_structof(o))];
+            sl = &structof(o)->s_slots[HASHINDEX(k, structof(o))];
             while (sl->sl_key != NULL)
             {
                 if (sl->sl_key == k)
@@ -463,18 +463,18 @@ int struct_type::assign_super(object *o, object *k, object *v, ici_struct *b)
                     }
                     return 1;
                 }
-                if (--sl < ici_structof(o)->s_slots)
+                if (--sl < structof(o)->s_slots)
                 {
-                    sl = ici_structof(o)->s_slots + ici_structof(o)->s_nslots - 1;
+                    sl = structof(o)->s_slots + structof(o)->s_nslots - 1;
                 }
             }
         }
-        if ((o = ici_structof(o)->o_super) == NULL)
+        if ((o = structof(o)->o_super) == NULL)
         {
             return 0;
         }
 
-    } while (ici_isstruct(o)); /* Merge tail recursion. */
+    } while (isstruct(o)); /* Merge tail recursion. */
 
     return ici_assign_super(o, k, v, b);
 }
@@ -493,7 +493,7 @@ int struct_type::assign(object *o, object *k, object *v)
     (
         isstring(k)
         &&
-        stringof(k)->s_struct == ici_structof(o)
+        stringof(k)->s_struct == structof(o)
         &&
         stringof(k)->s_vsver == vsver
         &&
@@ -511,7 +511,7 @@ int struct_type::assign(object *o, object *k, object *v)
     /*
      * Look for it in the base struct.
      */
-    sl = &ici_structof(o)->s_slots[HASHINDEX(k, ici_structof(o))];
+    sl = &structof(o)->s_slots[HASHINDEX(k, structof(o))];
     while (sl->sl_key != NULL)
     {
         if (sl->sl_key == k)
@@ -522,12 +522,12 @@ int struct_type::assign(object *o, object *k, object *v)
             }
             goto do_assign;
         }
-        if (--sl < ici_structof(o)->s_slots)
-            sl = ici_structof(o)->s_slots + ici_structof(o)->s_nslots - 1;
+        if (--sl < structof(o)->s_slots)
+            sl = structof(o)->s_slots + structof(o)->s_nslots - 1;
     }
-    if (ici_structof(o)->o_super != NULL)
+    if (structof(o)->o_super != NULL)
     {
-        switch (ici_assign_super(ici_structof(o)->o_super, k, v, ici_structof(o)))
+        switch (ici_assign_super(structof(o)->o_super, k, v, structof(o)))
         {
         case -1: return 1; /* Error. */
         case 1:  return 0; /* Done. */
@@ -540,31 +540,31 @@ int struct_type::assign(object *o, object *k, object *v)
     {
         return ici_set_error("attempt to modify an atomic struct");
     }
-    if (ici_structof(o)->s_nels >= ici_structof(o)->s_nslots - ici_structof(o)->s_nslots / 4)
+    if (structof(o)->s_nels >= structof(o)->s_nslots - structof(o)->s_nslots / 4)
     {
         /*
          * This struct is 75% full.  Grow it.
          */
-        if (grow_struct(ici_structof(o)))
+        if (grow_struct(structof(o)))
             return 1;
         /*
          * Re-find our empty slot.
          */
-        sl = &ici_structof(o)->s_slots[HASHINDEX(k, ici_structof(o))];
+        sl = &structof(o)->s_slots[HASHINDEX(k, structof(o))];
         while (sl->sl_key != NULL)
         {
-            if (--sl < ici_structof(o)->s_slots)
-                sl = ici_structof(o)->s_slots + ici_structof(o)->s_nslots - 1;
+            if (--sl < structof(o)->s_slots)
+                sl = structof(o)->s_slots + structof(o)->s_nslots - 1;
         }
     }
-    ++ici_structof(o)->s_nels;
+    ++structof(o)->s_nels;
     sl->sl_key = k;
  do_assign:
     sl->sl_value = v;
     if (isstring(k))
     {
         stringof(k)->s_vsver = vsver;
-        stringof(k)->s_struct = ici_structof(o);
+        stringof(k)->s_struct = structof(o);
         stringof(k)->s_slot = sl;
         k->clrflag(ICI_S_LOOKASIDE_IS_ATOM);
     }
@@ -577,7 +577,7 @@ int struct_type::assign(object *o, object *k, object *v)
  */
 int struct_type::assign_base(object *o, object *k, object *v)
 {
-    ici_struct  *s = ici_structof(o);
+    ici_struct  *s = structof(o);
     sslot       *sl;
     int         tqfull;
 
@@ -633,7 +633,7 @@ int struct_type::assign_base(object *o, object *k, object *v)
 int struct_type::forall(object *o)
 {
     struct forall *fa = forallof(o);
-    ici_struct    *s  = ici_structof(fa->fa_aggr);
+    ici_struct    *s  = structof(fa->fa_aggr);
 
     while (++fa->fa_index < s->s_nslots)
     {
@@ -670,7 +670,7 @@ object *struct_type::fetch(object *o, object *k)
     (
         isstring(k)
         &&
-        stringof(k)->s_struct == ici_structof(o)
+        stringof(k)->s_struct == structof(o)
         &&
         stringof(k)->s_vsver == vsver
     )
@@ -679,7 +679,7 @@ object *struct_type::fetch(object *o, object *k)
         assert(stringof(k)->s_slot->sl_value == v);
         return stringof(k)->s_slot->sl_value;
     }
-    switch (fetch_super(o, k, &v, ici_structof(o)))
+    switch (fetch_super(o, k, &v, structof(o)))
     {
     case -1: return NULL;               /* Error. */
     case  1: return v;                  /* Found. */
@@ -691,7 +691,7 @@ object *struct_type::fetch_base(object *o, object *k)
 {
     sslot *sl;
 
-    sl = ici_find_raw_slot(ici_structof(o), k);
+    sl = ici_find_raw_slot(structof(o), k);
     if (sl->sl_key == NULL)
     {
         return ici_null;
@@ -699,7 +699,7 @@ object *struct_type::fetch_base(object *o, object *k)
     if (isstring(k))
     {
         stringof(k)->s_vsver = vsver;
-        stringof(k)->s_struct = ici_structof(o);
+        stringof(k)->s_struct = structof(o);
         stringof(k)->s_slot = sl;
         if (o->isatom())
         {

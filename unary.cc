@@ -21,7 +21,7 @@ ici_op_unary()
 {
     ici_int_t   *i;
 
-    switch (ici_opof(ici_xs.a_top[-1])->op_code)
+    switch (opof(ici_xs.a_top[-1])->op_code)
     {
     case t_subtype(T_EXCLAM):
         if (isfalse(ici_os.a_top[-1]))
@@ -49,7 +49,7 @@ ici_op_unary()
         assert(0);
     fail:
     default:
-        switch (ici_opof(ici_xs.a_top[-1])->op_code)
+        switch (opof(ici_xs.a_top[-1])->op_code)
         {
         case t_subtype(T_EXCLAM): return attempted("!", ici_os.a_top[-1]->type_name());
         case t_subtype(T_TILDE): return attempted("~", ici_os.a_top[-1]->type_name());

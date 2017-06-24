@@ -76,12 +76,12 @@
 
     o0 = ici_os.a_top[-2];
     o1 = ici_os.a_top[-1];
-    can_temp = ici_opof(o)->op_ecode == ICI_OP_BINOP_FOR_TEMP;
+    can_temp = opof(o)->op_ecode == ICI_OP_BINOP_FOR_TEMP;
     if (o0->o_tcode > ICI_TC_MAX_BINOP || o1->o_tcode > ICI_TC_MAX_BINOP)
     {
         goto others;
     }
-    switch (ICI_TRI(o0->o_tcode, o1->o_tcode, ici_opof(o)->op_code))
+    switch (ICI_TRI(o0->o_tcode, o1->o_tcode, opof(o)->op_code))
     {
     /*
      * Pure integer operations.
@@ -565,12 +565,12 @@
             ici_sslot_t *sl;
             int        i;
 
-            if ((s = ici_structof(ici_copy(o0))) == NULL)
+            if ((s = structof(ici_copy(o0))) == NULL)
             {
                 FAIL();
             }
-            sl = ici_structof(o1)->s_slots;
-            for (i = 0; i < ici_structof(o1)->s_nslots; ++i, ++sl)
+            sl = structof(o1)->s_slots;
+            for (i = 0; i < structof(o1)->s_nslots; ++i, ++sl)
             {
                 if (sl->sl_key == NULL)
                 {
@@ -731,7 +731,7 @@
                     compare = 1;
                 }
             }
-            switch (ici_opof(o)->op_code)
+            switch (opof(o)->op_code)
             {
             case t_subtype(T_LESS):   if (compare < 0) USE1(); break;
             case t_subtype(T_GRT):    if (compare > 0) USE1(); break;
@@ -787,7 +787,7 @@
 
     default:
     others:
-        switch (ici_opof(o)->op_code)
+        switch (opof(o)->op_code)
         {
         case t_subtype(T_PLUSEQ):
 	    if (o0->o_tcode == ICI_TC_SET)
@@ -835,7 +835,7 @@
 
             sprintf(buf, "attempt to perform \"%s %s %s\"",
                 ici_objname(n1, o0),
-                binop_name(ici_opof(o)->op_code),
+                binop_name(opof(o)->op_code),
                 ici_objname(n2, o1));
         }
         ici_error = buf;

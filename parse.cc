@@ -96,9 +96,9 @@ disassemble(int indent, array *a)
         {
             printf("%s, %d\n", srcof(*e)->s_filename->s_chars, srcof(*e)->s_lineno);
         }
-        else if (ici_isop(*e))
+        else if (isop(*e))
         {
-            printf("%s %d\n", opname(ici_opof(*e)), ici_opof(*e)->op_code);
+            printf("%s %d\n", opname(opof(*e)), opof(*e)->op_code);
         }
         else
         {
@@ -321,7 +321,7 @@ function(parse *p, str *name)
     printf("%s()\n", name == NULL ? "?" : name->s_chars);
     disassemble(4, f->f_code);
 #   endif
-    f->f_autos = ici_structof(ici_atom(f->f_autos, 2));
+    f->f_autos = structof(ici_atom(f->f_autos, 2));
     p->p_got.t_obj = ici_atom(f, 1);
     p->p_func = saved_func;
     return 1;
@@ -764,11 +764,11 @@ primary(parse *p, expr_t **ep, int exclude)
                 }
                 if (is_eq)
                 {
-                    d = ici_structof(o);
+                    d = structof(o);
                 }
                 else
                 {
-                    super = ici_structof(o);
+                    super = structof(o);
                 }
                 switch (next(p, NULL))
                 {

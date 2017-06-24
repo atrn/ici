@@ -97,10 +97,10 @@ size_t file_type::mark(object *o)
 {
     o->setmark();
     auto mem = typesize();
-    if (ici_fileof(o)->f_name != NULL)
-        mem += ici_mark(ici_fileof(o)->f_name);
-    if (ici_fileof(o)->f_ref != NULL)
-        mem += ici_mark(ici_fileof(o)->f_ref);
+    if (fileof(o)->f_name != NULL)
+        mem += ici_mark(fileof(o)->f_name);
+    if (fileof(o)->f_ref != NULL)
+        mem += ici_mark(fileof(o)->f_ref);
     return mem;
 }
 
@@ -109,32 +109,32 @@ void file_type::free(object *o)
     if (!o->flagged(ICI_F_CLOSED))
     {
         if (o->flagged(ICI_F_NOCLOSE))
-            ici_fileof(o)->flush();
+            fileof(o)->flush();
         else
-            ici_file_close(ici_fileof(o));
+            ici_file_close(fileof(o));
     }
     ici_tfree(o, ici_file_t);
 }
 
 int file_type::cmp(object *o1, object *o2)
 {
-    return ici_fileof(o1)->f_file != ici_fileof(o2)->f_file
-    || ici_fileof(o1)->f_type != ici_fileof(o2)->f_type;
+    return fileof(o1)->f_file != fileof(o2)->f_file
+    || fileof(o1)->f_type != fileof(o2)->f_type;
 }
 
 object * file_type::fetch(object *o, object *k)
 {
     if (k == SS(name))
     {
-        if (ici_fileof(o)->f_name != NULL)
-            return ici_fileof(o)->f_name;
+        if (fileof(o)->f_name != NULL)
+            return fileof(o)->f_name;
         return ici_null;
     }
-    if (ici_fileof(o)->f_type == parse_ftype && k == SS(line))
+    if (fileof(o)->f_type == parse_ftype && k == SS(line))
     {
         ici_int_t   *l;
 
-        if ((l = ici_int_new(ici_parseof(ici_fileof(o)->f_file)->p_lineno)) != NULL)
+        if ((l = ici_int_new(ici_parseof(fileof(o)->f_file)->p_lineno)) != NULL)
             l->decref();
         return l;
     }

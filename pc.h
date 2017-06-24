@@ -17,8 +17,8 @@ struct pc : object
     object **pc_next;
 };
 
-inline pc * ici_pcof(object *o) { return static_cast<pc *>(o); }
-inline bool ici_ispc(object *o) { return o->isa(ICI_TC_PC); }
+inline pc * pcof(object *o) { return static_cast<pc *>(o); }
+inline bool ispc(object *o) { return o->isa(ICI_TC_PC); }
 
 /*
  * End of ici.h export. --ici.h-end--

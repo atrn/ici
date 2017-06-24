@@ -114,8 +114,8 @@ struct cfunc : object
  * This comment is also part of the --ici-api--.
  */
 
-inline ici_cfunc_t *ici_cfuncof(object *o) { return static_cast<ici_cfunc_t *>(o); }
-inline bool ici_iscfunc(object *o) { return o->isa(ICI_TC_CFUNC); }
+inline cfunc *cfuncof(object *o) { return static_cast<cfunc *>(o); }
+inline bool iscfunc(object *o) { return o->isa(ICI_TC_CFUNC); }
 
 /*
  * The operand stack on entry to an intrinsic function:
@@ -171,8 +171,8 @@ inline int NARGS() { return intof(ici_os.a_top[-2])->i_value; }
  *
  * This --macro-- forms part of the --ici-api--.
  */
-#define ICI_CF_ARG1()       (ici_cfuncof(ici_os.a_top[-1])->cf_arg1)
-#define ICI_CF_ARG2()       (ici_cfuncof(ici_os.a_top[-1])->cf_arg2)
+#define ICI_CF_ARG1()       (cfuncof(ici_os.a_top[-1])->cf_arg1)
+#define ICI_CF_ARG2()       (cfuncof(ici_os.a_top[-1])->cf_arg2)
 
 /*
  * Defines a 'cfuncs' array.

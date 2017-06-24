@@ -59,7 +59,7 @@ ici_outermost_writeable_struct()
     {
         if (ows->isatom())
             continue;
-        if (!ici_isstruct(ows))
+        if (!isstruct(ows))
             continue;
         outer = ows;
     }
@@ -177,9 +177,9 @@ f_load(...)
         result = o;
         if (ici_assign(outer, name, o))
             goto fail;
-        if (!ici_isstruct(o))
+        if (!isstruct(o))
             return ici_ret_with_decref(o);
-        externs = ici_structof(o);
+        externs = structof(o);
     }
 
     strcpy(fname, ici_prefix);

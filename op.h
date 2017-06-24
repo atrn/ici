@@ -34,10 +34,10 @@ struct op : object
     int16_t op_code;
 };
 
-inline ici_op_t *ici_opof(object *o) { return static_cast<ici_op_t *>(o); }
-inline bool ici_isop(object *o) { return o->isa(ICI_TC_OP); }
+inline op *opof(object *o) { return static_cast<op *>(o); }
+inline bool isop(object *o) { return o->isa(ICI_TC_OP); }
 
-ici_op_t *ici_new_op(int (*func)(), int16_t ecode, int16_t code);
+op *ici_new_op(int (*func)(), int16_t ecode, int16_t code);
 
 /*
  * Operator codes. These are stored in the op_ecode field and
@@ -92,41 +92,41 @@ enum
  * Are defined in various source files. Generally where they are
  * implemented.
  */
-extern ici_op_t         ici_o_quote;
-extern ici_op_t         ici_o_looper;
-extern ici_op_t         ici_o_loop;
-extern ici_op_t         ici_o_rewind;
-extern ici_op_t         ici_o_end;
-extern ici_op_t         ici_o_break;
-extern ici_op_t         ici_o_continue;
-extern ici_op_t         ici_o_exec;
-extern ici_op_t         ici_o_return;
-extern ici_op_t         ici_o_call;
-extern ici_op_t         ici_o_method_call;
-extern ici_op_t         ici_o_super_call;
-extern ici_op_t         ici_o_if;
-extern ici_op_t         ici_o_ifnotbreak;
-extern ici_op_t         ici_o_ifbreak;
-extern ici_op_t         ici_o_ifelse;
-extern ici_op_t         ici_o_pop;
-extern ici_op_t         ici_o_colon;
-extern ici_op_t         ici_o_coloncaret;
-extern ici_op_t         ici_o_dot;
-extern ici_op_t         ici_o_dotkeep;
-extern ici_op_t         ici_o_dotrkeep;
-extern ici_op_t         ici_o_mkptr;
-extern ici_op_t         ici_o_openptr;
-extern ici_op_t         ici_o_fetch;
-extern ici_op_t         ici_o_for;
-extern ici_op_t         ici_o_mklvalue;
-extern ici_op_t         ici_o_onerror;
-extern ici_op_t         ici_o_andand;
-extern ici_op_t         ici_o_barbar;
-extern ici_op_t         ici_o_namelvalue;
-extern ici_op_t         ici_o_switch;
-extern ici_op_t         ici_o_switcher;
-extern ici_op_t         ici_o_critsect;
-extern ici_op_t         ici_o_waitfor;
+extern op         ici_o_quote;
+extern op         ici_o_looper;
+extern op         ici_o_loop;
+extern op         ici_o_rewind;
+extern op         ici_o_end;
+extern op         ici_o_break;
+extern op         ici_o_continue;
+extern op         ici_o_exec;
+extern op         ici_o_return;
+extern op         ici_o_call;
+extern op         ici_o_method_call;
+extern op         ici_o_super_call;
+extern op         ici_o_if;
+extern op         ici_o_ifnotbreak;
+extern op         ici_o_ifbreak;
+extern op         ici_o_ifelse;
+extern op         ici_o_pop;
+extern op         ici_o_colon;
+extern op         ici_o_coloncaret;
+extern op         ici_o_dot;
+extern op         ici_o_dotkeep;
+extern op         ici_o_dotrkeep;
+extern op         ici_o_mkptr;
+extern op         ici_o_openptr;
+extern op         ici_o_fetch;
+extern op         ici_o_for;
+extern op         ici_o_mklvalue;
+extern op         ici_o_onerror;
+extern op         ici_o_andand;
+extern op         ici_o_barbar;
+extern op         ici_o_namelvalue;
+extern op         ici_o_switch;
+extern op         ici_o_switcher;
+extern op         ici_o_critsect;
+extern op         ici_o_waitfor;
 
 /*
  * End of ici.h export. --ici.h-end--

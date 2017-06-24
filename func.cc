@@ -74,17 +74,17 @@ ici_op_return()
         &&
         SS(_func_)->s_vsver == vsver
         &&
-        ici_isfunc(f = SS(_func_)->s_slot->sl_value)
+        isfunc(f = SS(_func_)->s_slot->sl_value)
     )
     {
-        ici_funcof(f)->f_nautos = ici_structof(ici_vs.a_top[-1])->s_nels;
+        funcof(f)->f_nautos = structof(ici_vs.a_top[-1])->s_nels;
     }
     else if (--occasionally <= 0)
     {
         occasionally = 10;
         f = ici_fetch(ici_vs.a_top[-1], SS(_func_));
-        if (ici_isstruct(ici_vs.a_top[-1]) && ici_isfunc(f))
-            ici_funcof(f)->f_nautos = ici_structof(ici_vs.a_top[-1])->s_nels;
+        if (isstruct(ici_vs.a_top[-1]) && isfunc(f))
+            funcof(f)->f_nautos = structof(ici_vs.a_top[-1])->s_nels;
     }
 
     --ici_vs.a_top;
@@ -97,7 +97,7 @@ ici_op_return()
 
 size_t func_type::mark(object *o)
 {
-    auto fn = ici_funcof(o);
+    auto fn = funcof(o);
     o->setmark();
     auto mem = typesize();
     if (fn->f_code != NULL)
@@ -113,15 +113,15 @@ size_t func_type::mark(object *o)
 
 int func_type::cmp(object *o1, object *o2)
 {
-    return ici_funcof(o1)->f_code != ici_funcof(o2)->f_code
-        || ici_funcof(o1)->f_autos != ici_funcof(o2)->f_autos
-        || ici_funcof(o1)->f_args != ici_funcof(o2)->f_args
-        || ici_funcof(o1)->f_name != ici_funcof(o2)->f_name;
+    return funcof(o1)->f_code != funcof(o2)->f_code
+        || funcof(o1)->f_autos != funcof(o2)->f_autos
+        || funcof(o1)->f_args != funcof(o2)->f_args
+        || funcof(o1)->f_name != funcof(o2)->f_name;
 }
 
 unsigned long func_type::hash(object *o)
 {
-    return (unsigned long)ici_funcof(o)->f_code * FUNC_PRIME;
+    return (unsigned long)funcof(o)->f_code * FUNC_PRIME;
 }
 
 object * func_type::fetch(object *o, object *k)
@@ -132,15 +132,15 @@ object * func_type::fetch(object *o, object *k)
     r = NULL;
     if (k == SS(vars))
     {
-        r = ici_funcof(o)->f_autos;
+        r = funcof(o)->f_autos;
     }
     else if (k == SS(args))
     {
-        r = ici_funcof(o)->f_args;
+        r = funcof(o)->f_args;
     }
     else if (k == SS(name))
     {
-        r = ici_funcof(o)->f_name;
+        r = funcof(o)->f_name;
     }
     if (r == NULL && ici_error == NULL)
     {
@@ -153,7 +153,7 @@ void func_type::objname(object *o, char p[ICI_OBJNAMEZ])
 {
     ici_str_t   *s;
 
-    s = ici_funcof(o)->f_name;
+    s = funcof(o)->f_name;
     if (s->s_nchars > ICI_OBJNAMEZ - 2 - 1)
         sprintf(p, "%.*s...()", ICI_OBJNAMEZ - 6, s->s_chars);
     else
@@ -184,7 +184,7 @@ int func_type::call(object *o, object *subject)
     array       *va;
     int         n;
 
-    f = ici_funcof(o);
+    f = funcof(o);
 #ifndef NOPROFILE
     if (UNLIKELY(ici_profile_active))
     {
@@ -192,7 +192,7 @@ int func_type::call(object *o, object *subject)
     }
 #endif
 
-    d = ici_structof(f->f_autos->copy());
+    d = structof(f->f_autos->copy());
     if (UNLIKELY(d == NULL))
     {
         goto fail;

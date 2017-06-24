@@ -581,7 +581,7 @@ static int ici_sys_fcntl()
         myflock.l_type = F_RDLCK;
         myflock.l_whence = SEEK_SET;
         iwhat = F_SETLK;
-        if (ici_isstruct(arg) && struct_to_flock(ici_structof(arg), &myflock))
+        if (isstruct(arg) && struct_to_flock(structof(arg), &myflock))
             return 1;
         r = fcntl(fd, iwhat, &myflock);
         goto ret;
@@ -852,8 +852,8 @@ static int ici_sys_stat()
         rc = fstat(intof(o)->i_value, &statb);
     else if (isstring(o))
         rc = stat(stringof(o)->s_chars, &statb);
-    else if (ici_isfile(o) && ici_fileof(o)->f_type == stdio_ftype)
-        rc = fstat(ici_fileof(o)->fileno(), &statb);
+    else if (isfile(o) && fileof(o)->f_type == stdio_ftype)
+        rc = fstat(fileof(o)->fileno(), &statb);
     else
         return ici_argerror(0);
     if (rc == -1)
@@ -1098,7 +1098,7 @@ fetch_timeval(object *s, struct timeval *tv)
 {
     object    *o;
 
-    if (!ici_isstruct(s))
+    if (!isstruct(s))
         return 1;
     if ((o = ici_fetch(s, SS(usec))) == ici_null)
         tv->tv_usec = 0;
@@ -2067,7 +2067,7 @@ static int ici_sys_setrlimit()
     {
         rlimit.rlim_cur = RLIM_INFINITY;
     }
-    else if (ici_isstruct(value))
+    else if (isstruct(value))
     {
         if ((iv = ici_fetch(value, SS(cur))) == ici_null)
             goto fail;

@@ -233,9 +233,9 @@ int typecheck(const char *types, ...)
             break;
 
         case 'd': /* A struct ("dict") -> (ici_struct_t *). */
-            if (!ici_isstruct(o))
+            if (!isstruct(o))
                 goto fail;
-            *(ici_struct_t **)ptr = ici_structof(o);
+            *(ici_struct_t **)ptr = structof(o);
             break;
 
         case 'a': /* An array -> (array *). */
@@ -245,9 +245,9 @@ int typecheck(const char *types, ...)
             break;
 
         case 'u': /* A file -> (file *). */
-            if (!ici_isfile(o))
+            if (!isfile(o))
                 goto fail;
-            *(file **)ptr = ici_fileof(o);
+            *(file **)ptr = fileof(o);
             break;
 
         case 'r': /* A regular expression -> (regexpr_t *). */
@@ -371,9 +371,9 @@ int retcheck(const char *types, ...)
             break;
 
         case 'd':
-            if (!ici_isstruct(o))
+            if (!isstruct(o))
                 goto fail;
-            *(ici_struct_t **)ptr = ici_structof(o);
+            *(ici_struct_t **)ptr = structof(o);
             break;
 
         case 'a':
@@ -383,9 +383,9 @@ int retcheck(const char *types, ...)
             break;
 
         case 'u':
-            if (!ici_isfile(o))
+            if (!isfile(o))
                 goto fail;
-            *(file **)ptr = ici_fileof(o);
+            *(file **)ptr = fileof(o);
             break;
 
         case '*':
@@ -647,10 +647,10 @@ ici_need_stdin()
 {
     file          *f;
 
-    f = ici_fileof(ici_fetch(ici_vs.a_top[-1], SS(_stdin)));
-    if (!ici_isfile(f))
+    f = fileof(ici_fetch(ici_vs.a_top[-1], SS(_stdin)));
+    if (!isfile(f))
     {
-        return ici_fileof(not_a("stdin", "file"));
+        return fileof(not_a("stdin", "file"));
     }
     return f;
 }
@@ -668,10 +668,10 @@ ici_need_stdout()
 {
     file          *f;
 
-    f = ici_fileof(ici_fetch(ici_vs.a_top[-1], SS(_stdout)));
-    if (!ici_isfile(f))
+    f = fileof(ici_fetch(ici_vs.a_top[-1], SS(_stdout)));
+    if (!isfile(f))
     {
-        return ici_fileof(not_a("stdout", "file"));
+        return fileof(not_a("stdout", "file"));
     }
     return f;
 }
@@ -835,9 +835,9 @@ f_keys()
 
     if (NARGS() != 1)
         return ici_argcount(1);
-    if (ici_isstruct(ARG(0)))
+    if (isstruct(ARG(0)))
     {
-        ici_struct_t *s = ici_structof(ARG(0));
+        ici_struct_t *s = structof(ARG(0));
         ici_sslot_t *sl;
 
         if ((k = ici_array_new(s->s_nels)) == NULL)
@@ -903,8 +903,8 @@ f_nels()
         size = stringof(o)->s_nchars;
     else if (isarray(o))
         size = arrayof(o)->len();
-    else if (ici_isstruct(o))
-        size = ici_structof(o)->s_nels;
+    else if (isstruct(o))
+        size = structof(o)->s_nels;
     else if (isset(o))
         size = setof(o)->s_nels;
     else if (ismem(o))
@@ -1151,8 +1151,8 @@ f_parse()
         }
         f->f_name = SS(empty_string);
     }
-    else if (ici_isfile(o))
-        f = ici_fileof(o);
+    else if (isfile(o))
+        f = fileof(o);
     else
     {
         a->decref();
@@ -1185,7 +1185,7 @@ static int f_include()
     case 1:
         if (typecheck("o", &filename))
             return 1;
-        a = ici_structof(ici_vs.a_top[-1]);
+        a = structof(ici_vs.a_top[-1]);
         break;
 
     case 2:
@@ -1646,7 +1646,7 @@ ici_f_sprintf()
 #endif
 
     which = (long)ICI_CF_ARG1(); /* sprintf, printf, fprintf */
-    if (which != 0 && NARGS() > 0 && ici_isfile(ARG(0)))
+    if (which != 0 && NARGS() > 0 && isfile(ARG(0)))
     {
         which = 2;
         if (typecheck("us*", &file, &fmt))
@@ -1957,9 +1957,9 @@ f_del()
 
     if (typecheck("oo", &s, &o))
         return 1;
-    if (ici_isstruct(s))
+    if (isstruct(s))
     {
-        ici_struct_unassign(ici_structof(s), o);
+        ici_struct_unassign(structof(s), o);
     }
     else if (isset(s))
     {
@@ -2100,7 +2100,7 @@ f_scope()
 {
     ici_struct_t    *s;
 
-    s = ici_structof(ici_vs.a_top[-1]);
+    s = structof(ici_vs.a_top[-1]);
     if (NARGS() > 0)
     {
         if (typecheck("d", &ici_vs.a_top[-1]))
@@ -2259,12 +2259,12 @@ f_waitfor()
     to = 0.0; /* Stops warnings, not required. */
     for (nargs = NARGS(), e = ARGS(); nargs > 0; --nargs, --e)
     {
-        if (ici_isfile(*e))
+        if (isfile(*e))
         {
-            int fd = ici_fileof(*e)->fileno();
+            int fd = fileof(*e)->fileno();
             if (fd != -1)
             {
-                ici_fileof(*e)->setvbuf(NULL, _IONBF, 0);
+                fileof(*e)->setvbuf(NULL, _IONBF, 0);
                 FD_SET(fd, &readfds);
                 if (fd >= nfds)
                     nfds = fd + 1;
@@ -2310,9 +2310,9 @@ f_waitfor()
     ici_signals_blocking_syscall(0);
     for (nargs = NARGS(), e = ARGS(); nargs > 0; --nargs, --e)
     {
-        if (!ici_isfile(*e))
+        if (!isfile(*e))
             continue;
-        auto fn = ici_fileof(*e)->fileno();
+        auto fn = fileof(*e)->fileno();
         if (fn != -1)
         {
             if (FD_ISSET(fn, &readfds))
@@ -2352,10 +2352,10 @@ f_gettoken()
                 return 1;
             f->decref();
         }
-        else if (!ici_isfile(fo))
+        else if (!isfile(fo))
             return ici_argerror(0);
         else
-            f = ici_fileof(fo);
+            f = fileof(fo);
         break;
 
     default:
@@ -2367,10 +2367,10 @@ f_gettoken()
                 return 1;
             f->decref();
         }
-        else if (!ici_isfile(fo))
+        else if (!isfile(fo))
             return ici_argerror(0);
         else
-            f = ici_fileof(fo);
+            f = fileof(fo);
         if (!isstring(s))
             return ici_argerror(1);
         seps = (unsigned char *)s->s_chars;
@@ -2500,10 +2500,10 @@ f_gettokens()
         {
             return fast_gettokens(stringof(fo)->s_chars, " \t");
         }
-        else if (!ici_isfile(fo))
+        else if (!isfile(fo))
             return ici_argerror(0);
         else
-            f = ici_fileof(fo);
+            f = fileof(fo);
         break;
 
     case 2:
@@ -2521,10 +2521,10 @@ f_gettokens()
                 return 1;
             loose_it = 1;
         }
-        else if (!ici_isfile(fo))
+        else if (!isfile(fo))
             return ici_argerror(0);
         else
-            f = ici_fileof(fo);
+            f = fileof(fo);
         if (isint(s))
         {
             object *so = s;
@@ -2979,7 +2979,7 @@ f_calendar()
             || ici_set_val(s, SS(zone), 's', (char *)tm->tm_zone)
 	    || ici_set_val(s, SS(gmtoff), 'i', &tm->tm_gmtoff)
 #else
-            || ici_set_timezone_vals(ici_structof(s))
+            || ici_set_timezone_vals(structof(s))
 #endif
         )
         {
@@ -2988,7 +2988,7 @@ f_calendar()
         }
         return ici_ret_with_decref(s);
     }
-    else if (ici_isstruct(ARG(0)))
+    else if (isstruct(ARG(0)))
     {
         time_t          t;
         struct tm       tm;
@@ -3218,9 +3218,9 @@ f_which()
         return ici_argerror(0);
     while (s != NULL)
     {
-        if (ici_isstruct(s))
+        if (isstruct(s))
         {
-            if (ici_find_raw_slot(ici_structof(s), k)->sl_key == k)
+            if (ici_find_raw_slot(structof(s), k)->sl_key == k)
 	    {
                 return ici_ret_no_decref(s);
 	    }
@@ -3415,8 +3415,8 @@ f_getfile()
             must_close = 1;
         }
         else
-            f = ici_fileof(ARG(0));
-        if (!ici_isfile(f))
+            f = fileof(ARG(0));
+        if (!isfile(f))
         {
             char    n1[ICI_OBJNAMEZ];
             ici_set_error("getfile() given %s instead of a file", ici_objname(n1, f));

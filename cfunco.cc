@@ -141,27 +141,27 @@ ici_module_new(ici_cfunc_t *cf)
 static int
 call_cfunc_nodebug(object *o, object *subject)
 {
-    return (*ici_cfuncof(o)->cf_cfunc)(subject);
+    return (*cfuncof(o)->cf_cfunc)(subject);
 }
 #endif
 
 size_t cfunc_type::mark(object *o)
 {
     o->setmark();
-    return typesize() + ici_mark(ici_cfuncof(o)->cf_name);
+    return typesize() + ici_mark(cfuncof(o)->cf_name);
 }
 
 object * cfunc_type::fetch(object *o, object *k)
 {
     if (k == SS(name))
-        return ici_cfuncof(o)->cf_name;
+        return cfuncof(o)->cf_name;
     return ici_null;
 }
 
 void cfunc_type::objname(object *o, char p[ICI_OBJNAMEZ])
 {
     const char    *n;
-    n = ici_cfuncof(o)->cf_name->s_chars;
+    n = cfuncof(o)->cf_name->s_chars;
     if (strlen(n) > ICI_OBJNAMEZ - 2 - 1)
         sprintf(p, "%.*s...()", ICI_OBJNAMEZ - 6, n);
     else
@@ -189,7 +189,7 @@ int cfunc_type::call(object *o, object *subject)
          * now.
          */
         xt = ici_xs.a_top - 1;
-        result = (*ici_cfuncof(o)->cf_cfunc)(subject);
+        result = (*cfuncof(o)->cf_cfunc)(subject);
         if (xt != ici_xs.a_top)
             return result;
 #ifndef NOPROFILE
@@ -202,7 +202,7 @@ int cfunc_type::call(object *o, object *subject)
         }
         return result;
     }
-    return (*ici_cfuncof(o)->cf_cfunc)(subject);
+    return (*cfuncof(o)->cf_cfunc)(subject);
 }
 
 } // namespace ici

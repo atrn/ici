@@ -200,7 +200,7 @@ ici_handle_method(object *inst)
                              ici_objname(n2, inst));
     }
     r = NULL;
-    id = (long)ici_cfuncof(ici_os.a_top[-1])->cf_arg1;
+    id = (long)cfuncof(ici_os.a_top[-1])->cf_arg1;
     if ((*ici_handleof(inst)->h_member_intf)(ici_handleof(inst)->h_ptr, id, NULL, &r))
         return 1;
     if (r == NULL)
@@ -342,7 +342,7 @@ object * handle_type::fetch(object *o, object *k)
 
         if ((id = ici_fetch(h->h_member_map, k)) == NULL)
             return NULL;
-        if (ici_iscfunc(id))
+        if (iscfunc(id))
             return id;
         if (isint(id))
         {
@@ -399,7 +399,7 @@ object * handle_type::fetch_base(object *o, object *k)
 
         if ((id = ici_fetch(h->h_member_map, k)) == NULL)
             return NULL;
-        if (ici_iscfunc(id))
+        if (iscfunc(id))
             return id;
         if (isint(id))
         {
