@@ -32,9 +32,9 @@ ici_op_unary()
         return 0;
 
     case t_subtype(T_TILDE):
-        if (!ici_isint(ici_os.a_top[-1]))
+        if (!isint(ici_os.a_top[-1]))
             goto fail;
-        if ((i = ici_int_new(~ici_intof(ici_os.a_top[-1])->i_value)) == NULL)
+        if ((i = ici_int_new(~intof(ici_os.a_top[-1])->i_value)) == NULL)
             return 1;
         ici_os.a_top[-1] = i;
         i->decref();

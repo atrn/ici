@@ -556,9 +556,9 @@ ici_net_connect(void)
         return 1;
     if (ici_isstring(arg))
         addr = ici_stringof(arg)->s_chars;
-    else if (ici_isint(arg))
+    else if (isint(arg))
     {
-        sprintf(buf, "%lld", ici_intof(arg)->i_value);
+        sprintf(buf, "%lld", intof(arg)->i_value);
         addr = buf;
     }
     else
@@ -611,9 +611,9 @@ ici_net_bind(void)
             return ici_argerror(0);
         if (ici_isstring(ARG(1)))
             addr = ici_stringof(ARG(1))->s_chars;
-        else if (ici_isint(ARG(1)))
+        else if (isint(ARG(1)))
         {
-            sprintf(buf, "%lld", ici_intof(ARG(1))->i_value);
+            sprintf(buf, "%lld", intof(ARG(1))->i_value);
             addr = buf;
         }
         else
@@ -739,15 +739,15 @@ ici_net_select()
         return seterror("incorrect number of arguments for net.select()", NULL);
     for (i = 0; i < NARGS(); ++i)
     {
-        if (ici_isint(ARG(i)))
+        if (isint(ARG(i)))
         {
             if (timeout != -1)
                 return seterror("too many timeout parameters passed to net.select", NULL);
-            timeout = ici_intof(ARG(i))->i_value;
+            timeout = intof(ARG(i))->i_value;
             if (timeout < 0)
                 return seterror("-ve timeout passed to net.select", NULL);
         }
-        else if (isset(ARG(i)) || ici_isnull(ARG(i)))
+        else if (isset(ARG(i)) || isnull(ARG(i)))
         {
             int j;
 
@@ -1536,8 +1536,8 @@ ici_net_gethostbyaddr(void)
 
     if (NARGS() != 1)
         return ici_argcount(1);
-    if (ici_isint(ARG(0)))
-        addr = htonl((unsigned long)ici_intof(ARG(0))->i_value);
+    if (isint(ARG(0)))
+        addr = htonl((unsigned long)intof(ARG(0))->i_value);
     else if (typecheck("s", &s))
         return 1;
     else if ((addr = inet_addr(s)) == 0xFFFFFFFF)

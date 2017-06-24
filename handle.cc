@@ -344,10 +344,10 @@ object * handle_type::fetch(object *o, object *k)
             return NULL;
         if (ici_iscfunc(id))
             return id;
-        if (ici_isint(id))
+        if (isint(id))
         {
             r = NULL;
-            if ((*h->h_member_intf)(h->h_ptr, ici_intof(id)->i_value, NULL, &r))
+            if ((*h->h_member_intf)(h->h_ptr, intof(id)->i_value, NULL, &r))
                 return NULL;
             if (r != NULL)
                 return r;
@@ -401,10 +401,10 @@ object * handle_type::fetch_base(object *o, object *k)
             return NULL;
         if (ici_iscfunc(id))
             return id;
-        if (ici_isint(id))
+        if (isint(id))
         {
             r = NULL;
-            if ((*h->h_member_intf)(h->h_ptr, ici_intof(id)->i_value, NULL, &r))
+            if ((*h->h_member_intf)(h->h_ptr, intof(id)->i_value, NULL, &r))
                 return NULL;
             if (r != NULL)
                 return r;
@@ -441,10 +441,10 @@ int handle_type::assign_base(object *o, object *k, object *v)
 
         if ((id = ici_fetch(h->h_member_map, k)) == NULL)
             return 1;
-        if (ici_isint(id))
+        if (isint(id))
         {
             r = NULL;
-            if ((*h->h_member_intf)(h->h_ptr, ici_intof(id)->i_value, v, &r))
+            if ((*h->h_member_intf)(h->h_ptr, intof(id)->i_value, v, &r))
                 return 1;
             if (r != NULL)
                 return 0;
@@ -498,9 +498,9 @@ int handle_type::assign(object *o, object *k, object *v)
 
         if ((id = ici_fetch(h->h_member_map, k)) == NULL)
             return 1;
-        if (ici_isint(id))
+        if (isint(id))
         {
-            if ((*h->h_member_intf)(h->h_ptr, ici_intof(id)->i_value, v, &r))
+            if ((*h->h_member_intf)(h->h_ptr, intof(id)->i_value, v, &r))
                 return 1;
             if (r != NULL)
                 return 0;

@@ -148,9 +148,7 @@ inline bool ici_iscfunc(ici_obj_t *o) { return o->isa(ICI_TC_CFUNC); }
  *
  * This --macro-- forms part of the --ici-api--.
  */
-// #define NARGS()             ((int)ici_intof(ici_os.a_top[-2])->i_value)
-
-inline int NARGS() { return ici_intof(ici_os.a_top[-2])->i_value; }
+inline int NARGS() { return intof(ici_os.a_top[-2])->i_value; }
 
 /*
  * In a call from ICI to a function coded in C, this macro returns

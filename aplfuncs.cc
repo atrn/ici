@@ -122,7 +122,7 @@ buildxx(ici_obj_t **r, ici_obj_t **dnext, struct context *c)
         }
         return 0;
     }
-    if (ici_isint(*dnext))
+    if (isint(*dnext))
     {
         ici_array_t     *a;
         int             n;
@@ -131,7 +131,7 @@ buildxx(ici_obj_t **r, ici_obj_t **dnext, struct context *c)
          * We have an int dimension. We must make an array that big and
          * recursively fill it based on the next dimension or content.
          */
-        n = ici_intof(*dnext)->i_value;
+        n = intof(*dnext)->i_value;
         if ((a = ici_array_new(n)) == NULL)
             return 1;
         for (i = 0; i < n; ++i)
@@ -231,21 +231,21 @@ f_build(...)
     {
         if (c.c_cnext != c.c_climit && c.c_cnext != &default_content)
         {
-            if (!ici_isint(*c.c_cnext))
+            if (!isint(*c.c_cnext))
             {
                 return ici_set_error("%s given as auto-increment start is not an int",
                     ici_objname(n1, *c.c_cnext));
             }
-            c.c_ccount = ici_intof(*c.c_cnext)->i_value;
+            c.c_ccount = intof(*c.c_cnext)->i_value;
             c.c_cnext += c.c_cstep;
             if (c.c_cnext != c.c_climit)
             {
-                if (!ici_isint(*c.c_cnext))
+                if (!isint(*c.c_cnext))
                 {
                     return ici_set_error("%s given as auto-increment step is not an int",
                         ici_objname(n1, *c.c_cnext));
                 }
-                c.c_cstep = ici_intof(*c.c_cnext)->i_value;
+                c.c_cstep = intof(*c.c_cnext)->i_value;
             }
             else
                 c.c_cstep = 1;

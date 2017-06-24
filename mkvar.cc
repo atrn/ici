@@ -116,10 +116,10 @@ ici_fetch_num(ici_obj_t *o, ici_obj_t *k, double *vp)
 
     if ((v = ici_fetch(o, k)) == NULL)
         return 1;
-    if (ici_isint(v))
-        *vp = ici_intof(v)->i_value;
-    else if (ici_isfloat(v))
-        *vp = ici_floatof(v)->f_value;
+    if (isint(v))
+        *vp = intof(v)->i_value;
+    else if (isfloat(v))
+        *vp = floatof(v)->f_value;
     else
         return ici_fetch_mismatch(o, k, v, "a number");
     return 0;
@@ -137,9 +137,9 @@ ici_fetch_int(ici_obj_t *o, ici_obj_t *k, long *vp)
 
     if ((v = ici_fetch(o, k)) == NULL)
         return 1;
-    if (!ici_isint(v))
+    if (!isint(v))
         return ici_fetch_mismatch(o, k, v, "an int");
-    *vp = ici_intof(v)->i_value;
+    *vp = intof(v)->i_value;
     return 0;
 }
 

@@ -366,9 +366,9 @@ f_signal(...)
             return ici_set_error("invalid signal name");
         }
     }
-    else if (ici_isint(sigo))
+    else if (isint(sigo))
     {
-        signo = ici_intof(sigo)->i_value;
+        signo = intof(sigo)->i_value;
         if (signo < 1 || signo > NSIG)
         {
             return ici_set_error("invalid signal number");

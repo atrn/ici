@@ -16,8 +16,8 @@ struct null : object
     null() : object{ICI_TC_NULL, ICI_O_ATOM, 1, 0} {}
 };
 
-inline null *ici_nullof(object *o) { return static_cast<null *>(o); }
-inline bool ici_isnull(object *o) { return o == ici_null; }
+inline null *nullof(object *o) { return static_cast<null *>(o); }
+inline bool isnull(object *o) { return o == ici_null; }
 
 /*
  * End of ici.h export. --ici.h-end--

@@ -214,7 +214,7 @@ ici_profile_call(ici_func_t *f)
 
     /* Has this function been called from the current function before? */
     assert(ici_prof_cur_call != NULL);
-    if (ici_isnull(pc = ici_profilecallof(ici_fetch(ici_prof_cur_call->pc_calls, f))))
+    if (isnull(pc = ici_profilecallof(ici_fetch(ici_prof_cur_call->pc_calls, f))))
     {
         /* No, create a new record. */
         pc = ici_profilecall_new(ici_prof_cur_call);

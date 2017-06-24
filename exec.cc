@@ -599,16 +599,16 @@ ici_evaluate(object *code, int n_operands)
                         {
                             goto fail;
                         }
-                        if (ici_isnull(o))
+                        if (isnull(o))
                         {
                             if ((o = FETCH(t, SS(unknown_method))) == NULL)
                             {
                                 goto fail;
                             }
-                            if (!ici_isnull(o))
+                            if (!isnull(o))
                             {
                                 object *nam = ici_os.a_top[-1];
-                                long nargs = ici_intof(ici_os.a_top[-3])->i_value;
+                                long nargs = intof(ici_os.a_top[-3])->i_value;
                                 
                                 ++ici_os.a_top;
                                 ici_os.a_top[-1] = SS(unknown_method);
@@ -1150,7 +1150,7 @@ ici_evaluate(object *code, int n_operands)
                     *ici_xs.a_top++ = ici_null;
                     *ici_xs.a_top++ = &ici_o_switcher;
                     ici_get_pc(arrayof(ici_os.a_top[-2]), ici_xs.a_top);
-                    ici_pcof(*ici_xs.a_top)->pc_next += ici_intof(sl->sl_value)->i_value;
+                    ici_pcof(*ici_xs.a_top)->pc_next += intof(sl->sl_value)->i_value;
                     ++ici_xs.a_top;
                     ici_os.a_top -= 3;
                 }

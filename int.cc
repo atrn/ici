@@ -26,7 +26,7 @@ ici_int *ici_int_new(int64_t i)
     if ((i & ~small_int_mask) == 0 && (o = small_ints[i]) != NULL)
     {
         o->incref();
-        return ici_intof(o);
+        return intof(o);
     }
     for
     (
@@ -35,10 +35,10 @@ ici_int *ici_int_new(int64_t i)
         --po < ici_atoms ? po = ici_atoms + ici_atomsz - 1 : NULL
     )
     {
-        if (ici_isint(o) && ici_intof(o)->i_value == i)
+        if (isint(o) && intof(o)->i_value == i)
         {
             o->incref();
-            return ici_intof(o);
+            return intof(o);
         }
     }
     ++ici_supress_collect;
@@ -49,10 +49,10 @@ ici_int *ici_int_new(int64_t i)
     }
     ICI_OBJ_SET_TFNZ(o, ICI_TC_INT, ICI_O_ATOM, 1, sizeof (ici_int));
     ici_rego(o);
-    ici_intof(o)->i_value = i;
+    intof(o)->i_value = i;
     --ici_supress_collect;
     ICI_STORE_ATOM_AND_COUNT(po, o);
-    return ici_intof(o);
+    return intof(o);
 }
 
 /*
@@ -61,7 +61,7 @@ ici_int *ici_int_new(int64_t i)
  */
 int int_type::cmp(object *o1, object *o2)
 {
-    return ici_intof(o1)->i_value != ici_intof(o2)->i_value;
+    return intof(o1)->i_value != intof(o2)->i_value;
 }
 
 /*
@@ -73,7 +73,7 @@ unsigned long int_type::hash(object *o)
     /*
      * There are in-line versions of this in object.c and binop.h.
      */
-    return (unsigned long)ici_intof(o)->i_value * INT_PRIME;
+    return (unsigned long)intof(o)->i_value * INT_PRIME;
 }
 
 } // namespace ici

@@ -216,7 +216,7 @@ alt_setup(ici_array_t *alts, ici_obj_t *obj)
 	    chan = ici_channelof(o);
 	    chan->c_altobj = obj;
 	}
-	else if (!ici_isnull(o))
+	else if (!isnull(o))
 	{
 	    ici_set_error("bad object in array passed to channel.alt");
 	    return 1;

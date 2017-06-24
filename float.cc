@@ -22,7 +22,7 @@ ici_float_new(double v)
     static ici_float_t   proto;
 
     proto.f_value = v;
-    if ((f = ici_floatof(ici_atom_probe2(&proto, &po))) != NULL)
+    if ((f = floatof(ici_atom_probe2(&proto, &po))) != NULL)
     {
         f->incref();
         return f;
@@ -41,12 +41,12 @@ ici_float_new(double v)
 int float_type::cmp(ici_obj_t *o1, ici_obj_t *o2)
 {
     assert(sizeof(double) == 2 * sizeof(int32_t));
-    return !DBL_BIT_CMP(&ici_floatof(o1)->f_value, &ici_floatof(o2)->f_value);
+    return !DBL_BIT_CMP(&floatof(o1)->f_value, &floatof(o2)->f_value);
 }
 
 unsigned long float_type::hash(ici_obj_t *o)
 {
-    return ici_hash_float(ici_floatof(o)->f_value);
+    return ici_hash_float(floatof(o)->f_value);
 }
 
 unsigned long ici_hash_float(double v)

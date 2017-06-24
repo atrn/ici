@@ -26,9 +26,9 @@ f_regexp(...)
     switch (NARGS())
     {
     case 2:
-        if (!ici_isint(ARG(1)))
+        if (!isint(ARG(1)))
             return ici_argerror(1);
-        opts = ici_intof(ARG(1))->i_value;
+        opts = intof(ARG(1))->i_value;
         /* FALLTHROUGH */
     case 1:
         if (!ici_isstring(ARG(0)))
@@ -581,9 +581,9 @@ f_smash(...)
 
     nargs = NARGS();
     include_remainder = 0;
-    if (ici_isint(ARG(nargs - 1)))
+    if (isint(ARG(nargs - 1)))
     {
-        include_remainder = ici_intof(ARG(NARGS() - 1))->i_value != 0;
+        include_remainder = intof(ARG(NARGS() - 1))->i_value != 0;
         if (--nargs == 0)
             return ici_argerror(0);
     }

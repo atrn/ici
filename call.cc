@@ -154,20 +154,20 @@ ici_funcv(ici_obj_t *subject, ici_obj_t *callable, const char *types, va_list va
         break;
 
     case 'i':
-        if (!ici_isint(ret_obj))
+        if (!isint(ret_obj))
         {
             goto typeclash;
         }
-        *(long *)ret_ptr = ici_intof(ret_obj)->i_value;
+        *(long *)ret_ptr = intof(ret_obj)->i_value;
         ret_obj->decref();
         break;
 
     case 'f':
-        if (!ici_isfloat(ret_obj))
+        if (!isfloat(ret_obj))
         {
             goto typeclash;
         }
-        *(double *)ret_ptr = ici_floatof(ret_obj)->f_value;
+        *(double *)ret_ptr = floatof(ret_obj)->f_value;
         ret_obj->decref();
         break;
 

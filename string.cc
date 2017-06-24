@@ -16,7 +16,6 @@ namespace ici
  * allocation).
  */
 #define STR_ALLOCZ(n)   ((n) + sizeof (ici_str_t) - sizeof (int))
-// (offsetof(ici_str_t, s_u) + (n) + 1)
 
 int (ici_str_char_at)(str *s, int index)
 {
@@ -68,8 +67,7 @@ ici_hash_string(object *o)
  *
  * This --func-- forms part of the --ici-api--.
  */
-ici_str_t *
-ici_str_alloc(int nchars)
+ici_str_t *ici_str_alloc(size_t nchars)
 {
     ici_str_t  *s;
     size_t              az;
@@ -110,7 +108,7 @@ ici_str_alloc(int nchars)
  * This --func-- forms part of the --ici-api--.
  */
 ici_str_t *
-ici_str_new(const char *p, int nchars)
+ici_str_new(const char *p, size_t nchars)
 {
     ici_str_t           *s;
     size_t              az;
@@ -121,7 +119,6 @@ ici_str_new(const char *p, int nchars)
     }
     proto;
 
-    assert(nchars >= 0);
     az = STR_ALLOCZ(nchars);
     if ((size_t)nchars < sizeof proto.d)
     {
@@ -232,10 +229,9 @@ ici_str_get_nul_term(const char *p)
  *
  * This --func-- forms part of the --ici-api--.
  */
-ici_str_t *
-ici_str_buf_new(int n)
+ici_str_t *ici_str_buf_new(size_t n)
 {
-    ici_str_t           *s;
+    str *s;
 
     if ((s = ici_talloc(ici_str_t)) == NULL)
     {
@@ -266,8 +262,7 @@ ici_str_buf_new(int n)
  *
  * This --func-- forms part of the --ici-api--.
  */
-int
-ici_str_need_size(ici_str_t *s, int n)
+int ici_str_need_size(ici_str_t *s, size_t n)
 {
     char                *chars;
     char                n1[30];
@@ -388,11 +383,11 @@ object *string_type::fetch(object *o, object *k)
 {
     int64_t i;
 
-    if (!ici_isint(k))
+    if (!isint(k))
     {
         return fetch_fail(o, k);
     }
-    if ((i = (int)ici_intof(k)->i_value) < 0 || i >= ici_stringof(o)->s_nchars)
+    if ((i = (int)intof(k)->i_value) < 0 || i >= ici_stringof(o)->s_nchars)
     {
         k = ici_str_new("", 0);
     }
@@ -424,9 +419,9 @@ int string_type::assign(object *o, object *k, object *v)
     {
         return ici_set_error("attempt to assign to an atomic string");
     }
-    if (!ici_isint(k) || !ici_isint(v))
+    if (!isint(k) || !isint(v))
         return assign_fail(o, k, v);
-    i = ici_intof(k)->i_value;
+    i = intof(k)->i_value;
     if (i < 0)
     {
         return ici_set_error("attempt to assign to negative string index");
@@ -436,7 +431,7 @@ int string_type::assign(object *o, object *k, object *v)
         return 1;
     for (n = s->s_nchars; n < i; ++n)
         s->s_chars[n] = ' ';
-    s->s_chars[i] = (char)ici_intof(v)->i_value;
+    s->s_chars[i] = (char)intof(v)->i_value;
     if (s->s_nchars < ++i)
     {
         s->s_nchars = i;

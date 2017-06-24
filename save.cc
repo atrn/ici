@@ -116,7 +116,7 @@ save_null(archive *, object *)
 static int
 save_int(archive *ar, object *obj)
 {
-    return write64(ar, ici_intof(obj)->i_value);
+    return write64(ar, intof(obj)->i_value);
 }
 
 // float
@@ -124,7 +124,7 @@ save_int(archive *ar, object *obj)
 static int
 save_float(archive *ar, object *obj)
 {
-    double v = ici_floatof(obj)->f_value;
+    double v = floatof(obj)->f_value;
 #if ICI_ARCHIVE_LITTLE_ENDIAN_HOST
     archive_byteswap(&v, sizeof v);
 #endif

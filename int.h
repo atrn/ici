@@ -21,8 +21,8 @@ struct ici_int : object
     int64_t i_value;
 };
 
-inline ici_int *ici_intof(object *o) { return static_cast<ici_int *>(o); }
-inline bool ici_isint(object *o) { return o->isa(ICI_TC_INT); }
+inline ici_int *intof(object *o) { return static_cast<ici_int *>(o); }
+inline bool isint(object *o) { return o->isa(ICI_TC_INT); }
 
 /*
  * End of ici.h export. --ici.h-end--

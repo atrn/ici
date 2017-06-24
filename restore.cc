@@ -791,10 +791,10 @@ static restorer_t *
 get_restorer(int tcode)
 {
     restorer_t  *r = fetch_restorer(tcode);
-    if (ici_isnull(r))
+    if (isnull(r))
     {
         r = fetch_restorer(-1);
-        if (ici_isnull(r))
+        if (isnull(r))
         {
             ici_set_error("archive module internal error");
             r = NULL;

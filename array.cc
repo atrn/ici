@@ -644,11 +644,11 @@ int array_type::assign(object *o, object *k, object *v)
     {
         return ici_set_error("attempt to assign to an atomic array");
     }
-    if (!ici_isint(k))
+    if (!isint(k))
     {
         return assign_fail(o, k, v);
     }
-    i = ici_intof(k)->i_value;
+    i = intof(k)->i_value;
     if (i < 0)
     {
         return ici_set_error("attempt to assign to negative array index");
@@ -663,15 +663,15 @@ int array_type::assign(object *o, object *k, object *v)
 
 object *array_type::fetch(object *o, object *k)
 {
-    if (!ici_isint(k))
+    if (!isint(k))
     {
         return fetch_fail(o, k);
     }
-    if (ici_intof(k)->i_value >= 0)
+    if (intof(k)->i_value >= 0)
     {
-        return arrayof(o)->get(ici_intof(k)->i_value);
+        return arrayof(o)->get(intof(k)->i_value);
     }
-    auto idx = ici_intof(k)->i_value + arrayof(o)->len();
+    auto idx = intof(k)->i_value + arrayof(o)->len();
     return arrayof(o)->get(idx);
 }
 

@@ -28,9 +28,9 @@ struct str : object
 {
     str() : object{ICI_TC_STRING} {}
 
-    ici_struct_t    *s_struct;      /* Where we were last found on the vs. */
-    ici_sslot_t     *s_slot;        /* And our slot. */
-    uint32_t         s_vsver;        /* The vs version at that time. */
+    ici_struct      *s_struct;      /* Where we were last found on the vs. */
+    sslot           *s_slot;        /* And our slot. */
+    uint32_t        s_vsver;        /* The vs version at that time. */
 #   if ICI_KEEP_STRING_HASH
     unsigned long   s_hash;         /* String hash code or 0 if not yet computed */
 #   endif
@@ -60,8 +60,8 @@ struct str : object
  * su.su_inline_chars   If ICI_S_SEP_ALLOC is *not* set, this is where s_chars will
  *                      be pointing. The actual string chars follow on from this.
  */
-inline ici_str_t * ici_stringof(ici_obj_t *o) { return static_cast<ici_str_t *>(o); }
-inline bool ici_isstring(ici_obj_t *o) { return o->isa(ICI_TC_STRING); }
+inline ici_str_t * ici_stringof(object *o) { return static_cast<ici_str_t *>(o); }
+inline bool ici_isstring(object *o) { return o->isa(ICI_TC_STRING); }
 
 /*
  * This flag (in o_flags) indicates that the lookup-lookaside mechanism
@@ -87,7 +87,7 @@ constexpr int ICI_S_SEP_ALLOC     = 0x40;
  *
  * etc. Include that file in any files that access ICI strings.
  * Access them with either ICIS(fred) or ICISO(fred) which return
- * ici_str_t* and ici_obj_t* pointers respectively. For example:
+ * ici_str_t* and object* pointers respectively. For example:
  *
  *  o = ici_fetch(s, ICIS(fred));
  *
@@ -122,14 +122,14 @@ class string_type : public type
 public:
     string_type() : type("string", sizeof (struct str), type::has_forall) {}
 
-    size_t mark(ici_obj_t *o) override;
-    void free(ici_obj_t *o) override;
-    int cmp(ici_obj_t *o1, ici_obj_t *o2) override;
-    ici_obj_t *copy(ici_obj_t *o) override;
-    unsigned long hash(ici_obj_t *o) override;
-    ici_obj_t *fetch(ici_obj_t *o, ici_obj_t *k) override;
-    int assign(ici_obj_t *o, ici_obj_t *k, ici_obj_t *v) override;
-    int forall(ici_obj_t *o) override;
+    size_t mark(object *o) override;
+    void free(object *o) override;
+    int cmp(object *o1, object *o2) override;
+    object *copy(object *o) override;
+    unsigned long hash(object *o) override;
+    object *fetch(object *o, object *k) override;
+    int assign(object *o, object *k, object *v) override;
+    int forall(object *o) override;
 };
 
 #ifdef  ICI_CORE
@@ -163,7 +163,7 @@ struct sstring : object
 
     ici_struct_t *s_struct;     /* Where we were last found on the vs. */
     ici_sslot_t *s_slot;        /* And our slot. */
-    long        s_vsver;        /* The vs version at that time. */
+    uint32_t    s_vsver;        /* The vs version at that time. */
 #   if ICI_KEEP_STRING_HASH
     unsigned long s_hash;       /* String hash code or 0 if not yet computed */
 #   endif

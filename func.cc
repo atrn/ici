@@ -54,7 +54,7 @@ ici_op_return()
         &&
         --x >= ici_xs.a_base
         &&
-        !(ici_iscatch(*x) && ici_isnull(ici_catchof(*x)->c_catcher))
+        !(ici_iscatch(*x) && isnull(ici_catchof(*x)->c_catcher))
     )
         ;
     if (x < ici_xs.a_base || !ici_ismark(*x))

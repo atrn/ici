@@ -206,9 +206,9 @@ int typecheck(const char *types, ...)
             break;
 
         case 'i': /* An int -> long. */
-            if (!ici_isint(o))
+            if (!isint(o))
                 goto fail;
-            *(long *)ptr = ici_intof(o)->i_value;
+            *(long *)ptr = intof(o)->i_value;
             break;
 
         case 's': /* A string -> (char *). */
@@ -218,16 +218,16 @@ int typecheck(const char *types, ...)
             break;
 
         case 'f': /* A float -> double. */
-            if (!ici_isfloat(o))
+            if (!isfloat(o))
                 goto fail;
-            *(double *)ptr = ici_floatof(o)->f_value;
+            *(double *)ptr = floatof(o)->f_value;
             break;
 
         case 'n': /* A number, int or float -> double. */
-            if (ici_isint(o))
-                *(double *)ptr = ici_intof(o)->i_value;
-            else if (ici_isfloat(o))
-                *(double *)ptr = ici_floatof(o)->f_value;
+            if (isint(o))
+                *(double *)ptr = intof(o)->i_value;
+            else if (isfloat(o))
+                *(double *)ptr = floatof(o)->f_value;
             else
                 goto fail;
             break;
@@ -787,9 +787,9 @@ f_struct()
     if (nargs & 1)
     {
         super = ici_objwsupof(*o);
-        if (!ici_hassuper(super) && !ici_isnull(super))
+        if (!ici_hassuper(super) && !isnull(super))
             return ici_argerror(0);
-        if (ici_isnull(super))
+        if (isnull(super))
             super = NULL;
         --nargs;
         --o;
@@ -925,7 +925,7 @@ f_int()
     if (NARGS() < 1)
         return ici_argcount(1);
     o = ARG(0);
-    if (ici_isint(o))
+    if (isint(o))
         return ici_ret_no_decref(o);
     else if (ici_isstring(o))
     {
@@ -933,16 +933,16 @@ f_int()
 
         if (NARGS() > 1)
         {
-            if (!ici_isint(ARG(1)))
+            if (!isint(ARG(1)))
                 return ici_argerror(1);
-            base = ici_intof(ARG(1))->i_value;
+            base = intof(ARG(1))->i_value;
             if (base != 0 && (base < 2 || base > 36))
                 return ici_argerror(1);
         }
         v = ici_strtol(ici_stringof(o)->s_chars, NULL, base);
     }
-    else if (ici_isfloat(o))
-        v = (long)ici_floatof(o)->f_value;
+    else if (isfloat(o))
+        v = (long)floatof(o)->f_value;
     else
         v = 0;
     return ici_int_ret(v);
@@ -957,12 +957,12 @@ f_float()
     if (NARGS() != 1)
         return ici_argcount(1);
     o = ARG(0);
-    if (ici_isfloat(o))
+    if (isfloat(o))
         return ici_ret_no_decref(o);
     else if (ici_isstring(o))
         v = strtod(ici_stringof(o)->s_chars, NULL);
-    else if (ici_isint(o))
-        v = (double)ici_intof(o)->i_value;
+    else if (isint(o))
+        v = (double)intof(o)->i_value;
     else
         v = 0;
     return ici_float_ret(v);
@@ -980,7 +980,7 @@ f_num()
     if (NARGS() != 1)
         return ici_argcount(1);
     o = ARG(0);
-    if (ici_isfloat(o) || ici_isint(o))
+    if (isfloat(o) || isint(o))
         return ici_ret_no_decref(o);
     else if (ici_isstring(o))
     {
@@ -988,9 +988,9 @@ f_num()
 
         if (NARGS() > 1)
         {
-            if (!ici_isint(ARG(1)))
+            if (!isint(ARG(1)))
                 return ici_argerror(1);
-            base = ici_intof(ARG(1))->i_value;
+            base = intof(ARG(1))->i_value;
             if (base != 0 && (base < 2 || base > 36))
                 return ici_argerror(1);
         }
@@ -1014,10 +1014,10 @@ f_string()
     o = ARG(0);
     if (ici_isstring(o))
         return ici_ret_no_decref(o);
-    if (ici_isint(o))
-        sprintf(buf, "%lld", ici_intof(o)->i_value);
-    else if (ici_isfloat(o))
-        sprintf(buf, "%g", ici_floatof(o)->f_value);
+    if (isint(o))
+        sprintf(buf, "%lld", intof(o)->i_value);
+    else if (isfloat(o))
+        sprintf(buf, "%g", floatof(o)->f_value);
     else if (ici_isregexp(o))
         return ici_ret_no_decref(ici_regexpof(o)->r_pat);
     else
@@ -1248,7 +1248,7 @@ f_call()
     base = &ARG(NARGS() - 1);
     if (isarray(*base))
         aa = arrayof(*base);
-    else if (ici_isnull(*base))
+    else if (isnull(*base))
         aa = NULL;
     else
         return ici_argerror(NARGS() - 1);
@@ -1346,8 +1346,8 @@ f_exit()
     default:
         return ici_argcount(1);
     }
-    if (ici_isint(rc))
-        status = (int)ici_intof(rc)->i_value;
+    if (isint(rc))
+        status = (int)intof(rc)->i_value;
     else if (rc == ici_null)
         status = 0;
     else if (ici_isstring(rc))
@@ -1380,9 +1380,9 @@ f_vstack()
     if (NARGS() == 0)
         return ici_ret_with_decref(ici_copy(&ici_vs));
 
-    if (!ici_isint(ARG(0)))
+    if (!isint(ARG(0)))
         return ici_argerror(0);
-    depth = ici_intof(ARG(0))->i_value;
+    depth = intof(ARG(0))->i_value;
     if (depth < 0)
         return ici_argerror(0);
     if (depth >= ici_vs.a_top - ici_vs.a_bot)
@@ -1462,9 +1462,9 @@ f_interval()
     length = nel;
     if (NARGS() > 2)
     {
-        if (!ici_isint(ARG(2)))
+        if (!isint(ARG(2)))
             return ici_argerror(2);
-        if ((length = ici_intof(ARG(2))->i_value) < 0)
+        if ((length = intof(ARG(2))->i_value) < 0)
             ici_argerror(2);
     }
 
@@ -1540,7 +1540,7 @@ f_implode()
     i = 0;
     for (o = a->astart(); o != a->alimit(); o = a->anext(o))
     {
-        if (ici_isint(*o))
+        if (isint(*o))
             ++i;
         else if (ici_isstring(*o))
             i += ici_stringof(*o)->s_nchars;
@@ -1550,8 +1550,8 @@ f_implode()
     p = s->s_chars;
     for (o = a->astart(); o != a->alimit(); o = a->anext(o))
     {
-        if (ici_isint(*o))
-            *p++ = (char)ici_intof(*o)->i_value;
+        if (isint(*o))
+            *p++ = (char)intof(*o)->i_value;
         else if (ici_isstring(*o))
         {
             memcpy(p, ici_stringof(*o)->s_chars, ici_stringof(*o)->s_nchars);
@@ -1713,9 +1713,9 @@ ici_f_sprintf()
         {
             if (nargs <= 0)
                 goto lacking;
-            if (!ici_isint(*o))
+            if (!isint(*o))
                 goto type;
-            stars[j] = (int)ici_intof(*o)->i_value;
+            stars[j] = (int)intof(*o)->i_value;
             --o;
             --nargs;
         }
@@ -1729,10 +1729,10 @@ ici_f_sprintf()
         case 'X':
             if (nargs <= 0)
                 goto lacking;
-            if (ici_isint(*o))
-                ivalue = ici_intof(*o)->i_value;
-            else if (ici_isfloat(*o))
-                ivalue = (long)ici_floatof(*o)->f_value;
+            if (isint(*o))
+                ivalue = intof(*o)->i_value;
+            else if (isfloat(*o))
+                ivalue = (long)floatof(*o)->f_value;
             else
                 goto type;
             if (chkbuf(i + 30 + stars[0] + stars[1])) /* Pessimistic. */
@@ -1758,10 +1758,10 @@ ici_f_sprintf()
         case 'c':
             if (nargs <= 0)
                 goto lacking;
-            if (ici_isint(*o))
-                ivalue = ici_intof(*o)->i_value;
-            else if (ici_isfloat(*o))
-                ivalue = (long)ici_floatof(*o)->f_value;
+            if (isint(*o))
+                ivalue = intof(*o)->i_value;
+            else if (isfloat(*o))
+                ivalue = (long)floatof(*o)->f_value;
             else
                 goto type;
             if (chkbuf(i + 30 + stars[0] + stars[1])) /* Pessimistic. */
@@ -1843,10 +1843,10 @@ ici_f_sprintf()
         case 'G':
             if (nargs <= 0)
                 goto lacking;
-            if (ici_isint(*o))
-                fvalue = ici_intof(*o)->i_value;
-            else if (ici_isfloat(*o))
-                fvalue = ici_floatof(*o)->f_value;
+            if (isint(*o))
+                fvalue = intof(*o)->i_value;
+            else if (isfloat(*o))
+                fvalue = floatof(*o)->f_value;
             else
                 goto type;
             if (chkbuf(i + 40 + stars[0] + stars[1])) /* Pessimistic. */
@@ -1973,10 +1973,10 @@ f_del()
         ptrdiff_t       n;
 
         
-        if (!ici_isint(o))
+        if (!isint(o))
             return ici_null_ret();
         a = arrayof(s);
-        i = ici_intof(o)->i_value;
+        i = intof(o)->i_value;
         n = a->len();
         if (i < 0 || i >= n)
             return ici_null_ret();
@@ -2076,7 +2076,7 @@ f_super()
         {
             return ici_set_error("attempt to set super of an atomic struct");
         }
-        if (ici_isnull(ARG(1)))
+        if (isnull(ARG(1)))
             newsuper = NULL;
         else if (ici_hassuper(ARG(1)))
             newsuper = ici_objwsupof(ARG(1));
@@ -2136,10 +2136,10 @@ f_alloc()
     {
         if
         (
-            !ici_isint(ARG(1))
+            !isint(ARG(1))
             ||
             (
-                (accessz = (int)ici_intof(ARG(1))->i_value) != 1
+                (accessz = (int)intof(ARG(1))->i_value) != 1
                 &&
                 accessz != 2
                 &&
@@ -2170,10 +2170,10 @@ f_mem()
     {
         if
         (
-            !ici_isint(ARG(2))
+            !isint(ARG(2))
             ||
             (
-                (accessz = (int)ici_intof(ARG(2))->i_value) != 1
+                (accessz = (int)intof(ARG(2))->i_value) != 1
                 &&
                 accessz != 2
                 &&
@@ -2272,19 +2272,19 @@ f_waitfor()
             else
                 return ici_ret_no_decref(*e);
         }
-        else if (ici_isint(*e))
+        else if (isint(*e))
         {
-            if (tv == NULL || to > ici_intof(*e)->i_value / 1000.0)
+            if (tv == NULL || to > intof(*e)->i_value / 1000.0)
             {
-                to = ici_intof(*e)->i_value / 1000.0;
+                to = intof(*e)->i_value / 1000.0;
                 tv = &timeval;
             }
         }
-        else if (ici_isfloat(*e))
+        else if (isfloat(*e))
         {
-            if (tv == NULL || to > ici_floatof(*e)->f_value)
+            if (tv == NULL || to > floatof(*e)->f_value)
             {
-                to = ici_floatof(*e)->f_value;
+                to = floatof(*e)->f_value;
                 tv = &timeval;
             }
         }
@@ -2525,10 +2525,10 @@ f_gettokens()
             return ici_argerror(0);
         else
             f = ici_fileof(fo);
-        if (ici_isint(s))
+        if (isint(s))
         {
             object *so = s;
-            sep = (unsigned char)ici_intof(so)->i_value;
+            sep = (unsigned char)intof(so)->i_value;
             hardsep = 1;
             seps = (unsigned char *)&sep;
             nseps = 1;
@@ -2896,17 +2896,17 @@ f_reclaim()
 static int
 f_abs()
 {
-    if (ici_isint(ARG(0)))
+    if (isint(ARG(0)))
     {
-        if (ici_intof(ARG(0))->i_value >= 0)
+        if (intof(ARG(0))->i_value >= 0)
             return ici_ret_no_decref(ARG(0));
-        return ici_int_ret(-ici_intof(ARG(0))->i_value);
+        return ici_int_ret(-intof(ARG(0))->i_value);
     }
-    else if (ici_isfloat(ARG(0)))
+    else if (isfloat(ARG(0)))
     {
-        if (ici_floatof(ARG(0))->f_value >= 0)
+        if (floatof(ARG(0))->f_value >= 0)
             return ici_ret_no_decref(ARG(0));
-        return ici_float_ret(-ici_floatof(ARG(0))->f_value);
+        return ici_float_ret(-floatof(ARG(0))->f_value);
     }
     return ici_argerror(0);
 }
@@ -2946,7 +2946,7 @@ f_calendar()
         get_epoch_time();
     if (NARGS() != 1)
         return ici_argcount(1);
-    if (ici_isfloat(ARG(0)))
+    if (isfloat(ARG(0)))
     {
         time_t          t;
         struct tm       *tm;
@@ -2960,7 +2960,7 @@ f_calendar()
          * say seconds, with a time_t. But we all know that time_t is
          * really in seconds. So I'll just assume that.
          */
-        t = epoch_time + (time_t)ici_floatof(ARG(0))->f_value;
+        t = epoch_time + (time_t)floatof(ARG(0))->f_value;
         tm = localtime(&t);
         if ((s = ici_objwsupof(ici_struct_new())) == NULL)
             return 1;
@@ -3103,8 +3103,8 @@ f_cputime()
 # endif
 #endif
     t -= base;
-    if (NARGS() > 0 && ici_isfloat(ARG(0)))
-        base = ici_floatof(ARG(0))->f_value + t;
+    if (NARGS() > 0 && isfloat(ARG(0)))
+        base = floatof(ARG(0))->f_value + t;
     return ici_float_ret(t);
 }
 
@@ -3169,10 +3169,10 @@ f_strcat()
     if (!ici_isstring(ARG(0)))
         return ici_argerror(0);
     s1 = ici_stringof(ARG(0));
-    if (ici_isint(ARG(1)))
+    if (isint(ARG(1)))
     {
         si = 2;
-        sz = ici_intof(ARG(1))->i_value;
+        sz = intof(ARG(1))->i_value;
         if (sz < 0 || sz > s1->s_nchars)
             return ici_argerror(1);
     }
@@ -3802,7 +3802,7 @@ f_dir()
         o = ARG(0);
         if (ici_isstring(o))
             path = ici_stringof(o)->s_chars;
-        else if (ici_isnull(o))
+        else if (isnull(o))
             ;   /* leave path as is */
         else if (ici_isregexp(o))
             regexp = ici_regexpof(o);
@@ -3814,7 +3814,7 @@ f_dir()
         o = ARG(0);
         if (ici_isstring(o))
             path = ici_stringof(o)->s_chars;
-        else if (ici_isnull(o))
+        else if (isnull(o))
             ;   /* leave path as is */
         else if (ici_isregexp(o))
             regexp = ici_regexpof(o);
@@ -3837,7 +3837,7 @@ f_dir()
         o = ARG(0);
         if (ici_isstring(o))
             path = ici_stringof(o)->s_chars;
-        else if (ici_isnull(o))
+        else if (isnull(o))
             ;   /* leave path as is */
         else
             return ici_argerror(0);

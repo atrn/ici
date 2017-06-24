@@ -88,79 +88,79 @@
      */
     case ICI_TRI(ICI_TC_INT, ICI_TC_INT, T_ASTERIX):
     case ICI_TRI(ICI_TC_INT, ICI_TC_INT, T_ASTERIXEQ):
-        USEi(ici_intof(o0)->i_value * ici_intof(o1)->i_value);
+        USEi(intof(o0)->i_value * intof(o1)->i_value);
 
     case ICI_TRI(ICI_TC_INT, ICI_TC_INT, T_SLASH):
     case ICI_TRI(ICI_TC_INT, ICI_TC_INT, T_SLASHEQ):
-        if (ici_intof(o1)->i_value == 0)
+        if (intof(o1)->i_value == 0)
         {
             ici_set_error("division by 0");
             FAIL();
         }
-        USEi(ici_intof(o0)->i_value / ici_intof(o1)->i_value);
+        USEi(intof(o0)->i_value / intof(o1)->i_value);
 
     case ICI_TRI(ICI_TC_INT, ICI_TC_INT, T_PERCENT):
     case ICI_TRI(ICI_TC_INT, ICI_TC_INT, T_PERCENTEQ):
-        if (ici_intof(o1)->i_value == 0)
+        if (intof(o1)->i_value == 0)
         {
             ici_set_error("modulus by 0");
             FAIL();
         }
-        USEi(ici_intof(o0)->i_value % ici_intof(o1)->i_value);
+        USEi(intof(o0)->i_value % intof(o1)->i_value);
 
     case ICI_TRI(ICI_TC_INT, ICI_TC_INT, T_PLUS):
     case ICI_TRI(ICI_TC_INT, ICI_TC_INT, T_PLUSEQ):
-        USEi(ici_intof(o0)->i_value + ici_intof(o1)->i_value);
+        USEi(intof(o0)->i_value + intof(o1)->i_value);
 
     case ICI_TRI(ICI_TC_INT, ICI_TC_INT, T_MINUS):
     case ICI_TRI(ICI_TC_INT, ICI_TC_INT, T_MINUSEQ):
-        USEi(ici_intof(o0)->i_value - ici_intof(o1)->i_value);
+        USEi(intof(o0)->i_value - intof(o1)->i_value);
 
     case ICI_TRI(ICI_TC_INT, ICI_TC_INT, T_GRTGRT):
     case ICI_TRI(ICI_TC_INT, ICI_TC_INT, T_GRTGRTEQ):
-        USEi(ici_intof(o0)->i_value >> ici_intof(o1)->i_value);
+        USEi(intof(o0)->i_value >> intof(o1)->i_value);
 
     case ICI_TRI(ICI_TC_INT, ICI_TC_INT, T_LESSLESS):
     case ICI_TRI(ICI_TC_INT, ICI_TC_INT, T_LESSLESSEQ):
-        USEi(ici_intof(o0)->i_value << ici_intof(o1)->i_value);
+        USEi(intof(o0)->i_value << intof(o1)->i_value);
 
     case ICI_TRI(ICI_TC_INT, ICI_TC_INT, T_LESS):
-        if (ici_intof(o0)->i_value < ici_intof(o1)->i_value)
+        if (intof(o0)->i_value < intof(o1)->i_value)
         {
             USE1();
         }
         USE0();
 
     case ICI_TRI(ICI_TC_INT, ICI_TC_INT, T_GRT):
-        if (ici_intof(o0)->i_value > ici_intof(o1)->i_value)
+        if (intof(o0)->i_value > intof(o1)->i_value)
         {
             USE1();
         }
         USE0();
 
     case ICI_TRI(ICI_TC_INT, ICI_TC_INT, T_LESSEQ):
-        if (ici_intof(o0)->i_value <= ici_intof(o1)->i_value)
+        if (intof(o0)->i_value <= intof(o1)->i_value)
         {
             USE1();
         }
         USE0();
 
     case ICI_TRI(ICI_TC_INT, ICI_TC_INT, T_GRTEQ):
-        if (ici_intof(o0)->i_value >= ici_intof(o1)->i_value)
+        if (intof(o0)->i_value >= intof(o1)->i_value)
         {
             USE1();
         }
         USE0();
 
     case ICI_TRI(ICI_TC_INT, ICI_TC_INT, T_EQEQ):
-        if (ici_intof(o0)->i_value == ici_intof(o1)->i_value)
+        if (intof(o0)->i_value == intof(o1)->i_value)
         {
             USE1();
         }
         USE0();
 
     case ICI_TRI(ICI_TC_INT, ICI_TC_INT, T_EXCLAMEQ):
-        if (ici_intof(o0)->i_value != ici_intof(o1)->i_value)
+        if (intof(o0)->i_value != intof(o1)->i_value)
         {
             USE1();
         }
@@ -168,203 +168,203 @@
 
     case ICI_TRI(ICI_TC_INT, ICI_TC_INT, T_AND):
     case ICI_TRI(ICI_TC_INT, ICI_TC_INT, T_ANDEQ):
-        USEi(ici_intof(o0)->i_value & ici_intof(o1)->i_value);
+        USEi(intof(o0)->i_value & intof(o1)->i_value);
 
     case ICI_TRI(ICI_TC_INT, ICI_TC_INT, T_CARET):
     case ICI_TRI(ICI_TC_INT, ICI_TC_INT, T_CARETEQ):
-        USEi(ici_intof(o0)->i_value ^ ici_intof(o1)->i_value);
+        USEi(intof(o0)->i_value ^ intof(o1)->i_value);
 
     case ICI_TRI(ICI_TC_INT, ICI_TC_INT, T_BAR):
     case ICI_TRI(ICI_TC_INT, ICI_TC_INT, T_BAREQ):
-        USEi(ici_intof(o0)->i_value | ici_intof(o1)->i_value);
+        USEi(intof(o0)->i_value | intof(o1)->i_value);
 
     /*
      * Pure floating point and mixed float, int operations...
      */
     case ICI_TRI(ICI_TC_FLOAT, ICI_TC_FLOAT, T_ASTERIX):
     case ICI_TRI(ICI_TC_FLOAT, ICI_TC_FLOAT, T_ASTERIXEQ):
-        USEf(ici_floatof(o0)->f_value * ici_floatof(o1)->f_value);
+        USEf(floatof(o0)->f_value * floatof(o1)->f_value);
 
     case ICI_TRI(ICI_TC_FLOAT, ICI_TC_INT, T_ASTERIX):
     case ICI_TRI(ICI_TC_FLOAT, ICI_TC_INT, T_ASTERIXEQ):
-        USEf(ici_floatof(o0)->f_value * ici_intof(o1)->i_value);
+        USEf(floatof(o0)->f_value * intof(o1)->i_value);
 
     case ICI_TRI(ICI_TC_INT, ICI_TC_FLOAT, T_ASTERIX):
     case ICI_TRI(ICI_TC_INT, ICI_TC_FLOAT, T_ASTERIXEQ):
-        USEf(ici_intof(o0)->i_value * ici_floatof(o1)->f_value);
+        USEf(intof(o0)->i_value * floatof(o1)->f_value);
 
     case ICI_TRI(ICI_TC_FLOAT, ICI_TC_FLOAT, T_SLASH):
     case ICI_TRI(ICI_TC_FLOAT, ICI_TC_FLOAT, T_SLASHEQ):
-        if (ici_floatof(o1)->f_value == 0)
+        if (floatof(o1)->f_value == 0)
         {
             ici_set_error("division by 0.0");
             FAIL();
         }
-        USEf(ici_floatof(o0)->f_value / ici_floatof(o1)->f_value);
+        USEf(floatof(o0)->f_value / floatof(o1)->f_value);
 
     case ICI_TRI(ICI_TC_FLOAT, ICI_TC_INT, T_SLASH):
     case ICI_TRI(ICI_TC_FLOAT, ICI_TC_INT, T_SLASHEQ):
-        if (ici_intof(o1)->i_value == 0)
+        if (intof(o1)->i_value == 0)
         {
             ici_set_error("division by 0");
             FAIL();
         }
-        USEf(ici_floatof(o0)->f_value / ici_intof(o1)->i_value);
+        USEf(floatof(o0)->f_value / intof(o1)->i_value);
 
     case ICI_TRI(ICI_TC_INT, ICI_TC_FLOAT, T_SLASH):
     case ICI_TRI(ICI_TC_INT, ICI_TC_FLOAT, T_SLASHEQ):
-        if (ici_floatof(o1)->f_value == 0)
+        if (floatof(o1)->f_value == 0)
         {
             ici_set_error("division by 0.0");
             FAIL();
         }
-        USEf(ici_intof(o0)->i_value / ici_floatof(o1)->f_value);
+        USEf(intof(o0)->i_value / floatof(o1)->f_value);
 
     case ICI_TRI(ICI_TC_FLOAT, ICI_TC_FLOAT, T_PLUS):
     case ICI_TRI(ICI_TC_FLOAT, ICI_TC_FLOAT, T_PLUSEQ):
-        USEf(ici_floatof(o0)->f_value + ici_floatof(o1)->f_value);
+        USEf(floatof(o0)->f_value + floatof(o1)->f_value);
 
     case ICI_TRI(ICI_TC_FLOAT, ICI_TC_INT, T_PLUS):
     case ICI_TRI(ICI_TC_FLOAT, ICI_TC_INT, T_PLUSEQ):
-        USEf(ici_floatof(o0)->f_value + ici_intof(o1)->i_value);
+        USEf(floatof(o0)->f_value + intof(o1)->i_value);
 
     case ICI_TRI(ICI_TC_INT, ICI_TC_FLOAT, T_PLUS):
     case ICI_TRI(ICI_TC_INT, ICI_TC_FLOAT, T_PLUSEQ):
-        USEf(ici_intof(o0)->i_value + ici_floatof(o1)->f_value);
+        USEf(intof(o0)->i_value + floatof(o1)->f_value);
 
     case ICI_TRI(ICI_TC_FLOAT, ICI_TC_FLOAT, T_MINUS):
     case ICI_TRI(ICI_TC_FLOAT, ICI_TC_FLOAT, T_MINUSEQ):
-        USEf(ici_floatof(o0)->f_value - ici_floatof(o1)->f_value);
+        USEf(floatof(o0)->f_value - floatof(o1)->f_value);
 
     case ICI_TRI(ICI_TC_FLOAT, ICI_TC_INT, T_MINUS):
     case ICI_TRI(ICI_TC_FLOAT, ICI_TC_INT, T_MINUSEQ):
-        USEf(ici_floatof(o0)->f_value - ici_intof(o1)->i_value);
+        USEf(floatof(o0)->f_value - intof(o1)->i_value);
 
     case ICI_TRI(ICI_TC_INT, ICI_TC_FLOAT, T_MINUS):
     case ICI_TRI(ICI_TC_INT, ICI_TC_FLOAT, T_MINUSEQ):
-        USEf(ici_intof(o0)->i_value - ici_floatof(o1)->f_value);
+        USEf(intof(o0)->i_value - floatof(o1)->f_value);
 
     case ICI_TRI(ICI_TC_FLOAT, ICI_TC_FLOAT, T_LESS):
-        if (ici_floatof(o0)->f_value < ici_floatof(o1)->f_value)
+        if (floatof(o0)->f_value < floatof(o1)->f_value)
         {
             USE1();
         }
         USE0();
 
     case ICI_TRI(ICI_TC_FLOAT, ICI_TC_INT, T_LESS):
-        if (ici_floatof(o0)->f_value < ici_intof(o1)->i_value)
+        if (floatof(o0)->f_value < intof(o1)->i_value)
         {
             USE1();
         }
         USE0();
 
     case ICI_TRI(ICI_TC_INT, ICI_TC_FLOAT, T_LESS):
-        if (ici_intof(o0)->i_value < ici_floatof(o1)->f_value)
+        if (intof(o0)->i_value < floatof(o1)->f_value)
         {
             USE1();
         }
         USE0();
 
     case ICI_TRI(ICI_TC_FLOAT, ICI_TC_FLOAT, T_GRT):
-        if (ici_floatof(o0)->f_value > ici_floatof(o1)->f_value)
+        if (floatof(o0)->f_value > floatof(o1)->f_value)
         {
             USE1();
         }
         USE0();
 
     case ICI_TRI(ICI_TC_FLOAT, ICI_TC_INT, T_GRT):
-        if (ici_floatof(o0)->f_value > ici_intof(o1)->i_value)
+        if (floatof(o0)->f_value > intof(o1)->i_value)
         {
             USE1();
         }
         USE0();
 
     case ICI_TRI(ICI_TC_INT, ICI_TC_FLOAT, T_GRT):
-        if (ici_intof(o0)->i_value > ici_floatof(o1)->f_value)
+        if (intof(o0)->i_value > floatof(o1)->f_value)
         {
             USE1();
         }
         USE0();
 
     case ICI_TRI(ICI_TC_FLOAT, ICI_TC_FLOAT, T_LESSEQ):
-        if (ici_floatof(o0)->f_value <= ici_floatof(o1)->f_value)
+        if (floatof(o0)->f_value <= floatof(o1)->f_value)
         {
             USE1();
         }
         USE0();
 
     case ICI_TRI(ICI_TC_FLOAT, ICI_TC_INT, T_LESSEQ):
-        if (ici_floatof(o0)->f_value <= ici_intof(o1)->i_value)
+        if (floatof(o0)->f_value <= intof(o1)->i_value)
         {
             USE1();
         }
         USE0();
 
     case ICI_TRI(ICI_TC_INT, ICI_TC_FLOAT, T_LESSEQ):
-        if (ici_intof(o0)->i_value <= ici_floatof(o1)->f_value)
+        if (intof(o0)->i_value <= floatof(o1)->f_value)
         {
             USE1();
         }
         USE0();
 
     case ICI_TRI(ICI_TC_FLOAT, ICI_TC_FLOAT, T_GRTEQ):
-        if (ici_floatof(o0)->f_value >= ici_floatof(o1)->f_value)
+        if (floatof(o0)->f_value >= floatof(o1)->f_value)
         {
             USE1();
         }
         USE0();
 
     case ICI_TRI(ICI_TC_FLOAT, ICI_TC_INT, T_GRTEQ):
-        if (ici_floatof(o0)->f_value >= ici_intof(o1)->i_value)
+        if (floatof(o0)->f_value >= intof(o1)->i_value)
         {
             USE1();
         }
         USE0();
 
     case ICI_TRI(ICI_TC_INT, ICI_TC_FLOAT, T_GRTEQ):
-        if (ici_intof(o0)->i_value >= ici_floatof(o1)->f_value)
+        if (intof(o0)->i_value >= floatof(o1)->f_value)
         {
             USE1();
         }
         USE0();
 
     case ICI_TRI(ICI_TC_FLOAT, ICI_TC_FLOAT, T_EQEQ):
-        if (ici_floatof(o0)->f_value == ici_floatof(o1)->f_value)
+        if (floatof(o0)->f_value == floatof(o1)->f_value)
         {
             USE1();
         }
         USE0();
 
     case ICI_TRI(ICI_TC_FLOAT, ICI_TC_INT, T_EQEQ):
-        if (ici_floatof(o0)->f_value == ici_intof(o1)->i_value)
+        if (floatof(o0)->f_value == intof(o1)->i_value)
         {
             USE1();
         }
         USE0();
 
     case ICI_TRI(ICI_TC_INT, ICI_TC_FLOAT, T_EQEQ):
-        if (ici_intof(o0)->i_value == ici_floatof(o1)->f_value)
+        if (intof(o0)->i_value == floatof(o1)->f_value)
         {
             USE1();
         }
         USE0();
 
     case ICI_TRI(ICI_TC_FLOAT, ICI_TC_FLOAT, T_EXCLAMEQ):
-        if (ici_floatof(o0)->f_value != ici_floatof(o1)->f_value)
+        if (floatof(o0)->f_value != floatof(o1)->f_value)
         {
             USE1();
         }
         USE0();
 
     case ICI_TRI(ICI_TC_FLOAT, ICI_TC_INT, T_EXCLAMEQ):
-        if (ici_floatof(o0)->f_value != ici_intof(o1)->i_value)
+        if (floatof(o0)->f_value != intof(o1)->i_value)
         {
             USE1();
         }
         USE0();
 
     case ICI_TRI(ICI_TC_INT, ICI_TC_FLOAT, T_EXCLAMEQ):
-        if (ici_intof(o0)->i_value != ici_floatof(o1)->f_value)
+        if (intof(o0)->i_value != floatof(o1)->f_value)
         {
             USE1();
         }
@@ -469,14 +469,14 @@
      */
     case ICI_TRI(ICI_TC_PTR, ICI_TC_INT, T_MINUS):
     case ICI_TRI(ICI_TC_PTR, ICI_TC_INT, T_MINUSEQ):
-        if (!ici_isint(ici_ptrof(o0)->p_key))
+        if (!isint(ici_ptrof(o0)->p_key))
         {
             MISMATCH();
         }
         {
             ici_obj_t   *i;
 
-            if ((i = ici_int_new(ici_intof(ici_ptrof(o0)->p_key)->i_value - ici_intof(o1)->i_value)) == NULL)
+            if ((i = ici_int_new(intof(ici_ptrof(o0)->p_key)->i_value - intof(o1)->i_value)) == NULL)
             {
                 FAIL();
             }
@@ -490,21 +490,21 @@
         
     case ICI_TRI(ICI_TC_INT, ICI_TC_PTR, T_PLUS):
     case ICI_TRI(ICI_TC_INT, ICI_TC_PTR, T_PLUSEQ):
-        if (!ici_isint(ici_ptrof(o1)->p_key))
+        if (!isint(ici_ptrof(o1)->p_key))
         {
             MISMATCH();
         }
         SWAP();
     case ICI_TRI(ICI_TC_PTR, ICI_TC_INT, T_PLUS):
     case ICI_TRI(ICI_TC_PTR, ICI_TC_INT, T_PLUSEQ):
-        if (!ici_isint(ici_ptrof(o0)->p_key))
+        if (!isint(ici_ptrof(o0)->p_key))
         {
             MISMATCH();
         }
         {
             ici_obj_t   *i;
 
-            if ((i = ici_int_new(ici_intof(ici_ptrof(o0)->p_key)->i_value + ici_intof(o1)->i_value)) == NULL)
+            if ((i = ici_int_new(intof(ici_ptrof(o0)->p_key)->i_value + intof(o1)->i_value)) == NULL)
             {
                 FAIL();
             }
@@ -697,11 +697,11 @@
 
     case ICI_TRI(ICI_TC_PTR, ICI_TC_PTR, T_MINUS):
     case ICI_TRI(ICI_TC_PTR, ICI_TC_PTR, T_MINUSEQ):
-        if (!ici_isint(ici_ptrof(o1)->p_key) || !ici_isint(ici_ptrof(o0)->p_key))
+        if (!isint(ici_ptrof(o1)->p_key) || !isint(ici_ptrof(o0)->p_key))
         {
             MISMATCH();
         }
-        if ((o = ici_int_new(ici_intof(ici_ptrof(o0)->p_key)->i_value - ici_intof(ici_ptrof(o1)->p_key)->i_value)) == NULL)
+        if ((o = ici_int_new(intof(ici_ptrof(o0)->p_key)->i_value - intof(ici_ptrof(o1)->p_key)->i_value)) == NULL)
         {
               FAIL();
         }
@@ -742,44 +742,44 @@
         USE0();
 
     case ICI_TRI(ICI_TC_PTR, ICI_TC_PTR, T_LESS):
-        if (!ici_isint(ici_ptrof(o1)->p_key) || !ici_isint(ici_ptrof(o0)->p_key))
+        if (!isint(ici_ptrof(o1)->p_key) || !isint(ici_ptrof(o0)->p_key))
         {
             MISMATCH();
         }
-        if (ici_intof(ici_ptrof(o0)->p_key)->i_value < ici_intof(ici_ptrof(o1)->p_key)->i_value)
+        if (intof(ici_ptrof(o0)->p_key)->i_value < intof(ici_ptrof(o1)->p_key)->i_value)
         {
             USE1();
         }
         USE0();
 
     case ICI_TRI(ICI_TC_PTR, ICI_TC_PTR, T_GRTEQ):
-        if (!ici_isint(ici_ptrof(o1)->p_key) || !ici_isint(ici_ptrof(o0)->p_key))
+        if (!isint(ici_ptrof(o1)->p_key) || !isint(ici_ptrof(o0)->p_key))
         {
             MISMATCH();
         }
-        if (ici_intof(ici_ptrof(o0)->p_key)->i_value >=ici_intof(ici_ptrof(o1)->p_key)->i_value)
+        if (intof(ici_ptrof(o0)->p_key)->i_value >=intof(ici_ptrof(o1)->p_key)->i_value)
         {
             USE1();
         }
         USE0();
 
     case ICI_TRI(ICI_TC_PTR, ICI_TC_PTR, T_LESSEQ):
-        if (!ici_isint(ici_ptrof(o1)->p_key) || !ici_isint(ici_ptrof(o0)->p_key))
+        if (!isint(ici_ptrof(o1)->p_key) || !isint(ici_ptrof(o0)->p_key))
         {
             MISMATCH();
         }
-        if (ici_intof(ici_ptrof(o0)->p_key)->i_value <=ici_intof(ici_ptrof(o1)->p_key)->i_value)
+        if (intof(ici_ptrof(o0)->p_key)->i_value <=intof(ici_ptrof(o1)->p_key)->i_value)
         {
             USE1();
         }
         USE0();
 
     case ICI_TRI(ICI_TC_PTR, ICI_TC_PTR, T_GRT):
-        if (!ici_isint(ici_ptrof(o1)->p_key) || !ici_isint(ici_ptrof(o0)->p_key))
+        if (!isint(ici_ptrof(o1)->p_key) || !isint(ici_ptrof(o0)->p_key))
         {
             MISMATCH();
         }
-        if (ici_intof(ici_ptrof(o0)->p_key)->i_value > ici_intof(ici_ptrof(o1)->p_key)->i_value)
+        if (intof(ici_ptrof(o0)->p_key)->i_value > intof(ici_ptrof(o1)->p_key)->i_value)
         {
             USE1();
         }
@@ -872,7 +872,7 @@ usef:
             ici_rego(o);
         }
         ICI_OBJ_SET_TFNZ(o, ICI_TC_FLOAT, ICI_O_TEMP, 0, sizeof(ici_ostemp_t));
-        ici_floatof(o)->f_value = f;
+        floatof(o)->f_value = f;
         USEo();
     }
     /*
@@ -905,7 +905,7 @@ usef:
          * If this assert fails, we should switch back to a an explicit call
          * to hash_float().
          */
-        assert(sizeof ici_floatof(o)->f_value == 2 * sizeof(int32_t));
+        assert(sizeof floatof(o)->f_value == 2 * sizeof(int32_t));
         v.f = f;
         h = FLOAT_PRIME + v.l[0] + v.l[1] * 31;
         h ^= (h >> 12) ^ (h >> 24);
@@ -919,9 +919,9 @@ usef:
         )
         {
 #if 1
-            if (ici_isfloat(o) && DBL_BIT_CMP(&ici_floatof(o)->f_value, &f))
+            if (isfloat(o) && DBL_BIT_CMP(&floatof(o)->f_value, &f))
 #else
-            if (ici_isfloat(o) && DBL_BIT_CMP(&ici_floatof(o)->f_value, &v.f))
+            if (isfloat(o) && DBL_BIT_CMP(&floatof(o)->f_value, &v.f))
 #endif
             {
                 USEo();
@@ -934,7 +934,7 @@ usef:
             FAIL();
         }
         ICI_OBJ_SET_TFNZ(o, ICI_TC_FLOAT, ICI_O_ATOM, 1, sizeof(ici_float_t));
-        ici_floatof(o)->f_value = f;
+        floatof(o)->f_value = f;
         ici_rego(o);
         assert(h == ici_hash(o));
         --ici_supress_collect;
@@ -962,7 +962,7 @@ usei:
             ici_rego(o);
         }
         ICI_OBJ_SET_TFNZ(o, ICI_TC_INT, ICI_O_TEMP, 0, sizeof(ici_ostemp_t));
-        ici_intof(o)->i_value = i;
+        intof(o)->i_value = i;
         USEo();
     }
     /*
@@ -984,7 +984,7 @@ usei:
             --po < ici_atoms ? po = ici_atoms + ici_atomsz - 1 : NULL
         )
         {
-            if (ici_isint(o) && ici_intof(o)->i_value == i)
+            if (isint(o) && intof(o)->i_value == i)
             {
                 USEo();
             }
@@ -996,7 +996,7 @@ usei:
             FAIL();
         }
         ICI_OBJ_SET_TFNZ(o, ICI_TC_INT, ICI_O_ATOM, 1, sizeof(ici_int_t));
-        ici_intof(o)->i_value = i;
+        intof(o)->i_value = i;
         ici_rego(o);
         --ici_supress_collect;
         ICI_STORE_ATOM_AND_COUNT(po, o);

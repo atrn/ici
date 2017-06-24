@@ -55,11 +55,11 @@ object * ptr_type::fetch(object *o, object *k)
 {
     if (k == ici_zero)
         return ici_fetch(ici_ptrof(o)->p_aggr, ici_ptrof(o)->p_key);
-    if (!ici_isint(k) || !ici_isint(ici_ptrof(o)->p_key))
+    if (!isint(k) || !isint(ici_ptrof(o)->p_key))
         return fetch_fail(o, k);
     if (ici_ptrof(o)->p_key == ici_zero)
         k->incref();
-    else if ((k = ici_int_new(ici_intof(k)->i_value + ici_intof(ici_ptrof(o)->p_key)->i_value)) == NULL)
+    else if ((k = ici_int_new(intof(k)->i_value + intof(ici_ptrof(o)->p_key)->i_value)) == NULL)
         return NULL;
     o = ici_fetch(ici_ptrof(o)->p_aggr, k);
     k->decref();
@@ -76,11 +76,11 @@ int ptr_type::assign(object *o, object *k, object *v)
 {
     if (k == ici_zero)
         return ici_assign(ici_ptrof(o)->p_aggr, ici_ptrof(o)->p_key, v);
-    if (!ici_isint(k) || !ici_isint(ici_ptrof(o)->p_key))
+    if (!isint(k) || !isint(ici_ptrof(o)->p_key))
         return assign_fail(o, k, v);
     if (ici_ptrof(o)->p_key == ici_zero)
         k->incref();
-    else if ((k = ici_int_new(ici_intof(k)->i_value + ici_intof(ici_ptrof(o)->p_key)->i_value)) == NULL)
+    else if ((k = ici_int_new(intof(k)->i_value + intof(ici_ptrof(o)->p_key)->i_value)) == NULL)
         return 1;
     if (ici_assign(ici_ptrof(o)->p_aggr, k, v))
     {

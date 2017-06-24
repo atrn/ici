@@ -403,8 +403,8 @@ static int ici_sys_close()
 
     if (NARGS() != 1)
         return ici_argcount(1);
-    if (ici_isint(ARG(0)))
-        rc = close(ici_intof(ARG(0))->i_value);
+    if (isint(ARG(0)))
+        rc = close(intof(ARG(0))->i_value);
     else if (isarray(ARG(0)))
     {
         ici_array_t *a = arrayof(ARG(0));
@@ -413,17 +413,17 @@ static int ici_sys_close()
         (
             a->len() != 2
             ||
-            !ici_isint(fd0 = a->get(0))
+            !isint(fd0 = a->get(0))
             ||
-            !ici_isint(fd1 = a->get(1))
+            !isint(fd1 = a->get(1))
         )
         {
             ici_set_error("invalid fd array passed to _close");
             return 1;
         }
-        rc = close(ici_intof(fd0)->i_value);
+        rc = close(intof(fd0)->i_value);
         if (rc == 0)
-            rc = close(ici_intof(fd1)->i_value);
+            rc = close(intof(fd1)->i_value);
     }
     else
         return ici_argerror(0);
@@ -443,11 +443,11 @@ struct_to_flock(ici_struct_t *d, struct flock *flock)
     if ((o = ici_fetch(d, SS(start))) == ici_null)
         flock->l_start = 0;
     else
-        flock->l_start = ici_intof(o)->i_value;
+        flock->l_start = intof(o)->i_value;
     if ((o = ici_fetch(d, SS(len))) == ici_null)
         flock->l_len = 0;
     else
-        flock->l_len = ici_intof(o)->i_value;
+        flock->l_len = intof(o)->i_value;
     if ((o = ici_fetch(d, SS(type))) == ici_null)
         flock->l_type = F_RDLCK;
     else if (ici_isstring(o))
@@ -461,8 +461,8 @@ struct_to_flock(ici_struct_t *d, struct flock *flock)
         else
             goto bad_lock_type;
     }
-    else if (ici_isint(o))
-        flock->l_type = ici_intof(o)->i_value;
+    else if (isint(o))
+        flock->l_type = intof(o)->i_value;
     else
     {
     bad_lock_type:
@@ -472,7 +472,7 @@ struct_to_flock(ici_struct_t *d, struct flock *flock)
     if ((o = ici_fetch(d, SS(whence))) == ici_null)
         flock->l_whence = SEEK_SET;
     else
-        flock->l_whence = ici_intof(o)->i_value;
+        flock->l_whence = intof(o)->i_value;
     return 0;
 }
 #endif  /* _WIN32 */
@@ -548,8 +548,8 @@ static int ici_sys_fcntl()
     case 3:
         if (typecheck("ioo", &fd, &what, &arg))
             return 1;
-        if (ici_isint(arg))
-            iarg = ici_intof(arg)->i_value;
+        if (isint(arg))
+            iarg = intof(arg)->i_value;
         else
             iarg = 0;
         break;
@@ -848,8 +848,8 @@ static int ici_sys_stat()
     if (NARGS() != 1)
         return ici_argcount(1);
     o = ARG(0);
-    if (ici_isint(o))
-        rc = fstat(ici_intof(o)->i_value, &statb);
+    if (isint(o))
+        rc = fstat(intof(o)->i_value, &statb);
     else if (ici_isstring(o))
         rc = stat(ici_stringof(o)->s_chars, &statb);
     else if (ici_isfile(o) && ici_fileof(o)->f_type == stdio_ftype)
@@ -1102,14 +1102,14 @@ fetch_timeval(ici_obj_t *s, struct timeval *tv)
         return 1;
     if ((o = ici_fetch(s, SS(usec))) == ici_null)
         tv->tv_usec = 0;
-    else if (ici_isint(o))
-        tv->tv_usec = ici_intof(o)->i_value;
+    else if (isint(o))
+        tv->tv_usec = intof(o)->i_value;
     else
         return 1;
     if ((o = ici_fetch(s, SS(sec))) == ici_null)
         tv->tv_sec = 0;
-    else if (ici_isint(o))
-        tv->tv_sec = ici_intof(o)->i_value;
+    else if (isint(o))
+        tv->tv_sec = intof(o)->i_value;
     else
         return 1;
     return 0;
@@ -1503,9 +1503,9 @@ static int ici_sys_spawn()
     if ((n = NARGS()) < 2)
         return ici_argcount(2);
     o = ARGS();
-    if (ici_isint(*o))
+    if (isint(*o))
     {
-        mode = ici_intof(*o)->i_value;
+        mode = intof(*o)->i_value;
         --o;
         if (--n < 2)
             return ici_argcount(2);
@@ -1676,8 +1676,8 @@ static int ici_sys_passwd()
         break;
 
     case 1:
-        if (ici_isint(ARG(0)))
-            pwent = getpwuid((uid_t)ici_intof(ARG(0))->i_value);
+        if (isint(ARG(0)))
+            pwent = getpwuid((uid_t)intof(ARG(0))->i_value);
         else if (ici_isstring(ARG(0)))
             pwent = getpwnam(ici_stringof(ARG(0))->s_chars);
         else
@@ -1988,8 +1988,8 @@ static int ici_sys_getrlimit()
 
     if (typecheck("o", &what))
         return 1;
-    if (ici_isint(what))
-        resource = ici_intof(what)->i_value;
+    if (isint(what))
+        resource = intof(what)->i_value;
     else if (ici_isstring(what))
     {
         if ((resource = string_to_resource(what)) == -1)
@@ -2047,8 +2047,8 @@ static int ici_sys_setrlimit()
 
     if (typecheck("oo", &what, &value))
         return 1;
-    if (ici_isint(what))
-        resource = ici_intof(what)->i_value;
+    if (isint(what))
+        resource = intof(what)->i_value;
     else if (ici_isstring(what))
     {
         if ((resource = string_to_resource(what)) == -1)
@@ -2057,11 +2057,11 @@ static int ici_sys_setrlimit()
     else
         return ici_argerror(0);
 
-    if (ici_isint(value))
+    if (isint(value))
     {
         if (getrlimit(resource, &rlimit) < 0)
             return sys_ret(-1);
-        rlimit.rlim_cur = ici_intof(value)->i_value;
+        rlimit.rlim_cur = intof(value)->i_value;
     }
     else if (value == SS(infinity))
     {
@@ -2071,14 +2071,14 @@ static int ici_sys_setrlimit()
     {
         if ((iv = ici_fetch(value, SS(cur))) == ici_null)
             goto fail;
-        if (!ici_isint(iv))
+        if (!isint(iv))
             goto fail;
-        rlimit.rlim_cur = ici_intof(iv)->i_value;
+        rlimit.rlim_cur = intof(iv)->i_value;
         if ((iv = ici_fetch(value, SS(max))) == ici_null)
             goto fail;
-        if (!ici_isint(iv))
+        if (!isint(iv))
             goto fail;
-        rlimit.rlim_max = ici_intof(iv)->i_value;
+        rlimit.rlim_max = intof(iv)->i_value;
     }
     else
         return ici_argerror(1);

@@ -56,10 +56,10 @@ ici_objname(char p[ICI_OBJNAMEZ], object *o)
         else
             sprintf(p, "\"%s\"", ici_stringof(o)->s_chars);
     }
-    else if (ici_isint(o))
-        sprintf(p, "%lld", ici_intof(o)->i_value);
-    else if (ici_isfloat(o))
-        sprintf(p, "%g", ici_floatof(o)->f_value);
+    else if (isint(o))
+        sprintf(p, "%lld", intof(o)->i_value);
+    else if (isfloat(o))
+        sprintf(p, "%g", floatof(o)->f_value);
     else if (strchr("aeiou", o->type_name()[0]) != NULL)
         sprintf(p, "an %s", o->type_name());
     else
@@ -69,7 +69,7 @@ ici_objname(char p[ICI_OBJNAMEZ], object *o)
 
 inline unsigned long hash(object *o)
 {
-    if (ici_isint(o)) return (unsigned long)ici_intof(o)->i_value * INT_PRIME;
+    if (isint(o)) return (unsigned long)intof(o)->i_value * INT_PRIME;
     return o->hash();
 }
 
