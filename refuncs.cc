@@ -48,8 +48,8 @@ f_regexp(...)
  * assumed. Return the start (end) address of the n'th matched sub-pattern,
  * or the whole match for n == 0.
  */
-#define START(n) (s + ici_re_bra[(n) * 2])
-#define END(n)   (s + ici_re_bra[(n) * 2 + 1])
+#define START(n) (s + re_bra[(n) * 2])
+#define END(n)   (s + re_bra[(n) * 2 + 1])
 
 /*
  * do_repl()
@@ -178,8 +178,8 @@ static array *do_smash
                 se - s,
                 0,
                 s > thestr->s_chars ? PCRE_NOTBOL : 0,
-                ici_re_bra,
-                nels(ici_re_bra)
+                re_bra,
+                nels(re_bra)
             )
             ||
             END(0) == START(0) /* Match, but no progress. */
@@ -262,8 +262,8 @@ static str *do_sub(str *thestr, ici_regexp_t *re, char *repl, int *ofs)
             thestr->s_nchars - *ofs,
             0,
             *ofs > 0 ? PCRE_NOTBOL : 0,
-            ici_re_bra,
-            nels(ici_re_bra)
+            re_bra,
+            nels(re_bra)
         )
     )
     {
@@ -410,8 +410,8 @@ f_sub(...)
         return 1;
     if (!isstring(thestr))
         return ici_argerror(0);
-    if (ici_isregexp(o))
-        re = ici_regexpof(o);
+    if (isregexp(o))
+        re = regexpof(o);
     else if (!isstring(o))
         return ici_argerror(1);
     else if ((re = ici_regexp_new(stringof(o), 0)) == NULL)
@@ -420,14 +420,14 @@ f_sub(...)
         rc = stringof(thestr);
     else if (rc == (ici_str_t*)-1)
     {
-        if (ici_regexpof(o) != re)
+        if (regexpof(o) != re)
             re->decref();
         return 1;
     }
     else
         rc->decref();
 
-    if (ici_regexpof(o) != re)
+    if (regexpof(o) != re)
         re->decref();
 
     return ici_ret_no_decref(rc);
@@ -459,7 +459,7 @@ f_gsub(...)
     if (!isstring(ARG(2)))
         return ici_argerror(2);
     repl = stringof(ARG(2));
-    if (!ici_isregexp(ARG(1)))
+    if (!isregexp(ARG(1)))
     {
         if (!isstring(ARG(1)))
             return ici_argerror(1);
@@ -467,7 +467,7 @@ f_gsub(...)
             return 1;
     }
     else
-        re = ici_regexpof(ARG(1));
+        re = regexpof(ARG(1));
 
     repls[0] = repl;
     repls[1] = SS(slosh0);
@@ -485,14 +485,14 @@ f_gsub(...)
     if ((ns = stringof(ici_atom(ns, 1))) == NULL)
         goto fail;
     a->decref();
-    if (!ici_isregexp(ARG(1)))
+    if (!isregexp(ARG(1)))
         re->decref();
     return ici_ret_with_decref(ns);
 
 fail:
     if (a != NULL)
         a->decref();
-    if (!ici_isregexp(ARG(1)))
+    if (!isregexp(ARG(1)))
         re->decref();
     return 1;
 }
@@ -603,9 +603,9 @@ f_smash(...)
     }
     else
     {
-        if (!ici_isregexp(ARG(1)))
+        if (!isregexp(ARG(1)))
             return ici_argerror(1);
-        re = ici_regexpof(ARG(1));
+        re = regexpof(ARG(1));
     }
 
     if (nargs < 3)

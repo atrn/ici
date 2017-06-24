@@ -606,8 +606,8 @@ ici_net_bind(void)
 
     if (NARGS() == 2)
     {
-        skt = ici_handleof(ARG(0));
-        if (!ici_ishandleof(skt, SS(socket)))
+        skt = handleof(ARG(0));
+        if (!ishandleof(skt, SS(socket)))
             return ici_argerror(0);
         if (isstring(ARG(1)))
             addr = stringof(ARG(1))->s_chars;
@@ -665,13 +665,13 @@ select_add_result
         {
             if ((sl = (ici_sslot_t *)&set->s_slots[i])->sl_key == NULL)
                 continue;
-            if (!ici_ishandleof(sl->sl_key, SS(socket)))
+            if (!ishandleof(sl->sl_key, SS(socket)))
                 continue;
-            fd = socket_fd(ici_handleof(sl->sl_key));
+            fd = socket_fd(handleof(sl->sl_key));
             if (FD_ISSET(fd, fds))
             {
                 --*n;
-                if (ici_assign(rset, ici_handleof(sl->sl_key), ici_one))
+                if (ici_assign(rset, handleof(sl->sl_key), ici_one))
                 {
                     goto fail;
                 }
@@ -779,11 +779,11 @@ ici_net_select()
 
                     if ((sl = (ici_sslot_t *)&set->s_slots[j])->sl_key == NULL)
                         continue;
-                    if (!ici_ishandleof(sl->sl_key, SS(socket)))
+                    if (!ishandleof(sl->sl_key, SS(socket)))
                         continue;
-                    if (isclosed(ici_handleof(sl->sl_key)))
+                    if (isclosed(handleof(sl->sl_key)))
                         return seterror("attempt to use a closed socket in net.select", NULL);
-                    k = socket_fd(ici_handleof(sl->sl_key));
+                    k = socket_fd(handleof(sl->sl_key));
                     FD_SET(k, fs);
                     if (k > dtabsize)
                         dtabsize = k;
@@ -881,10 +881,10 @@ fail:
 static int
 ici_net_sendto()
 {
-    char                *addr;
-    ici_str_t            *msg;
+    char               *addr;
+    str                *msg;
     int                 n;
-    ici_handle_t        *skt;
+    handle             *skt;
     struct sockaddr_in  sockaddr;
 
     if (typecheck("hos", SS(socket), &skt, &msg, &addr))

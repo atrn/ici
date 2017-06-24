@@ -22,8 +22,8 @@ namespace ici
  * a multiple of three. See pcre.3 for an explanation.
  */
 
-int     ici_re_bra[(NSUBEXP + 1) * 3];
-int     ici_re_nbra;
+int     re_bra[(NSUBEXP + 1) * 3];
+int     re_nbra;
 
 /*
  * Return a new ICI regxep compiled from the given string 's'. 'flags'
@@ -33,12 +33,11 @@ int     ici_re_nbra;
  *
  * Returns NULL on error, usual conventions.
  */
-ici_regexp_t *
-ici_regexp_new(ici_str_t *s, int flags)
+regexp *ici_regexp_new(ici_str_t *s, int flags)
 {
-    ici_regexp_t    *r;
-    pcre        *re;
-    pcre_extra  *rex = NULL;
+    regexp     *r;
+    pcre       *re;
+    pcre_extra *rex = NULL;
     int         errofs;
 
     /* Special test for possible failure of ici_str_new_nul_term() in lex.c */
@@ -63,7 +62,7 @@ ici_regexp_new(ici_str_t *s, int flags)
     r->r_rex = rex;
     r->r_pat = stringof(ici_atom(s, 0));
     ici_rego(r);
-    return ici_regexpof(ici_atom(r, 1));
+    return regexpof(ici_atom(r, 1));
 
  fail:
     if (rex != NULL)
@@ -105,8 +104,8 @@ int ici_pcre_exec_simple(ici_regexp_t *r, ici_str_t *s)
 	s->s_nchars,
 	0,
 	0,
-	ici_re_bra,
-	nels(ici_re_bra)
+	re_bra,
+	nels(re_bra)
     );
 }
 
@@ -117,7 +116,7 @@ int ici_pcre_exec_simple(ici_regexp_t *r, ici_str_t *s)
 size_t regexp_type::mark(object *o)
 {
     o->setmark();
-    return typesize() + ici_mark(ici_regexpof(o)->r_pat) + ((real_pcre *)ici_regexpof(o)->r_re)->size;
+    return typesize() + ici_mark(regexpof(o)->r_pat) + ((real_pcre *)regexpof(o)->r_re)->size;
 }
 
 /*
@@ -126,10 +125,10 @@ size_t regexp_type::mark(object *o)
  */
 void regexp_type::free(object *o)
 {
-    if (ici_regexpof(o)->r_rex != NULL)
-        ici_free(ici_regexpof(o)->r_rex);
-    ici_free(ici_regexpof(o)->r_re);
-    ici_tfree(o, ici_regexp_t);
+    if (regexpof(o)->r_rex != NULL)
+        ici_free(regexpof(o)->r_rex);
+    ici_free(regexpof(o)->r_re);
+    ici_tfree(o, regexp);
 }
 
 /*
@@ -140,8 +139,8 @@ unsigned long regexp_type::hash(object *o)
 {
     /* static unsigned long     primes[] = {0xBF8D, 0x9A4F, 0x1C81, 0x6DDB}; */
     int re_options;
-    pcre_info(ici_regexpof(o)->r_re, &re_options, NULL);
-    return ((unsigned long)ici_regexpof(o)->r_pat + re_options) * 0x9A4F;
+    pcre_info(regexpof(o)->r_re, &re_options, NULL);
+    return ((unsigned long)regexpof(o)->r_pat + re_options) * 0x9A4F;
 }
 
 /*
@@ -152,21 +151,21 @@ int regexp_type::cmp(object *o1, object *o2)
 {
     int re1_options;
     int re2_options;
-    pcre_info(ici_regexpof(o1)->r_re, &re1_options, NULL);
-    pcre_info(ici_regexpof(o2)->r_re, &re2_options, NULL);
-    return re1_options != re2_options ? 1 : ici_cmp(ici_regexpof(o1)->r_pat, ici_regexpof(o2)->r_pat);
+    pcre_info(regexpof(o1)->r_re, &re1_options, NULL);
+    pcre_info(regexpof(o2)->r_re, &re2_options, NULL);
+    return re1_options != re2_options ? 1 : ici_cmp(regexpof(o1)->r_pat, regexpof(o2)->r_pat);
 }
 
 object *regexp_type::fetch(object *o, object *k)
 {
     if (k == SS(pattern))
-        return ici_regexpof(o)->r_pat;
+        return regexpof(o)->r_pat;
     if (k == SS(options))
     {
         int         options;
         ici_int_t   *io;
 
-        pcre_info(ici_regexpof(o)->r_re, &options, NULL);
+        pcre_info(regexpof(o)->r_re, &options, NULL);
         if ((io = ici_int_new(options)) == NULL)
             return NULL;
         io->decref();

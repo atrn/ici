@@ -328,6 +328,11 @@ public:
      * This --func-- forms part of the --ici-api--.
      */
     static int assign_fail(object *, object *, object *);
+
+    /*
+     * Mark the object and return its type's size in one operation.
+     */
+    size_t setmark(object *o);
 };
 
 /*

@@ -3,7 +3,7 @@
 # This (GNU) Makefile uses the dcc compiler driver.
 #
 
-.PHONY: all lib clean anici
+.PHONY: all lib clean anici test
 
 prog=  anici
 conf?= conf/darwin.h
@@ -15,6 +15,9 @@ srcs=  $(shell echo *.cc)
 hdrs=  $(shell ls *.h|grep -v anici\\.h)
 
 libs= -framework System -lc++ -macosx_version_min 10.12
+
+test:	all
+	./$(prog) test-core.ici
 
 all:	anici.h
 

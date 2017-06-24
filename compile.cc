@@ -70,8 +70,7 @@ new_binop(int op, int why)
  * Compile the expression into the code array, for the reason given.
  * Returns 1 on failure, 0 on success.
  */
-int
-ici_compile_expr(ici_array_t *a, expr_t *e, int why)
+int ici_compile_expr(array *a, expr *e, int why)
 {
 
 #define NOTLV(why)      ((why) == FOR_LVALUE ? FOR_VALUE : (why))
@@ -375,7 +374,7 @@ ici_compile_expr(ici_array_t *a, expr_t *e, int why)
                     return 1;
                 }
                 *a1->a_top++ = &ici_o_end;
-                if ((e->e_obj = ici_evaluate(a1, 0)) == NULL)
+                if ((e->e_obj = evaluate(a1, 0)) == NULL)
                 {
                     a1->decref();
                     return 1;
@@ -729,8 +728,8 @@ ici_compile_expr(ici_array_t *a, expr_t *e, int why)
 
         case T_ONROUND: /* Function call. */
             {
-                int     nargs;
-                expr_t  *e1;
+                int   nargs;
+                expr  *e1;
 
                 /*
                  * First, code the arguments. Evaluated in right to

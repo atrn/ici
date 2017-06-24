@@ -25,7 +25,7 @@ size_t src_type::mark(object *o)
     auto mem = typesize();
     s->setmark();
     if (s->s_filename)
-        mem += s->s_filename->mark();
+        mem += ici_mark(s->s_filename);
     return mem;
 }
 

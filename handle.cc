@@ -82,7 +82,7 @@ handle *ici_handle_new(void *ptr, str *name, objwsup *super)
     ici_handle_proto.h_ptr = ptr;
     ici_handle_proto.h_name = name;
     ici_handle_proto.o_super = super;
-    if ((h = ici_handleof(ici_atom_probe2(&ici_handle_proto, &po))) != NULL)
+    if ((h = handleof(ici_atom_probe2(&ici_handle_proto, &po))) != NULL)
     {
         h->incref();
         return h;
@@ -124,7 +124,7 @@ ici_handle_probe(void *ptr, str *name)
 
     ici_handle_proto.h_ptr = ptr;
     ici_handle_proto.h_name = name;
-    if ((h = ici_handleof(ici_atom_probe(&ici_handle_proto))) != NULL)
+    if ((h = handleof(ici_atom_probe(&ici_handle_proto))) != NULL)
         h->incref();
     return h;
 }
@@ -165,16 +165,16 @@ ici_handle_method_check(object *inst, str *name, handle **h, void **p)
 
     if (ici_method_check(inst, ICI_TC_HANDLE))
         return 1;
-    if (ici_handleof(inst)->h_name != name)
+    if (handleof(inst)->h_name != name)
     {
         return ici_set_error("attempt to apply method %s to %s",
                              ici_objname(n1, ici_os.a_top[-1]),
                              ici_objname(n2, inst));
     }
     if (h != NULL)
-        *h = ici_handleof(inst);
+        *h = handleof(inst);
     if (p != NULL)
-        *p = ici_handleof(inst)->h_ptr;
+        *p = handleof(inst)->h_ptr;
     return 0;
 }
 
@@ -201,7 +201,7 @@ ici_handle_method(object *inst)
     }
     r = NULL;
     id = (long)cfuncof(ici_os.a_top[-1])->cf_arg1;
-    if ((*ici_handleof(inst)->h_member_intf)(ici_handleof(inst)->h_ptr, id, NULL, &r))
+    if ((*handleof(inst)->h_member_intf)(handleof(inst)->h_ptr, id, NULL, &r))
         return 1;
     if (r == NULL)
     {
@@ -297,14 +297,14 @@ ici_make_handle_member_map(ici_name_id_t *ni)
 
 void handle_type::objname(object *o, char p[ICI_OBJNAMEZ])
 {
-    if (ici_handleof(o)->h_name == NULL)
+    if (handleof(o)->h_name == NULL)
         strcpy(p, "handle");
     else
     {
-        if (ici_handleof(o)->h_name->s_nchars > ICI_OBJNAMEZ - 1)
-            sprintf(p, "%.*s...", ICI_OBJNAMEZ - 4, ici_handleof(o)->h_name->s_chars);
+        if (handleof(o)->h_name->s_nchars > ICI_OBJNAMEZ - 1)
+            sprintf(p, "%.*s...", ICI_OBJNAMEZ - 4, handleof(o)->h_name->s_chars);
         else
-            sprintf(p, "%s", ici_handleof(o)->h_name->s_chars);
+            sprintf(p, "%s", handleof(o)->h_name->s_chars);
     }
 }
 
@@ -314,20 +314,20 @@ size_t handle_type::mark(object *o)
     auto mem = typesize();
     if (ici_objwsupof(o)->o_super != NULL)
         mem += ici_mark(ici_objwsupof(o)->o_super);
-    if (ici_handleof(o)->h_name != NULL)
-        mem += ici_mark(ici_handleof(o)->h_name);
+    if (handleof(o)->h_name != NULL)
+        mem += ici_mark(handleof(o)->h_name);
     return mem;
 }
 
 int handle_type::cmp(object *o1, object *o2)
 {
-    return ici_handleof(o1)->h_ptr != ici_handleof(o2)->h_ptr
-        || ici_handleof(o1)->h_name != ici_handleof(o2)->h_name;
+    return handleof(o1)->h_ptr != handleof(o2)->h_ptr
+        || handleof(o1)->h_name != handleof(o2)->h_name;
 }
 
 unsigned long handle_type::hash(object *o)
 {
-    return ICI_PTR_HASH(ici_handleof(o)->h_ptr) ^ ICI_PTR_HASH(ici_handleof(o)->h_name);
+    return ICI_PTR_HASH(handleof(o)->h_ptr) ^ ICI_PTR_HASH(handleof(o)->h_name);
 }
 
 object * handle_type::fetch(object *o, object *k)
@@ -335,7 +335,7 @@ object * handle_type::fetch(object *o, object *k)
     handle *h;
     object *r;
 
-    h = ici_handleof(o);
+    h = handleof(o);
     if (h->h_member_map != NULL && !o->flagged(ICI_H_CLOSED))
     {
         object       *id;
@@ -361,9 +361,9 @@ object * handle_type::fetch(object *o, object *k)
         if (r != NULL)
             return r;
     }
-    if (!ici_hassuper(o) || ici_handleof(o)->o_super == NULL)
+    if (!ici_hassuper(o) || handleof(o)->o_super == NULL)
         return fetch_fail(o, k);
-    return ici_fetch(ici_handleof(o)->o_super, k);
+    return ici_fetch(handleof(o)->o_super, k);
 }
 
 /*
@@ -382,9 +382,9 @@ int handle_type::fetch_super(object *o, object *k, object **v, ici_struct_t *b)
         fetch_fail(o, k);
         return 1;
     }
-    if (ici_handleof(o)->o_super == NULL)
+    if (handleof(o)->o_super == NULL)
         return 0;
-    return ici_fetch_super(ici_handleof(o)->o_super, k, v, b);
+    return ici_fetch_super(handleof(o)->o_super, k, v, b);
 }
 
 object * handle_type::fetch_base(object *o, object *k)
@@ -392,7 +392,7 @@ object * handle_type::fetch_base(object *o, object *k)
     handle *h;
     object *r;
 
-    h = ici_handleof(o);
+    h = handleof(o);
     if (h->h_member_map != NULL && !o->flagged(ICI_H_CLOSED))
     {
         object       *id;
@@ -434,7 +434,7 @@ int handle_type::assign_base(object *o, object *k, object *v)
     handle *h;
     object *r;
 
-    h = ici_handleof(o);
+    h = handleof(o);
     if (h->h_member_map != NULL && !o->flagged(ICI_H_CLOSED))
     {
         object       *id;
@@ -462,7 +462,7 @@ int handle_type::assign_base(object *o, object *k, object *v)
         return assign_fail(o, k, v);
     if (!o->flagged(ICI_H_HAS_PRIV_STRUCT))
     {
-        ici_objwsup_t   *s;
+        objwsup  *s;
 
         /*
          * We don't yet have a private struct to hold our values.
@@ -490,7 +490,7 @@ int handle_type::assign(object *o, object *k, object *v)
     handle *h;
     object *r;
 
-    h = ici_handleof(o);
+    h = handleof(o);
     r = NULL;
     if (h->h_member_map != NULL && !o->flagged(ICI_H_CLOSED))
     {
@@ -521,7 +521,7 @@ int handle_type::assign(object *o, object *k, object *v)
     /*
      * We don't have a base struct of our own yet. Try the super.
      */
-    if (ici_handleof(o)->o_super != NULL)
+    if (handleof(o)->o_super != NULL)
     {
         switch (ici_assign_super(h->o_super, k, v, NULL))
         {
@@ -553,9 +553,9 @@ int handle_type::assign_super(object *o, object *k, object *v, ici_struct_t *b)
 {
     if (!ici_hassuper(o))
         return assign_fail(o, k, v);
-    if (ici_handleof(o)->o_super == NULL)
+    if (handleof(o)->o_super == NULL)
         return 0;
-    return ici_assign_super(ici_handleof(o)->o_super, k, v, b);
+    return ici_assign_super(handleof(o)->o_super, k, v, b);
 }
 
 /*
@@ -564,8 +564,8 @@ int handle_type::assign_super(object *o, object *k, object *v, ici_struct_t *b)
  */
 void handle_type::free(object *o)
 {
-    if (ici_handleof(o)->h_pre_free != NULL)
-        (*ici_handleof(o)->h_pre_free)(ici_handleof(o));
+    if (handleof(o)->h_pre_free != NULL)
+        (*handleof(o)->h_pre_free)(handleof(o));
     ici_tfree(o, ici_handle_t);
 }
 

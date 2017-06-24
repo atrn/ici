@@ -56,7 +56,7 @@ ici_init()
      * In particular it is wrong for systems that use 64-bit aligned
      * pointers.
      *
-    assert(offsetof(ici_objwsup_t, o_super) == 4);
+    assert(offsetof(objwsup, o_super) == 4);
      */
 
 #   ifndef NDEBUG

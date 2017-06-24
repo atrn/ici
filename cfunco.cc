@@ -60,7 +60,7 @@ ici_cfunc_new(ici_str_t *name, int (*func)(...), void *arg1, void *arg2)
  * This --func-- forms part of the --ici-api--.
  */
 int
-ici_assign_cfuncs(ici_objwsup_t *s, ici_cfunc_t *cf)
+ici_assign_cfuncs(objwsup *s, ici_cfunc_t *cf)
 {
     while (cf->cf_name != NULL)
     {
@@ -106,10 +106,10 @@ ici_def_cfuncs(ici_cfunc_t *cf)
  *
  * This --func-- forms part of the --ici-api--.
  */
-ici_objwsup_t *
-ici_class_new(ici_cfunc_t *cf, ici_objwsup_t *super)
+objwsup *
+ici_class_new(ici_cfunc_t *cf, objwsup *super)
 {
-    ici_objwsup_t       *s;
+    objwsup       *s;
 
     if ((s = ici_objwsupof(ici_struct_new())) == NULL)
         return NULL;
@@ -131,8 +131,7 @@ ici_class_new(ici_cfunc_t *cf, ici_objwsup_t *super)
  *
  * This --func-- forms part of the --ici-api--.
  */
-ici_objwsup_t *
-ici_module_new(ici_cfunc_t *cf)
+objwsup *ici_module_new(cfunc *cf)
 {
     return ici_class_new(cf, NULL);
 }

@@ -999,10 +999,10 @@ static int ici_sys_time()
 #ifndef _WIN32
 
 static int
-assign_timeval(ici_struct_t *s, ici_str_t *k, struct timeval *tv)
+assign_timeval(ici_struct *s, str *k, struct timeval *tv)
 {
-    ici_struct_t    *ss;
-    ici_int_t       *i;
+    ici_struct    *ss;
+    ici_int       *i;
 
     if (k == NULL)
         ss = s;
@@ -1057,9 +1057,9 @@ assign_timeval(ici_struct_t *s, ici_str_t *k, struct timeval *tv)
 static int ici_sys_getitimer()
 {
     long                which = ITIMER_VIRTUAL;
-    ici_struct_t            *s;
+    ici_struct          *s;
     struct itimerval    value;
-    object            *o;
+    object              *o;
 
     if (NARGS() != 0)
     {
@@ -1130,10 +1130,10 @@ fetch_timeval(object *s, struct timeval *tv)
 static int ici_sys_setitimer()
 {
     long                which = ITIMER_VIRTUAL;
-    ici_struct_t            *s;
+    ici_struct          *s;
     struct itimerval    value;
     struct itimerval    ovalue;
-    object            *o;
+    object              *o;
 
     if (NARGS() == 1)
     {
@@ -1194,7 +1194,7 @@ static int ici_sys_setitimer()
  */
 static int ici_sys_gettimeofday()
 {
-    ici_struct_t            *s;
+    ici_struct          *s;
     struct timeval      tv;
 
     if (gettimeofday(&tv, NULL) == -1)
@@ -1260,8 +1260,8 @@ static int ici_sys_pipe()
     return not_on_win32("pipe");
 #else
     int         pfd[2];
-    ici_array_t     *a;
-    ici_int_t       *fd;
+    array     *a;
+    ici_int   *fd;
 
     if ((a = ici_array_new(2)) == NULL)
         return 1;
@@ -1598,8 +1598,8 @@ static int ici_sys_wait()
     return not_on_win32("wait");
 #else
     int                 pid;
-    ici_struct_t        *s;
-    ici_int_t           *i;
+    ici_struct          *s;
+    ici_int             *i;
     int                 status;
 
     if ((pid = wait(&status)) < 0)
@@ -1632,7 +1632,7 @@ static int ici_sys_wait()
 
 #ifndef _WIN32
 
-static ici_struct_t *password_struct(struct passwd *);
+static ici_struct *password_struct(struct passwd *);
 
 /*
  * struct|array = passwd([int | string])
@@ -1667,8 +1667,8 @@ static ici_struct_t *password_struct(struct passwd *);
  */
 static int ici_sys_passwd()
 {
-    struct passwd       *pwent;
-    ici_array_t             *a;
+    struct passwd     *pwent;
+    array             *a;
 
     switch (NARGS())
     {
@@ -1708,11 +1708,11 @@ static int ici_sys_passwd()
     return ici_ret_with_decref(a);
 }
 
-static ici_struct_t *
+static ici_struct *
 password_struct(struct passwd *pwent)
 {
-    ici_struct_t    *d;
-    object    *o;
+    ici_struct *d;
+    object     *o;
 
     if (pwent == NULL)
         return NULL;
@@ -1730,15 +1730,15 @@ password_struct(struct passwd *pwent)
         else                                            \
             o->decref()
 
-#define SET_STR_FIELD(x)                                                \
-        if ((o = ici_str_new_nul_term(pwent->pw_ ##x)) == NULL)        \
-            goto fail;                                                  \
-        else if (ici_assign(d, SS(x), o))                              \
-        {                                                               \
-            o->decref();                                                \
-            goto fail;                                                  \
-        }                                                               \
-        else                                                            \
+#define SET_STR_FIELD(x)                                        \
+        if ((o = ici_str_new_nul_term(pwent->pw_ ##x)) == NULL) \
+            goto fail;                                          \
+        else if (ici_assign(d, SS(x), o))                       \
+        {                                                       \
+            o->decref();                                        \
+            goto fail;                                          \
+        }                                                       \
+        else                                                    \
             o->decref()
 
         SET_STR_FIELD(name);
@@ -1980,11 +1980,11 @@ string_to_resource(object *what)
  */
 static int ici_sys_getrlimit()
 {
-    object            *what;
-    int                 resource;
-    struct rlimit       rlimit;
-    ici_struct_t            *limit;
-    ici_int_t               *iv;
+    object        *what;
+    int            resource;
+    struct rlimit  rlimit;
+    ici_struct    *limit;
+    ici_int       *iv;
 
     if (typecheck("o", &what))
         return 1;
@@ -2099,8 +2099,8 @@ static int ici_sys_setrlimit()
  */
 static int ici_sys_usleep()
 {
-    long    t;
-    ici_exec_t *x;
+    long t;
+    exec *x;
 
     if (typecheck("i", &t))
         return 1;

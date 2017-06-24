@@ -24,7 +24,7 @@ struct mark : object
 };
 
 inline ici_mark_t *ici_markof(object *o) { return static_cast<ici_mark_t *>(o); }
-inline bool ici_ismark(object *o) { return o == &ici_o_mark; }
+inline bool ici_ismark(object *o) { return o == &o_mark; }
 
 /*
  * End of ici.h export. --ici.h-end--

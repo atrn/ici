@@ -138,7 +138,7 @@ ici_funcv(object *subject, object *callable, const char *types, va_list va)
 
     os_depth = (ici_os.a_top - ici_os.a_base) - os_depth;
     call_op = subject != NULL ? &ici_o_method_call : &ici_o_call;
-    if ((ret_obj = ici_evaluate(call_op, os_depth)) == NULL)
+    if ((ret_obj = evaluate(call_op, os_depth)) == NULL)
     {
         goto fail;
     }

@@ -30,7 +30,7 @@ static char     an_expression[] = "an expression";
  * A few forward definitions...
  */
 static int      compound_statement(parse *, ici_struct *);
-static int      expr(parse *, expr_t **, int);
+static int      expression(parse *, expr **, int);
 static int      const_expression(parse *, object **, int);
 static int      statement(parse *, array *, ici_struct *, const char *, int);
 
@@ -120,11 +120,11 @@ disassemble(int indent, array *a)
  */
 
 /*
- * 'this' is a convenience macro. Routines in this file conventionally use
+ * 'curtok' is a convenience macro. Routines in this file conventionally use
  * the variable name 'p' for the pointer the current parse structure. Given
- * that, 'this' is the last token fetched. That is, the current head symbol.
+ * that, 'curtok' is the last token fetched. That is, the current head symbol.
  */
-#define this    p->p_got.t_what
+#define curtok    p->p_got.t_what
 
 /*
  * next(p, a) and reject(p) are the basic token fetching (and rejecting)
@@ -134,10 +134,10 @@ disassemble(int indent, array *a)
 #if defined ICI_INLINE_PARSER_CODE
 
 #define next(p, a)  (p->p_ungot.t_what != T_NONE                        \
-                     ? (p->p_got=p->p_ungot, p->p_ungot.t_what=T_NONE, this) \
+                     ? (p->p_got=p->p_ungot, p->p_ungot.t_what=T_NONE, curtok) \
                      : ici_lex(p, a))
 
-#define reject(p) (p->p_ungot = p->p_got, this = T_NONE)
+#define reject(p) (p->p_ungot = p->p_got, curtok = T_NONE)
 
 #else
 
@@ -148,7 +148,7 @@ next(parse *p, array *a)
     {
         p->p_got = p->p_ungot;
         p->p_ungot.t_what = T_NONE;
-        return this;
+        return curtok;
     }
     return ici_lex(p, a);
 }
@@ -157,7 +157,7 @@ static void
 reject(parse *p)
 {
     p->p_ungot = p->p_got;
-    this = T_NONE;
+    curtok = T_NONE;
 }
 #endif
 
@@ -226,7 +226,7 @@ ident_list(parse *p)
             goto fail;
         }
         *a->a_top = p->p_got.t_obj;
-        this = T_NONE; /* Take ownership of name. */
+        curtok = T_NONE; /* Take ownership of name. */
         (*a->a_top)->decref();
         ++a->a_top;
         if (next(p, NULL) != T_COMMA)
@@ -365,7 +365,7 @@ data_def(parse *p, objwsup *ows)
             goto fail;
         }
         n = p->p_got.t_obj;
-        this = T_NONE; /* Take ownership of name. */
+        curtok = T_NONE; /* Take ownership of name. */
         /*
          * Gather any initialisation or function.
          */
@@ -499,9 +499,9 @@ compound_statement(parse *p, ici_struct *sw)
  * Free an exprssesion tree and decref all the objects that it references.
  */
 static void
-free_expr(expr_t *e)
+free_expr(expr *e)
 {
-    expr_t      *e1;
+    expr *e1;
 
     while (e != NULL)
     {
@@ -515,7 +515,7 @@ free_expr(expr_t *e)
         }
         e1 = e;
         e = e->e_arg[0];
-        ici_tfree(e1, expr_t);
+        ici_tfree(e1, expr);
     }
 }
 
@@ -524,9 +524,9 @@ free_expr(expr_t *e)
  * including the ')'.
  */
 static int
-bracketed_expr(parse *p, expr_t **ep)
+bracketed_expr(parse *p, expr **ep)
 {
-    switch (expr(p, ep, T_NONE))
+    switch (expression(p, ep, T_NONE))
     {
     case 0: not_followed_by("(", an_expression);
     case -1: return -1;
@@ -541,26 +541,26 @@ bracketed_expr(parse *p, expr_t **ep)
 
 /*
  * Parse a primaryexpression in the parse context 'p' and store the expression
- * tree of 'expr_t' type nodes under the pointer indicated by 'ep'. Usual
+ * tree of 'expr' type nodes under the pointer indicated by 'ep'. Usual
  * parseing return conventions (see comment near start of file). See the
  * comment on expr() for the meaning of exclude.
  */
 static int
-primary(parse *p, expr_t **ep, int exclude)
+primary(parse *p, expr **ep, int exclude)
 {
-    expr_t          *e;
-    array     *a;
-    ici_struct    *d;
-    ici_set_t       *s;
-    object       *n;
-    object       *o;
-    const char      *token_name = 0;
-    int             wasfunc;
-    object       *name;
-    int             token;
+    expr       *e;
+    array      *a;
+    ici_struct *d;
+    set        *s;
+    object     *n;
+    object     *o;
+    const char *token_name = 0;
+    int         wasfunc;
+    object     *name;
+    int         token;
 
     *ep = NULL;
-    if ((e = ici_talloc(expr_t)) == NULL)
+    if ((e = ici_talloc(expr)) == NULL)
     {
         return -1;
     }
@@ -594,9 +594,9 @@ primary(parse *p, expr_t **ep, int exclude)
         e->e_what = T_STRING;
         token = T_STRING;
     gather_string_or_re:
-        this = T_NONE; /* Take ownership of obj. */
+        curtok = T_NONE; /* Take ownership of obj. */
         o = p->p_got.t_obj;
-        while (next(p, NULL) == token || (token == T_REGEXP && this == T_STRING))
+        while (next(p, NULL) == token || (token == T_REGEXP && curtok == T_STRING))
         {
             int        i;
 
@@ -614,13 +614,13 @@ primary(parse *p, expr_t **ep, int exclude)
             );
             i += stringof(o)->s_nchars;
             o->decref();
-            this = T_NONE; /* Take ownership of obj. */
+            curtok = T_NONE; /* Take ownership of obj. */
             p->p_got.t_obj->decref();
             if ((o = ici_str_new(buf, i)) == NULL)
             {
                 goto fail;
             }
-            this = T_NONE;
+            curtok = T_NONE;
         }
         reject(p);
         if (token == T_REGEXP)
@@ -639,7 +639,7 @@ primary(parse *p, expr_t **ep, int exclude)
         break;
 
     case T_NAME:
-        this = T_NONE; /* Take ownership of name. */
+        curtok = T_NONE; /* Take ownership of name. */
         if (p->p_got.t_obj == SS(_NULL_))
         {
             e->e_what = T_NULL;
@@ -667,7 +667,7 @@ primary(parse *p, expr_t **ep, int exclude)
         break;
 
     case T_ONROUND:
-        ici_tfree(e, expr_t);
+        ici_tfree(e, expr);
         e = NULL;
         if (bracketed_expr(p, &e) < 1)
         {
@@ -682,7 +682,7 @@ primary(parse *p, expr_t **ep, int exclude)
             not_followed_by("[", "an identifier");
             goto fail;
         }
-        this = T_NONE; /* Take ownership of name. */
+        curtok = T_NONE; /* Take ownership of name. */
         if (p->p_got.t_obj == SS(array))
         {
             p->p_got.t_obj->decref();
@@ -739,12 +739,12 @@ primary(parse *p, expr_t **ep, int exclude)
             p->p_got.t_obj->decref();
             d = NULL;
             super = NULL;
-            if (next(p, NULL) == T_COLON || this == T_EQ)
+            if (next(p, NULL) == T_COLON || curtok == T_EQ)
             {
                 int     is_eq;
                 char    n[30];
 
-                is_eq = this == T_EQ;
+                is_eq = curtok == T_EQ;
                 switch (const_expression(p, &o, T_COMMA))
                 {
                 case 0:
@@ -829,7 +829,7 @@ primary(parse *p, expr_t **ep, int exclude)
                 *ici_vs.a_top++ = autos;
                 autos->decref();
                 ++p->p_module_depth;
-                o = ici_evaluate(p, 0);
+                o = evaluate(p, 0);
                 --p->p_module_depth;
                 --ici_vs.a_top;
                 if (o == NULL)
@@ -889,7 +889,7 @@ primary(parse *p, expr_t **ep, int exclude)
 
                 case T_NAME:
                     n = p->p_got.t_obj;
-                    this = T_NONE; /* Take ownership of name. */
+                    curtok = T_NONE; /* Take ownership of name. */
                 gotkey:
                     wasfunc = 0;
                     if (next(p, NULL) == T_ONROUND)
@@ -903,7 +903,7 @@ primary(parse *p, expr_t **ep, int exclude)
                         o = p->p_got.t_obj;
                         wasfunc = 1;
                     }
-                    else if (this == T_EQ)
+                    else if (curtok == T_EQ)
                     {
                         switch (const_expression(p, &o, T_COMMA))
                         {
@@ -911,7 +911,7 @@ primary(parse *p, expr_t **ep, int exclude)
                         case -1: d->decref(); goto fail;
                         }
                     }
-                    else if (this == T_COMMA || this == T_OFFSQUARE)
+                    else if (curtok == T_COMMA || curtok == T_OFFSQUARE)
                     {
                         reject(p);
                         o = ici_null;
@@ -1037,7 +1037,7 @@ primary(parse *p, expr_t **ep, int exclude)
             n = NULL;
             c = NULL;
             s = stringof(p->p_got.t_obj);
-            if ((o = ici_eval(s)) == NULL)
+            if ((o = eval(s)) == NULL)
             {
                 goto fail_user_parse;
             }
@@ -1098,19 +1098,19 @@ primary(parse *p, expr_t **ep, int exclude)
 
     default:
         reject(p);
-        ici_tfree(e, expr_t);
+        ici_tfree(e, expr);
         return 0;
     }
     *ep = e;
     e = NULL;
     for (;;)
     {
-        int     oldthis;
+        int     oldcurtok;
 
         switch (next(p, NULL))
         {
         case T_ONSQUARE:
-            if ((e = ici_talloc(expr_t)) == NULL)
+            if ((e = ici_talloc(expr)) == NULL)
             {
                 goto fail;
             }
@@ -1120,7 +1120,7 @@ primary(parse *p, expr_t **ep, int exclude)
             e->e_obj = NULL;
             *ep = e;
             e = NULL;
-            switch (expr(p, &(*ep)->e_arg[1], T_NONE))
+            switch (expression(p, &(*ep)->e_arg[1], T_NONE))
             {
             case 0: not_followed_by("[", an_expression);
             case -1: goto fail;
@@ -1138,26 +1138,26 @@ primary(parse *p, expr_t **ep, int exclude)
         case T_PTR:
         case T_DOT:
         case T_AT:
-            if (this == exclude)
+            if (curtok == exclude)
             {
                 reject(p);
                 return 1;
             }
-            if ((e = ici_talloc(expr_t)) == NULL)
+            if ((e = ici_talloc(expr)) == NULL)
             {
                 goto fail;
             }
-            if ((oldthis = this) == T_AT)
+            if ((oldcurtok = curtok) == T_AT)
             {
                 e->e_what = T_BINAT;
             }
-            else if (oldthis == T_COLON)
+            else if (oldcurtok == T_COLON)
             {
                 e->e_what = T_PRIMARYCOLON;
             }
             else
             {
-                e->e_what = this;
+                e->e_what = curtok;
             }
             e->e_arg[0] = *ep;
             e->e_arg[1] = NULL;
@@ -1167,8 +1167,8 @@ primary(parse *p, expr_t **ep, int exclude)
             switch (next(p, NULL))
             {
             case T_NAME:
-                this = T_NONE; /* Take ownership of name. */
-                if ((e = ici_talloc(expr_t)) == NULL)
+                curtok = T_NONE; /* Take ownership of name. */
+                if ((e = ici_talloc(expr)) == NULL)
                 {
                     goto fail;
                 }
@@ -1190,7 +1190,7 @@ primary(parse *p, expr_t **ep, int exclude)
 
             default:
                 reject(p);
-                switch (oldthis)
+                switch (oldcurtok)
                 {
                 case T_COLON:      token_name = ":"; break;
                 case T_COLONCARET: token_name = ":^"; break;
@@ -1205,7 +1205,7 @@ primary(parse *p, expr_t **ep, int exclude)
             break;
 
         case T_ONROUND: /* Function call. */
-            if ((e = ici_talloc(expr_t)) == NULL)
+            if ((e = ici_talloc(expr)) == NULL)
             {
                 goto fail;
             }
@@ -1217,16 +1217,16 @@ primary(parse *p, expr_t **ep, int exclude)
             e = NULL;
             for (;;)
             {
-                expr_t  *e1;
+                expr  *e1;
 
                 e1 = NULL;
-                switch (expr(p, &e1, T_COMMA))
+                switch (expression(p, &e1, T_COMMA))
                 {
                 case -1:
                     goto fail;
 
                 case 1:
-                    if ((e = ici_talloc(expr_t)) == NULL)
+                    if ((e = ici_talloc(expr)) == NULL)
                     {
                         goto fail;
                     }
@@ -1276,7 +1276,7 @@ primary(parse *p, expr_t **ep, int exclude)
         {
             e->e_obj->decref();
         }
-        ici_tfree(e, expr_t);
+        ici_tfree(e, expr);
     }
     free_expr(*ep);
     *ep = NULL;
@@ -1286,14 +1286,14 @@ primary(parse *p, expr_t **ep, int exclude)
 /*
  * Parse a sub-expression consisting or a sequence of unary operators round
  * a primary (a factor) in the parse context 'p' and store the expression
- * tree of 'expr_t' type nodes under the pointer indicated by 'ep'. Usual
+ * tree of 'expr' type nodes under the pointer indicated by 'ep'. Usual
  * parseing return conventions (see comment near start of file). See the
  * comment on expr() for the meaning of exclude.
  */
 static int
-unary(parse *p, expr_t **ep, int exclude)
+unary(parse *p, expr **ep, int exclude)
 {
-    expr_t      *e;
+    expr      *e;
     int         what;
 
     switch (next(p, NULL))
@@ -1308,13 +1308,13 @@ unary(parse *p, expr_t **ep, int exclude)
     case T_MINUSMINUS:
     case T_AT:
     case T_DOLLAR:
-        what = this;
+        what = curtok;
         switch (unary(p, ep, exclude))
         {
         case 0: ici_set_error("badly formed expression");
         case -1: return -1;
         }
-        if ((e = ici_talloc(expr_t)) == NULL)
+        if ((e = ici_talloc(expr)) == NULL)
         {
             return -1;
         }
@@ -1337,11 +1337,11 @@ unary(parse *p, expr_t **ep, int exclude)
     {
     case T_PLUSPLUS:
     case T_MINUSMINUS:
-        if ((e = ici_talloc(expr_t)) == NULL)
+        if ((e = ici_talloc(expr)) == NULL)
         {
             return -1;
         }
-        e->e_what = this;
+        e->e_what = curtok;
         e->e_arg[0] = NULL;
         e->e_arg[1] = *ep;
         e->e_obj = NULL;
@@ -1357,7 +1357,7 @@ unary(parse *p, expr_t **ep, int exclude)
 
 /*
  * Parse an expression in the parse context 'p' and store the expression
- * tree of 'expr_t' type nodes under the pointer indicated by 'ep'. Usual
+ * tree of 'expr' type nodes under the pointer indicated by 'ep'. Usual
  * parseing return conventions (see comment near start of file).
  *
  * exclude              A binop token that would normally be allowed
@@ -1369,11 +1369,11 @@ unary(parse *p, expr_t **ep, int exclude)
  *                      colon.
  */
 static int
-expr(parse *p, expr_t **ep, int exclude)
+expression(parse *p, expr **ep, int exclude)
 {
-    expr_t      *e;
-    expr_t      **ebase;
-    expr_t      *elimit;
+    expr      *e;
+    expr      **ebase;
+    expr      *elimit;
     int         tp;
     int         r;
     int         in_quest_colon;
@@ -1401,12 +1401,12 @@ expr(parse *p, expr_t **ep, int exclude)
      * While there is a following binary operator, merge it and the
      * following factor into the expression.
      */
-    while (t_type(next(p, NULL)) == T_BINOP && this != exclude)
+    while (t_type(next(p, NULL)) == T_BINOP && curtok != exclude)
     {
         /*
          * Cause assignments to be right associative.
          */
-        if ((tp = t_prec(this)) == t_prec(T_EQ))
+        if ((tp = t_prec(curtok)) == t_prec(T_EQ))
         {
             --tp;
         }
@@ -1415,7 +1415,7 @@ expr(parse *p, expr_t **ep, int exclude)
          * Slide down the right hand side of the tree to find where this
          * operator binds.
          */
-        in_quest_colon = this == T_QUESTION;
+        in_quest_colon = curtok == T_QUESTION;
         for
         (
             ep = ebase;
@@ -1433,11 +1433,11 @@ expr(parse *p, expr_t **ep, int exclude)
          * Allocate a new node and rebuild this bit with the new operator
          * and the following factor.
          */
-        if ((e = ici_talloc(expr_t)) == NULL)
+        if ((e = ici_talloc(expr)) == NULL)
         {
             return -1;
         }
-        e->e_what = this;
+        e->e_what = curtok;
         e->e_arg[0] = *ep;
         e->e_arg[1] = NULL;
         e->e_obj = NULL;
@@ -1446,7 +1446,7 @@ expr(parse *p, expr_t **ep, int exclude)
         case 0:
             ici_set_error("\"expr %s\" %s %s", binop_name(t_subtype(e->e_what)), not_by, an_expression);
         case -1:
-            ici_tfree(e, expr_t);
+            ici_tfree(e, expr);
             return -1;
         }
         *ep = e;
@@ -1459,10 +1459,10 @@ expr(parse *p, expr_t **ep, int exclude)
 static int
 expression(parse *p, array *a, int why, int exclude)
 {
-    expr_t      *e;
+    expr      *e;
 
     e = NULL;
-    switch (expr(p, &e, exclude))
+    switch (expression(p, &e, exclude))
     {
     case 0: return 0;
     case -1: goto fail;
@@ -1489,13 +1489,13 @@ expression(parse *p, array *a, int why, int exclude)
 static int
 const_expression(parse *p, object **po, int exclude)
 {
-    expr_t      *e;
+    expr      *e;
     array *a;
     int         ret;
 
     a = NULL;
     e = NULL;
-    if ((ret = expr(p, &e, exclude)) <= 0)
+    if ((ret = expression(p, &e, exclude)) <= 0)
     {
         return ret;
     }
@@ -1535,7 +1535,7 @@ const_expression(parse *p, object **po, int exclude)
     *a->a_top++ = &ici_o_end;
     free_expr(e);
     e = NULL;
-    if ((*po = ici_evaluate(a, 0)) == NULL)
+    if ((*po = evaluate(a, 0)) == NULL)
     {
         goto fail;
     }
@@ -1592,14 +1592,14 @@ xx_brac_expr_brac(parse *p, array *a, const char *xx)
 static int
 statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
 {
-    array         *a1;
-    array         *a2;
-    expr_t              *e;
-    ici_struct        *d;
-    objwsup       *ows;
-    object           *o;
-    ici_int_t           *i;
-    int                 stepz;
+    array      *a1;
+    array      *a2;
+    expr       *e;
+    ici_struct *d;
+    objwsup    *ows;
+    object     *o;
+    ici_int    *i;
+    int         stepz;
 
     switch (next(p, a))
     {
@@ -1631,7 +1631,7 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
         goto none;
 
     case T_NAME:
-        this = T_NONE; /* Assume we own the name. */
+        curtok = T_NONE; /* Assume we own the name. */
         if (p->p_got.t_obj == SS(export))
         {
             p->p_got.t_obj->decref();
@@ -1751,7 +1751,7 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
             {
                 return -1;
             }
-            if (ici_assign(sw, &ici_o_mark, i))
+            if (ici_assign(sw, &o_mark, i))
             {
                 i->decref();
                 return -1;
@@ -1782,7 +1782,7 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
              */
             if (next(p, NULL) == T_NAME && p->p_got.t_obj == SS(else))
             {
-                this = T_NONE; /* Take ownership of name. */
+                curtok = T_NONE; /* Take ownership of name. */
                 p->p_got.t_obj->decref();
                 if ((a2 = ici_array_new(0)) == NULL)
                 {
@@ -1893,7 +1893,7 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
                 a1->decref();
                 return not_followed_by("do statement", "\"while\"");
             }
-            this = T_NONE; /* Take ownership of name. */
+            curtok = T_NONE; /* Take ownership of name. */
             p->p_got.t_obj->decref();
             if (next(p, NULL) != T_ONROUND)
             {
@@ -1962,17 +1962,17 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
                     reject(p);
                     return not_followed_by("forall (expr, expr", "\"in\"");
                 }
-                this = T_NONE; /* Take ownership of name. */
+                curtok = T_NONE; /* Take ownership of name. */
                 p->p_got.t_obj->decref();
             }
             else
             {
-                if (this != T_NAME || p->p_got.t_obj != SS(in))
+                if (curtok != T_NAME || p->p_got.t_obj != SS(in))
                 {
                     reject(p);
                     return not_followed_by("forall (expr", "\",\" or \"in\"");
                 }
-                this = T_NONE; /* Take ownership of name. */
+                curtok = T_NONE; /* Take ownership of name. */
                 p->p_got.t_obj->decref();
                 if (a->stk_push_chk(2))
                 {
@@ -2041,7 +2041,7 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
              * Get the condition expression, but don't generate code yet.
              */
             e = NULL;
-            if (expr(p, &e, T_NONE) == -1)
+            if (expression(p, &e, T_NONE) == -1)
             {
                 return -1;
             }
@@ -2247,7 +2247,7 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
                 a1->decref();
                 return not_followed_by("try statement", "\"onerror\"");
             }
-            this = T_NONE; /* Take ownership of name. */
+            curtok = T_NONE; /* Take ownership of name. */
             p->p_got.t_obj->decref();
             if ((a2 = ici_array_new(0)) == NULL)
             {
@@ -2388,7 +2388,7 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
             }
             break;
         }
-        this = T_NAME; /* Woops, we wan't that name afterall. */
+        curtok = T_NAME; /* Woops, we wan't that name afterall. */
     default:
         reject(p);
         switch (expression(p, a, FOR_EFFECT, T_NONE))
@@ -2460,7 +2460,7 @@ ici_parse(file *f, objwsup *s)
     }
 
     *ici_vs.a_top++ = s;
-    if ((o = ici_evaluate(p, 0)) == NULL)
+    if ((o = evaluate(p, 0)) == NULL)
     {
         --ici_vs.a_top;
         p->decref();
@@ -2600,14 +2600,14 @@ ici_parse_exec()
             next(p, a);
             if (p->p_module_depth > 0)
             {
-                if (this != T_OFFSQUARE)
+                if (curtok != T_OFFSQUARE)
                 {
                     reject(p);
                     not_followed_by("[module statements", "\"]\"");
                     goto fail;
                 }
             }
-            else if (this != T_EOF)
+            else if (curtok != T_EOF)
             {
                 reject(p);
                 ici_set_error("syntax error");

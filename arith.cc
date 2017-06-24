@@ -20,7 +20,7 @@ namespace ici
  *
  * In most configurations this file only defines binop_name() which
  * merely returns the textual form of a binary operator for error messages.
- * But in configuration where the function ici_evaluate() (in exec.c) cannot
+ * But in configuration where the function evaluate() (in exec.c) cannot
  * be compiled with the whole binary operator switch statement in-line,
  * it can be done as a seperate function here. This is only necessary
  * if the compiler can't handle such a large function. Fortunately this

@@ -50,7 +50,7 @@ class archive : public object
     friend class archive_type;
 
 public:
-    static archive *start(ici_file_t *file, ici_objwsup_t *scope);
+    static archive *start(file *file, objwsup *scope);
 
     inline int get() { return a_file->getch(); }
     inline int write(const void *data, int len) { return a_file->write(data, len); }

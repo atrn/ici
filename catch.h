@@ -30,7 +30,7 @@ inline bool ici_iscatch(object *o) { return o->isa(ICI_TC_CATCH); }
  * Flags set stored in the upper nibble of o_flags (which is
  * allowed to be used by objects).
  */
-constexpr int CF_EVAL_BASE = 0x20;    /* ici_evaluate should return. */
+constexpr int CF_EVAL_BASE = 0x20;    /* evaluate should return. */
 constexpr int CF_CRIT_SECT = 0x40;    /* Critical section guard. */
 
 /*

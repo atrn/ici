@@ -82,10 +82,6 @@ ici_exec_forall()
     }
 }
 
-inline unsigned long maybe_mark(object *o) {
-    return o == nullptr ? 0 : o->mark();
-}
-
 size_t forall_type::mark(object *o)
 {
     o->setmark();

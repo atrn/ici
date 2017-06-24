@@ -110,9 +110,9 @@ struct handle : objwsup
     int     (*h_general_intf)(ici_handle_t *h, object *k, object *setv, object **retv);
 };
 
-inline handle *ici_handleof(object *o) { return static_cast<handle *>(o); }
-inline bool ici_ishandle(object *o) { return o->isa(ICI_TC_HANDLE); }
-inline bool ici_ishandleof(object *o, str *n) { return ici_ishandle(o) && ici_handleof(o)->h_name == n; }
+inline handle *handleof(object *o) { return static_cast<handle *>(o); }
+inline bool ishandle(object *o) { return o->isa(ICI_TC_HANDLE); }
+inline bool ishandleof(object *o, str *n) { return ishandle(o) && handleof(o)->h_name == n; }
 
 /*
  * Flags set in the upper nibble of o_flags, which is

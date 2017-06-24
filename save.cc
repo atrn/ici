@@ -144,9 +144,8 @@ save_string(archive *ar, object *obj)
 static int
 save_regexp(archive *ar, object *obj)
 {
-    regexp *re = ici_regexpof(obj);
+    auto re = regexpof(obj);
     int options;
-
     ici_pcre_info(re->r_re, &options, NULL);
     return save_object_name(ar, obj) || write32(ar, options) || save_string(ar, re->r_pat);
 }

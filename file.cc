@@ -88,20 +88,10 @@ ici_file_close(ici_file_t *f)
     return r;
 }
 
-/*
- * Mark this and referenced unmarked objects, return memory costs.
- * See comments on t_mark() in object.h.
- */
-
 size_t file_type::mark(object *o)
 {
-    o->setmark();
-    auto mem = typesize();
-    if (fileof(o)->f_name != NULL)
-        mem += ici_mark(fileof(o)->f_name);
-    if (fileof(o)->f_ref != NULL)
-        mem += ici_mark(fileof(o)->f_ref);
-    return mem;
+    auto f = fileof(o);
+    return setmark(f) + maybe_mark(f->f_name) + maybe_mark(f->f_ref);
 }
 
 void file_type::free(object *o)

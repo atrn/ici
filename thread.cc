@@ -265,7 +265,7 @@ static void ici_thread_base(void *arg)
 
     ici_enter(x);
     n_ops = ici_os.a_top - ici_os.a_base;
-    if ((x->x_result = ici_evaluate(&ici_o_call, n_ops)) == NULL)
+    if ((x->x_result = evaluate(&ici_o_call, n_ops)) == NULL)
     {
         x->x_result = ici_str_get_nul_term(ici_error);
         x->x_state = ICI_XS_FAILED;

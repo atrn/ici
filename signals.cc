@@ -106,7 +106,7 @@ call_signal_handler(object *func, int signo)
     isigno->decref();
     *ici_os.a_top++ = ici_one; /* One argument. */
     *ici_os.a_top++ = func;
-    if ((ret_obj = ici_evaluate(&ici_o_call, 3)) == NULL)
+    if ((ret_obj = evaluate(&ici_o_call, 3)) == NULL)
         goto fail;
     ret_obj->decref();
     return 0;

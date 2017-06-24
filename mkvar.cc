@@ -32,11 +32,10 @@ namespace ici
  *
  * Returns 0 on succcess, else non-zerro, usual conventions.
  */
-int
-ici_set_val(ici_objwsup_t *s, ici_str_t *name, int type, void *vp)
+int ici_set_val(objwsup *s, ici_str_t *name, int type, void *vp)
 {
     object   *o;
-    int         i;
+    int       i;
 
     switch (type)
     {
@@ -162,8 +161,7 @@ ici_fetch_int(object *o, object *k, long *vp)
  *      u       file            FILE *
  *      o       any             object *
  */
-int
-ici_cmkvar(ici_objwsup_t *scope, const char *name, int type, void *vp)
+int ici_cmkvar(objwsup *scope, const char *name, int type, void *vp)
 {
     ici_str_t   *s;
     int         i;

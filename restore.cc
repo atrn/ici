@@ -652,7 +652,7 @@ restore_cfunc(archive *ar)
 static object *
 restore_mark(archive *ar)
 {
-    return &ici_o_mark;
+    return &o_mark;
 }
 
 // ref

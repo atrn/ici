@@ -48,11 +48,10 @@ static const char   ici_prefix[] = "anici-";
  * and is also the typical parent for top level classes made by dynamically
  * loaded modules. Usual error conventions.
  */
-ici_objwsup_t *
-ici_outermost_writeable_struct()
+objwsup *ici_outermost_writeable_struct()
 {
-    ici_objwsup_t       *outer;
-    ici_objwsup_t       *ows;
+    objwsup       *outer;
+    objwsup       *ows;
 
     outer = NULL;
     for (ows = ici_objwsupof(ici_vs.a_top[-1]); ows != NULL; ows = ows->o_super)
@@ -83,16 +82,16 @@ ici_outermost_writeable_struct()
 static int
 f_load(...)
 {
-    ici_str_t   *name;
-    object   *result;
+    str        *name;
+    object     *result;
     char        fname[FILENAME_MAX];
     char        entry_symbol[64];
-    ici_struct_t    *statics;
-    ici_struct_t    *autos;
-    ici_struct_t    *externs;
-    ici_objwsup_t   *outer;
-    ici_file_t  *file;
-    FILE        *stream;
+    ici_struct *statics;
+    ici_struct *autos;
+    ici_struct *externs;
+    objwsup    *outer;
+    file       *file;
+    FILE       *stream;
 
     externs = NULL;
     statics = NULL;
@@ -409,12 +408,11 @@ push_path_elements(ici_array_t *a, const char *path)
  * Set the path variable in externs to be an array of all the directories
  * that should be searched in for ICI extension modules and stuff.
  */
-int
-ici_init_path(ici_objwsup_t *externs)
+int ici_init_path(objwsup *externs)
 {
-    ici_array_t         *a;
-    int                 r;
-    char                *path;
+    array *a;
+    int    r;
+    char  *path;
 
     if ((a = ici_array_new(0)) == NULL)
     {

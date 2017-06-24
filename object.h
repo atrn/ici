@@ -292,6 +292,10 @@ inline size_t ici_mark(object *o) {
     return o->mark();
 }
 
+inline size_t maybe_mark(object *o) {
+    return o == nullptr ? 0 : ici_mark(o);
+}
+
 /*
  * Fetch the value of the key 'k' from the object 'o'.  This macro just calls
  * the particular object's 't_fetch()' function.

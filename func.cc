@@ -293,7 +293,7 @@ int func_type::call(object *o, object *subject)
      */
     ici_xs.a_top[-1] = ici_exec->x_src;
 
-    *ici_xs.a_top++ = &ici_o_mark;
+    *ici_xs.a_top++ = &o_mark;
     ici_get_pc(f->f_code, ici_xs.a_top);
     ++ici_xs.a_top;
     *ici_vs.a_top++ = d;

@@ -28,17 +28,17 @@ struct regexp : object
 {
     pcre        *r_re;
     pcre_extra  *r_rex;
-    ici_str_t   *r_pat;
+    str         *r_pat;
 };
 
-inline ici_regexp_t *ici_regexpof(object *o) { return static_cast<ici_regexp_t *>(o); }
-inline bool ici_isregexp(object *o) { return o->isa(ICI_TC_REGEXP); }
+inline regexp *regexpof(object *o) { return static_cast<regexp *>(o); }
+inline bool isregexp(object *o) { return o->isa(ICI_TC_REGEXP); }
 
-int ici_pcre_exec_simple(ici_regexp_t *, ici_str_t *);
+int ici_pcre_exec_simple(regexp *, str *);
 
 int ici_pcre
 (
-    ici_regexp_t *r,
+    regexp *r,
     const char *subject,
     int length,
     int start_offset,

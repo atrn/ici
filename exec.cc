@@ -67,12 +67,12 @@ ici_int   *ici_one;
  * set is not addressed here (by an interupt perhaps).  Remember to clear
  * it before re-running any ICI code.
  */
-volatile int    ici_aborted;
+volatile int    aborted;
 
 /*
- * The limit to the number of recursive invocations of ici_evaluate().
+ * The limit to the number of recursive invocations of evaluate().
  */
-int             ici_evaluate_recursion_limit = 50;
+int             evaluate_recursion_limit = 50;
 
 inline bool isempty(const sigset_t *s)
 {
@@ -197,7 +197,7 @@ ici_engine_stack_check()
  * usual conventions (i.e.  'ici_error' points to the error message).
  *
  * n_operands is the number of objects on the operand stack that are arguments
- * to this call.  They will all be poped off before ici_evaluate returns.
+ * to this call.  They will all be poped off before evaluate returns.
  *
  * The execution loop knows when the execution stack returns to its origional
  * level because it puts a ici_catch_t object on it.  This object also records
@@ -216,8 +216,7 @@ ici_engine_stack_check()
  *
  * Note that binop.h is included half way down this function.
  */
-object *
-ici_evaluate(object *code, int n_operands)
+object *evaluate(object *code, int n_operands)
 {
     object      *o;
     object      *pc;
@@ -233,7 +232,7 @@ ici_evaluate(object *code, int n_operands)
         : ici_fetch(s, k)                                       \
     )
 
-    if (++ici_exec->x_n_engine_recurse > ici_evaluate_recursion_limit)
+    if (++ici_exec->x_n_engine_recurse > evaluate_recursion_limit)
     {
         ici_set_error("excessive recursive invocations of main interpreter");
         goto badfail;
@@ -279,7 +278,7 @@ ici_evaluate(object *code, int n_operands)
     {
         if (UNLIKELY(--ici_exec_count == 0))
         {
-            if (UNLIKELY(ici_aborted))
+            if (UNLIKELY(aborted))
             {
                 ici_set_error("aborted");
                 goto fail;
@@ -482,7 +481,7 @@ ici_evaluate(object *code, int n_operands)
              * This can either be an error catcher which is being poped
              * off (having done its job, but it never got used) or it
              * can be the guard catch (frame marker) indicating it is time
-             * to return from ici_evaluate().
+             * to return from evaluate().
              *
              * First note the top of the operand stack, if there is anything
              * on it, it becomes the return value, else we return ici_null.
@@ -492,7 +491,7 @@ ici_evaluate(object *code, int n_operands)
             if (o->flagged(CF_EVAL_BASE))
             {
                 /*
-                 * This is the base of a call to ici_evaluate().  It is now
+                 * This is the base of a call to evaluate().  It is now
                  * time to return.
                  */
                 if (ici_catchof(o)->c_odepth < ici_os.a_top - ici_os.a_base)
@@ -1137,7 +1136,7 @@ ici_evaluate(object *code, int n_operands)
 
                     if ((sl = ici_find_raw_slot(structof(ici_os.a_top[-1]), ici_os.a_top[-3]))->sl_key == NULL)
                     {
-                        if ((sl = ici_find_raw_slot(structof(ici_os.a_top[-1]), &ici_o_mark))->sl_key == NULL)
+                        if ((sl = ici_find_raw_slot(structof(ici_os.a_top[-1]), &o_mark))->sl_key == NULL)
                         {
                             /*
                              * No matching case, no default. Pop everything off and
@@ -1289,11 +1288,10 @@ ici_evaluate(object *code, int n_operands)
  *
  * This --func-- forms part of the --ici-api--.
  */
-object *
-ici_eval(ici_str_t *name)
+object *eval(str *name)
 {
     assert(isstring(name));
-    return ici_evaluate(name, 0);
+    return evaluate(name, 0);
 }
 
 size_t exec_type::mark(object *o)

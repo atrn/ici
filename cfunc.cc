@@ -193,10 +193,10 @@ int typecheck(const char *types, ...)
             break;
 
         case 'h': /* A handle with a particular name. */
-            if (!ici_ishandleof(o, (str *)ptr))
+            if (!ishandleof(o, (str *)ptr))
                 goto fail;
             ptr = va_arg(va, char *);
-            *(ici_handle_t **)ptr = ici_handleof(o);
+            *(handle **)ptr = handleof(o);
             break;
 
         case 'p': /* Any pointer. */
@@ -251,9 +251,9 @@ int typecheck(const char *types, ...)
             break;
 
         case 'r': /* A regular expression -> (regexpr_t *). */
-            if (!ici_isregexp(o))
+            if (!isregexp(o))
                 goto fail;
-            *(ici_regexp_t **)ptr = ici_regexpof(o);
+            *(regexp **)ptr = regexpof(o);
             break;
 
         case 'm': /* A mem -> (ici_mem_t *). */
@@ -299,14 +299,14 @@ fail:
  */
 int retcheck(const char *types, ...)
 {
-    va_list             va;
-    int        i;
-    int        nargs;
+    va_list   va;
+    int       i;
+    int       nargs;
     object  **ap;
-    char                *ptr;
-    int        tcode;
-    object  *o;
-    object  *s;
+    char     *ptr;
+    int       tcode;
+    object   *o;
+    object   *s;
 
     va_start(va, types);
     nargs = NARGS();
@@ -728,7 +728,7 @@ f_coreici(object *s)
      * Use the execution engine to evaluate the name of the core module
      * this function is in. It will auto-load if necessary.
      */
-    if ((c = ici_evaluate((object *)ICI_CF_ARG2(), 0)) == NULL)
+    if ((c = evaluate((object *)ICI_CF_ARG2(), 0)) == NULL)
         return 1;
     /*
      * Fetch the real function from that module and verify it is callable.
@@ -779,7 +779,7 @@ f_struct()
     object           **o;
     int                 nargs;
     ici_struct_t        *s;
-    ici_objwsup_t       *super;
+    objwsup       *super;
 
     nargs = NARGS();
     o = ARGS();
@@ -885,8 +885,8 @@ f_typeof()
 {
     if (NARGS() != 1)
         return ici_argcount(1);
-    if (ici_ishandle(ARG(0)))
-        return ici_ret_no_decref(ici_handleof(ARG(0))->h_name);
+    if (ishandle(ARG(0)))
+        return ici_ret_no_decref(handleof(ARG(0))->h_name);
     return ici_ret_no_decref(ARG(0)->type()->ici_name());
 }
 
@@ -1018,8 +1018,8 @@ f_string()
         sprintf(buf, "%lld", intof(o)->i_value);
     else if (isfloat(o))
         sprintf(buf, "%g", floatof(o)->f_value);
-    else if (ici_isregexp(o))
-        return ici_ret_no_decref(ici_regexpof(o)->r_pat);
+    else if (isregexp(o))
+        return ici_ret_no_decref(regexpof(o)->r_pat);
     else
         sprintf(buf, "<%s>", o->type_name());
     return ici_str_ret(buf);
@@ -1274,7 +1274,7 @@ f_call()
      * the stack.
      *
      * We include an extra 80 in our ici_stk_push_chk, see start of
-     * ici_evaluate().
+     * evaluate().
      */
     if (ici_os.stk_push_chk(naargs + 80))
         goto fail;
@@ -2025,9 +2025,9 @@ f_del()
  * a loop. Else return 0.
  */
 static int
-super_loop(ici_objwsup_t *base)
+super_loop(objwsup *base)
 {
-    ici_objwsup_t       *s;
+    objwsup       *s;
 
     /*
      * Scan up the super chain setting the mark flag as we go. If we hit
@@ -2061,9 +2061,9 @@ super_loop(ici_objwsup_t *base)
 static int
 f_super()
 {
-    ici_objwsup_t       *o;
-    ici_objwsup_t       *newsuper;
-    ici_objwsup_t       *oldsuper;
+    objwsup       *o;
+    objwsup       *newsuper;
+    objwsup       *oldsuper;
 
     if (typecheck("o*", &o))
         return 1;
@@ -2937,7 +2937,7 @@ f_now()
 static int
 f_calendar()
 {
-    ici_objwsup_t       *s;
+    objwsup       *s;
     double              d;
     long                l;
 
@@ -3206,7 +3206,7 @@ f_strcat()
 static int
 f_which()
 {
-    ici_objwsup_t       *s;
+    objwsup       *s;
     object           *k;
 
     s = NULL;
@@ -3227,9 +3227,9 @@ f_which()
         }
         else
         {
-            ici_objwsup_t   *t;
-            object       *v;
-            int             r;
+            objwsup *t;
+            object  *v;
+            int      r;
 
             t = s->o_super;
             s->o_super = NULL;
@@ -3785,7 +3785,7 @@ f_dir()
 {
     const char          *path   = ".";
     const char          *format = "f";
-    ici_regexp_t        *regexp = NULL;
+    regexp        *pattern = NULL;
     object           *o;
     array         *a;
     DIR                 *dir;
@@ -3804,8 +3804,8 @@ f_dir()
             path = stringof(o)->s_chars;
         else if (isnull(o))
             ;   /* leave path as is */
-        else if (ici_isregexp(o))
-            regexp = ici_regexpof(o);
+        else if (isregexp(o))
+            pattern = regexpof(o);
         else
             return ici_argerror(0);
         break;
@@ -3816,16 +3816,16 @@ f_dir()
             path = stringof(o)->s_chars;
         else if (isnull(o))
             ;   /* leave path as is */
-        else if (ici_isregexp(o))
-            regexp = ici_regexpof(o);
+        else if (isregexp(o))
+            pattern = regexpof(o);
         else
             return ici_argerror(0);
         o = ARG(1);
-        if (ici_isregexp(o))
+        if (isregexp(o))
         {
-            if (regexp != NULL)
+            if (pattern != NULL)
                 return ici_argerror(1);
-            regexp = ici_regexpof(o);
+            pattern = regexpof(o);
         }
         else if (isstring(o))
             format = stringof(o)->s_chars;
@@ -3842,9 +3842,9 @@ f_dir()
         else
             return ici_argerror(0);
         o = ARG(1);
-        if (!ici_isregexp(o))
+        if (!isregexp(o))
             return ici_argerror(1);
-        regexp = ici_regexpof(o);
+        pattern = regexpof(o);
         o = ARG(2);
         if (!isstring(o))
             return ici_argerror(2);
@@ -3896,18 +3896,18 @@ f_dir()
 
         if
         (
-            regexp != NULL
+            pattern != NULL
             &&
             pcre_exec
             (
-                regexp->r_re,
-                regexp->r_rex,
+                pattern->r_re,
+                pattern->r_rex,
                 dirent->d_name,
                 strlen(dirent->d_name),
                 0,
                 0,
-                ici_re_bra,
-                nels(ici_re_bra)
+                re_bra,
+                nels(re_bra)
             )
             < 0
         )
