@@ -311,8 +311,8 @@ size_t handle_type::mark(object *o)
 {
     o->setmark();
     auto mem = typesize();
-    if (ici_objwsupof(o)->o_super != NULL)
-        mem += ici_mark(ici_objwsupof(o)->o_super);
+    if (objwsupof(o)->o_super != NULL)
+        mem += ici_mark(objwsupof(o)->o_super);
     if (handleof(o)->h_name != NULL)
         mem += ici_mark(handleof(o)->h_name);
     return mem;
@@ -360,7 +360,7 @@ object * handle_type::fetch(object *o, object *k)
         if (r != NULL)
             return r;
     }
-    if (!ici_hassuper(o) || handleof(o)->o_super == NULL)
+    if (!hassuper(o) || handleof(o)->o_super == NULL)
         return fetch_fail(o, k);
     return ici_fetch(handleof(o)->o_super, k);
 }
@@ -376,7 +376,7 @@ object * handle_type::fetch(object *o, object *k)
  */
 int handle_type::fetch_super(object *o, object *k, object **v, ici_struct *b)
 {
-    if (!ici_hassuper(o))
+    if (!hassuper(o))
     {
         fetch_fail(o, k);
         return 1;
@@ -417,7 +417,7 @@ object * handle_type::fetch_base(object *o, object *k)
         if (r != NULL)
             return r;
     }
-    if (!ici_hassuper(o))
+    if (!hassuper(o))
         return fetch_fail(o, k);
     if (!o->flagged(ICI_H_HAS_PRIV_STRUCT))
         return ici_null;
@@ -457,7 +457,7 @@ int handle_type::assign_base(object *o, object *k, object *v)
         if (r != NULL)
             return 0;
     }
-    if (!ici_hassuper(o))
+    if (!hassuper(o))
         return assign_fail(o, k, v);
     if (!o->flagged(ICI_H_HAS_PRIV_STRUCT))
     {
@@ -470,14 +470,14 @@ int handle_type::assign_base(object *o, object *k, object *v)
          * This operation disturbs the struct-lookup lookaside mechanism.
          * We invalidate all existing entries by incrementing vsver.
          */
-        if ((s = ici_objwsupof(ici_struct_new())) == NULL)
+        if ((s = objwsupof(ici_struct_new())) == NULL)
             return 1;
-        s->o_super = ici_objwsupof(o)->o_super;
-        ici_objwsupof(o)->o_super = s;
+        s->o_super = objwsupof(o)->o_super;
+        objwsupof(o)->o_super = s;
         ++vsver;
         o->setflag(ICI_H_HAS_PRIV_STRUCT);
     }
-    return ici_assign_base(ici_objwsupof(o)->o_super, k, v);
+    return ici_assign_base(objwsupof(o)->o_super, k, v);
 }
 
 /*
@@ -513,7 +513,7 @@ int handle_type::assign(object *o, object *k, object *v)
         if (r != NULL)
             return 0;
     }
-    if (!ici_hassuper(o))
+    if (!hassuper(o))
         return assign_fail(o, k, v);
     if (o->flagged(ICI_H_HAS_PRIV_STRUCT))
         return ici_assign(h->o_super, k, v);
@@ -550,7 +550,7 @@ int handle_type::assign(object *o, object *k, object *v)
  */
 int handle_type::assign_super(object *o, object *k, object *v, ici_struct *b)
 {
-    if (!ici_hassuper(o))
+    if (!hassuper(o))
         return assign_fail(o, k, v);
     if (handleof(o)->o_super == NULL)
         return 0;

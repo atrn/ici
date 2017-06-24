@@ -11,7 +11,7 @@ namespace ici
 /*
  * This --struct-- forms part of the --ici-api--.
  */
-struct channel : object
+struct channel : objwsup
 {
     array *  c_q;
     size_t   c_capacity;

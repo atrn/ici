@@ -572,14 +572,14 @@ object *evaluate(object *code, int n_operands)
                         {
                             goto fail;
                         }
-                        if (!ici_hassuper(o))
+                        if (!hassuper(o))
                         {
                             char        n1[30];
 
                             ici_set_error("\"class\" evaluated to %s in :^ operation", ici_objname(n1, o));
                             goto fail;
                         }
-                        if ((t = ici_objwsupof(o)->o_super) == NULL)
+                        if ((t = objwsupof(o)->o_super) == NULL)
                         {
                             ici_set_error("class has no super class in :^ operation");
                             goto fail;
@@ -815,7 +815,7 @@ object *evaluate(object *code, int n_operands)
                  *                => value (os, for value)
                  *                => aggr key (os, for lvalue)
                  */
-                if (ici_hassuper(ici_os.a_top[-3]))
+                if (hassuper(ici_os.a_top[-3]))
                 {
                     if (ici_assign_base(ici_os.a_top[-3], ici_os.a_top[-2], ici_os.a_top[-1]))
                     {
@@ -1238,11 +1238,11 @@ object *evaluate(object *code, int n_operands)
             c->incref();
             if
             (
-                ici_set_val(ici_objwsupof(ici_vs.a_top[-1]), SS(error), 's', ici_error)
+                ici_set_val(objwsupof(ici_vs.a_top[-1]), SS(error), 's', ici_error)
                 ||
-                ici_set_val(ici_objwsupof(ici_vs.a_top[-1]), SS(errorline), 'i', &ici_exec->x_src->s_lineno)
+                ici_set_val(objwsupof(ici_vs.a_top[-1]), SS(errorline), 'i', &ici_exec->x_src->s_lineno)
                 ||
-                ici_set_val(ici_objwsupof(ici_vs.a_top[-1]), SS(errorfile), 'o', ici_exec->x_src->s_filename)
+                ici_set_val(objwsupof(ici_vs.a_top[-1]), SS(errorfile), 'o', ici_exec->x_src->s_filename)
             )
             {
                 c->decref();

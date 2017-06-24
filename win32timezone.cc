@@ -61,8 +61,8 @@ int ici_set_timezone_vals(ici_struct *s)
     }
     if
 	(
-		ici_set_val(ici_objwsupof(s), SS(zone), 's', zone)
-		|| ici_set_val(ici_objwsupof(s), SS(gmtoff), 'i', &gmtoff)
+		ici_set_val(objwsupof(s), SS(zone), 's', zone)
+		|| ici_set_val(objwsupof(s), SS(gmtoff), 'i', &gmtoff)
 	)
     {
         return 1;

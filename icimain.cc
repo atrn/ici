@@ -192,9 +192,9 @@ main(int argc, char *argv[])
         long l = av->a_top - av->a_base;
         if
         (
-            ici_set_val(ici_objwsupof(ici_vs.a_top[-1])->o_super, SS(argv), 'o', av)
+            ici_set_val(objwsupof(ici_vs.a_top[-1])->o_super, SS(argv), 'o', av)
             ||
-            ici_set_val(ici_objwsupof(ici_vs.a_top[-1])->o_super, SS(argc), 'i', &l)
+            ici_set_val(objwsupof(ici_vs.a_top[-1])->o_super, SS(argc), 'i', &l)
         )
             goto fail;
         av->decref();
@@ -258,7 +258,7 @@ main(int argc, char *argv[])
                     if ((f = ici_sopen(s, strlen(s), NULL)) == NULL)
                         goto fail;
                     f->f_name = SS(empty_string);
-                    if (ici_parse(f, ici_objwsupof(ici_vs.a_top[-1])) < 0)
+                    if (ici_parse(f, objwsupof(ici_vs.a_top[-1])) < 0)
                         goto fail;
                     f->decref();
                     break;

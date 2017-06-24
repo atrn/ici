@@ -69,9 +69,8 @@ namespace ici
 
 size_t channel_type::mark(object *o)
 {
-    o->setmark();
-    auto mem = typesize();
-    mem += ici_mark(ici_objwsupof(o)->o_super);
+    auto mem = setmark(o);
+    mem += ici_mark(objwsupof(o)->o_super);
     mem += ici_mark(channelof(o)->c_q);
     if (channelof(o)->c_altobj != NULL)
         mem += ici_mark(channelof(o)->c_altobj);

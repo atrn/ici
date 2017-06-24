@@ -204,7 +204,7 @@ static int
 save_struct(archive *ar, object *obj)
 {
     ici_struct *s = structof(obj);
-    object *super = ici_objwsupof(s)->o_super;
+    object *super = objwsupof(s)->o_super;
     struct sslot *sl;
     if (super == nullptr) {
         super = ici_null;

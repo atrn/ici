@@ -107,7 +107,7 @@ ici_init()
     {
         return 1;
     }
-    if ((scope->o_super = externs = ici_objwsupof(ici_struct_new())) == NULL)
+    if ((scope->o_super = externs = objwsupof(ici_struct_new())) == NULL)
     {
         return 1;
     }

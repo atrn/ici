@@ -89,7 +89,7 @@ int ici_assign_cfuncs(objwsup *s, cfunc *cf)
  */
 int ici_def_cfuncs(cfunc *cf)
 {
-    return ici_assign_cfuncs(ici_objwsupof(ici_vs.a_top[-1])->o_super, cf);
+    return ici_assign_cfuncs(objwsupof(ici_vs.a_top[-1])->o_super, cf);
 }
 
 /*
@@ -107,7 +107,7 @@ objwsup *ici_class_new(cfunc *cf, objwsup *super)
 {
     objwsup       *s;
 
-    if ((s = ici_objwsupof(ici_struct_new())) == NULL)
+    if ((s = objwsupof(ici_struct_new())) == NULL)
         return NULL;
     if (ici_assign_cfuncs(s, cf))
     {

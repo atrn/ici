@@ -412,7 +412,7 @@ restore_struct(archive *ar)
     }
     if (super != ici_null)
     {
-        ici_objwsupof(s)->o_super = ici_objwsupof(super);
+        objwsupof(s)->o_super = objwsupof(super);
         super->decref();
     }
 

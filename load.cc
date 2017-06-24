@@ -54,7 +54,7 @@ objwsup *ici_outermost_writeable_struct()
     objwsup       *ows;
 
     outer = NULL;
-    for (ows = ici_objwsupof(ici_vs.a_top[-1]); ows != NULL; ows = ows->o_super)
+    for (ows = objwsupof(ici_vs.a_top[-1]); ows != NULL; ows = ows->o_super)
     {
         if (ows->isatom())
             continue;
@@ -213,7 +213,7 @@ f_load(...)
         {
             goto fail;
         }
-        autos->o_super = ici_objwsupof(statics);
+        autos->o_super = objwsupof(statics);
         statics->decref();
         if (externs == NULL)
         {
@@ -227,9 +227,9 @@ f_load(...)
                 goto fail;
             }
         }
-        statics->o_super = ici_objwsupof(externs);
+        statics->o_super = objwsupof(externs);
         externs->o_super = outer;
-        if (ici_parse(file, ici_objwsupof(autos)) < 0)
+        if (ici_parse(file, objwsupof(autos)) < 0)
         {
             goto fail;
         }

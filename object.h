@@ -37,18 +37,18 @@ constexpr int ICI_O_TEMP  =         0x04;    /* Is a re-usable temp (flag for as
 constexpr int ICI_O_SUPER =         0x08;    /* Has super (is objwsup derived). */
 
 /*
- * This is the universal header of all objects.  Each object inherits
- * from object and adds any type specific stuff.
+ * This is the universal 'header' of all objects.  Each object type
+ * inherits from object giving it the common 'header' fields, then
+ * adds any type specific stuff, if any.
  *
  * This --struct-- forms part of the --ici-api--.
  */
 struct object
 {
-
-    uint8_t        o_tcode;
-    uint8_t        o_flags;
-    uint8_t        o_nrefs;
-    uint8_t        o_leafz;
+    uint8_t        o_tcode;     // type code, index into types[]
+    uint8_t        o_flags;     // flags, see above
+    uint8_t        o_nrefs;     // # non-ICI references
+    uint8_t        o_leafz;     // size of small object, iff != 0
 
     object()
         : o_tcode(0)
@@ -248,7 +248,7 @@ struct objwsup : object
     objwsup *o_super;
 };
 
-inline objwsup *ici_objwsupof(object *o) { return static_cast<objwsup *>(o); }
+inline objwsup *objwsupof(object *o) { return static_cast<objwsup *>(o); }
 
 /*
  * Test if this object supports a super type.  (It may or may not have a super
@@ -256,7 +256,7 @@ inline objwsup *ici_objwsupof(object *o) { return static_cast<objwsup *>(o); }
  *
  * This --macro-- forms part of the --ici-api--.
  */
-inline bool ici_hassuper(const object *o) { return o->flagged(ICI_O_SUPER); }
+inline bool hassuper(const object *o) { return o->flagged(ICI_O_SUPER); }
 
 /*
  * Set the basic fields of the object header of 'o'.  'o' can be any struct

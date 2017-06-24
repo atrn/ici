@@ -203,8 +203,8 @@ fail:
 int
 ici_callv(str *func_name, const char *types, va_list va)
 {
-    object           *func_obj;
-    object           *member_obj;
+    object *func_obj;
+    object *member_obj;
 
     func_obj = NULL;
     if (types[0] != '\0' && types[1] == '@')
@@ -316,10 +316,10 @@ ici_method(object *inst, str *mname, const char *types, ...)
 int
 ici_call(str *func_name, const char *types, ...)
 {
-    object           *func_obj;
-    object           *member_obj;
-    va_list             va;
-    int                 result;
+    object  *func_obj;
+    object  *member_obj;
+    va_list  va;
+    int      result;
 
     func_obj = NULL;
     if (types[0] != '\0' && types[1] == '@')

@@ -786,8 +786,8 @@ f_struct()
     super = NULL;
     if (nargs & 1)
     {
-        super = ici_objwsupof(*o);
-        if (!ici_hassuper(super) && !isnull(super))
+        super = objwsupof(*o);
+        if (!hassuper(super) && !isnull(super))
             return ici_argerror(0);
         if (isnull(super))
             super = NULL;
@@ -1126,13 +1126,13 @@ f_parse()
             return 1;
         if ((a = ici_struct_new()) == NULL)
             return 1;
-        if ((a->o_super = ici_objwsupof(s = ici_struct_new())) == NULL)
+        if ((a->o_super = objwsupof(s = ici_struct_new())) == NULL)
         {
             a->decref();
             return 1;
         }
         s->decref();
-        s->o_super = ici_objwsupof(ici_vs.a_top[-1])->o_super;
+        s->o_super = objwsupof(ici_vs.a_top[-1])->o_super;
         break;
 
     default:
@@ -1159,7 +1159,7 @@ f_parse()
         return ici_argerror(0);
     }
 
-    if (ici_parse(f, ici_objwsupof(a)) < 0)
+    if (ici_parse(f, objwsupof(a)) < 0)
         goto fail;
 
     if (isstring(o))
@@ -1224,7 +1224,7 @@ static int f_include()
 #ifndef NODEBUGGING
     ici_debug_respect_errors();
 #endif
-    rc = ici_parse(f, ici_objwsupof(a));
+    rc = ici_parse(f, objwsupof(a));
     ici_call(SS(close), "o", f);
     f->decref();
     return rc < 0 ? 1 : ici_ret_no_decref(a);
@@ -2067,7 +2067,7 @@ f_super()
 
     if (typecheck("o*", &o))
         return 1;
-    if (!ici_hassuper(o))
+    if (!hassuper(o))
         return ici_argerror(0);
     newsuper = oldsuper = o->o_super;
     if (NARGS() >= 2)
@@ -2078,8 +2078,8 @@ f_super()
         }
         if (isnull(ARG(1)))
             newsuper = NULL;
-        else if (ici_hassuper(ARG(1)))
-            newsuper = ici_objwsupof(ARG(1));
+        else if (hassuper(ARG(1)))
+            newsuper = objwsupof(ARG(1));
         else
             return ici_argerror(1);
         ++vsver;
@@ -2214,7 +2214,7 @@ f_assign()
     default:
         return ici_argcount(2);
     }
-    if (ici_hassuper(s))
+    if (hassuper(s))
     {
         if (ici_assign_base(s, k, v))
             return 1;
@@ -2235,7 +2235,7 @@ f_fetch()
 
     if (typecheck("oo", &s, &k))
         return 1;
-    if (ici_hassuper(s))
+    if (hassuper(s))
         return ici_ret_no_decref(ici_fetch_base(s, k));
     return ici_ret_no_decref(ici_fetch(s, k));
 }
@@ -2962,7 +2962,7 @@ f_calendar()
          */
         t = epoch_time + (time_t)floatof(ARG(0))->f_value;
         tm = localtime(&t);
-        if ((s = ici_objwsupof(ici_struct_new())) == NULL)
+        if ((s = objwsupof(ici_struct_new())) == NULL)
             return 1;
         if
         (
@@ -2994,7 +2994,7 @@ f_calendar()
         struct tm       tm;
 
         memset(&tm, 0, sizeof tm);
-        s = ici_objwsupof(ARG(0));
+        s = objwsupof(ARG(0));
         if (ici_fetch_num(s, SS(second), &d))
             return 1;
         tm.tm_sec = (int)d;
@@ -3213,8 +3213,8 @@ f_which()
     if (typecheck(NARGS() < 2 ? "o" : "oo", &k, &s))
         return 1;
     if (s == NULL)
-        s = ici_objwsupof(ici_vs.a_top[-1]);
-    else if (!ici_hassuper(s))
+        s = objwsupof(ici_vs.a_top[-1]);
+    else if (!hassuper(s))
         return ici_argerror(0);
     while (s != NULL)
     {

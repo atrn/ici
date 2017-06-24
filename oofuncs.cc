@@ -57,7 +57,7 @@ m_new(object *o)
         return 1;
     if ((s = ici_struct_new()) == NULL)
         return 1;
-    s->o_super = ici_objwsupof(o);
+    s->o_super = objwsupof(o);
     return ici_ret_with_decref(s);
 }
 
@@ -71,7 +71,7 @@ m_isa(object *o)
         return 1;
     if (typecheck("o", &klass))
         return 1;
-    for (s = ici_objwsupof(o); s != NULL; s = s->o_super)
+    for (s = objwsupof(o); s != NULL; s = s->o_super)
     {
         if (s == klass)
             return ici_ret_no_decref(ici_one);

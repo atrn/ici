@@ -201,13 +201,13 @@ int func_type::call(object *o, object *subject)
          * This is a method call, that is, it has a subject object that
          * becomes the scope.
          */
-        if (UNLIKELY(!ici_hassuper(subject)))
+        if (UNLIKELY(!hassuper(subject)))
         {
             char n1[ICI_OBJNAMEZ];
             ici_set_error("attempt to call method on %s", ici_objname(n1, subject));
             goto fail;
         }
-        ici_objwsupof(d)->o_super = ici_objwsupof(subject);
+        objwsupof(d)->o_super = objwsupof(subject);
         /*
          * Set the special instantiation variables.
          */
@@ -219,9 +219,9 @@ int func_type::call(object *o, object *subject)
         (
             UNLIKELY
             (
-                ici_objwsupof(f->f_autos)->o_super != NULL
+                objwsupof(f->f_autos)->o_super != NULL
                 &&
-                ici_assign_base(d, SS(class), ici_objwsupof(f->f_autos)->o_super)
+                ici_assign_base(d, SS(class), objwsupof(f->f_autos)->o_super)
             )
         )
         {

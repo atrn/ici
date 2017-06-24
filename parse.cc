@@ -293,7 +293,7 @@ function(parse *p, str *name)
             goto fail;
     }
     ici_assign(f->f_autos, SS(vargs), ici_null);
-    f->f_autos->o_super = ici_objwsupof(ici_vs.a_top[-1])->o_super;
+    f->f_autos->o_super = objwsupof(ici_vs.a_top[-1])->o_super;
     p->p_func = f;
     f->f_args = a;
     a->decref();
@@ -753,7 +753,7 @@ primary(parse *p, expr **ep, int exclude)
                 case -1:
                     goto fail;
                 }
-                if (!ici_hassuper(o))
+                if (!hassuper(o))
                 {
                     ici_set_error("attempt to do [%s %c %s",
                                   stringof(name)->s_chars,
@@ -806,12 +806,12 @@ primary(parse *p, expr **ep, int exclude)
                 {
                     if (name != SS(struct))
                     {
-                        d->o_super = ici_objwsupof(ici_vs.a_top[-1])->o_super;
+                        d->o_super = objwsupof(ici_vs.a_top[-1])->o_super;
                     }
                 }
                 else
                 {
-                    d->o_super = ici_objwsupof(super);
+                    d->o_super = objwsupof(super);
                     super->decref();
                 }
             }
@@ -825,7 +825,7 @@ primary(parse *p, expr **ep, int exclude)
                     d->decref();
                     goto fail;
                 }
-                autos->o_super = ici_objwsupof(d);
+                autos->o_super = objwsupof(d);
                 *ici_vs.a_top++ = autos;
                 autos->decref();
                 ++p->p_module_depth;
@@ -855,7 +855,7 @@ primary(parse *p, expr **ep, int exclude)
                     d->decref();
                     goto fail;
                 }
-                autos->o_super = ici_objwsupof(d);
+                autos->o_super = objwsupof(d);
                 if (ici_vs.stk_push_chk(80)) /* ### Formalise */
                 {
                     d->decref();
@@ -1637,7 +1637,7 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
             p->p_got.t_obj->decref();
             if
             (
-                (ows = ici_objwsupof(ici_vs.a_top[-1])->o_super) == NULL
+                (ows = objwsupof(ici_vs.a_top[-1])->o_super) == NULL
                 ||
                 (ows = ows->o_super) == NULL
             )
@@ -1650,7 +1650,7 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
         if (p->p_got.t_obj == SS(local))
         {
             p->p_got.t_obj->decref();
-            if ((ows = ici_objwsupof(ici_vs.a_top[-1])->o_super) == NULL)
+            if ((ows = objwsupof(ici_vs.a_top[-1])->o_super) == NULL)
             {
                 ici_set_error("local declaration, but no local variable scope");
                 return -1;
@@ -1662,11 +1662,11 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
             p->p_got.t_obj->decref();
             if (p->p_func == NULL)
             {
-                ows = ici_objwsupof(ici_vs.a_top[-1]);
+                ows = objwsupof(ici_vs.a_top[-1]);
             }
             else
             {
-                ows = ici_objwsupof(p->p_func->f_autos);
+                ows = objwsupof(p->p_func->f_autos);
             }
         decl:
             if (data_def(p, ows) == -1)
@@ -2504,7 +2504,7 @@ ici_parse_file(const char *mname, char *fileo, ftype *ftype)
         goto fail;
     }
 
-    if ((a = ici_objwsupof(ici_struct_new())) == NULL)
+    if ((a = objwsupof(ici_struct_new())) == NULL)
     {
         goto fail;
     }
@@ -2512,12 +2512,12 @@ ici_parse_file(const char *mname, char *fileo, ftype *ftype)
     {
         goto fail;
     }
-    if ((a->o_super = s = ici_objwsupof(ici_struct_new())) == NULL)
+    if ((a->o_super = s = objwsupof(ici_struct_new())) == NULL)
     {
         goto fail;
     }
     s->decref();
-    s->o_super = ici_objwsupof(ici_vs.a_top[-1])->o_super;
+    s->o_super = objwsupof(ici_vs.a_top[-1])->o_super;
 
     if (ici_parse(f, a) < 0)
     {
