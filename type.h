@@ -43,9 +43,9 @@ public:
     const char * const  name;
 
 private:
-    const size_t        _size;  // size of type's ici object
-    const int           _flags; // type features
-    mutable str * _name;  // str name created upon demand
+    const size_t _size;  // size of this type's ici object structure
+    const int    _flags; // type feature flags
+    mutable str *_name;  // str version of name, created on demand
 
 protected:
     explicit type(const char *name, size_t size, int flags = 0)
@@ -57,7 +57,7 @@ protected:
     }
 
     /*
-     * typesize() returns the size of the type's associated ICI object.
+     * typesize() returns the size of the type's associated object structure.
      */
     inline size_t typesize() const noexcept { return _size; }
 
@@ -92,7 +92,7 @@ public:
      *                      the ICI_O_MARK flag of the object they are being invoked
      *                      on is clear.
      */
-    virtual size_t              mark(object *o);
+    virtual size_t          mark(object *o);
 
     /*
      * free(o)              Must free the object o and all associated data, but not
@@ -102,7 +102,7 @@ public:
      *                      creation and that the free function might be asked to
      *                      free a partially allocated object.
      */
-    virtual void                free(object *o);
+    virtual void             free(object *o);
 
 
     /*
@@ -132,7 +132,7 @@ public:
      *                      they all regard the same data fields as significant in
      *                      performing their operation.
      */
-    virtual int                 cmp(object *a, object *b);
+    virtual int             cmp(object *a, object *b);
 
     /* copy(o)              Must return a copy of the given object.  This is the
      *                      basis for the implementation of the copy() function.
@@ -165,7 +165,7 @@ public:
      *                      function should be used.
      *
      */
-    virtual unsigned long       hash(object *o);
+    virtual unsigned long   hash(object *o);
     /*
      * assign(o, k, v)      Must assign to key 'k' of the object 'o' the value
      *                      'v'.  Return 1 on error, else 0.
@@ -209,7 +209,7 @@ public:
      *                      Return NULL on failure, usual conventions.
      *
      */
-    virtual object *         fetch(object *o, object *k);
+    virtual object *        fetch(object *o, object *k);
 
     /* call(o, s)           Must call the object 'o'.  If the object does not
      *                      support being called, this should be NULL.  If 's' is
@@ -223,27 +223,27 @@ public:
      *                      to be on top of the operand stack
      *                      (i.e. ici_os.a_top[-1])
      */
-    virtual int                 call(object *, object *);
+    virtual int               call(object *, object *);
 
     /*
      * Assign into the super of an objwsup.
      */
-    virtual int                 assign_super(object *o, object *k, object *v, ici_struct *b);
+    virtual int              assign_super(object *o, object *k, object *v, ici_struct *b);
 
     /*
      * Fetch from  the super of an objwsup.
      */
-    virtual int                 fetch_super(object *o, object *k, object **pv, ici_struct *b);
+    virtual int              fetch_super(object *o, object *k, object **pv, ici_struct *b);
 
     /*
      * Assign into the base of an objwsup.
      */
-    virtual int                 assign_base(object *o, object *k, object *v);
+    virtual int             assign_base(object *o, object *k, object *v);
 
     /*
      * Fetch from the base of an objwsup.
      */
-    virtual object   *       fetch_base(object *o, object *k) ;
+    virtual object   *      fetch_base(object *o, object *k) ;
 
     /* fetch_method         An optional alternative to the basic 't_fetch()' that
      *                      will be called (if supplied) when doing a fetch for
@@ -259,7 +259,7 @@ public:
      *
      *                      Return NULL on failure, usual conventions.
      */
-    virtual object   *       fetch_method(object *o, object *n);
+    virtual object   *      fetch_method(object *o, object *n);
 
     /* forall               An optional alternative to the predefined type
      *                      support in the 'forall' statement
@@ -276,7 +276,7 @@ public:
      *                      iteration, -1 to indicate that iteration
      *                      should end and any other value upon error.
      */
-    virtual int                 forall(object *o);
+    virtual int             forall(object *o);
 
     /* objname(o, p)        Must place a short (less than 30 chars) human readable
      *                      representation of the object in the given buffer.
@@ -288,7 +288,7 @@ public:
      *                      messages after an error has occured, but before
      *                      cleanup has completed.
      */
-    virtual void                objname(object *, char [ICI_OBJNAMEZ]);
+    virtual void            objname(object *, char [ICI_OBJNAMEZ]);
 
     /*
      * The ici_name function returns the type's name as an ICI string object,
@@ -330,9 +330,9 @@ public:
     static int assign_fail(object *, object *, object *);
 
     /*
-     * Mark the object and return its type's size in one operation.
+     * Mark the object and return the typesize in one operation.
      */
-    size_t setmark(object *o);
+    size_t      setmark(object *o);
 };
 
 /*

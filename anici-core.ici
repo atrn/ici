@@ -1,3 +1,5 @@
 /*
- * Always parsed at startup. Functions in icicore?.ici are loaded on-demand.
+ * This file is always parsed at startup.
+ *
+ * Code in icicore?.ici are loaded on-demand.
  */

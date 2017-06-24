@@ -7,7 +7,7 @@
  * function is called for each member of the object
  * in sequence. The argument being called with the
  * n'th element as its first argument and any extra
- * arguments passed to apply() following.
+ * arguments passed to apply() following that.
  *
  * If the aggregate is a struct the function is called
  * with two arguments, the key and value objects from

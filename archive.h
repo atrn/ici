@@ -51,15 +51,16 @@ class archive : public object
 
 public:
     static archive *start(file *file, objwsup *scope);
+    void stop();
+
+    inline objwsup *scope() const { return a_scope; }
 
     inline int get() { return a_file->getch(); }
     inline int write(const void *data, int len) { return a_file->write(data, len); }
-    inline objwsup *scope() { return a_scope; }
 
     int insert(object *key, object *val);
     void uninsert(object *key);
     object *lookup(object *obj);
-    void stop();
 
 private:
     file *      a_file;  // The file used for saving or restoring.
