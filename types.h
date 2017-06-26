@@ -21,8 +21,8 @@ namespace ici
  * and are given the next available slot.  ici object's  o_tcode is
  * one byte so we're limited to 256 distinct types.
  */
-constexpr size_t        max_types = 256;
-extern DLI type_t *     types[max_types];
+constexpr size_t max_types = 256;
+extern DLI type *types[max_types];
 
 /*
  * End of ici.h export. --ici.h-end--

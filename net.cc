@@ -1179,7 +1179,7 @@ ici_net_getsockopt()
     int                 o;
     char                *optval;
     socklen_t           optlen;
-    int                 optlevel;
+    int                 optlevel = 0;
     struct linger       linger;
     int                 intvar;
 
@@ -1278,7 +1278,7 @@ ici_net_setsockopt()
     handle        *skt;
     char                *opt;
     int                 optcode;
-    int                 optlevel;
+    int                 optlevel = 0;
     char                *optval;
     socklen_t           optlen;
     int                 intvar;

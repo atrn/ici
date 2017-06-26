@@ -564,50 +564,50 @@ void reclaim()
 
 object   *traceobj;
 
-void object::incref(object *o)
+void object::incref()
 {
-    if (o == traceobj)
+    if (this == traceobj)
     {
-        printf("incref traceobj(%d)\n", o->o_tcode);
+        printf("incref traceobj(%d)\n", o_tcode);
     }
-    if ((unsigned char)o->o_nrefs == (unsigned char)0x7F)
+    if ((unsigned char)o_nrefs == (unsigned char)0x7F)
     {
         printf("Oops: ref count overflow\n");
         abort();
     }
-    if (++o->o_nrefs > 50)
+    if (++o_nrefs > 50)
     {
-        printf("Warning: nrefs %d > 10\n", o->o_nrefs);
+        printf("Warning: nrefs %d > 10\n", o_nrefs);
         fflush(stdout);
     }
 }
 
-void object::decref(object *o)
+void object::decref()
 {
-    if (o == traceobj)
+    if (this == traceobj)
     {
-        printf("decref traceobj(%d)\n", o->o_tcode);
+        printf("decref traceobj(%d)\n", o_tcode);
     }
-    if (--o->o_nrefs < 0)
+    if (--o_nrefs < 0)
     {
         printf("Oops: ref count underflow\n");
         abort();
     }
 }
 
-void
-bughunt_rego(object *o)
+void rego(object *o)
 {
     if (o == traceobj)
     {
         printf("rego traceobj(%d)\n", o->o_tcode);
     }
-    o->o_leafz = 0;                     
+    o->o_leafz = 0;
     if (objs_top < objs_limit)
         *objs_top++ = o;
     else
         grow_objs(o);
 }
+
 #endif
 
 } // namespace ici

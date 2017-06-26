@@ -288,16 +288,14 @@ save_op(archive *ar, object *obj)
 static object *
 new_saver(int (*fn)(archive *, object *))
 {
-    saver_t *saver;
-
-    if ((saver = ici_talloc(saver_t)) != NULL)
+    saver *s;
+    if ((s = ici_talloc(saver)) != NULL)
     {
-        set_tfnz(saver, TC_SAVER, 0, 1, sizeof (saver_t));
-        saver->s_fn = fn;
-        rego(saver);
+        set_tfnz(s, TC_SAVER, 0, 1, sizeof (saver));
+        s->s_fn = fn;
+        rego(s);
     }
-
-    return saver;
+    return s;
 }
 
 static ici_struct *saver_map = NULL;

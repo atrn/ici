@@ -15,7 +15,7 @@ namespace ici
  * How many bytes of memory we need for a string of n chars (single
  * allocation).
  */
-#define STR_ALLOCZ(n)   ((n) + sizeof (str) - sizeof (int))
+#define STR_ALLOCZ(n)   ((n) + sizeof (str))
 
 int (str_char_at)(str *s, size_t index)
 {
@@ -110,11 +110,11 @@ str *
 new_str(const char *p, size_t nchars)
 {
     str           *s;
-    size_t              az;
+    size_t        az;
     static struct
     {
         str       s;
-        char            d[40];
+        char      d[40];
     }
     proto;
 
@@ -457,7 +457,7 @@ int string_type::forall(object *o)
     }
     if (fa->fa_kaggr != ici_null)
     {
-        if ((i = new_int((long)fa->fa_index)) == NULL)
+        if ((i = new_int((int64_t)fa->fa_index)) == NULL)
             return 1;
         if (ici_assign(fa->fa_kaggr, fa->fa_kkey, i))
             return 1;

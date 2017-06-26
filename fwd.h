@@ -205,13 +205,11 @@ typedef struct mark             ici_mark_t;
 typedef struct null             ici_null_t;
 typedef struct object           ici_obj_t;
 typedef struct objwsup          ici_objwsup_t;
-typedef struct op               op_t;
 typedef struct pc               ici_pc_t;
 typedef struct ptr              ici_ptr_t;
 typedef struct regexp           ici_regexp_t;
 typedef struct src              ici_src_t;
 typedef struct str              ici_str_t;
-typedef class  type             type_t;
 typedef struct wrap             ici_wrap_t;
 typedef class  ftype            ici_ftype_t;
 typedef struct forall           ici_forall_t;
@@ -220,9 +218,11 @@ typedef struct mem              ici_mem_t;
 typedef struct handle           ici_handle_t;
 typedef struct debug            ici_debug_t;
 typedef struct name_id          ici_name_id_t;
-typedef struct restorer         restorer_t;
-typedef struct saver            saver_t;
-typedef struct expr             expr_t;
+typedef struct expr             ici_expr_t;
+typedef struct op               ici_op_t;
+typedef struct restorer         ici_restorer_t;
+typedef struct saver            ici_saver_t;
+typedef class  type             ici_type_t;
 
 constexpr int                   nsubexp = 10;
 
@@ -316,7 +316,7 @@ extern int            str_need_size(str *, size_t);
 extern method        *new_method(object *, object *);
 extern mem           *new_mem(void *, size_t, int, void (*)(void *));
 
-extern object        *make_handle_member_map(ici_name_id_t *);
+extern object        *make_handle_member_map(name_id *);
 
 extern int            argerror(int);
 extern int            argcount2(int, int);
@@ -352,9 +352,9 @@ extern int            cmkvar(objwsup *, const char *, int, void *);
 extern int            check_interface(unsigned long, unsigned long, char const *);
 
 extern int            call_method(object *, str *, const char *, ...);
-extern int            call(str *, const char *, va_list);
+extern int            callv(str *, const char *, va_list);
+extern int            callv(object *, object *, const char *, va_list);
 extern int            call(str *, const char *, ...);
-extern int            call(object *, object *, const char *, va_list);
 extern int            call(object *, const char *, ...);
 
 extern int            assign_cfuncs(objwsup *, cfunc *);

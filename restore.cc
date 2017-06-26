@@ -676,14 +676,14 @@ restore_ref(archive *ar)
 
 // restorer
 
-static restorer_t *
+static restorer *
 restorer_new(object *(*fn)(archive *))
 {
-    restorer_t *r;
+    restorer *r;
 
-    if ((r = ici_talloc(restorer_t)) != NULL)
+    if ((r = ici_talloc(restorer)) != NULL)
     {
-        set_tfnz(r, TC_RESTORER, 0, 1, sizeof (restorer_t));
+        set_tfnz(r, TC_RESTORER, 0, 1, sizeof (restorer));
         r->r_fn = fn;
         rego(r);
     }
@@ -695,7 +695,7 @@ static ici_struct *restorer_map = 0;
 static int
 add_restorer(int tcode, object *(*fn)(archive *))
 {
-    restorer_t *r;
+    restorer *r;
     ici_int *t = 0;
 
     if ((r = restorer_new(fn)) == NULL)
@@ -720,7 +720,7 @@ fail:
     return 1;
 }
 
-static restorer_t *
+static restorer *
 fetch_restorer(int key)
 {
     object   *k;
@@ -731,7 +731,7 @@ fetch_restorer(int key)
         v = ici_fetch(restorer_map, k);
         k->decref();
     }
-    return (restorer_t *)v;
+    return (restorer *)v;
 }
 
 void
@@ -787,10 +787,10 @@ init_restorer_map()
     return 0;
 }
 
-static restorer_t *
+static restorer *
 get_restorer(int tcode)
 {
-    restorer_t  *r = fetch_restorer(tcode);
+    restorer  *r = fetch_restorer(tcode);
     if (isnull(r))
     {
         r = fetch_restorer(-1);
@@ -812,7 +812,7 @@ restore(archive *ar)
 
     if ((tcode = restore_obj(ar, &flags)) != -1)
     {
-        restorer_t *restorer;
+        restorer *restorer;
 
         if ((restorer = get_restorer(tcode)) != NULL && (obj = (*restorer->r_fn)(ar)) != NULL)
         {

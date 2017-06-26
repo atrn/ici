@@ -6,7 +6,8 @@
 .PHONY: all lib clean depend
 
 CXX=            c++ -std=c++11
-CXXFLAGS=       -Wall -DNDEBUG -O0 -g -mtune=native -DICI_SW_CRC
+#CXXFLAGS=       -Wall -UNDEBUG -O0 -g -DICI_SW_CRC
+CXXFLAGS=       -Wall -DNDEBUG -O3 -Ofast -g -DICI_SW_CRC
 
 uname=		$(shell uname|tr A-Z a-z)
 conf?=		conf/$(uname).h
@@ -21,14 +22,24 @@ all:		anici.h
 anici.h:	anici $(hdrs) mk-ici-h.ici
 	LD_LIBRARY_PATH=`pwd` ./anici mk-ici-h.ici $(conf)
 
+STATIC = yes
+
+ifdef STATIC
+anici:	etc/main.cc $(objs)
+	$(CXX) $(CXXFLAGS) etc/main.cc $(objs) $(libs) -o $@
+
+else
+
+anici:		libanici.so
+	$(CXX) $(CXXFLAGS) etc/main.cc libanici.so -o $@
+
 libanici.so : $(objs)
 	$(CXX) $(CXXFLAGS) -shared $(objs) $(libs) -o $@
 
 $(objs) : %.o : %.cc
 	$(CXX) $(CXXFLAGS) -fPIC -c $<
 
-anici:		libanici.so
-	$(CXX) $(CXXFLAGS) etc/main.cc libanici.so -o $@
+endif
 
 clean:
 	rm -f anici libanici.so anici.h $(objs) .depend

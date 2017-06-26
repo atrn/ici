@@ -216,7 +216,7 @@ ici_handle_method(object *inst)
  * an ICI struct. It is returned with 1 refernce count.
  *
  * The argument 'ni' should be a pointer to the first element of an arrary
- * of 'ici_name_id_t' structs that contain the names of members and the integer
+ * of 'name_id' structs that contain the names of members and the integer
  * IDs that your code would like to refere to them by. All members that are
  * to be invoked as methods calls must include the flag ICI_H_METHOD in the ID.
  * (This flag is removed from the ID when it is passed back to your code. ICI_H_METHOD
@@ -227,7 +227,7 @@ ici_handle_method(object *inst)
  *
  *  enum {P_Property1, P_Property2, M_Method1, M_Method2, ...};
  *
- *  static ici_name_id_t member_name_ids[] =
+ *  static name_id member_name_ids[] =
  *  {
  *      {"Property1",        P_Property1},
  *      {"Property2",        P_Property1},
@@ -245,7 +245,7 @@ ici_handle_method(object *inst)
  *
  * This --func-- forms part of the --ici-api--.
  */
-object *make_handle_member_map(ici_name_id_t *ni)
+object *make_handle_member_map(name_id *ni)
 {
     object       *m;
     str          *n;

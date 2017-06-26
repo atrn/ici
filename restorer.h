@@ -13,7 +13,7 @@ struct restorer : object
     object *(*r_fn)(archive *);
 };
 
-inline restorer_t *restorerof(object *obj) { return (restorer_t *)obj; }
+inline restorer *restorerof(object *obj) { return static_cast<restorer *>(obj); }
 
 class restorer_type : public type
 {

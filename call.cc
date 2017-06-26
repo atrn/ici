@@ -26,7 +26,7 @@ namespace ici
  *
  * This --func-- forms part of the --ici-api--.
  */
-int call(object *subject, object *callable, const char *types, va_list va)
+int callv(object *subject, object *callable, const char *types, va_list va)
 {
     size_t     nargs;
     size_t     arg;
@@ -192,14 +192,14 @@ fail:
 }
 
 /*
- * Varient of 'ici_call()' (see) taking a variable argument list.
+ * Varient of 'call()' (see) taking a variable argument list.
  *
  * There is some historical support for '@' operators, but it is deprecated
  * and may be removed in future versions.
  *
  * This --func-- forms part of the --ici-api--.
  */
-int ici_callv(str *func_name, const char *types, va_list va)
+int callv(str *func_name, const char *types, va_list va)
 {
     object *func_obj;
     object *member_obj;
@@ -220,13 +220,13 @@ int ici_callv(str *func_name, const char *types, va_list va)
     {
         return set_error("\"%s\" undefined", func_name->s_chars);
     }
-    return call((object *)nullptr, func_obj, types, va);
+    return callv((object *)nullptr, func_obj, types, va);
 }
 
 /*
  * Call a callable ICI object 'callable' from C with simple argument
  * marshalling and an optional return value.  The callable object is typically
- * a function (but not a function name, see 'ici_call' for that case).
+ * a function (but not a function name, see 'call' for that case).
  *
  * 'types' is a string that indicates what C values are being supplied as
  * arguments.  It can be of the form ".=..." or "..." where the dots represent
@@ -271,7 +271,7 @@ int call(object *callable, const char *types, ...)
     int         result;
 
     va_start(va, types);
-    result = call((object *)nullptr, callable, types, va);
+    result = callv((object *)nullptr, callable, types, va);
     va_end(va);
     return result;
 }
@@ -291,7 +291,7 @@ int call_method(object *inst, str *mname, const char *types, ...)
     int         result;
 
     va_start(va, types);
-    result = call(inst, mname, types, va);
+    result = callv(inst, mname, types, va);
     va_end(va);
     return result;
 }
@@ -331,7 +331,7 @@ int call(str *func_name, const char *types, ...)
         return set_error("\"%s\" undefined", func_name->s_chars);
     }
     va_start(va, types);
-    result = call((object *)NULL, func_obj, types, va);
+    result = callv((object *)NULL, func_obj, types, va);
     va_end(va);
     return result;
 }

@@ -492,7 +492,7 @@ object *evaluate(object *code, int n_operands)
                  * This is the base of a call to evaluate().  It is now
                  * time to return.
                  */
-                if (catcherof(o)->c_odepth < os.a_top - os.a_base)
+                if (catcherof(o)->c_odepth < uint32_t(os.a_top - os.a_base))
                 {
                     o = os.a_top[-1];
                 }
