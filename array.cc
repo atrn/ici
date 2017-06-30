@@ -59,8 +59,7 @@ int array::grow_stack(ptrdiff_t n)
 /*
  * Function to do the hard work for the inline function stack_probe(). See array.h.
  */
-int
-array::fault_stack(ptrdiff_t i)
+int array::fault_stack(ptrdiff_t i)
 {
     /*
      * Users of arrays as stacks are supposed to know the origin and
@@ -102,8 +101,7 @@ size_t array::len()
  * This is the commonest routine for finding an element at a given
  * index in an array. It only works for valid indexes.
  */
-object **
-array::span(int i, ptrdiff_t *np)
+object **array::span(int i, ptrdiff_t *np)
 {
     object    **e;
     ptrdiff_t   n;
@@ -145,8 +143,7 @@ array::span(int i, ptrdiff_t *np)
  *
  * This --func-- forms part of the --ici-api--.
  */
-void
-array::gather(object **b, ptrdiff_t start, ptrdiff_t n)
+void array::gather(object **b, ptrdiff_t start, ptrdiff_t n)
 {
     object    **e;
     ptrdiff_t   i;
@@ -199,8 +196,7 @@ int array::grow()
  *
  * This --func-- forms part of the --ici-api--.
  */
-int
-array::push_back(object *o)
+int array::push_back(object *o)
 {
     if (isatom())
     {
@@ -261,8 +257,7 @@ array::push_back(object *o)
  *
  * This --func-- forms part of the --ici-api--.
  */
-int
-array::push_front(object *o)
+int array::push_front(object *o)
 {
     if (isatom())
     {
@@ -480,7 +475,7 @@ array *new_array(ptrdiff_t n)
     a->a_bot = NULL;
     if (n == 0)
     {
-        n = 16;
+        n = 8; // initial capacity
     }
     if ((a->a_base = (object **)ici_nalloc(n * sizeof (object *))) == NULL)
     {

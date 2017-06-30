@@ -161,7 +161,7 @@ static array *do_smash
     str   *ns;
     int    size;
 
-    if ((a = new_array(0)) == NULL)
+    if ((a = new_array()) == NULL)
         goto fail;
     for (s = thestr->s_chars, se = s + thestr->s_nchars; ; s = END(0))
     {

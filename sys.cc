@@ -1688,7 +1688,7 @@ static int ici_sys_passwd()
         return argcount(1);
     }
 
-    if ((a = new_array(0)) == NULL)
+    if ((a = new_array()) == NULL)
         return 1;
     setpwent();
     while ((pwent = getpwent()) != NULL)

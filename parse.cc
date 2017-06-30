@@ -191,7 +191,7 @@ static array *ident_list(parse *p)
 {
     array *a;
 
-    if ((a = new_array(0)) == NULL)
+    if ((a = new_array()) == NULL)
     {
         return NULL;
     }
@@ -431,7 +431,7 @@ compound_statement(parse *p, map *sw)
         reject(p);
         return 0;
     }
-    if ((a = new_array(0)) == NULL)
+    if ((a = new_array()) == NULL)
     {
         goto fail;
     }
@@ -665,7 +665,7 @@ primary(parse *p, expr **ep, int exclude)
         if (p->p_got.t_obj == SS(array))
         {
             p->p_got.t_obj->decref();
-            if ((a = new_array(0)) == NULL)
+            if ((a = new_array()) == NULL)
             {
                 goto fail;
             }
@@ -1496,7 +1496,7 @@ const_expression(parse *p, object **po, int exclude)
         free_expr(e);
         return 1;
     }
-    if ((a = new_array(0)) == NULL)
+    if ((a = new_array()) == NULL)
     {
         goto fail;
     }
@@ -1742,7 +1742,7 @@ statement(parse *p, array *a, map *sw, const char *m, int endme)
             {
                 return -1;
             }
-            if ((a1 = new_array(0)) == NULL)
+            if ((a1 = new_array()) == NULL)
             {
                 return -1;
             }
@@ -1760,7 +1760,7 @@ statement(parse *p, array *a, map *sw, const char *m, int endme)
             {
                 curtok = T_NONE; /* Take ownership of name. */
                 p->p_got.t_obj->decref();
-                if ((a2 = new_array(0)) == NULL)
+                if ((a2 = new_array()) == NULL)
                 {
                     a1->decref();
                     return -1;
@@ -1802,7 +1802,7 @@ statement(parse *p, array *a, map *sw, const char *m, int endme)
         if (p->p_got.t_obj == SS(while))
         {
             p->p_got.t_obj->decref();
-            if ((a1 = new_array(0)) == NULL)
+            if ((a1 = new_array()) == NULL)
             {
                 return -1;
             }
@@ -1846,7 +1846,7 @@ statement(parse *p, array *a, map *sw, const char *m, int endme)
         if (p->p_got.t_obj == SS(do))
         {
             p->p_got.t_obj->decref();
-            if ((a1 = new_array(0)) == NULL)
+            if ((a1 = new_array()) == NULL)
             {
                 return -1;
             }
@@ -1963,7 +1963,7 @@ statement(parse *p, array *a, map *sw, const char *m, int endme)
                 reject(p);
                 return not_followed_by("forall (expr [, expr] in expr", "\")\"");
             }
-            if ((a1 = new_array(0)) == NULL)
+            if ((a1 = new_array()) == NULL)
             {
                 return -1;
             }
@@ -2024,7 +2024,7 @@ statement(parse *p, array *a, map *sw, const char *m, int endme)
             /*
              * a1 is the body of the loop.  Get the step expression.
              */
-            if ((a1 = new_array(0)) == NULL)
+            if ((a1 = new_array()) == NULL)
             {
                 return -1;
             }
@@ -2188,7 +2188,7 @@ statement(parse *p, array *a, map *sw, const char *m, int endme)
         if (p->p_got.t_obj == SS(try))
         {
             p->p_got.t_obj->decref();
-            if ((a1 = new_array(0)) == NULL)
+            if ((a1 = new_array()) == NULL)
             {
                 return -1;
             }
@@ -2205,7 +2205,7 @@ statement(parse *p, array *a, map *sw, const char *m, int endme)
             }
             curtok = T_NONE; /* Take ownership of name. */
             p->p_got.t_obj->decref();
-            if ((a2 = new_array(0)) == NULL)
+            if ((a2 = new_array()) == NULL)
             {
                 return -1;
             }
@@ -2518,7 +2518,7 @@ int parse_exec()
     parse *p;
     array *a;
 
-    if ((a = new_array(0)) == NULL)
+    if ((a = new_array()) == NULL)
     {
         return 1;
     }

@@ -2421,7 +2421,7 @@ fast_gettokens(const char *str, const char *delims)
     int         k       = 0;
     const char *cp     = str;
 
-    if ((a = new_array(0)) == NULL)
+    if ((a = new_array()) == NULL)
         return 1;
     while (*cp)
     {
@@ -2578,7 +2578,7 @@ f_gettokens()
 #define W_DELIM 4
 
     state = S_IDLE;
-    if ((a = new_array(0)) == NULL)
+    if ((a = new_array()) == NULL)
         goto fail;
     for (;;)
     {
@@ -3870,7 +3870,7 @@ f_dir()
             return set_error("bad directory format specifier");
         }
     }
-    if ((a = new_array(0)) == NULL)
+    if ((a = new_array()) == NULL)
         return 1;
     if ((dir = opendir(path)) == NULL)
     {

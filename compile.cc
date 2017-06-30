@@ -106,7 +106,7 @@ int compile_expr(array *a, expr *e, int why)
             {
                 return 1;
             }
-            if ((a1 = new_array(0)) == NULL)
+            if ((a1 = new_array()) == NULL)
             {
                 return 1;
             }
@@ -116,7 +116,7 @@ int compile_expr(array *a, expr *e, int why)
                 return 1;
             }
             a1->push(&o_end);
-            if ((a2 = new_array(0)) == NULL)
+            if ((a2 = new_array()) == NULL)
             {
                 a1->decref();
                 return 1;
@@ -260,7 +260,7 @@ int compile_expr(array *a, expr *e, int why)
             {
                 return 1;
             }
-            if ((a1 = new_array(0)) == NULL)
+            if ((a1 = new_array()) == NULL)
             {
                 return 1;
             }
@@ -342,7 +342,7 @@ int compile_expr(array *a, expr *e, int why)
             {
                 array *a1;
 
-                if ((a1 = new_array(0)) == NULL)
+                if ((a1 = new_array()) == NULL)
                 {
                     return 1;
                 }

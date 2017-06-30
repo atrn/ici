@@ -411,7 +411,7 @@ int init_path(objwsup *externs)
     int    r;
     char  *path;
 
-    if ((a = new_array(0)) == NULL)
+    if ((a = new_array()) == NULL)
     {
         return 1;
     }
