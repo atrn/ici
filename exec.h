@@ -8,6 +8,7 @@
 #include "int.h"
 #include "null.h"
 #include "float.h"
+#include "pc.h"
 
 #include <condition_variable>
 
@@ -185,11 +186,6 @@ inline bool isfalse(object *o) { return isnull(o) || o == o_zero; }
  * End of ici.h export. --ici.h-end--
  */
 
-#define get_pc(code, x) \
-    (*(x) = ex->x_pc_closet->a_base[(x) - xs.a_base], \
-    pcof(*(x))->pc_code = code, \
-    pcof(*(x))->pc_next = pcof(*(x))->pc_code->a_base)
-
 class exec_type : public type
 {
 public:
@@ -198,6 +194,13 @@ public:
     void free(object *o) override;
     object *fetch(object *o, object *k) override;
 };
+
+inline void get_pc(array *code, object **x) {
+    *x = ex->x_pc_closet->a_base[x - xs.a_base];
+    auto p = pcof(*x);
+    p->pc_code = code;
+    p->pc_next = code->a_base;
+}
 
 } // namespace ici
 
