@@ -297,7 +297,7 @@ f_go(...)
     /*
      * Copy all the arguments to the operand stack of the new thread.
      */
-    if (x->x_os->stk_push_chk(NARGS() + 80))
+    if (x->x_os->push_check(NARGS() + 80))
         goto fail;
     for (i = 1; i < NARGS(); ++i)
         x->x_os->a_top[NARGS() - i - 1] = ARG(i);

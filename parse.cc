@@ -221,7 +221,7 @@ ident_list(parse *p)
             reject(p);
             return a;
         }
-        if (a->stk_push_chk())
+        if (a->push_check())
         {
             goto fail;
         }
@@ -310,7 +310,7 @@ function(parse *p, str *name)
     {
         --f->f_code->a_top;
     }
-    if (f->f_code->stk_push_chk(3))
+    if (f->f_code->push_check(3))
     {
         goto fail;
     }
@@ -479,7 +479,7 @@ compound_statement(parse *p, ici_struct *sw)
         --a->a_top;
     }
 
-    if (a->stk_push_chk())
+    if (a->push_check())
     {
         goto fail;
     }
@@ -699,12 +699,12 @@ primary(parse *p, expr **ep, int exclude)
                     goto fail;
 
                 case 1:
-                    if (a->stk_push_chk())
+                    if (a->push_check())
                     {
                         a->decref();
                         goto fail;
                     }
-                    a->push(o, array::owns);
+                    a->push(o, owned);
                     if (next(p, NULL) == T_COMMA)
                     {
                         continue;
@@ -825,7 +825,7 @@ primary(parse *p, expr **ep, int exclude)
                     goto fail;
                 }
                 autos->o_super = objwsupof(d);
-                vs.push(autos, array::owns);
+                vs.push(autos, owned);
                 ++p->p_module_depth;
                 o = evaluate(p, 0);
                 --p->p_module_depth;
@@ -854,12 +854,12 @@ primary(parse *p, expr **ep, int exclude)
                     goto fail;
                 }
                 autos->o_super = objwsupof(d);
-                if (vs.stk_push_chk(80)) /* ### Formalise */
+                if (vs.push_check(80)) /* ### Formalise */
                 {
                     d->decref();
                     goto fail;
                 }
-                vs.push(autos, array::owns);
+                vs.push(autos, owned);
             }
             for (;;)
             {
@@ -1525,7 +1525,7 @@ const_expression(parse *p, object **po, int exclude)
     {
         goto fail;
     }
-    if (a->stk_push_chk())
+    if (a->push_check())
     {
         goto fail;
     }
@@ -1797,7 +1797,7 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
             {
                 reject(p);
             }
-            if (a->stk_push_chk(3))
+            if (a->push_check(3))
             {
                 a1->decref();
                 if (a2 != NULL)
@@ -1810,7 +1810,7 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
             {
                 a->push(&o_ifelse);
                 a->push(a1);
-                a->push(a2, array::owns);
+                a->push(a2, owned);
             }
             else
             {
@@ -1832,7 +1832,7 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
                 a1->decref();
                 return -1;
             }
-            if (a1->stk_push_chk())
+            if (a1->push_check())
             {
                 a1->decref();
                 return -1;
@@ -1849,19 +1849,19 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
                     return -1;
                 }
             }
-            if (a1->stk_push_chk())
+            if (a1->push_check())
             {
                 a1->decref();
                 return -1;
             }
             a1->push(&o_rewind);
-            if (a->stk_push_chk(2))
+            if (a->push_check(2))
             {
                 a1->decref();
                 return -1;
             }
             a->push(&o_loop);
-            a->push(a1, array::owns);
+            a->push(a1, owned);
             break;
         }
         if (p->p_got.t_obj == SS(do))
@@ -1907,7 +1907,7 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
                 a1->decref();
                 return not_followed_by("do statement while (expr", "\");\"");
             }
-            if (a1->stk_push_chk(2))
+            if (a1->push_check(2))
             {
                 a1->decref();
                 return -1;
@@ -1915,13 +1915,13 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
             a1->push(&o_ifnotbreak);
             a1->push(&o_rewind);
 
-            if (a->stk_push_chk(2))
+            if (a->push_check(2))
             {
                 a1->decref();
                 return -1;
             }
             a->push(&o_loop);
-            a->push(a1, array::owns);
+            a->push(a1, owned);
             break;
         }
         if (p->p_got.t_obj == SS(forall))
@@ -1940,7 +1940,7 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
             }
             if (rc == 0)
             {
-                if (a->stk_push_chk(2))
+                if (a->push_check(2))
                     return -1;
                 a->push(ici_null);
                 a->push(ici_null);
@@ -1968,7 +1968,7 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
                 }
                 curtok = T_NONE; /* Take ownership of name. */
                 p->p_got.t_obj->decref();
-                if (a->stk_push_chk(2))
+                if (a->push_check(2))
                 {
                     return -1;
                 }
@@ -1999,12 +1999,12 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
                     return -1;
                 }
             }
-            if (a->stk_push_chk(2))
+            if (a->push_check(2))
             {
                 a1->decref();
                 return -1;
             }
-            a->push(a1, array::owns);
+            a->push(a1, owned);
             if ((*a->a_top = new_op(op_forall, 0, 0)) == NULL)
             {
                 return -1;
@@ -2071,7 +2071,7 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
                     return -1;
                 }
                 free_expr(e);
-                if (a1->stk_push_chk())
+                if (a1->push_check())
                 {
                     a1->decref();
                     return -1;
@@ -2095,18 +2095,18 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
                     return -1;
                 }
             }
-            if (a1->stk_push_chk())
+            if (a1->push_check())
             {
                 a1->decref();
                 return -1;
             }
             a1->push(&o_rewind);
-            if (a->stk_push_chk(2))
+            if (a->push_check(2))
             {
                 a1->decref();
                 return -1;
             }
-            a->push(a1, array::owns);
+            a->push(a1, owned);
             if ((*a->a_top = new_op(op_for, 0, stepz)) == NULL)
             {
                 return -1;
@@ -2140,14 +2140,14 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
                     return -1;
                 }
             }
-            if (a->stk_push_chk(3))
+            if (a->push_check(3))
             {
                 d->decref();
                 p->p_got.t_obj->decref();
                 return -1;
             }
-            a->push(p->p_got.t_obj, array::owns);
-            a->push(d, array::owns);
+            a->push(p->p_got.t_obj, owned);
+            a->push(d, owned);
             a->push(&o_switch);
             break;
         }
@@ -2163,7 +2163,7 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
                 reject(p);
                 return not_followed_by("break", "\";\"");
             }
-            if (a->stk_push_chk())
+            if (a->push_check())
             {
                 return -1;
             }
@@ -2183,7 +2183,7 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
                 reject(p);
                 return not_followed_by("continue", "\";\"");
             }
-            if (a->stk_push_chk())
+            if (a->push_check())
             {
                 return -1;
             }
@@ -2197,7 +2197,7 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
             {
             case -1: return -1;
             case 0:
-                if (a->stk_push_chk())
+                if (a->push_check())
 		{
                     return -1;
 		}
@@ -2212,7 +2212,7 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
                 reject(p);
                 return not_followed_by("return [expr]", "\";\"");
             }
-            if (a->stk_push_chk())
+            if (a->push_check())
 	    {
                 return -1;
 	    }
@@ -2249,14 +2249,14 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
                 a2->decref();
                 return -1;
             }
-            if (a->stk_push_chk(3))
+            if (a->push_check(3))
             {
                 a1->decref();
                 a2->decref();
                 return -1;
             }
-            a->push(a1, array::owns);
-            a->push(a2, array::owns);
+            a->push(a1, owned);
+            a->push(a2, owned);
             a->push(&o_onerror);
             break;
         }
@@ -2267,7 +2267,7 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
              * Start a critical section with a new code array (a1) as
              * its subject. Into this code array we place the statement.
              */
-            if (a->stk_push_chk(2))
+            if (a->push_check(2))
             {
                 return -1;
             }
@@ -2275,7 +2275,7 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
             {
                 return -1;
             }
-            a->push(a1, array::owns);
+            a->push(a1, owned);
             if (statement(p, a1, NULL, "critsect", 1) == -1)
             {
                 return -1;
@@ -2294,7 +2294,7 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
              * temporarily releases one level of critical section around
              * the actual wait call.
              */
-            if (a->stk_push_chk(2))
+            if (a->push_check(2))
             {
                 return -1;
             }
@@ -2302,13 +2302,13 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
             {
                 return -1;
             }
-            a->push(a1, array::owns);
+            a->push(a1, owned);
             a->push(&o_critsect);
             /*
              * Start a new code array (a2) and establish it as the body of
              * a loop.
              */
-            if (a1->stk_push_chk(2))
+            if (a1->push_check(2))
             {
                 return -1;
             }
@@ -2317,7 +2317,7 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
                 return -1;
             }
             a1->push(&o_loop);
-            a1->push(a2, array::owns);
+            a1->push(a2, owned);
             /*
              * Into the new code array (a1, the body of the loop) we build:
              *     condition expression (for value)
@@ -2335,7 +2335,7 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
             case 0: not_followed_by("waitfor (", an_expression);
             case -1: return -1;
             }
-            if (a2->stk_push_chk())
+            if (a2->push_check())
             {
                 return -1;
             }
@@ -2350,7 +2350,7 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
             case 0: not_followed_by("waitfor (expr;", an_expression);
             case -1: return -1;
             }
-            if (a2->stk_push_chk(2))
+            if (a2->push_check(2))
             {
                 return -1;
             }
@@ -2407,7 +2407,7 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
             --a->a_top;
         }
 
-        if (a->stk_push_chk())
+        if (a->push_check())
         {
             return -1;
         }

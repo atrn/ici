@@ -1272,10 +1272,10 @@ static int ici_sys_pipe()
     }
     if ((fd = new_int(pfd[0])) == NULL)
         goto fail;
-    a->push(fd, array::owns);
+    a->push(fd, owned);
     if ((fd = new_int(pfd[1])) == NULL)
         goto fail;
-    a->push(fd, array::owns);
+    a->push(fd, owned);
     return ret_with_decref(a);
 
  fail:
@@ -1695,12 +1695,12 @@ static int ici_sys_passwd()
     {
         ici_struct *s;
 
-        if (a->stk_push_chk() || (s = password_struct(pwent)) == NULL)
+        if (a->push_check() || (s = password_struct(pwent)) == NULL)
         {
             a->decref();
             return 1;
         }
-        a->push(s, array::owns);
+        a->push(s, owned);
     }
     endpwent();
     return ret_with_decref(a);

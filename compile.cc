@@ -75,7 +75,7 @@ int compile_expr(array *a, expr *e, int why)
 #define NOTLV(why)      ((why) == FOR_LVALUE ? FOR_VALUE : (why))
 #define NOTTEMP(why)    ((why) == FOR_TEMP ? FOR_VALUE : (why))
 
-    if (a->stk_push_chk())
+    if (a->push_check())
     {
         return 1;
     }
@@ -110,7 +110,7 @@ int compile_expr(array *a, expr *e, int why)
             {
                 return 1;
             }
-            if (compile_expr(a1, e->e_arg[1]->e_arg[0], why) || a1->stk_push_chk())
+            if (compile_expr(a1, e->e_arg[1]->e_arg[0], why) || a1->push_check())
             {
                 a1->decref();
                 return 1;
@@ -125,9 +125,9 @@ int compile_expr(array *a, expr *e, int why)
             (
                 compile_expr(a2, e->e_arg[1]->e_arg[1], why)
                 ||
-                a2->stk_push_chk()
+                a2->push_check()
                 ||
-                a->stk_push_chk(3)
+                a->push_check(3)
             )
             {
                 a1->decref();
@@ -136,8 +136,8 @@ int compile_expr(array *a, expr *e, int why)
             }
             a2->push(&o_end);
             a->push(&o_ifelse);
-            a->push(a1, array::owns);
-            a->push(a2, array::owns);
+            a->push(a1, owned);
+            a->push(a2, owned);
             return 0;
         }
         if (e->e_what == T_LESSEQGRT)
@@ -150,13 +150,13 @@ int compile_expr(array *a, expr *e, int why)
             {
                 return 1;
             }
-            if (a->stk_push_chk())
+            if (a->push_check())
             {
                 return 1;
             }
             auto o = new_op(NULL, OP_SWAP, NOTTEMP(why));
             if (!o) return 1;
-            a->push(o, array::owns);
+            a->push(o, owned);
             return 0;
         }
         if (e->e_what == T_EQ || e->e_what == T_COLONEQ)
@@ -166,7 +166,7 @@ int compile_expr(array *a, expr *e, int why)
              */
             if (e->e_arg[0]->e_what == T_NAME && e->e_what == T_COLONEQ)
             {
-                if (a->stk_push_chk(2))
+                if (a->push_check(2))
                 {
                     return 1;
                 }
@@ -176,13 +176,13 @@ int compile_expr(array *a, expr *e, int why)
                 {
                     return 1;
                 }
-                if (a->stk_push_chk())
+                if (a->push_check())
                 {
                     return 1;
                 }
                 auto o = new_op(NULL, OP_ASSIGNLOCALVAR, NOTTEMP(why));
                 if (!o) return 1;
-                a->push(o, array::owns);
+                a->push(o, owned);
                 return 0;
             }
             if (e->e_arg[0]->e_what == T_NAME)
@@ -191,13 +191,13 @@ int compile_expr(array *a, expr *e, int why)
                 {
                     return 1;
                 }
-                if (a->stk_push_chk(2))
+                if (a->push_check(2))
                 {
                     return 1;
                 }
                 auto o = new_op(NULL, OP_ASSIGN_TO_NAME, NOTTEMP(why));
                 if (!o) return 1;
-                a->push(o, array::owns);
+                a->push(o, owned);
                 a->push(e->e_arg[0]->e_obj);
                 return 0;
             }
@@ -209,13 +209,13 @@ int compile_expr(array *a, expr *e, int why)
             {
                 return 1;
             }
-            if (a->stk_push_chk())
+            if (a->push_check())
             {
                 return 1;
             }
             auto o = new_op(NULL, e->e_what == T_EQ ? OP_ASSIGN : OP_ASSIGNLOCAL, NOTTEMP(why));
             if (!o) return 1;
-            a->push(o, array::owns);
+            a->push(o, owned);
             return 0;
         }
         if (e->e_what >= T_EQ)
@@ -227,7 +227,7 @@ int compile_expr(array *a, expr *e, int why)
             {
                 return 1;
             }
-            if (a->stk_push_chk())
+            if (a->push_check())
             {
                 return 1;
             }
@@ -236,7 +236,7 @@ int compile_expr(array *a, expr *e, int why)
             {
                 return 1;
             }
-            if (a->stk_push_chk(2))
+            if (a->push_check(2))
             {
                 return 1;
             }
@@ -245,7 +245,7 @@ int compile_expr(array *a, expr *e, int why)
             a->push(o);
             o = new_op(NULL, OP_ASSIGN, NOTTEMP(why));
             if (!o) return 1;
-            a->push(o, array::owns);
+            a->push(o, owned);
             return 0;
         }
         if (why == FOR_LVALUE)
@@ -268,16 +268,16 @@ int compile_expr(array *a, expr *e, int why)
             (
                 compile_expr(a1, e->e_arg[1], FOR_VALUE)
                 ||
-                a1->stk_push_chk(3)
+                a1->push_check(3)
                 ||
-                a->stk_push_chk(3)
+                a->push_check(3)
             )
             {
                 a1->decref();
                 return 1;
             }
             a1->push(&o_end);
-            a->push(a1, array::owns);
+            a->push(a1, owned);
             a->push(e->e_what == T_ANDAND ? &o_andand : &o_barbar);
             if (why == FOR_EFFECT)
             {
@@ -297,7 +297,7 @@ int compile_expr(array *a, expr *e, int why)
         {
             return 1;
         }
-        if (a->stk_push_chk())
+        if (a->push_check())
         {
             return 1;
         }
@@ -325,7 +325,7 @@ int compile_expr(array *a, expr *e, int why)
         /*
          * Not a "binary operator".
          */
-        if (a->stk_push_chk(3)) /* Worst case below. */
+        if (a->push_check(3)) /* Worst case below. */
         {
             return 1;
         }
@@ -354,7 +354,7 @@ int compile_expr(array *a, expr *e, int why)
                 (
                     compile_expr(a1, e->e_arg[0], NOTLV(why))
                     ||
-                    a1->stk_push_chk()
+                    a1->push_check()
                 )
                 {
                     a1->decref();
@@ -427,7 +427,7 @@ int compile_expr(array *a, expr *e, int why)
                     goto pluspluseffect;
                 }
 
-                if (a->stk_push_chk(4))
+                if (a->push_check(4))
                 {
                     return 1;
                 }
@@ -439,7 +439,7 @@ int compile_expr(array *a, expr *e, int why)
                     a->push(op1);
                     op2 = new_op(NULL, OP_ASSIGN, FOR_EFFECT);
                     if (!op2) return 1;
-                    a->push(op2, array::owns);
+                    a->push(op2, owned);
                 }
             }
             else
@@ -452,7 +452,7 @@ int compile_expr(array *a, expr *e, int why)
                     return 1;
                 }
             pluspluseffect:
-                if (a->stk_push_chk(4))
+                if (a->push_check(4))
                 {
                     return 1;
                 }
@@ -463,7 +463,7 @@ int compile_expr(array *a, expr *e, int why)
                 a->push(op1);
                 op2 = new_op(NULL, OP_ASSIGN, NOTTEMP(why));
                 if (!op2) return 1;
-                a->push(op2, array::owns);
+                a->push(op2, owned);
                 return 0;
             }
             break;
@@ -482,7 +482,7 @@ int compile_expr(array *a, expr *e, int why)
             {
                 return 1;
             }
-            if (a->stk_push_chk())
+            if (a->push_check())
             {
                 return 1;
             }
@@ -512,13 +512,13 @@ int compile_expr(array *a, expr *e, int why)
             {
                 break;
             }
-            if (a->stk_push_chk())
+            if (a->push_check())
             {
                 return 1;
             }
             op1 = new_op(op_unary, 0, t_subtype(e->e_what));
             if (!op1) return 1;
-            a->push(op1, array::owns);
+            a->push(op1, owned);
             // if ((*a->a_top = new_op(op_unary, 0, t_subtype(e->e_what))) == NULL)
             // {
             //     return 1;
@@ -536,13 +536,13 @@ int compile_expr(array *a, expr *e, int why)
             {
                 break;
             }
-            if (a->stk_push_chk())
+            if (a->push_check())
             {
                 return 1;
             }
             op1 = new_op(NULL, OP_AT, 0);
             if (!op1) return 1;
-            a->push(op1, array::owns);
+            a->push(op1, owned);
             break;
 
         case T_AND: /* Unary. */
@@ -554,7 +554,7 @@ int compile_expr(array *a, expr *e, int why)
             {
                 break;
             }
-            if (a->stk_push_chk())
+            if (a->push_check())
             {
                 return 1;
             }
@@ -570,7 +570,7 @@ int compile_expr(array *a, expr *e, int why)
             {
                 break;
             }
-            if (a->stk_push_chk())
+            if (a->push_check())
             {
                 return 1;
             }
@@ -598,7 +598,7 @@ int compile_expr(array *a, expr *e, int why)
             {
                 break;
             }
-            if (a->stk_push_chk())
+            if (a->push_check())
             {
                 return 1;
             }
@@ -627,13 +627,13 @@ int compile_expr(array *a, expr *e, int why)
             {
                 goto notlvalue;
             }
-            if (a->stk_push_chk())
+            if (a->push_check())
             {
                 return 1;
             }
             op1 = new_op(NULL, OP_COLON, e->e_what == T_COLONCARET ? OPC_COLON_CARET : 0);
             if (!op1) return 1;
-            a->push(op1, array::owns);
+            a->push(op1, owned);
             break;
 
         case T_PTR:
@@ -643,7 +643,7 @@ int compile_expr(array *a, expr *e, int why)
             }
             if (why != FOR_EFFECT)
             {
-                if (a->stk_push_chk())
+                if (a->push_check())
                 {
                     return 1;
                 }
@@ -668,7 +668,7 @@ int compile_expr(array *a, expr *e, int why)
             {
                 return 0;
             }
-            if (a->stk_push_chk())
+            if (a->push_check())
             {
                 return 1;
             }
@@ -692,7 +692,7 @@ int compile_expr(array *a, expr *e, int why)
             {
                 goto notlvalue;
             }
-            if (a->stk_push_chk())
+            if (a->push_check())
             {
                 return 1;
             }
@@ -717,7 +717,7 @@ int compile_expr(array *a, expr *e, int why)
                     }
                     ++nargs;
                 }
-                if (a->stk_push_chk())
+                if (a->push_check())
                 {
                     return 1;
                 }
@@ -750,7 +750,7 @@ int compile_expr(array *a, expr *e, int why)
                     {
                         return 1;
                     }
-                    if (a->stk_push_chk(2))
+                    if (a->push_check(2))
                     {
                         return 1;
                     }
@@ -773,7 +773,7 @@ int compile_expr(array *a, expr *e, int why)
                     {
                         return 1;
                     }
-                    if (a->stk_push_chk(2))
+                    if (a->push_check(2))
                     {
                         return 1;
                     }
@@ -789,7 +789,7 @@ int compile_expr(array *a, expr *e, int why)
     }
     if (why == FOR_LVALUE)
     {
-        if (a->stk_push_chk())
+        if (a->push_check())
         {
             return 1;
         }

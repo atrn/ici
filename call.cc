@@ -61,10 +61,10 @@ int callv(object *subject, object *callable, const char *types, va_list va)
 
     os_depth = os.a_top - os.a_base;
     /*
-     * We include an extra 80 in our stk_push_chk, see start of evaluate().
+     * We include an extra 80 in our push_check, see start of evaluate().
      */
     nargs = strlen(types);
-    if (os.stk_push_chk(nargs + 80))
+    if (os.push_check(nargs + 80))
     {
         return 1;
     }
@@ -126,7 +126,7 @@ int callv(object *subject, object *callable, const char *types, va_list va)
     {
         auto no = new_int(nargs);
         if (!no) goto fail;
-        os.push(no, array::owns);
+        os.push(no, owned);
     }
     if (subject != NULL)
     {

@@ -98,11 +98,11 @@ call_signal_handler(object *func, int signo)
     ici_int           *isigno;
     object           *ret_obj;
 
-    if (os.stk_push_chk(3 + 80)) /* see comment in ici/call.c */
+    if (os.push_check(3 + 80)) /* see comment in ici/call.c */
         return 1;
     if ((isigno = new_int(signo)) == NULL)
         return 1;
-    os.push(isigno, array::owns);
+    os.push(isigno, owned);
     os.push(o_one); /* One argument. */
     os.push(func);
     if ((ret_obj = evaluate(&o_call, 3)) == NULL)

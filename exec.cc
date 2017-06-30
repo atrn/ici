@@ -153,15 +153,15 @@ int engine_stack_check()
     array *pcs;
     int   depth;
 
-    if (xs.stk_push_chk(60))
+    if (xs.push_check(60))
     {
         return 1;
     }
-    if (os.stk_push_chk(60))
+    if (os.push_check(60))
     {
         return 1;
     }
-    if (vs.stk_push_chk(60))
+    if (vs.push_check(60))
     {
         return 1;
     }
@@ -169,7 +169,7 @@ int engine_stack_check()
     depth = (xs.a_top - xs.a_base) + 60;
     if ((depth -= (pcs->a_top - pcs->a_base)) > 0)
     {
-        if (pcs->stk_push_chk(depth))
+        if (pcs->push_check(depth))
         {
             return 1;
         }

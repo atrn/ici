@@ -288,7 +288,7 @@ int func_type::call(object *o, object *subject)
     xs.push(&o_mark);
     get_pc(f->f_code, xs.a_top);
     ++xs.a_top;
-    vs.push(d, array::owns);
+    vs.push(d, owned);
     os.a_top -= NARGS() + 2;
     return 0;
 

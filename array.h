@@ -12,6 +12,8 @@
 namespace ici
 {
 
+static struct tag_owned {} owned;
+
 /*
  * The following portion of this file exports to ici.h. --ici.h-start--
  */
@@ -36,10 +38,9 @@ namespace ici
  * stacks (never had pop_front() or push_front() done) and ones that are queues
  * (may, possibly, have had pop_front() or push_front() done).
  *
- * Now, if an array is still a stack, you can use the member functions:
+ * Now, if an array is still a stack, you can use the member function:
  *
- *     a->stk_push_chk(n)
- *     a->stk_pop_chk(n)
+ *     a->push_check(n)
  *
  * to ensure that there are n spaces or objects available, then just
  * increment/decrement a_top as you push and pop things on the stack.
@@ -128,7 +129,7 @@ struct array : object
      *
      * This --func-- forms part of the --ici-ap--.
      */
-    inline int stk_push_chk(ptrdiff_t n = 1) {
+    inline int push_check(ptrdiff_t n = 1) {
         return a_limit - a_top < n ? grow_stack(n) : 0;
     }
 
@@ -141,17 +142,20 @@ struct array : object
     }
 
     /*
-     * Push an object onto a stack-like array which then "owns" the object
-     * (and decrefs it).  This can only be used if the array has sufficient
-     * space as indicated by a succesful call to stk_push_chk.
+     * Push an object onto a stack-like array which then "owns" the object.
+     * This can only be used if the array has sufficient space as indicated
+     * by a succesful call to push_check.
      */
     inline void push(object *o) {
         *a_top++ = o;
     }
 
-    static struct tag_owns {} owns;
-
-    inline void push(object *o, struct tag_owns) {
+    /*
+     * Push an object onto a stack-like array which then "owns" the object
+     * (and decrefs it).  This can only be used if the array has sufficient
+     * space as indicated by a succesful call to push_check.
+     */
+    inline void push(object *o, struct tag_owned) {
         *a_top++ = o;
         o->decref();
     }

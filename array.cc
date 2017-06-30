@@ -16,7 +16,7 @@ namespace ici
 {
 
 /*
- * Function to do the hard work for the inline function stk_push_chk().
+ * Function to do the hard work for the inline function push_check().
  * See array.h. This reallocates the array buffer.
  */
 int array::grow_stack(ptrdiff_t n)
@@ -69,7 +69,7 @@ array::fault_stack(ptrdiff_t i)
     assert(!isatom());
     ++i;
     i -= a_top - a_bot;
-    if (stk_push_chk(i))
+    if (push_check(i))
     {
         return 1;
     }
@@ -458,7 +458,7 @@ object *array::get(ptrdiff_t i)
 
 /*
  * Return a new array.  It will have room for at least 'n' elements to be
- * pushed contigously (that is, there is no need to use ici_stk_push_chk() for
+ * pushed contigously (that is, there is no need to use ici_push_check() for
  * objects pushed immediately, up to that limit).  If 'n' is 0 an internal
  * default will be used.  The returned array has ref count 1.  Returns NULL on
  * failure, usual conventions.

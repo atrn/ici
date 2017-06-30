@@ -191,7 +191,7 @@ static array *do_smash
          */
         for (i = 0; i < n_repls; ++i)
         {
-            if (a->stk_push_chk())
+            if (a->push_check())
                goto fail;
             size = do_repl(s, repls[-i]->s_chars, repls[-i]->s_nchars, NULL);
             if ((ns = str_alloc(size)) == NULL)
@@ -199,7 +199,7 @@ static array *do_smash
             do_repl(s, repls[-i]->s_chars, repls[-i]->s_nchars, ns->s_chars);
             if ((ns = stringof(atom(ns, 1))) == NULL)
                 goto fail;
-            a->push(ns, array::owns);
+            a->push(ns, owned);
         }
     }
     if (include_remainder && s != se)
@@ -208,11 +208,11 @@ static array *do_smash
          * There is left-over un-matched string. Push it, as a string onto
          * the array too.
          */
-        if (a->stk_push_chk())
+        if (a->push_check())
             goto fail;
         if ((ns = new_str(s, se - s)) == NULL)
             goto fail;
-        a->push(ns, array::owns);
+        a->push(ns, owned);
     }
     return a;
 

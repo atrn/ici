@@ -389,7 +389,7 @@ static int push_path_elements(array *a, const char *path)
         {
             goto skip;
         }
-        if (a->stk_push_chk())
+        if (a->push_check())
         {
             s->decref();
             return 1;

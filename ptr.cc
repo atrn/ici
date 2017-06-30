@@ -109,7 +109,7 @@ int ptr_type::call(object *o, object *)
         return 1;
     (os.a_top[-1])->decref();
     os.a_top[-2] = ptrof(o)->p_aggr;
-    if (os.stk_push_chk())
+    if (os.push_check())
         return 1;
     os.push(f);
     xs.a_top[-1] = &o_call;

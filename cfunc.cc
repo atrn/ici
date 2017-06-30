@@ -1272,10 +1272,10 @@ f_call()
      * Do everything that can get an error first, before we start playing with
      * the stack.
      *
-     * We include an extra 80 in our ici_stk_push_chk, see start of
+     * We include an extra 80 in our ici_push_check, see start of
      * evaluate().
      */
-    if (os.stk_push_chk(naargs + 80))
+    if (os.push_check(naargs + 80))
         goto fail;
     base = &ARG(NARGS() - 1);
     if (aa != NULL)
@@ -2433,7 +2433,7 @@ fast_gettokens(const char *str, const char *delims)
         {
             if
             (
-                a->stk_push_chk()
+                a->push_check()
                 ||
                 (*a->a_top = new_str(cp, k)) == NULL
             )
@@ -2644,11 +2644,11 @@ f_gettokens()
             j = 0;
         case (S_INTOK << 8) + W_EOF:
         case (S_INTOK << 8) + W_TERM:
-            if (a->stk_push_chk())
+            if (a->push_check())
                 goto fail;
             if ((s = new_str(buf, j)) == NULL)
                 goto fail;
-            a->push(s, array::owns);
+            a->push(s, owned);
             if (loose_it)
                 f->decref();
             return ret_with_decref(a);
@@ -2658,11 +2658,11 @@ f_gettokens()
                 break;
             j = 0;
         case (S_INTOK << 8) + W_SEP:
-            if (a->stk_push_chk())
+            if (a->push_check())
                 goto fail;
             if ((s = new_str(buf, j)) == NULL)
                 goto fail;
-            a->push(s, array::owns);
+            a->push(s, owned);
             if (hardsep)
             {
                 j = 0;
@@ -2673,18 +2673,18 @@ f_gettokens()
             break;
 
         case (S_INTOK << 8) + W_DELIM:
-            if (a->stk_push_chk())
+            if (a->push_check())
                 goto fail;
             if ((s = new_str(buf, j)) == NULL)
                 goto fail;
-            a->push(s, array::owns);
+            a->push(s, owned);
         case (S_IDLE << 8) + W_DELIM:
-            if (a->stk_push_chk())
+            if (a->push_check())
                 goto fail;
             buf[0] = c;
             if ((s = new_str(buf, 1)) == NULL)
                 goto fail;
-            a->push(s, array::owns);
+            a->push(s, owned);
             j = 0;
             state = S_IDLE;
             break;
@@ -3929,7 +3929,7 @@ f_dir()
             (
                 (s = new_str_nul_term(dirent->d_name)) == NULL
                 ||
-                a->stk_push_chk()
+                a->push_check()
             )
             {
                 if (s != NULL)

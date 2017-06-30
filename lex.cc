@@ -77,10 +77,10 @@ static int get(parse *p, array *a)
         {
             srcof(a->a_top[-1])->s_lineno = p->p_lineno;
         }
-        else if (a->stk_push_chk() == 0)
+        else if (a->push_check() == 0)
         {
             if (auto s = new_src(p->p_lineno, p->p_file->f_name))
-                a->push(s, array::owns);
+                a->push(s, owned);
         }
     }
 
