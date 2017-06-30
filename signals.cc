@@ -102,10 +102,9 @@ call_signal_handler(object *func, int signo)
         return 1;
     if ((isigno = new_int(signo)) == NULL)
         return 1;
-    *os.a_top++ = isigno;
-    isigno->decref();
-    *os.a_top++ = o_one; /* One argument. */
-    *os.a_top++ = func;
+    os.push(isigno, array::owns);
+    os.push(o_one); /* One argument. */
+    os.push(func);
     if ((ret_obj = evaluate(&o_call, 3)) == NULL)
         goto fail;
     ret_obj->decref();

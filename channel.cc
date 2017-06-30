@@ -143,7 +143,7 @@ f_get(...)
         if (waitfor(q))
             return 1;
     }
-    o = q->rpop();
+    o = q->pop_front();
     wakeup(q);
     if (channelof(c)->c_altobj != NULL)
 	wakeup(channelof(c)->c_altobj);
@@ -191,7 +191,7 @@ f_put(...)
                 return 1;
         }
     }
-    q->push(o);
+    q->push_back(o);
     wakeup(q);
     if (channelof(c)->c_altobj != NULL)
         wakeup(channelof(c)->c_altobj);

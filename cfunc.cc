@@ -252,7 +252,7 @@ int typecheck(const char *types, ...)
             *(file **)aptr = fileof(o);
             break;
 
-        case 'r': /* A regular expression -> (regexpr_t *). */
+        case 'r': /* A regular expression -> (regexpr *). */
             if (!isregexp(o))
                 goto fail;
             *(regexp **)aptr = regexpof(o);
@@ -760,7 +760,7 @@ f_coreici(object *s)
 static int
 f_array(...)
 {
-    int        nargs;
+    size_t   nargs;
     array    *a;
     object  **o;
 
@@ -768,7 +768,7 @@ f_array(...)
     if ((a = new_array(nargs)) == NULL)
         return 1;
     for (o = ARGS(); nargs > 0; --nargs)
-        *a->a_top++ = *o--;
+        a->push(*o--);
     return ret_with_decref(a);
 }
 
@@ -844,7 +844,7 @@ f_keys()
         for (sl = s->s_slots; sl < s->s_slots + s->s_nslots; ++sl)
         {
             if (sl->sl_key != NULL)
-                *k->a_top++ = sl->sl_key;
+                k->push(sl->sl_key);
         }
     }
     else if (isset(ARG(0)))
@@ -858,7 +858,7 @@ f_keys()
         {
             object *o;
             if ((o = s->s_slots[i]) != NULL)
-                *k->a_top++ = o;
+                k->push(o);
         }
     }
     else
@@ -1045,7 +1045,7 @@ f_push()
 
     if (typecheck("ao", &a, &o))
         return 1;
-    if (a->push(o))
+    if (a->push_back(o))
         return 1;
     return ret_no_decref(o);
 }
@@ -1058,7 +1058,7 @@ f_rpush()
 
     if (typecheck("ao", &a, &o))
         return 1;
-    if (a->rpush(o))
+    if (a->push_front(o))
         return 1;
     return ret_no_decref(o);
 }
@@ -1066,12 +1066,12 @@ f_rpush()
 static int
 f_pop()
 {
-    array *a;
-    object   *o;
+    array  *a;
+    object *o;
 
     if (typecheck("a", &a))
         return 1;
-    if ((o = a->pop()) == NULL)
+    if ((o = a->pop_back()) == NULL)
         return 1;
     return ret_no_decref(o);
 }
@@ -1079,12 +1079,12 @@ f_pop()
 static int
 f_rpop()
 {
-    array *a;
-    object   *o;
+    array  *a;
+    object *o;
 
     if (typecheck("a", &a))
         return 1;
-    if ((o = a->rpop()) == NULL)
+    if ((o = a->pop_front()) == NULL)
         return 1;
     return ret_no_decref(o);
 }
@@ -1994,7 +1994,7 @@ f_del()
                 *prev_e = *e;
                 prev_e = e;
             }
-            a->pop();
+            a->pop_back();
         }
         else
         {
@@ -2007,7 +2007,7 @@ f_del()
                 *e = prev_o;
                 prev_o = o;
             }
-            a->rpop();
+            a->pop_front();
         }
     }
     else
@@ -2648,10 +2648,9 @@ f_gettokens()
                 goto fail;
             if ((s = new_str(buf, j)) == NULL)
                 goto fail;
-            *a->a_top++ = s;
+            a->push(s, array::owns);
             if (loose_it)
                 f->decref();
-            s->decref();
             return ret_with_decref(a);
 
         case (S_IDLE << 8) + W_SEP:
@@ -2663,8 +2662,7 @@ f_gettokens()
                 goto fail;
             if ((s = new_str(buf, j)) == NULL)
                 goto fail;
-            *a->a_top++ = s;
-            s->decref();
+            a->push(s, array::owns);
             if (hardsep)
             {
                 j = 0;
@@ -2679,16 +2677,14 @@ f_gettokens()
                 goto fail;
             if ((s = new_str(buf, j)) == NULL)
                 goto fail;
-            *a->a_top++ = s;
-            s->decref();
+            a->push(s, array::owns);
         case (S_IDLE << 8) + W_DELIM:
             if (a->stk_push_chk())
                 goto fail;
             buf[0] = c;
             if ((s = new_str(buf, 1)) == NULL)
                 goto fail;
-            *a->a_top++ = s;
-            s->decref();
+            a->push(s, array::owns);
             j = 0;
             state = S_IDLE;
             break;
@@ -3941,8 +3937,7 @@ f_dir()
                 closedir(dir);
                 goto fail;
             }
-            *a->a_top++ = s;
-            s->decref();
+            a->push(s);
         }
     }
     closedir(dir);

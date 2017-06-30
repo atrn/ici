@@ -21,8 +21,7 @@ static object *binops_temps[BINOP_MAX + 1];
  * given token, which is a binary operator. The returned object does
  * not have an extra reference (unlike most new_* functions).
  */
-static object *
-new_binop(int op, int why)
+static object *new_binop(int op, int why)
 {
     object           *o;
 
@@ -116,7 +115,7 @@ int compile_expr(array *a, expr *e, int why)
                 a1->decref();
                 return 1;
             }
-            *a1->a_top++ = &o_end;
+            a1->push(&o_end);
             if ((a2 = new_array(0)) == NULL)
             {
                 a1->decref();
@@ -135,12 +134,10 @@ int compile_expr(array *a, expr *e, int why)
                 a2->decref();
                 return 1;
             }
-            *a2->a_top++ = &o_end;
-            *a->a_top++ = &o_ifelse;
-            *a->a_top++ = a1;
-            *a->a_top++ = a2;
-            a1->decref();
-            a2->decref();
+            a2->push(&o_end);
+            a->push(&o_ifelse);
+            a->push(a1, array::owns);
+            a->push(a2, array::owns);
             return 0;
         }
         if (e->e_what == T_LESSEQGRT)
@@ -157,12 +154,9 @@ int compile_expr(array *a, expr *e, int why)
             {
                 return 1;
             }
-            if ((*a->a_top = new_op(NULL, OP_SWAP, NOTTEMP(why))) == NULL)
-            {
-                return 1;
-            }
-            (*a->a_top)->decref();
-            a->a_top++;
+            auto o = new_op(NULL, OP_SWAP, NOTTEMP(why));
+            if (!o) return 1;
+            a->push(o, array::owns);
             return 0;
         }
         if (e->e_what == T_EQ || e->e_what == T_COLONEQ)
@@ -176,8 +170,8 @@ int compile_expr(array *a, expr *e, int why)
                 {
                     return 1;
                 }
-                *a->a_top++ = &o_quote;
-                *a->a_top++ = e->e_arg[0]->e_obj;
+                a->push(&o_quote);
+                a->push(e->e_arg[0]->e_obj);
                 if (compile_expr(a, e->e_arg[1], FOR_VALUE))
                 {
                     return 1;
@@ -186,12 +180,9 @@ int compile_expr(array *a, expr *e, int why)
                 {
                     return 1;
                 }
-                if ((*a->a_top = new_op(NULL, OP_ASSIGNLOCALVAR, NOTTEMP(why))) == NULL)
-                {
-                    return 1;
-                }
-                (*a->a_top)->decref();
-                a->a_top++;
+                auto o = new_op(NULL, OP_ASSIGNLOCALVAR, NOTTEMP(why));
+                if (!o) return 1;
+                a->push(o, array::owns);
                 return 0;
             }
             if (e->e_arg[0]->e_what == T_NAME)
@@ -204,13 +195,10 @@ int compile_expr(array *a, expr *e, int why)
                 {
                     return 1;
                 }
-                if ((*a->a_top = new_op(NULL, OP_ASSIGN_TO_NAME, NOTTEMP(why))) == NULL)
-                {
-                    return 1;
-                }
-                (*a->a_top)->decref();
-                ++a->a_top;
-                *a->a_top++ = e->e_arg[0]->e_obj;
+                auto o = new_op(NULL, OP_ASSIGN_TO_NAME, NOTTEMP(why));
+                if (!o) return 1;
+                a->push(o, array::owns);
+                a->push(e->e_arg[0]->e_obj);
                 return 0;
             }
             if (compile_expr(a, e->e_arg[0], FOR_LVALUE))
@@ -225,12 +213,9 @@ int compile_expr(array *a, expr *e, int why)
             {
                 return 1;
             }
-            if ((*a->a_top = new_op(NULL, e->e_what == T_EQ ? OP_ASSIGN : OP_ASSIGNLOCAL, NOTTEMP(why))) == NULL)
-            {
-                return 1;
-            }
-            (*a->a_top)->decref();
-            a->a_top++;
+            auto o = new_op(NULL, e->e_what == T_EQ ? OP_ASSIGN : OP_ASSIGNLOCAL, NOTTEMP(why));
+            if (!o) return 1;
+            a->push(o, array::owns);
             return 0;
         }
         if (e->e_what >= T_EQ)
@@ -246,7 +231,7 @@ int compile_expr(array *a, expr *e, int why)
             {
                 return 1;
             }
-            *a->a_top++ = &o_dotkeep;
+            a->push(&o_dotkeep);
             if (compile_expr(a, e->e_arg[1], FOR_TEMP))
             {
                 return 1;
@@ -255,17 +240,12 @@ int compile_expr(array *a, expr *e, int why)
             {
                 return 1;
             }
-            if ((*a->a_top = new_binop(e->e_what, FOR_VALUE)) == NULL)
-            {
-                return 1;
-            }
-            ++a->a_top;
-            if ((*a->a_top = new_op(NULL, OP_ASSIGN, NOTTEMP(why))) == NULL)
-            {
-                return 1;
-            }
-            (*a->a_top)->decref();
-            a->a_top++;
+            auto o = new_binop(e->e_what, FOR_VALUE);
+            if (!o) return 1;
+            a->push(o);
+            o = new_op(NULL, OP_ASSIGN, NOTTEMP(why));
+            if (!o) return 1;
+            a->push(o, array::owns);
             return 0;
         }
         if (why == FOR_LVALUE)
@@ -296,13 +276,12 @@ int compile_expr(array *a, expr *e, int why)
                 a1->decref();
                 return 1;
             }
-            *a1->a_top++ = &o_end;
-            *a->a_top++ = a1;
-            a1->decref();
-            *a->a_top++ = e->e_what == T_ANDAND ? &o_andand : &o_barbar;
+            a1->push(&o_end);
+            a->push(a1, array::owns);
+            a->push(e->e_what == T_ANDAND ? &o_andand : &o_barbar);
             if (why == FOR_EFFECT)
             {
-                *a->a_top++ = &o_pop;
+                a->push(&o_pop);
             }
             return 0;
         }
@@ -326,17 +305,25 @@ int compile_expr(array *a, expr *e, int why)
         {
             return 0;
         }
-        if ((*a->a_top = new_binop(e->e_what, why)) == NULL)
+        if (auto o = new_binop(e->e_what, why))
         {
-            return 1;
+            a->push(o);
+            return 0;
         }
-        ++a->a_top;
-        return 0;
+        return 1;
+        // if ((*a->a_top = new_binop(e->e_what, why)) == NULL)
+        // {
+        //     return 1;
+        // }
+        // ++a->a_top;
+        // return 0;
     }
     else
     {
+        object *op1, *op2;
+
         /*
-         * Not a "binary opertor".
+         * Not a "binary operator".
          */
         if (a->stk_push_chk(3)) /* Worst case below. */
         {
@@ -347,7 +334,7 @@ int compile_expr(array *a, expr *e, int why)
         case T_NULL:
             if (why != FOR_EFFECT)
             {
-                *a->a_top++ = ici_null;
+                a->push(ici_null);
             }
             break;
 
@@ -373,7 +360,7 @@ int compile_expr(array *a, expr *e, int why)
                     a1->decref();
                     return 1;
                 }
-                *a1->a_top++ = &o_end;
+                a1->push(&o_end);
                 if ((e->e_obj = evaluate(a1, 0)) == NULL)
                 {
                     a1->decref();
@@ -394,18 +381,18 @@ int compile_expr(array *a, expr *e, int why)
             {
                 if (isstring(e->e_obj))
                 {
-                    *a->a_top++ = &o_quote;
+                    a->push(&o_quote);
                 }
-                *a->a_top++ = e->e_obj;
+                a->push(e->e_obj);
             }
             break;
 
         case T_NAME:
             if (why == FOR_LVALUE)
             {
-                *a->a_top++ = &o_namelvalue;
+                a->push(&o_namelvalue);
             }
-            *a->a_top++ = e->e_obj;
+            a->push(e->e_obj);
             if (why == FOR_EFFECT)
             {
                 /*
@@ -413,7 +400,7 @@ int compile_expr(array *a, expr *e, int why)
                  * they can have the side-effect of loading a module. But we
                  * then have to pop the value.
                  */
-                *a->a_top++ = &o_pop;
+                a->push(&o_pop);
             }
             return 0;
 
@@ -444,19 +431,16 @@ int compile_expr(array *a, expr *e, int why)
                 {
                     return 1;
                 }
-                *a->a_top++ = &o_dotrkeep;
-                *a->a_top++ = o_one;
-                if ((*a->a_top = new_binop(e->e_what == T_PLUSPLUS ? T_PLUS : T_MINUS, FOR_VALUE)) == NULL)
+                a->push(&o_dotrkeep);
+                a->push(o_one);
                 {
-                    return 1;
+                    op1 = new_binop(e->e_what == T_PLUSPLUS ? T_PLUS : T_MINUS, FOR_VALUE);
+                    if (!op1) return 1;
+                    a->push(op1);
+                    op2 = new_op(NULL, OP_ASSIGN, FOR_EFFECT);
+                    if (!op2) return 1;
+                    a->push(op2, array::owns);
                 }
-                ++a->a_top;
-                if ((*a->a_top = new_op(NULL, OP_ASSIGN, FOR_EFFECT)) == NULL)
-                {
-                    return 1;
-                }
-                (*a->a_top)->decref();
-                a->a_top++;
             }
             else
             {
@@ -472,19 +456,14 @@ int compile_expr(array *a, expr *e, int why)
                 {
                     return 1;
                 }
-                *a->a_top++ = &o_dotkeep;
-                *a->a_top++ = o_one;
-                if ((*a->a_top = new_binop(e->e_what == T_PLUSPLUS ? T_PLUS : T_MINUS, FOR_VALUE)) == NULL)
-                {
-                    return 1;
-                }
-                ++a->a_top;
-                if ((*a->a_top = new_op(NULL, OP_ASSIGN, NOTTEMP(why))) == NULL)
-                {
-                    return 1;
-                }
-                (*a->a_top)->decref();
-                a->a_top++;
+                a->push(&o_dotkeep);
+                a->push(o_one);
+                op1 = new_binop(e->e_what == T_PLUSPLUS ? T_PLUS : T_MINUS, FOR_VALUE);
+                if (!op1) return 1;
+                a->push(op1);
+                op2 = new_op(NULL, OP_ASSIGN, NOTTEMP(why));
+                if (!op2) return 1;
+                a->push(op2, array::owns);
                 return 0;
             }
             break;
@@ -498,7 +477,7 @@ int compile_expr(array *a, expr *e, int why)
             {
                 return compile_expr(a, e->e_arg[0], FOR_EFFECT);
             }
-            *a->a_top++ = o_zero;
+            a->push(o_zero);
             if (compile_expr(a, e->e_arg[0], NOTLV(why)))
             {
                 return 1;
@@ -507,11 +486,14 @@ int compile_expr(array *a, expr *e, int why)
             {
                 return 1;
             }
-            if ((*a->a_top = new_binop(e->e_what, why)) == NULL)
-            {
-                break;
-            }
-            ++a->a_top;
+            op1 = new_binop(e->e_what, why);
+            if (!op1) break;
+            a->push(op1);
+            // if ((*a->a_top = new_binop(e->e_what, why)) == NULL)
+            // {
+            //     break;
+            // }
+            // ++a->a_top;
             break;
 
         case T_TILDE:
@@ -534,12 +516,15 @@ int compile_expr(array *a, expr *e, int why)
             {
                 return 1;
             }
-            if ((*a->a_top = new_op(op_unary, 0, t_subtype(e->e_what))) == NULL)
-            {
-                return 1;
-            }
-            (*a->a_top)->decref();
-            ++a->a_top;
+            op1 = new_op(op_unary, 0, t_subtype(e->e_what));
+            if (!op1) return 1;
+            a->push(op1, array::owns);
+            // if ((*a->a_top = new_op(op_unary, 0, t_subtype(e->e_what))) == NULL)
+            // {
+            //     return 1;
+            // }
+            // (*a->a_top)->decref();
+            // ++a->a_top;
             break;
 
         case T_AT:
@@ -555,12 +540,9 @@ int compile_expr(array *a, expr *e, int why)
             {
                 return 1;
             }
-            if ((*a->a_top = new_op(NULL, OP_AT, 0)) == NULL)
-            {
-                return 1;
-            }
-            (*a->a_top)->decref();
-            ++a->a_top;
+            op1 = new_op(NULL, OP_AT, 0);
+            if (!op1) return 1;
+            a->push(op1, array::owns);
             break;
 
         case T_AND: /* Unary. */
@@ -576,7 +558,7 @@ int compile_expr(array *a, expr *e, int why)
             {
                 return 1;
             }
-            *a->a_top++ = &o_mkptr;
+            a->push(&o_mkptr);
             break;
 
         case T_ASTERIX: /* Unary. */
@@ -594,12 +576,12 @@ int compile_expr(array *a, expr *e, int why)
             }
             if (why == FOR_LVALUE)
             {
-                *a->a_top++ = &o_openptr;
+                a->push(&o_openptr);
                 return 0;
             }
             else
             {
-                *a->a_top++ = &o_fetch;
+                a->push(&o_fetch);
             }
             break;
 
@@ -624,7 +606,7 @@ int compile_expr(array *a, expr *e, int why)
             {
                 return 0;
             }
-            *a->a_top++ = &o_dot;
+            a->push(&o_dot);
             break;
 
         case T_PRIMARYCOLON:
@@ -649,18 +631,9 @@ int compile_expr(array *a, expr *e, int why)
             {
                 return 1;
             }
-            *a->a_top = new_op
-                (
-                    NULL,
-                    OP_COLON,
-                    e->e_what == T_COLONCARET ? OPC_COLON_CARET : 0
-                );
-            if (*a->a_top == NULL)
-            {
-                return 1;
-            }
-            (*a->a_top)->decref();
-            a->a_top++;
+            op1 = new_op(NULL, OP_COLON, e->e_what == T_COLONCARET ? OPC_COLON_CARET : 0);
+            if (!op1) return 1;
+            a->push(op1, array::owns);
             break;
 
         case T_PTR:
@@ -674,7 +647,7 @@ int compile_expr(array *a, expr *e, int why)
                 {
                     return 1;
                 }
-                *a->a_top++ = &o_fetch;
+                a->push(&o_fetch);
             }
             goto dot2;
         case T_DOT:
@@ -699,7 +672,7 @@ int compile_expr(array *a, expr *e, int why)
             {
                 return 1;
             }
-            *a->a_top++ = &o_dot;
+            a->push(&o_dot);
             break;
 
         case T_BINAT:
@@ -723,7 +696,7 @@ int compile_expr(array *a, expr *e, int why)
             {
                 return 1;
             }
-            *a->a_top++ = &o_mkptr;
+            a->push(&o_mkptr);
             break;
 
         case T_ONROUND: /* Function call. */
@@ -783,11 +756,11 @@ int compile_expr(array *a, expr *e, int why)
                     }
                     if (e->e_arg[0]->e_what == T_COLONCARET)
                     {
-                        *a->a_top++ = &o_super_call;
+                        a->push(&o_super_call);
                     }
                     else
                     {
-                        *a->a_top++ = &o_method_call;
+                        a->push(&o_method_call);
                     }
                 }
                 else
@@ -804,11 +777,11 @@ int compile_expr(array *a, expr *e, int why)
                     {
                         return 1;
                     }
-                    *a->a_top++ = &o_call;
+                    a->push(&o_call);
                 }
                 if (why == FOR_EFFECT)
                 {
-                    *a->a_top++ = &o_pop;
+                    a->push(&o_pop);
                 }
             }
             break;
@@ -820,7 +793,7 @@ int compile_expr(array *a, expr *e, int why)
         {
             return 1;
         }
-        *a->a_top++ = &o_mklvalue;
+        a->push(&o_mklvalue);
     }
     return 0;
 

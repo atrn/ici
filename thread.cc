@@ -310,7 +310,7 @@ f_go(...)
         goto fail;
     (*x->x_os->a_top)->decref();
     ++x->x_os->a_top;
-    *x->x_os->a_top++ = ARG(0);
+    x->x_os->push(ARG(0));
     /*
      * Create the native machine thread. We ici_incref x to give the new thread
      * it's own reference.

@@ -1818,16 +1818,14 @@ ici_net_socketpair()
         a->decref();
         goto fail1;
     }
-    *a->a_top++ = s;
-    s->decref();
+    a->push(s, array::owns);
     if ((s = new_netsocket(sv[1])) == NULL)
     {
         close(sv[1]);
         a->decref();
         goto fail;
     }
-    *a->a_top++ = s;
-    s->decref();
+    a->push(s, array::owns);
     return ret_with_decref(a);
 
 fail1:

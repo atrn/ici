@@ -394,7 +394,7 @@ static int push_path_elements(array *a, const char *path)
             s->decref();
             return 1;
         }
-        *a->a_top++ = s;
+        a->push(s);
     skip:
         s->decref();
     }

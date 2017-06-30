@@ -315,7 +315,7 @@ restore_array(archive *ar)
         {
             goto fail1;
         }
-        if (a->push(o))
+        if (a->push_back(o))
         {
             o->decref();
             goto fail1;

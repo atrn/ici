@@ -31,10 +31,10 @@ namespace ici
  *
  * This is easy if they really are stacks, and the bottom is always anchored
  * to the start of allocation. (See Case 1 below.) This condition will
- * be true if *no* rpop() or rpush() operations have been done on the array.
+ * be true if *no* pop_front() or push_front() operations have been done on the array.
  * Thus we conceptually consider arrays to have two forms. Ones that are
- * stacks (never had rpop() or rpush() done) and ones that are queues
- * (may, possibly, have had rpop() or rpush() done).
+ * stacks (never had pop_front() or push_front() done) and ones that are queues
+ * (may, possibly, have had pop_front() or push_front() done).
  *
  * Now, if an array is still a stack, you can use the member functions:
  *
@@ -47,16 +47,16 @@ namespace ici
  * contiguous around a_top.
  *
  * But, if you can not guarantee (by context) that the array is a stack,
- * you can only push, pop, rpush or rpop single object pointers at a time.
+ * you can only push_back, pop, push_front or rpop single object pointers at a time.
  * Basically, the end you are dealing with may be near the wrap point of
  * the circular buffer.
  *
- * Case 1: Pure stack. Only ever been push()ed and pop()ed.
+ * Case 1: Pure stack. Only ever been push_back()ed and pop_back()ed.
  *   ooooooooooooooooooooo.....................
  *   ^a_base              ^a_top               ^a_limit
  *   ^a_bot
  *
- * Case 2: Queue. rpush() and/or rpop()s have been done.
+ * Case 2: Queue. push_front() and/or pop_front()s have been done.
  *   ..........ooooooooooooooooooo.............
  *   ^a_base   ^a_bot             ^a_top       ^a_limit
  *
@@ -109,12 +109,12 @@ struct array : object
     size_t len();
     object **span(int i, ptrdiff_t *np);
     int grow();
-    int push(object *o);
-    int rpush(object *o);
-    object *pop();
+    int push_back(object *o);
+    int push_front(object *o);
+    object *pop_back();
     object **find_slot(ptrdiff_t i);
     object *get(ptrdiff_t i);
-    object *rpop();
+    object *pop_front();
     void gather(object **, ptrdiff_t, ptrdiff_t);
 
     /*
@@ -123,8 +123,8 @@ struct array : object
      * usual conventions.
      *
      * This function can only be used where the array has never had
-     * elements rpush()ed or rpop()ed. See the discussion on 'Accessing
-     * ICI array object from C' before using.
+     * elements push_front()ed or pop_front()ed. See the discussion on
+     * 'Accessing ICI array object from C' before using.
      *
      * This --func-- forms part of the --ici-ap--.
      */
@@ -138,6 +138,22 @@ struct array : object
      */
     inline int stk_probe(ptrdiff_t i) {
         return a_top - a_bot <= i ? fault_stack(i) : 0;
+    }
+
+    /*
+     * Push an object onto a stack-like array which then "owns" the object
+     * (and decrefs it).  This can only be used if the array has sufficient
+     * space as indicated by a succesful call to stk_push_chk.
+     */
+    inline void push(object *o) {
+        *a_top++ = o;
+    }
+
+    static struct tag_owns {} owns;
+
+    inline void push(object *o, struct tag_owns) {
+        *a_top++ = o;
+        o->decref();
     }
 };
 

@@ -199,8 +199,7 @@ static array *do_smash
             do_repl(s, repls[-i]->s_chars, repls[-i]->s_nchars, ns->s_chars);
             if ((ns = stringof(atom(ns, 1))) == NULL)
                 goto fail;
-            *a->a_top++ = ns;
-            ns->decref();
+            a->push(ns, array::owns);
         }
     }
     if (include_remainder && s != se)
@@ -213,8 +212,7 @@ static array *do_smash
             goto fail;
         if ((ns = new_str(s, se - s)) == NULL)
             goto fail;
-        *a->a_top++ = ns;
-        ns->decref();
+        a->push(ns, array::owns);
     }
     return a;
 

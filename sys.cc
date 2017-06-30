@@ -1272,12 +1272,10 @@ static int ici_sys_pipe()
     }
     if ((fd = new_int(pfd[0])) == NULL)
         goto fail;
-    *a->a_top++ = fd;
-    fd->decref();
+    a->push(fd, array::owns);
     if ((fd = new_int(pfd[1])) == NULL)
         goto fail;
-    *a->a_top++ = fd;
-    fd->decref();
+    a->push(fd, array::owns);
     return ret_with_decref(a);
 
  fail:
@@ -1702,7 +1700,7 @@ static int ici_sys_passwd()
             a->decref();
             return 1;
         }
-        *a->a_top++ = s;
+        a->push(s, array::owns);
     }
     endpwent();
     return ret_with_decref(a);

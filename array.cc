@@ -75,7 +75,7 @@ array::fault_stack(ptrdiff_t i)
     }
     while (--i >= 0)
     {
-        *a_top++ = ici_null;
+        push(ici_null);
     }
     return 0;
 }
@@ -200,7 +200,7 @@ int array::grow()
  * This --func-- forms part of the --ici-api--.
  */
 int
-array::push(object *o)
+array::push_back(object *o)
 {
     if (isatom())
     {
@@ -251,7 +251,7 @@ array::push(object *o)
     }
     assert(a_base <= a_top);
     assert(a_top <= a_limit);
-    *a_top++ = o;
+    push(o);
     return 0;
 }
 
@@ -262,7 +262,7 @@ array::push(object *o)
  * This --func-- forms part of the --ici-api--.
  */
 int
-array::rpush(object *o)
+array::push_front(object *o)
 {
     if (isatom())
     {
@@ -316,8 +316,7 @@ array::rpush(object *o)
  *
  * This --func-- forms part of the --ici-api--.
  */
-object *
-array::pop()
+object *array::pop_back()
 {
     if (isatom())
     {
@@ -363,8 +362,7 @@ array::pop()
  *
  * This --func-- forms part of the --ici-api--.
  */
-object *
-array::rpop()
+object *array::pop_front()
 {
     if (isatom())
     {
@@ -432,7 +430,7 @@ object **array::find_slot(ptrdiff_t i)
     i = i - n + 1; /* Number of elements we need to add. */
     while (--i >= 0)
     {
-        if (push(ici_null))
+        if (push_back(ici_null))
         {
             return NULL;
         }
@@ -507,9 +505,9 @@ int op_mklvalue()
     {
         return 1;
     }
-    *a->a_top++ = os.a_top[-1];
+    a->push(os.a_top[-1]);
     os.a_top[-1] = a;
-    *os.a_top++ = o_zero;
+    os.push(o_zero);
     a->decref();
     --xs.a_top;
     return 0;

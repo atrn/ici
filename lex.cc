@@ -79,11 +79,8 @@ static int get(parse *p, array *a)
         }
         else if (a->stk_push_chk() == 0)
         {
-            if ((*a->a_top = new_src(p->p_lineno, p->p_file->f_name)) != NULL)
-            {
-                (*a->a_top)->decref();
-                ++a->a_top;
-            }
+            if (auto s = new_src(p->p_lineno, p->p_file->f_name))
+                a->push(s, array::owns);
         }
     }
 

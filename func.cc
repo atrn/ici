@@ -271,7 +271,7 @@ int func_type::call(object *o, object *subject)
              */
             while (--n >= 0)
             {
-                *va->a_top++ = *ap--;
+                va->push(*ap--);
             }
             sl->sl_value = va;
             va->decref();
@@ -285,11 +285,10 @@ int func_type::call(object *o, object *subject)
      */
     xs.a_top[-1] = ex->x_src;
 
-    *xs.a_top++ = &o_mark;
+    xs.push(&o_mark);
     get_pc(f->f_code, xs.a_top);
     ++xs.a_top;
-    *vs.a_top++ = d;
-    d->decref();
+    vs.push(d, array::owns);
     os.a_top -= NARGS() + 2;
     return 0;
 

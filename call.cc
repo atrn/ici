@@ -70,7 +70,7 @@ int callv(object *subject, object *callable, const char *types, va_list va)
     }
     for (arg = 0; arg < nargs; ++arg)
     {
-        *os.a_top++ = ici_null;
+        os.push(ici_null);
     }
     for (arg = -1; arg >= -nargs; --arg)
     {
@@ -116,24 +116,23 @@ int callv(object *subject, object *callable, const char *types, va_list va)
     }
     if (member_obj != NULL)
     {
-        *os.a_top++ = member_obj;
+        os.push(member_obj);
         nargs++;
     }
     /*
      * Push the number of actual args, followed by the function
      * itself onto the operand stack.
      */
-    if ((*os.a_top = new_int(nargs)) == NULL)
     {
-        goto fail;
+        auto no = new_int(nargs);
+        if (!no) goto fail;
+        os.push(no, array::owns);
     }
-    (*os.a_top)->decref();
-    ++os.a_top;
     if (subject != NULL)
     {
-        *os.a_top++ = subject;
+        os.push(subject);
     }
-    *os.a_top++ = callable;
+    os.push(callable);
 
     os_depth = (os.a_top - os.a_base) - os_depth;
     call_op = subject != NULL ? &o_method_call : &o_call;

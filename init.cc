@@ -123,8 +123,7 @@ int init()
     {
         return 1;
     }
-    *vs.a_top++ = scope;
-    scope->decref();
+    vs.push(scope, array::owns);
     if (init_path(externs))
     {
         return 1;

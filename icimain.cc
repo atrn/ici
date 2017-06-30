@@ -64,7 +64,7 @@ main(int argc, char *argv[])
      */
     if ((av = new_array(1)) == NULL)
         goto fail;
-    *av->a_top++ = ici_null; /* Leave room for argv[0]. */
+    av->push(ici_null); /* Leave room for argv[0]. */
     arg0 = NULL;
     if (argc <= 1)
         goto usage;

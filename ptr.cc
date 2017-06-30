@@ -111,7 +111,7 @@ int ptr_type::call(object *o, object *)
     os.a_top[-2] = ptrof(o)->p_aggr;
     if (os.stk_push_chk())
         return 1;
-    *os.a_top++ = f;
+    os.push(f);
     xs.a_top[-1] = &o_call;
     /*
      * Then behave as if the target had been called. Should this do the
@@ -171,7 +171,7 @@ int op_openptr()
         return set_error("pointer required, but %s given", objname(n, os.a_top[-1]));
     }
     os.a_top[-1] = p->p_aggr;
-    *os.a_top++ = p->p_key;
+    os.push(p->p_key);
     --xs.a_top;
     return 0;
 }

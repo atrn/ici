@@ -257,7 +257,7 @@ object *evaluate(object *code, int n_operands)
     frame.c_catcher = NULL;
     frame.c_odepth = (os.a_top - os.a_base) - n_operands;
     frame.c_vdepth = vs.a_top - vs.a_base;
-    *xs.a_top++ = &frame;
+    xs.push(&frame);
 
     if (isarray(code))
     {
@@ -363,7 +363,7 @@ object *evaluate(object *code, int n_operands)
             ex->x_src = srcof(o);
             if (UNLIKELY(debug_active))
             {
-                *xs.a_top++ = o; /* Restore formal state. */
+                xs.push(o); /* Restore formal state. */
                 o_debug->idbg_src(srcof(o));
                 --xs.a_top;
                 continue;
@@ -371,7 +371,7 @@ object *evaluate(object *code, int n_operands)
             goto stable_stacks_continue;
 
         case TC_PARSE:
-            *xs.a_top++ = o; /* Restore formal state. */
+            xs.push(o); /* Restore formal state. */
             if (parse_exec())
 	    {
                 goto fail;
@@ -401,7 +401,7 @@ object *evaluate(object *code, int n_operands)
                  */
                 assert(ici_fetch_super(vs.a_top[-1], o, os.a_top, NULL) == 1);
                 assert(*os.a_top == stringof(o)->s_slot->sl_value);
-                *os.a_top++ = stringof(o)->s_slot->sl_value;
+                os.push(stringof(o)->s_slot->sl_value);
             }
             else
             {
@@ -438,7 +438,7 @@ object *evaluate(object *code, int n_operands)
                         set_error("\"%s\" undefined", stringof(o)->s_chars);
                         goto fail;
                     }
-                    *xs.a_top++ = o; /* Temp restore formal state. */
+                    xs.push(o); /* Temp restore formal state. */
                     {
                         src *srco = ex->x_src;
                         srco->incref();
@@ -485,7 +485,7 @@ object *evaluate(object *code, int n_operands)
              * on it, it becomes the return value, else we return ici_null.
              * The caller knows if there is really a value to return.
              */
-            *xs.a_top++ = o; /* Restore formal state. */
+            xs.push(o);  /* Restore formal state. */
             if (o->flagged(CF_EVAL_BASE))
             {
                 /*
@@ -521,7 +521,7 @@ object *evaluate(object *code, int n_operands)
             goto stable_stacks_continue;
 
         case TC_FORALL:
-            *xs.a_top++ = o; /* Restore formal state. */
+            xs.push(o);  /* Restore formal state. */
             if (exec_forall())
             {
                 goto fail;
@@ -529,7 +529,7 @@ object *evaluate(object *code, int n_operands)
             continue;
 
         default:
-            *os.a_top++ = o;
+            os.push(o);
             continue;
 
         case TC_OP:
@@ -537,7 +537,7 @@ object *evaluate(object *code, int n_operands)
             switch (opof(o)->op_ecode)
             {
             case OP_OTHER:
-                *xs.a_top++ = o; /* Restore to formal state. */
+                xs.push(o); /* Restore to formal state. */
                 if ((*opof(o)->op_func)())
                 {
                     goto fail;
@@ -635,7 +635,7 @@ object *evaluate(object *code, int n_operands)
                     /*
                      * This is a direct call, don't form the method object.
                      */
-                    *xs.a_top++ = o1;  /* Restore xs to formal state. */
+                    xs.push(o1); /* Restore xs to formal state. */
                     o1 = os.a_top[-2]; /* The subject object. */
                     --os.a_top;
                     os.a_top[-1] = o;  /* The callable object. */
@@ -645,7 +645,7 @@ object *evaluate(object *code, int n_operands)
                 }
 
             case OP_CALL:
-                *xs.a_top++ = o;        /* Restore to formal state. */
+                xs.push(o);  /* Restore to formal state. */
                 o = NULL;                   /* No subject object. */
             do_call:
                 if (UNLIKELY(!os.a_top[-1]->can_call()))
@@ -683,7 +683,7 @@ object *evaluate(object *code, int n_operands)
                  *              => *pc (os)
                  */
                 o = xs.a_top[-1];
-                *os.a_top++ = *pcof(o)->pc_next++;
+                os.push(*pcof(o)->pc_next++);
                 continue;
 
             case OP_AT:
@@ -700,8 +700,8 @@ object *evaluate(object *code, int n_operands)
                  * (Ie. the next thing in the code array is a name, put its
                  * lvalue on the operand stack.)
                  */
-                *os.a_top++ = vs.a_top[-1];
-                *os.a_top++ = *pcof(xs.a_top[-1])->pc_next++;
+                os.push(vs.a_top[-1]);
+                os.push(*pcof(xs.a_top[-1])->pc_next++);
                 continue;
 
             case OP_DOT:
@@ -724,7 +724,7 @@ object *evaluate(object *code, int n_operands)
                 {
                     goto fail;
                 }
-                *os.a_top++ = o;
+                os.push(o);
                 continue;
 
             case OP_DOTRKEEP:
@@ -1084,7 +1084,7 @@ object *evaluate(object *code, int n_operands)
                  * the OP_REWIND (above) does the common case of comming to the
                  * end of a code array that should loop.
                  */
-                *xs.a_top++ = o; /* Restore formal state.*/
+                xs.push(o);
                 get_pc(arrayof(xs.a_top[-2]), xs.a_top);
                 ++xs.a_top;
                 goto stable_stacks_continue;
@@ -1098,8 +1098,8 @@ object *evaluate(object *code, int n_operands)
 
             case OP_LOOP:
                 o = *pcof(xs.a_top[-1])->pc_next++;
-                *xs.a_top++ = o;
-                *xs.a_top++ = &o_looper;
+                xs.push(o);
+                xs.push(&o_looper);
                 get_pc(arrayof(o), xs.a_top);
                 ++xs.a_top;
                 break;
@@ -1144,8 +1144,8 @@ object *evaluate(object *code, int n_operands)
                             goto stable_stacks_continue;
                         }
                     }
-                    *xs.a_top++ = ici_null;
-                    *xs.a_top++ = &o_switcher;
+                    xs.push(ici_null);
+                    xs.push(&o_switcher);
                     get_pc(arrayof(os.a_top[-2]), xs.a_top);
                     pcof(*xs.a_top)->pc_next += intof(sl->sl_value)->i_value;
                     ++xs.a_top;
