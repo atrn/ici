@@ -171,7 +171,7 @@ inline bool isarray(object *o) { return o->isa(TC_ARRAY); }
 class array_type : public type
 {
  public:
-    array_type() : type("array", sizeof (struct array), type::has_forall) {}
+    array_type() : type("array", sizeof (struct array)) {}
 
     size_t mark(object *o) override;
     void free(object *o) override;

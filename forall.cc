@@ -59,11 +59,6 @@ int exec_forall()
 
     fa = forallof(xs.a_top[-1]);
     t = fa->fa_aggr->otype();
-    if (!t->can_forall())
-    {
-        char n[objnamez];
-        return set_error("attempt to forall over %s", objname(n, fa->fa_aggr));
-    }
     switch (t->forall(fa))
     {
     case 0:

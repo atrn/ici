@@ -527,9 +527,9 @@ printf("mem=%ld vs. %ld, nobjects=%d, ici_natoms=%d\n", mem, ici_mem, objs_top -
 void
 ici_dump_refs()
 {
-    object           **a;
-    char                n[30];
-    int                 spoken;
+    object  **a;
+    char    n[objnamez];
+    int     spoken;
 
     spoken = 0;
     for (a = objs; a < objs_top; ++a)

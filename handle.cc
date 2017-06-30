@@ -158,8 +158,8 @@ handle *handle_probe(void *ptr, str *name)
  */
 int handle_method_check(object *inst, str *name, handle **h, void **p)
 {
-    char                n1[30];
-    char                n2[30];
+    char                n1[objnamez];
+    char                n2[objnamez];
 
     if (method_check(inst, TC_HANDLE))
         return 1;
@@ -184,10 +184,10 @@ int handle_method_check(object *inst, str *name, handle **h, void **p)
 static int
 ici_handle_method(object *inst)
 {
-    object           *r;
-    char                n1[30];
-    char                n2[30];
-    long                id;
+    object   *r;
+    char     n1[objnamez];
+    char     n2[objnamez];
+    long     id;
 
     if (method_check(inst, TC_HANDLE))
         return 1;

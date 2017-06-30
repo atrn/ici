@@ -27,10 +27,10 @@ struct src : object
     str *s_filename;
 };
 /*
+ * s_lineno             The linenumber.
+ *
  * s_filename           The name of the source file this source
  *                      marker is associated with.
- *
- * s_lineno             The linenumber.
  *
  * --ici-api-- continued.
  */
@@ -45,7 +45,7 @@ inline bool issrc(object *o) { return o->isa(TC_SRC); }
 class src_type : public type
 {
 public:
-    src_type() : type("src", sizeof (struct src)) {}
+    src_type() : type("src", sizeof (src)) {}
     size_t mark(object *o) override;
 };
 

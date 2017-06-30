@@ -120,7 +120,7 @@ constexpr int ICI_S_SEP_ALLOC     = 0x40;
 class string_type : public type
 {
 public:
-    string_type() : type("string", sizeof (struct str), type::has_forall) {}
+    string_type() : type("string", sizeof (struct str)) {}
 
     size_t mark(object *o) override;
     void free(object *o) override;

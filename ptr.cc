@@ -98,7 +98,7 @@ int ptr_type::call(object *o, object *)
         return 1;
     if (!f->can_call())
     {
-        char    n1[30];
+        char    n1[objnamez];
         return set_error("attempt to call a ptr pointing to %s", ici::objname(n1, o));
     }
     /*
@@ -164,7 +164,7 @@ int op_mkptr()
 int op_openptr()
 {
     ptr  *p;
-    char n[30];
+    char n[objnamez];
 
     if (!isptr(p = ptrof(os.a_top[-1])))
     {
@@ -183,7 +183,7 @@ int op_fetch()
 {
     ptr  *p;
     object  *o;
-    char    n[30];
+    char    n[objnamez];
 
     if (!isptr(p = ptrof(os.a_top[-1])))
     {

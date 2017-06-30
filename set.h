@@ -30,7 +30,7 @@ inline bool isset(object *o) { return o->isa(TC_SET); }
 class set_type : public type
 {
 public:
-    set_type() : type("set", sizeof (struct set), type::has_forall) {}
+    set_type() : type("set", sizeof (struct set)) {}
 
     size_t mark(object *o) override;
     void free(object *o) override;

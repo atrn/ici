@@ -87,7 +87,7 @@ static void
 disassemble(int indent, array *a)
 {
     object           **e;
-    char                n1[30];
+    char                n1[objnamez];
     int                 i;
 
     for (i = 0, e = a->a_bot; e < a->a_top; ++i, ++e)
@@ -720,7 +720,7 @@ primary(parse *p, expr **ep, int exclude)
             if (next(p, NULL) == T_COLON || curtok == T_EQ)
             {
                 int     is_eq;
-                char    n[30];
+                char    n[objnamez];
 
                 is_eq = curtok == T_EQ;
                 switch (const_expression(p, &o, T_COMMA))

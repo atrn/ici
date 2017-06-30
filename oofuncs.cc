@@ -27,8 +27,8 @@ namespace ici
  */
 int method_check(object *o, int tcode)
 {
-    char        n1[30];
-    char        n2[30];
+    char        n1[objnamez];
+    char        n2[objnamez];
 
     if (o == NULL)
     {

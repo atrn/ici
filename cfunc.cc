@@ -445,8 +445,8 @@ fail:
 int
 argerror(int i)
 {
-    char        n1[30];
-    char        n2[30];
+    char        n1[objnamez];
+    char        n2[objnamez];
 
     return set_error("argument %d of %s incorrectly supplied as %s",
         i + 1,
@@ -488,7 +488,7 @@ argerror(int i)
 int
 argcount(int n)
 {
-    char        n1[30];
+    char        n1[objnamez];
 
     return set_error("%d arguments given to %s, but it takes %d",
         NARGS(), objname(n1, os.a_top[-1]), n);
@@ -513,7 +513,7 @@ argcount(int n)
 int
 argcount2(int m, int n)
 {
-    char        n1[30];
+    char        n1[objnamez];
 
     return set_error("%d arguments given to %s, but it takes from %d to %d arguments",
         NARGS(), objname(n1, os.a_top[-1]), m, n);
@@ -684,7 +684,7 @@ f_math()
 {
     double      av[2];
     double      r;
-    char        n1[30];
+    char        n1[objnamez];
     char        n2[80];
 
     av[0] = 0.0;
@@ -738,7 +738,7 @@ f_coreici(object *s)
         return 1;
     if (!f->can_call())
     {
-        char    n1[30];
+        char    n1[objnamez];
         return set_error("attempt to call %s", objname(n1, f));
     }
     /*
@@ -969,10 +969,10 @@ static int
 f_num()
 {
     object  *o;
-    double     f;
-    long       i;
-    char                *s;
-    char                n[30];
+    double  f;
+    long    i;
+    char    *s;
+    char    n[objnamez];
 
     if (NARGS() != 1)
         return argcount(1);

@@ -35,7 +35,7 @@ inline bool ismap(object *o) { return o->isa(TC_MAP); }
 class map_type : public type
 {
 public:
-    map_type() : type("map", sizeof (map), type::has_forall) {}
+    map_type() : type("map", sizeof (map)) {}
 
     size_t  mark(object *o) override;
     void free(object *o) override;

@@ -65,51 +65,51 @@ struct object
         , o_leafz(leafz)
     {}
 
-    inline bool isa(uint8_t tcode) const noexcept {
+    inline bool isa(uint8_t tcode) const {
         return o_tcode == tcode;
     }
 
-    inline type *otype() const noexcept {
+    inline type *otype() const {
         return types[o_tcode];
     }
 
-    inline const char * type_name() const noexcept {
+    inline const char * type_name() const {
         return otype()->name;
     }
 
-    inline uint8_t flags(uint8_t mask = 0xff) const noexcept {
+    inline uint8_t flags(uint8_t mask = 0xff) const {
         return o_flags & mask;
     }
 
-    inline bool flagged(uint8_t mask) const noexcept {
+    inline bool flagged(uint8_t mask) const {
         return flags(mask) != 0;
     }
 
-    inline void set(uint8_t mask) noexcept {
+    inline void set(uint8_t mask) {
         o_flags |= mask;
     }
 
-    inline void clr(uint8_t mask) noexcept {
+    inline void clr(uint8_t mask) {
         o_flags &= ~mask;
     }
 
-    inline bool isatom() const noexcept {
+    inline bool isatom() const {
         return flagged(O_ATOM);
     }
 
-    inline void setmark() noexcept {
+    inline void setmark() {
         set(O_MARK);
     }
 
-    inline void clrmark() noexcept {
+    inline void clrmark() {
         clr(O_MARK);
     }
 
-    inline bool marked() const noexcept {
+    inline bool marked() const {
         return flagged(O_MARK);
     }
 
-    inline size_t mark() noexcept {
+    inline size_t mark() {
         if (flagged(O_MARK)) {
             return 0;
         }
@@ -125,11 +125,11 @@ struct object
     }
 
 #ifdef NDEBUG
-    inline void incref() noexcept {
+    inline void incref() {
         ++o_nrefs;
     }
 
-    inline void decref() noexcept {
+    inline void decref() {
         --o_nrefs;
     }
 #else
@@ -137,11 +137,11 @@ struct object
     void decref();
 #endif
 
-    inline unsigned long hash() noexcept {
+    inline unsigned long hash() {
         return otype()->hash(this);
     }
 
-    inline int cmp(object *that) noexcept {
+    inline int cmp(object *that) {
         return otype()->cmp(this, that);
     }
 

@@ -60,8 +60,8 @@ static int
 buildxx(object **r, object **dnext, struct context *c)
 {
     int         i;
-    char        n1[30];
-    char        n2[30];
+    char        n1[objnamez];
+    char        n2[objnamez];
 
     if (dnext == c->c_dlimit)
     {
@@ -193,7 +193,7 @@ static int f_build()
     int              i;
     object          *r;
     object          *default_content;
-    char             n1[30];
+    char             n1[objnamez];
     struct context   c;
 
     memset(&c, 0, sizeof c);

@@ -29,17 +29,6 @@ class type
 {
 public:
     /*
-     * Flags are used to indicate that a specific type overrides a
-     * specific function and are used to select different behaviours
-     * in parts of the interpreter.
-     */
-    static constexpr int has_fetch_method = 1<<0;
-    static constexpr int has_forall       = 1<<1;
-    static constexpr int has_objname      = 1<<2;
-    static constexpr int has_call         = 1<<3;
-
-public:
-    /*
      * The name of this type. Use for the implementation of 'typeof()'
      * and in error messages.  But apart from that, type names have no
      * fundamental importance in the langauge and need not even be
@@ -48,13 +37,23 @@ public:
     const char * const  name;
 
 private:
-    const size_t _size;  // size of this type's ici object structure
-    const int    _flags; // type feature flags
+    const size_t _size;  // the size of this type's associated object
+    const int    _flags; // type flags, see below
     mutable str *_name;  // str version of name, created on demand
 
 protected:
     /*
-     * Construct a type, setting the base type information.
+     * Type flags indicate that a type overrides the similarly named
+     * member function. These detetermine behaviour in a number of
+     * places that do not want the default implementation.
+     */
+    static constexpr int has_fetch_method = 1<<0;
+    static constexpr int has_objname      = 1<<1;
+    static constexpr int has_call         = 1<<2;
+
+    /*
+     * The constructor sets the base type information. It is protected
+     * to force the use of the derived, actual, types.
      */
     type(const char *name, size_t size, int flags = 0)
         : name(name)
@@ -67,14 +66,13 @@ protected:
     /*
      * size() returns the size of the type's associated object structure.
      */
-    inline size_t size() const noexcept { return _size; }
+    inline size_t size() const { return _size; }
 
 public:
     /*
      * Type flag tests.
      */
     inline bool can_fetch_method() const { return _flags & has_fetch_method; }
-    inline bool can_forall() const       { return _flags & has_forall; }
     inline bool can_objname() const      { return _flags & has_objname; }
     inline bool can_call() const         { return _flags & has_call; }
 

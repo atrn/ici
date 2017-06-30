@@ -79,9 +79,9 @@ int set_val(objwsup *s, str *name, int type, void *vp)
  */
 int ici_fetch_mismatch(object *o, object *k, object *v, const char *expected)
 {
-    char        n1[30];
-    char        n2[30];
-    char        n3[30];
+    char        n1[objnamez];
+    char        n2[objnamez];
+    char        n3[objnamez];
 
     return set_error("read %s from %s keyed by %s, but expected %s",
         objname(n1, v),

@@ -55,16 +55,18 @@ object *type::fetch_method(object *, object *) {
     return nullptr;
 }
 
-int type::forall(object *) {
-    return 1;
+int type::forall(object *o) {
+    char n[objnamez];
+    return set_error("attempt to forall over %s", ici::objname(n, o));
 }
 
 void type::objname(object *, char n[objnamez]) {
     snprintf(n, objnamez, "%s %p", name, (void *)this);
 }
 
-int type::call(object *, object *) {
-    return 1;
+int type::call(object *o, object *) {
+    char n[objnamez];
+    return set_error("attempt to call %s", ici::objname(n, o));
 }
 
 object *type::fetch_fail(object *o, object *k)

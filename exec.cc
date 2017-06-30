@@ -572,7 +572,7 @@ object *evaluate(object *code, int n_operands)
                         }
                         if (!hassuper(o))
                         {
-                            char        n1[30];
+                            char        n1[objnamez];
 
                             set_error("\"class\" evaluated to %s in :^ operation", objname(n1, o));
                             goto fail;
@@ -650,7 +650,7 @@ object *evaluate(object *code, int n_operands)
             do_call:
                 if (UNLIKELY(!os.a_top[-1]->can_call()))
                 {
-                    char    n1[30];
+                    char    n1[objnamez];
 
                     set_error("attempt to call %s", objname(n1, os.a_top[-1]));
                     if (o != NULL)

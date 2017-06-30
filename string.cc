@@ -263,7 +263,7 @@ str *new_str_buf(size_t n)
 int str_need_size(str *s, size_t n)
 {
     char                *chars;
-    char                n1[30];
+    char                n1[objnamez];
 
     if (s->flags(object::O_ATOM|ICI_S_SEP_ALLOC) != ICI_S_SEP_ALLOC)
     {
