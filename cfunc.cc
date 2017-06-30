@@ -835,7 +835,7 @@ f_keys()
     if (ismap(ARG(0)))
     {
         map *s = mapof(ARG(0));
-        sslot *sl;
+        slot *sl;
 
         if ((k = new_array(s->s_nels)) == NULL)
             return 1;

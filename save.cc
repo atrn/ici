@@ -205,7 +205,7 @@ save_map(archive *ar, object *obj)
 {
     map *s = mapof(obj);
     object *super = objwsupof(s)->o_super;
-    struct sslot *sl;
+    slot *sl;
     if (super == nullptr) {
         super = ici_null;
     }

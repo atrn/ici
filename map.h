@@ -12,7 +12,7 @@ namespace ici
  * The following portion of this file exports to ici.h. --ici.h-start--
  */
 
-struct sslot
+struct slot
 {
     object   *sl_key;
     object   *sl_value;
@@ -22,7 +22,7 @@ struct map : objwsup
 {
     size_t      s_nels;         /* How many slots used. */
     size_t      s_nslots;       /* How many slots allocated. */
-    sslot       *s_slots;
+    slot        *s_slots;
 };
 
 inline map *mapof(object *o) { return static_cast<map *>(o); }

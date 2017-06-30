@@ -6,11 +6,11 @@ namespace ici
 
 size_t type::mark(object *o) {
     o->setmark();
-    return typesize();
+    return size();
 }
 
 void type::free(object *o) {
-    ici_nfree(o, typesize());
+    ici_nfree(o, size());
 }
 
 unsigned long type::hash(object *o) {
@@ -69,8 +69,7 @@ int type::call(object *, object *) {
 
 object *type::fetch_fail(object *o, object *k)
 {
-    char n1[objnamez];
-    char n2[objnamez];
+    char n1[objnamez], n2[objnamez];
     set_error("attempt to read %s keyed by %s",
               ici::objname(n1, o),
               ici::objname(n2, k));
@@ -79,10 +78,7 @@ object *type::fetch_fail(object *o, object *k)
 
 int type::assign_fail(object *o, object *k, object *v)
 {
-    char n1[objnamez];
-    char n2[objnamez];
-    char n3[objnamez];
-
+    char n1[objnamez], n2[objnamez], n3[objnamez];
     return set_error("attempt to set %s keyed by %s to %s",
                      ici::objname(n1, o),
                      ici::objname(n2, k),

@@ -38,10 +38,9 @@ inline size_t hashindex(object *k, map *s) {
  * Find the struct slot which does, or should, contain the key k.  Does
  * not look down the super chain.
  */
-sslot *
-find_raw_slot(map *s, object *k)
+slot *find_raw_slot(map *s, object *k)
 {
-    sslot *sl = &s->s_slots[hashindex(k, s)];
+    slot *sl = &s->s_slots[hashindex(k, s)];
     while (LIKELY(sl->sl_key != NULL))
     {
         if (LIKELY(sl->sl_key == k))
@@ -77,12 +76,12 @@ map *new_map()
     s->s_slots = NULL;
     s->s_nels = 0;
     s->s_nslots = 4; /* Must be power of 2. */
-    if ((s->s_slots = (sslot*)ici_nalloc(4 * sizeof (sslot))) == NULL)
+    if ((s->s_slots = (slot*)ici_nalloc(4 * sizeof (slot))) == NULL)
     {
         ici_tfree(s, map);
         return NULL;
     }
-    memset(s->s_slots, 0, 4 * sizeof (sslot));
+    memset(s->s_slots, 0, 4 * sizeof (slot));
     rego(s);
     return s;
 }
@@ -99,8 +98,8 @@ map *new_map()
  */
 void invalidate_map_lookaside(map *s)
 {
-    sslot     *sl;
-    sslot     *sle;
+    slot     *sl;
+    slot     *sle;
     str       *str;
 
     sl = s->s_slots;
@@ -126,12 +125,12 @@ void invalidate_map_lookaside(map *s)
 static int
 grow_map(map *s)
 {
-    sslot *sl;
-    sslot *oldslots;
+    slot *sl;
+    slot *oldslots;
     int   i;
 
-    i = (s->s_nslots * 2) * sizeof (sslot);
-    if ((sl = (sslot*)ici_nalloc(i)) == NULL)
+    i = (s->s_nslots * 2) * sizeof (slot);
+    if ((sl = (slot*)ici_nalloc(i)) == NULL)
         return 1;
     memset((char *)sl, 0, i);
     oldslots = s->s_slots;
@@ -145,7 +144,7 @@ grow_map(map *s)
             *find_raw_slot(s, oldslots[i].sl_key) = oldslots[i];
 	}
     }
-    ici_nfree((char *)oldslots, (s->s_nslots / 2) * sizeof (sslot));
+    ici_nfree((char *)oldslots, (s->s_nslots / 2) * sizeof (slot));
     ++vsver;
     return 0;
 }
@@ -157,9 +156,9 @@ grow_map(map *s)
  */
 int unassign(map *s, object *k)
 {
-    sslot *sl;
-    sslot *ss;
-    sslot *ws;    /* Wanted position. */
+    slot *sl;
+    slot *ss;
+    slot *ws;    /* Wanted position. */
 
     if ((ss = find_raw_slot(s, k))->sl_key == NULL)
     {
@@ -226,7 +225,7 @@ int unassign(map *s, object *k)
  */
 int map_type::fetch_super(object *o, object *k, object **v, map *b)
 {
-    sslot *sl;
+    slot *sl;
 
     do
     {
@@ -273,13 +272,13 @@ int map_type::fetch_super(object *o, object *k, object **v, map *b)
  */
 size_t map_type::mark(object *o)
 {
-    sslot *sl;
+    slot *sl;
     unsigned long mem;
 
     do /* Merge tail recursion on o_super. */
     {
         o->setmark();
-        mem = typesize() + mapof(o)->s_nslots * sizeof (sslot);
+        mem = size() + mapof(o)->s_nslots * sizeof (slot);
         if (mapof(o)->s_nels != 0)
         {
             for
@@ -314,7 +313,7 @@ void map_type::free(object *o)
 {
     if (mapof(o)->s_slots != NULL)
     {
-        ici_nfree(mapof(o)->s_slots, mapof(o)->s_nslots * sizeof (sslot));
+        ici_nfree(mapof(o)->s_slots, mapof(o)->s_nslots * sizeof (slot));
     }
     ici_tfree(o, map);
     ++vsver;
@@ -325,7 +324,7 @@ unsigned long map_type::hash(object *o)
     int                   i;
     unsigned long         hk;
     unsigned long         hv;
-    sslot                 *sl;
+    slot                 *sl;
 
     hk = 0;
     hv = 0;
@@ -350,8 +349,8 @@ unsigned long map_type::hash(object *o)
 int map_type::cmp(object *o1, object *o2)
 {
     size_t i;
-    sslot *sl1;
-    sslot *sl2;
+    slot *sl1;
+    slot *sl2;
 
     if (mapof(o1) == mapof(o2))
     {
@@ -403,11 +402,11 @@ object *map_type::copy(object *o)
     ns->s_nslots = 0;
     ns->s_slots = NULL;
     rego(ns);
-    if ((ns->s_slots = (sslot*)ici_nalloc(s->s_nslots * sizeof (sslot))) == NULL)
+    if ((ns->s_slots = (slot*)ici_nalloc(s->s_nslots * sizeof (slot))) == NULL)
     {
         goto fail;
     }
-    memcpy((char *)ns->s_slots, (char *)s->s_slots, s->s_nslots * sizeof (sslot));
+    memcpy((char *)ns->s_slots, (char *)s->s_slots, s->s_nslots * sizeof (slot));
     ns->s_nels = s->s_nels;
     ns->s_nslots = s->s_nslots;
     if (ns->s_nslots <= 64)
@@ -440,7 +439,7 @@ object *map_type::copy(object *o)
  */
 int map_type::assign_super(object *o, object *k, object *v, map *b)
 {
-    sslot *sl;
+    slot *sl;
 
     do
     {
@@ -485,7 +484,7 @@ int map_type::assign_super(object *o, object *k, object *v, map *b)
  */
 int map_type::assign(object *o, object *k, object *v)
 {
-    sslot *sl;
+    slot *sl;
 
     if
     (
@@ -576,7 +575,7 @@ int map_type::assign(object *o, object *k, object *v)
 int map_type::assign_base(object *o, object *k, object *v)
 {
     map  *s = mapof(o);
-    sslot       *sl;
+    slot       *sl;
     int         tqfull;
 
     if (UNLIKELY(o->isatom()))
@@ -635,7 +634,7 @@ int map_type::forall(object *o)
 
     while (++fa->fa_index < s->s_nslots)
     {
-        sslot *sl = &s->s_slots[fa->fa_index];
+        slot *sl = &s->s_slots[fa->fa_index];
 
         if (sl->sl_key == NULL)
         {
@@ -687,7 +686,7 @@ object *map_type::fetch(object *o, object *k)
 
 object *map_type::fetch_base(object *o, object *k)
 {
-    sslot *sl;
+    slot *sl;
 
     sl = find_raw_slot(mapof(o), k);
     if (sl->sl_key == NULL)

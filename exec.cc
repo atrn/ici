@@ -1130,7 +1130,7 @@ object *evaluate(object *code, int n_operands)
                  *           => NULL switcher (pc(array) + struct.value) (xs)
                  */
                 {
-                    sslot *sl;
+                    slot *sl;
 
                     if ((sl = find_raw_slot(mapof(os.a_top[-1]), os.a_top[-3]))->sl_key == NULL)
                     {

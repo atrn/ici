@@ -28,8 +28,8 @@ struct str : object
 {
     str() : object{TC_STRING} {}
 
-    map      *s_map;      /* Where we were last found on the vs. */
-    sslot           *s_slot;        /* And our slot. */
+    map             *s_map;      /* Where we were last found on the vs. */
+    slot            *s_slot;        /* And our slot. */
     uint32_t        s_vsver;        /* The vs version at that time. */
 #   if ICI_KEEP_STRING_HASH
     unsigned long   s_hash;         /* String hash code or 0 if not yet computed */
@@ -162,7 +162,7 @@ struct sstring : object
     }
 
     map *s_map;     /* Where we were last found on the vs. */
-    sslot *s_slot;        /* And our slot. */
+    slot *s_slot;        /* And our slot. */
     uint32_t    s_vsver;        /* The vs version at that time. */
 #   if ICI_KEEP_STRING_HASH
     unsigned long s_hash;       /* String hash code or 0 if not yet computed */

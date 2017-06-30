@@ -222,7 +222,7 @@ struct restorer;
 struct saver;
 struct set;
 struct src;
-struct sslot;
+struct slot;
 struct str;
 struct wrap;
 
@@ -423,7 +423,7 @@ extern void            grow_objs(object *);
 
 extern const char     *binop_name(int);
 
-extern sslot          *find_raw_slot(map *, object *);
+extern slot           *find_raw_slot(map *, object *);
 extern object         *atom_probe2(object *, object ***);
 
 extern int             parse_exec();

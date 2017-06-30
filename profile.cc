@@ -240,7 +240,7 @@ void ici_profile_call(func *f)
  */
 static void write_outfile(FILE *of, profilecall *pc, int indent)
 {
-    sslot *sl;
+    slot *sl;
     char  *p;
 
     fputs("[struct\n", of);

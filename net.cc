@@ -651,7 +651,7 @@ select_add_result
     set    *rset;
     SOCKET  fd;
     size_t  i;
-    sslot  *sl;
+    slot  *sl;
 
     if ((rset = new_set()) == NULL)
         return 1;
@@ -659,7 +659,7 @@ select_add_result
     {
         for (i = 0; *n > 0 && i < theset->s_nslots; ++i)
         {
-            if ((sl = (sslot *)&theset->s_slots[i])->sl_key == NULL)
+            if ((sl = (slot *)&theset->s_slots[i])->sl_key == NULL)
                 continue;
             if (!ishandleof(sl->sl_key, SS(socket)))
                 continue;
@@ -728,7 +728,7 @@ ici_net_select()
     map     *result;
     set            *theset          = NULL; /* Init. to remove compiler warning */
     int             whichset = -1; /* 0 == read, 1 == write, 2 == except*/
-    sslot          *sl;
+    slot          *sl;
     exec           *x;
 
     if (NARGS() == 0)
@@ -773,7 +773,7 @@ ici_net_select()
                 {
                     int k;
 
-                    if ((sl = (sslot *)&theset->s_slots[j])->sl_key == NULL)
+                    if ((sl = (slot *)&theset->s_slots[j])->sl_key == NULL)
                         continue;
                     if (!ishandleof(sl->sl_key, SS(socket)))
                         continue;

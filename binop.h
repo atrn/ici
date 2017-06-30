@@ -552,7 +552,7 @@
     case ICI_TRI(TC_MAP, TC_MAP, T_PLUSEQ):
         {
             map    *s;
-            sslot  *sl;
+            slot  *sl;
             size_t  i;
 
             if ((s = mapof(ici_copy(o0))) == NULL)

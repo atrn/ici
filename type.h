@@ -28,6 +28,11 @@ namespace ici
 class type
 {
 public:
+    /*
+     * Flags are used to indicate that a specific type overrides a
+     * specific function and are used to select different behaviours
+     * in parts of the interpreter.
+     */
     static constexpr int has_fetch_method = 1<<0;
     static constexpr int has_forall       = 1<<1;
     static constexpr int has_objname      = 1<<2;
@@ -48,7 +53,10 @@ private:
     mutable str *_name;  // str version of name, created on demand
 
 protected:
-    explicit type(const char *name, size_t size, int flags = 0)
+    /*
+     * Construct a type, setting the base type information.
+     */
+    type(const char *name, size_t size, int flags = 0)
         : name(name)
         , _size(size)
         , _flags(flags)
@@ -57,15 +65,13 @@ protected:
     }
 
     /*
-     * typesize() returns the size of the type's associated object structure.
+     * size() returns the size of the type's associated object structure.
      */
-    inline size_t typesize() const noexcept { return _size; }
+    inline size_t size() const noexcept { return _size; }
 
 public:
     /*
-     * Type feature tests. Types that override certain members must
-     * also declare they implement the feature by defining a feature
-     * set in their constructor's initialization of the type.
+     * Type flag tests.
      */
     inline bool can_fetch_method() const { return _flags & has_fetch_method; }
     inline bool can_forall() const       { return _flags & has_forall; }
@@ -328,11 +334,6 @@ public:
      * This --func-- forms part of the --ici-api--.
      */
     static int assign_fail(object *, object *, object *);
-
-    /*
-     * Mark the object and return the typesize in one operation.
-     */
-    size_t      setmark(object *o);
 };
 
 /*

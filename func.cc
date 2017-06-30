@@ -172,7 +172,7 @@ int func_type::call(object *o, object *subject)
     map *d;     /* The local variable structure. */
     object  **ap;   /* Actual parameter. */
     object  **fp;   /* Formal parameter. */
-    sslot *sl;
+    slot *sl;
     array       *va;
     int         n;
 

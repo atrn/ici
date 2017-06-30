@@ -22,7 +22,7 @@ src *new_src(int lineno, str *filename)
 size_t src_type::mark(object *o)
 {
     auto s = srcof(o);
-    auto mem = typesize();
+    auto mem = size();
     s->setmark();
     if (s->s_filename)
         mem += ici_mark(s->s_filename);
