@@ -188,44 +188,51 @@ constexpr int objnamez = 32;
 /*
  * Standard types.
  */
-typedef class  archive          ici_archive_t;
-typedef struct array            ici_array_t;
-typedef struct catcher          ici_catcher_t;
-typedef struct sslot            ici_sslot_t;
-typedef struct set              ici_set_t;
-typedef struct map       map_t;
-typedef struct exec             ici_exec_t;
-typedef struct ici_float        ici_float_t;
-typedef struct file             ici_file_t;
-typedef struct func             ici_func_t;
-typedef struct cfunc            ici_cfunc_t;
-typedef struct method           ici_method_t;
-typedef struct ici_int          ici_int_t;
-typedef struct mark             ici_mark_t;
-typedef struct null             ici_null_t;
-typedef struct object           ici_obj_t;
-typedef struct objwsup          ici_objwsup_t;
-typedef struct pc               ici_pc_t;
-typedef struct ptr              ici_ptr_t;
-typedef struct regexp           ici_regexp_t;
-typedef struct src              ici_src_t;
-typedef struct str              ici_str_t;
-typedef struct wrap             ici_wrap_t;
-typedef class  ftype            ici_ftype_t;
-typedef struct forall           ici_forall_t;
-typedef struct parse            ici_parse_t;
-typedef struct mem              ici_mem_t;
-typedef struct handle           ici_handle_t;
-typedef struct debug            ici_debug_t;
-typedef struct name_id          ici_name_id_t;
-typedef struct expr             ici_expr_t;
-typedef struct op               ici_op_t;
-typedef struct restorer         ici_restorer_t;
-typedef struct saver            ici_saver_t;
-typedef class  type             ici_type_t;
 
+class  archive;
+class  ftype;
+class  type;
+
+struct array;
+struct catcher;
+struct cfunc;
+struct debug;
+struct exec;
+struct expr;
+struct file;
+struct forall;
+struct func;
+struct handle;
+struct ici_int;
+struct ici_float;
+struct map;
+struct mark;
+struct mem;
+struct method;
+struct name_id;
+struct null;
+struct object;
+struct objwsup;
+struct op;
+struct parse;
+struct pc;
+struct ptr;
+struct regexp;
+struct restorer;
+struct saver;
+struct set;
+struct src;
+struct sslot;
+struct str;
+struct wrap;
+
+// Maximum number of subexpressions supported with regular expressions.
+//
 constexpr int                   nsubexp = 10;
 
+// Globals
+//
+extern DLI null                 o_null;
 extern DLI ici_int              *o_zero;
 extern DLI ici_int              *o_one;
 extern DLI char                 *error;
@@ -242,7 +249,6 @@ extern DLI int                  record_line_nums;               /* See lex.c */
 extern DLI char                 *buf;                           /* See buf.h */
 extern DLI size_t               bufz;                           /* See buf.h */
 extern DLI mark                 o_mark;
-extern DLI null                 o_null;
 extern DLI debug                *o_debug;
 extern char                     version_string[];
 extern unsigned long const      crc_table[256];

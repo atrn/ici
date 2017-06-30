@@ -35,6 +35,7 @@ static int      const_expression(parse *, object **, int);
 static int      statement(parse *, array *, map *, const char *, int);
 
 #define DISASSEMBLE   0
+
 #if DISASSEMBLE
 static char *
 opname(op *op)
@@ -110,7 +111,7 @@ disassemble(int indent, array *a)
         }
     }
 }
-#endif
+#endif // DISASSEMBLE
 
 /*
  * In general, parseing functions return -1 on error (and set the global
@@ -131,18 +132,7 @@ disassemble(int indent, array *a)
  * functions (or macros). See lex() for the meanins of the 'a'. 'p' is a
  * pointer to the subject parse sructure.
  */
-#if defined ICI_INLINE_PARSER_CODE
-
-#define next(p, a)  (p->p_ungot.t_what != T_NONE                        \
-                     ? (p->p_got=p->p_ungot, p->p_ungot.t_what=T_NONE, curtok) \
-                     : lex(p, a))
-
-#define reject(p) (p->p_ungot = p->p_got, curtok = T_NONE)
-
-#else
-
-static int
-next(parse *p, array *a)
+inline int next(parse *p, array *a)
 {
     if (p->p_ungot.t_what != T_NONE)
     {
@@ -153,49 +143,41 @@ next(parse *p, array *a)
     return lex(p, a);
 }
 
-static void
-reject(parse *p)
+inline void reject(parse *p)
 {
     p->p_ungot = p->p_got;
     curtok = T_NONE;
 }
-#endif
 
-static int
-not_followed_by(const char *a, const char *b)
+static int not_followed_by(const char *a, const char *b)
 {
     set_error("\"%s\" %s %s", a, not_by, b);
     return -1;
 }
 
-static int
-not_allowed(const char *what)
+static int not_allowed(const char *what)
 {
     set_error("%s outside of %sable statement", what, what);
     return -1;
 }
 
-static void
-increment_break_depth(parse *p)
+inline void increment_break_depth(parse *p)
 {
     ++p->p_break_depth;
 }
 
-static void
-decrement_break_depth(parse *p)
+inline void decrement_break_depth(parse *p)
 {
     --p->p_break_depth;
 }
 
-static void
-increment_break_continue_depth(parse *p)
+inline void increment_break_continue_depth(parse *p)
 {
     ++p->p_break_depth;
     ++p->p_continue_depth;
 }
 
-static void
-decrement_break_continue_depth(parse *p)
+inline void decrement_break_continue_depth(parse *p)
 {
     --p->p_break_depth;
     --p->p_continue_depth;
@@ -205,8 +187,7 @@ decrement_break_continue_depth(parse *p)
  * Returns a non-decref atomic array of identifiers parsed from a comma
  * seperated list, or NULL on error.  The array may be empty.
  */
-static array *
-ident_list(parse *p)
+static array *ident_list(parse *p)
 {
     array *a;
 
@@ -225,10 +206,8 @@ ident_list(parse *p)
         {
             goto fail;
         }
-        *a->a_top = p->p_got.t_obj;
+        a->push(p->p_got.t_obj, owned);
         curtok = T_NONE; /* Take ownership of name. */
-        (*a->a_top)->decref();
-        ++a->a_top;
         if (next(p, NULL) != T_COMMA)
         {
             reject(p);
@@ -2005,12 +1984,9 @@ statement(parse *p, array *a, map *sw, const char *m, int endme)
                 return -1;
             }
             a->push(a1, owned);
-            if ((*a->a_top = new_op(op_forall, 0, 0)) == NULL)
-            {
-                return -1;
-            }
-            (*a->a_top)->decref();
-            ++a->a_top;
+            auto fo = new_op(op_forall, 0, 0);
+            if (!fo) return -1;
+            a->push(fo, owned);
             break;
 
         }
@@ -2107,12 +2083,9 @@ statement(parse *p, array *a, map *sw, const char *m, int endme)
                 return -1;
             }
             a->push(a1, owned);
-            if ((*a->a_top = new_op(op_for, 0, stepz)) == NULL)
-            {
-                return -1;
-            }
-            (*a->a_top)->decref();
-            ++a->a_top;
+            auto fo = new_op(op_for, 0, stepz);
+            if (!fo) return -1;
+            a->push(fo, owned);
             break;
         }
         if (p->p_got.t_obj == SS(switch))
@@ -2197,15 +2170,8 @@ statement(parse *p, array *a, map *sw, const char *m, int endme)
             {
             case -1: return -1;
             case 0:
-                if (a->push_check())
-		{
-                    return -1;
-		}
-                if ((*a->a_top = ici_null) == NULL)
-		{
-                    return -1;
-		}
-                ++a->a_top;
+                if (a->push_check()) return -1;
+                a->push(ici_null);
             }
             if (next(p, a) != T_SEMICOLON)
             {
@@ -2705,7 +2671,7 @@ parse_file_argcheck()
 }
 
 static int
-f_parseopen(...)
+f_parseopen()
 {
     file  *f;
     file  *pf;
@@ -2729,7 +2695,7 @@ f_parseopen(...)
 }
 
 static int
-f_parsetoken(...)
+f_parsetoken()
 {
     parse *p;
     int    t;
@@ -2746,7 +2712,7 @@ f_parsetoken(...)
 }
 
 static int
-f_tokenobj(...)
+f_tokenobj()
 {
     parse *p;
 
@@ -2771,7 +2737,7 @@ f_tokenobj(...)
 }
 
 static int
-f_rejecttoken(...)
+f_rejecttoken()
 {
     parse *p;
 
@@ -2783,8 +2749,7 @@ f_rejecttoken(...)
     return null_ret();
 }
 
-static int
-f_parsevalue(...)
+static int f_parsevalue()
 {
     parse         *p;
     object           *o = NULL;
@@ -2801,23 +2766,19 @@ f_parsevalue(...)
     return ret_with_decref(o);
 }
 
-static int
-f_rejectchar(...)
+static int f_rejectchar()
 {
     file *f;
     str  *s;
 
-    if (typecheck("uo", &f, &s))
-    {
+    if (typecheck("uo", &f, &s)) {
         return 1;
     }
-    if (f->f_type != parse_ftype)
-    {
+    if (f->f_type != parse_ftype) {
         argerror(0);
         return 1;
     }
-    if (!isstring(s) || s->s_nchars != 1)
-    {
+    if (!isstring(s) || s->s_nchars != 1) {
         return argerror(1);
     }
     f->ungetch(s->s_chars[0]);

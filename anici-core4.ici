@@ -45,7 +45,7 @@ apply(fn, aggr)
 /*
  * aggr = mapf(aggr, fn [, args...])
  *
- * Transform an aggregate by passing each element through a function and return
+ * Transforms an aggregate by passing each element through a function and return
  * a new aggregate, of the same type, containing the transformed elements.
  *
  * i.e. m' = mapf(m, f)

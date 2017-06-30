@@ -187,8 +187,7 @@ buildxx(object **r, object **dnext, struct context *c)
     return 0;
 }
 
-static int
-f_build(...)
+static int f_build()
 {
     object         **dstart;
     int              i;

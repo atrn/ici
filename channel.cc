@@ -87,7 +87,7 @@ size_t channel_type::mark(object *o)
  * This --topic-- forms part of the --ici-channel-- documentation.
  */
 static int
-f_channel(...)
+f_channel()
 {
     size_t  capacity = 0;
     channel *chan;
@@ -127,7 +127,7 @@ f_channel(...)
  * in the channel the caller is blocked until an object is available.
  */
 static int
-f_get(...)
+f_get()
 {
     object *c;
     object *o;
@@ -162,7 +162,7 @@ f_get(...)
  * This --topic-- forms part of the --ici-channel-- documentation.
  */
 static int
-f_put(...)
+f_put()
 {
     object *c;
     object *o;
@@ -247,8 +247,7 @@ alt(array *alts)
  * and returns its index within that collection (allowing the I/O to
  * be performed).
  */
-static int
-f_alt(...)
+static int f_alt()
 {
     int idx;
     array *alts;
