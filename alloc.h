@@ -96,7 +96,7 @@ inline void *ici_talloc_n(char *p, size_t index, size_t n)
 }
 
 /*
- * If the object is too big for a fast free list, these macros should reduce
+ * If the object is too big for a fast free list, these functions should reduce
  * to a simple function call.  If it is small, it will reduce to an attempt to
  * pop a block off the correct fast free list, but call the function if the
  * list is empty.
@@ -115,9 +115,6 @@ inline T *ici_talloc_core()
     return (T *)ici_nalloc(sizeof (T));
 }
 
-#  undef  ici_talloc
-#  define ici_talloc(t) ici_talloc_core<t>()
-
 /* tfree */
 
 inline void ici_tfree_n(void *p, size_t list, size_t n)
@@ -135,8 +132,8 @@ template <typename T> inline void ici_tfree_core(void *p)
         ici_nfree(p, sizeof (T));
 }
 
-#  undef  ici_tfree
-#  define ici_tfree(p,t) ici_tfree_core<t>(p)
+#define ici_talloc(t)  ici_talloc_core<t>()
+#define ici_tfree(p,t) ici_tfree_core<t>(p)
 
 #endif  /* ICI_ALLALLOC */
 
