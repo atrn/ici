@@ -51,10 +51,9 @@ template <typename T> T *ici_talloc() { return (T *)ici_nalloc(sizeof (T)); }
  * Free the object 'o' which was allocated by a call to 'ici_talloc()' with
  * the type 't'.  The object *must* have been allocated with 'ici_talloc()'.
  *
- * This --macro-- forms part of the --ici-api--.
+ * This --func-- forms part of the --ici-api--.
  */
-#define ici_tfree(p, t) ici_nfree((p), sizeof (t))
-// template <typename T> void ici_tfree(T *p) { ici_nfree(p, sizeof (T)); }
+template <typename T> void ici_tfree(void *p) { ici_nfree(p, sizeof (T)); }
 
 /*
  * End of ici.h export. --ici.h-end--
@@ -67,26 +66,27 @@ template <typename T> T *ici_talloc() { return (T *)ici_nalloc(sizeof (T)); }
  * They are *not* done this way in the extension API because it would make the
  * binary interface too fragile with respect changes in the internals.
  */
- 
+
 /*
  * Determine what free list an object of the given type is appropriate
  * for, or the size of the object if it is too big. We assume the
  * compiler will reduce this constant expression to a constant at
  * compile time.
  */
-#define ICI_FLIST(t)    ( sizeof (t) <=  8 ? 0 \
-                        : sizeof (t) <= 16 ? 1 \
-                        : sizeof (t) <= 32 ? 2 \
-                        : sizeof (t) <= 64 ? 3 \
-                        : sizeof (t)	       \
-			)
+template <typename T> inline size_t ICI_FLIST() {
+    return sizeof (T) <=  8 ? 0
+        : sizeof (T) <= 16 ? 1
+        : sizeof (T) <= 32 ? 2
+        : sizeof (T) <= 64 ? 3
+        : sizeof (T);
+}
 
 /*
  * Is an object of this type of a size suitable for one of the
  * fast free lists?
  */
-#define ICI_FLOK(n)     ((n) <= 64)
-#define ICI_TFLOK(t)	ICI_FLOK(sizeof (t))
+inline bool ICI_FLOK(size_t n) { return n <= 64; }
+template <typename T> inline bool ICI_TFLOK() { return ICI_FLOK(sizeof (T)); }
 
 inline void *ici_talloc_n(char *p, size_t index, size_t n)
 {
@@ -104,13 +104,13 @@ inline void *ici_talloc_n(char *p, size_t index, size_t n)
 template <typename T>
 inline T *ici_talloc_core()
 {
-    if (ICI_TFLOK(T))
+    if (ICI_TFLOK<T>())
     {
-	char *fl = ici_flists[ICI_FLIST(T)];
-	if (fl != NULL)
-	{
-	    return (T *)ici_talloc_n(fl, ICI_FLIST(T), sizeof (T));
-	}
+        char *fl = ici_flists[ICI_FLIST<T>()];
+        if (fl != NULL)
+        {
+            return (T *)ici_talloc_n(fl, ICI_FLIST<T>(), sizeof (T));
+        }
     }
     return (T *)ici_nalloc(sizeof (T));
 }
@@ -129,8 +129,8 @@ inline void ici_tfree_n(void *p, size_t list, size_t n)
 
 template <typename T> inline void ici_tfree_core(void *p)
 {
-    if (ICI_TFLOK(T))
-        ici_tfree_n(p, ICI_FLIST(T), sizeof (T));
+    if (ICI_TFLOK<T>())
+        ici_tfree_n(p, ICI_FLIST<T>(), sizeof (T));
     else
         ici_nfree(p, sizeof (T));
 }
