@@ -43,7 +43,7 @@
 #include "str.h"
 #include "handle.h"
 #include "set.h"
-#include "struct.h"
+#include "map.h"
 #include "cfunc.h"
 #include "file.h"
 #include "ftype.h"
@@ -641,7 +641,7 @@ ici_net_bind(void)
 static int
 select_add_result
 (
-    ici_struct *result,
+    map *result,
     str        *key,
     set        *theset,
     fd_set     *fds,
@@ -725,7 +725,7 @@ ici_net_select()
     set            *eset         = NULL;
     struct timeval  timeval;
     struct timeval *tv;
-    ici_struct     *result;
+    map     *result;
     set            *theset          = NULL; /* Init. to remove compiler warning */
     int             whichset = -1; /* 0 == read, 1 == write, 2 == except*/
     sslot          *sl;
@@ -825,7 +825,7 @@ ici_net_select()
     unblock(x);
     if (n < 0)
         return get_last_errno("net.select", NULL);
-    if ((result = new_struct()) == NULL)
+    if ((result = new_map()) == NULL)
         return 1;
     /* Add in count */
     {
@@ -946,7 +946,7 @@ ici_net_recvfrom()
     char               *msg;
     struct sockaddr_in  addr;
     socklen_t           addrsz = sizeof addr;
-    ici_struct         *result;
+    map         *result;
     str                *s;
     exec               *x;
 
@@ -971,7 +971,7 @@ ici_net_recvfrom()
         ici_nfree(msg, len + 1);
         return null_ret();
     }
-    if ((result = new_struct()) == NULL)
+    if ((result = new_map()) == NULL)
     {
         ici_nfree(msg, len + 1);
         return 1;

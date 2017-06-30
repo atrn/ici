@@ -1,10 +1,10 @@
 n := argv[1] ? int(argv[1]) : 1;
 
-h1 := struct();
+h1 := map();
 for (i = 0; i < 10000; ++i)
     h1[sprintf("foo_%d", i)] = i;
 
-h2 := struct();
+h2 := map();
 for (i := 0; i < n; ++i)
 {
     forall (v, k in h1)

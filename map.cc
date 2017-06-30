@@ -1,6 +1,6 @@
 #define ICI_CORE
 #include "fwd.h"
-#include "struct.h"
+#include "map.h"
 #include "str.h"
 #include "ptr.h"
 #include "null.h"
@@ -30,7 +30,7 @@ uint32_t        vsver   = 1;
 /*
  * Hash a pointer to get the initial position in a struct has table.
  */
-inline size_t hashindex(object *k, ici_struct *s) {
+inline size_t hashindex(object *k, map *s) {
     return ICI_PTR_HASH(k) & (s->s_nslots - 1);
 }
 
@@ -39,7 +39,7 @@ inline size_t hashindex(object *k, ici_struct *s) {
  * not look down the super chain.
  */
 sslot *
-find_raw_slot(ici_struct *s, object *k)
+find_raw_slot(map *s, object *k)
 {
     sslot *sl = &s->s_slots[hashindex(k, s)];
     while (LIKELY(sl->sl_key != NULL))
@@ -63,23 +63,23 @@ find_raw_slot(ici_struct *s, object *k)
  *
  * This --func-- forms part of the --ici-api--.
  */
-ici_struct *new_struct()
+map *new_map()
 {
-    ici_struct   *s;
+    map   *s;
 
     /*
-     * NB: there is a copy of this sequence in copy_struct.
+     * NB: there is a copy of this sequence in copy_map.
      */
-    if ((s = ici_talloc(ici_struct)) == NULL)
+    if ((s = ici_talloc(map)) == NULL)
         return NULL;
-    set_tfnz(s, TC_STRUCT, object::O_SUPER, 1, 0);
+    set_tfnz(s, TC_MAP, object::O_SUPER, 1, 0);
     s->o_super = NULL;
     s->s_slots = NULL;
     s->s_nels = 0;
     s->s_nslots = 4; /* Must be power of 2. */
     if ((s->s_slots = (sslot*)ici_nalloc(4 * sizeof (sslot))) == NULL)
     {
-        ici_tfree(s, ici_struct);
+        ici_tfree(s, map);
         return NULL;
     }
     memset(s->s_slots, 0, 4 * sizeof (sslot));
@@ -97,7 +97,7 @@ ici_struct *new_struct()
  * to ++vsver which completely invalidates all lookasides. Only
  * call this if you know exactly what you are doing.
  */
-void invalidate_struct_lookaside(ici_struct *s)
+void invalidate_map_lookaside(map *s)
 {
     sslot     *sl;
     sslot     *sle;
@@ -112,7 +112,7 @@ void invalidate_struct_lookaside(ici_struct *s)
             str = stringof(sl->sl_key);
             /*stringof(sl->sl_key)->s_vsver = 0;*/
             str->s_vsver = vsver;
-            str->s_struct = s;
+            str->s_map = s;
             str->s_slot = sl;
         }
         ++sl;
@@ -124,7 +124,7 @@ void invalidate_struct_lookaside(ici_struct *s)
  * Grow the struct s so that it has twice as many slots.
  */
 static int
-grow_struct(ici_struct *s)
+grow_map(map *s)
 {
     sslot *sl;
     sslot *oldslots;
@@ -155,7 +155,7 @@ grow_struct(ici_struct *s)
  *
  * This --func-- forms part of the --ici-api--.
  */
-int unassign(ici_struct *s, object *k)
+int unassign(map *s, object *k)
 {
     sslot *sl;
     sslot *ss;
@@ -224,13 +224,13 @@ int unassign(ici_struct *s, object *k)
  * If not NULL, b is a struct that was the base element of this
  * fetch. This is used to mantain the lookup lookaside mechanism.
  */
-int struct_type::fetch_super(object *o, object *k, object **v, ici_struct *b)
+int map_type::fetch_super(object *o, object *k, object **v, map *b)
 {
     sslot *sl;
 
     do
     {
-        sl = &structof(o)->s_slots[hashindex(k, structof(o))];
+        sl = &mapof(o)->s_slots[hashindex(k, mapof(o))];
         while (sl->sl_key != NULL)
         {
             if (sl->sl_key == k)
@@ -238,7 +238,7 @@ int struct_type::fetch_super(object *o, object *k, object **v, ici_struct *b)
                 if (b != NULL && isstring(k))
                 {
                     stringof(k)->s_vsver = vsver;
-                    stringof(k)->s_struct = b;
+                    stringof(k)->s_map = b;
                     stringof(k)->s_slot = sl;
                     if (o->isatom())
                     {
@@ -252,17 +252,17 @@ int struct_type::fetch_super(object *o, object *k, object **v, ici_struct *b)
                 *v = sl->sl_value;
                 return 1;
             }
-            if (--sl < structof(o)->s_slots)
+            if (--sl < mapof(o)->s_slots)
             {
-                sl = structof(o)->s_slots + structof(o)->s_nslots - 1;
+                sl = mapof(o)->s_slots + mapof(o)->s_nslots - 1;
             }
         }
-        if ((o = structof(o)->o_super) == NULL)
+        if ((o = mapof(o)->o_super) == NULL)
         {
             return 0;
         }
 
-    } while (isstruct(o)); /* Merge tail recursion on structs. */
+    } while (ismap(o)); /* Merge tail recursion on structs. */
 
     return ici_fetch_super(o, k, v, b);
 }
@@ -271,7 +271,7 @@ int struct_type::fetch_super(object *o, object *k, object **v, ici_struct *b)
  * Mark this and referenced unmarked objects, return memory costs.
  * See comments on t_mark() in object.h.
  */
-size_t struct_type::mark(object *o)
+size_t map_type::mark(object *o)
 {
     sslot *sl;
     unsigned long mem;
@@ -279,13 +279,13 @@ size_t struct_type::mark(object *o)
     do /* Merge tail recursion on o_super. */
     {
         o->setmark();
-        mem = typesize() + structof(o)->s_nslots * sizeof (sslot);
-        if (structof(o)->s_nels != 0)
+        mem = typesize() + mapof(o)->s_nslots * sizeof (sslot);
+        if (mapof(o)->s_nels != 0)
         {
             for
             (
-                sl = &structof(o)->s_slots[structof(o)->s_nslots - 1];
-                sl >= structof(o)->s_slots;
+                sl = &mapof(o)->s_slots[mapof(o)->s_nslots - 1];
+                sl >= mapof(o)->s_slots;
                 --sl
             )
             {
@@ -298,7 +298,7 @@ size_t struct_type::mark(object *o)
 
     } while
         (
-            (o = structof(o)->o_super) != NULL
+            (o = mapof(o)->o_super) != NULL
             &&
             !o->marked()
         );
@@ -310,17 +310,17 @@ size_t struct_type::mark(object *o)
  * Free this object and associated memory (but not other objects).
  * See the comments on t_free() in object.h.
  */
-void struct_type::free(object *o)
+void map_type::free(object *o)
 {
-    if (structof(o)->s_slots != NULL)
+    if (mapof(o)->s_slots != NULL)
     {
-        ici_nfree(structof(o)->s_slots, structof(o)->s_nslots * sizeof (sslot));
+        ici_nfree(mapof(o)->s_slots, mapof(o)->s_nslots * sizeof (sslot));
     }
-    ici_tfree(o, ici_struct);
+    ici_tfree(o, map);
     ++vsver;
 }
 
-unsigned long struct_type::hash(object *o)
+unsigned long map_type::hash(object *o)
 {
     int                   i;
     unsigned long         hk;
@@ -329,8 +329,8 @@ unsigned long struct_type::hash(object *o)
 
     hk = 0;
     hv = 0;
-    sl = structof(o)->s_slots;
-    i = structof(o)->s_nels;
+    sl = mapof(o)->s_slots;
+    i = mapof(o)->s_nels;
     /*
      * This assumes NULL will become zero when cast to unsigned long.
      */
@@ -340,38 +340,38 @@ unsigned long struct_type::hash(object *o)
         hv += (unsigned long)sl->sl_value >> 4;
         ++sl;
     }
-    return hv * STRUCT_PRIME_0 + hk * STRUCT_PRIME_1 + STRUCT_PRIME_2;
+    return hv * MAP_PRIME_0 + hk * MAP_PRIME_1 + MAP_PRIME_2;
 }
 
 /*
  * Returns 0 if these objects are equal, else non-zero.
  * See the comments on t_cmp() in object.h.
  */
-int struct_type::cmp(object *o1, object *o2)
+int map_type::cmp(object *o1, object *o2)
 {
     size_t i;
     sslot *sl1;
     sslot *sl2;
 
-    if (structof(o1) == structof(o2))
+    if (mapof(o1) == mapof(o2))
     {
         return 0;
     }
-    if (structof(o1)->s_nels != structof(o2)->s_nels)
+    if (mapof(o1)->s_nels != mapof(o2)->s_nels)
     {
         return 1;
     }
-    if (structof(o1)->o_super != structof(o2)->o_super)
+    if (mapof(o1)->o_super != mapof(o2)->o_super)
     {
         return 1;
     }
-    sl1 = structof(o1)->s_slots;
-    i = structof(o1)->s_nslots;
+    sl1 = mapof(o1)->s_slots;
+    i = mapof(o1)->s_nslots;
     while (i-- > 0)
     {
         if (sl1->sl_key != NULL)
         {
-            sl2 = find_raw_slot(structof(o2), sl1->sl_key);
+            sl2 = find_raw_slot(mapof(o2), sl1->sl_key);
             if (sl1->sl_key != sl2->sl_key || sl1->sl_value != sl2->sl_value)
             {
                 return 1;
@@ -387,17 +387,17 @@ int struct_type::cmp(object *o1, object *o2)
  * Return a copy of the given object, or NULL on error.
  * See the comment on t_copy() in object.h.
  */
-object *struct_type::copy(object *o)
+object *map_type::copy(object *o)
 {
-    ici_struct    *s;
-    ici_struct    *ns;
+    map    *s;
+    map    *ns;
 
-    s = structof(o);
-    if ((ns = (ici_struct *)ici_talloc(ici_struct)) == NULL)
+    s = mapof(o);
+    if ((ns = (map *)ici_talloc(map)) == NULL)
     {
         return NULL;
     }
-    set_tfnz(ns, TC_STRUCT, object::O_SUPER, 1, 0);
+    set_tfnz(ns, TC_MAP, object::O_SUPER, 1, 0);
     ns->o_super = s->o_super;
     ns->s_nels = 0;
     ns->s_nslots = 0;
@@ -412,7 +412,7 @@ object *struct_type::copy(object *o)
     ns->s_nslots = s->s_nslots;
     if (ns->s_nslots <= 64)
     {
-        invalidate_struct_lookaside(ns);
+        invalidate_map_lookaside(ns);
     }
     else
     {
@@ -438,7 +438,7 @@ object *struct_type::copy(object *o)
  * If not NULL, b is a struct that was the base element of this
  * assignment. This is used to mantain the lookup lookaside mechanism.
  */
-int struct_type::assign_super(object *o, object *k, object *v, ici_struct *b)
+int map_type::assign_super(object *o, object *k, object *v, map *b)
 {
     sslot *sl;
 
@@ -446,7 +446,7 @@ int struct_type::assign_super(object *o, object *k, object *v, ici_struct *b)
     {
         if (!o->isatom())
         {
-            sl = &structof(o)->s_slots[hashindex(k, structof(o))];
+            sl = &mapof(o)->s_slots[hashindex(k, mapof(o))];
             while (sl->sl_key != NULL)
             {
                 if (sl->sl_key == k)
@@ -455,24 +455,24 @@ int struct_type::assign_super(object *o, object *k, object *v, ici_struct *b)
                     if (b != NULL && isstring(k))
                     {
                         stringof(k)->s_vsver = vsver;
-                        stringof(k)->s_struct = b;
+                        stringof(k)->s_map = b;
                         stringof(k)->s_slot = sl;
                         k->clr(ICI_S_LOOKASIDE_IS_ATOM);
                     }
                     return 1;
                 }
-                if (--sl < structof(o)->s_slots)
+                if (--sl < mapof(o)->s_slots)
                 {
-                    sl = structof(o)->s_slots + structof(o)->s_nslots - 1;
+                    sl = mapof(o)->s_slots + mapof(o)->s_nslots - 1;
                 }
             }
         }
-        if ((o = structof(o)->o_super) == NULL)
+        if ((o = mapof(o)->o_super) == NULL)
         {
             return 0;
         }
 
-    } while (isstruct(o)); /* Merge tail recursion. */
+    } while (ismap(o)); /* Merge tail recursion. */
 
     return ici_assign_super(o, k, v, b);
 }
@@ -483,7 +483,7 @@ int struct_type::assign_super(object *o, object *k, object *v, ici_struct *b)
  * failure, else 0.
  * See the comment on t_assign() in object.h.
  */
-int struct_type::assign(object *o, object *k, object *v)
+int map_type::assign(object *o, object *k, object *v)
 {
     sslot *sl;
 
@@ -491,7 +491,7 @@ int struct_type::assign(object *o, object *k, object *v)
     (
         isstring(k)
         &&
-        stringof(k)->s_struct == structof(o)
+        stringof(k)->s_map == mapof(o)
         &&
         stringof(k)->s_vsver == vsver
         &&
@@ -509,7 +509,7 @@ int struct_type::assign(object *o, object *k, object *v)
     /*
      * Look for it in the base struct.
      */
-    sl = &structof(o)->s_slots[hashindex(k, structof(o))];
+    sl = &mapof(o)->s_slots[hashindex(k, mapof(o))];
     while (sl->sl_key != NULL)
     {
         if (sl->sl_key == k)
@@ -520,12 +520,12 @@ int struct_type::assign(object *o, object *k, object *v)
             }
             goto do_assign;
         }
-        if (--sl < structof(o)->s_slots)
-            sl = structof(o)->s_slots + structof(o)->s_nslots - 1;
+        if (--sl < mapof(o)->s_slots)
+            sl = mapof(o)->s_slots + mapof(o)->s_nslots - 1;
     }
-    if (structof(o)->o_super != NULL)
+    if (mapof(o)->o_super != NULL)
     {
-        switch (ici_assign_super(structof(o)->o_super, k, v, structof(o)))
+        switch (ici_assign_super(mapof(o)->o_super, k, v, mapof(o)))
         {
         case -1: return 1; /* Error. */
         case 1:  return 0; /* Done. */
@@ -538,31 +538,31 @@ int struct_type::assign(object *o, object *k, object *v)
     {
         return set_error("attempt to modify an atomic struct");
     }
-    if (structof(o)->s_nels >= structof(o)->s_nslots - structof(o)->s_nslots / 4)
+    if (mapof(o)->s_nels >= mapof(o)->s_nslots - mapof(o)->s_nslots / 4)
     {
         /*
          * This struct is 75% full.  Grow it.
          */
-        if (grow_struct(structof(o)))
+        if (grow_map(mapof(o)))
             return 1;
         /*
          * Re-find our empty slot.
          */
-        sl = &structof(o)->s_slots[hashindex(k, structof(o))];
+        sl = &mapof(o)->s_slots[hashindex(k, mapof(o))];
         while (sl->sl_key != NULL)
         {
-            if (--sl < structof(o)->s_slots)
-                sl = structof(o)->s_slots + structof(o)->s_nslots - 1;
+            if (--sl < mapof(o)->s_slots)
+                sl = mapof(o)->s_slots + mapof(o)->s_nslots - 1;
         }
     }
-    ++structof(o)->s_nels;
+    ++mapof(o)->s_nels;
     sl->sl_key = k;
  do_assign:
     sl->sl_value = v;
     if (isstring(k))
     {
         stringof(k)->s_vsver = vsver;
-        stringof(k)->s_struct = structof(o);
+        stringof(k)->s_map = mapof(o);
         stringof(k)->s_slot = sl;
         k->clr(ICI_S_LOOKASIDE_IS_ATOM);
     }
@@ -573,9 +573,9 @@ int struct_type::assign(object *o, object *k, object *v)
  * Assign a value into a key of a struct, but ignore the super chain.
  * That is, always assign into the lowest level. Usual error coventions.
  */
-int struct_type::assign_base(object *o, object *k, object *v)
+int map_type::assign_base(object *o, object *k, object *v)
 {
-    ici_struct  *s = structof(o);
+    map  *s = mapof(o);
     sslot       *sl;
     int         tqfull;
 
@@ -597,7 +597,7 @@ int struct_type::assign_base(object *o, object *k, object *v)
         /*
          * This struct is 75% full.  Grow it.
          */
-        if (UNLIKELY(grow_struct(s)))
+        if (UNLIKELY(grow_map(s)))
         {
             return 1;
         }
@@ -621,17 +621,17 @@ int struct_type::assign_base(object *o, object *k, object *v)
     if (LIKELY(isstring(k)))
     {
         stringof(k)->s_vsver = vsver;
-        stringof(k)->s_struct = s;
+        stringof(k)->s_map = s;
         stringof(k)->s_slot = sl;
         k->clr(ICI_S_LOOKASIDE_IS_ATOM);
     }
     return 0;
 }
 
-int struct_type::forall(object *o)
+int map_type::forall(object *o)
 {
     struct forall *fa = forallof(o);
-    ici_struct    *s  = structof(fa->fa_aggr);
+    map    *s  = mapof(fa->fa_aggr);
 
     while (++fa->fa_index < s->s_nslots)
     {
@@ -660,7 +660,7 @@ int struct_type::forall(object *o)
  * Return the object at key k of the obejct o, or NULL on error.
  * See the comment on t_fetch in object.h.
  */
-object *struct_type::fetch(object *o, object *k)
+object *map_type::fetch(object *o, object *k)
 {
     object           *v;
 
@@ -668,7 +668,7 @@ object *struct_type::fetch(object *o, object *k)
     (
         isstring(k)
         &&
-        stringof(k)->s_struct == structof(o)
+        stringof(k)->s_map == mapof(o)
         &&
         stringof(k)->s_vsver == vsver
     )
@@ -677,7 +677,7 @@ object *struct_type::fetch(object *o, object *k)
         assert(stringof(k)->s_slot->sl_value == v);
         return stringof(k)->s_slot->sl_value;
     }
-    switch (fetch_super(o, k, &v, structof(o)))
+    switch (fetch_super(o, k, &v, mapof(o)))
     {
     case -1: return NULL;               /* Error. */
     case  1: return v;                  /* Found. */
@@ -685,11 +685,11 @@ object *struct_type::fetch(object *o, object *k)
     return ici_null;                    /* Not found. */
 }
 
-object *struct_type::fetch_base(object *o, object *k)
+object *map_type::fetch_base(object *o, object *k)
 {
     sslot *sl;
 
-    sl = find_raw_slot(structof(o), k);
+    sl = find_raw_slot(mapof(o), k);
     if (sl->sl_key == NULL)
     {
         return ici_null;
@@ -697,7 +697,7 @@ object *struct_type::fetch_base(object *o, object *k)
     if (isstring(k))
     {
         stringof(k)->s_vsver = vsver;
-        stringof(k)->s_struct = structof(o);
+        stringof(k)->s_map = mapof(o);
         stringof(k)->s_slot = sl;
         if (o->isatom())
         {

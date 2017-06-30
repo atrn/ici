@@ -8,7 +8,7 @@
 #include "buf.h"
 #include "pc.h"
 #include "int.h"
-#include "struct.h"
+#include "map.h"
 #include "set.h"
 #include "parse.h"
 #include "float.h"
@@ -224,7 +224,7 @@ object *evaluate(object *code, int n_operands)
 #define FETCH(s, k)                                     	\
     (                                                           \
         isstring(k)                                             \
-            && stringof(k)->s_struct == structof(s)         \
+            && stringof(k)->s_map == mapof(s)         \
             && stringof(k)->s_vsver == vsver                    \
         ? stringof(k)->s_slot->sl_value                         \
         : ici_fetch(s, k)                                       \
@@ -389,7 +389,7 @@ object *evaluate(object *code, int n_operands)
              */
             if
             (
-                stringof(o)->s_struct == structof(vs.a_top[-1])
+                stringof(o)->s_map == mapof(vs.a_top[-1])
                 &&
                 stringof(o)->s_vsver == vsver
             )
@@ -408,7 +408,7 @@ object *evaluate(object *code, int n_operands)
                 object   *f;
 
                 /*
-                 * This is an in-line version of fetch_struct because
+                 * This is an in-line version of fetch_map because
                  * (a) we know that the top of the variable stack is
                  * always a struct, and (b) we want to detect when the
                  * value is not found so we can do auto-loading.
@@ -420,7 +420,7 @@ object *evaluate(object *code, int n_operands)
                         vs.a_top[-1],
                         o,
                         os.a_top,
-                        structof(vs.a_top[-1])
+                        mapof(vs.a_top[-1])
                     )
                 )
                 {
@@ -458,7 +458,7 @@ object *evaluate(object *code, int n_operands)
                             vs.a_top[-1],
                             o,
                             os.a_top,
-                            structof(vs.a_top[-1])
+                            mapof(vs.a_top[-1])
                         )
                     )
                     {
@@ -789,7 +789,7 @@ object *evaluate(object *code, int n_operands)
                  */
                 if
                 (
-                    stringof(os.a_top[-2])->s_struct == structof(os.a_top[-3])
+                    stringof(os.a_top[-2])->s_map == mapof(os.a_top[-3])
                     &&
                     stringof(os.a_top[-2])->s_vsver == vsver
                     &&
@@ -1132,9 +1132,9 @@ object *evaluate(object *code, int n_operands)
                 {
                     sslot *sl;
 
-                    if ((sl = find_raw_slot(structof(os.a_top[-1]), os.a_top[-3]))->sl_key == NULL)
+                    if ((sl = find_raw_slot(mapof(os.a_top[-1]), os.a_top[-3]))->sl_key == NULL)
                     {
-                        if ((sl = find_raw_slot(structof(os.a_top[-1]), &o_mark))->sl_key == NULL)
+                        if ((sl = find_raw_slot(mapof(os.a_top[-1]), &o_mark))->sl_key == NULL)
                         {
                             /*
                              * No matching case, no default. Pop everything off and

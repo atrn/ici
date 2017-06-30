@@ -1,8 +1,8 @@
-file = fopen("test-save-struct.ici.dat");
+file = fopen("test-save-map.ici.dat");
 o = restore(file);
 close(file);
-if (typeof(o) != "struct")
-    testutil.failure("restored a %s, expected a struct", typeof(o));
+if (typeof(o) != "map")
+    testutil.failure("restored a %s, expected a map", typeof(o));
 k = call(set, keys(o));
 if (!k["x"])
     testutil.failure("not \"x\" key");

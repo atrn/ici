@@ -4,9 +4,9 @@ apply
 
     sort
     (
-	map
+	mapf
 	(
-	    map
+	    mapf
 	    (
 		dir(argv[1] || ".", "f"),
 		[func (filename, directory_name)
@@ -17,7 +17,7 @@ apply
 	    ),
 	    [func (filename)
 	    {
-		return struct("filename", filename, "size", sys.stat(filename).size);
+		return map("filename", filename, "size", sys.stat(filename).size);
 	    }]
 	),
 	[func (a, b)

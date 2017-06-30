@@ -22,8 +22,8 @@ if (y != 0)
     fail("NULL forall loop failed");
 
 
-x = [struct];
-super(x, y = @[struct a = 1]);
+x = [map];
+super(x, y = @[map a = 1]);
 ++x.a;
 super(x, NULL);
 if (x.a != 2)

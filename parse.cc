@@ -3,7 +3,7 @@
 #include "parse.h"
 #include "func.h"
 #include "str.h"
-#include "struct.h"
+#include "map.h"
 #include "null.h"
 #include "src.h"
 #include "buf.h"
@@ -29,10 +29,10 @@ static char     an_expression[] = "an expression";
 /*
  * A few forward definitions...
  */
-static int      compound_statement(parse *, ici_struct *);
+static int      compound_statement(parse *, map *);
 static int      expression(parse *, expr **, int);
 static int      const_expression(parse *, object **, int);
-static int      statement(parse *, array *, ici_struct *, const char *, int);
+static int      statement(parse *, array *, map *, const char *, int);
 
 #define DISASSEMBLE   0
 #if DISASSEMBLE
@@ -278,7 +278,7 @@ function(parse *p, str *name)
     {
         goto fail;
     }
-    if ((f->f_autos = new_struct()) == NULL)
+    if ((f->f_autos = new_map()) == NULL)
     {
         goto fail;
     }
@@ -321,7 +321,7 @@ function(parse *p, str *name)
     printf("%s()\n", name == NULL ? "?" : name->s_chars);
     disassemble(4, f->f_code);
 #   endif
-    f->f_autos = structof(atom(f->f_autos, 2));
+    f->f_autos = mapof(atom(f->f_autos, 2));
     p->p_got.t_obj = atom(f, 1);
     p->p_func = saved_func;
     return 1;
@@ -442,7 +442,7 @@ data_def(parse *p, objwsup *ows)
 }
 
 static int
-compound_statement(parse *p, ici_struct *sw)
+compound_statement(parse *p, map *sw)
 {
     array *a;
 
@@ -550,7 +550,7 @@ primary(parse *p, expr **ep, int exclude)
 {
     expr       *e;
     array      *a;
-    ici_struct *d;
+    map *d;
     set        *s;
     object     *n;
     object     *o;
@@ -728,12 +728,12 @@ primary(parse *p, expr **ep, int exclude)
         (
             (name = p->p_got.t_obj) == SS(class)
             ||
-            name == SS(struct)
+            name == SS(map)
             ||
             name == SS(module)
         )
         {
-            ici_struct    *super;
+            map    *super;
 
             p->p_got.t_obj->decref();
             d = NULL;
@@ -763,11 +763,11 @@ primary(parse *p, expr **ep, int exclude)
                 }
                 if (is_eq)
                 {
-                    d = structof(o);
+                    d = mapof(o);
                 }
                 else
                 {
-                    super = structof(o);
+                    super = mapof(o);
                 }
                 switch (next(p, NULL))
                 {
@@ -797,13 +797,13 @@ primary(parse *p, expr **ep, int exclude)
             }
             if (d == NULL)
             {
-                if ((d = new_struct()) == NULL)
+                if ((d = new_map()) == NULL)
                 {
                     goto fail;
                 }
                 if (super == NULL)
                 {
-                    if (name != SS(struct))
+                    if (name != SS(map))
                     {
                         d->o_super = objwsupof(vs.a_top[-1])->o_super;
                     }
@@ -817,9 +817,9 @@ primary(parse *p, expr **ep, int exclude)
 
             if (name == SS(module))
             {
-                ici_struct    *autos;
+                map    *autos;
 
-                if ((autos = new_struct()) == NULL)
+                if ((autos = new_map()) == NULL)
                 {
                     d->decref();
                     goto fail;
@@ -842,13 +842,13 @@ primary(parse *p, expr **ep, int exclude)
             }
             if (name == SS(class))
             {
-                ici_struct    *autos;
+                map    *autos;
 
                 /*
                  * A class definition operates within the scope context of
                  * the class. Create autos with the new struct as the super.
                  */
-                if ((autos = new_struct()) == NULL)
+                if ((autos = new_map()) == NULL)
                 {
                     d->decref();
                     goto fail;
@@ -1587,12 +1587,12 @@ xx_brac_expr_brac(parse *p, array *a, const char *xx)
  *      returning.
  */
 static int
-statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
+statement(parse *p, array *a, map *sw, const char *m, int endme)
 {
     array      *a1;
     array      *a2;
     expr       *e;
-    ici_struct *d;
+    map *d;
     objwsup    *ows;
     object     *o;
     ici_int    *i;
@@ -2122,7 +2122,7 @@ statement(parse *p, array *a, ici_struct *sw, const char *m, int endme)
             {
                 return -1;
             }
-            if ((d = new_struct()) == NULL)
+            if ((d = new_map()) == NULL)
             {
                 return -1;
             }
@@ -2486,7 +2486,7 @@ int parse_file(const char *mname, char *fileo, ftype *ftype)
         goto fail;
     }
 
-    if ((a = objwsupof(new_struct())) == NULL)
+    if ((a = objwsupof(new_map())) == NULL)
     {
         goto fail;
     }
@@ -2494,7 +2494,7 @@ int parse_file(const char *mname, char *fileo, ftype *ftype)
     {
         goto fail;
     }
-    if ((a->o_super = s = objwsupof(new_struct())) == NULL)
+    if ((a->o_super = s = objwsupof(new_map())) == NULL)
     {
         goto fail;
     }

@@ -157,11 +157,11 @@ struct object
         return otype()->fetch(this, k);
     }
 
-    inline int assign_super(object *k, object *v, ici_struct *b) {
+    inline int assign_super(object *k, object *v, map *b) {
         return otype()->assign_super(this, k, v, b);
     }
     
-    inline int fetch_super(object *k, object **pv, ici_struct *b) {
+    inline int fetch_super(object *k, object **pv, map *b) {
         return otype()->fetch_super(this, k, pv, b);
     }
 
@@ -368,7 +368,7 @@ inline object *ici_fetch_base(object *o, object *k) {
  *
  * This --func-- forms part of the --ici-api--.
  */
-inline int ici_fetch_super(object *o, object *k, object **v, ici_struct *b) {
+inline int ici_fetch_super(object *o, object *k, object **v, map *b) {
     return o->fetch_super(k, v, b);
 }
 
@@ -387,7 +387,7 @@ inline int ici_fetch_super(object *o, object *k, object **v, ici_struct *b) {
  *
  * This --func-- forms part of the --ici-api--.
  */
-inline int ici_assign_super(object *o, object *k, object *v, ici_struct *b) {
+inline int ici_assign_super(object *o, object *k, object *v, map *b) {
     return o->assign_super(k, v, b);
 }
 
@@ -440,7 +440,7 @@ constexpr int TC_FLOAT =        9;
 constexpr int TC_REGEXP =       10;
 constexpr int TC_PTR =          11;
 constexpr int TC_ARRAY =        12;
-constexpr int TC_STRUCT =       13;
+constexpr int TC_MAP =          13;
 constexpr int TC_SET =          14;
 constexpr int TC_MAX_BINOP =    14; /* Max of 15 for binary op args. */
 

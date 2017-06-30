@@ -155,7 +155,7 @@ constexpr unsigned long back_compat_version = (5UL << 24) | (0UL << 16) | 0;
 
 /*
  * A hash function for pointers.  This is used in a few places.  Notably in
- * the hash of object addresses for struct lookup.  It is a balance between
+ * the hash of object addresses for map lookup.  It is a balance between
  * effectiveness, speed, and machine knowledge.  It may or may not be right
  * for a given machine, so we allow it to be defined in the config file.  But
  * if it wasn't, this is what we use.
@@ -193,7 +193,7 @@ typedef struct array            ici_array_t;
 typedef struct catcher          ici_catcher_t;
 typedef struct sslot            ici_sslot_t;
 typedef struct set              ici_set_t;
-typedef struct ici_struct       ici_struct_t;
+typedef struct map       map_t;
 typedef struct exec             ici_exec_t;
 typedef struct ici_float        ici_float_t;
 typedef struct file             ici_file_t;
@@ -286,9 +286,9 @@ extern object        *eval(str *);
 
 extern void           reclaim();
 extern int            unassign(set *, object *);
-extern int            unassign(ici_struct *, object *);
+extern int            unassign(map *, object *);
 
-extern void           invalidate_struct_lookaside(ici_struct *);
+extern void           invalidate_lookaside(map *);
 
 extern unsigned long  crc(unsigned long, unsigned char const *, ptrdiff_t);
 
@@ -306,7 +306,7 @@ extern regexp        *new_regexp(str *, int);
 extern ptr           *new_ptr(object *, object *);
 extern objwsup       *new_module(cfunc *cf);
 extern objwsup       *new_class(cfunc *cf, objwsup *super);
-extern ici_struct    *new_struct();
+extern map           *new_map();
 extern ici_int       *new_int(int64_t);
 extern ici_float     *new_float(double);
 extern handle        *new_handle(void *, str *, objwsup *);
@@ -417,7 +417,7 @@ extern void            grow_objs(object *);
 
 extern const char     *binop_name(int);
 
-extern sslot          *find_raw_slot(ici_struct *, object *);
+extern sslot          *find_raw_slot(map *, object *);
 extern object         *atom_probe2(object *, object ***);
 
 extern int             parse_exec();
@@ -467,7 +467,7 @@ extern int             find_on_path(char [FILENAME_MAX], const char *);
 
 extern int             init_sstrings();
 extern void            drop_all_small_allocations();
-extern objwsup        *outermost_writeable_struct();
+extern objwsup        *outermost_writeable();
 
 extern int             str_char_at(str *, size_t);
 
@@ -483,7 +483,7 @@ extern size_t        natoms;
 extern size_t        atomsz;
 
 #if !defined(ICI_HAS_BSD_STRUCT_TM)
-extern int set_timezone_vals(ici_struct *);
+extern int set_timezone_vals(map *);
 #endif
 
 template <typename T> inline T *ptr_to_instance_of() {

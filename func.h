@@ -15,7 +15,7 @@ struct func : object
 {
     array       *f_code;    /* The code of this function, atom. */
     array       *f_args;    /* Array of argument names. */
-    ici_struct  *f_autos;   /* Prototype struct of autos (incl. args). */
+    map         *f_autos;   /* Prototype struct of autos (incl. args). */
     str         *f_name;    /* Some name for the function (diagnostics). */
     size_t      f_nautos;   /* If !=0, a hint for auto struct alloc. */
 };

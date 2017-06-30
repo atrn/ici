@@ -34,11 +34,11 @@ object * type::fetch(object *o, object *k) {
     return fetch_fail(o, k);
 }
 
-int type::assign_super(object *o, object *k, object *v, ici_struct *) {
+int type::assign_super(object *o, object *k, object *v, map *) {
     return assign_fail(o, k, v);
 }
 
-int type::fetch_super(object *o, object *k, object **pv, ici_struct *) {
+int type::fetch_super(object *o, object *k, object **pv, map *) {
     *pv = fetch_fail(o, k);
     return 1;
 }

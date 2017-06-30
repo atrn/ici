@@ -26,11 +26,11 @@ if ((y = copy(x)) != x)
 if (eq(x, y))
     fail("copy of array was same object");
 
-x = [struct a=1, b=2, c=[array 3, 4]];
+x = [map a=1, b=2, c=[array 3, 4]];
 if ((y = copy(x)) != x)
-    fail("copy of struct was not equal");
+    fail("copy of map was not equal");
 if (eq(x, y))
-    fail("copy of struct was same object");
+    fail("copy of map was same object");
 
 x = [set 1, 2, [array 3, 4]];
 if ((y = copy(x)) != x)
@@ -114,7 +114,7 @@ if (l2 != 1)
 
 x = 123;
 if (super(scope()).x != 123)
-    fail("scope() returned wrong struct");
+    fail("scope() returned wrong map");
 
 if (!isatom("abc"))
     fail("isatom() reported string as non-atom");
@@ -134,8 +134,8 @@ if (len("ab") != 2)
     fail("len(\"ab\") didn't produce 1");
 if (len([array 1, 2, [array]]) != 3)
     fail("len(array) didn't produce expected result");
-if (len([struct a=1, b=2, c=[array], d=4]) != 4)
-    fail("len(struct) didn't produce expected result");
+if (len([map a=1, b=2, c=[array], d=4]) != 4)
+    fail("len(map) didn't produce expected result");
 if (len([set 1, 2, [array], 4, 5]) != 5)
     fail("len(set) didn't produce expected result");
 if (len(alloc(5, 1)) != 5)
@@ -156,12 +156,12 @@ if (!eq(string([array]), "<array>"))
 if (!eq(string(#^xx$#), "^xx$"))
     fail("string() failed convert from regexp");
 
-if (struct("a", 1, "b", 2) != [struct a=1, b=2])
-    fail("struct() failed to produce the expected result");
-if (typeof(struct()) != "struct")
-    fail("struct() failed to produce a struct");
-if (len(struct()) != 0)
-    fail("struct() failed to produce an empty struct");
+if (map("a", 1, "b", 2) != [map a=1, b=2])
+    fail("map() failed to produce the expected result");
+if (typeof(map()) != "map")
+    fail("map() failed to produce a map");
+if (len(map()) != 0)
+    fail("map() failed to produce an empty map");
 
 if (set("a", 1, "b", 2) != [set "a", 1, "b", 2])
     fail("set() failed to produce the expected result");
@@ -174,18 +174,18 @@ forall
 (
     x in
     [array
-        [struct name="int",     obj=123],
-        [struct name="float",   obj=123.0],
-        [struct name="string",  obj="123"],
-        [struct name="struct",  obj=[struct]],
-        [struct name="array",   obj=[array]],
-        [struct name="set",     obj=[set]],
-        [struct name="func",    obj=[func(){}]],
-        [struct name="mem",     obj=$alloc(0)],
-        [struct name="ptr",     obj=$&x],
-        [struct name="regexp",  obj=#.#],
-        [struct name="NULL",    obj=NULL],
-        [struct name="file",    obj=currentfile()],
+        [map name="int",     obj=123],
+        [map name="float",   obj=123.0],
+        [map name="string",  obj="123"],
+        [map name="map",     obj=[map]],
+        [map name="array",   obj=[array]],
+        [map name="set",     obj=[set]],
+        [map name="func",    obj=[func(){}]],
+        [map name="mem",     obj=$alloc(0)],
+        [map name="ptr",     obj=$&x],
+        [map name="regexp",  obj=#.#],
+        [map name="NULL",    obj=NULL],
+        [map name="file",    obj=currentfile()],
     ]
 )
 {
@@ -228,9 +228,9 @@ x := call(cc:a, 4, NULL);
 if (x != 5)
     fail("failed to call() method");
 
-x = keys([struct a=1, b=2]);
+x = keys([map a=1, b=2]);
 if (x != [array "a", "b"] && x != [array "b", "a"])
-    fail("keys(struct) didn't produce the expected result");
+    fail("keys(map) didn't produce the expected result");
 
 x = keys([set "a", "b"]);
 if (x != [array "a", "b"] && x != [array "b", "a"])
@@ -418,17 +418,17 @@ if (x != [array "", "", "is", "input", ""])
     fail("gettokens returned wrong value");
 
 z = [array
-    [struct f = acos, a = [array 0.5], r = 1.0472, e = 1e-5],
-    [struct f = sin, a = [array 0.5], r = 0.479426, e = 1e-5],
-    [struct f = tan, a = [array 0.5], r = 0.546302, e = 1e-5],
-    [struct f = asin, a = [array 0.5], r = 0.523599, e = 1e-5],
-    [struct f = atan, a = [array 0.5], r = 0.463648, e = 1e-5],
-    [struct f = atan2, a = [array 0.5, 0.4], r = 0.896055, e = 1e-5],
-    [struct f = exp, a = [array 0.5], r = 1.64872, e = 1e-5],
-    [struct f = log, a = [array 0.5], r = -0.693147, e = 1e-5],
-    [struct f = log10, a = [array 0.5], r = -0.30103, e = 1e-5],
-    [struct f = pow, a = [array 0.5, 0.4], r = 0.757858, e = 1e-5],
-    [struct f = sqrt, a = [array 0.5], r = 0.707107, e = 1e-5],
+    [map f = acos, a = [array 0.5], r = 1.0472, e = 1e-5],
+    [map f = sin, a = [array 0.5], r = 0.479426, e = 1e-5],
+    [map f = tan, a = [array 0.5], r = 0.546302, e = 1e-5],
+    [map f = asin, a = [array 0.5], r = 0.523599, e = 1e-5],
+    [map f = atan, a = [array 0.5], r = 0.463648, e = 1e-5],
+    [map f = atan2, a = [array 0.5, 0.4], r = 0.896055, e = 1e-5],
+    [map f = exp, a = [array 0.5], r = 1.64872, e = 1e-5],
+    [map f = log, a = [array 0.5], r = -0.693147, e = 1e-5],
+    [map f = log10, a = [array 0.5], r = -0.30103, e = 1e-5],
+    [map f = pow, a = [array 0.5, 0.4], r = 0.757858, e = 1e-5],
+    [map f = sqrt, a = [array 0.5], r = 0.707107, e = 1e-5],
 ];
 
 forall (x in z)
@@ -543,8 +543,8 @@ if (typeof(x) != "array" || len(x) != 2 || len(x[1]) != 3)
     fail("failed to build() 2x3 array");
 
 x := build([array "x", "y"], 2);
-if (typeof(x) != "struct" || typeof(x.y) != "array" || len(x.y) != 2)
-    fail("failed tp build() struct of arrays");
+if (typeof(x) != "map" || typeof(x.y) != "array" || len(x.y) != 2)
+    fail("failed tp build() map of arrays");
 
 x := build([array "a", "b"], [array "x", "y"], "c", 0, "z");
 if (x.b.y != "z" || x.b.x != 0)
@@ -555,9 +555,9 @@ if (x.b.y != "z" || x.b.x != "z")
     fail("failed to initialise in build() with last-repeat");
 
 x := build(3, [array "x", "y"], "a", [array 10, 11], [array 1, 2, 3]);
-if (x[0] != [struct x = 10, y = 1])
+if (x[0] != [map x = 10, y = 1])
     fail("failed to build with 'a' format");
-if (x[2] != [struct x = NULL, y = 3])
+if (x[2] != [map x = NULL, y = 3])
     fail("failed to build with 'a' format 2");
 
 x := build(5, "i");
@@ -815,13 +815,13 @@ onerror
 if (error == NULL)
     fail("failed to fail on 2 arg math range error");
 
-error = NULL; try struct("b"); onerror;
+error = NULL; try map("b"); onerror;
 if (error == NULL)
-    fail("failed to fail on bad super in struct()");
+    fail("failed to fail on bad super in map()");
 
-a = struct(NULL, "a", "b");
-if (a != [struct a = "b"])
-    fail("failed to make struct with explicit NULL super");
+a = map(NULL, "a", "b");
+if (a != [map a = "b"])
+    fail("failed to make map with explicit NULL super");
 
 a = [class]:new():copy();
 if (len(a) != 0)
@@ -875,10 +875,10 @@ if (error == NULL)
 if (vstack(1000) != NULL)
     fail("vstack(1000) != NULL");
 
-a = struct("a", 1, "b", 2, "c", 3);
+a = map("a", 1, "b", 2, "c", 3);
 del(a, "b");
-if (a != [struct a = 1, c = 3])
-    fail("failed to del from struct");
+if (a != [map a = 1, c = 3])
+    fail("failed to del from map");
 
 a = set("a", "b", "c");
 del(a, "b");
@@ -912,9 +912,9 @@ error = NULL; try del(1, 2); onerror;
 if (error == NULL)
     fail("failed to fail on bad del()");
 
-a = struct();
-b = struct(a);
-c = struct(b);
+a = map();
+b = map(a);
+c = map(b);
 error = NULL; try super(a, c); onerror;
 if (error == NULL)
     fail("failed to fail on super loop");
@@ -947,7 +947,7 @@ if (error == NULL)
 if (typeof(mem(1000, 1000, 1)) != "mem")
     fail("mem() failed");
 
-a = struct(scope());
+a = map(scope());
 if (assign(a, "a", 1) != 1)
     fail("assign failed to return value");
 super(a, NULL);
@@ -1056,7 +1056,7 @@ if (gettokens("test data ", " ", "d") != [array "test"])
 if (gettokens("dtest data ", ' ', "d") != [array ""])
     fail("failed to gettokens from string with term after idle");
     
-a := struct(struct(scope(), "a", 1, "b", 2), "a", 3);
+a := map(map(scope(), "a", 1, "b", 2), "a", 3);
 c := 3;
 local a_local;
 if (which("a", a) != a)
@@ -1270,15 +1270,15 @@ error = NULL; try puts("x", a); onerror;
 if (error == NULL)
     fail("failed to fail on write to string file");
 
-if (fetch(@[struct a = 1], "a") != 1)
-    fail("failed to fetch from atomic struct");
+if (fetch(@[map a = 1], "a") != 1)
+    fail("failed to fetch from atomic map");
 
-error = NULL; try (@[struct b = 1]).a = 2; onerror;
+error = NULL; try (@[map b = 1]).a = 2; onerror;
 if (error == NULL)
-    fail("failed to fail on assign to atomic struct");
-error = NULL; try assign(@[struct b = 1], "b", 2); onerror;
+    fail("failed to fail on assign to atomic map");
+error = NULL; try assign(@[map b = 1], "b", 2); onerror;
 if (error == NULL)
-    fail("failed to fail on assign to atomic struct");
+    fail("failed to fail on assign to atomic map");
 
 a := strbuf();
 if (a != "")

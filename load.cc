@@ -1,7 +1,7 @@
 #define ICI_CORE
 #include "exec.h"
 #include "str.h"
-#include "struct.h"
+#include "map.h"
 #include "file.h"
 #include "buf.h"
 #include "func.h"
@@ -48,7 +48,7 @@ static const char   ici_prefix[] = "anici-";
  * and is also the typical parent for top level classes made by dynamically
  * loaded modules. Usual error conventions.
  */
-objwsup *outermost_writeable_struct()
+objwsup *outermost_writeable()
 {
     objwsup       *outer;
     objwsup       *ows;
@@ -58,7 +58,7 @@ objwsup *outermost_writeable_struct()
     {
         if (ows->isatom())
             continue;
-        if (!isstruct(ows))
+        if (!ismap(ows))
             continue;
         outer = ows;
     }
@@ -86,9 +86,9 @@ f_load(...)
     object     *result;
     char        fname[FILENAME_MAX];
     char        entry_symbol[64];
-    ici_struct *statics;
-    ici_struct *autos;
-    ici_struct *externs;
+    map *statics;
+    map *autos;
+    map *externs;
     objwsup    *outer;
     file       *file;
     FILE       *stream;
@@ -113,7 +113,7 @@ f_load(...)
      * Find the outer-most writeable scope. This is where the new name
      * will be defined should it be loadable as a library.
      */
-    if ((outer = outermost_writeable_struct()) == NULL)
+    if ((outer = outermost_writeable()) == NULL)
         return 0;
 
     /*
@@ -176,9 +176,9 @@ f_load(...)
         result = o;
         if (ici_assign(outer, name, o))
             goto fail;
-        if (!isstruct(o))
+        if (!ismap(o))
             return ret_with_decref(o);
-        externs = structof(o);
+        externs = mapof(o);
     }
 
     strcpy(fname, ici_prefix);
@@ -205,11 +205,11 @@ f_load(...)
             fclose(stream);
             goto fail;
         }
-        if ((autos = new_struct()) == NULL)
+        if ((autos = new_map()) == NULL)
         {
             goto fail;
         }
-        if ((statics = new_struct()) == NULL)
+        if ((statics = new_map()) == NULL)
         {
             goto fail;
         }
@@ -217,7 +217,7 @@ f_load(...)
         statics->decref();
         if (externs == NULL)
         {
-            if ((externs = new_struct()) == NULL)
+            if ((externs = new_map()) == NULL)
             {
                 goto fail;
             }

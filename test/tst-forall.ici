@@ -1,6 +1,6 @@
-var empty = [struct];
+var empty = [map];
 
-var not_empty = [struct
+var not_empty = [map
     field_1 = "value one",
     field_2 = 2
 ];

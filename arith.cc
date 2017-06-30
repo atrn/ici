@@ -6,7 +6,7 @@
 #include "parse.h"
 #include "ptr.h"
 #include "str.h"
-#include "struct.h"
+#include "map.h"
 #include "buf.h"
 #include "primes.h"
 #include "re.h"

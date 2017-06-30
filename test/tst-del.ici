@@ -1,8 +1,8 @@
 /*
  * Work the del() function with random data.
  */
-var victim = [struct];
-var state  = [struct];
+var victim = [map];
+var state  = [map];
 var i;
 var e;
 var v;

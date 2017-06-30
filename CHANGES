@@ -1,5 +1,7 @@
 Major Changes in Version 5
 
+*    'struct' renamed as 'map'
+
 *    ftype's are now classes
 
 *    threads are now based on c++ standard library and are required

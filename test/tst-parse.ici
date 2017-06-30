@@ -34,7 +34,7 @@ method(this, arg1)
     return this.value + arg1;
 }
 
-local c = struct();
+local c = map();
 
 c.method :=
 [func(this, arg1)
@@ -43,7 +43,7 @@ c.method :=
     }
 ];
 
-local o = struct(c, "value", 2);
+local o = map(c, "value", 2);
 
 if (o@method(3) != 5)
     fail("object@method() returned incorrect value");
@@ -59,7 +59,7 @@ if (error == NULL)
 local
 bad(s)
 {
-    var bs = [struct a = 1, b = 2, c = 3];
+    var bs = [map a = 1, b = 2, c = 3];
 
     error := NULL;
     try
@@ -158,7 +158,7 @@ bad("a:b=1;");
 
 
 bad("(1?2)->a;");
-a := [struct a = 1, b = 2];
+a := [map a = 1, b = 2];
 (&a)->a;
 if ((&a)->a != 1)
     fail("-> failed");
@@ -258,7 +258,7 @@ bad("'\n';");
 
 bad("\"ab\ncb\";");
 
-a = struct(".10e_", 2);
+a = map(".10e_", 2);
 if (a..10e_ != 2)
     fail("float, name lex mixup");
 
@@ -340,11 +340,11 @@ bad("[array +");
 bad("[module= +");
 bad("[module= ]");
 bad("[module=1 ]");
-a:=struct();
+a:=map();
 if ([module=a] != a)
     fail("module= failed");
-bad("[module=[struct]");
-bad("[module:[struct]");
+bad("[module=[map]");
+bad("[module:[map]");
 bad("[module fail(\"xx\");]");
 bad("[class (");
 bad("[class (1");
@@ -469,7 +469,7 @@ local complex = [class
 
     parser(f)
     {
-        c := struct();
+        c := map();
         parsetoken(f);
         c.r := tokenobj(f);
         parsetoken(f);
@@ -482,11 +482,11 @@ x = [complex 1.2 3.4];
 if (x.r != 1.2 || x.i != 3.4)
     fail("failed to get user-parsed object");
 
-local zzz = [struct
+local zzz = [map
 
     parser(f)
     {
-        c := struct();
+        c := map();
         c.r := parsevalue(f);
         if (parsetoken(f) != ",")
             fail("expected ,");

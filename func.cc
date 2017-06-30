@@ -3,7 +3,7 @@
 #include "func.h"
 #include "exec.h"
 #include "ptr.h"
-#include "struct.h"
+#include "map.h"
 #include "op.h"
 #include "pc.h"
 #include "src.h"
@@ -68,21 +68,21 @@ int op_return()
      */
     if
     (
-        SS(_func_)->s_struct == vs.a_top[-1]
+        SS(_func_)->s_map == vs.a_top[-1]
         &&
         SS(_func_)->s_vsver == vsver
         &&
         isfunc(f = SS(_func_)->s_slot->sl_value)
     )
     {
-        funcof(f)->f_nautos = structof(vs.a_top[-1])->s_nels;
+        funcof(f)->f_nautos = mapof(vs.a_top[-1])->s_nels;
     }
     else if (--occasionally <= 0)
     {
         occasionally = 10;
         f = ici_fetch(vs.a_top[-1], SS(_func_));
-        if (isstruct(vs.a_top[-1]) && isfunc(f))
-            funcof(f)->f_nautos = structof(vs.a_top[-1])->s_nels;
+        if (ismap(vs.a_top[-1]) && isfunc(f))
+            funcof(f)->f_nautos = mapof(vs.a_top[-1])->s_nels;
     }
 
     --vs.a_top;
@@ -169,7 +169,7 @@ void func_type::objname(object *o, char p[objnamez])
 int func_type::call(object *o, object *subject)
 {
     func *f;
-    ici_struct *d;     /* The local variable structure. */
+    map *d;     /* The local variable structure. */
     object  **ap;   /* Actual parameter. */
     object  **fp;   /* Formal parameter. */
     sslot *sl;
@@ -184,7 +184,7 @@ int func_type::call(object *o, object *subject)
     }
 #endif
 
-    d = structof(f->f_autos->copy());
+    d = mapof(f->f_autos->copy());
     if (UNLIKELY(d == NULL))
     {
         goto fail;
@@ -236,7 +236,7 @@ int func_type::call(object *o, object *subject)
         while (fp < f->f_args->a_top && n > 0)
         {
             assert(isstring(*fp));
-            if (LIKELY(stringof(*fp)->s_struct == d && stringof(*fp)->s_vsver == vsver))
+            if (LIKELY(stringof(*fp)->s_map == d && stringof(*fp)->s_vsver == vsver))
             {
                 stringof(*fp)->s_slot->sl_value = *ap;
             }

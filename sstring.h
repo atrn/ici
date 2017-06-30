@@ -17,7 +17,7 @@
  * have an s_chars[] field of large enough size to cover the longest
  * string in this file.
  */
-SSTRING(struct, "struct")
+SSTRING(map, "map")
 SSTRING(float, "float")
 SSTRING(array, "array")
 SSTRING(set, "set")
@@ -233,7 +233,7 @@ SSTRING(parsevalue, "parsevalue")
 SSTRING(rejectchar, "rejectchar")
 SSTRING(which, "which")
 SSTRING(apply, "apply")
-SSTRING(map, "map")
+SSTRING(mapf, "mapf")
 SSTRING(deepatom, "deepatom")
 SSTRING(deepcopy, "deepcopy")
 SSTRING(memoize, "memoize")

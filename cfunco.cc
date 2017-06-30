@@ -3,7 +3,7 @@
 #include "cfunc.h"
 #include "exec.h"
 #include "ptr.h"
-#include "struct.h"
+#include "map.h"
 #include "op.h"
 #include "pc.h"
 #include "int.h"
@@ -107,14 +107,14 @@ objwsup *new_class(cfunc *cf, objwsup *super)
 {
     objwsup       *s;
 
-    if ((s = objwsupof(new_struct())) == NULL)
+    if ((s = objwsupof(new_map())) == NULL)
         return NULL;
     if (assign_cfuncs(s, cf))
     {
         s->decref();
         return NULL;
     }
-    if (super == NULL && (super = outermost_writeable_struct()) == NULL)
+    if (super == NULL && (super = outermost_writeable()) == NULL)
         return NULL;
     s->o_super = super;
     return s;

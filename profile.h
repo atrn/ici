@@ -22,7 +22,7 @@ namespace ici
 struct profilecall : object
 {
     profilecall *pc_calledby;
-    ici_struct  *pc_calls;
+    map  *pc_calls;
     long         pc_total;
     long         pc_laststart;
     long         pc_call_count;

@@ -1,7 +1,7 @@
 #define ICI_CORE
 #include "exec.h"
 #include "ptr.h"
-#include "struct.h"
+#include "map.h"
 #include "int.h"
 #include "op.h"
 #include "buf.h"

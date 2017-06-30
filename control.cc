@@ -4,7 +4,7 @@
 #include "int.h"
 #include "buf.h"
 #include "pc.h"
-#include "struct.h"
+#include "map.h"
 #include "null.h"
 #include "forall.h"
 #include "catcher.h"

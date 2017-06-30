@@ -71,7 +71,7 @@ argcount(f, n, a)
  *                      i       int
  *                      s       string
  *                      f       float
- *                      d       struct
+ *                      d       map
  *                      a       array
  *                      u       file
  *                      r       regexp
@@ -79,7 +79,7 @@ argcount(f, n, a)
  *      args    An array of the parameters to be validated.
  *
  * Returns:
- *      A struct containing two keys, "args" - an array of the actual
+ *      A map containing two keys, "args" - an array of the actual
  *      validated parameters - and "vargs" - an array containing any
  *      remaining parameters.
  */
@@ -91,11 +91,11 @@ typecheck(f, fmt, args)
     var        res;
     var        i;
     var        n;
-    var        map = [struct
+    var        map = [map
         i = "int",
         s = "string",
         f = "float",
-        d = "struct",
+        d = "map",
         a = "array",
         u = "file",
         r = "regexp",
@@ -114,5 +114,5 @@ typecheck(f, fmt, args)
             argerror(f, i, t);
         push(res, o);
     }
-    return struct("args", res, "vargs", interval(args, i));
+    return map("args", res, "vargs", interval(args, i));
 }

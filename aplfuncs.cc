@@ -3,7 +3,7 @@
 #include "func.h"
 #include "str.h"
 #include "int.h"
-#include "struct.h"
+#include "map.h"
 #include "buf.h"
 #include "null.h"
 #include "op.h"
@@ -149,7 +149,7 @@ buildxx(object **r, object **dnext, struct context *c)
     else if (isarray(*dnext))
     {
         array      *a;
-        ici_struct *s;
+        map *s;
         object     **e;
         object     *o;
 
@@ -159,7 +159,7 @@ buildxx(object **r, object **dnext, struct context *c)
          * with the next dimension or content.
          */
         a = arrayof(*dnext);
-        if ((s = new_struct()) == NULL)
+        if ((s = new_map()) == NULL)
             return 1;
         for (e = a->astart(); e != a->alimit(); e = a->anext(e))
         {

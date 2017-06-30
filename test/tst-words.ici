@@ -1,7 +1,7 @@
 local words = set();
-local dict = struct();
-local digrams = struct();
-local trigrams = struct();
+local dict = map();
+local digrams = map();
+local trigrams = map();
 
 local incr(dict, key)
 {
@@ -40,7 +40,7 @@ local calc_hist(dict)
     hist := array();
     forall (v, k in dict)
     {
-	push(hist, struct("k", k, "n", v));
+	push(hist, map("k", k, "n", v));
     }
     return sort(hist, [func (a, b) { return cmp(a.n, b.n); }]);
 }

@@ -63,7 +63,7 @@ public:
 
 private:
     file *      a_file;  // The file used for saving or restoring.
-    ici_struct *a_sent;  // Records archived object identity - int object address -> object
+    map *       a_sent;  // Records archived object identity - int object address -> object
     objwsup *   a_scope; // The scope at the time of archiving
 
     archive() {}

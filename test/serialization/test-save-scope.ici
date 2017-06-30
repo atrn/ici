@@ -6,11 +6,11 @@ xdeepcopy(o, ss, depth)
     v := k := NULL;
     switch (typeof(o))
     {
-    case "struct":
+    case "map":
         if (ss[o])
             return NULL;
         ss[o] := 1;
-        r := struct();
+        r := map();
 	if (super(o))
 	    super(r, xdeepcopy(super(o), ss, depth + 1));
         forall (v, k in o)

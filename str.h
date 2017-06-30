@@ -28,7 +28,7 @@ struct str : object
 {
     str() : object{TC_STRING} {}
 
-    ici_struct      *s_struct;      /* Where we were last found on the vs. */
+    map      *s_map;      /* Where we were last found on the vs. */
     sslot           *s_slot;        /* And our slot. */
     uint32_t        s_vsver;        /* The vs version at that time. */
 #   if ICI_KEEP_STRING_HASH
@@ -150,7 +150,7 @@ struct sstring : object
 {
     sstring(const char *cs)
         : object(TC_STRING)
-        , s_struct(nullptr)
+        , s_map(nullptr)
         , s_slot(nullptr)
 #if ICI_KEEP_STRING_HAS
         , s_hash(0)
@@ -161,7 +161,7 @@ struct sstring : object
         memcpy(s_inline_chars, cs, s_nchars);
     }
 
-    ici_struct *s_struct;     /* Where we were last found on the vs. */
+    map *s_map;     /* Where we were last found on the vs. */
     sslot *s_slot;        /* And our slot. */
     uint32_t    s_vsver;        /* The vs version at that time. */
 #   if ICI_KEEP_STRING_HASH

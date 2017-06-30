@@ -59,7 +59,7 @@ basename(path, ext)
  * Traverse a directory hierarchy, calling a function for every file or directory encountered.
  *
  * The functions to be called and other aspects of the traversal are controlled by
- * a struct parameter that contains the following key/value pairs:
+ * a map parameter that contains the following key/value pairs:
  *
  *      directory       The function to be called for each directory found
  *                      during the traversal.  If not specified or NULL then

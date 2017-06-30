@@ -9,11 +9,11 @@
  * n'th element as its first argument and any extra
  * arguments passed to apply() following that.
  *
- * If the aggregate is a struct the function is called
+ * If the aggregate is a map the function is called
  * with two arguments, the key and value objects from
- * the struct for the current element being traversed.
- * Struct traversal is shallow but does visit any
- * super struct.
+ * the map for the current element being traversed.
+ * Map traversal is shallow but does visit any
+ * super map.
  */
 export
 apply(fn, aggr)
@@ -29,7 +29,7 @@ apply(fn, aggr)
 	        call(fn, array(v) + vargs);
 	break;
 
-    case "struct":
+    case "map":
         if (super(aggr))
             call(apply, array(super(aggr), fn) + vargs);
         forall (v, k in aggr)
@@ -43,17 +43,17 @@ apply(fn, aggr)
 
 
 /*
- * aggr = map(aggr, fn [, args...])
+ * aggr = mapf(aggr, fn [, args...])
  *
  * Transform an aggregate by passing each element through a function and return
  * a new aggregate, of the same type, containing the transformed elements.
  *
- * i.e. m' = map(m, f)
+ * i.e. m' = mapf(m, f)
  *
  * Return m' by transforming the elements of m through f().
  */
 export
-map(aggr, fn)
+mapf(aggr, fn)
 {
     var vargs = [array];
     v := k := r := NULL;
@@ -78,8 +78,8 @@ map(aggr, fn)
         r := implode(r);
         break;
 
-    case "struct":
-        r := struct();
+    case "map":
+        r := map();
         if (super(aggr))
             super(r, call(map, array(super(aggr), fn) + vargs));
         forall (v, k in aggr)

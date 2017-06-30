@@ -2,7 +2,7 @@
 #include "fwd.h"
 #include "func.h"
 #include "buf.h"
-#include "struct.h"
+#include "map.h"
 #include "exec.h"
 #include "str.h"
 #include "pcre.h"
@@ -37,7 +37,7 @@ int init()
     extern int ici_net_init();
 
     cfunc         **cfp;
-    ici_struct    *scope;
+    map    *scope;
     objwsup       *externs;
     exec          *x;
     int           i;
@@ -102,11 +102,11 @@ int init()
     }
     pcre_free = ici_free;
     pcre_malloc = (void *(*)(size_t))ici_alloc;
-    if ((scope = new_struct()) == NULL)
+    if ((scope = new_map()) == NULL)
     {
         return 1;
     }
-    if ((scope->o_super = externs = objwsupof(new_struct())) == NULL)
+    if ((scope->o_super = externs = objwsupof(new_map())) == NULL)
     {
         return 1;
     }

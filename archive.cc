@@ -48,7 +48,7 @@
 #include "null.h"
 #include "cfunc.h"
 #include "file.h"
-#include "struct.h"
+#include "map.h"
 #include "op.h"
 
 #include <netinet/in.h>
@@ -112,7 +112,7 @@ archive *archive::start(file *f, objwsup *scope)
     if (ar != NULL)
     {
         set_tfnz(ar, TC_ARCHIVE, 0, 1, 0);
-        if ((ar->a_sent = new_struct()) == NULL)
+        if ((ar->a_sent = new_map()) == NULL)
         {
             ici_tfree(ar, archive);
             return NULL;

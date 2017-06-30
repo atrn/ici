@@ -228,12 +228,12 @@ public:
     /*
      * Assign into the super of an objwsup.
      */
-    virtual int              assign_super(object *o, object *k, object *v, ici_struct *b);
+    virtual int              assign_super(object *o, object *k, object *v, map *b);
 
     /*
      * Fetch from  the super of an objwsup.
      */
-    virtual int              fetch_super(object *o, object *k, object **pv, ici_struct *b);
+    virtual int              fetch_super(object *o, object *k, object **pv, map *b);
 
     /*
      * Assign into the base of an objwsup.

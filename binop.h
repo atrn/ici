@@ -548,19 +548,19 @@
         }
         LOOSEo();
 
-    case ICI_TRI(TC_STRUCT, TC_STRUCT, T_PLUS):
-    case ICI_TRI(TC_STRUCT, TC_STRUCT, T_PLUSEQ):
+    case ICI_TRI(TC_MAP, TC_MAP, T_PLUS):
+    case ICI_TRI(TC_MAP, TC_MAP, T_PLUSEQ):
         {
-            ici_struct  *s;
-            sslot       *sl;
-            size_t      i;
+            map    *s;
+            sslot  *sl;
+            size_t  i;
 
-            if ((s = structof(ici_copy(o0))) == NULL)
+            if ((s = mapof(ici_copy(o0))) == NULL)
             {
                 FAIL();
             }
-            sl = structof(o1)->s_slots;
-            for (i = 0; i < structof(o1)->s_nslots; ++i, ++sl)
+            sl = mapof(o1)->s_slots;
+            for (i = 0; i < mapof(o1)->s_nslots; ++i, ++sl)
             {
                 if (sl->sl_key == NULL)
                 {

@@ -1,7 +1,7 @@
 export
 memoize(fn, args)
 {
-    local cache = struct();
+    local cache = map();
     key := array(deepatom(fn), deepatom(args));
     if ((result := cache[key]) == NULL)
     {

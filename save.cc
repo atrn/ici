@@ -17,7 +17,7 @@
 #include "ptr.h"
 #include "src.h"
 #include "str.h"
-#include "struct.h"
+#include "map.h"
 #include "set.h"
 #include "re.h"
 #include "pcre.h"
@@ -201,9 +201,9 @@ save_set(archive *ar, object *obj)
 // struct
 
 static int
-save_struct(archive *ar, object *obj)
+save_map(archive *ar, object *obj)
 {
-    ici_struct *s = structof(obj);
+    map *s = mapof(obj);
     object *super = objwsupof(s)->o_super;
     struct sslot *sl;
     if (super == nullptr) {
@@ -236,7 +236,7 @@ static int
 save_func(archive *ar, object *obj)
 {
     auto f = funcof(obj);
-    ici_struct *autos;
+    map *autos;
 
     if (iscfunc(obj))
     {
@@ -246,7 +246,7 @@ save_func(archive *ar, object *obj)
 
     if (save_object_name(ar, obj) || archive_save(ar, f->f_code) || archive_save(ar, f->f_args))
         return 1;
-    if ((autos = structof(f->f_autos->copy())) == NULL)
+    if ((autos = mapof(f->f_autos->copy())) == NULL)
         return 1;
     autos->o_super = NULL;
     unassign(autos, SS(_func_));
@@ -298,7 +298,7 @@ new_saver(int (*fn)(archive *, object *))
     return s;
 }
 
-static ici_struct *saver_map = NULL;
+static map *saver_map = NULL;
 
 void
 uninit_saver_map()
@@ -325,7 +325,7 @@ init_saver_map()
         {SS(regexp), save_regexp},
         {SS(array), save_array},
         {SS(set), save_set},
-        {SS(struct), save_struct},
+        {SS(map), save_map},
         {SS(mem), save_mem},
         {SS(ptr), save_ptr},
         {SS(func), save_func},
@@ -333,7 +333,7 @@ init_saver_map()
         {SS(op), save_op},
     };
 
-    if ((saver_map = new_struct()) == NULL)
+    if ((saver_map = new_map()) == NULL)
     {
         return 1;
     }
@@ -398,7 +398,7 @@ archive_save(archive *ar, object *obj)
  */
 int f_archive_save(...)
 {
-    objwsup *scp = structof(vs.a_top[-1])->o_super;
+    objwsup *scp = mapof(vs.a_top[-1])->o_super;
     file *file;
     object *obj;
     archive *ar;

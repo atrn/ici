@@ -6,7 +6,7 @@
 #include "str.h"
 #include "int.h"
 #include "float.h"
-#include "struct.h"
+#include "map.h"
 #include "buf.h"
 #include "re.h"
 #include "null.h"
@@ -50,11 +50,11 @@ int method_check(object *o, int tcode)
 static int
 m_new(object *o)
 {
-    ici_struct *s;
+    map *s;
 
     if (method_check(o, 0))
         return 1;
-    if ((s = new_struct()) == NULL)
+    if ((s = new_map()) == NULL)
         return 1;
     s->o_super = objwsupof(o);
     return ret_with_decref(s);

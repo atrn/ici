@@ -3,7 +3,7 @@
 #include "src.h"
 #include "exec.h"
 #include "int.h"
-#include "struct.h"
+#include "map.h"
 #include "str.h"
 #include "func.h"
 #include "array.h"

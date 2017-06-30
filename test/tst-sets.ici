@@ -2,7 +2,7 @@
  * Work sets with random data.
  */
 var victim     = [set];
-var state      = [struct];
+var state      = [map];
 var i;
 var e;
 var v;

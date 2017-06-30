@@ -28,7 +28,7 @@ convert(WCHAR *s)
     return len == 0 ? NULL : buffer;
 }
 
-int set_timezone_vals(ici_struct *s)
+int set_timezone_vals(map *s)
 {
     TIME_ZONE_INFORMATION		info;
     char                                *zone;

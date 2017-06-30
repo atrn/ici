@@ -9,7 +9,7 @@
 #include "str.h"
 #include "cfunc.h"
 #include "int.h"
-#include "struct.h"
+#include "map.h"
 
 namespace ici
 {
@@ -251,7 +251,7 @@ object *make_handle_member_map(name_id *ni)
     str          *n;
     object       *id;
 
-    if ((m = new_struct()) == NULL)
+    if ((m = new_map()) == NULL)
         return NULL;
     for (; ni->ni_name != NULL; ++ni)
     {
@@ -371,7 +371,7 @@ object * handle_type::fetch(object *o, object *k)
  * If not NULL, b is a struct that was the base element of this
  * assignment. This is used to mantain the lookup lookaside mechanism.
  */
-int handle_type::fetch_super(object *o, object *k, object **v, ici_struct *b)
+int handle_type::fetch_super(object *o, object *k, object **v, map *b)
 {
     if (!hassuper(o))
     {
@@ -416,7 +416,7 @@ object * handle_type::fetch_base(object *o, object *k)
     }
     if (!hassuper(o))
         return fetch_fail(o, k);
-    if (!o->flagged(ICI_H_HAS_PRIV_STRUCT))
+    if (!o->flagged(ICI_H_HAS_PRIV_MAP))
         return ici_null;
     return ici_fetch_base(h->o_super, k);
 }
@@ -456,7 +456,7 @@ int handle_type::assign_base(object *o, object *k, object *v)
     }
     if (!hassuper(o))
         return assign_fail(o, k, v);
-    if (!o->flagged(ICI_H_HAS_PRIV_STRUCT))
+    if (!o->flagged(ICI_H_HAS_PRIV_MAP))
     {
         objwsup  *s;
 
@@ -467,12 +467,12 @@ int handle_type::assign_base(object *o, object *k, object *v)
          * This operation disturbs the struct-lookup lookaside mechanism.
          * We invalidate all existing entries by incrementing vsver.
          */
-        if ((s = objwsupof(new_struct())) == NULL)
+        if ((s = objwsupof(new_map())) == NULL)
             return 1;
         s->o_super = objwsupof(o)->o_super;
         objwsupof(o)->o_super = s;
         ++vsver;
-        o->set(ICI_H_HAS_PRIV_STRUCT);
+        o->set(ICI_H_HAS_PRIV_MAP);
     }
     return ici_assign_base(objwsupof(o)->o_super, k, v);
 }
@@ -512,7 +512,7 @@ int handle_type::assign(object *o, object *k, object *v)
     }
     if (!hassuper(o))
         return assign_fail(o, k, v);
-    if (o->flagged(ICI_H_HAS_PRIV_STRUCT))
+    if (o->flagged(ICI_H_HAS_PRIV_MAP))
         return ici_assign(h->o_super, k, v);
     /*
      * We don't have a base struct of our own yet. Try the super.
@@ -545,7 +545,7 @@ int handle_type::assign(object *o, object *k, object *v)
  * If not NULL, b is a struct that was the base element of this
  * assignment. This is used to mantain the lookup lookaside mechanism.
  */
-int handle_type::assign_super(object *o, object *k, object *v, ici_struct *b)
+int handle_type::assign_super(object *o, object *k, object *v, map *b)
 {
     if (!hassuper(o))
         return assign_fail(o, k, v);

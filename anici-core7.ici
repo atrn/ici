@@ -63,8 +63,8 @@ print()
 	printf(stream, "]%s", term);
 	break;
 
-    case "struct":
-	printf(stream, "[struct");
+    case "map":
+	printf(stream, "[map");
 	if (ss := super(o))
 	{
             if (supers[ss])

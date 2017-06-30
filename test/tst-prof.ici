@@ -32,6 +32,6 @@ if (version() ~ #prof#)
     if (typeof(profile.total) != "int")
 	fail("profile total absent");
 
-    if (typeof(profile.calls) != "struct")
-	fail("profile sub-calls absent");
+    if (typeof(profile.calls) != "map")
+	fail("profile sub-calls map absent");
 }

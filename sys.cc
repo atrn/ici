@@ -16,7 +16,7 @@
 #include "null.h"
 #include "str.h"
 #include "array.h"
-#include "struct.h"
+#include "map.h"
 #include "cfunc.h"
 #include "file.h"
 #include "mem.h"
@@ -436,7 +436,7 @@ static int ici_sys_close()
 /* Convert a struct to a struct flock for fcntl's F_SETLK */
 
 static int
-struct_to_flock(ici_struct *d, struct flock *flock)
+struct_to_flock(map *d, struct flock *flock)
 {
     object    *o;
 
@@ -581,7 +581,7 @@ static int ici_sys_fcntl()
         myflock.l_type = F_RDLCK;
         myflock.l_whence = SEEK_SET;
         iwhat = F_SETLK;
-        if (isstruct(arg) && struct_to_flock(structof(arg), &myflock))
+        if (ismap(arg) && struct_to_flock(mapof(arg), &myflock))
             return 1;
         r = fcntl(fd, iwhat, &myflock);
         goto ret;
@@ -843,7 +843,7 @@ static int ici_sys_stat()
     object    *o;
     struct stat statb;
     int         rc;
-    ici_struct  *s;
+    map  *s;
 
     if (NARGS() != 1)
         return argcount(1);
@@ -858,7 +858,7 @@ static int ici_sys_stat()
         return argerror(0);
     if (rc == -1)
         return sys_ret(rc);
-    if ((s = new_struct()) == NULL)
+    if ((s = new_map()) == NULL)
         return 1;
 #define SETFIELD(x)                                     \
     if ((o = new_int(statb.st_ ##x)) == NULL)       \
@@ -911,7 +911,7 @@ static int ici_sys_lstat()
     object    *o;
     struct stat statb;
     int         rc;
-    ici_struct  *s;
+    map  *s;
 
     if (NARGS() != 1)
         return argcount(1);
@@ -922,7 +922,7 @@ static int ici_sys_lstat()
         return argerror(0);
     if (rc == -1)
         return sys_ret(rc);
-    if ((s = new_struct()) == NULL)
+    if ((s = new_map()) == NULL)
         return 1;
 #define SETFIELD(x)                                     \
     if ((o = new_int(statb.st_ ##x)) == NULL)       \
@@ -999,14 +999,14 @@ static int ici_sys_time()
 #ifndef _WIN32
 
 static int
-assign_timeval(ici_struct *s, str *k, struct timeval *tv)
+assign_timeval(map *s, str *k, struct timeval *tv)
 {
-    ici_struct    *ss;
+    map    *ss;
     ici_int       *i;
 
     if (k == NULL)
         ss = s;
-    else if ((ss = new_struct()) == NULL)
+    else if ((ss = new_map()) == NULL)
         return 1;
     if ((i = new_int(tv->tv_usec)) == NULL)
         goto fail;
@@ -1057,7 +1057,7 @@ assign_timeval(ici_struct *s, str *k, struct timeval *tv)
 static int ici_sys_getitimer()
 {
     long                which = ITIMER_VIRTUAL;
-    ici_struct          *s;
+    map          *s;
     struct itimerval    value;
     object              *o;
 
@@ -1078,7 +1078,7 @@ static int ici_sys_getitimer()
     }
     if (getitimer(which, &value) == -1)
         return sys_ret(-1);
-    if ((s = new_struct()) == NULL)
+    if ((s = new_map()) == NULL)
         return 1;
     if
     (
@@ -1098,7 +1098,7 @@ fetch_timeval(object *s, struct timeval *tv)
 {
     object    *o;
 
-    if (!isstruct(s))
+    if (!ismap(s))
         return 1;
     if ((o = ici_fetch(s, SS(usec))) == ici_null)
         tv->tv_usec = 0;
@@ -1130,7 +1130,7 @@ fetch_timeval(object *s, struct timeval *tv)
 static int ici_sys_setitimer()
 {
     long                which = ITIMER_VIRTUAL;
-    ici_struct          *s;
+    map          *s;
     struct itimerval    value;
     struct itimerval    ovalue;
     object              *o;
@@ -1163,7 +1163,7 @@ static int ici_sys_setitimer()
         goto invalid_itimerval;
     if (setitimer(which, &value, &ovalue) == -1)
         return sys_ret(-1);
-    if ((s = new_struct()) == NULL)
+    if ((s = new_map()) == NULL)
         return 1;
     if
     (
@@ -1194,12 +1194,12 @@ static int ici_sys_setitimer()
  */
 static int ici_sys_gettimeofday()
 {
-    ici_struct          *s;
+    map          *s;
     struct timeval      tv;
 
     if (gettimeofday(&tv, NULL) == -1)
         return sys_ret(-1);
-    if ((s = new_struct()) == NULL)
+    if ((s = new_map()) == NULL)
         return 1;
     if (assign_timeval(s, NULL, &tv))
     {
@@ -1596,13 +1596,13 @@ static int ici_sys_wait()
     return not_on_win32("wait");
 #else
     int                 pid;
-    ici_struct          *s;
+    map          *s;
     ici_int             *i;
     int                 status;
 
     if ((pid = wait(&status)) < 0)
         return sys_ret(-1);
-    if ((s = new_struct()) == NULL)
+    if ((s = new_map()) == NULL)
         return 1;
     if ((i = new_int(pid)) == NULL)
         goto fail;
@@ -1630,7 +1630,7 @@ static int ici_sys_wait()
 
 #ifndef _WIN32
 
-static ici_struct *password_struct(struct passwd *);
+static map *password_map(struct passwd *);
 
 /*
  * struct|array = passwd([int | string])
@@ -1682,7 +1682,7 @@ static int ici_sys_passwd()
             return argerror(0);
         if (pwent == NULL)
             set_error("no such user");
-        return ret_with_decref(password_struct(pwent));
+        return ret_with_decref(password_map(pwent));
 
     default:
         return argcount(1);
@@ -1693,9 +1693,9 @@ static int ici_sys_passwd()
     setpwent();
     while ((pwent = getpwent()) != NULL)
     {
-        ici_struct *s;
+        map *s;
 
-        if (a->push_check() || (s = password_struct(pwent)) == NULL)
+        if (a->push_check() || (s = password_map(pwent)) == NULL)
         {
             a->decref();
             return 1;
@@ -1706,15 +1706,15 @@ static int ici_sys_passwd()
     return ret_with_decref(a);
 }
 
-static ici_struct *
-password_struct(struct passwd *pwent)
+static map *
+password_map(struct passwd *pwent)
 {
-    ici_struct *d;
+    map *d;
     object     *o;
 
     if (pwent == NULL)
         return NULL;
-    if ((d = new_struct()) != NULL)
+    if ((d = new_map()) != NULL)
     {
 
 #define SET_INT_FIELD(x)                                \
@@ -1981,7 +1981,7 @@ static int ici_sys_getrlimit()
     object        *what;
     int            resource;
     struct rlimit  rlimit;
-    ici_struct    *limit;
+    map    *limit;
     ici_int       *iv;
 
     if (typecheck("o", &what))
@@ -1999,7 +1999,7 @@ static int ici_sys_getrlimit()
     if (getrlimit(resource, &rlimit) < 0)
         return sys_ret(-1);
 
-    if ((limit = new_struct()) == NULL)
+    if ((limit = new_map()) == NULL)
         return 1;
     if ((iv = new_int(rlimit.rlim_cur)) == NULL)
         goto fail;
@@ -2065,7 +2065,7 @@ static int ici_sys_setrlimit()
     {
         rlimit.rlim_cur = RLIM_INFINITY;
     }
-    else if (isstruct(value))
+    else if (ismap(value))
     {
         if ((iv = ici_fetch(value, SS(cur))) == ici_null)
             goto fail;

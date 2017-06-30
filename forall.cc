@@ -2,7 +2,7 @@
 #include "forall.h"
 #include "exec.h"
 #include "pc.h"
-#include "struct.h"
+#include "map.h"
 #include "set.h"
 #include "forall.h"
 #include "str.h"

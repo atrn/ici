@@ -5,7 +5,7 @@
 #include "file.h"
 #include "null.h"
 #include "str.h"
-#include "struct.h"
+#include "map.h"
 #include "buf.h"
 #include "wrap.h"
 #include "func.h"

@@ -27,7 +27,7 @@
 #include "set.h"
 #include "src.h"
 #include "str.h"
-#include "struct.h"
+#include "map.h"
 
 namespace ici
 {
@@ -52,7 +52,7 @@ type *types[max_types] =
     ptr_to_instance_of<regexp_type>(),
     ptr_to_instance_of<ptr_type>(),
     ptr_to_instance_of<array_type>(),
-    ptr_to_instance_of<struct_type>(),
+    ptr_to_instance_of<map_type>(),
     ptr_to_instance_of<set_type>(),
     ptr_to_instance_of<exec_type>(),
     ptr_to_instance_of<file_type>(),

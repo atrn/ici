@@ -150,9 +150,9 @@ test_sub(fn1, fn2, str, pat, repl, result)
 
 /*
  * These are the functions visible to the code in the test "data" file.
- * This struct forms the scope within which the test "data" file is run.
+ * This map forms the scope within which the test "data" file is run.
  */
-local  test_funcs = [struct
+local  test_funcs = [map
 
     match =     [func (str, pat, result)
     {

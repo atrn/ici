@@ -4,7 +4,7 @@
 #include "str.h"
 #include "int.h"
 #include "float.h"
-#include "struct.h"
+#include "map.h"
 #include "buf.h"
 #include "re.h"
 #include "null.h"

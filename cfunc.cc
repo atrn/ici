@@ -13,7 +13,7 @@
 #include "str.h"
 #include "int.h"
 #include "float.h"
-#include "struct.h"
+#include "map.h"
 #include "set.h"
 #include "op.h"
 #include "ptr.h"
@@ -234,10 +234,10 @@ int typecheck(const char *types, ...)
                 goto fail;
             break;
 
-        case 'd': /* A struct ("dict") -> (ici_struct *). */
-            if (!isstruct(o))
+        case 'd': /* A struct ("dict") -> (map *). */
+            if (!ismap(o))
                 goto fail;
-            *(ici_struct **)aptr = structof(o);
+            *(map **)aptr = mapof(o);
             break;
 
         case 'a': /* An array -> (array *). */
@@ -373,9 +373,9 @@ int retcheck(const char *types, ...)
             break;
 
         case 'd':
-            if (!isstruct(o))
+            if (!ismap(o))
                 goto fail;
-            *(ici_struct **)aptr = structof(o);
+            *(map **)aptr = mapof(o);
             break;
 
         case 'a':
@@ -772,12 +772,11 @@ f_array(...)
     return ret_with_decref(a);
 }
 
-static int
-f_struct()
+static int f_map()
 {
     object     **o;
     int          nargs;
-    ici_struct  *s;
+    map  *s;
     objwsup     *super;
 
     nargs = NARGS();
@@ -793,7 +792,7 @@ f_struct()
         --nargs;
         --o;
     }
-    if ((s = new_struct()) == NULL)
+    if ((s = new_map()) == NULL)
         return 1;
     for (; nargs >= 2; nargs -= 2, o -= 2)
     {
@@ -834,9 +833,9 @@ f_keys()
 
     if (NARGS() != 1)
         return argcount(1);
-    if (isstruct(ARG(0)))
+    if (ismap(ARG(0)))
     {
-        ici_struct *s = structof(ARG(0));
+        map *s = mapof(ARG(0));
         sslot *sl;
 
         if ((k = new_array(s->s_nels)) == NULL)
@@ -902,8 +901,8 @@ f_nels()
         size = stringof(o)->s_nchars;
     else if (isarray(o))
         size = arrayof(o)->len();
-    else if (isstruct(o))
-        size = structof(o)->s_nels;
+    else if (ismap(o))
+        size = mapof(o)->s_nels;
     else if (isset(o))
         size = setof(o)->s_nels;
     else if (ismem(o))
@@ -1115,17 +1114,17 @@ f_parse()
 {
     object     *o;
     file       *f;
-    ici_struct *s;              /* Statics. */
-    ici_struct *a;              /* Autos. */
+    map *s;              /* Statics. */
+    map *a;              /* Autos. */
 
     switch (NARGS())
     {
     case 1:
         if (typecheck("o", &o))
             return 1;
-        if ((a = new_struct()) == NULL)
+        if ((a = new_map()) == NULL)
             return 1;
-        if ((a->o_super = objwsupof(s = new_struct())) == NULL)
+        if ((a->o_super = objwsupof(s = new_map())) == NULL)
         {
             a->decref();
             return 1;
@@ -1175,7 +1174,7 @@ fail:
 static int f_include()
 {
     str        *filename;
-    ici_struct *a;
+    map *a;
     int         rc;
     file       *f;
 
@@ -1184,7 +1183,7 @@ static int f_include()
     case 1:
         if (typecheck("o", &filename))
             return 1;
-        a = structof(vs.a_top[-1]);
+        a = mapof(vs.a_top[-1]);
         break;
 
     case 2:
@@ -1956,9 +1955,9 @@ f_del()
 
     if (typecheck("oo", &s, &o))
         return 1;
-    if (isstruct(s))
+    if (ismap(s))
     {
-        unassign(structof(s), o);
+        unassign(mapof(s), o);
     }
     else if (isset(s))
     {
@@ -2097,9 +2096,9 @@ f_super()
 static int
 f_scope()
 {
-    ici_struct *s;
+    map *s;
 
-    s = structof(vs.a_top[-1]);
+    s = mapof(vs.a_top[-1]);
     if (NARGS() > 0)
     {
         if (typecheck("d", &vs.a_top[-1]))
@@ -2229,7 +2228,7 @@ f_assign()
 static int
 f_fetch()
 {
-    ici_struct *s;
+    map *s;
     object   *k;
 
     if (typecheck("oo", &s, &k))
@@ -2955,7 +2954,7 @@ f_calendar()
          */
         t = epoch_time + (time_t)floatof(ARG(0))->f_value;
         tm = localtime(&t);
-        if ((s = objwsupof(new_struct())) == NULL)
+        if ((s = objwsupof(new_map())) == NULL)
             return 1;
         if
         (
@@ -2972,7 +2971,7 @@ f_calendar()
             || set_val(s, SS(zone), 's', (char *)tm->tm_zone)
 	    || set_val(s, SS(gmtoff), 'i', &tm->tm_gmtoff)
 #else
-            || set_timezone_vals(structof(s))
+            || set_timezone_vals(mapof(s))
 #endif
         )
         {
@@ -2981,7 +2980,7 @@ f_calendar()
         }
         return ret_with_decref(s);
     }
-    else if (isstruct(ARG(0)))
+    else if (ismap(ARG(0)))
     {
         time_t          t;
         struct tm       tm;
@@ -3211,9 +3210,9 @@ f_which()
         return argerror(0);
     while (s != NULL)
     {
-        if (isstruct(s))
+        if (ismap(s))
         {
-            if (find_raw_slot(structof(s), k)->sl_key == k)
+            if (find_raw_slot(mapof(s), k)->sl_key == k)
 	    {
                 return ret_no_decref(s);
 	    }
@@ -4121,7 +4120,7 @@ ICI_DEFINE_CFUNCS(std)
     ICI_DEFINE_CFUNC(eq,           f_eq),
     ICI_DEFINE_CFUNC(parse,        f_parse),
     ICI_DEFINE_CFUNC(string,       f_string),
-    ICI_DEFINE_CFUNC(struct,       f_struct),
+    ICI_DEFINE_CFUNC(map,          f_map),
     ICI_DEFINE_CFUNC(set,          f_set),
     ICI_DEFINE_CFUNC(typeof,       f_typeof),
     ICI_DEFINE_CFUNC(push,         f_push),
@@ -4196,7 +4195,7 @@ ICI_DEFINE_CFUNCS(std)
     ICI_DEFINE_CFUNC2(argcount,    f_coreici, SS(argcount),  SS(core3)),
     ICI_DEFINE_CFUNC2(typecheck,   f_coreici, SS(typecheck), SS(core3)),
     ICI_DEFINE_CFUNC2(apply,       f_coreici, SS(apply),     SS(core4)),
-    ICI_DEFINE_CFUNC2(map,         f_coreici, SS(map),       SS(core4)),
+    ICI_DEFINE_CFUNC2(mapf,        f_coreici, SS(mapf),       SS(core4)),
     ICI_DEFINE_CFUNC2(deepatom,    f_coreici, SS(deepatom),  SS(core5)),
     ICI_DEFINE_CFUNC2(deepcopy,    f_coreici, SS(deepcopy),  SS(core5)),
     ICI_DEFINE_CFUNC2(memoize,     f_coreici, SS(memoize),   SS(core6)),

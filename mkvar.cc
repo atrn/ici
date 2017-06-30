@@ -1,6 +1,6 @@
 #define ICI_CORE
 #include "exec.h"
-#include "struct.h"
+#include "map.h"
 #include "int.h"
 #include "float.h"
 #include "buf.h"

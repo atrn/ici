@@ -19,7 +19,7 @@
 #include "int.h"
 #include "float.h"
 #include "array.h"
-#include "struct.h"
+#include "map.h"
 #include "set.h"
 #include "src.h"
 #include "file.h"
@@ -385,10 +385,9 @@ fail:
 
 // struct
 
-static object *
-restore_struct(archive *ar)
+static object *restore_map(archive *ar)
 {
-    ici_struct *s;
+    map *s;
     object *super;
     int64_t n;
     long i;
@@ -398,7 +397,7 @@ restore_struct(archive *ar)
     {
         return NULL;
     }
-    if ((s = new_struct()) == NULL)
+    if ((s = new_map()) == NULL)
     {
         return NULL;
     }
@@ -521,8 +520,8 @@ restore_func(archive *ar)
 
     fn->f_code = arrayof(code);
     fn->f_args = arrayof(args);
-    fn->f_autos = structof(autos);
-    fn->f_autos->o_super = ar->scope(); /* structof(vs.a_top[-1])->o_super; */
+    fn->f_autos = mapof(autos);
+    fn->f_autos->o_super = ar->scope(); /* mapof(vs.a_top[-1])->o_super; */
     fn->f_name = stringof(name);
     fn->f_nautos = nautos;
 
@@ -690,7 +689,7 @@ restorer_new(object *(*fn)(archive *))
     return r;
 }
 
-static ici_struct *restorer_map = 0;
+static map *restorer_map = 0;
 
 static int
 add_restorer(int tcode, object *(*fn)(archive *))
@@ -761,7 +760,7 @@ init_restorer_map()
         {TC_MEM,    restore_mem},
         {TC_ARRAY,  restore_array},
         {TC_SET,    restore_set},
-        {TC_STRUCT, restore_struct},
+        {TC_MAP,    restore_map},
         {TC_PTR,    restore_ptr},
         {TC_FUNC,   restore_func},
         {TC_OP,     restore_op},
@@ -771,7 +770,7 @@ init_restorer_map()
         {TC_REF,    restore_ref}
     };
 
-    if ((restorer_map = new_struct()) == NULL)
+    if ((restorer_map = new_map()) == NULL)
     {
         return 1;
     }
@@ -833,7 +832,7 @@ f_archive_restore(...)
     objwsup *scp;
     object *obj = NULL;
 
-    scp = structof(vs.a_top[-1])->o_super;
+    scp = mapof(vs.a_top[-1])->o_super;
     switch (NARGS())
     {
     case 0:

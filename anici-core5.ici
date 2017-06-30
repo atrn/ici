@@ -20,8 +20,8 @@ deepatom(o)
 	    r[deepatom(v)] = 1;
 	return @r;
 
-    case "struct":
-	r := struct();
+    case "map":
+	r := map();
 	forall (v, k in o)
 	    r[deepatom(k)] = deepatom(v);
 	return @r;
@@ -54,8 +54,8 @@ deepcopy(o)
             r[v] = 1;
         break;
 
-    case "struct":
-        r = struct();
+    case "map":
+        r = map();
         forall (v, k in o)
             r[deepcopy(k)] = deepcopy(v);
         break;

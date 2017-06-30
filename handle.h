@@ -119,7 +119,7 @@ inline bool ishandleof(object *o, str *n) { return ishandle(o) && handleof(o)->h
  * allowed for type specific use.
  */
 constexpr int ICI_H_CLOSED =  0x20;
-constexpr int ICI_H_HAS_PRIV_STRUCT = 0x40;
+constexpr int ICI_H_HAS_PRIV_MAP = 0x40;
 /*
  * ICI_H_CLOSED             If set, the thing h_ptr points to is no longer
  *                      valid (it has probably been freed). This flag
@@ -127,7 +127,7 @@ constexpr int ICI_H_HAS_PRIV_STRUCT = 0x40;
  *                      core handle code doesn't touch this much.
  *                      Use of this latent feature depends on needs.
  *
- * ICI_H_HAS_PRIV_STRUCT    This handle has had a private struct allocated
+ * ICI_H_HAS_PRIV_MAP    This handle has had a private map allocated
  *                      to hold ICI values that have been assigned to
  *                      it. This does not happen until required, as
  *                      not all handles will ever need one. The super
@@ -156,11 +156,11 @@ public:
     unsigned long hash(object *o) override;
     int cmp(object *o1, object *o2) override;
     object *fetch(object *o, object *k) override;
-    int fetch_super(object *o, object *k, object **v, ici_struct *b) override;
+    int fetch_super(object *o, object *k, object **v, map *b) override;
     object *fetch_base(object *o, object *k) override;
     int assign_base(object *o, object *k, object *v) override;
     int assign(object *o, object *k, object *v) override;
-    int assign_super(object *o, object *k, object *v, ici_struct *b) override;
+    int assign_super(object *o, object *k, object *v, map *b) override;
     void objname(object *o, char p[objnamez]) override;
 };
 

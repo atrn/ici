@@ -1,7 +1,7 @@
 #define ICI_CORE
 #include "fwd.h"
 #include "str.h"
-#include "struct.h"
+#include "map.h"
 #include "null.h"
 #include "exec.h"
 #include "int.h"
@@ -80,7 +80,7 @@ str *str_alloc(size_t nchars)
     s->s_chars = s->s_u.su_inline_chars;
     s->s_nchars = nchars;
     s->s_chars[nchars] = '\0';
-    s->s_struct = NULL;
+    s->s_map = NULL;
     s->s_slot = NULL;
 #   if ICI_KEEP_STRING_HASH
     s->s_hash = 0;
@@ -157,7 +157,7 @@ new_str(const char *p, size_t nchars)
     set_tfnz(s, TC_STRING, 0, 1, az <= 127 ? az : 0);
     s->s_chars = s->s_u.su_inline_chars;
     s->s_nchars = nchars;
-    s->s_struct = NULL;
+    s->s_map = NULL;
     s->s_slot = NULL;
     s->s_vsver = 0;
     memcpy(s->s_chars, p, nchars);
@@ -245,7 +245,7 @@ str *new_str_buf(size_t n)
     s->s_vsver = 0;
     s->s_nchars = 0;
     s->s_hash = 0;
-    s->s_struct = NULL;
+    s->s_map = NULL;
     s->s_slot = NULL;
     s->s_vsver = 0;
     rego(s);

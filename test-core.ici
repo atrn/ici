@@ -56,8 +56,8 @@ printf("stmt...\n");
         fail("NULL forall loop failed");
 
 
-    x = [struct];
-    super(x, y = @[struct a = 1]);
+    x = [map];
+    super(x, y = @[map a = 1]);
     ++x.a;
     super(x, NULL);
     if (x.a != 2)
@@ -75,242 +75,242 @@ printf("binops...\n");
      */
     local binops =
     [array
-        [struct op = "*",   a = 7, b = 13, r = 91],
-        [struct op = "*=",  a = 7, b = 13, r = 91],
-        [struct op = "*",   a = 7.0, b = 13.0, r = 91.0],
-        [struct op = "*=",  a = 7.0, b = 13.0, r = 91.0],
-        [struct op = "*",   a = 7, b = 13.0, r = 91.0],
-        [struct op = "*=",  a = 7, b = 13.0, r = 91.0],
-        [struct op = "*",   a = 7.0, b = 13, r = 91.0],
-        [struct op = "*=",  a = 7.0, b = 13, r = 91.0],
+        [map op = "*",   a = 7, b = 13, r = 91],
+        [map op = "*=",  a = 7, b = 13, r = 91],
+        [map op = "*",   a = 7.0, b = 13.0, r = 91.0],
+        [map op = "*=",  a = 7.0, b = 13.0, r = 91.0],
+        [map op = "*",   a = 7, b = 13.0, r = 91.0],
+        [map op = "*=",  a = 7, b = 13.0, r = 91.0],
+        [map op = "*",   a = 7.0, b = 13, r = 91.0],
+        [map op = "*=",  a = 7.0, b = 13, r = 91.0],
 
-        [struct op = "/",   a = 13, b = 7, r = 1],
-        [struct op = "/=",  a = 13, b = 7, r = 1],
-        [struct op = "/",   a = 14.0, b = 7.0, r = 2.0],
-        [struct op = "/=",  a = 14.0, b = 7.0, r = 2.0],
-        [struct op = "/",   a = 14, b = 7.0, r = 2.0],
-        [struct op = "/=",  a = 14, b = 7.0, r = 2.0],
-        [struct op = "/",   a = 14.0, b = 7, r = 2.0],
-        [struct op = "/=",  a = 14.0, b = 7, r = 2.0],
+        [map op = "/",   a = 13, b = 7, r = 1],
+        [map op = "/=",  a = 13, b = 7, r = 1],
+        [map op = "/",   a = 14.0, b = 7.0, r = 2.0],
+        [map op = "/=",  a = 14.0, b = 7.0, r = 2.0],
+        [map op = "/",   a = 14, b = 7.0, r = 2.0],
+        [map op = "/=",  a = 14, b = 7.0, r = 2.0],
+        [map op = "/",   a = 14.0, b = 7, r = 2.0],
+        [map op = "/=",  a = 14.0, b = 7, r = 2.0],
 
-        [struct op = "%",   a = 13, b = 7, r = 6],
-        [struct op = "%=",  a = 13, b = 7, r = 6],
+        [map op = "%",   a = 13, b = 7, r = 6],
+        [map op = "%=",  a = 13, b = 7, r = 6],
 
-        [struct op = "+",   a = 7, b = 13, r = 20],
-        [struct op = "+=",  a = 7, b = 13, r = 20],
-        [struct op = "+",   a = 7.0, b = 13.0, r = 20.0],
-        [struct op = "+=",  a = 7.0, b = 13.0, r = 20.0],
-        [struct op = "+",   a = 7, b = 13.0, r = 20.0],
-        [struct op = "+=",  a = 7, b = 13.0, r = 20.0],
-        [struct op = "+",   a = 7.0, b = 13, r = 20.0],
-        [struct op = "+=",  a = 7.0, b = 13, r = 20.0],
-        [struct op = "+",   a = "wx", b = "yz", r = "wxyz"],
-        [struct op = "+=",  a = "wx", b = "yz", r = "wxyz"],
-        [struct op = "+",   a = [array 1,2], b = [array 3,4], r = [array 1,2,3,4]],
-        [struct op = "+=",  a = [array 1,2], b = [array 3,4], r = [array 1,2,3,4]],
-        [struct op = "+",   a = [struct x=1,z=1], b = [struct y=2,z=3], r = [struct x=1,y=2,z=3]],
-        [struct op = "+=",  a = [struct x=1,z=1], b = [struct y=2,z=3], r = [struct x=1,y=2,z=3]],
-        [struct op = "+",   a = [set 1,"x"], b = [set 1,"y"], r = [set 1,"x","y"]],
-        [struct op = "+=",  a = [set 1,"x"], b = [set 1,"y"], r = [set 1,"x","y"]],
+        [map op = "+",   a = 7, b = 13, r = 20],
+        [map op = "+=",  a = 7, b = 13, r = 20],
+        [map op = "+",   a = 7.0, b = 13.0, r = 20.0],
+        [map op = "+=",  a = 7.0, b = 13.0, r = 20.0],
+        [map op = "+",   a = 7, b = 13.0, r = 20.0],
+        [map op = "+=",  a = 7, b = 13.0, r = 20.0],
+        [map op = "+",   a = 7.0, b = 13, r = 20.0],
+        [map op = "+=",  a = 7.0, b = 13, r = 20.0],
+        [map op = "+",   a = "wx", b = "yz", r = "wxyz"],
+        [map op = "+=",  a = "wx", b = "yz", r = "wxyz"],
+        [map op = "+",   a = [array 1,2], b = [array 3,4], r = [array 1,2,3,4]],
+        [map op = "+=",  a = [array 1,2], b = [array 3,4], r = [array 1,2,3,4]],
+        [map op = "+",   a = [map x=1,z=1], b = [map y=2,z=3], r = [map x=1,y=2,z=3]],
+        [map op = "+=",  a = [map x=1,z=1], b = [map y=2,z=3], r = [map x=1,y=2,z=3]],
+        [map op = "+",   a = [set 1,"x"], b = [set 1,"y"], r = [set 1,"x","y"]],
+        [map op = "+=",  a = [set 1,"x"], b = [set 1,"y"], r = [set 1,"x","y"]],
         /* No test of pointer addition here. */
 
-        [struct op = "-",   a = 7, b = 13, r = -6],
-        [struct op = "-=",  a = 7, b = 13, r = -6],
-        [struct op = "-",   a = 7.0, b = 13.0, r = -6.0],
-        [struct op = "-=",  a = 7.0, b = 13.0, r = -6.0],
-        [struct op = "-",   a = 7, b = 13.0, r = -6.0],
-        [struct op = "-=",  a = 7, b = 13.0, r = -6.0],
-        [struct op = "-",   a = 7.0, b = 13, r = -6.0],
-        [struct op = "-=",  a = 7.0, b = 13, r = -6.0],
-        [struct op = "-",   a = [set 1,"x"], b = [set 1,"y"], r = [set "x"]],
-        [struct op = "-=",  a = [set 1,"x"], b = [set 1,"y"], r = [set "x"]],
+        [map op = "-",   a = 7, b = 13, r = -6],
+        [map op = "-=",  a = 7, b = 13, r = -6],
+        [map op = "-",   a = 7.0, b = 13.0, r = -6.0],
+        [map op = "-=",  a = 7.0, b = 13.0, r = -6.0],
+        [map op = "-",   a = 7, b = 13.0, r = -6.0],
+        [map op = "-=",  a = 7, b = 13.0, r = -6.0],
+        [map op = "-",   a = 7.0, b = 13, r = -6.0],
+        [map op = "-=",  a = 7.0, b = 13, r = -6.0],
+        [map op = "-",   a = [set 1,"x"], b = [set 1,"y"], r = [set "x"]],
+        [map op = "-=",  a = [set 1,"x"], b = [set 1,"y"], r = [set "x"]],
         /* No test of pointer subtraction here. */
 
-        [struct op = ">>",  a = 13, b = 2, r = 3],
-        [struct op = ">>=", a = 13, b = 2, r = 3],
+        [map op = ">>",  a = 13, b = 2, r = 3],
+        [map op = ">>=", a = 13, b = 2, r = 3],
 
-        [struct op = "<<",  a = 13, b = 2, r = 52],
-        [struct op = "<<=", a = 13, b = 2, r = 52],
+        [map op = "<<",  a = 13, b = 2, r = 52],
+        [map op = "<<=", a = 13, b = 2, r = 52],
 
-        [struct op = "<",   a = 13, b = 2, r = 0],
-        [struct op = "<",   a = 13, b = 13, r = 0],
-        [struct op = "<",   a = 2, b = 13, r = 1],
-        [struct op = "<",   a = 13, b = 2.0, r = 0],
-        [struct op = "<",   a = 13, b = 13.0, r = 0],
-        [struct op = "<",   a = 2, b = 13.0, r = 1],
-        [struct op = "<",   a = 13.0, b = 2, r = 0],
-        [struct op = "<",   a = 13.0, b = 13, r = 0],
-        [struct op = "<",   a = 2.0, b = 13, r = 1],
-        [struct op = "<",   a = 13.0, b = 2.0, r = 0],
-        [struct op = "<",   a = 13.0, b = 13.0, r = 0],
-        [struct op = "<",   a = 2.0, b = 13.0, r = 1],
-        [struct op = "<",   a = "abc", b = "abz", r = 1],
-        [struct op = "<",   a = "abc", b = "abc", r = 0],
-        [struct op = "<",   a = "abz", b = "abc", r = 0],
-        [struct op = "<",   a = "ab", b = "abz", r = 1],
-        [struct op = "<",   a = "abz", b = "ab", r = 0],
+        [map op = "<",   a = 13, b = 2, r = 0],
+        [map op = "<",   a = 13, b = 13, r = 0],
+        [map op = "<",   a = 2, b = 13, r = 1],
+        [map op = "<",   a = 13, b = 2.0, r = 0],
+        [map op = "<",   a = 13, b = 13.0, r = 0],
+        [map op = "<",   a = 2, b = 13.0, r = 1],
+        [map op = "<",   a = 13.0, b = 2, r = 0],
+        [map op = "<",   a = 13.0, b = 13, r = 0],
+        [map op = "<",   a = 2.0, b = 13, r = 1],
+        [map op = "<",   a = 13.0, b = 2.0, r = 0],
+        [map op = "<",   a = 13.0, b = 13.0, r = 0],
+        [map op = "<",   a = 2.0, b = 13.0, r = 1],
+        [map op = "<",   a = "abc", b = "abz", r = 1],
+        [map op = "<",   a = "abc", b = "abc", r = 0],
+        [map op = "<",   a = "abz", b = "abc", r = 0],
+        [map op = "<",   a = "ab", b = "abz", r = 1],
+        [map op = "<",   a = "abz", b = "ab", r = 0],
         /* No test of pointer comparison here. */
 
-        [struct op = "<=",  a = 13, b = 2, r = 0],
-        [struct op = "<=",  a = 13, b = 13, r = 1],
-        [struct op = "<=",  a = 2, b = 13, r = 1],
-        [struct op = "<=",  a = 13, b = 2.0, r = 0],
-        [struct op = "<=",  a = 13, b = 13.0, r = 1],
-        [struct op = "<=",  a = 2, b = 13.0, r = 1],
-        [struct op = "<=",  a = 13.0, b = 2, r = 0],
-        [struct op = "<=",  a = 13.0, b = 13, r = 1],
-        [struct op = "<=",  a = 2.0, b = 13, r = 1],
-        [struct op = "<=",  a = 13.0, b = 2.0, r = 0],
-        [struct op = "<=",  a = 13.0, b = 13.0, r = 1],
-        [struct op = "<=",  a = 2.0, b = 13.0, r = 1],
-        [struct op = "<=",  a = "abc", b = "abz", r = 1],
-        [struct op = "<=",  a = "abc", b = "abc", r = 1],
-        [struct op = "<=",  a = "abz", b = "abc", r = 0],
-        [struct op = "<=",  a = "ab", b = "abz", r = 1],
-        [struct op = "<=",  a = "abz", b = "ab", r = 0],
+        [map op = "<=",  a = 13, b = 2, r = 0],
+        [map op = "<=",  a = 13, b = 13, r = 1],
+        [map op = "<=",  a = 2, b = 13, r = 1],
+        [map op = "<=",  a = 13, b = 2.0, r = 0],
+        [map op = "<=",  a = 13, b = 13.0, r = 1],
+        [map op = "<=",  a = 2, b = 13.0, r = 1],
+        [map op = "<=",  a = 13.0, b = 2, r = 0],
+        [map op = "<=",  a = 13.0, b = 13, r = 1],
+        [map op = "<=",  a = 2.0, b = 13, r = 1],
+        [map op = "<=",  a = 13.0, b = 2.0, r = 0],
+        [map op = "<=",  a = 13.0, b = 13.0, r = 1],
+        [map op = "<=",  a = 2.0, b = 13.0, r = 1],
+        [map op = "<=",  a = "abc", b = "abz", r = 1],
+        [map op = "<=",  a = "abc", b = "abc", r = 1],
+        [map op = "<=",  a = "abz", b = "abc", r = 0],
+        [map op = "<=",  a = "ab", b = "abz", r = 1],
+        [map op = "<=",  a = "abz", b = "ab", r = 0],
 
-        [struct op = ">",   a = 13, b = 2, r = 1],
-        [struct op = ">",   a = 13, b = 13, r = 0],
-        [struct op = ">",   a = 2, b = 13, r = 0],
-        [struct op = ">",   a = 13, b = 2.0, r = 1],
-        [struct op = ">",   a = 13, b = 13.0, r = 0],
-        [struct op = ">",   a = 2, b = 13.0, r = 0],
-        [struct op = ">",   a = 13.0, b = 2, r = 1],
-        [struct op = ">",   a = 13.0, b = 13, r = 0],
-        [struct op = ">",   a = 2.0, b = 13, r = 0],
-        [struct op = ">",   a = 13.0, b = 2.0, r = 1],
-        [struct op = ">",   a = 13.0, b = 13.0, r = 0],
-        [struct op = ">",   a = 2.0, b = 13.0, r = 0],
-        [struct op = ">",   a = "abc", b = "abz", r = 0],
-        [struct op = ">",   a = "abc", b = "abc", r = 0],
-        [struct op = ">",   a = "abz", b = "abc", r = 1],
-        [struct op = ">",   a = "ab", b = "abz", r = 0],
-        [struct op = ">",   a = "abz", b = "ab", r = 1],
+        [map op = ">",   a = 13, b = 2, r = 1],
+        [map op = ">",   a = 13, b = 13, r = 0],
+        [map op = ">",   a = 2, b = 13, r = 0],
+        [map op = ">",   a = 13, b = 2.0, r = 1],
+        [map op = ">",   a = 13, b = 13.0, r = 0],
+        [map op = ">",   a = 2, b = 13.0, r = 0],
+        [map op = ">",   a = 13.0, b = 2, r = 1],
+        [map op = ">",   a = 13.0, b = 13, r = 0],
+        [map op = ">",   a = 2.0, b = 13, r = 0],
+        [map op = ">",   a = 13.0, b = 2.0, r = 1],
+        [map op = ">",   a = 13.0, b = 13.0, r = 0],
+        [map op = ">",   a = 2.0, b = 13.0, r = 0],
+        [map op = ">",   a = "abc", b = "abz", r = 0],
+        [map op = ">",   a = "abc", b = "abc", r = 0],
+        [map op = ">",   a = "abz", b = "abc", r = 1],
+        [map op = ">",   a = "ab", b = "abz", r = 0],
+        [map op = ">",   a = "abz", b = "ab", r = 1],
 
-        [struct op = ">=",  a = 13, b = 2, r = 1],
-        [struct op = ">=",  a = 13, b = 13, r = 1],
-        [struct op = ">=",  a = 2, b = 13, r = 0],
-        [struct op = ">=",  a = 13, b = 2.0, r = 1],
-        [struct op = ">=",  a = 13, b = 13.0, r = 1],
-        [struct op = ">=",  a = 2, b = 13.0, r = 0],
-        [struct op = ">=",  a = 13.0, b = 2, r = 1],
-        [struct op = ">=",  a = 13.0, b = 13, r = 1],
-        [struct op = ">=",  a = 2.0, b = 13, r = 0],
-        [struct op = ">=",  a = 13.0, b = 2.0, r = 1],
-        [struct op = ">=",  a = 13.0, b = 13.0, r = 1],
-        [struct op = ">=",  a = 2.0, b = 13.0, r = 0],
-        [struct op = ">=",  a = "abc", b = "abz", r = 0],
-        [struct op = ">=",  a = "abc", b = "abc", r = 1],
-        [struct op = ">=",  a = "abz", b = "abc", r = 1],
-        [struct op = ">=",  a = "ab", b = "abz", r = 0],
-        [struct op = ">=",  a = "abz", b = "ab", r = 1],
+        [map op = ">=",  a = 13, b = 2, r = 1],
+        [map op = ">=",  a = 13, b = 13, r = 1],
+        [map op = ">=",  a = 2, b = 13, r = 0],
+        [map op = ">=",  a = 13, b = 2.0, r = 1],
+        [map op = ">=",  a = 13, b = 13.0, r = 1],
+        [map op = ">=",  a = 2, b = 13.0, r = 0],
+        [map op = ">=",  a = 13.0, b = 2, r = 1],
+        [map op = ">=",  a = 13.0, b = 13, r = 1],
+        [map op = ">=",  a = 2.0, b = 13, r = 0],
+        [map op = ">=",  a = 13.0, b = 2.0, r = 1],
+        [map op = ">=",  a = 13.0, b = 13.0, r = 1],
+        [map op = ">=",  a = 2.0, b = 13.0, r = 0],
+        [map op = ">=",  a = "abc", b = "abz", r = 0],
+        [map op = ">=",  a = "abc", b = "abc", r = 1],
+        [map op = ">=",  a = "abz", b = "abc", r = 1],
+        [map op = ">=",  a = "ab", b = "abz", r = 0],
+        [map op = ">=",  a = "abz", b = "ab", r = 1],
 
-        [struct op = "==",  a = 13, b = 2, r = 0],
-        [struct op = "==",  a = 13, b = 13, r = 1],
-        [struct op = "==",  a = 2, b = 13, r = 0],
-        [struct op = "==",  a = 13, b = 2.0, r = 0],
-        [struct op = "==",  a = 13, b = 13.0, r = 1],
-        [struct op = "==",  a = 2, b = 13.0, r = 0],
-        [struct op = "==",  a = 13.0, b = 2, r = 0],
-        [struct op = "==",  a = 13.0, b = 13, r = 1],
-        [struct op = "==",  a = 2.0, b = 13, r = 0],
-        [struct op = "==",  a = 13.0, b = 2.0, r = 0],
-        [struct op = "==",  a = 13.0, b = 13.0, r = 1],
-        [struct op = "==",  a = 2.0, b = 13.0, r = 0],
-        [struct op = "==",  a = "abc", b = "abz", r = 0],
-        [struct op = "==",  a = "abc", b = "abc", r = 1],
-        [struct op = "==",  a = "abz", b = "abc", r = 0],
-        [struct op = "==",  a = "ab", b = "abz", r = 0],
-        [struct op = "==",  a = "abz", b = "ab", r = 0],
-        [struct op = "==",  a = [array 1,2], b = [array 1,2], r = 1],
-        [struct op = "==",  a = [array 1,3], b = [array 1,2], r = 0],
-        [struct op = "==",  a = [array 1], b = [array 1,2], r = 0],
-        [struct op = "==",  a = [array 1,2], b = [array 1], r = 0],
+        [map op = "==",  a = 13, b = 2, r = 0],
+        [map op = "==",  a = 13, b = 13, r = 1],
+        [map op = "==",  a = 2, b = 13, r = 0],
+        [map op = "==",  a = 13, b = 2.0, r = 0],
+        [map op = "==",  a = 13, b = 13.0, r = 1],
+        [map op = "==",  a = 2, b = 13.0, r = 0],
+        [map op = "==",  a = 13.0, b = 2, r = 0],
+        [map op = "==",  a = 13.0, b = 13, r = 1],
+        [map op = "==",  a = 2.0, b = 13, r = 0],
+        [map op = "==",  a = 13.0, b = 2.0, r = 0],
+        [map op = "==",  a = 13.0, b = 13.0, r = 1],
+        [map op = "==",  a = 2.0, b = 13.0, r = 0],
+        [map op = "==",  a = "abc", b = "abz", r = 0],
+        [map op = "==",  a = "abc", b = "abc", r = 1],
+        [map op = "==",  a = "abz", b = "abc", r = 0],
+        [map op = "==",  a = "ab", b = "abz", r = 0],
+        [map op = "==",  a = "abz", b = "ab", r = 0],
+        [map op = "==",  a = [array 1,2], b = [array 1,2], r = 1],
+        [map op = "==",  a = [array 1,3], b = [array 1,2], r = 0],
+        [map op = "==",  a = [array 1], b = [array 1,2], r = 0],
+        [map op = "==",  a = [array 1,2], b = [array 1], r = 0],
         /* File equality not tested here. */
         /* Function equality not tested here. */
         /* Ptr equality not tested here. */
-        [struct op = "==",  a = #a.b#, b = #a.b#, r = 1],
-        [struct op = "==",  a = #a.b#, b = #a.c#, r = 0],
-        [struct op = "==",  a = #a.#, b = #a.b#, r = 0],
-        [struct op = "==",  a = #a.b#, b = #a.#, r = 0],
-        [struct op = "==",  a =[set 1,"a"], b = [set 1,"a"], r = 1],
-        [struct op = "==",  a =[set 1,"a"], b = [set 1,"b"], r = 0],
-        [struct op = "==",  a =[set 1], b = [set 1,"a"], r = 0],
-        [struct op = "==",  a =[set 1,"a"], b = [set 1], r = 0],
-        [struct op = "==",  a = [struct a=1,b=2], b = [struct a=1,b=2], r = 1],
-        [struct op = "==",  a = [struct a=1,b=2], b = [struct a=1,b=3], r = 0],
-        [struct op = "==",  a = [struct a=1], b = [struct a=1,b=2], r = 0],
-        [struct op = "==",  a = [struct a=1,b=2], b = [struct a=1], r = 0],
-        [struct op = "==",  a = NULL, b = NULL, r = 1],
-        [struct op = "==",  a = NULL, b = 0, r = 0],
+        [map op = "==",  a = #a.b#, b = #a.b#, r = 1],
+        [map op = "==",  a = #a.b#, b = #a.c#, r = 0],
+        [map op = "==",  a = #a.#, b = #a.b#, r = 0],
+        [map op = "==",  a = #a.b#, b = #a.#, r = 0],
+        [map op = "==",  a =[set 1,"a"], b = [set 1,"a"], r = 1],
+        [map op = "==",  a =[set 1,"a"], b = [set 1,"b"], r = 0],
+        [map op = "==",  a =[set 1], b = [set 1,"a"], r = 0],
+        [map op = "==",  a =[set 1,"a"], b = [set 1], r = 0],
+        [map op = "==",  a = [map a=1,b=2], b = [map a=1,b=2], r = 1],
+        [map op = "==",  a = [map a=1,b=2], b = [map a=1,b=3], r = 0],
+        [map op = "==",  a = [map a=1], b = [map a=1,b=2], r = 0],
+        [map op = "==",  a = [map a=1,b=2], b = [map a=1], r = 0],
+        [map op = "==",  a = NULL, b = NULL, r = 1],
+        [map op = "==",  a = NULL, b = 0, r = 0],
 
-        [struct op = "!=",  a = 13, b = 2, r = 1],
-        [struct op = "!=",  a = 13, b = 13, r = 0],
-        [struct op = "!=",  a = 2, b = 13, r = 1],
-        [struct op = "!=",  a = 13, b = 2.0, r = 1],
-        [struct op = "!=",  a = 13, b = 13.0, r = 0],
-        [struct op = "!=",  a = 2, b = 13.0, r = 1],
-        [struct op = "!=",  a = 13.0, b = 2, r = 1],
-        [struct op = "!=",  a = 13.0, b = 13, r = 0],
-        [struct op = "!=",  a = 2.0, b = 13, r = 1],
-        [struct op = "!=",  a = 13.0, b = 2.0, r = 1],
-        [struct op = "!=",  a = 13.0, b = 13.0, r = 0],
-        [struct op = "!=",  a = 2.0, b = 13.0, r = 1],
-        [struct op = "!=",  a = "abc", b = "abz", r = 1],
-        [struct op = "!=",  a = "abc", b = "abc", r = 0],
-        [struct op = "!=",  a = "abz", b = "abc", r = 1],
-        [struct op = "!=",  a = "ab", b = "abz", r = 1],
-        [struct op = "!=",  a = "abz", b = "ab", r = 1],
-        [struct op = "!=",  a = [array 1,2], b = [array 1,2], r = 0],
-        [struct op = "!=",  a = [array 1,3], b = [array 1,2], r = 1],
-        [struct op = "!=",  a = [array 1], b = [array 1,2], r = 1],
-        [struct op = "!=",  a = [array 1,2], b = [array 1], r = 1],
+        [map op = "!=",  a = 13, b = 2, r = 1],
+        [map op = "!=",  a = 13, b = 13, r = 0],
+        [map op = "!=",  a = 2, b = 13, r = 1],
+        [map op = "!=",  a = 13, b = 2.0, r = 1],
+        [map op = "!=",  a = 13, b = 13.0, r = 0],
+        [map op = "!=",  a = 2, b = 13.0, r = 1],
+        [map op = "!=",  a = 13.0, b = 2, r = 1],
+        [map op = "!=",  a = 13.0, b = 13, r = 0],
+        [map op = "!=",  a = 2.0, b = 13, r = 1],
+        [map op = "!=",  a = 13.0, b = 2.0, r = 1],
+        [map op = "!=",  a = 13.0, b = 13.0, r = 0],
+        [map op = "!=",  a = 2.0, b = 13.0, r = 1],
+        [map op = "!=",  a = "abc", b = "abz", r = 1],
+        [map op = "!=",  a = "abc", b = "abc", r = 0],
+        [map op = "!=",  a = "abz", b = "abc", r = 1],
+        [map op = "!=",  a = "ab", b = "abz", r = 1],
+        [map op = "!=",  a = "abz", b = "ab", r = 1],
+        [map op = "!=",  a = [array 1,2], b = [array 1,2], r = 0],
+        [map op = "!=",  a = [array 1,3], b = [array 1,2], r = 1],
+        [map op = "!=",  a = [array 1], b = [array 1,2], r = 1],
+        [map op = "!=",  a = [array 1,2], b = [array 1], r = 1],
         /* File equality not tested here. */
         /* Function equality not tested here. */
         /* Ptr equality not tested here. */
-        [struct op = "!=",  a = #a.b#, b = #a.b#, r = 0],
-        [struct op = "!=",  a = #a.b#, b = #a.c#, r = 1],
-        [struct op = "!=",  a = #a.#, b = #a.b#, r = 1],
-        [struct op = "!=",  a = #a.b#, b = #a.#, r = 1],
-        [struct op = "!=",  a =[set 1,"a"], b = [set 1,"a"], r = 0],
-        [struct op = "!=",  a =[set 1,"a"], b = [set 1,"b"], r = 1],
-        [struct op = "!=",  a =[set 1], b = [set 1,"a"], r = 1],
-        [struct op = "!=",  a =[set 1,"a"], b = [set 1], r = 1],
-        [struct op = "!=",  a = [struct a=1,b=2], b = [struct a=1,b=2], r = 0],
-        [struct op = "!=",  a = [struct a=1,b=2], b = [struct a=1,b=3], r = 1],
-        [struct op = "!=",  a = [struct a=1], b = [struct a=1,b=2], r = 1],
-        [struct op = "!=",  a = [struct a=1,b=2], b = [struct a=1], r = 1],
-        [struct op = "!=",  a = NULL, b = NULL, r = 0],
-        [struct op = "!=",  a = NULL, b = 0, r = 1],
+        [map op = "!=",  a = #a.b#, b = #a.b#, r = 0],
+        [map op = "!=",  a = #a.b#, b = #a.c#, r = 1],
+        [map op = "!=",  a = #a.#, b = #a.b#, r = 1],
+        [map op = "!=",  a = #a.b#, b = #a.#, r = 1],
+        [map op = "!=",  a =[set 1,"a"], b = [set 1,"a"], r = 0],
+        [map op = "!=",  a =[set 1,"a"], b = [set 1,"b"], r = 1],
+        [map op = "!=",  a =[set 1], b = [set 1,"a"], r = 1],
+        [map op = "!=",  a =[set 1,"a"], b = [set 1], r = 1],
+        [map op = "!=",  a = [map a=1,b=2], b = [map a=1,b=2], r = 0],
+        [map op = "!=",  a = [map a=1,b=2], b = [map a=1,b=3], r = 1],
+        [map op = "!=",  a = [map a=1], b = [map a=1,b=2], r = 1],
+        [map op = "!=",  a = [map a=1,b=2], b = [map a=1], r = 1],
+        [map op = "!=",  a = NULL, b = NULL, r = 0],
+        [map op = "!=",  a = NULL, b = 0, r = 1],
 
-        [struct op = "&",   a = 7, b = 13, r = 5],
-        [struct op = "&=",  a = 7, b = 13, r = 5],
+        [map op = "&",   a = 7, b = 13, r = 5],
+        [map op = "&=",  a = 7, b = 13, r = 5],
 
-        [struct op = "|",   a = 7, b = 13, r = 15],
-        [struct op = "|=",  a = 7, b = 13, r = 15],
+        [map op = "|",   a = 7, b = 13, r = 15],
+        [map op = "|=",  a = 7, b = 13, r = 15],
 
-        [struct op = "^",   a = 7, b = 13, r = 10],
-        [struct op = "^=",  a = 7, b = 13, r = 10],
+        [map op = "^",   a = 7, b = 13, r = 10],
+        [map op = "^=",  a = 7, b = 13, r = 10],
 
-        [struct op = "~",   a = #a.c#, b = "abc", r = 1],
-        [struct op = "~",   a = "abc", b = #a.c#, r = 1],
-        [struct op = "~",   a = #a(.)c#, b = "abc", r = 1],
-        [struct op = "~",   a = #a.#, b = "abc", r = 1],
-        [struct op = "~",   a = "abc", b = #a.#, r = 1],
-        [struct op = "~",   a = #a.c$#, b = "ab", r = 0],
-        [struct op = "~",   a = "ab", b = #a.c$#, r = 0],
+        [map op = "~",   a = #a.c#, b = "abc", r = 1],
+        [map op = "~",   a = "abc", b = #a.c#, r = 1],
+        [map op = "~",   a = #a(.)c#, b = "abc", r = 1],
+        [map op = "~",   a = #a.#, b = "abc", r = 1],
+        [map op = "~",   a = "abc", b = #a.#, r = 1],
+        [map op = "~",   a = #a.c$#, b = "ab", r = 0],
+        [map op = "~",   a = "ab", b = #a.c$#, r = 0],
 
-        [struct op = "~~",  a = #a(.)c#, b = "abc", r = "b"],
-        [struct op = "~~=", a = #a(.)c#, b = "abc", r = "b"],
-        [struct op = "~~",  a = "abc", b = #a(.)c#, r = "b"],
-        [struct op = "~~=", a = "abc", b = #a(.)c#, r = "b"],
-        [struct op = "~~",  a = #a(.)c$#, b = "ab", r = NULL],
-        [struct op = "~~=", a = #a(.)c$#, b = "ab", r = NULL],
-        [struct op = "~~",  a = "ab", b = #a(.)c$#, r = NULL],
-        [struct op = "~~=", a = "ab", b = #a(.)c$#, r = NULL],
+        [map op = "~~",  a = #a(.)c#, b = "abc", r = "b"],
+        [map op = "~~=", a = #a(.)c#, b = "abc", r = "b"],
+        [map op = "~~",  a = "abc", b = #a(.)c#, r = "b"],
+        [map op = "~~=", a = "abc", b = #a(.)c#, r = "b"],
+        [map op = "~~",  a = #a(.)c$#, b = "ab", r = NULL],
+        [map op = "~~=", a = #a(.)c$#, b = "ab", r = NULL],
+        [map op = "~~",  a = "ab", b = #a(.)c$#, r = NULL],
+        [map op = "~~=", a = "ab", b = #a(.)c$#, r = NULL],
 
-        [struct op = "~~~", a = #a(.)c(.)e#, b = "abcde", r = [array "b", "d"]],
-        [struct op = "~~~", a = "abcde", b = #a(.)c(.)e#, r = [array "b", "d"]],
+        [map op = "~~~", a = #a(.)c(.)e#, b = "abcde", r = [array "b", "d"]],
+        [map op = "~~~", a = "abcde", b = #a(.)c(.)e#, r = [array "b", "d"]],
     ];
 
     /*
@@ -373,7 +373,7 @@ printf("sets...\n");
      * Work sets with random data.
      */
     var victim     = [set];
-    var state      = [struct];
+    var state      = [map];
     var i;
     var e;
     var v;
@@ -425,8 +425,8 @@ printf("del...\n");
     /*
      * Work the del() function with random data.
      */
-    var victim = [struct];
-    var state  = [struct];
+    var victim = [map];
+    var state  = [map];
     var i;
     var e;
     var v;
@@ -719,11 +719,11 @@ printf("func...\n");
     if (x[-4] != NULL)
        fail("-ve (-4) index did not produce expected result");
 
-    x = [struct a=1, b=2, c=[array 3, 4]];
+    x = [map a=1, b=2, c=[array 3, 4]];
     if ((y = copy(x)) != x)
-        fail("copy of struct was not equal");
+        fail("copy of map was not equal");
     if (eq(x, y))
-        fail("copy of struct was same object");
+        fail("copy of map was same object");
 
     x = [set 1, 2, [array 3, 4]];
     if ((y = copy(x)) != x)
@@ -807,7 +807,7 @@ printf("func...\n");
 
     x = 123;
     if (super(scope()).x != 123)
-        fail("scope() returned wrong struct");
+        fail("scope() returned wrong map");
 
     if (!isatom("abc"))
         fail("isatom() reported string as non-atom");
@@ -825,8 +825,8 @@ printf("func...\n");
         fail("len(\"ab\") didn't produce 1");
     if (len([array 1, 2, [array]]) != 3)
         fail("len(array) didn't produce expected result");
-    if (len([struct a=1, b=2, c=[array], d=4]) != 4)
-        fail("len(struct) didn't produce expected result");
+    if (len([map a=1, b=2, c=[array], d=4]) != 4)
+        fail("len(map) didn't produce expected result");
     if (len([set 1, 2, [array], 4, 5]) != 5)
         fail("len(set) didn't produce expected result");
     if (len(alloc(5, 1)) != 5)
@@ -845,12 +845,12 @@ printf("func...\n");
     if (!eq(string([array]), "<array>"))
         fail("string() failed to convert an array to \"<array>\"");
 
-    if (struct("a", 1, "b", 2) != [struct a=1, b=2])
-        fail("struct() failed to produce the expected result");
-    if (typeof(struct()) != "struct")
-        fail("struct() failed to produce a struct");
-    if (len(struct()) != 0)
-        fail("struct() failed to produce an empty struct");
+    if (map("a", 1, "b", 2) != [map a=1, b=2])
+        fail("map() failed to produce the expected result");
+    if (typeof(map()) != "map")
+        fail("map() failed to produce a map");
+    if (len(map()) != 0)
+        fail("map() failed to produce an empty map");
 
     if (set("a", 1, "b", 2) != [set "a", 1, "b", 2])
         fail("set() failed to produce the expected result");
@@ -863,18 +863,18 @@ printf("func...\n");
     (
         x in
         [array
-            [struct name="int",     obj=123],
-            [struct name="float",   obj=123.0],
-            [struct name="string",  obj="123"],
-            [struct name="struct",  obj=[struct]],
-            [struct name="array",   obj=[array]],
-            [struct name="set",     obj=[set]],
-            [struct name="func",    obj=[func(){}]],
-            [struct name="mem",     obj=$alloc(0)],
-            [struct name="ptr",     obj=$&x],
-            [struct name="regexp",  obj=#.#],
-            [struct name="NULL",    obj=NULL],
-            [struct name="file",    obj=currentfile()],
+            [map name="int",     obj=123],
+            [map name="float",   obj=123.0],
+            [map name="string",  obj="123"],
+            [map name="map",  obj=[map]],
+            [map name="array",   obj=[array]],
+            [map name="set",     obj=[set]],
+            [map name="func",    obj=[func(){}]],
+            [map name="mem",     obj=$alloc(0)],
+            [map name="ptr",     obj=$&x],
+            [map name="regexp",  obj=#.#],
+            [map name="NULL",    obj=NULL],
+            [map name="file",    obj=currentfile()],
         ]
     )
     {
@@ -912,7 +912,7 @@ printf("func...\n");
     if (call(afunc, 1, 2, NULL) != 3)
         fail("call() didn't return correctly");
 
-    x = keys([struct a=1, b=2]);
+    x = keys([map a=1, b=2]);
     if (x != [array "a", "b"] && x != [array "b", "a"])
         fail("keys() didn't produce the expected result");
 
@@ -1034,17 +1034,17 @@ printf("func...\n");
         fail("gettokens returned wrong value");
 
     z = [array
-        [struct f = acos, a = [array 0.5], r = 1.0472, e = 1e-5],
-        [struct f = sin, a = [array 0.5], r = 0.479426, e = 1e-5],
-        [struct f = tan, a = [array 0.5], r = 0.546302, e = 1e-5],
-        [struct f = asin, a = [array 0.5], r = 0.523599, e = 1e-5],
-        [struct f = atan, a = [array 0.5], r = 0.463648, e = 1e-5],
-        [struct f = atan2, a = [array 0.5, 0.4], r = 0.896055, e = 1e-5],
-        [struct f = exp, a = [array 0.5], r = 1.64872, e = 1e-5],
-        [struct f = log, a = [array 0.5], r = -0.693147, e = 1e-5],
-        [struct f = log10, a = [array 0.5], r = -0.30103, e = 1e-5],
-        [struct f = pow, a = [array 0.5, 0.4], r = 0.757858, e = 1e-5],
-        [struct f = sqrt, a = [array 0.5], r = 0.707107, e = 1e-5],
+        [map f = acos, a = [array 0.5], r = 1.0472, e = 1e-5],
+        [map f = sin, a = [array 0.5], r = 0.479426, e = 1e-5],
+        [map f = tan, a = [array 0.5], r = 0.546302, e = 1e-5],
+        [map f = asin, a = [array 0.5], r = 0.523599, e = 1e-5],
+        [map f = atan, a = [array 0.5], r = 0.463648, e = 1e-5],
+        [map f = atan2, a = [array 0.5, 0.4], r = 0.896055, e = 1e-5],
+        [map f = exp, a = [array 0.5], r = 1.64872, e = 1e-5],
+        [map f = log, a = [array 0.5], r = -0.693147, e = 1e-5],
+        [map f = log10, a = [array 0.5], r = -0.30103, e = 1e-5],
+        [map f = pow, a = [array 0.5, 0.4], r = 0.757858, e = 1e-5],
+        [map f = sqrt, a = [array 0.5], r = 0.707107, e = 1e-5],
     ];
 
     forall (x in z)

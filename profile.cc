@@ -33,7 +33,7 @@
 #include "op.h"
 #include "exec.h"
 #include "null.h"
-#include "struct.h"
+#include "map.h"
 #include <time.h>
 
 /* This is required for the high resolution timer. */
@@ -134,7 +134,7 @@ ici_profilecall_new(profilecall *called_by)
 
     /* Fill in ici_profilecall specific bits. */
     pc->pc_calledby = called_by;
-    pc->pc_calls = new_struct();
+    pc->pc_calls = new_map();
     if (pc->pc_calls == NULL)
     {
         ici_tfree(pc, profilecall);
