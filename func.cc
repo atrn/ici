@@ -1,6 +1,7 @@
 #define ICI_CORE
 #include "fwd.h"
 #include "func.h"
+#include "debugger.h"
 #include "exec.h"
 #include "ptr.h"
 #include "map.h"
@@ -42,7 +43,7 @@ int op_return()
 
     if (UNLIKELY(debug_active))
     {
-        o_debug->idbg_fnresult(os.a_top[-1]);
+        o_debug->fnresult(os.a_top[-1]);
     }
 
     x = xs.a_top - 1;

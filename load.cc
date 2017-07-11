@@ -337,7 +337,7 @@ static int push_os_path_elements(array *a)
                 continue;
             }
             memcpy(fname, p, (q - p) - 4);
-            strcpy(fname + (q - p) - 4, "/lib/ici4");
+            strcpy(fname + (q - p) - 4, "/lib/anici");
             PUSH(a, fname);
         }
     }
@@ -345,7 +345,7 @@ static int push_os_path_elements(array *a)
     /*
      * Put a configuration defined location on, if there is one..
      */
-    PUSH(a, ICI_CONFIG_PREFIX "/lib/anici4");
+    PUSH(a, ICI_CONFIG_PREFIX "/lib/anici");
 #   endif
     return 0;
 }

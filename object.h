@@ -40,12 +40,39 @@ struct object
      *
      * --ici-api-- continued.
      */
-    static constexpr int O_MARK  =         0x01;    /* Garbage collection mark. */
-    static constexpr int O_ATOM  =         0x02;    /* Is a member of the atom pool. */
-    static constexpr int O_TEMP  =         0x04;    /* Is a re-usable temp (flag for asserts). */
-    static constexpr int O_SUPER =         0x08;    /* Has super (is objwsup derived). */
+    static constexpr int O_MARK  = 0x01;    /* Garbage collection mark. */
+    static constexpr int O_ATOM  = 0x02;    /* Is a member of the atom pool. */
+    static constexpr int O_TEMP  = 0x04;    /* Is a re-usable temp (flag for asserts). */
+    static constexpr int O_SUPER = 0x08;    /* Has super (is objwsup derived). */
 
-
+    /*
+     * o_tcode              The small integer type code that characterises
+     *                      this object. Standard core types have well known
+     *                      codes identified by the TC_* values. Other
+     *                      types are registered at run-time and are given
+     *                      the next available code.
+     *
+     *                      This code can be used to index types[] to discover
+     *                      a pointer to the type structure.
+     *
+     * o_flags              Some boolean flags. Well known flags that apply to
+     *                      all objects occupy the lower five bits of this byte.
+     *                      The upper three bits are available for object specific
+     *                      use. See O_* below.
+     *
+     * o_nrefs              A small integer count of the number of references
+     *                      to this object that are *not* otherwise visible
+     *                      to the garbage collector.
+     *
+     * o_leafz              If (and only if) this object does not reference any
+     *                      other objects (i.e. its t_mark() function just sets
+     *                      the O_MARK flag), and its memory cost fits in this
+     *                      signed byte (< 127), then its size can be set here
+     *                      to accelerate the marking phase of the garbage
+     *                      collector. Else it must be zero.
+     *
+     * --ici-api-- continued.
+     */
     uint8_t        o_tcode;     // type code, index into types[]
     uint8_t        o_flags;     // flags, see above
     uint8_t        o_nrefs;     // # non-ICI references
@@ -108,7 +135,7 @@ struct object
      * Return true if this object has the given flags set.
      */
     inline bool flagged(uint8_t mask) const {
-        return flags(mask) != 0;
+        return flags(mask) == mask;
     }
 
     /*
@@ -264,35 +291,6 @@ struct object
     }
 };
 /*
- * o_tcode              The small integer type code that characterises
- *                      this object. Standard core types have well known
- *                      codes identified by the TC_* values. Other
- *                      types are registered at run-time and are given
- *                      the next available code.
- *
- *                      This code can be used to index types[] to discover
- *                      a pointer to the type structure.
- *
- * o_flags              Some boolean flags. Well known flags that apply to
- *                      all objects occupy the lower five bits of this byte.
- *                      The upper three bits are available for object specific
- *                      use. See O_* below.
- *
- * o_nrefs              A small integer count of the number of references
- *                      to this object that are *not* otherwise visible
- *                      to the garbage collector.
- *
- * o_leafz              If (and only if) this object does not reference any
- *                      other objects (i.e. its t_mark() function just sets
- *                      the O_MARK flag), and its memory cost fits in this
- *                      signed byte (< 127), then its size can be set here
- *                      to accelerate the marking phase of the garbage
- *                      collector. Else it must be zero.
- *
- * --ici-api-- continued.
- */
-
-/*
  * "Object with super." This is a specialised header for all objects that
  * support a super pointer.  All such objects must have the O_SUPER flag set
  * in o_flags and provide the 't_fetch_super()' and 't_assign_super()'
@@ -304,12 +302,12 @@ struct object
  */
 struct objwsup : object
 {
+    objwsup *o_super;
+
     objwsup(uint8_t tcode, uint8_t flags, uint8_t nrefs, uint8_t leafz)
         : object(tcode, flags, nrefs, leafz)
         , o_super(nullptr)
     {}
-
-    objwsup *o_super;
 };
 
 inline objwsup *objwsupof(object *o) { return static_cast<objwsup *>(o); }
@@ -356,6 +354,9 @@ inline size_t ici_mark(object *o) {
     return o->mark();
 }
 
+/*
+ * Mark the given object iff it is not NULL. Otherwise return 0.
+ */
 inline size_t maybe_mark(object *o) {
     return o == nullptr ? 0 : ici_mark(o);
 }

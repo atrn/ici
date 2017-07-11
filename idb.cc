@@ -29,19 +29,17 @@ int debug_ignore_err = 0;
  * Ignore errors within exec loop. Used by internal calls to
  * exec that handle errors themselves, e.g., f_include().
  */
-void
-debug_ignore_errors()
+void debug_ignore_errors()
 {
-    debug_ignore_err = 1;
+    ++debug_ignore_err;
 }
 
 /*
  * Restore error processing.
  */
-void
-debug_respect_errors()
+void debug_respect_errors()
 {
-    debug_ignore_err = 0;
+    --debug_ignore_err;
 }
 
 /*
@@ -61,7 +59,7 @@ debug_respect_errors()
 static int
 f_debug(...)
 {
-    long        v, t;
+    int64_t v, t;
 
     t = debug_enabled;
     if (NARGS() != 0)
@@ -75,7 +73,7 @@ f_debug(...)
 
 ICI_DEFINE_CFUNCS(debug)
 {
-    ICI_DEFINE_CFUNC(    debug,        f_debug),
+    ICI_DEFINE_CFUNC(debug, f_debug),
     ICI_CFUNCS_END()
 };
 

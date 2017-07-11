@@ -190,13 +190,14 @@ constexpr int objnamez = 32;
  */
 
 class  archive;
+class  debugger;
 class  ftype;
 class  type;
 
 struct array;
 struct catcher;
 struct cfunc;
-struct debug;
+// struct debug;
 struct exec;
 struct expr;
 struct file;
@@ -249,7 +250,7 @@ extern DLI int                  record_line_nums;               /* See lex.c */
 extern DLI char                 *buf;                           /* See buf.h */
 extern DLI size_t               bufz;                           /* See buf.h */
 extern DLI mark                 o_mark;
-extern DLI debug                *o_debug;
+extern DLI debugger             *o_debug;
 extern char                     version_string[];
 extern unsigned long const      crc_table[256];
 extern int                      exec_count;
@@ -375,8 +376,10 @@ extern char          *objname(char [objnamez], object *);
 extern DLI int        debug_enabled;
 extern int            debug_ignore_err;
 
+#ifndef NODEBUGGING
 extern DLI void       debug_ignore_errors();
 extern DLI void       debug_respect_errors();
+#endif
 
 /*
  * ici_sopen() is deprecated and calls ici_open_charbuf() to obtain a
@@ -395,6 +398,8 @@ inline file *sopen(char *data, int size, object *ref)
      * Just to save on lots of ifdefs.
      */
 #   define debug_active     0
+#define debug_ignore_errors()
+#define debug_respect_errors()
 #else
     /*
      * Debugging is compiled-in. It is active if it is enabled at

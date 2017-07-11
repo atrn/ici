@@ -1,6 +1,7 @@
 #define ICI_CORE
 #include "fwd.h"
 #include "cfunc.h"
+#include "debugger.h"
 #include "exec.h"
 #include "ptr.h"
 #include "map.h"
@@ -201,7 +202,7 @@ int cfunc_type::call(object *o, object *subject)
 #endif
         if (UNLIKELY(debug_active))
         {
-            o_debug->idbg_fnresult(os.a_top[-1]);
+            o_debug->fnresult(os.a_top[-1]);
         }
         return result;
     }

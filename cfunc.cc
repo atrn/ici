@@ -442,8 +442,7 @@ fail:
  *
  * This --func-- forms part of ICI's exernal API --ici-api-- 
  */
-int
-argerror(int i)
+int argerror(int i)
 {
     char        n1[objnamez];
     char        n2[objnamez];
@@ -485,8 +484,7 @@ argerror(int i)
  *
  * This function forms part of ICI's exernal API --ici-api-- --func--
  */
-int
-argcount(int n)
+int argcount(int n)
 {
     char        n1[objnamez];
 
@@ -510,8 +508,7 @@ argcount(int n)
  *
  * This function forms part of ICI's exernal API --ici-api-- --func--
  */
-int
-argcount2(int m, int n)
+int argcount2(int m, int n)
 {
     char        n1[objnamez];
 
@@ -535,8 +532,7 @@ argcount2(int m, int n)
  *
  * This function forms part of ICI's exernal API --ici-api-- --func--
  */
-int
-ret_with_decref(object *o)
+int ret_with_decref(object *o)
 {
     if (o == NULL)
         return 1;
@@ -562,8 +558,7 @@ ret_with_decref(object *o)
  *
  * This function forms part of ICI's exernal API --ici-api-- --func--
  */
-int
-ret_no_decref(object *o)
+int ret_no_decref(object *o)
 {
     if (o == NULL)
         return 1;
@@ -579,8 +574,7 @@ ret_no_decref(object *o)
  *
  * This function forms part of ICI's exernal API --ici-api-- --func--
  */
-int
-int_ret(int64_t ret)
+int int_ret(int64_t ret)
 {
     return ret_with_decref(new_int(ret));
 }
@@ -593,8 +587,7 @@ int_ret(int64_t ret)
  *
  * This function forms part of ICI's exernal API --ici-api-- --func--
  */
-int
-float_ret(double ret)
+int float_ret(double ret)
 {
     return ret_with_decref(new_float(ret));
 }
@@ -605,14 +598,12 @@ float_ret(double ret)
  *
  * This function forms part of ICI's exernal API --ici-api-- --func--
  */
-int
-str_ret(const char *str)
+int str_ret(const char *str)
 {
     return ret_with_decref(new_str_nul_term(str));
 }
 
-static object *
-not_a(const char *what, const char *typ)
+static object * not_a(const char *what, const char *typ)
 {
     set_error("%s is not a %s", what, typ);
     return NULL;
@@ -623,7 +614,7 @@ not_a(const char *what, const char *typ)
  * current scope. The array is not increfed - it is assumed to be still
  * referenced from the scope until the caller has finished with it.
  */
-array *need_path()
+array * need_path()
 {
     object           *o;
 
@@ -643,7 +634,7 @@ array *need_path()
  *
  * This --func-- forms part of the --ici-api--.
  */
-file *need_stdin()
+file * need_stdin()
 {
     file          *f;
 
@@ -663,7 +654,7 @@ file *need_stdin()
  *
  * This --func-- forms part of the --ici-api--.
  */
-file *need_stdout()
+file * need_stdout()
 {
     file          *f;
 
@@ -679,8 +670,7 @@ file *need_stdout()
  * For any C functions that return a double and take 0, 1, or 2 doubles as
  * arguments.
  */
-static int
-f_math()
+static int f_math()
 {
     double      av[2];
     double      r;
@@ -713,12 +703,11 @@ f_math()
  *
  * cf_arg2              The name (an ICI string) of the core ICI extension
  *                      module that defines the function.  (Eg "core1",
- *                      meaning the function is in "ici4core1.ici".  Only
- *                      "ici4core.ici" is always parsed.  Others are
+ *                      meaning the function is in "anici-core1.ici".  Only
+ *                      "anici-core.ici" is always parsed.  Others are
  *                      on-demand.)
  */
-static int
-f_coreici(object *s)
+static int f_coreici(object *s)
 {
     object           *c;
     object           *f;
@@ -805,8 +794,7 @@ static int f_map()
     return ret_with_decref(s);
 }
 
-static int
-f_set()
+static int f_set()
 {
     int      nargs;
     set     *s;
@@ -825,8 +813,7 @@ f_set()
     return ret_with_decref(s);
 }
 
-static int
-f_keys()
+static int f_keys()
 {
     array    *k;
 
@@ -867,8 +854,7 @@ f_keys()
     return ret_with_decref(k);
 }
 
-static int
-f_copy(object *o)
+static int f_copy(object *o)
 {
     if (o != NULL)
         return ret_with_decref(ici_copy(o));
@@ -877,8 +863,7 @@ f_copy(object *o)
     return ret_with_decref(ici_copy(ARG(0)));
 }
 
-static int
-f_typeof()
+static int f_typeof()
 {
     if (NARGS() != 1)
         return argcount(1);
@@ -887,11 +872,10 @@ f_typeof()
     return ret_no_decref(ARG(0)->otype()->ici_name());
 }
 
-static int
-f_nels()
+static int f_nels()
 {
     object  *o;
-    size_t     size;
+    size_t  size;
 
     if (NARGS() != 1)
         return argcount(1);
@@ -913,8 +897,7 @@ f_nels()
     return int_ret(size);
 }
 
-static int
-f_int()
+static int f_int()
 {
     object  *o;
     long       v;
@@ -945,11 +928,10 @@ f_int()
     return int_ret(v);
 }
 
-static int
-f_float()
+static int f_float()
 {
     object  *o;
-    double     v;
+    double  v;
 
     if (NARGS() != 1)
         return argcount(1);
@@ -965,8 +947,7 @@ f_float()
     return float_ret(v);
 }
 
-static int
-f_num()
+static int f_num()
 {
     object  *o;
     double  f;
@@ -1001,8 +982,7 @@ f_num()
     return set_error("%s is not a number", objname(n, o));
 }
 
-static int
-f_string()
+static int f_string()
 {
     object  *o;
 
@@ -1022,8 +1002,7 @@ f_string()
     return str_ret(buf);
 }
 
-static int
-f_eq()
+static int f_eq()
 {
     object   *o1;
     object   *o2;
@@ -1035,11 +1014,10 @@ f_eq()
     return ret_no_decref(o_zero);
 }
 
-static int
-f_push()
+static int f_push()
 {
-    array *a;
-    object   *o;
+    array  *a;
+    object *o;
 
     if (typecheck("ao", &a, &o))
         return 1;
@@ -1048,11 +1026,10 @@ f_push()
     return ret_no_decref(o);
 }
 
-static int
-f_rpush()
+static int f_rpush()
 {
-    array *a;
-    object   *o;
+    array  *a;
+    object *o;
 
     if (typecheck("ao", &a, &o))
         return 1;
@@ -1061,8 +1038,7 @@ f_rpush()
     return ret_no_decref(o);
 }
 
-static int
-f_pop()
+static int f_pop()
 {
     array  *a;
     object *o;
@@ -1074,8 +1050,7 @@ f_pop()
     return ret_no_decref(o);
 }
 
-static int
-f_rpop()
+static int f_rpop()
 {
     array  *a;
     object *o;
@@ -1087,11 +1062,10 @@ f_rpop()
     return ret_no_decref(o);
 }
 
-static int
-f_top()
+static int f_top()
 {
     array *a;
-    long        n = 0;
+    long  n = 0;
 
     switch (NARGS())
     {
@@ -1108,13 +1082,12 @@ f_top()
     return ret_no_decref(a->get(n));
 }
 
-static int
-f_parse()
+static int f_parse()
 {
-    object     *o;
-    file       *f;
-    map *s;              /* Statics. */
-    map *a;              /* Autos. */
+    object *o;
+    file   *f;
+    map    *s;              /* Statics. */
+    map    *a;              /* Autos. */
 
     switch (NARGS())
     {
@@ -1172,10 +1145,10 @@ fail:
 
 static int f_include()
 {
-    str        *filename;
-    map *a;
-    int         rc;
-    file       *f;
+    str  *filename;
+    map  *a;
+    int  rc;
+    file *f;
 
     switch (NARGS())
     {
@@ -1195,32 +1168,24 @@ static int f_include()
     }
     if (!isstring(filename))
         return argerror(0);
-#ifndef NODEBUGGING
     debug_ignore_errors();
-#endif
     if (call(SS(fopen), "o=o", &f, filename))
     {
-        char    fname[1024];
+        char fname[1024];
 
         strncpy(fname, filename->s_chars, 1023);
         if (!find_on_path(fname, NULL))
         {
-#ifndef NODEBUGGING
             debug_respect_errors();
-#endif
             return set_error("could not find \"%s\" on path", fname);
         }
         if (call(SS(fopen), "o=s", &f, fname))
         {
-#ifndef NODEBUGGING
             debug_respect_errors();
-#endif
             return 1;
         }
     }
-#ifndef NODEBUGGING
     debug_respect_errors();
-#endif
     rc = parse_file(f, objwsupof(a));
     call(SS(close), "o", f);
     f->decref();

@@ -24,7 +24,7 @@ int f_archive_restore(...);
 int archive_op_func_code(int (*fn)());
 int (*archive_op_func(int))();
 
-#if defined(__i386__) || defined(__x86_64__)
+#if defined (__i386__) || defined (__x86_64__)
 #define ICI_ARCHIVE_LITTLE_ENDIAN_HOST 1
 #endif
 

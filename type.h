@@ -43,9 +43,10 @@ private:
 protected:
     /*
      * Type feature flags are used to indicate that a type overrides
-     * the similarly named member functions and are used to detetermine
+     * the similarly named member functions. These are used to detetermine
      * behaviour in a number of places that do not want the default
-     * implementation.
+     * implementation (the old code used null function pointers as
+     * flags).
      */
     static constexpr int has_fetch_method = 1<<0;
     static constexpr int has_objname      = 1<<1;
@@ -73,7 +74,7 @@ protected:
 
 public:
     /*
-     * Type flag tests.
+     * Type feature predicates.
      */
     inline bool can_fetch_method() const { return _flags & has_fetch_method; }
     inline bool can_objname() const      { return _flags & has_objname; }

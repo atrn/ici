@@ -1,6 +1,7 @@
 #define ICI_CORE
 #include "exec.h"
 #include "op.h"
+#include "debugger.h"
 #include "catcher.h"
 #include "ptr.h"
 #include "func.h"
@@ -364,7 +365,7 @@ object *evaluate(object *code, int n_operands)
             if (UNLIKELY(debug_active))
             {
                 xs.push(o); /* Restore formal state. */
-                o_debug->idbg_src(srcof(o));
+                o_debug->src(srcof(o));
                 --xs.a_top;
                 continue;
             }
@@ -661,7 +662,7 @@ object *evaluate(object *code, int n_operands)
                 }
                 if (UNLIKELY(debug_active))
 		{
-                    o_debug->idbg_fncall(os.a_top[-1], ARGS(), NARGS());
+                    o_debug->fncall(os.a_top[-1], ARGS(), NARGS());
 		}
                 if (os.a_top[-1]->call(o))
                 {
@@ -1261,7 +1262,7 @@ object *evaluate(object *code, int n_operands)
              */
             if (UNLIKELY(debug_active && !debug_ignore_err))
 	    {
-                o_debug->idbg_error(error, ex->x_src);
+                o_debug->error(error, ex->x_src);
 	    }
 #endif
             expand_error(ex->x_src->s_lineno, ex->x_src->s_filename);
