@@ -12,7 +12,7 @@
 namespace ici
 {
 
-static struct tag_owned {} owned;
+extern struct tag_owned {} owned;
 
 /*
  * The following portion of this file exports to ici.h. --ici.h-start--

@@ -5,9 +5,9 @@
 namespace ici
 {
 
-void mark_type::free(object *)
-{
-}
+mark::mark() : object(TC_MARK) {}
+
+void mark_type::free(object *) {}
 
 mark o_mark;
 

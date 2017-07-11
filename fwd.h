@@ -258,7 +258,7 @@ extern DLI ftype                *popen_ftype;
 extern DLI ftype                *parse_ftype;
 
 /*
- * This ICI NULL object. It is of type '(object *)'.
+ * This ICI NULL object.
  *
  * This --macro-- forms part of the --ici-api--.
  */
@@ -281,24 +281,25 @@ extern int            main(int, char **);
 extern int            init();
 extern void           uninit();
 extern void           atexit(void (*)(), wrap *);
+extern void           uninit_compile();
+extern void           uninit_cfunc();
 
 extern object        *atom_probe(object *o);
 extern object        *atom(object *, int);
+extern void           reclaim();
+extern int            unassign(set *, object *);
+extern int            unassign(map *, object *);
+extern void           invalidate_lookaside(map *);
 
 extern int           parse_file(file *, objwsup *);
 extern int           parse_file(const char *, char *, ftype *);
 extern int           parse_file(const char *);
 extern object        *eval(str *);
 
-extern void           reclaim();
-extern int            unassign(set *, object *);
-extern int            unassign(map *, object *);
-
-extern void           invalidate_lookaside(map *);
-
 extern unsigned long  crc(unsigned long, unsigned char const *, ptrdiff_t);
 
 extern str           *str_get_nul_term(const char *);
+extern int            str_need_size(str *, size_t);
 extern str           *str_alloc(size_t);
 
 extern array         *new_array(ptrdiff_t = 0);
@@ -316,9 +317,6 @@ extern map           *new_map();
 extern ici_int       *new_int(int64_t);
 extern ici_float     *new_float(double);
 extern handle        *new_handle(void *, str *, objwsup *);
-
-extern int            str_need_size(str *, size_t);
-
 extern method        *new_method(object *, object *);
 extern mem           *new_mem(void *, size_t, int, void (*)(void *));
 
@@ -338,7 +336,7 @@ extern int            float_ret(double);
 
 extern int            register_type(type *);
 
-extern file          *open_charbuf(char *, int, object *, int);
+extern file          *open_charbuf(char *, int, object *, bool);
 extern file          *new_file(void *, ftype *, str *, object *);
 extern int            close_file(file *f);
 
@@ -381,10 +379,14 @@ extern DLI void       debug_ignore_errors();
 extern DLI void       debug_respect_errors();
 
 /*
- * ici_sopen() is now a macro that calls ici_open_charbuf() for read-only access.
- * Included only for backward compatibility; use open_charbuf() instead.
+ * ici_sopen() is deprecated and calls ici_open_charbuf() to obtain a
+ * read-only file.  It is included only for backward compatibility;
+ * use open_charbuf() instead.
  */
-#define sopen(data, sz, ref) open_charbuf((data), (sz), (ref), 1)
+inline file *sopen(char *data, int size, object *ref)
+{
+    return open_charbuf(data, size, ref, true);
+}
 
 #ifdef NODEBUGGING
     /*
@@ -456,9 +458,6 @@ extern int             op_call();
 
 extern int             set_error(const char *, ...);
 extern void            expand_error(int, str *);
-
-extern void            uninit_compile();
-extern void            uninit_cfunc();
 
 extern int             lex(parse *, array *);
 extern int             compile_expr(array *, expr *, int);

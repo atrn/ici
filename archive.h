@@ -53,7 +53,6 @@ public:
     void stop();
 
     inline objwsup *scope() const { return a_scope; }
-
     inline int get() { return a_file->getch(); }
     inline int write(const void *data, int len) { return a_file->write(data, len); }
 
@@ -67,7 +66,6 @@ private:
     objwsup *   a_scope; // The scope at the time of archiving
 
     archive() {}
-
 };
 
 inline archive *archive_of(object *o) { return static_cast<archive *>(o); }

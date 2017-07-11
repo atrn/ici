@@ -21,7 +21,7 @@ namespace ici
  */
 struct src : object
 {
-    src() : s_lineno(0), s_filename(nullptr) {}
+    src() : object(TC_SRC, 0, 1), s_lineno(0), s_filename(nullptr) {}
 
     int s_lineno;
     str *s_filename;

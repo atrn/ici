@@ -26,7 +26,7 @@ struct charbuf
     int     cb_size;
     int     cb_eof;
     object *cb_ref;
-    int     cb_readonly;
+    bool    cb_readonly;
 };
 
 class charbuf_ftype : public ftype
@@ -211,7 +211,7 @@ ftype *strbuf_ftype = ptr_to_instance_of<class stringbuf_ftype>();
  *
  * This --func-- forms part of the --ici-api--.
  */
-file *open_charbuf(char *data, int size, object *ref, int readonly)
+file *open_charbuf(char *data, int size, object *ref, bool readonly)
 {
     file     *f      = NULL;
     charbuf  *cb;

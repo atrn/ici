@@ -1566,19 +1566,18 @@ f_sopen()
     file  *f;
     char        *str;
     const char  *mode;
-    int         readonly;
+    bool        readonly = true;
 
     mode = "r";
     if (typecheck(NARGS() > 1 ? "ss" : "s", &str, &mode))
         return 1;
-    readonly = 1;
     if (strcmp(mode, "r") != 0 && strcmp(mode, "rb") != 0)
     {
         if (strcmp(mode, "r+") != 0 && strcmp(mode, "r+b") != 0)
         {
             return set_error("attempt to use mode \"%s\" in sopen()", mode);
         }
-        readonly = 0;
+        readonly = false;
     }
     if ((f = open_charbuf(str, stringof(ARG(0))->s_nchars, ARG(0), readonly)) == NULL)
         return 1;
@@ -1592,19 +1591,18 @@ f_mopen()
     mem        *mem;
     file       *f;
     const char *mode;
-    int         readonly;
+    int         readonly = true;
 
     mode = "r";
     if (typecheck(NARGS() > 1 ? "ms" : "m", &mem, &mode))
         return 1;
-    readonly = 1;
     if (strcmp(mode, "r") && strcmp(mode, "rb"))
     {
         if (strcmp(mode, "r+") && strcmp(mode, "r+b"))
         {
             return set_error("attempt to use mode \"%s\" in mopen()", mode);
         }
-        readonly = 0;
+        readonly = false;
     }
     if (mem->m_accessz != 1)
     {

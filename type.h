@@ -14,46 +14,49 @@ namespace ici
 
 /*
  * Every object has a header. In the header the o_tcode (type code) field
- * can be used to index the types[] array to discover the obejct's
- * type structure. This is the type structure.
+ * can be used to index the global ici::types[] array to discover the obejct's
+ * type class. This is the type class.
  *
- * Implementations of new types typically declare one of these strutures
- * statically and initialise its members with the functions that determine the
- * nature of the new type.  (Actually, most of the time it is only initialised
- * as far as the 't_name' field.  The remainder is mostly for intenal ICI use
- * and should be left zero.)
+ * Implementations of new types typically declare one of these classes
+ * and implement the member functions that determine the nature of the
+ * new type and use the ptr_to_instance_of() template function (fwd.h)
+ * to create a single instance of the type class.
  *
- * This --struct-- forms part of the --ici-api--.
+ * This --class-- forms part of the --ici-api--.
  */
 class type
 {
 public:
     /*
      * The name of this type. Use for the implementation of 'typeof()'
-     * and in error messages.  But apart from that, type names have no
+     * and in error messages.  Note that type names have no
      * fundamental importance in the langauge and need not even be
      * unique.
      */
     const char * const  name;
 
 private:
-    const size_t _size;  // the size of this type's associated object
-    const int    _flags; // type flags, see below
-    mutable str *_name;  // str version of name, created on demand
+    const size_t _size;  // the size of this type's associated object structure
+    const int    _flags; // type feature flags, see below.
+    mutable str *_name;  // str version of name, created on demand (hence mutable).
 
 protected:
     /*
-     * Type flags indicate that a type overrides the similarly named
-     * member function. These detetermine behaviour in a number of
-     * places that do not want the default implementation.
+     * Type feature flags are used to indicate that a type overrides
+     * the similarly named member functions and are used to detetermine
+     * behaviour in a number of places that do not want the default
+     * implementation.
      */
     static constexpr int has_fetch_method = 1<<0;
     static constexpr int has_objname      = 1<<1;
     static constexpr int has_call         = 1<<2;
 
     /*
-     * The constructor sets the base type information. It is protected
-     * to force the use of the derived, actual, types.
+     * The constructor sets the base type information and has protected
+     * access to force the use of the derived, actual, type classes.
+     *
+     * Type classes are constructed passing the type name, as a C
+     * string, and the base size of the type's associated structure.
      */
     type(const char *name, size_t size, int flags = 0)
         : name(name)

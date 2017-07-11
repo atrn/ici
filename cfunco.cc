@@ -20,6 +20,15 @@
 namespace ici
 {
 
+cfunc::cfunc() // sentinel for end of cfunc lists
+    : object(TC_CFUNC, 0, 0, 0)
+    , cf_name(nullptr)
+    , cf_cfunc(nullptr)
+    , cf_arg1(nullptr)
+    , cf_arg2(nullptr)
+{
+}
+
 /*
  * Create a new cfunc.  This is not common, because cfuncs are almost always
  * defined statically.  The name must be a static null terminated string, the

@@ -29,12 +29,12 @@ struct object
      * O_MARK           The garbage collection mark flag.
      *
      * O_ATOM           Indicates that this object is the read-only
-     *                      atomic form of all objects of the same type with
-     *                      the same value. Any attempt to change an object
-     *                      in a way that would change its value with respect
-     *                      to the 't_cmp()' function (see 'type_t') must
-     *                      check for this flag and fail the attempt if it is
-     *                      set.
+     *                  atomic form of all objects of the same type with
+     *                  the same value. Any attempt to change an object
+     *                  in a way that would change its value with respect
+     *                  to the 'cmp()' function (see 'type') must
+     *                  check for this flag and fail the attempt if it is
+     *                  set.
      *
      * O_SUPER          This object can support a super.
      *
@@ -58,6 +58,10 @@ struct object
         , o_leafz(0)
     {}
 
+    /*
+     * Construct an object with the given type code and, optionally, initial flags,
+     * (external) reference count and object size.
+     */
     explicit object(uint8_t tcode, uint8_t flags = 0, uint8_t nrefs = 1, uint8_t leafz = 0)
         : o_tcode(tcode)
         , o_flags(flags)
@@ -65,50 +69,93 @@ struct object
         , o_leafz(leafz)
     {}
 
+    /*
+     * Return true if this object has the given type code.
+     */
     inline bool isa(uint8_t tcode) const {
         return o_tcode == tcode;
     }
 
+    /*
+     * Return, a pointer to, this object's type instance.
+     */
     inline type *otype() const {
         return types[o_tcode];
     }
 
+    /*
+     * Return a C string with the name of this object's type.
+     */
     inline const char * type_name() const {
         return otype()->name;
     }
 
-    inline uint8_t flags(uint8_t mask = 0xff) const {
+    /*
+     * Return this object's flags.
+     */
+    inline uint8_t flags() const {
+        return o_flags;
+    }
+
+    /*
+     * Return this object's flags filtered by a mask.
+     */
+    inline uint8_t flags(uint8_t mask) const {
         return o_flags & mask;
     }
 
+    /*
+     * Return true if this object has the given flags set.
+     */
     inline bool flagged(uint8_t mask) const {
         return flags(mask) != 0;
     }
 
+    /*
+     * Set a flag on this object.
+     */
     inline void set(uint8_t mask) {
         o_flags |= mask;
     }
 
+    /*
+     * Clear one or more flags set on this object.
+     */
     inline void clr(uint8_t mask) {
         o_flags &= ~mask;
     }
 
+    /*
+     * Return true if this object is an atom.
+     */
     inline bool isatom() const {
         return flagged(O_ATOM);
     }
 
+    /*
+     * Set the mark flag on this object.
+     */
     inline void setmark() {
         set(O_MARK);
     }
 
+    /*
+     * Clear the mark flag on this object.
+     */
     inline void clrmark() {
         clr(O_MARK);
     }
 
+    /*
+     * Return true if this object is marked.
+     */
     inline bool marked() const {
         return flagged(O_MARK);
     }
 
+    /*
+     * Mark this object and return its size, in bytes.
+     */
     inline size_t mark() {
         if (flagged(O_MARK)) {
             return 0;
@@ -120,31 +167,54 @@ struct object
         return otype()->mark(this);
     }
 
+    /*
+     * Free the memory used by this object.
+     */
     inline void free() {
         otype()->free(this);
     }
 
 #ifdef NDEBUG
+    /*
+     * Increment the object's reference count.
+     */
     inline void incref() {
         ++o_nrefs;
     }
 
+    /*
+     * Decrement the object's reference count.
+     */
     inline void decref() {
         --o_nrefs;
     }
 #else
+    /*
+     * In debug builds incref() and decref() perform extra checks
+     * to help detect errors in reference counting.
+     */
     void incref();
     void decref();
 #endif
 
+    /*
+     * Return this object's hash value.
+     */
     inline unsigned long hash() {
         return otype()->hash(this);
     }
 
+    /*
+     * Compare this object against another object
+     * of the same type.
+     */
     inline int cmp(object *that) {
         return otype()->cmp(this, that);
     }
 
+    /*
+     * Return a copy of this object.
+     */
     inline object *copy() {
         return otype()->copy(this);
     }
@@ -196,7 +266,7 @@ struct object
 /*
  * o_tcode              The small integer type code that characterises
  *                      this object. Standard core types have well known
- *                      codes identified by the TC_* defines. Other
+ *                      codes identified by the TC_* values. Other
  *                      types are registered at run-time and are given
  *                      the next available code.
  *

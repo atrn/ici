@@ -15,6 +15,8 @@
 namespace ici
 {
 
+struct tag_owned owned;
+
 /*
  * Function to do the hard work for the inline function push_check().
  * See array.h. This reallocates the array buffer.

@@ -1,20 +1,50 @@
 Major Changes in Version 5
 
-*    'struct' renamed as 'map'
+*    'struct' renamed to 'map'
 
 *    ftype's are now classes
 
-*    threads are now based on c++ standard library and are required
+*    threads are now based on c++ standard library and are
+     always built
 
-*    anici is now implemented in C++, C++14 to be precise.
+*    ICI int types are now defined to be 64-bits and are
+     not necessarily the same as 'long int'.
 
-     C++ features are used sparingly and most code remains
-     largely unchanged. ici_obj_t is now a base class but
-     note that ICI objects do NOT use C++ virtuals and use
-     the ICI tcode type based lookup. Also, C++ standard
-     library collections are NOT used.
+*    anici is now (re-)implemented in C++, C++14 to be precise.
 
-*    anici uses my dcc program for building
+     C++ features are used sparingly and the overall program structure
+     remains the same but there are many, many changes in how that is
+     expressed. C++ features often duplicate functions ICI itself
+     implemented and help reduce the amount of code.
+
+     The ici_obj_t object header structure is now used a base class,
+     'object'. All ICI objects derive from ici::object and add their
+     per-type state as data members. But note, ICI objects do NOT use
+     C++ virtual functions and the 'tcode' based type lookup is still
+     used.
+
+     The ici::object class provides numerous inline functions to
+     manipulate the object which replace the suite of macros used in
+     the C implementation. The, untested, assumption is that today's
+     advanced C++ compilers will optimize inline and optimize their
+     use. A benefit of inheriting object is many of the macro-based
+     type casts required in C are removed - an ici::T is-a ici::object
+     so pointers may be implicitly converted. Where casts are required
+     inline function wrappers around the appropriate C++ static_cast<>
+     are used to aid type checking.
+
+     ICI types are now defined by sub-classes of a 'class type'.  The
+     type class DOES use virtual functions for the various operations
+     on ICI objects - replacing the old type_t's use of pointers to
+     functions. Common implementations of type function are now the
+     default implementations of these and different types override the
+     different functions to provide their behaviour.
+
+     C++ features are being used where they make sense and would not
+     adversely impact performance. Often the C++ provides a function
+     ICI previously implemented itself using in C, e.g. replacing
+     type_t's pointers to functions with virtuals or the old C-style
+     "inheritence" of the per-object header.
 
 *    ICI signals are now enabled by default.
 
@@ -32,7 +62,7 @@ Major Changes in Version 5
 *    the forall statement implementation now uses a per-type
      'step' function which opens the way for iteration over
      used-defined types.
-     
+
 *    include() removed
 
 *    many default sizes increased by factors of four or more

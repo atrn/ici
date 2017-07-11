@@ -20,7 +20,7 @@ namespace ici
  */
 struct mark : object
 {
-    mark() : object(TC_MARK) {}
+    mark();
 };
 
 inline mark *markof(object *o) { return static_cast<mark *>(o); }

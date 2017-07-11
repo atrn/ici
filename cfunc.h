@@ -30,62 +30,17 @@ struct cfunc : object
     const void  *cf_arg1;
     const void  *cf_arg2;
 
-    cfunc(bool) // sentinel for end of cfunc lists
-        : object{TC_CFUNC, 0, 0, 0}
-        , cf_name(nullptr)
-        , cf_cfunc(nullptr)
-        , cf_arg1(nullptr)
-        , cf_arg2(nullptr)
-    {}
+    cfunc();
 
     template <typename F>
-    cfunc(str *name, F *f)
-        : object{TC_CFUNC, 0, 1, 0}
-        , cf_name(name)
-        , cf_cfunc(reinterpret_cast<int (*)(...)>(f))
-        , cf_arg1(nullptr)
-        , cf_arg2(nullptr)
-    {
-    }
-
-    template <typename F>
-    cfunc(str *name, F *f, void *arg1)
-        : object{TC_CFUNC, 0, 1, 0}
-        , cf_name(name)
-        , cf_cfunc(reinterpret_cast<int (*)(...)>(f))
-        , cf_arg1(arg1)
-        , cf_arg2(nullptr)
-    {
-    }
-
-    cfunc(str *name, int (*f)(), long arg1)
-        : object{TC_CFUNC, 0, 1, 0}
-        , cf_name(name)
-        , cf_cfunc(reinterpret_cast<int (*)(...)>(f))
-        , cf_arg1((const void *)arg1)
-        , cf_arg2(nullptr)
-    {
-    }
-
-    cfunc(str *name, double (*f)(...), const char *arg1)
-        : object{TC_CFUNC, 0, 1, 0}
-        , cf_name(name)
-        , cf_cfunc(reinterpret_cast<int (*)(...)>(f))
-        , cf_arg1(arg1)
-        , cf_arg2(nullptr)
-    {
-    }
-
-    template <typename F>
-    cfunc(str *name, F *f, void *arg1, void *arg2)
-        : object{TC_CFUNC, 0, 1, 0}
+    cfunc(str *name, F *f, void *arg1 = nullptr, void *arg2 = nullptr)
+        : object(TC_CFUNC)
         , cf_name(name)
         , cf_cfunc(reinterpret_cast<int (*)(...)>(f))
         , cf_arg1(arg1)
         , cf_arg2(arg2)
     {
     }
-
 };
 
 /*
@@ -138,7 +93,6 @@ inline bool iscfunc(object *o) { return o->isa(TC_CFUNC); }
  * This --macro-- forms part of the --ici-api--.
  */
 #define ARG(n)          (os.a_top[-3 - (n)])
-// inline object *ARG(int n) { return os.a_top[-3 - (n)]; }
 
 /*
  * In a call from ICI to a function coded in C, this macro returns the
@@ -159,7 +113,7 @@ inline int NARGS() { return intof(os.a_top[-2])->i_value; }
  *
  * This --macro-- forms part of the --ici-api--.
  */
-#define ARGS()          (&os.a_top[-3])
+inline object **ARGS() { return &os.a_top[-3]; }
 
 /*
  * In a call from ICI to a function coded in C, this macro returns the
@@ -171,18 +125,18 @@ inline int NARGS() { return intof(os.a_top[-2])->i_value; }
  *
  * This --macro-- forms part of the --ici-api--.
  */
-#define ICI_CF_ARG1()       (cfuncof(os.a_top[-1])->cf_arg1)
-#define ICI_CF_ARG2()       (cfuncof(os.a_top[-1])->cf_arg2)
+inline const void *ICI_CF_ARG1() { return cfuncof(os.a_top[-1])->cf_arg1; }
+inline const void *ICI_CF_ARG2() { return cfuncof(os.a_top[-1])->cf_arg2; }
 
 /*
- * Defines a 'cfuncs' array.
+ * Start the definution of a static cfuncs array.
  */
 #define ICI_DEFINE_CFUNCS(NAME) cfunc ici_ ## NAME ## _cfuncs[] =
 
 /*
- * Marks the end of the initializers of a cfuncs array.
+ * Mark the end of the initializers of a static cfuncs array.
  */
-#define ICI_CFUNCS_END() {false}
+#define ICI_CFUNCS_END() {}
 
 /*
  * Macros to define cfuncs. Use the one for the number of arguments.

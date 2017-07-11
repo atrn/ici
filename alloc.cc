@@ -30,11 +30,10 @@ size_t                  ici_alloc_mem;
  * objects to avoid boundary word overheads and allow simple fast
  * free lists.
  */
-typedef struct achunk   achunk_t;
 struct achunk
 {
     char                c_data[4088];
-    achunk_t            *c_next;
+    achunk              *c_next;
 };
 
 /*
@@ -54,7 +53,7 @@ static char             *mem_limit[4];
  * The global list of all chunks of small dense objects we have allocated.
  * We just keep this so we can free them all on interpreter shutdown.
  */
-static achunk_t         *ici_achunks;
+static achunk          *ici_achunks;
 
 #endif /* ICI_ALLALLOC */
 
@@ -75,8 +74,7 @@ static achunk_t         *ici_achunks;
  *
  * This --func-- forms part of the --ici-api--.
  */
-void *
-ici_nalloc(size_t z)
+void *ici_nalloc(size_t z)
 {
     char                *r;
 #if !ICI_ALLALLOC
@@ -101,9 +99,9 @@ ici_nalloc(size_t z)
     }
     if (fi < (int)nels(ici_flists))
     {
-        char                **fp;
-        int                 cz;
-        achunk_t            *c;
+        char    **fp;
+        int    cz;
+        achunk *c;
 
         /*
          * Small block. Try to get it off one of the fast free lists.
@@ -128,10 +126,10 @@ ici_nalloc(size_t z)
         /*
          * Current chunk empty. Allocate another one.
          */
-        if ((c = (achunk_t *)malloc(sizeof (achunk_t))) == NULL)
+        if ((c = (achunk *)malloc(sizeof (achunk))) == NULL)
         {
             collect();
-            if ((c = (achunk_t *)malloc(sizeof (achunk_t))) == NULL)
+            if ((c = (achunk *)malloc(sizeof (achunk))) == NULL)
                 goto fail;
         }
         c->c_next = ici_achunks;
@@ -167,8 +165,7 @@ fail:
  *
  * This --func-- forms part of the --ici-api--.
  */
-void
-ici_nfree(void *p, size_t z)
+void ici_nfree(void *p, size_t z)
 {
 #if !ICI_ALLALLOC
     int                 fi;
@@ -211,8 +208,7 @@ ici_nfree(void *p, size_t z)
  *
  * This --func-- forms part of the --ici-api--.
  */
-void *
-ici_alloc(size_t z)
+void *ici_alloc(size_t z)
 {
     void                *p;
 
@@ -247,8 +243,7 @@ ici_alloc(size_t z)
  *
  * This --func-- forms part of the --ici-api--.
  */
-void
-ici_free(void *p)
+void ici_free(void *p)
 {
     ptrdiff_t           z;
 
@@ -281,7 +276,7 @@ ici_free(void *p)
 void drop_all_small_allocations()
 {
 #if !ICI_ALLALLOC
-    achunk_t            *c;
+    achunk *c;
 
     while ((c = ici_achunks) != NULL)
     {

@@ -34,7 +34,7 @@ namespace ici
 
 /*
  * The array of known types. Initialised with the types known to the
- * core. NB: The positions of these must exactly match the TC_* defines
+ * core. NB: The positions of these must exactly match the TC_* values
  * in object.h.
  */
 type *types[max_types] =

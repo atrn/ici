@@ -19,7 +19,7 @@ namespace ici
  */
 struct ici_float : object
 {
-    ici_float(double v = 0.0) : object(TC_FLOAT), f_value(v) {}
+    ici_float(double v = 0.0) : object(TC_FLOAT, 0, 1), f_value(v) {}
     double f_value;
 };
 
