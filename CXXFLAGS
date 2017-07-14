@@ -1,19 +1,20 @@
 # Compiler options.
 #
-# This file is read by dcc (gitlab.com/atrn/dcc).
+# This file is read by dcc.
 #
 
 -std=c++14 -Wall -Wextra
 
-# RELEASE - Ofast and Oz seem to be best
+# RELEASE (ICI's uses NDEBUG)
 -DNDEBUG
 # -O2
 # -O2 -Os
-# -Ofast -Os
+# -Os
+# -O3
 # -O3 -Os
 # -O3 -Oz
 -Ofast -Oz
--flto
+# -flto
 
 # DEBUG (pcre uses DEBUG, ICI !NDEBUG)
 #-g -O0

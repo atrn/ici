@@ -10,7 +10,7 @@ namespace ici
 
 struct restorer : object
 {
-    object *(*r_fn)(archive *);
+    object *(*r_fn)(archiver *);
 };
 
 inline restorer *restorerof(object *obj) { return static_cast<restorer *>(obj); }

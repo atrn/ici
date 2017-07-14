@@ -525,7 +525,7 @@ constexpr int TC_NULL =         21;
 constexpr int TC_HANDLE =       22;
 constexpr int TC_MEM =          23;
 constexpr int TC_PROFILECALL =  24;
-constexpr int TC_ARCHIVE =      25;
+// constexpr int TC_ARCHIVE =      25;
 /* TC_REF is a special type code reserved for use in the
    serialization protocol to indicate a reference to previously
    transmitted object. */

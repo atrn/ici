@@ -40,77 +40,14 @@
 namespace ici
 {
 
-static object *restore(archive *);
-
-static int readf(archive *ar, void *buf, int len)
-{
-    char *p = (char *)buf;
-    while (len-- > 0)
-    {
-        int ch;
-
-        if ((ch = ar->get()) == -1)
-        {
-            set_error("eof");
-	    return 1;
-        }
-	*p++ = ch;
-    }
-    return 0;
-}
-
-inline int read8(archive *ar, char *abyte)
-{
-    return readf(ar, abyte, 1);
-}
-
-static int read16(archive *ar, int16_t *hword)
-{
-    int16_t tmp;
-    if (readf(ar, &tmp, sizeof tmp))
-    {
-    	return 1;
-    }
-    *hword = ntohs(tmp);
-    return 0;
-}
+static object *restore(archiver *);
 
 static int
-read32(archive *ar, int32_t *aword)
-{
-    int32_t tmp;
-    if (readf(ar, &tmp, sizeof tmp))
-    {
-    	return 1;
-    }
-    *aword = ntohl(tmp);
-    return 0;
-}
-
-static int
-read64(archive *ar, int64_t *dword)
-{
-    int64_t tmp;
-    if (readf(ar, &tmp, sizeof tmp))
-    {
-    	return 1;
-    }
-    *dword = ici_ntohll(tmp);
-    return 0;
-}
-
-static int
-readdbl(archive *ar, double *dbl)
-{
-    return readf(ar, dbl, sizeof *dbl);
-}
-
-static int
-restore_obj(archive *ar, char *flags)
+restore_obj(archiver *ar, char *flags)
 {
     char tcode;
 
-    if (read8(ar, &tcode))
+    if (ar->read(&tcode))
     {
     	return -1;
     }
@@ -119,13 +56,13 @@ restore_obj(archive *ar, char *flags)
     return tcode;
 }
 
-inline int restore_object_name(archive *ar, object **name)
+inline int restore_object_name(archiver *ar, object **name)
 {
-    return readf(ar, name, sizeof *name);
+    return ar->read(name, sizeof *name);
 }
 
 static object *
-restore_error(archive *)
+restore_error(archiver *)
 {
     set_error("unable to restore object");
     return NULL;
@@ -134,7 +71,7 @@ restore_error(archive *)
 // null
 
 static object *
-restore_null(archive *)
+restore_null(archiver *)
 {
     return ici_null;
 }
@@ -142,11 +79,11 @@ restore_null(archive *)
 // int
 
 static object *
-restore_int(archive *ar)
+restore_int(archiver *ar)
 {
     int64_t value;
 
-    if (read64(ar, &value))
+    if (ar->read(&value))
     {
         return NULL;
     }
@@ -156,11 +93,11 @@ restore_int(archive *ar)
 // float
 
 static object *
-restore_float(archive *ar)
+restore_float(archiver *ar)
 {
     double val;
 
-    if (readdbl(ar, &val))
+    if (ar->read(&val))
     {
         return NULL;
     }
@@ -173,7 +110,7 @@ restore_float(archive *ar)
 // string
 
 static object *
-restore_string(archive *ar)
+restore_string(archiver *ar)
 {
     str *s;
     int32_t len;
@@ -184,7 +121,7 @@ restore_string(archive *ar)
     {
         return NULL;
     }
-    if (read32(ar, &len))
+    if (ar->read(&len))
     {
         return NULL;
     }
@@ -192,7 +129,7 @@ restore_string(archive *ar)
     {
         return NULL;
     }
-    if (readf(ar, s->s_chars, len))
+    if (ar->read(s->s_chars, len))
     {
         goto fail;
     }
@@ -201,7 +138,7 @@ restore_string(archive *ar)
     {
         goto fail;
     }
-    if (ar->insert(name, obj))
+    if (ar->record(name, obj))
     {
         obj->decref();
         goto fail;
@@ -216,7 +153,7 @@ fail:
 // regexp
 
 static object *
-restore_regexp(archive *ar)
+restore_regexp(archiver *ar)
 {
     object *r;
     int options;
@@ -227,7 +164,7 @@ restore_regexp(archive *ar)
     {
         return NULL;
     }
-    if (read32(ar, &options))
+    if (ar->read(&options))
     {
         return NULL;
     }
@@ -242,7 +179,7 @@ restore_regexp(archive *ar)
         return NULL;
     }
     s->decref();
-    if (ar->insert(name, r))
+    if (ar->record(name, r))
     {
         r->decref();
         return NULL;
@@ -253,7 +190,7 @@ restore_regexp(archive *ar)
 // mem
 
 static object *
-restore_mem(archive *ar)
+restore_mem(archiver *ar)
 {
     int64_t len;
     int16_t accessz;
@@ -262,7 +199,7 @@ restore_mem(archive *ar)
     mem *m = 0;
     object *name;
 
-    if (restore_object_name(ar, &name) || read64(ar, &len) || read16(ar, &accessz))
+    if (restore_object_name(ar, &name) || ar->read(&len) || ar->read(&accessz))
     {
         return NULL;
     }
@@ -273,7 +210,7 @@ restore_mem(archive *ar)
         {
             ici_free(p);
         }
-        else if (readf(ar, p, sz) || ar->insert(name, m))
+        else if (ar->read(p, sz) || ar->record(name, m))
         {
             m->decref();
             m = NULL;
@@ -285,7 +222,7 @@ restore_mem(archive *ar)
 // array
 
 static object *
-restore_array(archive *ar)
+restore_array(archiver *ar)
 {
     int64_t n;
     array *a;
@@ -295,7 +232,7 @@ restore_array(archive *ar)
     {
         return NULL;
     }
-    if (read64(ar, &n))
+    if (ar->read(&n))
     {
         return NULL;
     }
@@ -303,7 +240,7 @@ restore_array(archive *ar)
     {
         return NULL;
     }
-    if (ar->insert(name, a))
+    if (ar->record(name, a))
     {
         goto fail;
     }
@@ -325,7 +262,7 @@ restore_array(archive *ar)
     return a;
 
 fail1:
-    ar->uninsert(name);
+    ar->remove(name);
 
 fail:
     a->decref();
@@ -335,7 +272,7 @@ fail:
 // set
 
 static object *
-restore_set(archive *ar)
+restore_set(archiver *ar)
 {
     set *s;
     int64_t n;
@@ -350,11 +287,11 @@ restore_set(archive *ar)
     {
         return NULL;
     }
-    if (ar->insert(name, s))
+    if (ar->record(name, s))
     {
         goto fail;
     }
-    if (read64(ar, &n))
+    if (ar->read(&n))
     {
         goto fail1;
     }
@@ -376,7 +313,7 @@ restore_set(archive *ar)
     return s;
 
 fail1:
-    ar->uninsert(name);
+    ar->remove(name);
 
 fail:
     s->decref();
@@ -385,7 +322,7 @@ fail:
 
 // struct
 
-static object *restore_map(archive *ar)
+static object *restore_map(archiver *ar)
 {
     map *s;
     object *super;
@@ -401,7 +338,7 @@ static object *restore_map(archive *ar)
     {
         return NULL;
     }
-    if (ar->insert(name, s))
+    if (ar->record(name, s))
     {
         goto fail;
     }
@@ -415,7 +352,7 @@ static object *restore_map(archive *ar)
         super->decref();
     }
 
-    if (read64(ar, &n))
+    if (ar->read(&n))
     {
         goto fail1;
     }
@@ -445,7 +382,7 @@ static object *restore_map(archive *ar)
     return s;
 
 fail1:
-    ar->uninsert(name);
+    ar->remove(name);
 
 fail:
     s->decref();
@@ -455,7 +392,7 @@ fail:
 // ptr
 
 static object *
-restore_ptr(archive *ar)
+restore_ptr(archiver *ar)
 {
     object *aggr;
     object *key;
@@ -479,7 +416,7 @@ restore_ptr(archive *ar)
 // func
 
 static object *
-restore_func(archive *ar)
+restore_func(archiver *ar)
 {
     object *code;
     object *args = NULL;
@@ -509,7 +446,7 @@ restore_func(archive *ar)
     {
         goto fail;
     }
-    if (read32(ar, &nautos))
+    if (ar->read(&nautos))
     {
         goto fail;
     }
@@ -530,7 +467,7 @@ restore_func(archive *ar)
     autos->decref();
     name->decref();
 
-    if (!ar->insert(oname, fn))
+    if (!ar->record(oname, fn))
     {
 	return fn;
     }
@@ -555,7 +492,7 @@ fail:
 }
 
 static object *
-restore_op(archive *ar)
+restore_op(archiver *ar)
 {
     int16_t op_func_code;
     int16_t op_ecode;
@@ -563,11 +500,11 @@ restore_op(archive *ar)
 
     if
     (
-        read16(ar, &op_func_code)
+        ar->read(&op_func_code)
         ||
-        read16(ar, &op_ecode)
+        ar->read(&op_ecode)
         ||
-        read16(ar, &op_code)
+        ar->read(&op_code)
     )
     {
         return 0;
@@ -577,13 +514,13 @@ restore_op(archive *ar)
 }
 
 static object *
-restore_src(archive *ar)
+restore_src(archiver *ar)
 {
     int32_t line;
     object *result;
     object *filename;
 
-    if (read32(ar, &line))
+    if (ar->read(&line))
     {
         return NULL;
     }
@@ -609,7 +546,7 @@ restore_src(archive *ar)
 // cfunc
 
 static object *
-restore_cfunc(archive *ar)
+restore_cfunc(archiver *ar)
 {
     int16_t namelen;
     char space[32];
@@ -617,7 +554,7 @@ restore_cfunc(archive *ar)
     str *func_name;
     object *fn;
 
-    if (read16(ar, &namelen))
+    if (ar->read(&namelen))
     {
         return 0;
     }
@@ -629,7 +566,7 @@ restore_cfunc(archive *ar)
             return 0;
         }
     }
-    if (readf(ar, buf, namelen))
+    if (ar->read(buf, namelen))
     {
         ici_free(buf);
         return 0;
@@ -649,7 +586,7 @@ restore_cfunc(archive *ar)
 }
 
 static object *
-restore_mark(archive *)
+restore_mark(archiver *)
 {
     return &o_mark;
 }
@@ -657,7 +594,7 @@ restore_mark(archive *)
 // ref
 
 static object *
-restore_ref(archive *ar)
+restore_ref(archiver *ar)
 {
     object *obj;
     object *name;
@@ -676,7 +613,7 @@ restore_ref(archive *ar)
 // restorer
 
 static restorer *
-restorer_new(object *(*fn)(archive *))
+restorer_new(object *(*fn)(archiver *))
 {
     restorer *r;
 
@@ -692,7 +629,7 @@ restorer_new(object *(*fn)(archive *))
 static map *restorer_map = 0;
 
 static int
-add_restorer(int tcode, object *(*fn)(archive *))
+add_restorer(int tcode, object *(*fn)(archiver *))
 {
     restorer *r;
     ici_int *t = 0;
@@ -747,7 +684,7 @@ init_restorer_map()
     static struct
     {
         int tcode;
-        object *(*fn)(archive *);
+        object *(*fn)(archiver *);
     }
     fns[] =
     {
@@ -803,7 +740,7 @@ get_restorer(int tcode)
 }
 
 static object *
-restore(archive *ar)
+restore(archiver *ar)
 {
     object *obj = NULL;
     char flags;
@@ -828,7 +765,6 @@ int
 f_archive_restore(...)
 {
     file *file;
-    archive *ar;
     objwsup *scp;
     object *obj = NULL;
 
@@ -864,10 +800,11 @@ f_archive_restore(...)
 	break;
     }
 
-    if ((ar = archive::start(file, scp)) != NULL)
     {
-        obj = restore(ar);
-        ar->stop();
+        archiver ar(file, scp);
+        if (ar) {
+            obj = restore(&ar);
+        }
     }
 
     return obj == NULL ? 1 : ret_with_decref(obj);

@@ -174,7 +174,7 @@ namespace ici
 /*
  * Create pre-defined variables to replace C's #define's.
  */
-int ici_sys_init(ici::objwsup *scp)
+int sys_init(ici::objwsup *scp)
 {
     size_t      i;
 
@@ -276,7 +276,7 @@ sys_ret(int ret)
  * makes the name unique for this module. We have to use CFUNC3()
  * to use it, see below.
  */
-static int ici_sys_simple()
+static int sys_simple()
 {
     long        av[4];
 
@@ -298,7 +298,7 @@ static int ici_sys_simple()
  *
  * This --topic-- forms part of the --ici-sys-- documentation.
  */
-static int ici_sys_open()
+static int sys_open()
 {
     char        *fname;
     long        omode;
@@ -349,7 +349,7 @@ not_on_win32(const char *s)
  *
  * This --topic-- forms part of the --ici-sys-- documentation.
  */
-static int ici_sys_fdopen()
+static int sys_fdopen()
 {
 #ifdef _WIN32 /* WINDOWS can't do fdopen() without lots of work */
     return not_on_win32("fdopen");
@@ -395,7 +395,7 @@ static int ici_sys_fdopen()
  *
  * This --topic-- forms part of the --ici-sys-- documentation.
  */
-static int ici_sys_close()
+static int sys_close()
 {
     int                 rc;
     object            *fd0;
@@ -524,7 +524,7 @@ struct_to_flock(map *d, struct flock *flock)
  *
  * This --topic-- forms part of the --ici-sys-- documentation.
  */
-static int ici_sys_fcntl()
+static int sys_fcntl()
 {
 #ifdef _WIN32
     return not_on_win32("fcntl");
@@ -602,7 +602,7 @@ static int ici_sys_fcntl()
  *
  * This --topic-- forms part of the --ici-sys-- documentation.
  */
-static int ici_sys_fileno()
+static int sys_fileno()
 {
     file      *f;
 
@@ -630,7 +630,7 @@ static int ici_sys_fileno()
  *
  * This --topic-- forms part of the --ici-sys-- documentation.
  */
-static int ici_sys_mkdir()
+static int sys_mkdir()
 {
     char        *path;
 
@@ -663,7 +663,7 @@ static int ici_sys_mkdir()
  *
  * This --topic-- forms part of the --ici-sys-- documentation.
  */
-static int ici_sys_mkfifo()
+static int sys_mkfifo()
 {
 #ifdef _WIN32 /* WINDOWS can't do mkifo() */
     return not_on_win32("mkfifo");
@@ -687,7 +687,7 @@ static int ici_sys_mkfifo()
  *
  * This --topic-- forms part of the --ici-sys-- documentation.
  */
-static int ici_sys_read()
+static int sys_read()
 {
     long        fd;
     long        len;
@@ -730,7 +730,7 @@ static int ici_sys_read()
  *
  * This --topic-- forms part of the --ici-sys-- documentation.
  */
-static int ici_sys_write()
+static int sys_write()
 {
     long        fd;
     object      *o;
@@ -771,7 +771,7 @@ static int ici_sys_write()
  *
  * This --topic-- forms part of the --ici-sys-- documentation.
  */
-static int ici_sys_symlink()
+static int sys_symlink()
 {
 #ifdef _WIN32 /* WINDOWS can't do symlink() */
     return not_on_win32("symlink");
@@ -794,7 +794,7 @@ static int ici_sys_symlink()
  *
  * This --topic-- forms part of the --ici-sys-- documentation.
  */
-static int ici_sys_readlink()
+static int sys_readlink()
 {
 #ifdef _WIN32 /* WINDOWS can't do readlink(). */
     return not_on_win32("fdopen");
@@ -838,7 +838,7 @@ static int ici_sys_readlink()
  *
  * This --topic-- forms part of the --ici-sys-- documentation.
  */
-static int ici_sys_stat()
+static int sys_stat()
 {
     object    *o;
     struct stat statb;
@@ -906,7 +906,7 @@ static int ici_sys_stat()
  *
  * This --topic-- forms part of the --ici-sys-- documentation.
  */
-static int ici_sys_lstat()
+static int sys_lstat()
 {
     object    *o;
     struct stat statb;
@@ -971,7 +971,7 @@ static int ici_sys_lstat()
  *
  * This --topic-- forms part of the --ici-sys-- documentation.
  */
-static int ici_sys_ctime()
+static int sys_ctime()
 {
     time_t  timev;
     str    *s;
@@ -991,7 +991,7 @@ static int ici_sys_ctime()
  *
  * This --topic-- forms part of the --ici-sys-- documentation.
  */
-static int ici_sys_time()
+static int sys_time()
 {
     return int_ret(time(NULL));
 }
@@ -1054,7 +1054,7 @@ assign_timeval(map *s, str *k, struct timeval *tv)
  *
  * This --topic-- forms part of the --ici-sys-- documentation.
  */
-static int ici_sys_getitimer()
+static int sys_getitimer()
 {
     long                which = ITIMER_VIRTUAL;
     map          *s;
@@ -1127,7 +1127,7 @@ fetch_timeval(object *s, struct timeval *tv)
  *
  * This --topic-- forms part of the --ici-sys-- documentation.
  */
-static int ici_sys_setitimer()
+static int sys_setitimer()
 {
     long                which = ITIMER_VIRTUAL;
     map          *s;
@@ -1192,7 +1192,7 @@ static int ici_sys_setitimer()
  *
  * This --topic-- forms part of the --ici-sys-- documentation.
  */
-static int ici_sys_gettimeofday()
+static int sys_gettimeofday()
 {
     map          *s;
     struct timeval      tv;
@@ -1225,7 +1225,7 @@ static int ici_sys_gettimeofday()
  *
  * This --topic-- forms part of the --ici-sys-- documentation.
  */
-static int ici_sys_access()
+static int sys_access()
 {
     char        *fname;
     int         bits = F_OK;
@@ -1254,7 +1254,7 @@ static int ici_sys_access()
  *
  * This --topic-- forms part of the --ici-sys-- documentation.
  */
-static int ici_sys_pipe()
+static int sys_pipe()
 {
 #ifdef _WIN32
     return not_on_win32("pipe");
@@ -1296,7 +1296,7 @@ static int ici_sys_pipe()
  *
  * This --topic-- forms part of the --ici-sys-- documentation.
  */
-static int ici_sys_creat()
+static int sys_creat()
 {
     char        *fname;
     long        perms;
@@ -1320,7 +1320,7 @@ static int ici_sys_creat()
  *
  * This --topic-- forms part of the --ici-sys-- documentation.
  */
-static int ici_sys_dup()
+static int sys_dup()
 {
     long        fd1;
     long        fd2;
@@ -1364,7 +1364,7 @@ static int ici_sys_dup()
  *
  * This --topic-- forms part of the --ici-sys-- documentation.
  */
-static int ici_sys_exec()
+static int sys_exec()
 {
     char        *sargv[16];
     char        **argv;
@@ -1462,7 +1462,7 @@ static int ici_sys_exec()
  *
  * This --topic-- forms part of the --ici-sys-- documentation.
  */
-static int ici_sys_spawn()
+static int sys_spawn()
 {
     char        *sargv[16];
     char        **argv;
@@ -1559,7 +1559,7 @@ static int ici_sys_spawn()
  *
  * This --topic-- forms part of the --ici-sys-- documentation.
  */
-static int ici_sys_lseek()
+static int sys_lseek()
 {
     long        fd;
     long        ofs;
@@ -1590,7 +1590,7 @@ static int ici_sys_lseek()
  *
  * This --topic-- forms part of the --ici-sys-- documentation.
  */
-static int ici_sys_wait()
+static int sys_wait()
 {
 #ifdef _WIN32
     return not_on_win32("wait");
@@ -1663,7 +1663,7 @@ static map *password_map(struct passwd *);
  *
  * This --topic-- forms part of the --ici-sys-- documentation.
  */
-static int ici_sys_passwd()
+static int sys_passwd()
 {
     struct passwd     *pwent;
     array             *a;
@@ -1768,7 +1768,7 @@ password_map(struct passwd *pwent)
  *
  * This --topic-- forms part of the --ici-sys-- documentation.
  */
-static int ici_sys_getpass()
+static int sys_getpass()
 {
     const char *prompt = "Password: ";
 
@@ -1789,7 +1789,7 @@ static int ici_sys_getpass()
  *
  * This --topic-- forms part of the --ici-sys-- documentation.
  */
-static int ici_sys_setpgrp()
+static int sys_setpgrp()
 {
 #ifdef SETPGRP_2_ARGS
     long        pid, pgrp;
@@ -1831,7 +1831,7 @@ static int ici_sys_setpgrp()
  *
  * This --topic-- forms part of the --ici-sys-- documentation.
  */
-static int ici_sys_flock()
+static int sys_flock()
 {
     long        fd, operation;
 
@@ -1878,7 +1878,7 @@ static int truncate(const char *path, long length)
  *
  * This --topic-- forms part of the --ici-sys-- documentation.
  */
-static int ici_sys_truncate()
+static int sys_truncate()
 {
     long        fd;
     long        len;
@@ -1976,7 +1976,7 @@ string_to_resource(object *what)
  *
  * This --topic-- forms part of the --ici-sys-- documentation.
  */
-static int ici_sys_getrlimit()
+static int sys_getrlimit()
 {
     object        *what;
     int            resource;
@@ -2035,7 +2035,7 @@ static int ici_sys_getrlimit()
  *
  * This --topic-- forms part of the --ici-sys-- documentation.
  */
-static int ici_sys_setrlimit()
+static int sys_setrlimit()
 {
     object            *what;
     object            *value;
@@ -2095,7 +2095,7 @@ static int ici_sys_setrlimit()
  *
  * This --topic-- forms part of the --ici-sys-- documentation.
  */
-static int ici_sys_usleep()
+static int sys_usleep()
 {
     long t;
     exec *x;
@@ -2115,13 +2115,13 @@ static int ici_sys_usleep()
 ICI_DEFINE_CFUNCS(sys)
 {
     /* utime */
-    ICI_DEFINE_CFUNC(access,  ici_sys_access),
-    ICI_DEFINE_CFUNC(_close,   ici_sys_close),
-    ICI_DEFINE_CFUNC(creat,   ici_sys_creat),
-    ICI_DEFINE_CFUNC(ctime,   ici_sys_ctime),
-    ICI_DEFINE_CFUNC(dup,     ici_sys_dup),
-    ICI_DEFINE_CFUNC1(exec,   ici_sys_exec, execv),
-    ICI_DEFINE_CFUNC1(execp,  ici_sys_exec, execvp),
+    ICI_DEFINE_CFUNC(access,  sys_access),
+    ICI_DEFINE_CFUNC(_close,   sys_close),
+    ICI_DEFINE_CFUNC(creat,   sys_creat),
+    ICI_DEFINE_CFUNC(ctime,   sys_ctime),
+    ICI_DEFINE_CFUNC(dup,     sys_dup),
+    ICI_DEFINE_CFUNC1(exec,   sys_exec, execv),
+    ICI_DEFINE_CFUNC1(execp,  sys_exec, execvp),
     /*
      * _exit(int)
      *
@@ -2130,17 +2130,17 @@ ICI_DEFINE_CFUNCS(sys)
      *
      * This --topic-- forms part of the --ici-sys-- documentation.
      */
-    ICI_DEFINE_CFUNC2(_exit,   ici_sys_simple, _exit,  "i"),
-    ICI_DEFINE_CFUNC(fcntl,   ici_sys_fcntl),
-    ICI_DEFINE_CFUNC(fdopen,  ici_sys_fdopen),
-    ICI_DEFINE_CFUNC(fileno,  ici_sys_fileno),
-    ICI_DEFINE_CFUNC(lseek,   ici_sys_lseek),
-    ICI_DEFINE_CFUNC(mkdir,   ici_sys_mkdir),
-    ICI_DEFINE_CFUNC(mkfifo,  ici_sys_mkfifo),
-    ICI_DEFINE_CFUNC(open,    ici_sys_open),
-    ICI_DEFINE_CFUNC(pipe,    ici_sys_pipe),
-    ICI_DEFINE_CFUNC(read,    ici_sys_read),
-    ICI_DEFINE_CFUNC(readlink,ici_sys_readlink),
+    ICI_DEFINE_CFUNC2(_exit,   sys_simple, _exit,  "i"),
+    ICI_DEFINE_CFUNC(fcntl,   sys_fcntl),
+    ICI_DEFINE_CFUNC(fdopen,  sys_fdopen),
+    ICI_DEFINE_CFUNC(fileno,  sys_fileno),
+    ICI_DEFINE_CFUNC(lseek,   sys_lseek),
+    ICI_DEFINE_CFUNC(mkdir,   sys_mkdir),
+    ICI_DEFINE_CFUNC(mkfifo,  sys_mkfifo),
+    ICI_DEFINE_CFUNC(open,    sys_open),
+    ICI_DEFINE_CFUNC(pipe,    sys_pipe),
+    ICI_DEFINE_CFUNC(read,    sys_read),
+    ICI_DEFINE_CFUNC(readlink,sys_readlink),
     /*
      * rmdir(pathname)
      *
@@ -2148,10 +2148,10 @@ ICI_DEFINE_CFUNCS(sys)
      *
      * This --topic-- forms part of the --ici-sys-- documentation.
      */
-    ICI_DEFINE_CFUNC2(rmdir,  ici_sys_simple, rmdir,  "s"),
-    ICI_DEFINE_CFUNC(stat,    ici_sys_stat),
-    ICI_DEFINE_CFUNC(symlink, ici_sys_symlink),
-    ICI_DEFINE_CFUNC(time,    ici_sys_time),
+    ICI_DEFINE_CFUNC2(rmdir,  sys_simple, rmdir,  "s"),
+    ICI_DEFINE_CFUNC(stat,    sys_stat),
+    ICI_DEFINE_CFUNC(symlink, sys_symlink),
+    ICI_DEFINE_CFUNC(time,    sys_time),
     /*
      * unlink(pathname)
      *
@@ -2160,12 +2160,12 @@ ICI_DEFINE_CFUNCS(sys)
      * This --topic-- forms part of the --ici-sys-- documentation.
      */
     /* should go as remove(}, is more portable */
-    ICI_DEFINE_CFUNC2(unlink, ici_sys_simple, unlink, "s"),
-    ICI_DEFINE_CFUNC(wait,    ici_sys_wait),
-    ICI_DEFINE_CFUNC(write,   ici_sys_write),
+    ICI_DEFINE_CFUNC2(unlink, sys_simple, unlink, "s"),
+    ICI_DEFINE_CFUNC(wait,    sys_wait),
+    ICI_DEFINE_CFUNC(write,   sys_write),
 #ifdef _WIN32
-    ICI_DEFINE_CFUNC1(spawn,  ici_sys_spawn, spawnv),
-    ICI_DEFINE_CFUNC1(spawnp, ici_sys_spawn, spawnvp),
+    ICI_DEFINE_CFUNC1(spawn,  sys_spawn, spawnv),
+    ICI_DEFINE_CFUNC1(spawnp, sys_spawn, spawnvp),
 #endif
 #ifndef _WIN32
     /* poll */
@@ -2180,7 +2180,7 @@ ICI_DEFINE_CFUNCS(sys)
      *
      * This --topic-- forms part of the --ici-sys-- documentation.
      */
-    ICI_DEFINE_CFUNC2(alarm,   ici_sys_simple, alarm,  "i"),
+    ICI_DEFINE_CFUNC2(alarm,   sys_simple, alarm,  "i"),
     /*
      * chmod(pathname, int)
      *
@@ -2188,7 +2188,7 @@ ICI_DEFINE_CFUNCS(sys)
      *
      * This --topic-- forms part of the --ici-sys-- documentation.
      */
-    ICI_DEFINE_CFUNC2(chmod,   ici_sys_simple, chmod,  "si"),
+    ICI_DEFINE_CFUNC2(chmod,   sys_simple, chmod,  "si"),
     /*
      * chown(pathname, uid, gid)
      *
@@ -2197,7 +2197,7 @@ ICI_DEFINE_CFUNCS(sys)
      *
      * This --topic-- forms part of the --ici-sys-- documentation.
      */
-    ICI_DEFINE_CFUNC2(chown,   ici_sys_simple, chown,  "sii"),
+    ICI_DEFINE_CFUNC2(chown,   sys_simple, chown,  "sii"),
     /*
      * chroot(pathname)
      *
@@ -2205,7 +2205,7 @@ ICI_DEFINE_CFUNCS(sys)
      *
      * This --topic-- forms part of the --ici-sys-- documentation.
      */
-    ICI_DEFINE_CFUNC2(chroot,  ici_sys_simple, chroot, "s"),
+    ICI_DEFINE_CFUNC2(chroot,  sys_simple, chroot, "s"),
     /*
      * int = clock()
      *
@@ -2213,7 +2213,7 @@ ICI_DEFINE_CFUNCS(sys)
      *
      * This --topic-- forms part of the --ici-sys-- documentation.
      */
-    ICI_DEFINE_CFUNC2(clock,   ici_sys_simple, clock,  ""),
+    ICI_DEFINE_CFUNC2(clock,   sys_simple, clock,  ""),
     /*
      * int = fork()
      *
@@ -2223,7 +2223,7 @@ ICI_DEFINE_CFUNCS(sys)
      *
      * This --topic-- forms part of the --ici-sys-- documentation.
      */
-    ICI_DEFINE_CFUNC2(fork,    ici_sys_simple, fork,   ""),
+    ICI_DEFINE_CFUNC2(fork,    sys_simple, fork,   ""),
     /*
      * int = getegid()
      *
@@ -2232,7 +2232,7 @@ ICI_DEFINE_CFUNCS(sys)
      *
      * This --topic-- forms part of the --ici-sys-- documentation.
      */
-    ICI_DEFINE_CFUNC2(getegid, ici_sys_simple, getegid,""),
+    ICI_DEFINE_CFUNC2(getegid, sys_simple, getegid,""),
     /*
      * int = geteuid()
      *
@@ -2241,7 +2241,7 @@ ICI_DEFINE_CFUNCS(sys)
      *
      * This --topic-- forms part of the --ici-sys-- documentation.
      */
-    ICI_DEFINE_CFUNC2(geteuid, ici_sys_simple, geteuid,""),
+    ICI_DEFINE_CFUNC2(geteuid, sys_simple, geteuid,""),
     /*
      * int = getgid()
      *
@@ -2250,9 +2250,9 @@ ICI_DEFINE_CFUNCS(sys)
      *
      * This --topic-- forms part of the --ici-sys-- documentation.
      */
-    ICI_DEFINE_CFUNC2(getgid,  ici_sys_simple, getgid, ""),
-    ICI_DEFINE_CFUNC(getitimer,ici_sys_getitimer),
-    ICI_DEFINE_CFUNC(getpass, ici_sys_getpass),
+    ICI_DEFINE_CFUNC2(getgid,  sys_simple, getgid, ""),
+    ICI_DEFINE_CFUNC(getitimer,sys_getitimer),
+    ICI_DEFINE_CFUNC(getpass, sys_getpass),
     /*
      * int = getpgrp()
      *
@@ -2260,7 +2260,7 @@ ICI_DEFINE_CFUNCS(sys)
      *
      * This --topic-- forms part of the --ici-sys-- documentation.
      */
-    ICI_DEFINE_CFUNC2(getpgrp, ici_sys_simple, getpgrp,""),
+    ICI_DEFINE_CFUNC2(getpgrp, sys_simple, getpgrp,""),
     /*
      * int = getpid()
      *
@@ -2269,7 +2269,7 @@ ICI_DEFINE_CFUNCS(sys)
      *
      * This --topic-- forms part of the --ici-sys-- documentation.
      */
-    ICI_DEFINE_CFUNC2(getpid,  ici_sys_simple, getpid, ""),
+    ICI_DEFINE_CFUNC2(getpid,  sys_simple, getpid, ""),
     /*
      * int = getppid()
      *
@@ -2278,9 +2278,9 @@ ICI_DEFINE_CFUNCS(sys)
      *
      * This --topic-- forms part of the --ici-sys-- documentation.
      */
-    ICI_DEFINE_CFUNC2(getppid, ici_sys_simple, getppid,""),
-    ICI_DEFINE_CFUNC(getrlimit,ici_sys_getrlimit),
-    ICI_DEFINE_CFUNC(gettimeofday,ici_sys_gettimeofday),
+    ICI_DEFINE_CFUNC2(getppid, sys_simple, getppid,""),
+    ICI_DEFINE_CFUNC(getrlimit,sys_getrlimit),
+    ICI_DEFINE_CFUNC(gettimeofday,sys_gettimeofday),
     /*
      * int = getuid()
      *
@@ -2289,7 +2289,7 @@ ICI_DEFINE_CFUNCS(sys)
      *
      * This --topic-- forms part of the --ici-sys-- documentation.
      */
-    ICI_DEFINE_CFUNC2(getuid,  ici_sys_simple, getuid, ""),
+    ICI_DEFINE_CFUNC2(getuid,  sys_simple, getuid, ""),
     /*
      * int = isatty(fd)
      *
@@ -2298,7 +2298,7 @@ ICI_DEFINE_CFUNCS(sys)
      *
      * This --topic-- forms part of the --ici-sys-- documentation.
      */
-    ICI_DEFINE_CFUNC2(isatty,  ici_sys_simple, isatty, "i"),
+    ICI_DEFINE_CFUNC2(isatty,  sys_simple, isatty, "i"),
     /*
      * kill(int, int)
      *
@@ -2308,7 +2308,7 @@ ICI_DEFINE_CFUNCS(sys)
      *
      * This --topic-- forms part of the --ici-sys-- documentation.
      */
-    ICI_DEFINE_CFUNC2(kill,    ici_sys_simple, kill,   "ii"),
+    ICI_DEFINE_CFUNC2(kill,    sys_simple, kill,   "ii"),
     /*
      * link(oldpath, newpath)
      *
@@ -2316,8 +2316,8 @@ ICI_DEFINE_CFUNCS(sys)
      *
      * This --topic-- forms part of the --ici-sys-- documentation.
      */
-    ICI_DEFINE_CFUNC2(link,    ici_sys_simple, link,   "ss"),
-    ICI_DEFINE_CFUNC(lstat,   ici_sys_lstat),
+    ICI_DEFINE_CFUNC2(link,    sys_simple, link,   "ss"),
+    ICI_DEFINE_CFUNC(lstat,   sys_lstat),
     /*
      * mknod(pathname, int, int)
      *
@@ -2326,7 +2326,7 @@ ICI_DEFINE_CFUNCS(sys)
      *
      * This --topic-- forms part of the --ici-sys-- documentation.
      */
-    ICI_DEFINE_CFUNC2(mknod,   ici_sys_simple, mknod,  "sii"),
+    ICI_DEFINE_CFUNC2(mknod,   sys_simple, mknod,  "sii"),
     /*
      * nice(int)
      *
@@ -2335,8 +2335,8 @@ ICI_DEFINE_CFUNCS(sys)
      *
      * This --topic-- forms part of the --ici-sys-- documentation.
      */
-    ICI_DEFINE_CFUNC2(nice,    ici_sys_simple, nice,   "i"),
-    ICI_DEFINE_CFUNC(passwd,  ici_sys_passwd),
+    ICI_DEFINE_CFUNC2(nice,    sys_simple, nice,   "i"),
+    ICI_DEFINE_CFUNC(passwd,  sys_passwd),
     /*
      * pause()
      *
@@ -2345,7 +2345,7 @@ ICI_DEFINE_CFUNCS(sys)
      *
      * This --topic-- forms part of the --ici-sys-- documentation.
      */
-    ICI_DEFINE_CFUNC2(pause,   ici_sys_simple, pause,  ""),
+    ICI_DEFINE_CFUNC2(pause,   sys_simple, pause,  ""),
     /*
      * setgid(int)
      *
@@ -2354,10 +2354,10 @@ ICI_DEFINE_CFUNCS(sys)
      *
      * This --topic-- forms part of the --ici-sys-- documentation.
      */
-    ICI_DEFINE_CFUNC2(setgid,  ici_sys_simple, setgid, "i"),
-    ICI_DEFINE_CFUNC(setitimer,ici_sys_setitimer),
-    ICI_DEFINE_CFUNC(setpgrp, ici_sys_setpgrp),
-    ICI_DEFINE_CFUNC(setrlimit,ici_sys_setrlimit),
+    ICI_DEFINE_CFUNC2(setgid,  sys_simple, setgid, "i"),
+    ICI_DEFINE_CFUNC(setitimer,sys_setitimer),
+    ICI_DEFINE_CFUNC(setpgrp, sys_setpgrp),
+    ICI_DEFINE_CFUNC(setrlimit,sys_setrlimit),
     /*
      * setuid(int)
      *
@@ -2366,7 +2366,7 @@ ICI_DEFINE_CFUNCS(sys)
      *
      * This --topic-- forms part of the --ici-sys-- documentation.
      */
-    ICI_DEFINE_CFUNC2(setuid,  ici_sys_simple, setuid, "i"),
+    ICI_DEFINE_CFUNC2(setuid,  sys_simple, setuid, "i"),
     /*
      * sync()
      *
@@ -2375,9 +2375,9 @@ ICI_DEFINE_CFUNCS(sys)
      *
      * This --topic-- forms part of the --ici-sys-- documentation.
      */
-    ICI_DEFINE_CFUNC2(sync,    ici_sys_simple, sync,   ""),
+    ICI_DEFINE_CFUNC2(sync,    sys_simple, sync,   ""),
 #endif
-    ICI_DEFINE_CFUNC(truncate,ici_sys_truncate),
+    ICI_DEFINE_CFUNC(truncate,sys_truncate),
 #ifndef _WIN32
     /*
      * umask(int)
@@ -2387,8 +2387,8 @@ ICI_DEFINE_CFUNCS(sys)
      *
      * This --topic-- forms part of the --ici-sys-- documentation.
      */
-    ICI_DEFINE_CFUNC2(umask,   ici_sys_simple, umask,  "i"),
-    ICI_DEFINE_CFUNC(usleep,  ici_sys_usleep),
+    ICI_DEFINE_CFUNC2(umask,   sys_simple, umask,  "i"),
+    ICI_DEFINE_CFUNC(usleep,  sys_usleep),
 #ifndef NO_ACCT
     /*
      * acct(pathname)
@@ -2398,10 +2398,10 @@ ICI_DEFINE_CFUNCS(sys)
      *
      * This --topic-- forms part of the --ici-sys-- documentation.
      */
-    ICI_DEFINE_CFUNC2(acct,    ici_sys_simple, acct,   "s"),
+    ICI_DEFINE_CFUNC2(acct,    sys_simple, acct,   "s"),
 #endif
 #ifndef ICI_SYS_NOFLOCK
-    ICI_DEFINE_CFUNC(flock,   ici_sys_flock),
+    ICI_DEFINE_CFUNC(flock,   sys_flock),
 #endif
 #if !defined(__linux__) && !defined(BSD) && !defined(__CYGWIN__)
     /*
@@ -2413,7 +2413,7 @@ ICI_DEFINE_CFUNCS(sys)
      *
      * This --topic-- forms part of the --ici-sys-- documentation.
      */
-    ICI_DEFINE_CFUNC2(lockf,   ici_sys_simple, lockf,  "iii"),
+    ICI_DEFINE_CFUNC2(lockf,   sys_simple, lockf,  "iii"),
 #endif /* __linux__ */
 #if !defined(__FreeBSD__) && !defined(__CYGWIN__) && !defined(__APPLE__)
     /*
@@ -2424,7 +2424,7 @@ ICI_DEFINE_CFUNCS(sys)
      *
      * This --topic-- forms part of the --ici-sys-- documentation.
      */
-    ICI_DEFINE_CFUNC2(ulimit,  ici_sys_simple, ulimit, "ii"),
+    ICI_DEFINE_CFUNC2(ulimit,  sys_simple, ulimit, "ii"),
 #endif
 #endif
     ICI_CFUNCS_END()

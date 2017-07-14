@@ -11,7 +11,7 @@ namespace ici
 
 struct saver : object
 {
-    int (*s_fn)(archive *, object *);
+    int (*s_fn)(archiver *, object *);
 };
 
 

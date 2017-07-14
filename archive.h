@@ -44,42 +44,86 @@ void archive_byteswap(void *ptr, int sz);
 /*
  * An archiving session.
  */
-class archive : public object
+
+// class archive : public object
+// {
+//     friend class archive_type;
+
+// public:
+//     static archive *start(file *file, objwsup *scope);
+//     void stop();
+
+//     inline objwsup *scope() const { return a_scope; }
+//     inline int get() { return a_file->getch(); }
+//     inline int write(const void *data, int len) { return a_file->write(data, len); }
+
+//     int insert(object *key, object *val);
+//     void uninsert(object *key);
+//     object *lookup(object *obj);
+
+// private:
+//     file *      a_file;  // The file used for saving or restoring.
+//     map *       a_sent;  // Records archived object identity - int object address -> object
+//     objwsup *   a_scope; // The scope at the time of archiving
+
+//     archive() {}
+// };
+
+// inline archive *archive_of(object *o) { return static_cast<archive *>(o); }
+
+class archiver
 {
-    friend class archive_type;
-
 public:
-    static archive *start(file *file, objwsup *scope);
-    void stop();
-
+    archiver(file *, objwsup *);
+    virtual ~archiver();
+    operator bool() const { return a_sent != nullptr; }
     inline objwsup *scope() const { return a_scope; }
-    inline int get() { return a_file->getch(); }
-    inline int write(const void *data, int len) { return a_file->write(data, len); }
 
-    int insert(object *key, object *val);
-    void uninsert(object *key);
-    object *lookup(object *obj);
+    int record(object *, object *);
+    object *lookup(object *);
+    void remove(object *);
+
+    virtual int read(void *buf, int len);
+    virtual int write(const void *, int);
+
+    inline int read(char *abyte) {
+        return read(abyte, 1);
+    }
+    int read(int16_t *hword);
+    int read(int32_t *aword);
+    int read(int64_t *dword);
+    int read(double *dbl);
+
+    int write(unsigned char abyte) {
+        return write(&abyte, 1);
+    }
+    int write(int16_t hword);
+    int write(int32_t aword);
+    int write(int64_t dword);
+    int write(double adbl);
+
+    int get() {
+        char c;
+        if (read(&c) == 1) return c;
+        return -1;
+    }
 
 private:
-    file *      a_file;  // The file used for saving or restoring.
-    map *       a_sent;  // Records archived object identity - int object address -> object
-    objwsup *   a_scope; // The scope at the time of archiving
-
-    archive() {}
+    file *  a_file;
+    map *   a_sent;
+    objwsup *a_scope;
 };
-
-inline archive *archive_of(object *o) { return static_cast<archive *>(o); }
 
 /*
  * End of ici.h export. --ici.h-end--
  */
 
-class archive_type : public type
-{
-public:
-    archive_type() : type("archive", sizeof (archive)) {}
-    size_t mark(object *o) override;
-};
+// class archive_type : public type
+// {
+// public:
+//     archive_type() : type("archive", sizeof (archive)) {}
+//     size_t mark(object *o) override;
+// };
 
 } // namespace ici
 

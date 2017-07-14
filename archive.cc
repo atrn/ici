@@ -78,11 +78,11 @@ typedef int int_func();
 static int_func *op_funcs[7];
 constexpr auto num_op_funcs = nels(op_funcs);
 
-size_t archive_type::mark(object *o)
-{
-    auto ar = archive_of(o);
-    return type::mark(ar) + ici_mark(ar->a_file) + ici_mark(ar->a_sent) + ici_mark(ar->a_scope);
-}
+// size_t archive_type::mark(object *o)
+// {
+//     auto ar = archive_of(o);
+//     return type::mark(ar) + ici_mark(ar->a_file) + ici_mark(ar->a_sent) + ici_mark(ar->a_scope);
+// }
 
 int archive_init()
 {
@@ -93,8 +93,7 @@ int archive_init()
     op_funcs[4] = o_mkptr.op_func;
     op_funcs[5] = o_openptr.op_func;
     op_funcs[6] = o_fetch.op_func;
-    if (init_saver_map())
-    {
+    if (init_saver_map()) {
         return 1;
     }
     return init_restorer_map();
@@ -106,31 +105,31 @@ void archive_uninit()
     uninit_restorer_map();
 }
 
-archive *archive::start(file *f, objwsup *scope)
-{
-    archive *ar = ici_talloc(archive);
-    if (ar != NULL)
-    {
-        set_tfnz(ar, TC_ARCHIVE, 0, 1, 0);
-        if ((ar->a_sent = new_map()) == NULL)
-        {
-            ici_tfree(ar, archive);
-            return NULL;
-        }
-	ar->a_sent->decref();
-        ar->a_file = f;
-	ar->a_scope = scope;
-        rego(ar);
-    }
-    return ar;
-}
+// archive *archive::start(file *f, objwsup *scope)
+// {
+//     archive *ar = ici_talloc(archive);
+//     if (ar != NULL)
+//     {
+//         set_tfnz(ar, TC_ARCHIVE, 0, 1, 0);
+//         if ((ar->a_sent = new_map()) == NULL)
+//         {
+//             ici_tfree(ar, archive);
+//             return NULL;
+//         }
+// 	ar->a_sent->decref();
+//         ar->a_file = f;
+// 	ar->a_scope = scope;
+//         rego(ar);
+//     }
+//     return ar;
+// }
 
 inline object *make_key(object *obj)
 {
     return new_int((int64_t)obj);
 }
 
-int archive::insert(object *key, object *val)
+int archiver::record(object *key, object *val)
 {
     int rc = 1;
     if (auto k = make_key(key))
@@ -141,7 +140,7 @@ int archive::insert(object *key, object *val)
     return rc;
 }
 
-void archive::uninsert(object *key)
+void archiver::remove(object *key)
 {
     if (auto k = make_key(key))
     {
@@ -150,7 +149,7 @@ void archive::uninsert(object *key)
     }
 }
 
-object *archive::lookup(object *obj)
+object *archiver::lookup(object *obj)
 {
     object *v = ici_null;
     if (auto k = make_key(obj))
@@ -159,11 +158,6 @@ object *archive::lookup(object *obj)
         k->decref();
     }
     return v == ici_null ? NULL : v;
-}
-
-void archive::stop()
-{
-    decref();
 }
 
 int archive_op_func_code(int_func *fn)
@@ -212,5 +206,100 @@ ICI_DEFINE_CFUNCS(save_restore)
     ICI_DEFINE_CFUNC(restore, f_archive_restore),
     ICI_CFUNCS_END()
 };
+
+// ================================================================
+
+archiver::archiver(file *f, objwsup *scope)
+    : a_file(f)
+    , a_sent(new_map())
+    , a_scope(scope)
+{
+}
+
+archiver::~archiver()
+{
+}
+
+int archiver::read(void *buf, int len)
+{
+    char *p = (char *)buf;
+    while (len-- > 0)
+    {
+        int ch;
+
+        if ((ch = get()) == -1)
+        {
+            set_error("eof");
+	    return 1;
+        }
+	*p++ = ch;
+    }
+    return 0;
+}
+
+int archiver::read(int16_t *hword)
+{
+    int16_t tmp;
+    if (read(&tmp, sizeof tmp)) {
+    	return 1;
+    }
+    *hword = ntohs(tmp);
+    return 0;
+}
+
+int archiver::read(int32_t *aword)
+{
+    int32_t tmp;
+    if (read(&tmp, sizeof tmp)) {
+    	return 1;
+    }
+    *aword = ntohl(tmp);
+    return 0;
+}
+
+int archiver::read(int64_t *dword)
+{
+    int64_t tmp;
+    if (read(&tmp, sizeof tmp)) {
+    	return 1;
+    }
+    *dword = ici_ntohll(tmp);
+    return 0;
+}
+
+int archiver::read(double *dbl)
+{
+    return read(dbl, sizeof *dbl);
+}
+
+int archiver::write(const void *p, int n) {
+    return a_file->write(p, n);
+}
+
+int archiver::write(int16_t hword)
+{
+    int16_t swapped = htons(hword);
+    return write(&swapped, sizeof swapped);
+}
+
+int archiver::write(int32_t aword)
+{
+    int32_t swapped = htonl(aword);
+    return write(&swapped, sizeof swapped);
+}
+
+int archiver::write(int64_t dword)
+{
+    auto swapped = ici_htonll(dword);
+    return write(&swapped, sizeof swapped);
+}
+
+int archiver::write(double v)
+{
+#if ICI_ARCHIVE_LITTLE_ENDIAN_HOST
+    archive_byteswap(&v, sizeof v);
+#endif
+    return write(&v, sizeof v);
+}
 
 } // namespace ici

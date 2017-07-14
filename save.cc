@@ -27,67 +27,30 @@
 namespace ici
 {
 
-static int archive_save(archive *ar, object *obj);
-
-/*
- * Functions to write different size datums to the archive stream.
- */
-
-inline int writef(archive *ar, const void *data, int len)
-{
-    return ar->write(data, len) != len;
-}
-
-inline int writeb(archive *ar, unsigned char abyte)
-{
-    return writef(ar, &abyte, 1);
-}
-
-inline int write16(archive *ar, int16_t hword)
-{
-    int16_t swapped = htons(hword);
-    return writef(ar, &swapped, sizeof swapped);
-}
-
-inline int write32(archive *ar, int32_t aword)
-{
-    int32_t swapped = htonl(aword);
-    return writef(ar, &swapped, sizeof swapped);
-}
-
-inline int write64(archive *ar, int64_t dword)
-{
-    auto swapped = ici_htonll(dword);
-    return writef(ar, &swapped, sizeof swapped);
-}
-
-inline int writedbl(archive *ar, double adbl)
-{
-    return writef(ar, &adbl, sizeof adbl);
-}
+static int archive_save(archiver *ar, object *obj);
 
 /*
  * Strings are written as a long count of the number of bytes followed
  * by that many bytes representing the character data.  Since ICI uses
  * 8-bit coding this count is also the number of characters.
  */
-inline int writestr(archive *ar, str *s)
+inline int write(archiver *ar, str *s)
 {
-    return write32(ar, s->s_nchars) || writef(ar, s->s_chars, s->s_nchars);
+    return ar->write(int32_t(s->s_nchars)) || ar->write(s->s_chars, s->s_nchars);
 }
 
 /*
  * Reference to a previously saved object
  */
-static int save_object_ref(archive *ar, object *o)
+static int save_object_ref(archiver *ar, object *o)
 {
-    return writeb(ar, TC_REF) || writef(ar, &o, sizeof o);
+    return ar->write(TC_REF) || ar->write(&o, sizeof o);
 }
 
 static int
-save_object_name(archive *ar, object *obj)
+save_object_name(archiver *ar, object *obj)
 {
-    return ar->insert(obj, obj) || writef(ar, &obj, sizeof obj);
+    return ar->record(obj, obj) || ar->write(&obj, sizeof obj);
 }
 
 /*
@@ -95,18 +58,18 @@ save_object_name(archive *ar, object *obj)
  */
 
 static int
-save_obj(archive *ar, object *obj)
+save_obj(archiver *ar, object *obj)
 {
     uint8_t code = obj->o_tcode & 0x1F;
     if (obj->isatom())
         code |= O_ARCHIVE_ATOMIC;
-    return writeb(ar, code);
+    return ar->write(code);
 }
 
 // NULL
 
 static int
-save_null(archive *, object *)
+save_null(archiver *, object *)
 {
     return 0;
 }
@@ -114,63 +77,59 @@ save_null(archive *, object *)
 // int
 
 static int
-save_int(archive *ar, object *obj)
+save_int(archiver *ar, object *obj)
 {
-    return write64(ar, intof(obj)->i_value);
+    return ar->write(intof(obj)->i_value);
 }
 
 // float
 
 static int
-save_float(archive *ar, object *obj)
+save_float(archiver *ar, object *obj)
 {
-    double v = floatof(obj)->f_value;
-#if ICI_ARCHIVE_LITTLE_ENDIAN_HOST
-    archive_byteswap(&v, sizeof v);
-#endif
-    return writedbl(ar, v);
+    return ar->write(floatof(obj)->f_value);
 }
 
 // string
 
 static int
-save_string(archive *ar, object *obj)
+save_string(archiver *ar, object *obj)
 {
-    return save_object_name(ar, obj) || writestr(ar, stringof(obj));
+    return save_object_name(ar, obj) || write(ar, stringof(obj));
 }
 
 // regexp
 
 static int
-save_regexp(archive *ar, object *obj)
+save_regexp(archiver *ar, object *obj)
 {
     auto re = regexpof(obj);
     int options;
     ici_pcre_info(re->r_re, &options, NULL);
-    return save_object_name(ar, obj) || write32(ar, options) || save_string(ar, re->r_pat);
+    return save_object_name(ar, obj) || ar->write(options) || save_string(ar, re->r_pat);
 }
 
 // mem
 
 static int
-save_mem(archive *ar, object *obj)
+save_mem(archiver *ar, object *obj)
 {
     auto m = memof(obj);
     return save_object_name(ar, obj)
-           || write64(ar, m->m_length)
-           || write16(ar, m->m_accessz)
-           || writef(ar, m->m_base, m->m_length * m->m_accessz);
+        || ar->write(int64_t(m->m_length))
+        || ar->write(int16_t(m->m_accessz))
+        || ar->write(m->m_base, m->m_length * m->m_accessz);
 }
 
 // array
 
 static int
-save_array(archive *ar, object *obj)
+save_array(archiver *ar, object *obj)
 {
     array *a = arrayof(obj);
     object **e;
 
-    if (save_object_name(ar, obj) || write64(ar, a->len()))
+    if (save_object_name(ar, obj) || ar->write(int64_t(a->len())))
         return 1;
     for (e = a->astart(); e != a->alimit(); e = a->anext(e))
     {
@@ -183,12 +142,12 @@ save_array(archive *ar, object *obj)
 // set
 
 static int
-save_set(archive *ar, object *obj)
+save_set(archiver *ar, object *obj)
 {
     auto s = setof(obj);
     object **e = s->s_slots;
 
-    if (save_object_name(ar, obj) || write64(ar, s->s_nels))
+    if (save_object_name(ar, obj) || ar->write(int64_t(s->s_nels)))
         return 1;
     for (; size_t(e - s->s_slots) < s->s_nslots; ++e)
     {
@@ -201,7 +160,7 @@ save_set(archive *ar, object *obj)
 // struct
 
 static int
-save_map(archive *ar, object *obj)
+save_map(archiver *ar, object *obj)
 {
     map *s = mapof(obj);
     object *super = objwsupof(s)->o_super;
@@ -209,7 +168,7 @@ save_map(archive *ar, object *obj)
     if (super == nullptr) {
         super = ici_null;
     }
-    if (save_object_name(ar, obj) || archive_save(ar, super) || write64(ar, s->s_nels))
+    if (save_object_name(ar, obj) || archive_save(ar, super) || ar->write(int64_t(s->s_nels)))
         return 1;
     for (sl = s->s_slots; size_t(sl - s->s_slots) < s->s_nslots; ++sl)
     {
@@ -225,7 +184,7 @@ save_map(archive *ar, object *obj)
 // ptr
 
 static int
-save_ptr(archive *ar, object *obj)
+save_ptr(archiver *ar, object *obj)
 {
     return archive_save(ar, ptrof(obj)->p_aggr) || archive_save(ar, ptrof(obj)->p_key);
 }
@@ -233,7 +192,7 @@ save_ptr(archive *ar, object *obj)
 // func
 
 static int
-save_func(archive *ar, object *obj)
+save_func(archiver *ar, object *obj)
 {
     auto f = funcof(obj);
     map *autos;
@@ -241,7 +200,7 @@ save_func(archive *ar, object *obj)
     if (iscfunc(obj))
     {
         auto cf = cfuncof(obj);
-        return write16(ar, cf->cf_name->s_nchars) || writef(ar, cf->cf_name->s_chars, cf->cf_name->s_nchars);
+        return ar->write(int16_t(cf->cf_name->s_nchars)) || ar->write(cf->cf_name->s_chars, cf->cf_name->s_nchars);
     }
 
     if (save_object_name(ar, obj) || archive_save(ar, f->f_code) || archive_save(ar, f->f_args))
@@ -257,28 +216,28 @@ save_func(archive *ar, object *obj)
     }
     autos->decref();
 
-    return archive_save(ar, f->f_name) || write32(ar, f->f_nautos);
+    return archive_save(ar, f->f_name) || ar->write(int32_t(f->f_nautos));
 }
 
 // src
 
 static int
-save_src(archive *ar, object *obj)
+save_src(archiver *ar, object *obj)
 {
-    return write32(ar, srcof(obj)->s_lineno) || archive_save(ar, srcof(obj)->s_filename);
+    return ar->write(int32_t(srcof(obj)->s_lineno)) || archive_save(ar, srcof(obj)->s_filename);
 }
 
 // op
 
 static int
-save_op(archive *ar, object *obj)
+save_op(archiver *ar, object *obj)
 {
     return
-        write16(ar, archive_op_func_code(opof(obj)->op_func))
+        ar->write(int16_t(archive_op_func_code(opof(obj)->op_func)))
         ||
-        write16(ar, opof(obj)->op_ecode)
+        ar->write(int16_t(opof(obj)->op_ecode))
         ||
-        write16(ar, opof(obj)->op_code);
+        ar->write(int16_t(opof(obj)->op_code));
 }
 
 //
@@ -286,7 +245,7 @@ save_op(archive *ar, object *obj)
 //
 
 static object *
-new_saver(int (*fn)(archive *, object *))
+new_saver(int (*fn)(archiver *, object *))
 {
     saver *s;
     if ((s = ici_talloc(saver)) != NULL)
@@ -313,7 +272,7 @@ init_saver_map()
     struct
     {
         object *name;
-        int (*fn)(archive *, object *);
+        int (*fn)(archiver *, object *);
     }
     fns[] =
     {
@@ -365,17 +324,17 @@ tname(object *o)
 }
 
 static int
-save_error(archive *, object *obj)
+save_error(archiver *, object *obj)
 {
     return set_error("%s: unable to save type", obj->type_name());
 }
 
 
 static int
-archive_save(archive *ar, object *obj)
+archive_save(archiver *ar, object *obj)
 {
     object *saver;
-    int (*fn)(archive *, object *);
+    int (*fn)(archiver *, object *);
 
     if (ar->lookup(obj) != NULL)
     {
@@ -401,7 +360,6 @@ int f_archive_save(...)
     objwsup *scp = mapof(vs.a_top[-1])->o_super;
     file *file;
     object *obj;
-    archive *ar;
     int failed = 1;
 
     switch (NARGS())
@@ -427,12 +385,10 @@ int f_archive_save(...)
         return argerror(2);
     }
 
-    if ((ar = archive::start(file, scp)) != NULL)
-    {
-        failed = archive_save(ar, obj);
-        ar->stop();
+    archiver ar(file, scp);
+    if (ar) {
+        failed = archive_save(&ar, obj);
     }
-
     return failed ? failed : null_ret();
 }
 

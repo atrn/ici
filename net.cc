@@ -5,14 +5,13 @@
  *
  * net module - ici sockets interface
  *
- * This is a set of extra intrinsic functions to provide ici programs
- * with access to the BSD sockets interface and the IP protocol. The
- * ICI interface adopts practices suitable for the ICI environment and
- * introduces a new object type, socket, to represent sockets. Functions
- * follow the BSD model adapted to the ici environment. In particular
- * network addresses are represented using strings and there is support
- * for turning sockets into files to allow stream I/O via printf and
- * the like.
+ * This is a set of extra functions to access to BSD sockets and IP
+ * protocols. The ICI interface adopts practices suitable for the ICI
+ * environment and introduces a new object type, socket, to represent
+ * sockets. Functions follow the BSD model adapted to the ici
+ * environment. In particular network addresses are represented using
+ * strings and there is support for turning sockets into files to
+ * allow stream I/O via printf and the like.
  *
  * The module is mostly portable to Windows. Some Unix specific
  * functions are not provided in the Windows version of the module
@@ -109,10 +108,9 @@ namespace ici
  * within 256 characters. If buf cannot size itself to contain the
  * formatted message the fallback message is used to set error.
  */
-static int
-seterror(const char *fallback, const char *fmt, ...)
+static int seterror(const char *fallback, const char *fmt, ...)
 {
-    va_list     va;
+    va_list va;
 
     if (fmt == NULL || chkbuf(256))
         set_error(fallback);
@@ -236,8 +234,7 @@ static void unblock(exec *x)
  * The sockaddr structure is filled in and 0 returned if all is okay.  When a
  * error occurs the error string is set and 1 is returned.
  */
-static struct sockaddr_in *
-parseaddr(const char *raddr, long defhost, struct sockaddr_in *saddr)
+static struct sockaddr_in * parseaddr(const char *raddr, long defhost, struct sockaddr_in *saddr)
 {
     char addr[512];
     char *host;
@@ -329,8 +326,7 @@ parseaddr(const char *raddr, long defhost, struct sockaddr_in *saddr)
 /*
  * Turn a port number and IP address into a nice looking string ;-)
  */
-static char *
-unparse_addr(struct sockaddr_in *addr)
+static char * unparse_addr(struct sockaddr_in *addr)
 {
     static char addr_buf[256];
 #if 0
@@ -392,8 +388,7 @@ unparse_addr(struct sockaddr_in *addr)
  *
  * This --topic-- forms part of the --ici-net-- documentation.
  */
-static int
-ici_net_socket(void)
+static int net_socket(void)
 {
     handle *skt;
     str    *proto;
@@ -439,8 +434,7 @@ ici_net_socket(void)
  *
  * This --topic-- forms part of the --ici-net-- documentation.
  */
-static int
-ici_net_close(void)
+static int net_close(void)
 {
     handle *skt;
 
@@ -464,8 +458,7 @@ ici_net_close(void)
  *
  * This --topic-- forms part of the --ici-net-- documentation.
  */
-static int
-ici_net_listen(void)
+static int net_listen(void)
 {
     handle *skt;
     long    backlog = 5;    /* ain't tradition grand */
@@ -505,8 +498,7 @@ ici_net_listen(void)
  *
  * This --topic-- forms part of the --ici-net-- documentation.
  */
-static int
-ici_net_accept(void)
+static int net_accept(void)
 {
     handle *skt;
     SOCKET  fd;
@@ -538,8 +530,7 @@ ici_net_accept(void)
  *
  * This --topic-- forms part of the --ici-net-- documentation.
  */
-static int
-ici_net_connect(void)
+static int net_connect(void)
 {
     handle             *skt;
     char               *addr;
@@ -593,8 +584,7 @@ ici_net_connect(void)
  *
  * This --topic-- forms part of the --ici-net-- documentation.
  */
-static int
-ici_net_bind(void)
+static int net_bind(void)
 {
     handle             *skt;
     const char         *addr;
@@ -638,10 +628,9 @@ ici_net_bind(void)
  * object. Uses, and updates, the count of ready descriptors that is
  * returned by select(2) so we can avoid unneccesary work.
  */
-static int
-select_add_result
+static int select_add_result
 (
-    map *result,
+    map        *result,
     str        *key,
     set        *theset,
     fd_set     *fds,
@@ -649,9 +638,9 @@ select_add_result
 )
 {
     set    *rset;
-    SOCKET  fd;
-    size_t  i;
-    slot  *sl;
+    SOCKET fd;
+    size_t i;
+    slot   *sl;
 
     if ((rset = new_set()) == NULL)
         return 1;
@@ -709,26 +698,25 @@ fail:
  * Aldem: dtabsize now is computed (as max found FD). It is more efficient
  * than select() on ALL FDs.
  */
-static int
-ici_net_select()
+static int net_select()
 {
-    int             i;
-    int             n;
-    int             dtabsize     = -1;
-    long            timeout      = -1;
-    fd_set          fds[3];
+    int            i;
+    int            n;
+    int            dtabsize      = -1;
+    long           timeout       = -1;
+    fd_set         fds[3];
     fd_set         *rfds         = NULL;
     set            *rset         = NULL;
     fd_set         *wfds         = NULL;
     set            *wset         = NULL;
     fd_set         *efds         = NULL;
     set            *eset         = NULL;
-    struct timeval  timeval;
+    struct timeval timeval;
     struct timeval *tv;
-    map     *result;
-    set            *theset          = NULL; /* Init. to remove compiler warning */
-    int             whichset = -1; /* 0 == read, 1 == write, 2 == except*/
-    slot          *sl;
+    map            *result;
+    set            *theset       = NULL; /* Init. to remove compiler warning */
+    int            whichset      = -1; /* 0 == read, 1 == write, 2 == except*/
+    slot           *sl;
     exec           *x;
 
     if (NARGS() == 0)
@@ -874,8 +862,7 @@ fail:
  *
  * This --topic-- forms part of the --ici-net-- documentation.
  */
-static int
-ici_net_sendto()
+static int net_sendto()
 {
     char               *addr;
     str                *msg;
@@ -909,9 +896,7 @@ ici_net_sendto()
 /*
  * Turn a textual send option into the correct bits
  */
-static int
-flagval(flag)
-char *flag;
+static int flagval(const char *flag)
 {
     if (!strcmp(flag, "oob"))
         return MSG_OOB;
@@ -937,8 +922,7 @@ char *flag;
  *
  * This --topic-- forms part of the --ici-net-- documentation.
  */
-static int
-ici_net_recvfrom()
+static int net_recvfrom()
 {
     handle             *skt;
     int                 len;
@@ -946,7 +930,7 @@ ici_net_recvfrom()
     char               *msg;
     struct sockaddr_in  addr;
     socklen_t           addrsz = sizeof addr;
-    map         *result;
+    map                 *result;
     str                *s;
     exec               *x;
 
@@ -1018,11 +1002,10 @@ fail:
  *
  * This --topic-- forms part of the --ici-net-- documentation.
  */
-static int
-ici_net_send()
+static int net_send()
 {
     handle *skt;
-    int          len;
+    int     len;
     str     *msg;
 
     if (typecheck("ho", SS(socket), &skt, &msg))
@@ -1050,8 +1033,7 @@ ici_net_send()
  *
  * This --topic-- forms part of the --ici-net-- documentation.
  */
-static int
-ici_net_recv()
+static int net_recv()
 {
     handle *skt;
     int     len;
@@ -1099,8 +1081,7 @@ ici_net_recv()
  * Returns:
  *      The option code or -1 if no matching option found.
  */
-static int
-sockopt(char *opt, int *level)
+static int sockopt(char *opt, int *level)
 {
     int code;
     size_t i;
@@ -1127,7 +1108,6 @@ sockopt(char *opt, int *level)
         {"rcvbuf",      SO_RCVBUF,      SOL_SOCKET},
         {"type",        SO_TYPE,        SOL_SOCKET},
         {"error",       SO_ERROR,       SOL_SOCKET},
-
         {"nodelay",     TCP_NODELAY,    IPPROTO_TCP}
 
     };
@@ -1171,10 +1151,9 @@ sockopt(char *opt, int *level)
  *
  * This --topic-- forms part of the --ici-net-- documentation.
  */
-static int
-ici_net_getsockopt()
+static int net_getsockopt()
 {
-    handle        *skt;
+    handle              *skt;
     char                *opt;
     int                 o;
     char                *optval;
@@ -1272,10 +1251,9 @@ bad:
  *
  * This --topic-- forms part of the --ici-net-- documentation.
  */
-static int
-ici_net_setsockopt()
+static int net_setsockopt()
 {
-    handle        *skt;
+    handle              *skt;
     char                *opt;
     int                 optcode;
     int                 optlevel = 0;
@@ -1355,8 +1333,7 @@ bad:
  *
  * This --topic-- forms part of the --ici-net-- documentation.
  */
-static int
-ici_net_hostname()
+static int net_hostname()
 {
     static str *hostname = NULL;
 
@@ -1376,8 +1353,7 @@ ici_net_hostname()
 /*
  * Return the name of the current user or the user with the given uid.
  */
-static
-ici_net_username()
+static net_username()
 {
     char        *s;
 #ifdef _WINDOWS
@@ -1422,8 +1398,7 @@ ici_net_username()
  *
  * This --topic-- forms part of the --ici-net-- documentation.
  */
-static int
-ici_net_getpeername()
+static int net_getpeername()
 {
     struct sockaddr_in  addr;
     socklen_t           len = sizeof addr;
@@ -1445,8 +1420,7 @@ ici_net_getpeername()
  *
  * This --topic-- forms part of the --ici-net-- documentation.
  */
-static int
-ici_net_getsockname()
+static int net_getsockname()
 {
     struct sockaddr_in  addr;
     socklen_t           len = sizeof addr;
@@ -1468,8 +1442,7 @@ ici_net_getsockname()
  *
  * This --topic-- forms part of the --ici-net-- documentation.
  */
-static int
-ici_net_getportno()
+static int net_getportno()
 {
     struct sockaddr_in  addr;
     socklen_t           len = sizeof addr;
@@ -1495,7 +1468,7 @@ ici_net_getportno()
  * This --topic-- forms part of the --ici-net-- documentation.
  */
 static int
-ici_net_gethostbyname()
+net_gethostbyname()
 {
     char                *name;
     struct hostent      *hostent;
@@ -1523,8 +1496,7 @@ ici_net_gethostbyname()
  *
  * This --topic-- forms part of the --ici-net-- documentation.
  */
-static int
-ici_net_gethostbyaddr(void)
+static int net_gethostbyaddr(void)
 {
     uint32_t            addr;
     char                *s;
@@ -1550,8 +1522,7 @@ ici_net_gethostbyaddr(void)
  *
  * This --topic-- forms part of the --ici-net-- documentation.
  */
-static int
-ici_net_sktno()
+static int net_sktno()
 {
     handle *skt;
 
@@ -1717,8 +1688,7 @@ public:
 
 static ftype *skt_ftype = ptr_to_instance_of<class skt_ftype>();
 
-static skt_file *
-skt_open(handle *s, const char *mode)
+static skt_file * skt_open(handle *s, const char *mode)
 {
     skt_file  *sf;
 
@@ -1767,8 +1737,7 @@ skt_open(handle *s, const char *mode)
  *
  * This --topic-- forms part of the --ici-net-- documentation.
  */
-static int
-ici_net_sktopen()
+static int net_sktopen()
 {
     handle     *skt;
     const char *mode;
@@ -1802,8 +1771,7 @@ ici_net_sktopen()
  *
  * This --topic-- forms part of the --ici-net-- documentation.
  */
-static int
-ici_net_socketpair()
+static int net_socketpair()
 {
     array  *a;
     handle *s;
@@ -1846,8 +1814,7 @@ fail:
  *
  * This --topic-- forms part of the --ici-net-- documentation.
  */
-static int
-ici_net_shutdown()
+static int net_shutdown()
 {
     handle *skt;
     long    flags;
@@ -1872,7 +1839,7 @@ ici_net_shutdown()
     return ret_no_decref(skt);
 }
 
-int ici_net_init()
+int net_init()
 {
 #ifdef  USE_WINSOCK
     WSADATA             wsadata;
@@ -1886,30 +1853,30 @@ int ici_net_init()
 
 ICI_DEFINE_CFUNCS(net)
 {
-    ICI_DEFINE_CFUNC(socket, ici_net_socket),
-    ICI_DEFINE_CFUNC(closesocket, ici_net_close),
-    ICI_DEFINE_CFUNC(listen, ici_net_listen),
-    ICI_DEFINE_CFUNC(accept, ici_net_accept),
-    ICI_DEFINE_CFUNC(connect, ici_net_connect),
-    ICI_DEFINE_CFUNC(bind, ici_net_bind),
-    ICI_DEFINE_CFUNC(select, ici_net_select),
-    ICI_DEFINE_CFUNC(sendto, ici_net_sendto),
-    ICI_DEFINE_CFUNC(recvfrom, ici_net_recvfrom),
-    ICI_DEFINE_CFUNC(send, ici_net_send),
-    ICI_DEFINE_CFUNC(recv, ici_net_recv),
-    ICI_DEFINE_CFUNC(getsockopt, ici_net_getsockopt),
-    ICI_DEFINE_CFUNC(setsockopt, ici_net_setsockopt),
-    ICI_DEFINE_CFUNC(hostname, ici_net_hostname),
-    ICI_DEFINE_CFUNC(getpeername, ici_net_getpeername),
-    ICI_DEFINE_CFUNC(getsockname, ici_net_getsockname),
-    ICI_DEFINE_CFUNC(getportno, ici_net_getportno),
-    ICI_DEFINE_CFUNC(gethostbyname, ici_net_gethostbyname),
-    ICI_DEFINE_CFUNC(gethostbyaddr, ici_net_gethostbyaddr),
-    ICI_DEFINE_CFUNC(sktno, ici_net_sktno),
-    ICI_DEFINE_CFUNC(sktopen, ici_net_sktopen),
-    ICI_DEFINE_CFUNC(shutdown, ici_net_shutdown),
+    ICI_DEFINE_CFUNC(socket, net_socket),
+    ICI_DEFINE_CFUNC(closesocket, net_close),
+    ICI_DEFINE_CFUNC(listen, net_listen),
+    ICI_DEFINE_CFUNC(accept, net_accept),
+    ICI_DEFINE_CFUNC(connect, net_connect),
+    ICI_DEFINE_CFUNC(bind, net_bind),
+    ICI_DEFINE_CFUNC(select, net_select),
+    ICI_DEFINE_CFUNC(sendto, net_sendto),
+    ICI_DEFINE_CFUNC(recvfrom, net_recvfrom),
+    ICI_DEFINE_CFUNC(send, net_send),
+    ICI_DEFINE_CFUNC(recv, net_recv),
+    ICI_DEFINE_CFUNC(getsockopt, net_getsockopt),
+    ICI_DEFINE_CFUNC(setsockopt, net_setsockopt),
+    ICI_DEFINE_CFUNC(hostname, net_hostname),
+    ICI_DEFINE_CFUNC(getpeername, net_getpeername),
+    ICI_DEFINE_CFUNC(getsockname, net_getsockname),
+    ICI_DEFINE_CFUNC(getportno, net_getportno),
+    ICI_DEFINE_CFUNC(gethostbyname, net_gethostbyname),
+    ICI_DEFINE_CFUNC(gethostbyaddr, net_gethostbyaddr),
+    ICI_DEFINE_CFUNC(sktno, net_sktno),
+    ICI_DEFINE_CFUNC(sktopen, net_sktopen),
+    ICI_DEFINE_CFUNC(shutdown, net_shutdown),
 #ifndef USE_WINSOCK
-    ICI_DEFINE_CFUNC(socketpair, ici_net_socketpair),
+    ICI_DEFINE_CFUNC(socketpair, net_socketpair),
 #endif
     ICI_CFUNCS_END()
 };

@@ -33,15 +33,15 @@ extern cfunc *ici_funcs[];
  */
 int init()
 {
-    extern int ici_sys_init(objwsup *);
-    extern int ici_net_init();
+    extern int sys_init(objwsup *);
+    extern int net_init();
 
-    cfunc         **cfp;
-    map    *scope;
-    objwsup       *externs;
-    exec          *x;
-    int           i;
-    double        pi = 3.1415926535897932;
+    cfunc       **cfp;
+    map         *scope;
+    objwsup     *externs;
+    exec        *x;
+    int         i;
+    double      pi = 3.1415926535897932;
     
     /*
      * Just make sure our universal headers are really the size we
@@ -135,11 +135,11 @@ int init()
             return 1;
         }
     }
-    if (ici_sys_init(scope->o_super))
+    if (sys_init(scope->o_super))
     {
         return 1;
     }
-    if (ici_net_init())
+    if (net_init())
     {
         return 1;
     }

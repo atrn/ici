@@ -189,7 +189,7 @@ constexpr int objnamez = 32;
  * Standard types.
  */
 
-class  archive;
+class  archiver;
 class  debugger;
 class  ftype;
 class  type;
