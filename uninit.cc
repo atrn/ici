@@ -3,7 +3,7 @@
 #include "exec.h"
 #include "str.h"
 #include "re.h"
-#include "archive.h"
+#include "archiver.h"
 #include "wrap.h"
 
 namespace ici

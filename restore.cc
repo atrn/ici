@@ -15,7 +15,7 @@
 
 #include "fwd.h"
 #include "restorer.h"
-#include "archive.h"
+#include "archiver.h"
 #include "int.h"
 #include "float.h"
 #include "array.h"

@@ -43,7 +43,7 @@
  */
 
 #include "fwd.h"
-#include "archive.h"
+#include "archiver.h"
 #include "int.h"
 #include "null.h"
 #include "cfunc.h"

@@ -3,7 +3,7 @@
 #include "fwd.h"
 #include "saver.h"
 
-#include "archive.h"
+#include "archiver.h"
 #include "array.h"
 #include "cfunc.h"
 #include "file.h"

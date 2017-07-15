@@ -6,7 +6,7 @@
 #include "exec.h"
 #include "str.h"
 #include "pcre.h"
-#include "archive.h"
+#include "archiver.h"
 
 namespace ici
 {

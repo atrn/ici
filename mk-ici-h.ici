@@ -6,7 +6,7 @@ incs := [array
     "fwd.h",
     "object.h",
     "alloc.h",
-    "archive.h",
+    "archiver.h",
     "buf.h",
     "catcher.h",
     "channel.h",
