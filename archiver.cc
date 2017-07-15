@@ -111,6 +111,9 @@ archiver::archiver(file *f, objwsup *scope)
 }
 
 archiver::~archiver() {
+    if (a_sent) {
+        a_sent->decref();
+    }
 }
 
 int archiver::record(object *key, object *val) {
@@ -140,7 +143,7 @@ object *archiver::lookup(object *obj) {
     return v == ici_null ? NULL : v;
 }
 
-int archive_op_func_code(int_func *fn)
+int archiver::op_func_code(int_func *fn)
 {
     for (size_t i = 0; i < num_op_funcs; ++i) {
         if (fn == op_funcs[i])
@@ -149,7 +152,7 @@ int archive_op_func_code(int_func *fn)
     return -1;
 }
 
-int_func *archive_op_func(int code)
+int_func *archiver::op_func(int code)
 {
     if (code < 0 || size_t(code) >= num_op_funcs) {
         return NULL;
@@ -157,7 +160,7 @@ int_func *archive_op_func(int code)
     return op_funcs[code];
 }
 
-void archive_byteswap(void *ptr, int sz)
+void archiver::byteswap(void *ptr, int sz)
 {
     if (sz == sizeof (long long)) {
         long long *ll = (long long *)ptr;
@@ -229,7 +232,7 @@ int archiver::read(double *dbl)
         return 1;
     }
 #if ICI_ARCHIVE_LITTLE_ENDIAN_HOST
-    archive_byteswap(&dbl, sizeof dbl);
+    byteswap(&dbl, sizeof dbl);
 #endif
     return 0;
 }
@@ -259,7 +262,7 @@ int archiver::write(int64_t dword)
 int archiver::write(double v)
 {
 #if ICI_ARCHIVE_LITTLE_ENDIAN_HOST
-    archive_byteswap(&v, sizeof v);
+    byteswap(&v, sizeof v);
 #endif
     return write(&v, sizeof v);
 }

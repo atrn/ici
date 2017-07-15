@@ -27,6 +27,15 @@
 namespace ici
 {
 
+template <typename T> int put(archiver *ar, const T &v) {
+    ar->write(v);
+    return 0;
+}
+
+int put(archiver *ar, str *s) {
+    return ar->write(int32_t(s->s_nchars)) || ar->write(s->s_chars, s->s_nchars);
+}
+
 static int archive_save(archiver *ar, object *obj);
 
 /*
@@ -34,8 +43,8 @@ static int archive_save(archiver *ar, object *obj);
  * by that many bytes representing the character data.  Since ICI uses
  * 8-bit coding this count is also the number of characters.
  */
-inline int write(archiver *ar, str *s)
-{
+inline int write(archiver *ar, str *s) {
+    // return put(ar, s);
     return ar->write(int32_t(s->s_nchars)) || ar->write(s->s_chars, s->s_nchars);
 }
 
@@ -233,7 +242,7 @@ static int
 save_op(archiver *ar, object *obj)
 {
     return
-        ar->write(int16_t(archive_op_func_code(opof(obj)->op_func)))
+        ar->write(int16_t(archiver::op_func_code(opof(obj)->op_func)))
         ||
         ar->write(int16_t(opof(obj)->op_ecode))
         ||

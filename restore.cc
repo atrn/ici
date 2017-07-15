@@ -505,7 +505,7 @@ restore_op(archiver *ar)
         return 0;
     }
 
-    return new_op(archive_op_func(op_func_code), op_ecode, op_code);
+    return new_op(archiver::op_func(op_func_code), op_ecode, op_code);
 }
 
 static object *
