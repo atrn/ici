@@ -1,7 +1,6 @@
 #define ICI_CORE
 #include "fwd.h"
 #include "types.h"
-// #include "archive.h"
 #include "array.h"
 #include "buf.h"
 #include "catcher.h"
@@ -68,7 +67,6 @@ type *types[max_types] =
 #else
     nullptr,
 #endif
-    nullptr, // ptr_to_instance_of<archive_type>(),
     nullptr, // TC_REF is special, a reserved type code with no actual type
     ptr_to_instance_of<restorer_type>(),
     ptr_to_instance_of<saver_type>(),

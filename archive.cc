@@ -78,12 +78,6 @@ typedef int int_func();
 static int_func *op_funcs[7];
 constexpr auto num_op_funcs = nels(op_funcs);
 
-// size_t archive_type::mark(object *o)
-// {
-//     auto ar = archive_of(o);
-//     return type::mark(ar) + ici_mark(ar->a_file) + ici_mark(ar->a_sent) + ici_mark(ar->a_scope);
-// }
-
 int archive_init()
 {
     op_funcs[0] = NULL;
@@ -105,32 +99,21 @@ void archive_uninit()
     uninit_restorer_map();
 }
 
-// archive *archive::start(file *f, objwsup *scope)
-// {
-//     archive *ar = ici_talloc(archive);
-//     if (ar != NULL)
-//     {
-//         set_tfnz(ar, TC_ARCHIVE, 0, 1, 0);
-//         if ((ar->a_sent = new_map()) == NULL)
-//         {
-//             ici_tfree(ar, archive);
-//             return NULL;
-//         }
-// 	ar->a_sent->decref();
-//         ar->a_file = f;
-// 	ar->a_scope = scope;
-//         rego(ar);
-//     }
-//     return ar;
-// }
-
-inline object *make_key(object *obj)
-{
+inline object *make_key(object *obj) {
     return new_int((int64_t)obj);
 }
 
-int archiver::record(object *key, object *val)
+archiver::archiver(file *f, objwsup *scope)
+    : a_file(f)
+    , a_sent(new_map())
+    , a_scope(scope)
 {
+}
+
+archiver::~archiver() {
+}
+
+int archiver::record(object *key, object *val) {
     int rc = 1;
     if (auto k = make_key(key))
     {
@@ -140,8 +123,7 @@ int archiver::record(object *key, object *val)
     return rc;
 }
 
-void archiver::remove(object *key)
-{
+void archiver::remove(object *key) {
     if (auto k = make_key(key))
     {
         unassign(a_sent, k);
@@ -149,11 +131,9 @@ void archiver::remove(object *key)
     }
 }
 
-object *archiver::lookup(object *obj)
-{
+object *archiver::lookup(object *obj) {
     object *v = ici_null;
-    if (auto k = make_key(obj))
-    {
+    if (auto k = make_key(obj)) {
         v = a_sent->fetch(k);
         k->decref();
     }
@@ -162,8 +142,7 @@ object *archiver::lookup(object *obj)
 
 int archive_op_func_code(int_func *fn)
 {
-    for (size_t i = 0; i < num_op_funcs; ++i)
-    {
+    for (size_t i = 0; i < num_op_funcs; ++i) {
         if (fn == op_funcs[i])
             return i;
     }
@@ -172,8 +151,7 @@ int archive_op_func_code(int_func *fn)
 
 int_func *archive_op_func(int code)
 {
-    if (code < 0 || size_t(code) >= num_op_funcs)
-    {
+    if (code < 0 || size_t(code) >= num_op_funcs) {
         return NULL;
     }
     return op_funcs[code];
@@ -181,8 +159,7 @@ int_func *archive_op_func(int code)
 
 void archive_byteswap(void *ptr, int sz)
 {
-    if (sz == sizeof (long long))
-    {
+    if (sz == sizeof (long long)) {
         long long *ll = (long long *)ptr;
         *ll = ici_htonll(*ll);
         return;
@@ -192,32 +169,11 @@ void archive_byteswap(void *ptr, int sz)
     char *e = s + sz - 1;
     int i;
 
-    for (i = 0; i < sz / 2 ; ++i)
-    {
+    for (i = 0; i < sz / 2 ; ++i) {
         char t = s[i];
         s[i] = e[-i];
         e[-i] = t;
     }
-}
-
-ICI_DEFINE_CFUNCS(save_restore)
-{
-    ICI_DEFINE_CFUNC(save, f_archive_save),
-    ICI_DEFINE_CFUNC(restore, f_archive_restore),
-    ICI_CFUNCS_END()
-};
-
-// ================================================================
-
-archiver::archiver(file *f, objwsup *scope)
-    : a_file(f)
-    , a_sent(new_map())
-    , a_scope(scope)
-{
-}
-
-archiver::~archiver()
-{
 }
 
 int archiver::read(void *buf, int len)
@@ -269,7 +225,13 @@ int archiver::read(int64_t *dword)
 
 int archiver::read(double *dbl)
 {
-    return read(dbl, sizeof *dbl);
+    if (read(dbl, sizeof *dbl)) {
+        return 1;
+    }
+#if ICI_ARCHIVE_LITTLE_ENDIAN_HOST
+    archive_byteswap(&dbl, sizeof dbl);
+#endif
+    return 0;
 }
 
 int archiver::write(const void *p, int n) {
@@ -301,5 +263,12 @@ int archiver::write(double v)
 #endif
     return write(&v, sizeof v);
 }
+
+ICI_DEFINE_CFUNCS(save_restore)
+{
+    ICI_DEFINE_CFUNC(save, f_archive_save),
+    ICI_DEFINE_CFUNC(restore, f_archive_restore),
+    ICI_CFUNCS_END()
+};
 
 } // namespace ici

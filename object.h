@@ -525,15 +525,14 @@ constexpr int TC_NULL =         21;
 constexpr int TC_HANDLE =       22;
 constexpr int TC_MEM =          23;
 constexpr int TC_PROFILECALL =  24;
-// constexpr int TC_ARCHIVE =      25;
-/* TC_REF is a special type code reserved for use in the
-   serialization protocol to indicate a reference to previously
-   transmitted object. */
-constexpr int TC_REF =          26;
-constexpr int TC_RESTORER =     27;
-constexpr int TC_SAVER =        28;
-constexpr int TC_CHANNEL =      29;
-constexpr int TC_MAX_CORE =     29;
+/* TC_REF is a special type code used in the serialization protocol to
+   represent a reference to previously serialized object. */
+constexpr int TC_REF =          25;
+constexpr int TC_RESTORER =     26;
+constexpr int TC_SAVER =        27;
+constexpr int TC_CHANNEL =      28;
+
+constexpr int TC_MAX_CORE =     28;
 
 /*
  * End of ici.h export. --ici.h-end--

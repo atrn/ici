@@ -44,33 +44,6 @@ void archive_byteswap(void *ptr, int sz);
 /*
  * An archiving session.
  */
-
-// class archive : public object
-// {
-//     friend class archive_type;
-
-// public:
-//     static archive *start(file *file, objwsup *scope);
-//     void stop();
-
-//     inline objwsup *scope() const { return a_scope; }
-//     inline int get() { return a_file->getch(); }
-//     inline int write(const void *data, int len) { return a_file->write(data, len); }
-
-//     int insert(object *key, object *val);
-//     void uninsert(object *key);
-//     object *lookup(object *obj);
-
-// private:
-//     file *      a_file;  // The file used for saving or restoring.
-//     map *       a_sent;  // Records archived object identity - int object address -> object
-//     objwsup *   a_scope; // The scope at the time of archiving
-
-//     archive() {}
-// };
-
-// inline archive *archive_of(object *o) { return static_cast<archive *>(o); }
-
 class archiver
 {
 public:
@@ -117,13 +90,6 @@ private:
 /*
  * End of ici.h export. --ici.h-end--
  */
-
-// class archive_type : public type
-// {
-// public:
-//     archive_type() : type("archive", sizeof (archive)) {}
-//     size_t mark(object *o) override;
-// };
 
 } // namespace ici
 

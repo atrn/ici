@@ -96,14 +96,9 @@ static object *
 restore_float(archiver *ar)
 {
     double val;
-
-    if (ar->read(&val))
-    {
+    if (ar->read(&val)) {
         return NULL;
     }
-#if ICI_ARCHIVE_LITTLE_ENDIAN_HOST
-    archive_byteswap(&val, sizeof val);
-#endif
     return new_float(val);
 }
 
