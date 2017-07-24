@@ -39,7 +39,7 @@ struct profilecall : object
  * pc_call_count    The number of times this function was called.
  */
 
-inline profilecall *profilecallof(object *o) { return static_cast<profilecall *>(o); }
+inline profilecall *profilecallof(object *o) { return o->as<profilecall>(); }
 inline bool isprofilecall(object *o) { return o->isa(TC_PROFILECALL); }
 
 extern int ici_profile_active;

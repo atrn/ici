@@ -61,12 +61,16 @@ void uninit_restorer_map();
 int init_saver_map();
 void uninit_saver_map();
 
-long long ici_htonll(long long v)
+inline long long ici_htonll(long long v)
 {
     assert(sizeof (long long) == 8);
+#if ICI_ARCHIVE_LITTLE_ENDIAN_HOST
     uint32_t msw = v >> 32ull;
     uint32_t lsw = v & ((1ull<<32)-1);
     return (long long)htonl(msw) | ((long long)htonl(lsw) << 32ull);
+#else
+    return v;
+#endif
 }
 
 long long ici_ntohll(long long v)
@@ -162,6 +166,7 @@ int_func *archiver::op_func(int code)
 
 void archiver::byteswap(void *ptr, int sz)
 {
+#if ICI_ARCHIVE_LITTLE_ENDIAN_HOST
     if (sz == sizeof (long long)) {
         long long *ll = (long long *)ptr;
         *ll = ici_htonll(*ll);
@@ -177,6 +182,10 @@ void archiver::byteswap(void *ptr, int sz)
         s[i] = e[-i];
         e[-i] = t;
     }
+#else
+    (void)ptr;
+    (void)sz;
+#endif
 }
 
 int archiver::read(void *buf, int len)
@@ -231,9 +240,7 @@ int archiver::read(double *dbl)
     if (read(dbl, sizeof *dbl)) {
         return 1;
     }
-#if ICI_ARCHIVE_LITTLE_ENDIAN_HOST
     byteswap(&dbl, sizeof dbl);
-#endif
     return 0;
 }
 
@@ -243,27 +250,25 @@ int archiver::write(const void *p, int n) {
 
 int archiver::write(int16_t hword)
 {
-    int16_t swapped = htons(hword);
+    const int16_t swapped = htons(hword);
     return write(&swapped, sizeof swapped);
 }
 
 int archiver::write(int32_t aword)
 {
-    int32_t swapped = htonl(aword);
+    const int32_t swapped = htonl(aword);
     return write(&swapped, sizeof swapped);
 }
 
 int archiver::write(int64_t dword)
 {
-    auto swapped = ici_htonll(dword);
+    const auto swapped = ici_htonll(dword);
     return write(&swapped, sizeof swapped);
 }
 
 int archiver::write(double v)
 {
-#if ICI_ARCHIVE_LITTLE_ENDIAN_HOST
     byteswap(&v, sizeof v);
-#endif
     return write(&v, sizeof v);
 }
 

@@ -23,7 +23,7 @@ struct mark : object
     mark();
 };
 
-inline mark *markof(object *o) { return static_cast<mark *>(o); }
+inline mark *markof(object *o) { return o->as<mark>(); }
 inline bool ismark(object *o) { return o == &o_mark; }
 
 /*

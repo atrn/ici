@@ -30,7 +30,7 @@ size_t pc_type::mark(object *o)
 {
     auto p = pcof(o);
     p->setmark();
-    return size() + maybe_mark(p->pc_code);
+    return size() + mark_optional(p->pc_code);
 }
 
 } // namespace ici

@@ -23,7 +23,7 @@ struct catcher : object
     uint32_t c_vdepth;       /* Variable stack depth. */
 };
 
-inline catcher *catcherof(object *o) { return static_cast<catcher *>(o); }
+inline catcher *catcherof(object *o) { return o->as<catcher>(); }
 inline bool iscatcher(object *o) { return o->isa(TC_CATCHER); }
 
 /*

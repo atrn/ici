@@ -17,7 +17,7 @@ struct pc : object
     object **pc_next;
 };
 
-inline pc * pcof(object *o) { return static_cast<pc *>(o); }
+inline pc * pcof(object *o) { return o->as<pc>(); }
 inline bool ispc(object *o) { return o->isa(TC_PC); }
 
 /*

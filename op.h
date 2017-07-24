@@ -34,7 +34,7 @@ struct op : object
     int16_t op_code;
 };
 
-inline op *opof(object *o) { return static_cast<op *>(o); }
+inline op *opof(object *o) { return o->as<op>(); }
 inline bool isop(object *o) { return o->isa(TC_OP); }
 
 /*

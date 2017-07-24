@@ -42,7 +42,7 @@ struct exec : object
     char                    *x_error;
 };
 
-inline exec *execof(object *o) { return static_cast<exec *>(o); }
+inline exec *execof(object *o) { return o->as<exec>(); }
 inline bool isexec(object *o) { return o->isa(TC_EXEC); }
 
 /*

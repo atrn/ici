@@ -506,8 +506,8 @@ object *evaluate(object *code, int n_operands)
             }
             if (o->flagged(CF_CRIT_SECT))
             {
-                // --ex->x_critsect;
-		__sync_fetch_and_sub(&ex->x_critsect, 1);
+                --ex->x_critsect;
+		// __sync_fetch_and_sub(&ex->x_critsect, 1);
                 /*
                  * Force a check for a yield (see top of loop). If we
                  * don't do this, there is a chance a loop that spends
@@ -975,8 +975,8 @@ object *evaluate(object *code, int n_operands)
                         {
                             if (s[-1]->flagged(CF_CRIT_SECT))
                             {
-                                // --ex->x_critsect;
-				__sync_fetch_and_sub(&ex->x_critsect, 1);
+                                --ex->x_critsect;
+				// __sync_fetch_and_sub(&ex->x_critsect, 1);
                                 exec_count = 1;
                             }
                             else if (s[-1]->flagged(CF_EVAL_BASE))
@@ -1048,8 +1048,8 @@ object *evaluate(object *code, int n_operands)
                             }
                             if (s[-1]->flagged(CF_CRIT_SECT))
                             {
-                                // --ex->x_critsect;
-				__sync_fetch_and_sub(&ex->x_critsect, 1);
+                                --ex->x_critsect;
+				// __sync_fetch_and_sub(&ex->x_critsect, 1);
                                 exec_count = 1;
                             }
                         }
@@ -1169,8 +1169,8 @@ object *evaluate(object *code, int n_operands)
                     get_pc(arrayof(os.a_top[-1]), xs.a_top);
                     ++xs.a_top;
                     --os.a_top;
-                    // ++ex->x_critsect;
-		    __sync_fetch_and_add(&ex->x_critsect, 1);
+                    ++ex->x_critsect;
+		    // __sync_fetch_and_add(&ex->x_critsect, 1);
                 }
                 continue;
 
@@ -1179,11 +1179,11 @@ object *evaluate(object *code, int n_operands)
                 /*
                  * obj => - (os)
                  */
-                // --ex->x_critsect;
-		__sync_fetch_and_sub(&ex->x_critsect, 1);
+                --ex->x_critsect;
+		// __sync_fetch_and_sub(&ex->x_critsect, 1);
                 waitfor(os.a_top[-1]);
-                // ++ex->x_critsect;
-		__sync_fetch_and_add(&ex->x_critsect, 1);
+                ++ex->x_critsect;
+		// __sync_fetch_and_add(&ex->x_critsect, 1);
                 --os.a_top;
                 goto stable_stacks_continue;
 
@@ -1225,8 +1225,8 @@ object *evaluate(object *code, int n_operands)
                 }
                 if (c->flagged(CF_CRIT_SECT))
                 {
-                    // --ex->x_critsect;
-		    __sync_fetch_and_sub(&ex->x_critsect, 1);
+                    --ex->x_critsect;
+		    // __sync_fetch_and_sub(&ex->x_critsect, 1);
                     exec_count = 1;
                     continue;
                 }
@@ -1295,14 +1295,14 @@ size_t exec_type::mark(object *o)
 {
     auto x = execof(o);
     return type::mark(o)
-        + maybe_mark(x->x_xs)
-        + maybe_mark(x->x_os)
-        + maybe_mark(x->x_vs)
-        + maybe_mark(x->x_src)
-        + maybe_mark(x->x_pc_closet)
-        + maybe_mark(x->x_os_temp_cache)
-        + maybe_mark(x->x_waitfor)
-        + maybe_mark(x->x_result)
+        + mark_optional(x->x_xs)
+        + mark_optional(x->x_os)
+        + mark_optional(x->x_vs)
+        + mark_optional(x->x_src)
+        + mark_optional(x->x_pc_closet)
+        + mark_optional(x->x_os_temp_cache)
+        + mark_optional(x->x_waitfor)
+        + mark_optional(x->x_result)
         + (x->x_error != NULL ? strlen(x->x_error) + 1: 0);
 }
 

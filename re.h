@@ -31,7 +31,7 @@ struct regexp : object
     str         *r_pat;
 };
 
-inline regexp *regexpof(object *o) { return static_cast<regexp *>(o); }
+inline regexp *regexpof(object *o) { return o->as<regexp>(); }
 inline bool isregexp(object *o) { return o->isa(TC_REGEXP); }
 
 int ici_pcre_exec_simple(regexp *, str *);

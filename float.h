@@ -23,7 +23,7 @@ struct ici_float : object
     double f_value;
 };
 
-inline ici_float *floatof(object *o) { return static_cast<ici_float *>(o); }
+inline ici_float *floatof(object *o) { return o->as<ici_float>(); }
 inline bool isfloat(object *o) { return o->isa(TC_FLOAT); }
 
 /*

@@ -8,8 +8,6 @@
 #include "catcher.h"
 
 #include <atomic>
-#include <errno.h>
-
 #include <mutex>
 #include <thread>
 
@@ -55,11 +53,11 @@ exec *leave()
 
 static exec *leave2(bool unlock)
 {
-    exec          *x;
+    exec *x;
 
     x = ex;
-    // if (!x->x_critsect)
-    if (!__sync_fetch_and_add(&x->x_critsect, 0))
+    // if (!__sync_fetch_and_add(&x->x_critsect, 0))
+    if (!x->x_critsect)
     {
         /*
          * Restore the copies of our stack arrays that are cached
@@ -100,8 +98,8 @@ static exec *leave2(bool unlock)
  */
 void enter(exec *x)
 {
-    // if (!x->x_critsect)
-    if (!__sync_fetch_and_add(&x->x_critsect, 0))
+    // if (!__sync_fetch_and_add(&x->x_critsect, 0))
+    if (!x->x_critsect)
     {
         ++ici_n_active_threads;
         ici_mutex.lock();
@@ -145,8 +143,8 @@ void yield()
     exec  *x;
 
     x = ex;
-    // if (ici_n_active_threads > 1 && x->x_critsect == 0)
-    if (ici_n_active_threads > 1 && __sync_fetch_and_add(&x->x_critsect, 0) == 0)
+    // if (ici_n_active_threads > 1 && __sync_fetch_and_add(&x->x_critsect, 0) == 0)
+    if (ici_n_active_threads > 1 && x->x_critsect == 0)
     {
         os.decref();
         xs.decref();

@@ -17,7 +17,7 @@ struct ptr : object
     object   *p_key;         /* The key which references it. */
 };
 
-inline ptr *ptrof(object *o) { return static_cast<ptr *>(o); }
+inline ptr *ptrof(object *o) { return o->as<ptr>(); }
 inline bool isptr(object *o) { return o->isa(TC_PTR); }
 
 /*

@@ -43,7 +43,7 @@ struct file : object
  *                      is an implicit reference to some object. May be NULL.
  */
 
-inline file *fileof(object *o) { return static_cast<file *>(o); }
+inline file *fileof(object *o) { return o->as<file>(); }
 inline bool isfile(object *o) { return o->isa(TC_FILE); }
 
 /*

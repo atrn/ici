@@ -17,7 +17,7 @@ struct method : object
     object   *m_callable;
 };
 
-inline method *methodof(object *o) { return static_cast<method *>(o); }
+inline method *methodof(object *o) { return o->as<method>(); }
 inline bool ismethod(object *o) { return o->isa(TC_METHOD); }
 
 /*

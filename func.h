@@ -20,7 +20,7 @@ struct func : object
     size_t      f_nautos;   /* If !=0, a hint for auto struct alloc. */
 };
 
-inline func *funcof(object *o) { return static_cast<func *>(o); }
+inline func *funcof(object *o) { return o->as<func>(); }
 inline bool isfunc(object *o) {return o->isa(TC_FUNC); }
 
 /*

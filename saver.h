@@ -15,7 +15,7 @@ struct saver : object
 };
 
 
-inline saver *saverof(object *obj) { return static_cast<saver *>(obj); }
+inline saver *saverof(object *o) { return o->as<saver>(); }
 
 class saver_type : public type
 {

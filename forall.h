@@ -22,7 +22,7 @@ struct forall : object
     object *fa_kkey;
 };
 
-inline forall *forallof(object *o) { return static_cast<forall *>(o); }
+inline forall *forallof(object *o) { return o->as<forall>(); }
 inline bool isforall(object *o) { return o->isa(TC_FORALL); }
 
 /*

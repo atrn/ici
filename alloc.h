@@ -28,10 +28,8 @@ namespace ici
  */
 
 extern char             *ici_flists[4];
-
 extern size_t           ici_mem;
 extern size_t           ici_mem_limit;
-
 extern void             *ici_nalloc(size_t);
 extern void             ici_nfree(void *, size_t);
 extern void             *ici_alloc(size_t);
@@ -104,11 +102,8 @@ inline void *ici_talloc_n(char *p, size_t index, size_t n)
 template <typename T>
 inline T *ici_talloc_core()
 {
-    if (ICI_TFLOK<T>())
-    {
-        char *fl = ici_flists[ICI_FLIST<T>()];
-        if (fl != NULL)
-        {
+    if (ICI_TFLOK<T>()) {
+        if (char *fl = ici_flists[ICI_FLIST<T>()]) {
             return (T *)ici_talloc_n(fl, ICI_FLIST<T>(), sizeof (T));
         }
     }

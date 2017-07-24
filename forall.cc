@@ -79,12 +79,12 @@ size_t forall_type::mark(object *o)
 {
     auto fa = forallof(o);
     auto mem = type::mark(o);
-    mem += maybe_mark(fa->fa_aggr);
-    mem += maybe_mark(fa->fa_code);
-    mem += maybe_mark(fa->fa_vaggr);
-    mem += maybe_mark(fa->fa_vkey);
-    mem += maybe_mark(fa->fa_kaggr);
-    mem += maybe_mark(fa->fa_kkey);
+    mem += mark_optional(fa->fa_aggr);
+    mem += mark_optional(fa->fa_code);
+    mem += mark_optional(fa->fa_vaggr);
+    mem += mark_optional(fa->fa_vkey);
+    mem += mark_optional(fa->fa_kaggr);
+    mem += mark_optional(fa->fa_kkey);
     return mem;
 }
 

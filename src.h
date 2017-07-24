@@ -35,7 +35,7 @@ struct src : object
  * --ici-api-- continued.
  */
 
-inline src *srcof(object *o) { return static_cast<src *>(o); }
+inline src *srcof(object *o) { return o->as<src>(); }
 inline bool issrc(object *o) { return o->isa(TC_SRC); }
 
 /*

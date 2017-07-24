@@ -19,7 +19,7 @@ struct mem : object
     void   (*m_free)(void *);
 };
 
-inline mem *memof(object *o) { return static_cast<mem *>(o); }
+inline mem *memof(object *o) { return o->as<mem>(); }
 inline bool ismem(object *o) { return o->isa(TC_MEM); }
 
 /*

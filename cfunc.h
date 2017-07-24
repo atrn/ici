@@ -69,7 +69,7 @@ struct cfunc : object
  * This comment is also part of the --ici-api--.
  */
 
-inline cfunc *cfuncof(object *o) { return static_cast<cfunc *>(o); }
+inline cfunc *cfuncof(object *o) { return o->as<cfunc>(); }
 inline bool iscfunc(object *o) { return o->isa(TC_CFUNC); }
 
 /*

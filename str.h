@@ -60,7 +60,7 @@ struct str : object
  * su.su_inline_chars   If ICI_S_SEP_ALLOC is *not* set, this is where s_chars will
  *                      be pointing. The actual string chars follow on from this.
  */
-inline str *stringof(object *o) { return static_cast<str *>(o); }
+inline str *stringof(object *o) { return o->as<str>(); }
 inline bool isstring(object *o) { return o->isa(TC_STRING); }
 
 /*

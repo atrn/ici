@@ -2588,7 +2588,7 @@ parse *new_parse(file *f)
 size_t parse_type::mark(object *o)
 {
     auto p = parseof(o);
-    return type::mark(p) + maybe_mark(p->p_func) + maybe_mark(p->p_file);
+    return type::mark(p) + mark_optional(p->p_func) + mark_optional(p->p_file);
 }
 
 /*

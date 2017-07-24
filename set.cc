@@ -146,7 +146,7 @@ size_t set_type::mark(object *o)
     if (s->s_nels == 0)
         return mem;
     for (object **e = &s->s_slots[s->s_nslots - 1]; e >= s->s_slots; --e)
-        mem += maybe_mark(*e);
+        mem += mark_optional(*e);
     return mem;
 }
 

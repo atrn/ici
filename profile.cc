@@ -100,7 +100,7 @@ char ici_prof_outfile[512] = "";
 size_t profilecall_type::mark(object *o)
 {
     auto pf = profilecallof(o);
-    return type::mark(pf) + ici_mark(pf->pc_calls) + maybe_mark(pf->pc_calledby);
+    return type::mark(pf) + ici_mark(pf->pc_calls) + mark_optional(pf->pc_calledby);
 }
 
 /*

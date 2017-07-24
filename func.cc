@@ -98,10 +98,10 @@ size_t func_type::mark(object *o)
 {
     auto fn = funcof(o);
     return type::mark(fn)
-        + maybe_mark(fn->f_code)
-        + maybe_mark(fn->f_args)
-        + maybe_mark(fn->f_autos)
-        + maybe_mark(fn->f_name);
+        + mark_optional(fn->f_code)
+        + mark_optional(fn->f_args)
+        + mark_optional(fn->f_autos)
+        + mark_optional(fn->f_name);
 }
 
 int func_type::cmp(object *o1, object *o2)

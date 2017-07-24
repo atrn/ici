@@ -43,11 +43,11 @@ namespace ici
 static object *restore(archiver *);
 
 static int
-restore_obj(archiver *ar, char *flags)
+restore_type(archiver *ar, char *flags)
 {
     char tcode;
 
-    if (ar->read(&tcode))
+    if (ar->read(tcode))
     {
     	return -1;
     }
@@ -58,7 +58,12 @@ restore_obj(archiver *ar, char *flags)
 
 inline int restore_object_name(archiver *ar, object **name)
 {
-    return ar->read(name, sizeof *name);
+    int64_t ref;
+    if (ar->read(ref)) {
+        return 1;
+    }
+    *name = (object *)ref;
+    return 0;
 }
 
 static object *
@@ -83,7 +88,7 @@ restore_int(archiver *ar)
 {
     int64_t value;
 
-    if (ar->read(&value))
+    if (ar->read(value))
     {
         return NULL;
     }
@@ -96,7 +101,7 @@ static object *
 restore_float(archiver *ar)
 {
     double val;
-    if (ar->read(&val)) {
+    if (ar->read(val)) {
         return NULL;
     }
     return new_float(val);
@@ -116,7 +121,7 @@ restore_string(archiver *ar)
     {
         return NULL;
     }
-    if (ar->read(&len))
+    if (ar->read(len))
     {
         return NULL;
     }
@@ -151,7 +156,7 @@ static object *
 restore_regexp(archiver *ar)
 {
     object *r;
-    int options;
+    int32_t options;
     str *s;
     object *name;
 
@@ -159,7 +164,7 @@ restore_regexp(archiver *ar)
     {
         return NULL;
     }
-    if (ar->read(&options))
+    if (ar->read(options))
     {
         return NULL;
     }
@@ -194,7 +199,7 @@ restore_mem(archiver *ar)
     mem *m = 0;
     object *name;
 
-    if (restore_object_name(ar, &name) || ar->read(&len) || ar->read(&accessz))
+    if (restore_object_name(ar, &name) || ar->read(len) || ar->read(accessz))
     {
         return NULL;
     }
@@ -227,7 +232,7 @@ restore_array(archiver *ar)
     {
         return NULL;
     }
-    if (ar->read(&n))
+    if (ar->read(n))
     {
         return NULL;
     }
@@ -286,7 +291,7 @@ restore_set(archiver *ar)
     {
         goto fail;
     }
-    if (ar->read(&n))
+    if (ar->read(n))
     {
         goto fail1;
     }
@@ -322,7 +327,7 @@ static object *restore_map(archiver *ar)
     map *s;
     object *super;
     int64_t n;
-    long i;
+    int64_t i;
     object *name;
 
     if (restore_object_name(ar, &name))
@@ -347,7 +352,7 @@ static object *restore_map(archiver *ar)
         super->decref();
     }
 
-    if (ar->read(&n))
+    if (ar->read(n))
     {
         goto fail1;
     }
@@ -441,7 +446,7 @@ restore_func(archiver *ar)
     {
         goto fail;
     }
-    if (ar->read(&nautos))
+    if (ar->read(nautos))
     {
         goto fail;
     }
@@ -495,14 +500,14 @@ restore_op(archiver *ar)
 
     if
     (
-        ar->read(&op_func_code)
+        ar->read(op_func_code)
         ||
-        ar->read(&op_ecode)
+        ar->read(op_ecode)
         ||
-        ar->read(&op_code)
+        ar->read(op_code)
     )
     {
-        return 0;
+        return nullptr;
     }
 
     return new_op(archiver::op_func(op_func_code), op_ecode, op_code);
@@ -515,7 +520,7 @@ restore_src(archiver *ar)
     object *result;
     object *filename;
 
-    if (ar->read(&line))
+    if (ar->read(line))
     {
         return NULL;
     }
@@ -544,12 +549,12 @@ static object *
 restore_cfunc(archiver *ar)
 {
     int16_t namelen;
-    char space[32];
+    char space[48];
     char *buf;
     str *func_name;
     object *fn;
 
-    if (ar->read(&namelen))
+    if (ar->read(namelen))
     {
         return 0;
     }
@@ -683,7 +688,7 @@ init_restorer_map()
     }
     fns[] =
     {
-        {-1,            restore_error},
+        {-1,        restore_error},
         {TC_NULL,   restore_null},
         {TC_INT,    restore_int},
         {TC_FLOAT,  restore_float},
@@ -737,19 +742,17 @@ get_restorer(int tcode)
 static object *
 restore(archiver *ar)
 {
-    object *obj = NULL;
+    object *obj = nullptr;
     char flags;
     int tcode;
 
-    if ((tcode = restore_obj(ar, &flags)) != -1)
+    if ((tcode = restore_type(ar, &flags)) != -1)
     {
-        restorer *restorer;
-
-        if ((restorer = get_restorer(tcode)) != NULL && (obj = (*restorer->r_fn)(ar)) != NULL)
-        {
-            if (flags & object::O_ATOM)
-            {
-                obj = atom(obj, 1);
+        if (auto r = get_restorer(tcode)) {
+            if ((obj = (*r->r_fn)(ar)) != nullptr) {
+                if (flags & object::O_ATOM) {
+                    obj = atom(obj, 1);
+                }
             }
         }
     }

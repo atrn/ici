@@ -70,6 +70,14 @@ public:
         return write(&abyte, 1);
     }
 
+    template <typename T>
+    int read(T &ref) {
+        if (read(&ref, sizeof (T))) {
+            return 1;
+        }
+        return 0;
+    }
+
     int read(int16_t *hword);
     int read(int32_t *aword);
     int read(int64_t *dword);

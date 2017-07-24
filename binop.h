@@ -693,7 +693,7 @@
         }
         if ((o = new_int(intof(ptrof(o0)->p_key)->i_value - intof(ptrof(o1)->p_key)->i_value)) == NULL)
         {
-              FAIL();
+            FAIL();
         }
         LOOSEo();
 

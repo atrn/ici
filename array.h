@@ -161,7 +161,7 @@ struct array : object
     }
 };
 
-inline array *arrayof(object *o) { return static_cast<array *>(o); }
+inline array *arrayof(object *o) { return o->as<array>(); }
 inline bool isarray(object *o) { return o->isa(TC_ARRAY); }
 
  /*

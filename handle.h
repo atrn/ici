@@ -110,7 +110,7 @@ struct handle : objwsup
     int     (*h_general_intf)(handle *h, object *k, object *setv, object **retv);
 };
 
-inline handle *handleof(object *o) { return static_cast<handle *>(o); }
+inline handle *handleof(object *o) { return o->as<handle>(); }
 inline bool ishandle(object *o) { return o->isa(TC_HANDLE); }
 inline bool ishandleof(object *o, str *n) { return ishandle(o) && handleof(o)->h_name == n; }
 

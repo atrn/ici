@@ -49,17 +49,19 @@ inline int write(archiver *ar, str *s) {
 }
 
 /*
- * Reference to a previously saved object
+ * Reference to a previously saved object.
  */
 static int save_object_ref(archiver *ar, object *o)
 {
-    return ar->write(TC_REF) || ar->write(&o, sizeof o);
+    const int64_t ref = (int64_t)o;
+    return ar->write(TC_REF) || ar->write(ref);
 }
 
 static int
 save_object_name(archiver *ar, object *obj)
 {
-    return ar->record(obj, obj) || ar->write(&obj, sizeof obj);
+    const int64_t ref = (int64_t)obj;
+    return ar->record(obj, obj) || ar->write(ref);
 }
 
 /*
@@ -67,7 +69,7 @@ save_object_name(archiver *ar, object *obj)
  */
 
 static int
-save_obj(archiver *ar, object *obj)
+save_type(archiver *ar, object *obj)
 {
     uint8_t code = obj->o_tcode & 0x1F;
     if (obj->isatom())
@@ -113,7 +115,7 @@ static int
 save_regexp(archiver *ar, object *obj)
 {
     auto re = regexpof(obj);
-    int options;
+    int32_t options;
     ici_pcre_info(re->r_re, &options, NULL);
     return save_object_name(ar, obj) || ar->write(options) || save_string(ar, re->r_pat);
 }
@@ -351,7 +353,7 @@ archive_save(archiver *ar, object *obj)
     }
     saver = ici_fetch(saver_map, tname(obj));
     fn = saver == ici_null ? save_error : saverof(saver)->s_fn;
-    return save_obj(ar, obj) || (*fn)(ar, obj);
+    return save_type(ar, obj) || (*fn)(ar, obj);
 }
 
 /*

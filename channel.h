@@ -18,7 +18,7 @@ struct channel : objwsup
     object * c_altobj;
 };
 
-inline channel *channelof(object *o) { return static_cast<channel *>(o); }
+inline channel *channelof(object *o) { return o->as<channel>(); }
 inline bool ischannel(object *o) { return o->isa(TC_CHANNEL); }
 
 /*

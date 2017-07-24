@@ -30,10 +30,10 @@ size_t                  ici_alloc_mem;
  * objects to avoid boundary word overheads and allow simple fast
  * free lists.
  */
-struct achunk
+struct chunk
 {
     char                c_data[4088];
-    achunk              *c_next;
+    chunk              *c_next;
 };
 
 /*
@@ -53,7 +53,7 @@ static char             *mem_limit[4];
  * The global list of all chunks of small dense objects we have allocated.
  * We just keep this so we can free them all on interpreter shutdown.
  */
-static achunk          *ici_achunks;
+static chunk          *ici_chunks;
 
 #endif /* ICI_ALLALLOC */
 
@@ -101,7 +101,7 @@ void *ici_nalloc(size_t z)
     {
         char    **fp;
         int    cz;
-        achunk *c;
+        chunk *c;
 
         /*
          * Small block. Try to get it off one of the fast free lists.
@@ -126,14 +126,14 @@ void *ici_nalloc(size_t z)
         /*
          * Current chunk empty. Allocate another one.
          */
-        if ((c = (achunk *)malloc(sizeof (achunk))) == NULL)
+        if ((c = (chunk *)malloc(sizeof (chunk))) == NULL)
         {
             collect();
-            if ((c = (achunk *)malloc(sizeof (achunk))) == NULL)
+            if ((c = (chunk *)malloc(sizeof (chunk))) == NULL)
                 goto fail;
         }
-        c->c_next = ici_achunks;
-        ici_achunks = c;
+        c->c_next = ici_chunks;
+        ici_chunks = c;
         mem_next[fi] = (char *)(((unsigned long)c->c_data + 0x3F) & ~0x3F);
         mem_limit[fi] = &c->c_data[nels(c->c_data)];
         r = mem_next[fi];
@@ -276,11 +276,11 @@ void ici_free(void *p)
 void drop_all_small_allocations()
 {
 #if !ICI_ALLALLOC
-    achunk *c;
+    chunk *c;
 
-    while ((c = ici_achunks) != NULL)
+    while ((c = ici_chunks) != NULL)
     {
-        ici_achunks = c->c_next;
+        ici_chunks = c->c_next;
         free(c);
     }
 #endif /* ICI_ALLALLOC */

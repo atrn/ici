@@ -112,6 +112,15 @@ struct object
     */
 
     /*
+     * Return a pointer to this object cast to a pointer to some ici
+     * object T.
+     */
+    template <typename T>
+    T *as() {
+        return static_cast<T *>(this);
+    }
+
+    /*
      * Return true if this object has the given type code.
      */
     inline bool isa(uint8_t tcode) const {
@@ -325,7 +334,7 @@ struct objwsup : object
     {}
 };
 
-inline objwsup *objwsupof(object *o) { return static_cast<objwsup *>(o); }
+inline objwsup *objwsupof(object *o) { return o->as<objwsup>(); }
 
 /*
  * Test if this object supports a super type.  (It may or may not have a super
@@ -362,7 +371,7 @@ inline size_t ici_mark(object *o) {
 /*
  * Mark the given object iff it is not NULL. Otherwise return 0.
  */
-inline size_t maybe_mark(object *o) {
+inline size_t mark_optional(object *o) {
     return o == nullptr ? 0 : ici_mark(o);
 }
 

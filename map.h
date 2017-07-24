@@ -25,7 +25,7 @@ struct map : objwsup
     slot        *s_slots;
 };
 
-inline map *mapof(object *o) { return static_cast<map *>(o); }
+inline map *mapof(object *o) { return o->as<map>(); }
 inline bool ismap(object *o) { return o->isa(TC_MAP); }
 
 /*
