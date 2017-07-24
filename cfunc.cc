@@ -869,7 +869,7 @@ static int f_typeof()
         return argcount(1);
     if (ishandle(ARG(0)))
         return ret_no_decref(handleof(ARG(0))->h_name);
-    return ret_no_decref(ARG(0)->otype()->ici_name());
+    return ret_no_decref(ARG(0)->icitype()->ici_name());
 }
 
 static int f_nels()

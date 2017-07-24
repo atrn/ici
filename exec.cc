@@ -75,13 +75,10 @@ volatile int    aborted;
  */
 int             evaluate_recursion_limit = 50;
 
-inline bool isempty(const sigset_t *s)
-{
-    const char *sptr = (char *)s;
-    for (const char *eptr = sptr + sizeof (sigset_t); sptr < eptr; ++sptr)
-        if (*sptr != 0)
-            return false;
-    return true;
+static const sigset_t empty_sigset{0};
+
+inline bool isempty(const sigset_t *s) {
+    return memcmp(s, &empty_sigset, sizeof empty_sigset) == 0;
 }
 
 /*
@@ -187,6 +184,16 @@ int engine_stack_check()
 }
 
 /*
+ * Faster lookup for string keys.
+ */
+inline object *fetch(object *s, object *k) {
+    if (isstring(k) && stringof(k)->s_map == mapof(s) && stringof(k)->s_vsver == vsver)
+        return stringof(k)->s_slot->sl_value;
+    else
+        return ici_fetch(s, k);
+}
+
+/*
  * Execute 'code' (any object, normally an array of code or a
  * parse).  The execution procedes on top of the current stacks
  * (execution, operand and variable).  This call to evaluate will return when
@@ -221,15 +228,6 @@ object *evaluate(object *code, int n_operands)
     object      *pc;
     int         flags;
     catcher     frame;
-
-#define FETCH(s, k)                                     	\
-    (                                                           \
-        isstring(k)                                             \
-            && stringof(k)->s_map == mapof(s)         \
-            && stringof(k)->s_vsver == vsver                    \
-        ? stringof(k)->s_slot->sl_value                         \
-        : ici_fetch(s, k)                                       \
-    )
 
     if (++ex->x_n_engine_recurse > evaluate_recursion_limit)
     {
@@ -567,7 +565,7 @@ object *evaluate(object *code, int n_operands)
                     t = os.a_top[-2];
                     if (flags & OPC_COLON_CARET)
                     {
-                        if ((o = FETCH(vs.a_top[-1], SS(class))) == NULL)
+                        if ((o = fetch(vs.a_top[-1], SS(class))) == NULL)
                         {
                             goto fail;
                         }
@@ -584,22 +582,22 @@ object *evaluate(object *code, int n_operands)
                             goto fail;
                         }
                     }
-                    if (t->otype()->can_fetch_method())
+                    if (t->icitype()->can_fetch_method())
                     {
-                        if ((o = t->otype()->fetch_method(t, os.a_top[-1])) == NULL)
+                        if ((o = t->icitype()->fetch_method(t, os.a_top[-1])) == NULL)
                         {
                             goto fail;
                         }
                     }
                     else
                     {
-                        if ((o = FETCH(t, os.a_top[-1])) == NULL)
+                        if ((o = fetch(t, os.a_top[-1])) == NULL)
                         {
                             goto fail;
                         }
                         if (isnull(o))
                         {
-                            if ((o = FETCH(t, SS(unknown_method))) == NULL)
+                            if ((o = fetch(t, SS(unknown_method))) == NULL)
                             {
                                 goto fail;
                             }
@@ -709,7 +707,7 @@ object *evaluate(object *code, int n_operands)
                 /*
                  * aggr key => value (os)
                  */
-                if ((o = FETCH(os.a_top[-2], os.a_top[-1])) == NULL)
+                if ((o = fetch(os.a_top[-2], os.a_top[-1])) == NULL)
                 {
                     goto fail;
                 }
@@ -721,7 +719,7 @@ object *evaluate(object *code, int n_operands)
                 /*
                  * aggr key => aggr key value (os)
                  */
-                if ((o = FETCH(os.a_top[-2], os.a_top[-1])) == NULL)
+                if ((o = fetch(os.a_top[-2], os.a_top[-1])) == NULL)
                 {
                     goto fail;
                 }
@@ -734,7 +732,7 @@ object *evaluate(object *code, int n_operands)
                  *
                  * Used in postfix ++/-- for value.
                  */
-                if ((o = FETCH(os.a_top[-2], os.a_top[-1])) == NULL)
+                if ((o = fetch(os.a_top[-2], os.a_top[-1])) == NULL)
                 {
                     goto fail;
                 }

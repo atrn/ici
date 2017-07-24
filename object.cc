@@ -43,9 +43,9 @@ int          ncollects;	/* Number of collect() calls */
  */
 char *objname(char p[objnamez], object *o)
 {
-    if (o->otype()->can_objname())
+    if (o->icitype()->can_objname())
     {
-        o->otype()->objname(o, p);
+        o->icitype()->objname(o, p);
         return p;
     }
     if (isstring(o))

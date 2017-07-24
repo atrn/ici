@@ -804,14 +804,14 @@
 	    MISMATCH();
 
         case t_subtype(T_EQEQ):
-            if (o0->otype() == o1->otype() && ici_cmp(o0, o1) == 0)
+            if (o0->icitype() == o1->icitype() && ici_cmp(o0, o1) == 0)
             {
                 USE1();
             }
             USE0();
 
         case t_subtype(T_EXCLAMEQ):
-            if (!(o0->otype() == o1->otype() && ici_cmp(o0, o1) == 0))
+            if (!(o0->icitype() == o1->icitype() && ici_cmp(o0, o1) == 0))
             {
                 USE1();
             }

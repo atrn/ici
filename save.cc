@@ -329,7 +329,7 @@ fail:
 static str *
 tname(object *o)
 {
-    return o->otype()->ici_name();
+    return o->icitype()->ici_name();
 }
 
 static int

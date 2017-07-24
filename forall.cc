@@ -58,7 +58,7 @@ int exec_forall()
     type *t;
 
     fa = forallof(xs.a_top[-1]);
-    t = fa->fa_aggr->otype();
+    t = fa->fa_aggr->icitype();
     switch (t->forall(fa))
     {
     case 0:

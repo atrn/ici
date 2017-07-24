@@ -23,27 +23,10 @@ namespace ici
  */
 struct object
 {
-    /*
-     * The generic flags that may appear in the lower 4 bits of o_flags are:
-     *
-     * O_MARK           The garbage collection mark flag.
-     *
-     * O_ATOM           Indicates that this object is the read-only
-     *                  atomic form of all objects of the same type with
-     *                  the same value. Any attempt to change an object
-     *                  in a way that would change its value with respect
-     *                  to the 'cmp()' function (see 'type') must
-     *                  check for this flag and fail the attempt if it is
-     *                  set.
-     *
-     * O_SUPER          This object can support a super.
-     *
-     * --ici-api-- continued.
-     */
-    static constexpr int O_MARK  = 0x01;    /* Garbage collection mark. */
-    static constexpr int O_ATOM  = 0x02;    /* Is a member of the atom pool. */
-    static constexpr int O_TEMP  = 0x04;    /* Is a re-usable temp (flag for asserts). */
-    static constexpr int O_SUPER = 0x08;    /* Has super (is objwsup derived). */
+    uint8_t        o_tcode;     // type code, index into types[]
+    uint8_t        o_flags;     // flags, see above
+    uint8_t        o_nrefs;     // # non-ICI references
+    uint8_t        o_leafz;     // size of small object, iff != 0
 
     /*
      * o_tcode              The small integer type code that characterises
@@ -73,10 +56,28 @@ struct object
      *
      * --ici-api-- continued.
      */
-    uint8_t        o_tcode;     // type code, index into types[]
-    uint8_t        o_flags;     // flags, see above
-    uint8_t        o_nrefs;     // # non-ICI references
-    uint8_t        o_leafz;     // size of small object, iff != 0
+
+    /*
+     * The generic flags that may appear in the lower 4 bits of o_flags are:
+     *
+     * O_MARK           The garbage collection mark flag.
+     *
+     * O_ATOM           Indicates that this object is the read-only
+     *                  atomic form of all objects of the same type with
+     *                  the same value. Any attempt to change an object
+     *                  in a way that would change its value with respect
+     *                  to the 'cmp()' function (see 'type') must
+     *                  check for this flag and fail the attempt if it is
+     *                  set.
+     *
+     * O_SUPER          This object can support a super.
+     *
+     * --ici-api-- continued.
+     */
+    static constexpr int O_MARK  = 0x01;    /* Garbage collection mark. */
+    static constexpr int O_ATOM  = 0x02;    /* Is a member of the atom pool. */
+    static constexpr int O_TEMP  = 0x04;    /* Is a re-usable temp (flag for asserts). */
+    static constexpr int O_SUPER = 0x08;    /* Has super (is objwsup derived). */
 
     object()
         : o_tcode(0)
@@ -96,6 +97,20 @@ struct object
         , o_leafz(leafz)
     {}
 
+    void set_tfnz(uint8_t tcode, uint8_t flags, uint8_t nrefs, uint8_t leafz) {
+        o_tcode = tcode;
+        o_flags = flags;
+        o_nrefs = nrefs;
+        o_leafz = leafz;
+    }
+    /*
+     * I'm really hoping that most compilers would reduce the above to a
+     * single word write. Especially as they are all constants most of the
+     * time. Maybe in future we can have some endian specific code to to
+     * it manually.
+     (*(unsigned long *)(o) = (tcode) | ((flags) << 8) | ((nrefs) << 16) | ((leafz) << 24))
+    */
+
     /*
      * Return true if this object has the given type code.
      */
@@ -106,7 +121,7 @@ struct object
     /*
      * Return, a pointer to, this object's type instance.
      */
-    inline type *otype() const {
+    inline type *icitype() const {
         return types[o_tcode];
     }
 
@@ -114,7 +129,7 @@ struct object
      * Return a C string with the name of this object's type.
      */
     inline const char * type_name() const {
-        return otype()->name;
+        return icitype()->name;
     }
 
     /*
@@ -191,14 +206,14 @@ struct object
             setmark();
             return o_leafz;
         }
-        return otype()->mark(this);
+        return icitype()->mark(this);
     }
 
     /*
      * Free the memory used by this object.
      */
     inline void free() {
-        otype()->free(this);
+        icitype()->free(this);
     }
 
 #ifdef NDEBUG
@@ -228,7 +243,7 @@ struct object
      * Return this object's hash value.
      */
     inline unsigned long hash() {
-        return otype()->hash(this);
+        return icitype()->hash(this);
     }
 
     /*
@@ -236,58 +251,58 @@ struct object
      * of the same type.
      */
     inline int cmp(object *that) {
-        return otype()->cmp(this, that);
+        return icitype()->cmp(this, that);
     }
 
     /*
      * Return a copy of this object.
      */
     inline object *copy() {
-        return otype()->copy(this);
+        return icitype()->copy(this);
     }
 
     inline int assign(object *k, object *v) {
-        return otype()->assign(this, k, v);
+        return icitype()->assign(this, k, v);
     }
 
     inline object *fetch(object *k) {
-        return otype()->fetch(this, k);
+        return icitype()->fetch(this, k);
     }
 
     inline int assign_super(object *k, object *v, map *b) {
-        return otype()->assign_super(this, k, v, b);
+        return icitype()->assign_super(this, k, v, b);
     }
     
     inline int fetch_super(object *k, object **pv, map *b) {
-        return otype()->fetch_super(this, k, pv, b);
+        return icitype()->fetch_super(this, k, pv, b);
     }
 
     inline int assign_base(object *k, object *v) {
-        return otype()->assign_base(this, k, v);
+        return icitype()->assign_base(this, k, v);
     }
 
     inline object *fetch_base(object *k) {
-        return otype()->fetch_base(this, k);
+        return icitype()->fetch_base(this, k);
     }
 
     inline object *fetch_method(object *n) {
-        return otype()->fetch_method(this, n);
+        return icitype()->fetch_method(this, n);
     }
 
     inline bool can_call() const {
-        return otype()->can_call();
+        return icitype()->can_call();
     }
 
     inline int call(object *o) {
-        return otype()->call(this, o);
+        return icitype()->call(this, o);
     }
 
     inline int forall() {
-        return otype()->forall(this);
+        return icitype()->forall(this);
     }
     
     inline void objname(char n[objnamez]) {
-        otype()->objname(this, n);
+        icitype()->objname(this, n);
     }
 };
 /*
@@ -331,18 +346,8 @@ inline bool hassuper(const object *o) { return o->flagged(object::O_SUPER); }
  * This --func-- forms part of the --ici-api--.
  */
 inline void set_tfnz(object *o, uint8_t tcode, uint8_t flags, uint8_t nrefs, uint8_t leafz) {
-    o->o_tcode = tcode;
-    o->o_flags = flags;
-    o->o_nrefs = nrefs;
-    o->o_leafz = leafz;
+    o->set_tfnz(tcode, flags, nrefs, leafz);
 }
-/*
- * I was really hoping that most compilers would reduce the above to a
- * single word write. Especially as they are all constants most of the
- * time. Maybe in future we can have some endian specific code to to
- * it manually.
- (*(unsigned long *)(o) = (tcode) | ((flags) << 8) | ((nrefs) << 16) | ((leafz) << 24))
- */
 
 /*
  * The recursive traversal of all objects performed by marking is particularly
