@@ -13,18 +13,18 @@ conf?=		conf/$(uname).h
 
 srcs=		$(shell echo *.cc)
 objs=		$(srcs:.cc=.o)
-hdrs=		$(shell ls *.h|grep -v anici\\.h)
+hdrs=		$(shell ls *.h|grep -v ici\\.h)
 
-all:		anici.h
+all:		ici.h
 
-anici.h:	anici $(hdrs) mk-ici-h.ici
-	./anici mk-ici-h.ici $(conf)
+ici.h:	ici $(hdrs) mk-ici-h.ici
+	./ici mk-ici-h.ici $(conf)
 
-anici:		$(objs)
+ici:		$(objs)
 	$(CXX) $(CXXFLAGS) etc/main.cc $(objs) -o $@
 
 clean:
-	rm -f anici anici.h $(objs) .depend
+	rm -f ici ici.h $(objs) .depend
 
 depend:
 	MKDEP_CPP="$(CXX) -E" mkdep $(CXXFLAGS) $(srcs)

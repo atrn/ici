@@ -14,7 +14,7 @@
 #define CONFIG_STR      "MacOS"
 
 #ifndef PREFIX
-#define PREFIX          "/opt/anici/"
+#define PREFIX          "/opt/ici/"
 #endif
 
 #define ICI_DLL_EXT     ".dylib"

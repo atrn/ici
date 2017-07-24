@@ -31,8 +31,7 @@ unsigned long hash_string(object *o)
     unsigned long       h;
 
 #   if ICI_KEEP_STRING_HASH
-    if (stringof(o)->s_hash != 0)
-    {
+    if (stringof(o)->s_hash != 0) {
         return stringof(o)->s_hash;
     }
 #   endif
@@ -72,8 +71,7 @@ str *str_alloc(size_t nchars)
     size_t              az;
 
     az = STR_ALLOCZ(nchars);
-    if ((s = (str *)ici_nalloc(az)) == NULL)
-    {
+    if ((s = (str *)ici_nalloc(az)) == NULL) {
         return NULL;
     }
     set_tfnz(s, TC_STRING, 0, 1, az <= 127 ? az : 0);
@@ -119,8 +117,7 @@ new_str(const char *p, size_t nchars)
     proto;
 
     az = STR_ALLOCZ(nchars);
-    if ((size_t)nchars < sizeof proto.d)
-    {
+    if ((size_t)nchars < sizeof proto.d) {
         object       **po;
 
         proto.s.s_nchars = nchars;
@@ -130,15 +127,13 @@ new_str(const char *p, size_t nchars)
 #       if ICI_KEEP_STRING_HASH
         proto.s.s_hash = 0;
 #       endif
-        if ((s = stringof(atom_probe2(&proto.s, &po))) != NULL)
-        {
+        if ((s = stringof(atom_probe2(&proto.s, &po))) != NULL) {
             s->incref();
             return s;
         }
         ++supress_collect;
         az = STR_ALLOCZ(nchars);
-        if ((s = (str *)ici_nalloc(az)) == NULL)
-        {
+        if ((s = (str *)ici_nalloc(az)) == NULL) {
             --supress_collect;
             return NULL;
         }
@@ -150,8 +145,7 @@ new_str(const char *p, size_t nchars)
         store_atom_and_count(po, s);
         return s;
     }
-    if ((s = (str *)ici_nalloc(az)) == NULL)
-    {
+    if ((s = (str *)ici_nalloc(az)) == NULL) {
         return NULL;
     }
     set_tfnz(s, TC_STRING, 0, 1, az <= 127 ? az : 0);
@@ -185,8 +179,7 @@ new_str_nul_term(const char *p)
 {
     str  *s;
 
-    if ((s = new_str(p, strlen(p))) == NULL)
-    {
+    if ((s = new_str(p, strlen(p))) == NULL) {
         return NULL;
     }
     return s;
@@ -207,8 +200,7 @@ str *str_get_nul_term(const char *p)
 {
     str   *s;
 
-    if ((s = new_str(p, strlen(p))) == NULL)
-    {
+    if ((s = new_str(p, strlen(p))) == NULL) {
         return NULL;
     }
     s->decref();
@@ -231,12 +223,10 @@ str *new_str_buf(size_t n)
 {
     str *s;
 
-    if ((s = ici_talloc(str)) == NULL)
-    {
+    if ((s = ici_talloc(str)) == NULL) {
         return NULL;
     }
-    if ((s->s_chars = (char *)ici_nalloc(n)) == NULL)
-    {
+    if ((s->s_chars = (char *)ici_nalloc(n)) == NULL) {
         ici_tfree(s, str);
         return NULL;
     }
@@ -265,17 +255,14 @@ int str_need_size(str *s, size_t n)
     char                *chars;
     char                n1[objnamez];
 
-    if (s->flags(object::O_ATOM|ICI_S_SEP_ALLOC) != ICI_S_SEP_ALLOC)
-    {
+    if (s->flags(object::O_ATOM|ICI_S_SEP_ALLOC) != ICI_S_SEP_ALLOC) {
         return set_error("attempt to modify an atomic string %s", objname(n1, s));
     }
-    if (size_t(s->s_u.su_nalloc) >= n + 1)
-    {
+    if (size_t(s->s_u.su_nalloc) >= n + 1) {
         return 0;
     }
     n <<= 1;
-    if ((chars = (char *)ici_nalloc(n)) == NULL)
-    {
+    if ((chars = (char *)ici_nalloc(n)) == NULL) {
         return 1;
     }
     memcpy(chars, s->s_chars, s->s_nchars + 1);
@@ -292,12 +279,10 @@ int str_need_size(str *s, size_t n)
  */
 size_t string_type::mark(object *o)
 {
-    if (o->flagged(ICI_S_SEP_ALLOC))
-    {
+    if (o->flagged(ICI_S_SEP_ALLOC)) {
         return type::mark(o) + stringof(o)->s_u.su_nalloc;
     }
-    else
-    {
+    else {
         o->setmark();
         return STR_ALLOCZ(stringof(o)->s_nchars);
     }
@@ -309,16 +294,13 @@ size_t string_type::mark(object *o)
  */
 int string_type::cmp(object *o1, object *o2)
 {
-    if (stringof(o1)->s_nchars != stringof(o2)->s_nchars)
-    {
+    if (stringof(o1)->s_nchars != stringof(o2)->s_nchars) {
         return 1;
     }
-    if (stringof(o1)->s_nchars == 0)
-    {
+    if (stringof(o1)->s_nchars == 0) {
         return 0;
     }
-    if (stringof(o1)->s_chars[0] != stringof(o2)->s_chars[0])
-    {
+    if (stringof(o1)->s_chars[0] != stringof(o2)->s_chars[0]) {
         return 1;
     }
     return memcmp
@@ -337,8 +319,7 @@ object *string_type::copy(object *o)
 {
     str *ns;
 
-    if ((ns = new_str_buf(stringof(o)->s_nchars + 1)) == NULL)
-    {
+    if ((ns = new_str_buf(stringof(o)->s_nchars + 1)) == NULL) {
         return NULL;
     }
     ns->s_nchars = stringof(o)->s_nchars;
@@ -353,13 +334,11 @@ object *string_type::copy(object *o)
  */
 void string_type::free(object *o)
 {
-    if (o->flagged(ICI_S_SEP_ALLOC))
-    {
+    if (o->flagged(ICI_S_SEP_ALLOC)) {
         ici_nfree(stringof(o)->s_chars, stringof(o)->s_u.su_nalloc);
         ici_tfree(o, str);
     }
-    else
-    {
+    else {
         ici_nfree(o, STR_ALLOCZ(stringof(o)->s_nchars));
     }
 }
@@ -381,20 +360,16 @@ object *string_type::fetch(object *o, object *k)
 {
     int64_t i;
 
-    if (!isint(k))
-    {
+    if (!isint(k)) {
         return fetch_fail(o, k);
     }
-    if ((i = (int)intof(k)->i_value) < 0 || size_t(i) >= stringof(o)->s_nchars)
-    {
+    if ((i = (int)intof(k)->i_value) < 0 || size_t(i) >= stringof(o)->s_nchars) {
         k = new_str("", 0);
     }
-    else
-    {
+    else {
         k = new_str(&stringof(o)->s_chars[i], 1);
     }
-    if (k != NULL)
-    {
+    if (k != NULL) {
         k->decref();
     }
     return k;
@@ -413,54 +388,56 @@ int string_type::assign(object *o, object *k, object *v)
     int64_t     n;
     str         *s;
 
-    if (o->isatom())
-    {
+    if (o->isatom()) {
         return set_error("attempt to assign to an atomic string");
     }
-    if (!isint(k) || !isint(v))
+    if (!isint(k) || !isint(v)) {
         return assign_fail(o, k, v);
+    }
     i = intof(k)->i_value;
-    if (i < 0)
-    {
+    if (i < 0) {
         return set_error("attempt to assign to negative string index");
     }
     s = stringof(o);
-    if (str_need_size(s, i + 1))
+    if (str_need_size(s, i + 1)) {
         return 1;
-    for (n = s->s_nchars; n < i; ++n)
+    }
+    for (n = s->s_nchars; n < i; ++n) {
         s->s_chars[n] = ' ';
+    }
     s->s_chars[i] = (char)intof(v)->i_value;
-    if (s->s_nchars < size_t(++i))
-    {
+    if (s->s_nchars < size_t(++i)) {
         s->s_nchars = i;
         s->s_chars[i] = '\0';
     }
     return 0;
 }
 
-int string_type::forall(object *o)
-{
+int string_type::forall(object *o) {
     struct forall *fa = forallof(o);
     str *s;
     ici_int *i;
 
     s = stringof(fa->fa_aggr);
-    if (++fa->fa_index >= s->s_nchars)
+    if (++fa->fa_index >= s->s_nchars) {
         return -1;
-    if (fa->fa_vaggr != ici_null)
-    {
-        if ((s = new_str(&s->s_chars[fa->fa_index], 1)) == NULL)
+    }
+    if (fa->fa_vaggr != ici_null) {
+        if ((s = new_str(&s->s_chars[fa->fa_index], 1)) == NULL) {
             return 1;
-        if (ici_assign(fa->fa_vaggr, fa->fa_vkey, s))
+	}
+        if (ici_assign(fa->fa_vaggr, fa->fa_vkey, s)) {
             return 1;
+	}
         s->decref();
     }
-    if (fa->fa_kaggr != ici_null)
-    {
-        if ((i = new_int((int64_t)fa->fa_index)) == NULL)
+    if (fa->fa_kaggr != ici_null) {
+        if ((i = new_int((int64_t)fa->fa_index)) == NULL) {
             return 1;
-        if (ici_assign(fa->fa_kaggr, fa->fa_kkey, i))
+	}
+        if (ici_assign(fa->fa_kaggr, fa->fa_kkey, i)) {
             return 1;
+	}
         i->decref();
     }
     return 0;

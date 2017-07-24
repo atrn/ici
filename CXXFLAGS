@@ -1,22 +1,17 @@
-# Compiler options.
-#
-# This file is read by dcc.
+# C++ compiler options. This file is used with dcc.
 #
 
+# Basic options. We're using C++14 and want as many
+# warnings enabled as possible.
+#
 -std=c++14 -Wall -Wextra
 
-# RELEASE (ICI's uses NDEBUG)
+# RELEASE BUILD (ICI uses NDEBUG)
 -DNDEBUG
-# -O2
-# -O2 -Os
-# -Os
-# -O3
-# -O3 -Os
-# -O3 -Oz
 -Ofast -Oz
 # -flto
 
-# DEBUG (pcre uses DEBUG, ICI !NDEBUG)
+# DEBUG BUILD (pcre uses DEBUG, ICI !NDEBUG)
 #-g -O0
 #-UNDEBUG
 #-DDEBUG

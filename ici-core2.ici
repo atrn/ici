@@ -157,8 +157,8 @@ use()
     var        path;
     var        err = NULL;
 
-    if ((path = getenv("ANICIPATH")) == NULL)
-        path = ".:/usr/local/lib/anici";
+    if ((path = getenv("ICIPATH")) == NULL)
+        path = ".:/usr/local/lib/ici";
     scp = super(top(vstack(), -1));
     forall (fn in vargs)
     {

@@ -23,8 +23,7 @@ ici_int *new_int(int64_t i)
     object *o;
     object **po;
 
-    if ((i & ~small_int_mask) == 0 && (o = small_ints[i]) != NULL)
-    {
+    if ((i & ~small_int_mask) == 0 && (o = small_ints[i]) != NULL) {
         o->incref();
         return intof(o);
     }
@@ -35,15 +34,13 @@ ici_int *new_int(int64_t i)
         --po < atoms ? po = atoms + atomsz - 1 : NULL
     )
     {
-        if (isint(o) && intof(o)->i_value == i)
-        {
+        if (isint(o) && intof(o)->i_value == i) {
             o->incref();
             return intof(o);
         }
     }
     ++supress_collect;
-    if ((o = ici_talloc(ici_int)) == NULL)
-    {
+    if ((o = ici_talloc(ici_int)) == NULL) {
         --supress_collect;
         return NULL;
     }

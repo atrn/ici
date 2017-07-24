@@ -4,8 +4,8 @@ LDFLAGS = -macosx_version_min 10.6
 OBJS	= channel.o 
 C_SRC	= channel.c 
 ALL_SRC	= $(C_SRC) 
-ICIMOD	= anici-channel.bundle
-LIBS	= -L../.. -lanici -lSystem
+ICIMOD	= ici-channel.dylib
+LIBS	= -L../.. -lici -lSystem
 LIBINSTALLS = $(ICIMOD) 
 
 default: $(ICIMOD)

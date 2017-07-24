@@ -57,7 +57,7 @@
  *
  */
 
-#include <anici.h>
+#include <ici.h>
 
 #include "icistr.h"
 #include <icistr-setup.h>
@@ -379,7 +379,7 @@ static ici_cfunc_t channel_cfuncs[] =
 };
 
 ici_obj_t *
-anici_channel_init(void)
+ici_channel_init(void)
 {
     if (ici_interface_check(ICI_VER, ICI_BACK_COMPAT_VER, "channel"))
         return NULL;

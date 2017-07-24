@@ -39,7 +39,7 @@ typedef void    *dll_t;
 # endif
 #endif
 
-static const char   ici_prefix[] = "anici-";
+static const char   ici_prefix[] = "ici-";
 
 /*
  * Find and return the outer-most writeable struct in the current scope.
@@ -149,9 +149,9 @@ f_load(...)
             return -1;
         }
 #ifdef NEED_UNDERSCORE_ON_SYMBOLS
-        sprintf(entry_symbol, "_anici_%s_init", name->s_chars);
+        sprintf(entry_symbol, "_ici_%s_init", name->s_chars);
 #else
-        sprintf(entry_symbol, "anici_%s_init", name->s_chars);
+        sprintf(entry_symbol, "ici_%s_init", name->s_chars);
 #endif
         library_init = (object *(*)())dlsym(lib, entry_symbol);
         if (library_init == NULL)
@@ -264,7 +264,7 @@ fail:
 /*
  * Push path elements specific to Windows onto the array a (which is the ICI
  * path array used for finding dynamically loaded modules and stuff). These
- * are in addition to the ANICIPATH environment variable. We try to mimic
+ * are in addition to the ICIPATH environment variable. We try to mimic
  * the search behaviour of LoadLibrary() (that being the Windows thing to
  * do).
  */
@@ -314,7 +314,7 @@ static int push_os_path_elements(array *a)
  *
  * Push path elements specific to UNIX-like systems onto the array a (which
  * is the ICI path array used for finding dynamically loaded modules and
- * stuff). These are in addition to the ANICIPATH environment variable.
+ * stuff). These are in addition to the ICIPATH environment variable.
  */
 static int push_os_path_elements(array *a)
 {
@@ -323,7 +323,7 @@ static int push_os_path_elements(array *a)
     char                *path;
     char                fname[FILENAME_MAX];
 
-    PUSH(a, "/usr/lib/anici:/usr/local/lib/anici:/opt/lib/anici:/opt/local/lib/anici:.");
+    PUSH(a, "/usr/lib/ici:/usr/local/lib/ici:/opt/ici:/opt/lib/ici:.");
     if ((path = getenv("PATH")) != NULL)
     {
         for (p = path; *p != '\0'; p = *q == '\0' ? q : q + 1)
@@ -337,7 +337,7 @@ static int push_os_path_elements(array *a)
                 continue;
             }
             memcpy(fname, p, (q - p) - 4);
-            strcpy(fname + (q - p) - 4, "/lib/anici");
+            strcpy(fname + (q - p) - 4, "/lib/ici");
             PUSH(a, fname);
         }
     }
@@ -345,7 +345,7 @@ static int push_os_path_elements(array *a)
     /*
      * Put a configuration defined location on, if there is one..
      */
-    PUSH(a, ICI_CONFIG_PREFIX "/lib/anici");
+    PUSH(a, ICI_CONFIG_PREFIX "/lib/ici");
 #   endif
     return 0;
 }
@@ -421,7 +421,7 @@ int init_path(objwsup *externs)
     {
         return 1;
     }
-    if ((path = getenv("ANICIPATH")) != NULL)
+    if ((path = getenv("ICIPATH")) != NULL)
     {
         PUSH(a, path);
     }

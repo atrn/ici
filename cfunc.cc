@@ -703,8 +703,8 @@ static int f_math()
  *
  * cf_arg2              The name (an ICI string) of the core ICI extension
  *                      module that defines the function.  (Eg "core1",
- *                      meaning the function is in "anici-core1.ici".  Only
- *                      "anici-core.ici" is always parsed.  Others are
+ *                      meaning the function is in "ici-core1.ici".  Only
+ *                      "ici-core.ici" is always parsed.  Others are
  *                      on-demand.)
  */
 static int f_coreici(object *s)

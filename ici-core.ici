@@ -1,5 +1,5 @@
 /*
  * This file is always parsed at startup.
  *
- * Code in anici-core?.ici are loaded on-demand.
+ * Code in ici-core?.ici are loaded on-demand.
  */

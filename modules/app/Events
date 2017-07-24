@@ -43,7 +43,7 @@ a callback it should be in the form of an ICI func object.
 To do this is another matter. The Tk/Tcl used with ICI has the
 ICI command. We can use this to call an ICI function as long
 as we have its name. However we don't always have it (XXX Or
-do we? ANICI requires the ability to do <func>.name XXX)
+do we? ICI requires the ability to do <func>.name XXX)
 
 
 Signals and Slots

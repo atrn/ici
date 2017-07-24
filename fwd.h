@@ -76,8 +76,6 @@ namespace ici
 
 /*
  * ICI version number. Note that this occurs in a string in conf.c too.
- *
- * ANICI uses a major version of 5 and the word 'ANICI' in the string.
  */
 constexpr int major_version   = 5;
 constexpr int minor_version   = 0;

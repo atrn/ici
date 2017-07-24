@@ -29,11 +29,8 @@ pc *new_pc()
 size_t pc_type::mark(object *o)
 {
     auto p = pcof(o);
-    auto mem = size();
     p->setmark();
-    if (p->pc_code != NULL)
-        mem += ici_mark(p->pc_code);
-    return mem;
+    return size() + maybe_mark(p->pc_code);
 }
 
 } // namespace ici

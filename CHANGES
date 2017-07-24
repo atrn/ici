@@ -10,7 +10,7 @@ Major Changes in Version 5
 *    ICI int types are now defined to be 64-bits and are
      not necessarily the same as 'long int'.
 
-*    anici is now (re-)implemented in C++, C++14 to be precise.
+*    ICI is now (re-)implemented in C++, C++11/14 to be precise.
 
      C++ features are used sparingly and the overall program structure
      remains the same but there are many, many changes in how that is
@@ -79,8 +79,6 @@ Major Changes in Version 5
 *    reclaim function enabled by default (forces a GC)
 
 *    dynamic module loading no longer looks for ici3 prefixed modules
-
-*    the ICIPATH environment variable is renamed as ANICIPATH
 
 *    object serailization module integrated into core
      adding the save/restore functions and the archive

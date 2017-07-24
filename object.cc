@@ -78,10 +78,10 @@ inline unsigned long hash(object *o)
  */
 static void grow_atoms_core(ptrdiff_t newz)
 {
-    object  **po;
+    object     **po;
     int        i;
-    object           **olda;
-    ptrdiff_t           oldz;
+    object     **olda;
+    ptrdiff_t  oldz;
 
     assert(((newz - 1) & newz) == 0); /* Assert power of 2. */
     oldz = atomsz;

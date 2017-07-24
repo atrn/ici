@@ -65,7 +65,7 @@ int init()
          * Check that the #defines of version number are in sync with our version
          * string from conf.c.
          */
-        sprintf(v, "@(#)ANICI %d.%d.%d", major_version, minor_version, release_number);
+        sprintf(v, "@(#)ICI %d.%d.%d", major_version, minor_version, release_number);
         assert(strncmp(v, version_string, strlen(v)) == 0);
     }
 #   endif
@@ -214,7 +214,7 @@ int check_interface(unsigned long mver, unsigned long bver, char const *name)
     }
     return set_error
     (
-        "%s module was built for ANICI %d.%d.%d, which is incompatible with this version %d.%d.%d",
+        "%s module was built for ICI %d.%d.%d, which is incompatible with this version %d.%d.%d",
         name,
         (int)(mver >> 24),
         (int)(mver >> 16) & 0xFF,

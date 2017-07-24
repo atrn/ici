@@ -2,9 +2,6 @@ ICI is a general purpose interpretive programming language that has dynamic
 typing and flexible data types with the flow control constructs and operators
 of C.
 
-ANICI is a modified version of ICI that introduces a number of language
-changes and aims to better support concurrent and distributed systems.
-
 It is designed for use in many environments, including embedded
 systems, as an adjunct to other programs, as a text-based interface to
 compiled libraries, and as a cross-platform scripting language with good

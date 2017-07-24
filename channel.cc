@@ -72,8 +72,7 @@ size_t channel_type::mark(object *o)
     auto mem = type::mark(o);
     mem += ici_mark(objwsupof(o)->o_super);
     mem += ici_mark(channelof(o)->c_q);
-    if (channelof(o)->c_altobj != NULL)
-        mem += ici_mark(channelof(o)->c_altobj);
+    mem += maybe_mark(channelof(o)->c_altobj);
     return mem;
 }
 

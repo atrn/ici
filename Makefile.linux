@@ -14,26 +14,26 @@ conf?=		conf/$(uname).h
 
 srcs=		$(shell echo *.cc)
 objs=		$(srcs:.cc=.o)
-hdrs=		$(shell ls *.h|grep -v anici\\.h)
+hdrs=		$(shell ls *.h|grep -v ici\\.h)
 libs=		-ldl -lpthread
 
-all:		anici.h
+all:		ici.h
 
-anici.h:	anici $(hdrs) mk-ici-h.ici
-	LD_LIBRARY_PATH=`pwd` ./anici mk-ici-h.ici $(conf)
+ici.h:	ici $(hdrs) mk-ici-h.ici
+	LD_LIBRARY_PATH=`pwd` ./ici mk-ici-h.ici $(conf)
 
 STATIC = yes
 
 ifdef STATIC
-anici:	etc/main.cc $(objs)
+ici:	etc/main.cc $(objs)
 	$(CXX) $(CXXFLAGS) etc/main.cc $(objs) $(libs) -o $@
 
 else
 
-anici:		libanici.so
-	$(CXX) $(CXXFLAGS) etc/main.cc libanici.so -o $@
+ici:		libici.so
+	$(CXX) $(CXXFLAGS) etc/main.cc libici.so -o $@
 
-libanici.so : $(objs)
+libici.so : $(objs)
 	$(CXX) $(CXXFLAGS) -shared $(objs) $(libs) -o $@
 
 $(objs) : %.o : %.cc
@@ -42,7 +42,7 @@ $(objs) : %.o : %.cc
 endif
 
 clean:
-	rm -f anici libanici.so anici.h $(objs) .depend
+	rm -f ici libici.so ici.h $(objs) .depend
 
 depend:
 	MKDEP_CPP="$(CXX) -E" mkdep $(CXXFLAGS) $(srcs)

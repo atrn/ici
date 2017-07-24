@@ -69,7 +69,7 @@ cfunc *ici_funcs[] =
  * and Makefile.maint.
  */
 char version_string[] =
-    "@(#)ANICI 5.0.0, "
+    "@(#)ICI 5.0.0, "
     CONFIG_FILE ", "
     __DATE__ " " __TIME__ ", "
     CONFIG_STR
@@ -96,7 +96,7 @@ char version_string[] =
 
 #else /* __STDC__ */
 
-char version_string[] = "@(#)ANICI 5.0.0";
+char version_string[] = "@(#)ICI 5.0.0";
 
 #endif
 

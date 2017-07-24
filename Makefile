@@ -3,34 +3,34 @@
 # This (GNU) Makefile uses the dcc compiler driver.
 #
 
-.PHONY: all exe lib clean anici test
+.PHONY: all default exe lib clean ici test
 
-prog=  anici
+prog=  ici
 conf?= conf/darwin.h
-
-# static exe with no shared lib
+# uncomment to build static exe with no shared lib
 static=yes
 
 srcs= $(shell echo *.cc)
-hdrs= $(shell ls *.h|grep -v anici\\.h)
-
+hdrs= $(shell ls *.h|grep -v ici\\.h)
 libs= -framework System -lc++ -macosx_version_min 10.12
+
+default: test
 
 test: all
 	./$(prog) test-core.ici
 
-all: anici.h
+all: ici.h
 
-anici.h: exe $(hdrs) mk-ici-h.ici
+ici.h: exe $(hdrs) mk-ici-h.ici
 	./$(prog) mk-ici-h.ici $(conf)
 
 ifndef static
-$(prog): lib; @dcc etc/main.cc -o $@ -L. -lanici
-lib:; @dcc --dll libanici.dylib -fPIC $(srcs) $(libs)
-exe: $(prog); @ls -l anici libanici.dylib; size anici libanici.dylib | sed 1d
+$(prog): lib; @dcc etc/main.cc -o $@ -L. -lici
+lib:; @dcc --dll libici.dylib -fPIC $(srcs) $(libs)
+exe: $(prog); @ls -l ici libici.dylib; size ici libici.dylib | sed 1d
 else
 $(prog):; @dcc etc/main.cc $(srcs) -o $@
 exe: $(prog); @ls -l $(prog); size $(prog) | sed 1d
 endif
 
-clean:;	@rm -rf etc/main.o *.o $(prog) anici.h libanici.dylib .dcc
+clean:;	@rm -rf etc/main.o *.o $(prog) ici.h libici.dylib .dcc

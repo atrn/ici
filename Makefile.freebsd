@@ -10,27 +10,27 @@ uname!=		uname|tr A-Z a-z
 conf?=		conf/$(uname).h
 
 srcs!=		echo *.cc
-hdrs!=		ls *.h|grep -v anici\\.h
+hdrs!=		ls *.h|grep -v ici\\.h
 objs=		$(srcs:.cc=.o)
 libs=		
 
-all:		anici.h
+all:		ici.h
 
-anici.h:	anici $(hdrs) mk-ici-h.ici
-	LD_LIBRARY_PATH=`pwd` ./anici mk-ici-h.ici $(conf)
+ici.h:	ici $(hdrs) mk-ici-h.ici
+	LD_LIBRARY_PATH=`pwd` ./ici mk-ici-h.ici $(conf)
 
 build=static
 
 .if ${build} == static
-anici:		$(objs)
+ici:		$(objs)
 	$(CXX) $(CXXFLAGS) etc/main.cc $(objs) $(libs) -o $@
 
 .else
 
-anici:		libanici.so
-	$(CXX) $(CXXFLAGS) etc/main.cc libanici.so -o $@
+ici:		libici.so
+	$(CXX) $(CXXFLAGS) etc/main.cc libici.so -o $@
 
-libanici.so : $(objs)
+libici.so : $(objs)
 	$(CXX) $(CXXFLAGS) -shared $(objs) $(libs) -o $@
 
 $(objs) : %.o : %.cc
@@ -38,7 +38,7 @@ $(objs) : %.o : %.cc
 .endif
 
 clean:
-	rm -f anici anici.h $(objs) .depend
+	rm -f ici ici.h $(objs) .depend
 
 depend:
 	MKDEP_CPP="$(CXX) -E" mkdep $(CXXFLAGS) $(srcs)

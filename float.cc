@@ -21,14 +21,14 @@ ici_float *new_float(double v)
     static ici_float   proto;
 
     proto.f_value = v;
-    if ((f = floatof(atom_probe2(&proto, &po))) != NULL)
-    {
+    if ((f = floatof(atom_probe2(&proto, &po))) != NULL) {
         f->incref();
         return f;
     }
     ++supress_collect;
-    if ((f = ici_talloc(ici_float)) == NULL)
+    if ((f = ici_talloc(ici_float)) == NULL) {
         return NULL;
+    }
     set_tfnz(f, TC_FLOAT, object::O_ATOM, 1, sizeof (ici_float));
     f->f_value = v;
     rego(f);
@@ -61,8 +61,7 @@ unsigned long hash_float(double v)
      *
      * WARNING: there is an in-line expansion of this in binop.h.
      */
-    if (sizeof v == 2 * sizeof (int32_t))
-    {
+    if (sizeof v == 2 * sizeof (int32_t)) {
         /*
          * The little dance of getting the address of the double into
          * a pointer to ulong via void * is brought to you by the
@@ -75,9 +74,7 @@ unsigned long hash_float(double v)
         p = (int32_t *)vp;
         h += p[0] + p[1] * 31;
         h ^= (h >> 12) ^ (h >> 24);
-    }
-    else
-    {
+    } else {
         unsigned char   *p;
 
         p = (unsigned char *)&v;

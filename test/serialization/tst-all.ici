@@ -1,9 +1,9 @@
 local run(prog)
 {
     if (p = getenv("DYLD_LIBRARY_PATH")) {
-	cmd := sprintf("DYLD_LIBRARY_PATH=%s anici %s", p, prog);
+	cmd := sprintf("DYLD_LIBRARY_PATH=%s ici %s", p, prog);
     } else {
-	cmd := "anici " + prog;
+	cmd := "ici " + prog;
     }
     if ((status = system(cmd)) != 0)
 	fail(sprintf("%s: failed, exit status %d", cmd, status));
