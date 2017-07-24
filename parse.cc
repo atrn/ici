@@ -36,7 +36,7 @@ static int      statement(parse *, array *, map *, const char *, int);
 
 #define DISASSEMBLE   0
 
-#if DISASSEMBLE
+#if defined(DISASSEMBLE) && DISASSEMBLE != 0
 static char *
 opname(op *op)
 {
@@ -121,11 +121,14 @@ disassemble(int indent, array *a)
  */
 
 /*
- * 'curtok' is a convenience macro. Routines in this file conventionally use
- * the variable name 'p' for the pointer the current parse structure. Given
- * that, 'curtok' is the last token fetched. That is, the current head symbol.
+ * 'curtok' is a convenience to get the current token (it used to
+ * called 'this' in the C version).
+ *
+ * Routines in this file conventionally use the variable name 'p' for
+ * the pointer the current parse structure. Given that, 'curtok' is
+ * the last token fetched. That is, the current head symbol.
  */
-#define curtok    p->p_got.t_what
+#define curtok p->p_got.t_what
 
 /*
  * next(p, a) and reject(p) are the basic token fetching (and rejecting)
@@ -227,8 +230,7 @@ static array *ident_list(parse *p)
  * Return -1, 0 or 1, usual conventions.  On success, returns a parsed
  * non-decref function in parse.p_got.t_obj.
  */
-static int
-function(parse *p, str *name)
+static int function(parse *p, str *name)
 {
     array *a;
     func  *f;
@@ -321,8 +323,7 @@ function(parse *p, str *name)
 /*
  * ows is the struct (or whatever) the idents are going into.
  */
-static int
-data_def(parse *p, objwsup *ows)
+static int data_def(parse *p, objwsup *ows)
 {
     object   *o;     /* The value it is initialised with. */
     object   *n;     /* The name. */
@@ -420,8 +421,7 @@ data_def(parse *p, objwsup *ows)
     return -1;
 }
 
-static int
-compound_statement(parse *p, map *sw)
+static int compound_statement(parse *p, map *sw)
 {
     array *a;
 
@@ -477,8 +477,7 @@ compound_statement(parse *p, map *sw)
 /*
  * Free an exprssesion tree and decref all the objects that it references.
  */
-static void
-free_expr(expr *e)
+static void free_expr(expr *e)
 {
     expr *e1;
 
@@ -524,8 +523,7 @@ bracketed_expr(parse *p, expr **ep)
  * parseing return conventions (see comment near start of file). See the
  * comment on expr() for the meaning of exclude.
  */
-static int
-primary(parse *p, expr **ep, int exclude)
+static int primary(parse *p, expr **ep, int exclude)
 {
     expr       *e;
     array      *a;
@@ -1266,8 +1264,7 @@ primary(parse *p, expr **ep, int exclude)
  * parseing return conventions (see comment near start of file). See the
  * comment on expr() for the meaning of exclude.
  */
-static int
-unary(parse *p, expr **ep, int exclude)
+static int unary(parse *p, expr **ep, int exclude)
 {
     expr      *e;
     int         what;
@@ -1344,8 +1341,7 @@ unary(parse *p, expr **ep, int exclude)
  *                      not general. Only what is needed for comma and
  *                      colon.
  */
-static int
-expression(parse *p, expr **ep, int exclude)
+static int expression(parse *p, expr **ep, int exclude)
 {
     expr      *e;
     expr      **ebase;
@@ -1432,8 +1428,7 @@ expression(parse *p, expr **ep, int exclude)
     return 1;
 }
 
-static int
-expression(parse *p, array *a, int why, int exclude)
+static int expression(parse *p, array *a, int why, int exclude)
 {
     expr      *e;
 
@@ -1527,8 +1522,7 @@ const_expression(parse *p, object **po, int exclude)
     return -1;
 }
 
-static int
-xx_brac_expr_brac(parse *p, array *a, const char *xx)
+static int xx_brac_expr_brac(parse *p, array *a, const char *xx)
 {
     if (next(p, a) != T_ONROUND)
     {
@@ -2615,8 +2609,7 @@ void parse_type::free(object *o)
     ici_tfree(o, parse);
 }
 
-const char *
-ici_token_name(int t)
+const char *ici_token_name(int t)
 {
     switch (t_type(t))
     {

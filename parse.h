@@ -52,87 +52,87 @@ constexpr int TM_TYPE =         0x07C0;          /* 5 bits. */
 constexpr int TM_PREC =         0x7800;          /* 4 bits, 0 is high (tight bind).*/
 constexpr int TM_HASOBJ =       0x8000;          /* Implies incref on t_obj. */
 
-#define t_subtype(t)    ((t) & TM_SUBTYPE)
-#define t_type(t)       ((t) & TM_TYPE)
-#define t_prec(t)       (((t) & TM_PREC) >> 11)
-#define TYPE(n)         ((n) << 6)
-#define PREC(n)         ((n) << 11)
+constexpr int t_subtype(int t) { return t & TM_SUBTYPE; }
+constexpr int t_type(int t) { return t & TM_TYPE; }
+constexpr int t_prec(int t) { return (t & TM_PREC) >> 11; }
+constexpr int TYPE(int n) { return n << 6; }
+constexpr int PREC(int n) { return n << 11; }
 
-#define T_NONE          TYPE(0)
-#define T_NAME          (TM_HASOBJ|TYPE(1))
-#define T_REGEXP        (TM_HASOBJ|TYPE(2))
-#define T_STRING        (TM_HASOBJ|TYPE(3))
-#define T_SEMICOLON     TYPE(4)
-#define T_EOF           TYPE(5)
-#define T_INT           TYPE(6)
-#define T_FLOAT         TYPE(7)
-#define T_BINOP         TYPE(8)     /* Has sub-types, see below. */
-#define T_ERROR         TYPE(9)
-#define T_NULL          TYPE(10)
-#define T_ONROUND       TYPE(11)
-#define T_OFFROUND      TYPE(12)
-#define T_ONCURLY       TYPE(13)
-#define T_OFFCURLY      TYPE(14)
-#define T_ONSQUARE      TYPE(15)
-#define T_OFFSQUARE     TYPE(16)
-#define T_DOT           TYPE(17)
-#define T_PTR           TYPE(18)
-#define T_EXCLAM        TYPE(19)
-#define T_PLUSPLUS      TYPE(20)
-#define T_MINUSMINUS    TYPE(21)
-#define T_CONST         TYPE(22)
-#define T_PRIMARYCOLON  TYPE(23)
-/*#define T_2COLON        TYPE(24)*/
-#define T_DOLLAR        TYPE(25)
-#define T_COLONCARET    TYPE(26)
-/*#define       T_OFFCURLYOFFSQ TYPE(27)*/
-#define T_AT            TYPE(28)
-#define T_BINAT         TYPE(29)
-#define T_GO            TYPE(30)
+constexpr int T_NONE =          TYPE(0);
+constexpr int T_NAME =          (TM_HASOBJ|TYPE(1));
+constexpr int T_REGEXP =        (TM_HASOBJ|TYPE(2));
+constexpr int T_STRING =        (TM_HASOBJ|TYPE(3));
+constexpr int T_SEMICOLON =     TYPE(4);
+constexpr int T_EOF =           TYPE(5);
+constexpr int T_INT =           TYPE(6);
+constexpr int T_FLOAT =         TYPE(7);
+constexpr int T_BINOP =         TYPE(8);     /* Has sub-types, see below. */
+constexpr int T_ERROR =         TYPE(9);
+constexpr int T_NULL =          TYPE(10);
+constexpr int T_ONROUND =       TYPE(11);
+constexpr int T_OFFROUND =      TYPE(12);
+constexpr int T_ONCURLY =       TYPE(13);
+constexpr int T_OFFCURLY =      TYPE(14);
+constexpr int T_ONSQUARE =      TYPE(15);
+constexpr int T_OFFSQUARE =     TYPE(16);
+constexpr int T_DOT =           TYPE(17);
+constexpr int T_PTR =           TYPE(18);
+constexpr int T_EXCLAM =        TYPE(19);
+constexpr int T_PLUSPLUS =      TYPE(20);
+constexpr int T_MINUSMINUS =    TYPE(21);
+constexpr int T_CONST =         TYPE(22);
+constexpr int T_PRIMARYCOLON =  TYPE(23);
+/* constexpr int T_2COLON =        TYPE(24); */
+constexpr int T_DOLLAR =        TYPE(25);
+constexpr int T_COLONCARET =    TYPE(26);
+/* constexpr int       T_OFFCURLYOFFSQ = TYPE(27); */
+constexpr int T_AT =            TYPE(28);
+constexpr int T_BINAT =         TYPE(29);
+constexpr int T_GO =            TYPE(30);
 /* Maximum value        TYPE(31) */
 
 /*
  * T_BINOP sub types.
  */
-#define T_ASTERIX       (PREC(0)|T_BINOP|1)
-#define T_SLASH         (PREC(0)|T_BINOP|2)
-#define T_PERCENT       (PREC(0)|T_BINOP|3)
-#define T_PLUS          (PREC(1)|T_BINOP|4)
-#define T_MINUS         (PREC(1)|T_BINOP|5)
-#define T_GRTGRT        (PREC(2)|T_BINOP|6)
-#define T_LESSLESS      (PREC(2)|T_BINOP|7)
-#define T_LESS          (PREC(3)|T_BINOP|8)
-#define T_GRT           (PREC(3)|T_BINOP|9)
-#define T_LESSEQ        (PREC(3)|T_BINOP|10)
-#define T_GRTEQ         (PREC(3)|T_BINOP|11)
-#define T_EQEQ          (PREC(4)|T_BINOP|12)
-#define T_EXCLAMEQ      (PREC(4)|T_BINOP|13)
-#define T_TILDE         (PREC(4)|T_BINOP|14)
-#define T_EXCLAMTILDE   (PREC(4)|T_BINOP|15)
-#define T_2TILDE        (PREC(4)|T_BINOP|16)
-#define T_3TILDE        (PREC(4)|T_BINOP|17)
-#define T_AND           (PREC(5)|T_BINOP|18)
-#define T_CARET         (PREC(6)|T_BINOP|19)
-#define T_BAR           (PREC(7)|T_BINOP|20)
-#define T_ANDAND        (PREC(8)|T_BINOP|21)
-#define T_BARBAR        (PREC(9)|T_BINOP|22)
-#define T_COLON         (PREC(10)|T_BINOP|23)
-#define T_QUESTION      (PREC(11)|T_BINOP|24)
-#define T_EQ            (PREC(12)|T_BINOP|25)
-#define T_COLONEQ       (PREC(12)|T_BINOP|26)
-#define T_PLUSEQ        (PREC(12)|T_BINOP|27)
-#define T_MINUSEQ       (PREC(12)|T_BINOP|28)
-#define T_ASTERIXEQ     (PREC(12)|T_BINOP|29)
-#define T_SLASHEQ       (PREC(12)|T_BINOP|30)
-#define T_PERCENTEQ     (PREC(12)|T_BINOP|31)
-#define T_GRTGRTEQ      (PREC(12)|T_BINOP|32)
-#define T_LESSLESSEQ    (PREC(12)|T_BINOP|33)
-#define T_ANDEQ         (PREC(12)|T_BINOP|34)
-#define T_CARETEQ       (PREC(12)|T_BINOP|35)
-#define T_BAREQ         (PREC(12)|T_BINOP|36)
-#define T_2TILDEEQ      (PREC(12)|T_BINOP|37)
-#define T_LESSEQGRT     (PREC(12)|T_BINOP|38)
-#define T_COMMA         (PREC(13)|T_BINOP|39)
+constexpr int T_ASTERIX =       (PREC(0)|T_BINOP|1);
+constexpr int T_SLASH =         (PREC(0)|T_BINOP|2);
+constexpr int T_PERCENT =       (PREC(0)|T_BINOP|3);
+constexpr int T_PLUS =          (PREC(1)|T_BINOP|4);
+constexpr int T_MINUS =         (PREC(1)|T_BINOP|5);
+constexpr int T_GRTGRT =        (PREC(2)|T_BINOP|6);
+constexpr int T_LESSLESS =      (PREC(2)|T_BINOP|7);
+constexpr int T_LESS =          (PREC(3)|T_BINOP|8);
+constexpr int T_GRT =           (PREC(3)|T_BINOP|9);
+constexpr int T_LESSEQ =        (PREC(3)|T_BINOP|10);
+constexpr int T_GRTEQ =         (PREC(3)|T_BINOP|11);
+constexpr int T_EQEQ =          (PREC(4)|T_BINOP|12);
+constexpr int T_EXCLAMEQ =      (PREC(4)|T_BINOP|13);
+constexpr int T_TILDE =         (PREC(4)|T_BINOP|14);
+constexpr int T_EXCLAMTILDE =   (PREC(4)|T_BINOP|15);
+constexpr int T_2TILDE =        (PREC(4)|T_BINOP|16);
+constexpr int T_3TILDE =        (PREC(4)|T_BINOP|17);
+constexpr int T_AND =           (PREC(5)|T_BINOP|18);
+constexpr int T_CARET =         (PREC(6)|T_BINOP|19);
+constexpr int T_BAR =           (PREC(7)|T_BINOP|20);
+constexpr int T_ANDAND =        (PREC(8)|T_BINOP|21);
+constexpr int T_BARBAR =        (PREC(9)|T_BINOP|22);
+constexpr int T_COLON =         (PREC(10)|T_BINOP|23);
+constexpr int T_QUESTION =      (PREC(11)|T_BINOP|24);
+constexpr int T_EQ =            (PREC(12)|T_BINOP|25);
+constexpr int T_COLONEQ =       (PREC(12)|T_BINOP|26);
+constexpr int T_PLUSEQ =        (PREC(12)|T_BINOP|27);
+constexpr int T_MINUSEQ =       (PREC(12)|T_BINOP|28);
+constexpr int T_ASTERIXEQ =     (PREC(12)|T_BINOP|29);
+constexpr int T_SLASHEQ =       (PREC(12)|T_BINOP|30);
+constexpr int T_PERCENTEQ =     (PREC(12)|T_BINOP|31);
+constexpr int T_GRTGRTEQ =      (PREC(12)|T_BINOP|32);
+constexpr int T_LESSLESSEQ =    (PREC(12)|T_BINOP|33);
+constexpr int T_ANDEQ =         (PREC(12)|T_BINOP|34);
+constexpr int T_CARETEQ =       (PREC(12)|T_BINOP|35);
+constexpr int T_BAREQ =         (PREC(12)|T_BINOP|36);
+constexpr int T_2TILDEEQ =      (PREC(12)|T_BINOP|37);
+constexpr int T_LESSEQGRT =     (PREC(12)|T_BINOP|38);
+constexpr int T_COMMA =         (PREC(13)|T_BINOP|39);
 constexpr int BINOP_MAX = 39;
 /* Maximum values       (PREC(15)|T_BINOP|63) */
 
