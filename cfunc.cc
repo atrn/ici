@@ -1846,7 +1846,7 @@ ici_f_sprintf()
         if ((file = need_stdout()) == NULL)
             return 1;
     case 2: /* fprintf */
-        if (file->flagged(ICI_F_CLOSED))
+        if (file->flagged(file::closed))
         {
             return set_error("write to closed file");
         }
@@ -1865,10 +1865,10 @@ ici_f_sprintf()
                     return 1;
             }
             memcpy(out_buf, buf, i);
-            if (file->flagged(FT_NOMUTEX))
+            if (file->flagged(ftype::nomutex))
                 x = leave();
             file->write(out_buf, i);
-            if (file->flagged(FT_NOMUTEX))
+            if (file->flagged(ftype::nomutex))
                 enter(x);
             if (out_buf != small_buf)
                 ici_nfree(out_buf, i);
@@ -3237,10 +3237,10 @@ f_getchar()
 	}
     }
     blocking_syscall(1);
-    if (f->flagged(FT_NOMUTEX))
+    if (f->flagged(ftype::nomutex))
         x = leave();
     c = f->getch();
-    if (f->flagged(FT_NOMUTEX))
+    if (f->flagged(ftype::nomutex))
         enter(x);
     blocking_syscall(0);
     if (c == EOF)
@@ -3308,7 +3308,7 @@ f_getline()
     }
     if ((b = (char *)malloc(buf_size = 128)) == NULL)
         goto nomem;
-    if (f->flagged(FT_NOMUTEX))
+    if (f->flagged(ftype::nomutex))
     {
         blocking_syscall(1);
         x = leave();
@@ -3319,7 +3319,7 @@ f_getline()
             break;
         b[i] = c;
     }
-    if (f->flagged(FT_NOMUTEX))
+    if (f->flagged(ftype::nomutex))
     {
         enter(x);
         blocking_syscall(0);
@@ -3381,7 +3381,7 @@ f_getfile()
     }
     if ((b = (char *)malloc(buf_size = 128)) == NULL)
         goto nomem;
-    if (f->flagged(FT_NOMUTEX))
+    if (f->flagged(ftype::nomutex))
     {
         blocking_syscall(1);
         x = leave();
@@ -3392,7 +3392,7 @@ f_getfile()
             break;
         b[i] = c;
     }
-    if (f->flagged(FT_NOMUTEX))
+    if (f->flagged(ftype::nomutex))
     {
         enter(x);
         blocking_syscall(0);
@@ -3449,15 +3449,15 @@ f_puts()
     }
     if (!isstring(s))
         return argerror(0);
-    if (f->flagged(FT_NOMUTEX))
+    if (f->flagged(ftype::nomutex))
         x = leave();
     if (f->write(s->s_chars, s->s_nchars) != int(s->s_nchars))
     {
-        if (f->flagged(FT_NOMUTEX))
+        if (f->flagged(ftype::nomutex))
             enter(x);
         return set_error("write failed");
     }
-    if (f->flagged(FT_NOMUTEX))
+    if (f->flagged(ftype::nomutex))
         enter(x);
     return null_ret();
 }
@@ -3478,15 +3478,15 @@ f_fflush()
         if ((f = need_stdout()) == NULL)
             return 1;
     }
-    if (f->flagged(FT_NOMUTEX))
+    if (f->flagged(ftype::nomutex))
         x = leave();
     if (f->flush() == -1)
     {
-        if (f->flagged(FT_NOMUTEX))
+        if (f->flagged(ftype::nomutex))
             enter(x);
         return set_error("flush failed");
     }
-    if (f->flagged(FT_NOMUTEX))
+    if (f->flagged(ftype::nomutex))
         enter(x);
     return null_ret();
 }
@@ -3627,10 +3627,10 @@ f_eof()
         if ((f = need_stdin()) == NULL)
             return 1;
     }
-    if (f->flagged(FT_NOMUTEX))
+    if (f->flagged(ftype::nomutex))
         x = leave();
     r = f->eof();
-    if (f->flagged(FT_NOMUTEX))
+    if (f->flagged(ftype::nomutex))
         enter(x);
     return int_ret((long)r);
 }

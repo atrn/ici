@@ -53,7 +53,7 @@ int set_val(objwsup *s, str *name, int type, void *vp)
 
     case 'u':
         o = new_file((char *)vp, stdio_ftype, name, NULL);
-        o->set(ICI_F_NOCLOSE);
+        o->set(file::noclose);
         break;
 
     case 'o':

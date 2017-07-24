@@ -52,7 +52,7 @@ int ftype::setvbuf(void *, char *, int, size_t)
 //================================================================
 
 stdio_ftype::stdio_ftype()
-    : ftype(FT_NOMUTEX)
+    : ftype(nomutex)
 {
 }
 

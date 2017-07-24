@@ -1,4 +1,4 @@
-# C++ compiler options. This file is used with dcc.
+# C++ compiler options (this file is read by dcc).
 #
 
 # Basic options. We're using C++14 and want as many

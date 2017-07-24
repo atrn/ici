@@ -12,22 +12,6 @@ namespace ici
  * The following portion of this file exports to ici.h. --ici.h-start--
  */
 
-
-/*
- * The flags that may appear in flags.  NOTE: If any flag greater than 0x80
- * is specified, file creation with new_file() will fail.  See that
- * function for details.
- *
- * FT_NOMUTEX           ICI will surround file I/O on this file with
- *                      leave()/enter().  Using this flag can increase
- *                      efficiency by allowing other threads to run during a
- *                      blocking I/O operation; however it must NOT be used if
- *                      the file's I/O functions can access ICI data.
- *
- * --ici-api-- continued.
- */
-constexpr int FT_NOMUTEX = 0x01;
-
 /*
  * A set of functions for file access.  ICI file objects are implemented
  * on top of this simple file abstraction in order to allow several
@@ -42,8 +26,25 @@ constexpr int FT_NOMUTEX = 0x01;
  */
 class ftype
 {
+public:
+    /*
+     * The flags that may appear in flags.  NOTE: If any flag greater than 0x80
+     * is specified, file creation with new_file() will fail.  See that
+     * function for details.
+     *
+     * nomutex              ICI will surround file I/O on this file with
+     *                      leave()/enter().  Using this flag can increase
+     *                      efficiency by allowing other threads to run during a
+     *                      blocking I/O operation; however it must NOT be used if
+     *                      the file's I/O functions can access ICI data.
+     *
+     * --ici-api-- continued.
+     */
+    static constexpr int nomutex = 0x01;
+
 protected:
     ftype(int flags = 0) : flags(flags) {}
+
 public:
     virtual ~ftype() {}
     virtual int getch(void *);

@@ -8,3 +8,5 @@
 /anici.static
 /test/serialization/*.dat
 /libanici.so
+/ici
+/ici.h

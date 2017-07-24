@@ -30,6 +30,10 @@ struct file : object
     inline int write(const void *p, long n) { return f_type->write(p, n, f_file); }
     inline int fileno() { return f_type->fileno(f_file); }
     inline int setvbuf(char *p, int t, size_t z) { return f_type->setvbuf(f_file, p, t, z); }
+
+    static constexpr int closed = 0x20;    /* File is closed. */
+    static constexpr int noclose = 0x40;    /* Don't close on object free. */
+
 };
 /*
  * f_ref                An object for this file object to reference.
@@ -41,9 +45,6 @@ struct file : object
 
 inline file *fileof(object *o) { return static_cast<file *>(o); }
 inline bool isfile(object *o) { return o->isa(TC_FILE); }
-
-constexpr int ICI_F_CLOSED = 0x20;    /* File is closed. */
-constexpr int ICI_F_NOCLOSE = 0x40;    /* Don't close on object free. */
 
 /*
  * End of ici.h export. --ici.h-end--
