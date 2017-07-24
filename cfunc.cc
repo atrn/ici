@@ -3287,13 +3287,13 @@ f_ungetchar()
 static int
 f_getline()
 {
-    int        i;
-    int        c;
-    file          *f;
-    exec          *x = NULL;
-    char                *b;
-    int                 buf_size;
-    str           *str;
+    int   i;
+    int   c;
+    file *f;
+    exec *x = NULL;
+    char *b;
+    int   buf_size;
+    str  *str;
 
     x = NULL;
     if (NARGS() != 0)
@@ -3306,7 +3306,7 @@ f_getline()
         if ((f = need_stdin()) == NULL)
             return 1;
     }
-    if ((b = (char *)malloc(buf_size = 128)) == NULL)
+    if ((b = (char *)malloc(buf_size = 4096)) == NULL)
         goto nomem;
     if (f->flagged(ftype::nomutex))
     {
@@ -4053,7 +4053,7 @@ f_putenv()
 }
 
 namespace {
-    // non-overloaded trampolines to force correct function type
+    // non-overloaded trampolines to get an unambiguous function type
     double xsin(double a) { return sin(a); }
     double xcos(double a) { return cos(a); }
     double xtan(double a) { return tan(a); }

@@ -33,7 +33,6 @@ struct file : object
 
     static constexpr int closed = 0x20;    /* File is closed. */
     static constexpr int noclose = 0x40;    /* Don't close on object free. */
-
 };
 /*
  * f_ref                An object for this file object to reference.

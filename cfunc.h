@@ -88,19 +88,15 @@ inline bool iscfunc(object *o) { return o->isa(TC_CFUNC); }
  * incref associated with this.  Parameters are known to be on the ICI operand
  * stack, and so can be assumed to be referenced and not garbage collected.
  *
- * (This macro has no ICI_ prefix for historical reasons.)
- *
- * This --macro-- forms part of the --ici-api--.
+ * This --func-- forms part of the --ici-api--.
  */
-#define ARG(n)          (os.a_top[-3 - (n)])
+inline object *& ARG(int n) { return os.a_top[-3 - (n)]; }
 
 /*
  * In a call from ICI to a function coded in C, this macro returns the
  * count of actual arguments to this C function.
  *
- * (This macro has no ICI_ prefix for historical reasons.)
- *
- * This --macro-- forms part of the --ici-api--.
+ * This --func-- forms part of the --ici-api--.
  */
 inline int NARGS() { return intof(os.a_top[-2])->i_value; }
 
@@ -109,9 +105,7 @@ inline int NARGS() { return intof(os.a_top[-2])->i_value; }
  * a pointer to the first argument to this function, with subsequent
  * arguments being available by *decrementing* the pointer.
  *
- * (This macro has no ICI_ prefix for historical reasons.)
- *
- * This --macro-- forms part of the --ici-api--.
+ * This --func-- forms part of the --ici-api--.
  */
 inline object **ARGS() { return &os.a_top[-3]; }
 
@@ -123,23 +117,28 @@ inline object **ARGS() { return &os.a_top[-3]; }
  * They are both (void *) (Prior to ICI 4.0, 'ICI_CF_ARG1()' was a function
  * pointer.)
  *
- * This --macro-- forms part of the --ici-api--.
+ * This --func-- forms part of the --ici-api--.
  */
 inline const void *ICI_CF_ARG1() { return cfuncof(os.a_top[-1])->cf_arg1; }
 inline const void *ICI_CF_ARG2() { return cfuncof(os.a_top[-1])->cf_arg2; }
 
 /*
- * Start the definution of a static cfuncs array.
+ * Helper macros to start the definution of a static cfuncs array.
+ * This is a bit of shorthand used within the interpreter to
+ * help consistency.
  */
 #define ICI_DEFINE_CFUNCS(NAME) cfunc ici_ ## NAME ## _cfuncs[] =
 
 /*
  * Mark the end of the initializers of a static cfuncs array.
+ * This inserts the sentinel value into the array to mark
+ * the end of valid cfunc entries.
  */
 #define ICI_CFUNCS_END() {}
 
 /*
- * Macros to define cfuncs. Use the one for the number of arguments.
+ * Macros to define cfuncs. Use the one appropriate for the number of
+ * arguments to the cfunc.
  */
 #define ICI_DEFINE_CFUNC(NAME, FUNC) {SS(NAME), (FUNC)}
 #define ICI_DEFINE_CFUNC1(NAME, FUNC, ARG) {SS(NAME), (FUNC), (void *)(ARG)}
@@ -148,7 +147,7 @@ inline const void *ICI_CF_ARG2() { return cfuncof(os.a_top[-1])->cf_arg2; }
 /*
  * Macros to define methods within a cfuncs array.
  */
-#define ICI_DEFINE_METHOD(NAME, FUNC) {SS(NAME), (int (*)(...))(FUNC)}
+#define ICI_DEFINE_METHOD(NAME, FUNC) ICI_DEFINE_CFUNC(NAME, FUNC)
 
 /*
  * End of ici.h export. --ici.h-end--
