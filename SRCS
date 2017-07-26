@@ -1,7 +1,6 @@
-# This file is read by dmake. It's needed because we put main() in
-# etc/main.cc and dmake doesn't search subdirectories for sources.
-#
-# If main() were defined in file in this directory we could remove
-# this file.
+# This file is read by dmake and defines the source files to
+# be compiled. This file is only needed because we put main()
+# in etc/main.cc and dmake doesn't search subdirectories for
+# source files.
 
 etc/main.cc *.cc
