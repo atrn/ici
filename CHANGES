@@ -1,50 +1,42 @@
 Major Changes in Version 5
 
-*    'struct' renamed to 'map'
+*    'struct' has been renamed 'map'
 
 *    ftype's are now classes
 
 *    threads are now based on c++ standard library and are
-     always built
+     standard as we rely upon a C++ version where they are
+     standard.
 
 *    ICI int types are now defined to be 64-bits and are
-     not necessarily the same as 'long int'.
+     not necessarily the same as C's 'long int'.
 
 *    ICI is now (re-)implemented in C++, C++11/14 to be precise.
 
-     C++ features are used sparingly and the overall program structure
-     remains the same but there are many, many changes in how that is
-     expressed. C++ features often duplicate functions ICI itself
-     implemented and help reduce the amount of code.
+     C++ features are used sparingly (ahem) and the overall program
+     structure remains largely the same but there are many, many
+     changes in how ICI is expressed.
 
-     The ici_obj_t object header structure is now used a base class,
-     'object'. All ICI objects derive from ici::object and add their
-     per-type state as data members. But note, ICI objects do NOT use
-     C++ virtual functions and the 'tcode' based type lookup is still
-     used.
+     The ici_obj_t object header structure is now used as a base
+     class, 'ici::object'. All objects derive from this class and add
+     any per-type state as data members. But note, ICI objects do NOT
+     use C++ virtual functions. Some classes used to implment ICI
+     objects do use C++ virtuals however. ICI itself still uses an
+     explicit 'tcode' based type lookup.
 
      The ici::object class provides numerous inline functions to
      manipulate the object which replace the suite of macros used in
-     the C implementation. The, untested, assumption is that today's
-     advanced C++ compilers will optimize inline and optimize their
-     use. A benefit of inheriting object is many of the macro-based
-     type casts required in C are removed - an ici::T is-a ici::object
-     so pointers may be implicitly converted. Where casts are required
-     inline function wrappers around the appropriate C++ static_cast<>
-     are used to aid type checking.
+     the C implementation. The, unverified, assumption is that today's
+     advanced C++ compilers will optimize these.  A major benefit of
+     having ICI objects values inherit ici::object is to eliminate
+     many type casts - an ici::T is-a ici::object.
 
-     ICI types are now defined by sub-classes of a 'class type'.  The
-     type class DOES use virtual functions for the various operations
-     on ICI objects - replacing the old type_t's use of pointers to
-     functions. Common implementations of type function are now the
-     default implementations of these and different types override the
-     different functions to provide their behaviour.
-
-     C++ features are being used where they make sense and would not
-     adversely impact performance. Often the C++ provides a function
-     ICI previously implemented itself using in C, e.g. replacing
-     type_t's pointers to functions with virtuals or the old C-style
-     "inheritence" of the per-object header.
+     ICI types themselves are now defined by C++ classes that derive
+     from an 'ici::type' class.  The ici::type class uses virtual
+     functions and is intended to be used to derive specific type
+     classes.  The ici::type base class provides the default
+     implementations of the type-specific operations performed upon
+     ICI objects.
 
 *    ICI signals are now enabled by default.
 
@@ -105,9 +97,11 @@ Major Changes in Version 5
     Configuaration Changes
 
     Support for many older UNIX systems has been removed. These days
-    UNIX means Mac OS, Linux, BSD, and Solaris.
+    UNIX means Mac OS, Linux, BSD, and, perhaps, Solaris.
 
-    Bug fixes
+
+
+Bug fixes
 
 Changes in version 4.2
 

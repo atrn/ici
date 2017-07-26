@@ -3,11 +3,11 @@ garbage collector/memory allocator and to control the names exported
 by the PCRE object files.
 
 PCRE's internal regexp data structure has a size field added so we
-know how much memory is used by a compiled regexp which is used by
-ici's garbage collector to track how much memory is being used.
+know how much memory is used by a compiled regexp. This is used by
+ici's garbage collector.
 
-In addition the names exported by the PCRE code are prefixed with the
-strings "ici_". Acheived with some #defines at the start of pcre.h.
+Additionally, names exported by the PCRE code are prefixed with the
+strings "ici_". This is done with some #defines at the start of pcre.h.
 
 Code modification are  surrounded  by the comment lines, "/* ICI */"
 and this is in only three places. At the start of pcre.h, an addition

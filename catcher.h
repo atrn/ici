@@ -18,7 +18,7 @@ namespace ici
 
 struct catcher : object
 {
-    object   *c_catcher;
+    object  *c_catcher;
     uint32_t c_odepth;       /* Operand stack depth. */
     uint32_t c_vdepth;       /* Variable stack depth. */
 };

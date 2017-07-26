@@ -348,7 +348,7 @@ uint32_t crc32c(uint32_t crc, const void *buf, size_t len)
 #define SIZE (262144*3)
 #define CHUNK SIZE
 
-int main(int argc, char **argv)
+int xmain(int argc, char **argv)
 {
     char *buf;
     ssize_t got;

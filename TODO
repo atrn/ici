@@ -74,7 +74,3 @@ copy() of a string results in a non-atomic string. I don't think
 this is made clear enough in the documentation.
 
 ---
-
-Todo before 4.1 release:
-* Either update man pages, or flag them out-of-date.
-* Is the Windows DLL load address right?

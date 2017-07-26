@@ -1,0 +1,7 @@
+# This file is read by dmake. It's needed because we put main() in
+# etc/main.cc and dmake doesn't search subdirectories for sources.
+#
+# If main() were defined in file in this directory we could remove
+# this file.
+
+etc/main.cc *.cc
