@@ -9,6 +9,16 @@ void null_type::free(object *)
 {
 }
 
+int null_type::save(archiver *, object *)
+{
+    return 0;
+}
+
+object *null_type::restore(archiver *)
+{
+    return ici_null;
+}
+
 null o_null;
 
 } // namespace ici

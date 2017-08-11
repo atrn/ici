@@ -3,6 +3,7 @@
 #include "op.h"
 #include "exec.h"
 #include "primes.h"
+#include "archiver.h"
 
 namespace ici
 {
@@ -57,6 +58,21 @@ unsigned long op_type::hash(object *o)
     return OP_PRIME * ((unsigned long)opof(o)->op_func
                        + opof(o)->op_code
                        + opof(o)->op_ecode);
+}
+
+int op_type::save(archiver *ar, object *o) {
+    auto op = opof(o);
+    return ar->write(int16_t(ar->op_func_code(op->op_func)))
+        || ar->write(int16_t(op->op_ecode))
+        || ar->write(int16_t(op->op_code));
+}
+
+object *op_type::restore(archiver *ar) {
+    int16_t op_func_code, op_ecode, op_code;
+    if (ar->read(op_func_code) || ar->read(op_ecode) || ar->read(op_code)) {
+        return nullptr;
+    }
+    return new_op(archiver::op_func(op_func_code), op_ecode, op_code);
 }
 
 } // namespace ici

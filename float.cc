@@ -2,6 +2,7 @@
 #include "fwd.h"
 #include "float.h"
 #include "primes.h"
+#include "archiver.h"
 #include <assert.h>
 
 namespace ici
@@ -83,6 +84,18 @@ unsigned long hash_float(double v)
             h = *p++ + h * 31;
     }
     return h;
+}
+
+int float_type::save(archiver *ar, object *obj) {
+    return ar->write(floatof(obj)->f_value);
+}
+
+object *float_type::restore(archiver *ar) {
+    double val;
+    if (ar->read(val)) {
+        return NULL;
+    }
+    return new_float(val);
 }
 
 } // namespace ici

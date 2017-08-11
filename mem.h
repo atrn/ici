@@ -35,6 +35,8 @@ public:
     unsigned long hash(object *o) override;
     int assign(object *o, object *k, object *v) override;
     object *fetch(object *o, object *k) override;
+    int save(archiver *, object *) override;
+    object *restore(archiver *) override;
 };
 
 } // namespace ici

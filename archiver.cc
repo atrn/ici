@@ -56,11 +56,6 @@
 namespace ici
 {
 
-int init_restorer_map();
-void uninit_restorer_map();
-int init_saver_map();
-void uninit_saver_map();
-
 inline long long ici_htonll(long long v)
 {
     assert(sizeof (long long) == 8);
@@ -91,16 +86,11 @@ int archive_init()
     op_funcs[4] = o_mkptr.op_func;
     op_funcs[5] = o_openptr.op_func;
     op_funcs[6] = o_fetch.op_func;
-    if (init_saver_map()) {
-        return 1;
-    }
-    return init_restorer_map();
+    return 0;
 }
 
 void archive_uninit()
 {
-    uninit_saver_map();
-    uninit_restorer_map();
 }
 
 inline object *make_key(object *obj) {
@@ -136,6 +126,25 @@ void archiver::remove(object *key) {
         unassign(a_sent, k);
         k->decref();
     }
+}
+
+int archiver::save_name(object *o) {
+    const int64_t ref = (int64_t)o;
+    return record(o, o) || write(ref);
+}
+
+int archiver::restore_name(object **name) {
+    int64_t ref;
+    if (read(ref)) {
+        return 1;
+    }
+    *name = (object *)ref;
+    return 0;
+}
+
+int archiver::save_ref(object *o) {
+    const int64_t ref = (int64_t)o;
+    return write(TC_REF) || write(ref);
 }
 
 object *archiver::lookup(object *obj) {
@@ -270,6 +279,130 @@ int archiver::write(double v)
 {
     byteswap(&v, sizeof v);
     return write(&v, sizeof v);
+}
+
+int archiver::save(object *o)
+{
+    uint8_t tcode = o->o_tcode & 0x1F;
+    if (o->isatom()) tcode |= O_ARCHIVE_ATOMIC;
+    return write(tcode) || o->icitype()->save(this, o);
+}
+
+object *archiver::restore()
+{
+    uint8_t tcode, flags;
+    if (read(tcode)) {
+    	return nullptr;
+    }
+    flags = tcode & O_ARCHIVE_ATOMIC ? object::O_ATOM : 0;
+    tcode &= ~O_ARCHIVE_ATOMIC;
+    auto t = types[tcode];
+    if (!t) {
+        return nullptr;
+    }
+    auto o = t->restore(this);
+    if (!o) {
+        return nullptr;
+    }
+    if (flags & object::O_ATOM) {
+        o = atom(o, 1);
+    }
+    return o;
+}
+
+/*
+ * save([file, ] any)
+ *
+ * Save an object to a file by writing a serialized object graph
+ * using the given object as the root of the graph.
+ *
+ * If file is not given the object is written to the standard output.
+ *
+ * This --topic-- forms part of the --ici-serialisation-- documentation.
+ */
+int f_archive_save(...)
+{
+    objwsup *scp = mapof(vs.a_top[-1])->o_super;
+    file *file;
+    object *obj;
+    int failed = 1;
+
+    switch (NARGS()) {
+    case 3:
+        if (typecheck("uod", &file, &obj, &scp))
+            return 1;
+        break;
+
+    case 2:
+        if (typecheck("uo", &file, &obj))
+            return 1;
+        break;
+
+    case 1:
+        if (typecheck("o", &obj))
+            return 1;
+        if ((file = need_stdout()) == NULL)
+            return 1;
+        break;
+
+    default:
+        return argerror(2);
+    }
+
+    archiver ar(file, scp);
+    if (ar) {
+        failed = ar.save(obj);
+    }
+    return failed ? failed : null_ret();
+}
+
+int
+f_archive_restore(...)
+{
+    file *file;
+    objwsup *scp;
+    object *obj = NULL;
+
+    scp = mapof(vs.a_top[-1])->o_super;
+    switch (NARGS())
+    {
+    case 0:
+        if ((file = need_stdin()) == NULL)
+        {
+            return 1;
+        }
+	break;
+
+    case 1:
+        if (typecheck("u", &file))
+	{
+            if (typecheck("d", &scp))
+            {
+		return 1;
+            }
+	    if ((file = need_stdin()) == NULL)
+            {
+		return 1;
+            }
+	}
+	break;
+
+    default:
+	if (typecheck("ud", &file, &scp))
+        {
+	    return 1;
+        }
+	break;
+    }
+
+    {
+        archiver ar(file, scp);
+        if (ar) {
+            obj = ar.restore();
+        }
+    }
+
+    return obj == NULL ? 1 : ret_with_decref(obj);
 }
 
 ICI_DEFINE_CFUNCS(save_restore)

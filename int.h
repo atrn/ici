@@ -34,6 +34,8 @@ public:
     int_type() : type("int", sizeof (struct ici_int)) {}
     int cmp(object *, object *) override;
     unsigned long hash(object *) override;
+    int save(archiver *, object *) override;
+    object *restore(archiver *) override;
 };
 
 /*

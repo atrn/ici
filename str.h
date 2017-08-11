@@ -130,6 +130,8 @@ public:
     object *fetch(object *o, object *k) override;
     int assign(object *o, object *k, object *v) override;
     int forall(object *o) override;
+    int save(archiver *, object *) override;
+    object *restore(archiver *) override;
 };
 
 #ifdef  ICI_CORE

@@ -49,6 +49,8 @@ public:
     object *fetch(object *o, object *k) override;
     object *fetch_base(object *o, object *k) override;
     int fetch_super(object *o, object *k, object **pv, map *b) override;
+    int save(archiver *, object *) override;
+    object *restore(archiver *) override;
 };
 
 } // namespace ici

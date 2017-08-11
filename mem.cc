@@ -5,6 +5,7 @@
 #include "buf.h"
 #include "null.h"
 #include "primes.h"
+#include "archiver.h"
 
 namespace ici
 {
@@ -135,6 +136,38 @@ object * mem_type::fetch(object *o, object *k)
     o = new_int(i);
     o->decref();
     return o;
+}
+
+int mem_type::save(archiver *ar, object *o) {
+    auto m = memof(o);
+    return ar->save_name(o)
+        || ar->write(int64_t(m->m_length))
+        || ar->write(int16_t(m->m_accessz))
+        || ar->write(m->m_base, m->m_length * m->m_accessz);
+}
+
+object *mem_type::restore(archiver *ar) {
+    int64_t len;
+    int16_t accessz;
+    size_t sz;
+    void *p;
+    mem *m = 0;
+    object *name;
+
+    if (ar->restore_name(&name) || ar->read(len) || ar->read(accessz)) {
+        return nullptr;
+    }
+    sz = size_t(len) * size_t(accessz);
+    if ((p = ici_alloc(sz)) != nullptr) {
+        if ((m = new_mem(p, len, accessz, ici_free)) == nullptr) {
+            ici_free(p);
+        }
+        else if (ar->read(p, sz) || ar->record(name, m)) {
+            m->decref();
+            m = nullptr;
+        }
+    }
+    return m;
 }
 
 } // namespace ici

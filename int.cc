@@ -2,6 +2,7 @@
 #include "fwd.h"
 #include "int.h"
 #include "primes.h"
+#include "archiver.h"
 
 namespace ici
 {
@@ -71,6 +72,18 @@ unsigned long int_type::hash(object *o)
      * There are in-line versions of this in object.c and binop.h.
      */
     return (unsigned long)intof(o)->i_value * INT_PRIME;
+}
+
+int int_type::save(archiver *ar, object *obj) {
+    return ar->write(intof(obj)->i_value);
+}
+
+object *int_type::restore(archiver *ar) {
+    int64_t value;
+    if (ar->read(value)) {
+        return nullptr;
+    }
+    return new_int(value);
 }
 
 } // namespace ici

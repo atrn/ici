@@ -8,6 +8,7 @@
 #include "null.h"
 #include "primes.h"
 #include "forall.h"
+#include "archiver.h"
 
 namespace ici
 {
@@ -319,6 +320,55 @@ int set_type::forall(object *o)
         return 0;
     }
     return -1;
+}
+
+int set_type::save(archiver *ar, object *o) {
+    auto s = setof(o);
+    if (ar->save_name(o) || ar->write(int64_t(s->s_nels)))
+        return 1;
+    for (object **e = s->s_slots; size_t(e - s->s_slots) < s->s_nslots; ++e) {
+        if (*e && ar->save(*e))
+            return 1;
+    }
+    return 0;
+}
+
+object *set_type::restore(archiver *ar) {
+    set *s;
+    int64_t n;
+    object *name;
+
+    if (ar->restore_name(&name)) {
+        return nullptr;
+    }
+    if ((s = new_set()) == nullptr) {
+        return nullptr;
+    }
+    if (ar->record(name, s)) {
+        goto fail;
+    }
+    if (ar->read(n)) {
+        goto fail1;
+    }
+    for (int64_t i = 0; i < n; ++i) {
+        object *o;
+        if ((o = ar->restore()) == nullptr) {
+            goto fail1;
+        }
+        if (ici_assign(s, o, o_one)) {
+            o->decref();
+            goto fail1;
+        }
+        o->decref();
+    }
+    return s;
+
+fail1:
+    ar->remove(name);
+
+fail:
+    s->decref();
+    return nullptr;
 }
 
 /*

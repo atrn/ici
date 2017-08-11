@@ -70,7 +70,8 @@ type *types[max_types] =
     nullptr, // TC_REF is special, a reserved type code with no actual type
     ptr_to_instance_of<restorer_type>(),
     ptr_to_instance_of<saver_type>(),
-    ptr_to_instance_of<channel_type>()
+    ptr_to_instance_of<channel_type>(),
+    nullptr
 };
 
 static int ntypes = TC_MAX_CORE + 1;

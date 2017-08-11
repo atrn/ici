@@ -6,6 +6,7 @@
 #include "op.h"
 #include "buf.h"
 #include "primes.h"
+#include "archiver.h"
 
 #ifndef ICI
 #define ICI /* Cause PCRE's internal.h to add special stuff for ICI */
@@ -171,6 +172,35 @@ object *regexp_type::fetch(object *o, object *k)
         return io;
     }
     return fetch_fail(o, k);
+}
+
+int regexp_type::save(archiver *ar, object *o) {
+    auto re = regexpof(o);
+    int32_t options;
+    ici_pcre_info(re->r_re, &options, NULL);
+    return ar->save_name(o) || ar->write(options) || ar->save(re->r_pat);
+}
+
+object *regexp_type::restore(archiver *ar) {
+    object *r;
+    object *name;
+    int32_t options;
+    str *s;
+
+    if (ar->restore_name(&name) || ar->read(options) || (s = stringof(ar->restore())) == nullptr) {
+        return nullptr;
+    }
+    r = new_regexp(s, options);
+    if (r == nullptr) {
+        s->decref();
+        return nullptr;
+    }
+    s->decref();
+    if (ar->record(name, r)) {
+        r->decref();
+        return nullptr;
+    }
+    return r;
 }
 
 } // namespace ici

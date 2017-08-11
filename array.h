@@ -181,6 +181,8 @@ class array_type : public type
     int assign(object *o, object *k, object *v) override;
     object *fetch(object *o, object *k) override;
     int forall(object *o) override;
+    int save(archiver *, object *) override;
+    object *restore(archiver *) override;
 };
 
 } // namespace ici

@@ -55,9 +55,16 @@ public:
 
     inline objwsup *scope() const { return a_scope; }
 
+    int save(object *);
+    object *restore();
+
     int record(object *, object *);
     object *lookup(object *);
     void remove(object *);
+
+    int save_name(object *);
+    int save_ref(object *);
+    int restore_name(object **);
 
     virtual int read(void *buf, int len);
     virtual int write(const void *, int);

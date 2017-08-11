@@ -87,4 +87,13 @@ int type::assign_fail(object *o, object *k, object *v)
                      ici::objname(n3, v));
 }
 
+int type::save(archiver *, object *) {
+    return set_error("attempt to save a %s", name);
+}
+
+object *type::restore(archiver *) {
+    set_error("attempt to restore a %s", name);
+    return nullptr;
+}
+
 }

@@ -313,7 +313,12 @@ struct object
     inline void objname(char n[objnamez]) {
         icitype()->objname(this, n);
     }
+
+    inline int save(archiver *a) {
+        return icitype()->save(a, this);
+    }
 };
+
 /*
  * "Object with super." This is a specialised header for all objects that
  * support a super pointer.  All such objects must have the O_SUPER flag set

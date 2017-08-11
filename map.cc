@@ -12,6 +12,7 @@
 #include "pc.h"
 #include "primes.h"
 #include "forall.h"
+#include "archiver.h"
 
 namespace ici
 {
@@ -708,6 +709,78 @@ object *map_type::fetch_base(object *o, object *k)
         }
     }
     return sl->sl_value;
+}
+
+int map_type::save(archiver *ar, object *o) {
+    map *s = mapof(o);
+    object *super = objwsupof(s)->o_super;
+
+    if (super == nullptr) {
+        super = ici_null;
+    }
+    if (ar->save_name(o) || ar->save(super) || ar->write(int64_t(s->s_nels)))
+        return 1;
+    for (slot *sl = s->s_slots; size_t(sl - s->s_slots) < s->s_nslots; ++sl) {
+        if (sl->sl_key && sl->sl_value) {
+            if (ar->save(sl->sl_key) || ar->save(sl->sl_value))
+                return 1;
+        }
+    }
+    return 0;
+}
+
+object *map_type::restore(archiver *ar) {
+    map *s;
+    object *super;
+    int64_t n;
+    object *name;
+
+    if (ar->restore_name(&name)) {
+        return nullptr;
+    }
+    if ((s = new_map()) == nullptr) {
+        return nullptr;
+    }
+    if (ar->record(name, s)) {
+        goto fail;
+    }
+    if ((super = restore(ar)) == nullptr) {
+        goto fail1;
+    }
+    if (super != ici_null) {
+        objwsupof(s)->o_super = objwsupof(super);
+        super->decref();
+    }
+    if (ar->read(n)) {
+        goto fail1;
+    }
+    for (int64_t i = 0; i < n; ++i) {
+        object *key;
+        object *value;
+        int failed;
+
+        if ((key = ar->restore()) == nullptr) {
+            goto fail1;
+        }
+        if ((value = ar->restore()) == nullptr) {
+            key->decref();
+            goto fail1;
+        }
+        failed = ici_assign(s, key, value);
+        key->decref();
+        value->decref();
+        if (failed) {
+            goto fail1;
+        }
+    }
+    return s;
+
+fail1:
+    ar->remove(name);
+
+fail:
+    s->decref();
+    return nullptr;
 }
 
 op    o_namelvalue{OP_NAMELVALUE};

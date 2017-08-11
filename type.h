@@ -42,11 +42,12 @@ private:
 
 protected:
     /*
-     * Type feature flags are used to indicate that a type overrides
-     * the similarly named member functions. These are used to detetermine
+     * Flags are used to indicate that a type class overrides the
+     * similarly named member functions. These are used to detetermine
      * behaviour in a number of places that do not want the default
-     * implementation (the old code used null function pointers as
-     * flags).
+     * implementation. The C code essentially used NULL function
+     * pointers as flags and didn't use inheritence to obtain default
+     * behaviour.
      */
     static constexpr int has_fetch_method = 1<<0;
     static constexpr int has_objname      = 1<<1;
@@ -74,7 +75,7 @@ protected:
 
 public:
     /*
-     * Type feature predicates.
+     * Feature predicates.
      */
     inline bool can_fetch_method() const { return _flags & has_fetch_method; }
     inline bool can_objname() const      { return _flags & has_objname; }
@@ -297,6 +298,14 @@ public:
      *                      cleanup has completed.
      */
     virtual void            objname(object *, char [objnamez]);
+
+    /*
+     */
+    virtual int             save(archiver *, object *);
+
+    /*
+     */
+    virtual object *        restore(archiver *);
 
     /*
      * The ici_name function returns the type's name as an ICI string object,

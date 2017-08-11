@@ -38,6 +38,8 @@ public:
     object *fetch(object *o, object *k) override;
     void objname(object *o, char p[objnamez]) override;
     int call(object *o, object *subject) override;
+    int save(archiver *, object *) override;
+    object *restore(archiver *) override;
 };
 
 } // namespace ici

@@ -11,6 +11,7 @@
 #include "null.h"
 #include "buf.h"
 #include "primes.h"
+#include "archiver.h"
 
 namespace ici
 {
@@ -687,6 +688,58 @@ int array_type::forall(object *o)
     }
     return 0;
 }
+
+int array_type::save(archiver *ar, object *o) {
+    auto a = arrayof(o);
+
+    if (ar->save_name(o) || ar->write(int64_t(a->len())))
+        return 1;
+    for (object **e = a->astart(); e != a->alimit(); e = a->anext(e)) {
+        if (ar->save(*e))
+            return 1;
+    }
+    return 0;
+}
+
+object *array_type::restore(archiver *ar) {
+    int64_t n;
+    array *a;
+    object *name;
+
+    if (ar->restore_name(&name)) {
+        return nullptr;
+    }
+    if (ar->read(n)) {
+        return nullptr;
+    }
+    if ((a = new_array(n)) == nullptr) {
+        return nullptr;
+    }
+    if (ar->record(name, a)) {
+        goto fail;
+    }
+    for (; n > 0; --n) {
+        object *o;
+
+        if ((o = ar->restore()) == nullptr) {
+            goto fail1;
+        }
+        if (a->push_back(o)) {
+            o->decref();
+            goto fail1;
+        }
+	o->decref();
+    }
+    return a;
+
+fail1:
+    ar->remove(name);
+
+fail:
+    a->decref();
+    return nullptr;
+}
+
 
 op o_mklvalue{op_mklvalue};
 

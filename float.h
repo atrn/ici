@@ -55,6 +55,8 @@ public:
     float_type() : type("float", sizeof (struct ici_float)) {}
     int cmp(object *o1, object *o2) override;
     unsigned long hash(object *o) override;
+    int save(archiver *, object *) override;
+    object *restore(archiver *) override;
 };
 
 } // namespace ici

@@ -17,6 +17,7 @@
 #ifndef NOPROFILE
 #include "profile.h"
 #endif
+#include "archiver.h"
 
 namespace ici
 {
@@ -299,6 +300,92 @@ int func_type::call(object *o, object *subject)
         d->decref();
     }
     return 1;
+}
+
+int func_type::save(archiver *ar, object *o) {
+    auto f = funcof(o);
+    map *autos;
+
+    if (iscfunc(o)) {
+        auto cf = cfuncof(o);
+        return ar->write(int16_t(cf->cf_name->s_nchars)) || ar->write(cf->cf_name->s_chars, cf->cf_name->s_nchars);
+    }
+
+    if (ar->save_name(o) || ar->save(f->f_code) || ar->save(f->f_args))
+        return 1;
+    if ((autos = mapof(f->f_autos->copy())) == nullptr)
+        return 1;
+    autos->o_super = nullptr;
+    unassign(autos, SS(_func_));
+    if (ar->save(autos)) {
+        autos->decref();
+        return 1;
+    }
+    autos->decref();
+    return ar->save(f->f_name) || ar->write(int32_t(f->f_nautos));
+}
+
+object *func_type::restore(archiver *ar) {
+    object *code;
+    object *args = NULL;
+    object *autos = NULL;
+    object *name = NULL;
+    int32_t nautos;
+    func *fn;
+    object *oname;
+
+    if (ar->restore_name(&oname)) {
+        return NULL;
+    }
+    if ((code = ar->restore()) == NULL) {
+        return NULL;
+    }
+    if ((args = ar->restore()) == NULL) {
+        goto fail;
+    }
+    if ((autos = ar->restore()) == NULL) {
+        goto fail;
+    }
+    if ((name = ar->restore()) == NULL) {
+        goto fail;
+    }
+    if (ar->read(nautos)) {
+        goto fail;
+    }
+    if ((fn = new_func()) == NULL) {
+        goto fail;
+    }
+
+    fn->f_code = arrayof(code);
+    fn->f_args = arrayof(args);
+    fn->f_autos = mapof(autos);
+    fn->f_autos->o_super = ar->scope(); /* mapof(vs.a_top[-1])->o_super; */
+    fn->f_name = stringof(name);
+    fn->f_nautos = nautos;
+
+    code->decref();
+    args->decref();
+    autos->decref();
+    name->decref();
+
+    if (!ar->record(oname, fn)) {
+	return fn;
+    }
+
+    /*FALLTHROUGH*/
+
+fail:
+    code->decref();
+    if (args) {
+        args->decref();
+    }
+    if (autos) {
+        autos->decref();
+    }
+    if (name) {
+        name->decref();
+    }
+    return NULL;
 }
 
 op    o_return{op_return};

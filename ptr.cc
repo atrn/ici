@@ -7,6 +7,7 @@
 #include "buf.h"
 #include "primes.h"
 #include "cfunc.h"
+#include "archiver.h"
 
 namespace ici
 {
@@ -194,6 +195,28 @@ int op_fetch()
     os.a_top[-1] = o;
     --xs.a_top;
     return 0;
+}
+
+int ptr_type::save(archiver *ar, object *o) {
+    return ar->save(ptrof(o)->p_aggr) || ar->save(ptrof(o)->p_key);
+}
+
+object *ptr_type::restore(archiver *ar) {
+    object *aggr;
+    object *key;
+    ptr *ptr;
+
+    if ((aggr = ar->restore()) == nullptr) {
+        return nullptr;
+    }
+    if ((key = ar->restore()) == nullptr) {
+        aggr->decref();
+        return nullptr;
+    }
+    ptr = new_ptr(aggr, key);
+    aggr->decref();
+    key->decref();
+    return ptr ? ptr : nullptr;
 }
 
 op    o_mkptr{op_mkptr};

@@ -61,6 +61,8 @@ public:
     unsigned long hash(object *o) override;
     int cmp(object *o1, object *o2) override;
     object *fetch(object *o, object *k) override;
+    int save(archiver *, object *) override;
+    object *restore(archiver *) override;
 };
 
 } // namespace ici

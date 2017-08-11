@@ -136,6 +136,8 @@ public:
     op_type() : type("op", sizeof (struct op)) {}
     int cmp(object *o1, object *o2) override;
     unsigned long hash(object *o) override;
+    int save(archiver *, object *) override;
+    object *restore(archiver *) override;
 };
 
 } // namespace ici

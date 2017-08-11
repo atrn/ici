@@ -7,6 +7,7 @@
 #include "int.h"
 #include "primes.h"
 #include "forall.h"
+#include "archiver.h"
 
 namespace ici
 {
@@ -441,6 +442,43 @@ int string_type::forall(object *o) {
         i->decref();
     }
     return 0;
+}
+
+int string_type::save(archiver *ar, object *o) {
+    auto s = stringof(o);
+    return ar->save_name(o) || ar->write(int32_t(s->s_nchars)) || ar->write(s->s_chars, s->s_nchars);
+}
+
+object *string_type::restore(archiver *ar) {
+    str *s;
+    int32_t len;
+    object *name;
+    object *obj;
+
+    if (ar->restore_name(&name)) {
+        return nullptr;
+    }
+    if (ar->read(len)) {
+        return nullptr;
+    } if ((s = str_alloc(len)) == nullptr) {
+        return nullptr;
+    }
+    if (ar->read(s->s_chars, len)) {
+        goto fail;
+    }
+    hash_string(s);
+    if ((obj = atom(s, 1)) == NULL) {
+        goto fail;
+    }
+    if (ar->record(name, obj)) {
+        obj->decref();
+        goto fail;
+    }
+    return obj;
+
+fail:
+    s->decref();
+    return NULL;
 }
 
 } // namespace ici
