@@ -47,20 +47,20 @@ protected:
 
 public:
     virtual ~ftype() {}
-    virtual int getch(void *);
-    virtual int ungetch(int, void *);
-    virtual int flush(void *);
-    virtual int close(void *);
+    virtual int  getch(void *);
+    virtual int  ungetch(int, void *);
+    virtual int  flush(void *);
+    virtual int  close(void *);
     virtual long seek(void *, long, int);
-    virtual int eof(void *);
-    virtual int write(const void *, long, void *);
-    virtual int fileno(void *);
-    virtual int setvbuf(void *, char *, int, size_t);
+    virtual int  eof(void *);
+    virtual int  write(const void *, long, void *);
+    virtual int  fileno(void *);
+    virtual int  setvbuf(void *, char *, int, size_t);
 
     int flags;
 };
 /*
- * flags             A combination of * flags, defined below.
+ * flags             A combination of * flags, defined above.
  */
 
 class stdio_ftype : public ftype
