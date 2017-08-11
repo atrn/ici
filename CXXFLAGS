@@ -1,4 +1,7 @@
-# C++ compiler options (this file is read by dcc).
+# This file is read by dcc
+
+# Compiler options.
+#
 
 # Basic options.
 #
@@ -7,9 +10,11 @@
 # Uncomment for a release build (ICI uses NDEBUG).
 #
 -DNDEBUG
--Ofast
--Os
-#-flto
+-Ofast -Os
+
+# LTO enables whole program optimization helps reduce code size, and
+# hopefully improves locality.
+-flto
 
 # Uncomment for a debug build (pcre uses DEBUG, ICI !NDEBUG)
 #
