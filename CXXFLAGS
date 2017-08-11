@@ -8,7 +8,7 @@
 #
 -DNDEBUG
 -Ofast
--Oz
+-Os
 #-flto
 
 # Uncomment for a debug build (pcre uses DEBUG, ICI !NDEBUG)
