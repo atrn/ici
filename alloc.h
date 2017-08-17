@@ -36,7 +36,7 @@ extern void             *ici_alloc(size_t);
 extern void             ici_free(void *);
 
 /*
- * Allocate an object of the given type 't'. Return NULL on failure, usual
+ * Allocate an object of the given type 't'. Return nullptr on failure, usual
  * conventions. The resulting object *must* be freed with 'ici_tfree()'.
  * Note that 'ici_tfree()' also requires to know the type of the object
  * being freed.

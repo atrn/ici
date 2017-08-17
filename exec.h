@@ -93,7 +93,7 @@ inline bool isexec(object *o) { return o->isa(TC_EXEC); }
  *
  * x_os_temp_cache      An array of pseudo int/float objects that shadows the
  *                      operand stack.  The objects in this array (apart from
- *                      the NULLs) are unions of int and float objects that
+ *                      the nullptrs) are unions of int and float objects that
  *                      can be used as intermediate results in specific
  *                      circumstances as flaged by the compiler.
  *                      Specifically, they are known to be immediately
@@ -114,7 +114,7 @@ inline bool isexec(object *o) { return o->isa(TC_EXEC); }
  *                      sort of thing. See top of evaluate().
  *
  * x_waitfor            If this thread is sleeping, an aggragate object that
- *                      it is waiting to be signaled.  NULL if it is not
+ *                      it is waiting to be signaled.  nullptr if it is not
  *                      sleeping.
  */
 
@@ -133,7 +133,7 @@ enum
  */
 
 /*
- * Test if an object represents a false value NULL or integer 0.
+ * Test if an object represents a false value nullptr or integer 0.
  */
 inline bool isfalse(object *o) { return isnull(o) || o == o_zero; }
 

@@ -39,7 +39,7 @@ struct file : object
  *                      This is used to reference the string when we
  *                      are treating a string as a file, and other cases,
  *                      to keep the object referenced. Basically if f_file
- *                      is an implicit reference to some object. May be NULL.
+ *                      is an implicit reference to some object. May be nullptr.
  */
 
 inline file *fileof(object *o) { return o->as<file>(); }

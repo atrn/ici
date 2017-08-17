@@ -26,7 +26,7 @@ struct parse : object
     short       p_cr;           /* New-line caused by \r, not \n. */
     token       p_got;
     token       p_ungot;
-    func        *p_func;        /* NULL when not within scope. */
+    func        *p_func;        /* nullptr when not within scope. */
     int         p_module_depth; /* Depth within module, 0 is file level. */
     int         p_break_depth;
     int         p_continue_depth;

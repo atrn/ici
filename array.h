@@ -134,7 +134,7 @@ struct array : object
     }
 
     /*
-     * Ensure that the stack a has i as a valid index.  Will grow and NULL fill
+     * Ensure that the stack a has i as a valid index.  Will grow and nullptr fill
      * as necessary. Return non-zero on failure, usual conventions.
      */
     inline int stk_probe(ptrdiff_t i) {

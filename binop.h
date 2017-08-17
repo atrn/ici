@@ -412,7 +412,7 @@
                 stringof(o1)->s_chars + re_bra[2],
                 re_bra[3] - re_bra[2]
             );
-            if (o == NULL)
+            if (o == nullptr)
             {
                 FAIL();
             }
@@ -429,7 +429,7 @@
             o = ici_null;
             USEo();
         }
-        if ((o = new_array(re_nbra)) == NULL)
+        if ((o = new_array(re_nbra)) == nullptr)
         {
             FAIL();
         }
@@ -437,7 +437,7 @@
         {
             if (re_bra[i*2] == -1)
             {
-                if ((*arrayof(o)->a_top = str_alloc(0)) == NULL)
+                if ((*arrayof(o)->a_top = str_alloc(0)) == nullptr)
                 {
                     FAIL();
                 }
@@ -454,7 +454,7 @@
                     )
                 )
                 ==
-                NULL
+                nullptr
             )
             {
                 FAIL();
@@ -476,11 +476,11 @@
         {
             object   *i;
 
-            if ((i = new_int(intof(ptrof(o0)->p_key)->i_value - intof(o1)->i_value)) == NULL)
+            if ((i = new_int(intof(ptrof(o0)->p_key)->i_value - intof(o1)->i_value)) == nullptr)
             {
                 FAIL();
             }
-            if ((o = new_ptr(ptrof(o0)->p_aggr, i)) == NULL)
+            if ((o = new_ptr(ptrof(o0)->p_aggr, i)) == nullptr)
             {
                 FAIL();
             }
@@ -504,11 +504,11 @@
         {
             object   *i;
 
-            if ((i = new_int(intof(ptrof(o0)->p_key)->i_value + intof(o1)->i_value)) == NULL)
+            if ((i = new_int(intof(ptrof(o0)->p_key)->i_value + intof(o1)->i_value)) == nullptr)
             {
                 FAIL();
             }
-            if ((o = new_ptr(ptrof(o0)->p_aggr, i)) == NULL)
+            if ((o = new_ptr(ptrof(o0)->p_aggr, i)) == nullptr)
             {
                 FAIL();
             }
@@ -518,7 +518,7 @@
 
     case ICI_TRI(TC_STRING, TC_STRING, T_PLUS):
     case ICI_TRI(TC_STRING, TC_STRING, T_PLUSEQ):
-        if ((o = str_alloc(stringof(o1)->s_nchars + stringof(o0)->s_nchars)) == NULL)
+        if ((o = str_alloc(stringof(o1)->s_nchars + stringof(o0)->s_nchars)) == nullptr)
         {
             FAIL();
         }
@@ -536,7 +536,7 @@
 
             z0 = arrayof(o0)->len();
             z1 = arrayof(o1)->len();
-            if ((a = new_array(z0 + z1)) == NULL)
+            if ((a = new_array(z0 + z1)) == nullptr)
             {
                 FAIL();
             }
@@ -555,14 +555,14 @@
             slot  *sl;
             size_t  i;
 
-            if ((s = mapof(ici_copy(o0))) == NULL)
+            if ((s = mapof(ici_copy(o0))) == nullptr)
             {
                 FAIL();
             }
             sl = mapof(o1)->s_slots;
             for (i = 0; i < mapof(o1)->s_nslots; ++i, ++sl)
             {
-                if (sl->sl_key == NULL)
+                if (sl->sl_key == nullptr)
                 {
                     continue;
                 }
@@ -583,14 +583,14 @@
             object  **sl;
             size_t  i;
 
-            if ((s = setof(ici_copy(o0))) == NULL)
+            if ((s = setof(ici_copy(o0))) == nullptr)
             {
                 FAIL();
             }
             sl = setof(o1)->s_slots;
             for (i = 0; i < setof(o1)->s_nslots; ++i, ++sl)
             {
-                if (*sl == NULL)
+                if (*sl == nullptr)
                 {
                     continue;
                 }
@@ -611,14 +611,14 @@
             object  **sl;
             size_t  i;
 
-            if ((s = setof(ici_copy(o0))) == NULL)
+            if ((s = setof(ici_copy(o0))) == nullptr)
             {
                 FAIL();
             }
             sl = setof(o1)->s_slots;
             for (i = 0; i < setof(o1)->s_nslots; ++i, ++sl)
             {
-                if (*sl == NULL)
+                if (*sl == nullptr)
                 {
                     continue;
                 }
@@ -643,14 +643,14 @@
             {
                 SWAP();
             }
-            if ((s = new_set()) == NULL)
+            if ((s = new_set()) == nullptr)
             {
                 FAIL();
             }
             sl = setof(o0)->s_slots;
             for (i = 0; i < setof(o0)->s_nslots; ++i, ++sl)
             {
-                if (*sl == NULL)
+                if (*sl == nullptr)
                 {
                     continue;
                 }
@@ -691,7 +691,7 @@
         {
             MISMATCH();
         }
-        if ((o = new_int(intof(ptrof(o0)->p_key)->i_value - intof(ptrof(o1)->p_key)->i_value)) == NULL)
+        if ((o = new_int(intof(ptrof(o0)->p_key)->i_value - intof(ptrof(o1)->p_key)->i_value)) == nullptr)
         {
             FAIL();
         }
@@ -854,7 +854,7 @@ usef:
         }
         if ((o = ex->x_os_temp_cache->a_base[n]) == ici_null)
         {
-            if ((o = ici_object_cast(ici_talloc(ostemp))) == NULL)
+            if ((o = ici_object_cast(ici_talloc(ostemp))) == nullptr)
             {
                 FAIL();
             }
@@ -869,7 +869,7 @@ usef:
      * The following in-line expansion of float creation replaces, and
      * this should be equivalent to, this old code:
      *
-     * if ((o = new_float(f)) == NULL)
+     * if ((o = new_float(f)) == nullptr)
      *     FAIL();
      * LOOSEo();
      */
@@ -904,8 +904,8 @@ usef:
         for
         (
             po = &atoms[atom_hash_index(h)];
-            (o = *po) != NULL;
-            --po < atoms ? po = atoms + atomsz - 1 : NULL
+            (o = *po) != nullptr;
+            --po < atoms ? po = atoms + atomsz - 1 : nullptr
         )
         {
 #if 1
@@ -918,7 +918,7 @@ usef:
             }
         }
         ++supress_collect;
-        if ((o = ici_talloc(ici_float)) == NULL)
+        if ((o = ici_talloc(ici_float)) == nullptr)
         {
             --supress_collect;
             FAIL();
@@ -944,7 +944,7 @@ usei:
         }
         if ((o = ex->x_os_temp_cache->a_base[n]) == ici_null)
         {
-            if ((o = ici_object_cast(ici_talloc(ostemp))) == NULL)
+            if ((o = ici_object_cast(ici_talloc(ostemp))) == nullptr)
             {
                 FAIL();
             }
@@ -970,8 +970,8 @@ usei:
         for
         (
             po = &atoms[atom_hash_index((unsigned long)i * INT_PRIME)];
-            (o = *po) != NULL;
-            --po < atoms ? po = atoms + atomsz - 1 : NULL
+            (o = *po) != nullptr;
+            --po < atoms ? po = atoms + atomsz - 1 : nullptr
         )
         {
             if (isint(o) && intof(o)->i_value == i)
@@ -980,7 +980,7 @@ usei:
             }
         }
         ++supress_collect;
-        if ((o = ici_talloc(ici_int)) == NULL)
+        if ((o = ici_talloc(ici_int)) == nullptr)
         {
             --supress_collect;
             FAIL();

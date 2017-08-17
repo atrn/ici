@@ -75,7 +75,7 @@ object *type::fetch_fail(object *o, object *k)
     set_error("attempt to read %s keyed by %s",
               ici::objname(n1, o),
               ici::objname(n2, k));
-    return NULL;
+    return nullptr;
 }
 
 int type::assign_fail(object *o, object *k, object *v)

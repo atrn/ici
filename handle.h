@@ -31,13 +31,13 @@ namespace ici
  *
  * h_pre_free           An optional function that will be called just before
  *                      this handle object is freed by the garbage collector.
- *                      NULL if not needed.
+ *                      nullptr if not needed.
  *
- * h_member_map         An optional map (NULL if not needed) as made by
+ * h_member_map         An optional map (nullptr if not needed) as made by
  *                      'make_handle_member_map()' and used internally
  *                      when the 'h_member_intf' function is used.
  *
- * h_member_intf        An optional function (NULL if not needed) to implement
+ * h_member_intf        An optional function (nullptr if not needed) to implement
  *                      property access and method invocation on the object.
  *                      'ptr' is the 'h_ptr' field of the handle.  The
  *                      implementation must know which 'id' values apply to
@@ -49,12 +49,12 @@ namespace ici
  *                      extra reference count.
  *
  *                      When the 'id' refers to a property, if 'setv' is
- *                      non-NULL, this is an assignment of 'setv' to the
+ *                      non-nullptr, this is an assignment of 'setv' to the
  *                      property.  If the assignment is possible and proceeds
  *                      without error, 'setv' should be assigned to '*retv'
  *                      prior to return (else '*retv' should be unmodified).
  *
- *                      When the 'id' refers to a property and 'setv' is NULL,
+ *                      When the 'id' refers to a property and 'setv' is nullptr,
  *                      this is a fetch, and '*retv' should be set to the
  *                      value, without any extra reference count.
  *
@@ -64,20 +64,20 @@ namespace ici
  *                      this object and an error may be raised by the calling
  *                      code).  Non-zero on error, usual conventions.
  *
- * h_general_intf       An optional function (NULL if not needed) to implement
+ * h_general_intf       An optional function (nullptr if not needed) to implement
  *                      general fetch and assign processing on the handle,
  *                      even when the keys are not known in advance (as might
  *                      happen, for example, if the object could be indexed by
- *                      integers).  If 'h_member_intf' is non-NULL, and
+ *                      integers).  If 'h_member_intf' is non-nullptr, and
  *                      satisfied a fetch or assign first, this function is
  *                      not called.
  *
- *                      If 'setv' is non-NULL, this is an assignment.  If the
+ *                      If 'setv' is non-nullptr, this is an assignment.  If the
  *                      assignment is to a key ('k') that is valid and the
  *                      assignment is successful, '*retv' should be updated
  *                      with 'setv'.
  *
- *                      If 'setv' is NULL, this is a fetch, and '*retv' should
+ *                      If 'setv' is nullptr, this is a fetch, and '*retv' should
  *                      be set to the fetched value.
  *
  *                      In both cases, no extra reference should be given to

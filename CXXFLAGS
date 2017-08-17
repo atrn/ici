@@ -7,7 +7,7 @@
 # Uncomment for a release build (ICI uses NDEBUG).
 #
 -DNDEBUG
--Ofast -Os
+-Ofast -Oz
 
 # LTO enables whole program optimization helps reduce code size, and
 # hopefully improves locality.

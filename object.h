@@ -112,8 +112,8 @@ struct object
     */
 
     /*
-     * Return a pointer to this object cast to a pointer to some ici
-     * object T.
+     * Return a pointer to this object cast to a pointer to some compatbile
+     * ici object struct T.
      */
     template <typename T>
     T *as() {
@@ -156,7 +156,7 @@ struct object
     }
 
     /*
-     * Return true if this object has the given flags set.
+     * Return true if this object has the given set of flags.
      */
     inline bool flagged(uint8_t mask) const {
         return flags(mask) == mask;
@@ -205,7 +205,8 @@ struct object
     }
 
     /*
-     * Mark this object and return its size, in bytes.
+     * Mark this object and return its size, in bytes, or
+     * zero if already marked.
      */
     inline size_t mark() {
         if (flagged(O_MARK)) {
@@ -281,7 +282,7 @@ struct object
     inline int assign_super(object *k, object *v, map *b) {
         return icitype()->assign_super(this, k, v, b);
     }
-    
+
     inline int fetch_super(object *k, object **pv, map *b) {
         return icitype()->fetch_super(this, k, pv, b);
     }
@@ -309,7 +310,7 @@ struct object
     inline int forall() {
         return icitype()->forall(this);
     }
-    
+
     inline void objname(char n[objnamez]) {
         icitype()->objname(this, n);
     }
@@ -324,7 +325,7 @@ struct object
  * support a super pointer.  All such objects must have the O_SUPER flag set
  * in o_flags and provide the 't_fetch_super()' and 't_assign_super()'
  * functions in their type structure.  The actual 'o_super' pointer will be
- * NULL if there is no actual super, which is different from O_SUPER being
+ * null if there is no actual super, which is different from O_SUPER being
  * clear (which would mean there could not be a super, ever).
  *
  * This --struct-- forms part of the --ici-api--.
@@ -374,7 +375,7 @@ inline size_t ici_mark(object *o) {
 }
 
 /*
- * Mark the given object iff it is not NULL. Otherwise return 0.
+ * Mark the given object iff it is not null. Otherwise return 0.
  */
 inline size_t mark_optional(object *o) {
     return o == nullptr ? 0 : ici_mark(o);
@@ -392,7 +393,7 @@ inline size_t mark_optional(object *o) {
  *
  * Note that the argument 'o' is subject to multiple expansions.
  *
- * Returns NULL on failure, usual conventions.
+ * Returns nullptr on failure, usual conventions.
  *
  * This --func-- forms part of the --ici-api--.
  */
@@ -451,7 +452,7 @@ inline object *ici_fetch_base(object *o, object *k) {
  * This function is used internally in fetches up the super chain (thus the
  * name).  In this context the argument 'b' indicates the base struct of the
  * fetch and is used to maintain the internal lookup look-aside mechanism.  If
- * not used in this manner, 'b' should be supplied as NULL.
+ * not used in this manner, 'b' should be supplied as nullptr.
  *
  * Return -1 on error, 0 if it was not found, and 1 if it was found.  If
  * found, the value is stored in *v.
@@ -470,7 +471,7 @@ inline int ici_fetch_super(object *o, object *k, object **v, map *b) {
  * This function is used internally in assignments up the super chain (thus
  * the name).  In this context the argument 'b' indicates the base struct of
  * the assign and is used to maintain the internal lookup look-aside
- * mechanism.  If not used in this manner, 'b' should be supplied as NULL.
+ * mechanism.  If not used in this manner, 'b' should be supplied as nullptr.
  *
  * Return -1 on error, 0 if it was not found, and 1 if the assignment was
  * completed.

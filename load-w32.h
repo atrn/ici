@@ -10,7 +10,7 @@ namespace ici
 
 typedef void    *dll_t;
 
-#define valid_dll(dll)  ((dll) != NULL)
+#define valid_dll(dll)  ((dll) != nullptr)
 
 static dll_t
 dlopen(const char *name, int mode)
@@ -32,12 +32,12 @@ dlerror()
     FormatMessage
     (
         FORMAT_MESSAGE_FROM_SYSTEM,
-        NULL,
+        nullptr,
         GetLastError(),
         MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
         msg,
         sizeof msg,
-        NULL
+        nullptr
     );
     return msg;
 }

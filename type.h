@@ -47,7 +47,8 @@ protected:
      * behaviour in a number of places that do not want the default
      * implementation. The C code essentially used NULL function
      * pointers as flags and didn't use inheritence to obtain default
-     * behaviour.
+     * behaviour and avoided the issue. We should look to see how to
+     * not use these.
      */
     static constexpr int has_fetch_method = 1<<0;
     static constexpr int has_objname      = 1<<1;
@@ -153,7 +154,7 @@ public:
      *                      Intrinsically atomic objects may use the default
      *                      implemenation of this function.
      *
-     *                      Return NULL on failure, usual conventions.
+     *                      Return nullptr on failure, usual conventions.
      */
     virtual object *         copy(object *o);
     /*
@@ -199,7 +200,7 @@ public:
 
     /*
      * fetch(o, k)          Fetch the value of key 'k' of the object 'o'.  Return
-     *                      NULL on error.
+     *                      nullptr on error.
      *              
      *                      Note that the returned object does not have any extra
      *                      reference count; however, in some circumstances it may
@@ -215,14 +216,14 @@ public:
      *                      simple method of generating an error for particular
      *                      fetches which break some rule of the object.
      *
-     *                      Return NULL on failure, usual conventions.
+     *                      Return nullptr on failure, usual conventions.
      *
      */
     virtual object *        fetch(object *o, object *k);
 
     /* call(o, s)           Must call the object 'o'.  If the object does not
-     *                      support being called, this should be NULL.  If 's' is
-     *                      non-NULL this is a method call and s is the subject
+     *                      support being called, this should be nullptr.  If 's' is
+     *                      non-null this is a method call and s is the subject
      *                      object of the call.  Return 1 on error, else 0.
      *                      The environment upon calling this function is
      *                      the same as that for intrinsic functions. Functions
@@ -264,9 +265,9 @@ public:
      *                      fetch operation is supposed to perform the COM get/set
      *                      property operation, or return a callable object for a
      *                      future method call.  Most objects will leave this
-     *                      NULL.
+     *                      null.
      *
-     *                      Return NULL on failure, usual conventions.
+     *                      Return nullptr on failure, usual conventions.
      */
     virtual object   *      fetch_method(object *o, object *n);
 

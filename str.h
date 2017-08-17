@@ -110,7 +110,7 @@ constexpr int ICI_S_SEP_ALLOC     = 0x40;
 #define ICI_STR_DECL(name, str) str *ici_str_##name;
 #endif
 #define ICISO(name)             (ICIS(name))
-#define ICI_STR_MAKE(name, str) (ICIS(name) = new_str_nul_term(str)) == NULL ||
+#define ICI_STR_MAKE(name, str) (ICIS(name) = new_str_nul_term(str)) == nullptr ||
 #define ICI_STR_REL(name, str)  (ICIS(name))->decref();
 #define ICI_STR                 ICI_STR_NORM
 /*
