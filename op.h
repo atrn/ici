@@ -29,8 +29,8 @@ struct op : object
         , op_code(code)
     {}
 
-    int     (*op_func)();
-    int16_t op_ecode;       /* See OP_* below. */
+    int   (*op_func)();
+    int16_t op_ecode; /* See OP_* below. */
     int16_t op_code;
 };
 

@@ -8,8 +8,7 @@
 namespace ici
 {
 
-op *new_op(int (*func)(), int16_t ecode, int16_t code)
-{
+op *new_op(int (*func)(), int16_t ecode, int16_t code) {
     op         *o;
     object     **po;
     static op  proto = {TC_OP};
@@ -42,8 +41,7 @@ op *new_op(int (*func)(), int16_t ecode, int16_t code)
  * Returns 0 if these objects are equal, else non-zero.
  * See the comments on t_cmp() in object.h.
  */
-int op_type::cmp(object *o1, object *o2)
-{
+int op_type::cmp(object *o1, object *o2) {
     return opof(o1)->op_func != opof(o2)->op_func
         || opof(o1)->op_code != opof(o2)->op_code
         || opof(o1)->op_ecode != opof(o2)->op_ecode;

@@ -22,7 +22,7 @@ namespace ici
  *
  * See also: 'stdio_ftype', 'popen_ftype', 'parse_ftype' et al.
  *
- * This --struct-- forms part of the --ici-api--.
+ * This --class-- forms part of the --ici-api--.
  */
 class ftype
 {

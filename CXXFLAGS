@@ -1,7 +1,4 @@
-# This file is read by dcc
-
-# Compiler options.
-#
+# This file is read by dcc and defines compiler options.
 
 # Basic options.
 #
