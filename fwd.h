@@ -217,8 +217,6 @@ struct parse;
 struct pc;
 struct ptr;
 struct regexp;
-struct restorer;
-struct saver;
 struct set;
 struct src;
 struct slot;

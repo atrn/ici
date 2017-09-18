@@ -2,8 +2,7 @@
 #include "fwd.h"
 #include "error.h"
 
-namespace ici
-{
+namespace ici {
 
 /*
  * The global error message pointer. The ICI error return convention
@@ -17,8 +16,7 @@ char            *error;
 
 static char msg[max_error_msg]; /* FIXME: should be per-thread if error also per-thread. */
 
-int set_error(const char *fmt, ...)
-{
+int set_error(const char *fmt, ...) {
     va_list     va;
 
     va_start(va, fmt);

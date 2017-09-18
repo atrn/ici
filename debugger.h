@@ -13,19 +13,26 @@ namespace ici
  */
 
 /*
- * ICI debug interface.  The interpreter has a global debug interface enable
- * flag, 'debug_enabled', and a global pointer, 'ici_debug', to one of
- * these structs.  If the flag is set, the interpreter calls these functions.
- * See 'ici_debug' and 'debug_enabled'.
+ * ICI debug interface.
+ *
+ * A debugger is an instance of the 'ici::debugger' class, a base
+ * class for ICI debuggers who's member functions define the interface
+ * to a debugger.
+ *
+ * The interpreter has a global flag 'ici::debug_enabled' and a global
+ * pointer to the debugger instance, 'ici::o_debug'. If the flag is
+ * set, the interpreter calls the debugger's member functions.  See
+ * 'ici::o_debug' and 'ici::debug_enabled'.
+ *
+ * The ici::debugger base-class provides default implementations of
+ * the debugging functions. The default implementations do nothing.
+ *
  *
  * error()              Called with the current value of error (redundant,
- *                      for historical reasons) and a source line marker
- *                      object (see 'ici_src_t') on an uncaught error.
- *                      Actually, this is not so useful, because it is
- *                      currently called after the stack has been unwound.  So
- *                      a user would not be able to see their stack traceback
- *                      and local context.  This behaviour may change in
- *                      future.
+ *                      but retained for historical reasons) and a source line
+ *                      marker object ('ici::src') on an uncaught error.
+ *                      This is is called after the stack has been unwound
+ *                      so is of limited use.
  *
  * fncall()             Called with the object being called, the pointer to
  *                      the first actual argument (see 'ARGS()' and the number
@@ -49,8 +56,7 @@ namespace ici
  *
  * This --class-- forms part of the --ici-api--.
  */
-class debugger
-{
+class debugger {
 public:
     virtual ~debugger();
     virtual void error(char *, struct src *);

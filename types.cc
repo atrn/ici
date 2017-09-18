@@ -21,8 +21,6 @@
 #include "profile.h"
 #include "ptr.h"
 #include "re.h"
-#include "restorer.h"
-#include "saver.h"
 #include "set.h"
 #include "src.h"
 #include "str.h"
@@ -68,8 +66,6 @@ type *types[max_types] =
     nullptr,
 #endif
     nullptr, // TC_REF is special, a reserved type code with no actual type
-    ptr_to_instance_of<restorer_type>(),
-    ptr_to_instance_of<saver_type>(),
     ptr_to_instance_of<channel_type>(),
     nullptr
 };

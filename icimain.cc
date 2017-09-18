@@ -17,13 +17,15 @@ namespace ici
 {
 
 /*
- * An optional main entry point to the ICI interpreter.  'ici::main' handles a
- * complete interpreter life-cycle based on the given arguments.  A command
- * line ICI interpreter is expected to simply pass its given 'argc' and 'argv'
- * on to 'ici::main' then return its return value.
+ * An optional main entry point to the ICI interpreter.  'ici::main'
+ * handles a complete interpreter life-cycle based on the given
+ * arguments.  A command line ICI interpreter is expected to simply
+ * pass its given 'argc' and 'argv' on to 'ici::main' then return its
+ * return value.
  *
- * 'ici::main' handles all calls to 'init()' and 'ici_uninit()' within its
- * scope.  A program calling 'ici::main' should *not* call 'init()'.
+ * 'ici::main' handles all calls to 'ici::init()' and 'ici::uninit()'
+ * within its scope.  A program calling 'ici::main' should *not* call
+ * 'ici::init()'.
  *
  * 'argc' and 'argv' are as standard for C 'main' functions.  For details on
  * the interpretation of the arguments, see documentation on normal command
@@ -31,9 +33,7 @@ namespace ici
  *
  * This --func-- forms part of the --ici-api--.
  */
-int
-main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     int         i;
     int         j;
     char       *s;
