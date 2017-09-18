@@ -3,7 +3,6 @@
 # Basic options.
 #
 -std=c++14 -Wall -Wextra -g
-
 # Uncomment for a release build (ICI uses NDEBUG).
 #
 -DNDEBUG
@@ -11,7 +10,7 @@
 
 # LTO enables whole program optimization helps reduce code size, and
 # hopefully improves locality.
--flto
+# -flto
 
 # Uncomment for a debug build (pcre uses DEBUG, ICI !NDEBUG)
 #

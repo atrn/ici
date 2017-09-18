@@ -2,40 +2,39 @@
 
 # A notes on the conversion of ICI's code from C to C++
 
-This is a note about the changes in the ICI code resulting from its
-re-working to be a C++ program. The note assumes familarity with the
-previous C code.
+This is a note about the changes to the ICI code resulting from its
+re-working from C to C++. The note assumes familarity with the
+previous C code and C++.
 
 # The general approach
 
-The original C code's structure is essentially retained. All is as
-before. Now its expressed using C++ with C++ used as a _better C_.
+The interpreter architecture is retained. All is as before but is now
+expressed in C++. C++ is mostly used as a _better C_ and the code is
+most definitely **not** in the so-called _modern C++_ style.
 
-It is a testament to the previous code just how few changes were
-required to compile it as C++.  Most code _just worked_. Code which
-violated C++'s stricter ideas around function types and general const-
-ness was the only real hurdle.
-
-The transformation has been iterative with the interpreter kept
-working following some initial hacking to make it work (some of which
-is still left to fix). Once the initial work had been done numerous
-changes were applied to transform the existing C code to better take
-advantage of C++ behaviour and features.
+It is a testament to the previous code how few changes were required
+to make it compile as C++.  Most code _just worked_ and only code that
+violated C++'s stricter ideas around function types and const-ness
+required immediate change. The initial C++ version only required
+modifications to cfuncs and static strings to have it function.
+The current code uses many more C++ features. The transformation has
+been iterative with the interpreter kept working after each major
+change.
 
 ## Not _modern_ C++
 
-The style of C++ used is a mostly minimalistic approach, the so called
-_Better C_ style. There's are no STL containers, no C++ strings,
-exceptions or I/O streams. And certainly no BOOST! In general the
-C++ standard library is avoided.
+The style of C++ used is a mostly minimalistic, _Better C_ style.
+Very little of the C++ standard library is used. ICI's types supplant
+the use of C++ container types.
 
 C++ features are used in many places but are used to reduce the amount
 of code, improve its reliability and avoid repetition and boilerplate.
 
 A small number of template functions are used to help define values of
-different types or work around C++'s stricter type checks. But these
-are well contained and there is no proliferation of templates which
-often leads to slow to build code.
+different types or to work with C++'s stricter type checking. These
+are well contained and there is no proliferation of templates which is
+a hallmark of the modern C++ style but which often leads to slow build
+times and larger and slower executables.
 
 ## C-style mostly removed
 
@@ -45,28 +44,29 @@ by the C++ ways of doing things.
 C++'s constexpr is used to define constants that were previous
 defined as macros.
 
-Many of the previous macros are replaced by inline functions for
-greater type checking and conversion. Overheads are hopefully
-removed by today's fancy compilers.
+Parameterised macros are replaced by inline functions. The overheads
+are hopefully removed by today's fancier compilers.
 
-NULL is largely replaced with C++'s nullptr.
+NULL is replaced with C++'s nullptr.
 
-The cstdef and cstdint headers' types are used - size_t, intXX_t
+The cstddef and cstdint headers' types are used - size_t, intXX_t
 types and so on.
 
 ## ICI namespace
 
 All ICI code now resides within a `namespace ici` and many of the
-`ICI_` and `ici_` prefixes on identifiers have been removed.
-
-This is really a reversion to the _old names_. The namespace makes
-them safe to use now. The code is much easier to read as a result.
+`ICI_` and `ici_` prefixes on identifiers removed. This is really a
+reversion to the naming used in the original code, what was termed
+_old names_. Prefixes were added so ICI worked more nicely as a C
+library embedded in applications. The use of a namespace makes it
+possible to use the original names without fear of conflict. The
+code is easier to read as a result.
 
 ## No RAII. Yet.
 
 There are a number of things in the code that could be better expresed
 using small RAII classes. RAII, and the destructor, is arguably the
-best thing about C++ and helps avoid numerous bugs.
+best thing about C++ and stops resource leaks when used appropriately.
 
 # Major Changes
 
@@ -83,20 +83,21 @@ functions names:
 - `thread` -> `go`
 
 Why? The old names mimic C and while that was sort of nice ICI really
-isn't C and the meanings were quite different. Really, the new names
-are shorter. Renaming `thread` to `go` obviously shows a more recent
-influence and the renaming of `struct` to `map` a C++ bias. That one
-however does have somes advantages, `map` **not** being a C++ keyword
-lets us use the name in code without disguise. But this is cosmetics.
+isn't C and the semantics are quite different. But really. The new
+names are shorter. The renaming of `thread` to `go` obviously shows a
+recent influence and the renaming of `struct` to `map` some C++
+bias. However that change does have advantages. `map` **not** being a
+C++ keyword lets us use the name in code without disguise. Butn this is
+really only cosmetics.
 
 ## ICI objects
 
-The ICI object header is now used as base-class, `ici::object`. All
-the ICI object structures are defined inheriting from that class
-replacing the C code's `o_head` convention.
+The ICI object header is now used as base-class. The `ici::object`
+struct is inherited by all ICI objects and provides the standard
+fields. This replaces the C code's `o_head` convention.
 
-The ici::object base class supplies the 32-bit object header and
-member functions to do object-related things.
+ici::object supplies member functions to do object-related things.
+Inline functions are used in place of the C code's macros.
 
 C++ rules mean that all ICI objects types _is-a_ `ici::object`
 removing many type casts - `ici_objof` is no longer required.
