@@ -8,6 +8,9 @@
 namespace ici
 {
 
+/*
+ * The following portion of this file exports to ici.h. --ici.h-start--
+ */
 struct token
 {
     int         t_what;         /* See TM_* and T_* below. */
@@ -32,9 +35,6 @@ struct parse : object
     int         p_continue_depth;
 };
 
-/*
- * The following portion of this file exports to ici.h. --ici.h-start--
- */
 inline parse *parseof(object *o) { return o->as<parse>(); }
 inline parse *parseof(void *f) { return reinterpret_cast<parse *>(f); }
 inline bool isparse(object *o) { return o->isa(TC_PARSE); }

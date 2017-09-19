@@ -10,6 +10,7 @@
 
 # LTO enables whole program optimization helps reduce code size, and
 # hopefully improves locality.
+#
 # -flto
 
 # Uncomment for a debug build (pcre uses DEBUG, ICI !NDEBUG)

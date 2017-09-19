@@ -7,18 +7,33 @@
 .PHONY: all default lib clean ici test install
 
 prog=  ici
+lib=   libici.a
 dll=   libici.dylib
 conf?= conf/darwin.h
 
 dest?= /opt/ici
 
-# uncomment to build static executable with no ICI library
-# static=yes
+# Uncomment one of these to build a static executable.
+#
+# Normally ICI is built as a dynamic library, libici. The ici
+# executbale being a trivial executable linked against that library.
+#
+# If the make macro 'static' is string "exe" an single, statically
+# linked, executable is built.
+#
+# If 'static' is "lib" a static library, libici.a, is created and a
+# static executable built using that library.
+#
 
-srcs= $(shell echo *.cc)
+#static=exe
+static=lib
+
+#
+
+srcs= $(shell ls *.cc | fgrep -v win32)
 hdrs= $(shell ls *.h|fgrep -v ici.h)
-
-libs= -framework System -lc++ -macosx_version_min 10.12
+libs= -framework System
+# -lc++
 
 # The 'default' make target builds the ici interpreter, tests it
 # then creates the ici.h header file.
@@ -48,12 +63,12 @@ ifndef static
 # This build variant has the interpreter code in a dynamic library.
 #
 $(prog): lib
-	@dcc etc/main.cc -o $@ -L. -lici -Wl,-rpath -Wl,$(dest)/lib
+	@dcc etc/main.cc -o $@ -L. -lici
 
 lib:
-	@dcc --dll $(dll) -fPIC $(srcs) $(libs)
+	@dcc --dll $(dll) -fPIC $(srcs) $(libs) -macosx_version_min 10.12
 
-else # static
+else ifeq ($(static),exe)
 
 # The static build builds an executable containing the complete
 # interpreter.
@@ -61,9 +76,19 @@ else # static
 $(prog):
 	@dcc etc/main.cc $(srcs) -o $@
 
+else ifeq ($(static),lib)
+
+$(prog): lib
+	@dcc etc/main.cc -o $@ -L. -lici  $(libs)
+
+lib:
+	@dcc --lib $(lib) $(srcs)
+
+else
+$(error "Nothing matched!")
 endif
 
-clean:;	@rm -rf etc/main.o *.o $(prog) ici.h $(dll) .dcc
+clean:;	@rm -rf etc/main.o *.o $(prog) ici.h $(dll) $(lib) .dcc
 
 
 .PHONY: install-ici-dot-h install-libici install-ici-exe
@@ -76,7 +101,12 @@ install-ici-dot-h : ici.h
 
 install-libici: lib
 	mkdir -p $(dest)/lib
+ifeq ($(static),lib)
+	install -c -m 444 $(lib) $(dest)/lib
+else ifeq ($(static),exe)
+else
 	install -c -m 444 $(dll) $(dest)/lib
+endif
 
 install-ici-exe: $(prog)
 	mkdir -p $(dest)/bin

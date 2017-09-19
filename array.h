@@ -12,8 +12,6 @@
 namespace ici
 {
 
-extern struct tag_owned {} owned;
-
 /*
  * The following portion of this file exports to ici.h. --ici.h-start--
  */
@@ -75,6 +73,8 @@ extern struct tag_owned {} owned;
  * Note that one must never take the atomic form of a stack, and
  * assume the result is still a stack.
  */
+extern struct tag_owned {} owned;
+
 struct array : object
 {
     object   **a_top;    /* The next free slot. */

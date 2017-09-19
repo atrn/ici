@@ -323,7 +323,7 @@ static int push_os_path_elements(array *a)
     char                *path;
     char                fname[FILENAME_MAX];
 
-    PUSH(a, "/usr/lib/ici:/usr/local/lib/ici:/opt/ici:/opt/lib/ici:.");
+    PUSH(a, "/usr/lib/ici:/usr/local/lib/ici:/opt/lib/ici:/opt/ici/lib/ici:.");
     if ((path = getenv("PATH")) != NULL)
     {
         for (p = path; *p != '\0'; p = *q == '\0' ? q : q + 1)
