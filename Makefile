@@ -13,27 +13,39 @@ conf?= conf/darwin.h
 
 dest?= /opt/ici
 
-# Uncomment one of these to build a static executable.
+# The 'static' macro controls the type of build.  Uncomment one of the
+# following lines to select the desired build.
 #
-# Normally ICI is built as a dynamic library, libici. The ici
-# executbale being a trivial executable linked against that library.
+# static=no
 #
-# If the make macro 'static' is string "exe" an single, statically
-# linked, executable is built.
+# ICI is built as a dynamic library and an executable linked against
+# that library.
 #
-# If 'static' is "lib" a static library, libici.a, is created and a
-# static executable built using that library.
+# static=exe
+#
+# ICI is built as single, statically linked, executable with no
+# library.
+#
+# static=lib
+#
+# ICI is built as a static library and a executable linked against
+# that library.
 #
 
+#static=no
 #static=exe
 static=lib
 
-#
+
+# default to dynamic lib
+ifndef static
+static=no
+endif
+
 
 srcs= $(shell ls *.cc | fgrep -v win32)
 hdrs= $(shell ls *.h|fgrep -v ici.h)
 libs= -framework System
-# -lc++
 
 # The 'default' make target builds the ici interpreter, tests it
 # then creates the ici.h header file.
@@ -58,8 +70,7 @@ ici.h: $(prog) mk-ici-h.ici $(hdrs)
 	./$(prog) mk-ici-h.ici $(conf)
 
 
-ifndef static
-
+ifeq ($(static),no)
 # This build variant has the interpreter code in a dynamic library.
 #
 $(prog): lib
@@ -70,14 +81,17 @@ lib:
 
 else ifeq ($(static),exe)
 
-# The static build builds an executable containing the complete
-# interpreter.
+# The static 'exe' build builds an executable containing the complete
+# interpreter and no library.
 #
 $(prog):
 	@dcc etc/main.cc $(srcs) -o $@
 
 else ifeq ($(static),lib)
 
+# The static 'lib' build builds a static library and executable linked
+# against it.
+#
 $(prog): lib
 	@dcc etc/main.cc -o $@ -L. -lici  $(libs)
 
@@ -88,7 +102,7 @@ else
 $(error "Nothing matched!")
 endif
 
-clean:;	@rm -rf etc/main.o *.o $(prog) ici.h $(dll) $(lib) .dcc
+clean:;	@rm -rf etc/main.o *.o *.o.d $(prog) ici.h $(dll) $(lib) .dcc
 
 
 .PHONY: install-ici-dot-h install-libici install-ici-exe

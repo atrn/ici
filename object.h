@@ -24,7 +24,7 @@ namespace ici
 struct object
 {
     uint8_t        o_tcode;     // type code, index into types[]
-    uint8_t        o_flags;     // flags, see above
+    uint8_t        o_flags;     // flags, see below
     uint8_t        o_nrefs;     // # non-ICI references
     uint8_t        o_leafz;     // size of small object, iff != 0
 
@@ -112,8 +112,7 @@ struct object
     */
 
     /*
-     * Return a pointer to this object cast to a pointer to some compatbile
-     * ici object struct T.
+     * Return a pointer to this object cast to a pointer to some compatbile T.
      */
     template <typename T>
     T *as() {

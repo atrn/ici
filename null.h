@@ -22,6 +22,7 @@ inline bool isnull(object *o) { return o == ici_null; }
 /*
  * End of ici.h export. --ici.h-end--
  */
+
 class null_type : public type
 {
 public:
