@@ -32,7 +32,7 @@ size_t                  ici_alloc_mem;
  */
 struct chunk
 {
-    char                c_data[4088];
+    char                c_data[4088]; // FIXME: assumes 64-bit pointer
     chunk              *c_next;
 };
 

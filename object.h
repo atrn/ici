@@ -17,7 +17,7 @@ namespace ici
 /*
  * This is the universal 'header' of all objects.  Each object type
  * inherits from object giving it the common 'header' fields, then
- * adds any type specific stuff, if any.
+ * adds any type specific stuff.
  *
  * This --struct-- forms part of the --ici-api--.
  */
@@ -26,7 +26,7 @@ struct object
     uint8_t        o_tcode;     // type code, index into types[]
     uint8_t        o_flags;     // flags, see below
     uint8_t        o_nrefs;     // # non-ICI references
-    uint8_t        o_leafz;     // size of small object, iff != 0
+    uint8_t        o_leafz;     // size of (small) object, iff != 0
 
     /*
      * o_tcode              The small integer type code that characterises
@@ -113,6 +113,11 @@ struct object
 
     /*
      * Return a pointer to this object cast to a pointer to some compatbile T.
+     * This is used as follows,
+     *
+     *      auto x = y->as<fred_t>();
+     *
+     *  x is a fred_t * version of y.
      */
     template <typename T>
     T *as() {

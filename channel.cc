@@ -232,8 +232,9 @@ alt(array *alts)
     for (i = 0; i < n && idx == -1; ++i)
     {
         object *o = alts->get(i);
-        if (ischannel(o) && channelof(o)->c_q->len() > 0)
+        if (ischannel(o) && channelof(o)->c_q->len() > 0) {
             idx = i;
+        }
     }
     return idx;
 }
