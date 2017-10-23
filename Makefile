@@ -32,9 +32,9 @@ dest?= /opt/ici
 # that library.
 #
 
-#static=no
+static=no
 #static=exe
-static=lib
+#static=lib
 
 
 # default to dynamic lib
@@ -77,7 +77,7 @@ $(prog): lib
 	@dcc etc/main.cc -o $@ -L. -lici
 
 lib:
-	@dcc --dll $(dll) -fPIC $(srcs) $(libs) -macosx_version_min 10.12
+	@dcc --dll $(dll) -fPIC $(srcs) -lc++ $(libs) -macosx_version_min 10.12
 
 else ifeq ($(static),exe)
 
