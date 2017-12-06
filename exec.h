@@ -22,6 +22,10 @@ union ostemp
     ici_float f;
 };
 
+/*
+ * The following portion of this file exports to ici.h. --ici.h-start--
+ */
+
 struct exec : object
 {
     array                   *x_xs;
@@ -38,8 +42,14 @@ struct exec : object
     object                  *x_waitfor;
     int                      x_state;
     object                  *x_result;
-    std::condition_variable *x_semaphore;
     char                    *x_error;
+/*
+ * End of ici.h export. --ici.h-end--
+ */
+    std::condition_variable *x_semaphore;
+/*
+ * The following portion of this file exports to ici.h. --ici.h-start--
+ */
 };
 
 inline exec *execof(object *o) { return o->as<exec>(); }
@@ -127,10 +137,6 @@ enum
     XS_RETURNED,        /* Function returned and thread exited normally. */
     XS_FAILED,          /* Function failed and thread exitied. */
 };
-
-/*
- * The following portion of this file exports to ici.h. --ici.h-start--
- */
 
 /*
  * Test if an object represents a false value nullptr or integer 0.

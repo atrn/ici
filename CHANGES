@@ -2,27 +2,33 @@ Major Changes in Version 5
 
 *    'struct' has been renamed 'map'
 
-*    ftype's are now classes
+     ICI previously re-used C's 'struct' keyword as the name
+     of its dictionary type. I've renamed it 'map'. It's
+     shorter and a slightly better term for what the
+     structure actually is.
 
-*    threads are now based on c++ standard library and are
-     standard as we rely upon a C++ version where they are
-     standard.
+*    ftype's are now classes. Previously ICI implmented its
+     own vtable structure for file access methods. Now its
+     a class using virtual functions for the file access
+     functions.
+
+*    threads are now implemented using the C++ standard library
+     and are now standard since we rely upon a C++ version where
+     thread support is standard.
 
 *    ICI int types are now defined to be 64-bits and are
      not necessarily the same as C's 'long int'.
 
 *    ICI is now (re-)implemented in C++, C++11/14 to be precise.
 
-     C++ features are used sparingly (ahem) and the overall program
-     structure remains largely the same but there are many, many
-     changes in how ICI is expressed.
+     C++ features are used somewhat sparingly (ahem) and the overall
+     program structure remains largely the same. But there are many,
+     many changes in how ICI is expressed.
 
-     The ici_obj_t object header structure is now used as a base
-     class, 'ici::object'. All objects derive from this class and add
-     any per-type state as data members. But note, ICI objects do NOT
-     use C++ virtual functions. Some classes used to implment ICI
-     objects do use C++ virtuals however. ICI itself still uses an
-     explicit 'tcode' based type lookup.
+     The ici_obj_t object header structure is now the base class,
+     'ici::object'. All objects derive from ici::object and add
+     per-type state as required. ICI objects do NOT use C++ virtual
+     functions and uses an explicit 'tcode' based type lookup.
 
      The ici::object class provides numerous inline functions to
      manipulate the object which replace the suite of macros used in
@@ -46,8 +52,8 @@ Major Changes in Version 5
 *    renamed existng put() builtin to puts()
 
 *    removed tracing, it was never used and is better done
-     via an improved debugging interface. I wrote it. I
-     can kill it.
+     via an improved debugging interface. I wrote it. Its
+     not good enough. I'll kill it.
 
 *    merged the clib.c source into cfunc.c
 
@@ -55,11 +61,13 @@ Major Changes in Version 5
      'step' function which opens the way for iteration over
      used-defined types.
 
-*    include() removed
+*    include() removed, its pretty useless
 
 *    many default sizes increased by factors of four or more
      to account for substantially more memory available on
-     most modern systems.
+     most modern systems. Start up time slowed a little due
+     to "small int" creation but even slow CPUs are fast
+     these days.
 
 *    various modules incorporated as standard "things",
 

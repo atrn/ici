@@ -99,19 +99,19 @@ constexpr int ICI_S_SEP_ALLOC     = 0x40;
  * conventions.
  */
 #ifdef ICI_MODULE_NAME
-#define ICIS_SYM_EXP(module, name) ici_##module##_str_##name
-#define ICIS_SYM(module, name)  ICIS_SYM_EXP(module, name)
-#define ICIS(name)              (ICIS_SYM(ICI_MODULE_NAME, name))
-#define ICI_STR_NORM(name, str) extern str *ICIS_SYM(ICI_MODULE_NAME, name);
-#define ICI_STR_DECL(name, str) str *ICIS_SYM(ICI_MODULE_NAME, name);
+#define ICIS_SYM_EXP(MOD, NAM) ici_##MOD##_str_##NAM
+#define ICIS_SYM(MOD, NAM)  ICIS_SYM_EXP(MOD, NAM)
+#define ICIS(NAM)              (ICIS_SYM(ICI_MODULE_NAME, NAM))
+#define ICI_STR_NORM(NAM, STR) extern ici::str *ICIS_SYM(ICI_MODULE_NAME, NAM);
+#define ICI_STR_DECL(NAM, STR) ici::str *ICIS_SYM(ICI_MODULE_NAME, NAM);
 #else
-#define ICIS(name)              (ici_str_##name)
-#define ICI_STR_NORM(name, str) extern str *ici_str_##name;
-#define ICI_STR_DECL(name, str) str *ici_str_##name;
+#define ICIS(NAM)              (ici_str_##NAM)
+#define ICI_STR_NORM(NAM, STR) extern ici::str *ici_str_##NAM;
+#define ICI_STR_DECL(NAM, STR) ici::str *ici_str_##NAM;
 #endif
-#define ICISO(name)             (ICIS(name))
-#define ICI_STR_MAKE(name, str) (ICIS(name) = new_str_nul_term(str)) == nullptr ||
-#define ICI_STR_REL(name, str)  (ICIS(name))->decref();
+#define ICISO(NAM)             (ICIS(NAM))
+#define ICI_STR_MAKE(NAM, STR) (ICIS(NAM) = ici::new_str_nul_term(STR)) == nullptr ||
+#define ICI_STR_REL(NAM, STR)  (ICIS(NAM))->decref();
 #define ICI_STR                 ICI_STR_NORM
 /*
  * End of ici.h export. --ici.h-end--

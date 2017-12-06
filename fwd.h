@@ -259,7 +259,7 @@ extern DLI ftype                *parse_ftype;
  *
  * This --macro-- forms part of the --ici-api--.
  */
-#define ici_null                (&o_null)
+#define ici_null                (&ici::o_null)
 
 /*
  * Use 'return null_ret();' to return a ICI NULL from an intrinsic
@@ -369,6 +369,8 @@ extern char          *objname(char [objnamez], object *);
 
 #define null_ret()    ret_no_decref(ici_null)
 
+extern int            find_on_path(char [FILENAME_MAX], const char *);
+
 extern DLI int        debug_enabled;
 extern int            debug_ignore_err;
 
@@ -410,6 +412,13 @@ extern void                     signals_init();
 extern int                      invoke_signal_handlers();
 extern int                      blocking_syscall(int);
 
+extern object        **objs;
+extern object        **objs_top;
+extern object        **objs_limit;
+
+extern void            grow_objs(object *);
+extern void            collect();
+
 /*
  * End of ici.h export. --ici.h-end--
  */
@@ -420,9 +429,7 @@ extern catcher        *unwind();
 extern char          **smash(char *, int);
 extern char          **ssmash(char *, char *);
 
-extern void            collect();
 extern void            grow_atoms(ptrdiff_t newz);
-extern void            grow_objs(object *);
 
 extern const char     *binop_name(int);
 
@@ -469,7 +476,6 @@ extern int             set_ispropersubset(set *, set *);
 extern int64_t         xstrtol(char const *, char **, int);
 
 extern int             init_path(objwsup *externs);
-extern int             find_on_path(char [FILENAME_MAX], const char *);
 
 extern int             init_sstrings();
 extern void            drop_all_small_allocations();
@@ -479,10 +485,6 @@ extern int             str_char_at(str *, size_t);
 
 extern int             supress_collect;
 extern int             ncollects;
-
-extern object        **objs;
-extern object        **objs_top;
-extern object        **objs_limit;
 
 extern object        **atoms;
 extern size_t        natoms;
