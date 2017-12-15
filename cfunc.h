@@ -127,7 +127,7 @@ inline const void *ICI_CF_ARG2() { return cfuncof(os.a_top[-1])->cf_arg2; }
  * This is a bit of shorthand used within the interpreter to
  * help consistency.
  */
-#define ICI_DEFINE_CFUNCS(NAME) cfunc ici_ ## NAME ## _cfuncs[] =
+#define ICI_DEFINE_CFUNCS(NAME) ici::cfunc ici_ ## NAME ## _cfuncs[] =
 
 /*
  * Mark the end of the initializers of a static cfuncs array.
@@ -139,10 +139,20 @@ inline const void *ICI_CF_ARG2() { return cfuncof(os.a_top[-1])->cf_arg2; }
 /*
  * Macros to define cfuncs. Use the one appropriate for the number of
  * arguments to the cfunc.
+ *
+ * In the core function names are defined as static strings and
+ * referenced using the SS macro (str.h).  In modules strings are
+ * defined via icistr-setup.h and referenced via the ICIS macro.
  */
+#ifndef ICI_MODULE_NAME
 #define ICI_DEFINE_CFUNC(NAME, FUNC) {SS(NAME), (FUNC)}
 #define ICI_DEFINE_CFUNC1(NAME, FUNC, ARG) {SS(NAME), (FUNC), (void *)(ARG)}
 #define ICI_DEFINE_CFUNC2(NAME, FUNC, ARG1, ARG2) {SS(NAME), (FUNC), (void *)(ARG1), (void *)(ARG2)}
+#else
+#define ICI_DEFINE_CFUNC(NAME, FUNC) {ICIS(NAME), (FUNC)}
+#define ICI_DEFINE_CFUNC1(NAME, FUNC, ARG) {ICIS(NAME), (FUNC), (void *)(ARG)}
+#define ICI_DEFINE_CFUNC2(NAME, FUNC, ARG1, ARG2) {ICIS(NAME), (FUNC), (void *)(ARG1), (void *)(ARG2)}
+#endif
 
 /*
  * Macros to define methods within a cfuncs array.

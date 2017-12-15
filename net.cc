@@ -196,15 +196,9 @@ static void unblock(exec *x)
  *
  * or
  *
- *  portnum[@host]
- *
- * or
- *
  *  [host:]service[/protocol]
  *
  * or
- *
- *  service[/protocol][@host]
  *
  * where '[...]' are optional elements, and:
  *
@@ -220,9 +214,6 @@ static void unblock(exec *x)
  *                      decimal notation, "." for the local address, "?" for
  *                      any, or "*" for all.
  *
- *                      If the '@host' is omitted, the the default host
- *                      depends on context (see 'net.bind()' and 'net.connect()').
- *
  * This also forms part of the --ici-net-- intro.
  */
 /*
@@ -234,8 +225,7 @@ static void unblock(exec *x)
  * The sockaddr structure is filled in and 0 returned if all is okay.  When a
  * error occurs the error string is set and 1 is returned.
  */
-static struct sockaddr_in * parseaddr(const char *raddr, long defhost, struct sockaddr_in *saddr)
-{
+static struct sockaddr_in * parseaddr(const char *raddr, long defhost, struct sockaddr_in *saddr) {
     char addr[512];
     char *host;
     char *ports;
@@ -252,11 +242,11 @@ static struct sockaddr_in * parseaddr(const char *raddr, long defhost, struct so
     saddr->sin_addr.s_addr = htonl(defhost);
     saddr->sin_port = 0;
     port = 0;
-    if (raddr == NULL)
+    if (raddr == NULL) {
         return saddr;
+    }
 
-    if (strlen(raddr) > sizeof addr - 1)
-    {
+    if (strlen(raddr) > sizeof addr - 1) {
         seterror
         (
             "network address string too long",
@@ -266,16 +256,11 @@ static struct sockaddr_in * parseaddr(const char *raddr, long defhost, struct so
         return NULL;
     }
     strcpy(addr, raddr);
-    if ((host = strchr(addr, '@')) != NULL)
-    {
-        ports = addr;
-        *host++ = '\0';
-    }
-    else if ((ports = strchr(addr, ':')) != NULL)
+    host = addr;
+    if ((ports = strchr(addr, ':')) != NULL)
     {
         if (ports != addr)
         {
-            host = addr;
             *ports++ = '\0';
         }
     }
@@ -328,43 +313,36 @@ static struct sockaddr_in * parseaddr(const char *raddr, long defhost, struct so
  */
 static char * unparse_addr(struct sockaddr_in *addr)
 {
-    static char addr_buf[256];
+    static char addr_buf[256]; // FQDN limit from DNS
 #if 0
     struct servent *serv;
 #endif
     struct hostent *host;
+    int off;
 
 #if 0
     if ((serv = getservbyport(addr->sin_port, NULL)) != NULL)
         strcpy(addr_buf, serv->s_name);
-    else
+    else ;
 #endif
-        sprintf(addr_buf, "%u", ntohs(addr->sin_port));
-    strcat(addr_buf, "@");
-    if (addr->sin_addr.s_addr == INADDR_ANY)
-        strcat(addr_buf, "?");
-    else if (addr->sin_addr.s_addr == INADDR_LOOPBACK)
-        strcat(addr_buf, ".");
-    else if (addr->sin_addr.s_addr == INADDR_BROADCAST)
-        strcat(addr_buf, "*");
-    else if
-    (
-        (
-            host
-            =
-            gethostbyaddr
-            (
-                (char *)&addr->sin_addr.s_addr,
-                sizeof addr->sin_addr,
-                AF_INET
-            )
-        )
-        ==
-        NULL
-    )
+
+    addr_buf[0] = '\0';
+    if ((host = gethostbyaddr((char *)&addr->sin_addr.s_addr, sizeof addr->sin_addr, AF_INET)) == NULL)
         strcat(addr_buf, inet_ntoa(addr->sin_addr));
     else
         strcat(addr_buf, host->h_name);
+
+    strcat(addr_buf, ":");
+    off = strlen(addr_buf);
+
+    if (addr->sin_addr.s_addr == INADDR_ANY)
+        strcpy(addr_buf+off, "?");
+    else if (addr->sin_addr.s_addr == INADDR_LOOPBACK)
+        strcat(addr_buf+off, ".");
+    else if (addr->sin_addr.s_addr == INADDR_BROADCAST)
+        strcat(addr_buf+off, "*");
+    else
+        sprintf(addr_buf+off, "%u", ntohs(addr->sin_port));
     return addr_buf;
 }
 
@@ -543,17 +521,19 @@ static int net_connect(void)
         return 1;
     if (isstring(arg))
         addr = stringof(arg)->s_chars;
-    else if (isint(arg))
-    {
+    else if (isint(arg)) {
         sprintf(buf, "%lld", static_cast<long long int>(intof(arg)->i_value));
         addr = buf;
     }
-    else
+    else {
         return argerror(1);
-    if (parseaddr(addr, INADDR_LOOPBACK, &saddr) == NULL)
+    }
+    if (parseaddr(addr, INADDR_LOOPBACK, &saddr) == NULL) {
         return 1;
-    if (isclosed(skt))
+    }
+    if (isclosed(skt)) {
         return 1;
+    }
     x = potentially_block();
     rc = connect(socket_fd(skt), (struct sockaddr *)&saddr, sizeof saddr);
     unblock(x);

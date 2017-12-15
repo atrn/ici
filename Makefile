@@ -35,7 +35,7 @@ dest?= /opt/ici
 
 #build=dll
 #build=exe
-#build=lib
+build=lib
 
 ifndef build
 build=exe
@@ -52,7 +52,7 @@ endif
 # The 'default' make target tests the interpreter which
 # is built if required.
 #
-default: test
+default: all
 
 # The 'test' target tests the interpreter by running the standard
 # 'core' test.
@@ -63,7 +63,7 @@ test: all
 # The 'all' target builds an ici interpreter executable and library,
 # if that is enabled.
 #
-all: $(prog)
+all: $(prog) ici.h
 
 # The ici.h file is built using the current interpreter executable and
 # depends on all files that may contribute to the output.

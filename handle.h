@@ -137,8 +137,8 @@ constexpr int ICI_H_HAS_PRIV_MAP = 0x40;
 
 struct name_id
 {
-    char    *ni_name;
-    long    ni_id;
+    const char  *ni_name;
+    long        ni_id;
 };
 constexpr int ICI_H_METHOD = 0x8000000;
 
