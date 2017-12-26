@@ -1,0 +1,2 @@
+# We need to explicitly link against libpthread on FreeBSD.
+-lpthread

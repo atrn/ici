@@ -6,10 +6,15 @@
 
 .PHONY: all default lib clean ici test install
 
+os=    $(shell uname|tr A-Z a-z)
+
 prog=  ici
 lib=   libici.a
+ifeq ($(os),darwin)
 dll=   libici.dylib
-os=    $(shell uname|tr A-Z a-z)
+else
+dll=	libici.so
+endif
 conf?= conf/$(os).h
 dest?= /opt/ici
 
@@ -33,9 +38,9 @@ dest?= /opt/ici
 #   is installed and made available to users.
 #
 
-build=dll
-#build=exe
-#build=lib
+build?=dll
+#build?=exe
+#build?=lib
 
 ifndef build
 build=exe
@@ -69,7 +74,7 @@ all: $(prog) ici.h
 # depends on all files that may contribute to the output.
 #
 ici.h: $(prog) mk-ici-h.ici $(hdrs)
-	./$(prog) mk-ici-h.ici $(conf)
+	LD_LIBRARY_PATH=`pwd` DYLD_LIBRARY_PATH=`pwd` ./$(prog) mk-ici-h.ici $(conf)
 
 
 ifeq ($(build),dll)
@@ -113,12 +118,12 @@ clean:;	rm -rf etc/main.o *.o *.o.d $(prog) ici.h $(dll) $(lib) .dcc
 
 install: install-ici-dot-h install-libici install-ici-exe
 
-install-ici-dot-h : ici.h
+install-ici-dot-h:
 	mkdir -p $(dest)/include
 	install -c -m 444 ici.h $(dest)/include
 	install -c -m 444 icistr-setup.h $(dest)/include
 
-install-libici: lib
+install-libici:
 	mkdir -p $(dest)/lib
 ifeq ($(build),lib)
 	install -c -m 444 $(lib) $(dest)/lib
@@ -126,7 +131,7 @@ else ifeq ($(build),dll)
 	install -c -m 444 $(dll) $(dest)/lib
 endif
 
-install-ici-exe: $(prog)
+install-ici-exe:
 	mkdir -p $(dest)/bin
 	install -c -m 555 $(prog) $(dest)/bin
 	mkdir -p $(dest)/lib/ici

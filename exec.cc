@@ -75,7 +75,7 @@ volatile int    aborted;
  */
 int             evaluate_recursion_limit = 50;
 
-static const sigset_t empty_sigset{0};
+static const sigset_t empty_sigset{{0}};
 
 inline bool isempty(const sigset_t *s) {
     return memcmp(s, &empty_sigset, sizeof empty_sigset) == 0;

@@ -1,8 +1,10 @@
 # How To Build
 
-Building uses make and my dcc tool, available at gitlab.com/atrn/dcc.
-Dcc is a compiler driver, like cc(1), but one that does dependency-
-driven building.
+Building uses GNU make and my dcc tool, installable via
+"go get github.com/atrn/dcc" (it is written in Go). dcc
+is a compiler driver, like cc(1), but automatically uses
+dependencies, of all forms, to **avoid** building where
+possible.
 
 ## Summary
 
