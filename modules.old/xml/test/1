@@ -1,3 +1,0 @@
-auto v, k;
-forall (v, k in xml)
-    printf("%s\t%s\n", string(k), typeof(v));

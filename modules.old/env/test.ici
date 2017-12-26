@@ -1,8 +1,0 @@
-printf("\nSetting\n");
-printf("Current FOO == %s\n", string(env.FOO));
-env.FOO = "Bar";
-printf("Following env.FOO = Bar\nFOO == %s\n", string(env.FOO));
-
-printf("\nRunning echo $FOO in a shell\n");
-flush();
-system("echo $FOO");

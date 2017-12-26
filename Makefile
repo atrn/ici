@@ -33,9 +33,9 @@ dest?= /opt/ici
 #   is installed and made available to users.
 #
 
-#build=dll
+build=dll
 #build=exe
-build=lib
+#build=lib
 
 ifndef build
 build=exe

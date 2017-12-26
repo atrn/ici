@@ -1,3 +1,0 @@
-# From path/Makefile.frag...
-MOD	= HTML
-# End path/Makefile.frag
