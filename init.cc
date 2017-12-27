@@ -147,8 +147,8 @@ int init()
     {
         return 1;
     };
-    signals_init();
-
+    init_signals();
+    init_exec();
     if
     (
         set_val(externs, SS(_stdin),  'u', stdin)

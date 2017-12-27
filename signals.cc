@@ -253,7 +253,7 @@ ici_signal_handler(int signo)
 /*
  * Initialize ici's signal handling.
  */
-void signals_init()
+void init_signals()
 {
     int     signo;
 

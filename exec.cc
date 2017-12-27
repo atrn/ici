@@ -75,10 +75,14 @@ volatile int    aborted;
  */
 int             evaluate_recursion_limit = 50;
 
-static const sigset_t empty_sigset{{0}};
+static sigset_t empty_sigset;
 
 inline bool isempty(const sigset_t *s) {
     return memcmp(s, &empty_sigset, sizeof empty_sigset) == 0;
+}
+
+void init_exec() {
+    sigemptyset(&empty_sigset);
 }
 
 /*
@@ -88,8 +92,7 @@ inline bool isempty(const sigset_t *s) {
  * The new exec struct is linked onto the global list of all exec
  * structs (execs).
  */
-exec *new_exec()
-{
+exec *new_exec() {
     exec          *x;
     static src    default_src;
 

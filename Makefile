@@ -1,7 +1,7 @@
 # -*- mode:makefile -*-
 #
 # This (GNU) Makefile uses the dcc compiler driver
-# to build ici on MacOS.
+# to build ici on MacOS or FreeBSD.
 #
 
 .PHONY: all default lib clean ici test install

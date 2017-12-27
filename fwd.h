@@ -406,9 +406,9 @@ inline file *sopen(char *data, int size, object *ref)
 #   define debug_active     debug_enabled
 #endif
 
+extern void                     init_signals();
 extern volatile sigset_t        signals_pending;
 extern volatile long            signal_count[];
-extern void                     signals_init();
 extern int                      invoke_signal_handlers();
 extern int                      blocking_syscall(int);
 
@@ -475,6 +475,7 @@ extern int             set_ispropersubset(set *, set *);
 
 extern int64_t         xstrtol(char const *, char **, int);
 
+extern void            init_exec();
 extern int             init_path(objwsup *externs);
 
 extern int             init_sstrings();
