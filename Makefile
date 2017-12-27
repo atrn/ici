@@ -109,7 +109,7 @@ else
 $(error "Bad build - nothing matched!")
 endif
 
-clean:;	rm -rf etc/main.o *.o *.o.d $(prog) ici.h $(dll) $(lib) .dcc
+clean:;	rm -rf etc/main.o etc/.dcc.d *.o .dcc.d $(prog) ici.h $(dll) $(lib)
 
 
 # Installation
