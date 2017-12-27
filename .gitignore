@@ -1,9 +1,11 @@
 /*.o
+/.vs/
 /**/*.o
 /fwd.h.gch
 /anici
 /anici.h
 *.dylib
+*.so
 /.dcc/
 /anici.static
 /test/serialization/*.dat
