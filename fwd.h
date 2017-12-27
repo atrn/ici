@@ -419,6 +419,8 @@ extern object        **objs_limit;
 extern void            grow_objs(object *);
 extern void            collect();
 
+objwsup *               current_scope();
+
 /*
  * End of ici.h export. --ici.h-end--
  */

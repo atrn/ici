@@ -4,6 +4,7 @@
 #include "float.h"
 #include "int.h"
 #include "str.h"
+#include "array.h"
 
 #include <limits.h>
 
@@ -609,5 +610,9 @@ void rego(object *o)
 }
 
 #endif
+
+objwsup *current_scope() {
+    return ((ici::objwsup *)vs.a_top[-1])->o_super;
+}
 
 } // namespace ici
