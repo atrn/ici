@@ -1,5 +1,3 @@
--*- mode:markdown -*-
-
 # A notes on the conversion of ICI's code from C to C++
 
 This is a  note about the changes  to the ICI code  resulting from its
@@ -13,19 +11,19 @@ now expressed in C++. C++ is mostly  used as a _better C_ and the code
 is most definitely **not** in the, so-called, _modern C++_ style.
 
 It is a  testament to the previous code how  few changes were required
-to make it compile as C++.  Most  code _just worked_ and only the code
-that violated  C++'s stricter  ideas around  function types  and const
-required immediate change to allow  compilation. The initial C++ build
-only required modifications  to only two contructs,  cfuncs and static
-strings, to have  it function.  The current code uses  a lot more C++.
-The  transformation  has  been  iterative with  the  interpreter  kept
-working after each change.
+to initially compile it as C++.  Most  code _just worked_ and only code
+that violated  C++'s stricter  ideas around  function types  and const-ness
+required immediate change to permit  compilation. The initial C++ build
+required modifications  to only two contructs,  cfuncs and static strings.
+The current code uses  a lot more C++.  The  transformation  has  been
+iterative with  the  interpreter  kept working after each change.
 
 ## Not _modern_ C++
 
 The style  of C++  used is  a mostly  minimalistic, _better  C_ style.
-Very little of the C++ standard  library is used. ICI's types supplant
-the use of C++ container types.
+Very little of the C++ standard  library is used. ICI's types remove
+the the need to use C++ container types and the C++ standard library
+way of doing things is generally avoided.
 
 C++ features are used in many places but are mostly used to reduce the
 amount of code, improve its reliability via stricter type checking and
@@ -35,18 +33,34 @@ A small number of template functions are used to help define values of
 different types  or to work  with C++'s stricter type  checking. These
 are well contained and there is no proliferation of templates which is
 a hallmark of the modern C++ style but which often leads to slow build
-times and larger and slower executables.
+times and larger, and slower, executables.
 
 ## C-style mostly removed
 
-The various C-like ways of doings  things have been mostly replaced by
-the C++ ways of doing things.
+Various C-isms have been replaced by C++-isms:
 
-- C++'s constexpr is used to define constants
 - parameterised macros are replaced by inline functions
-- NULL is replaced with C++'s nullptr.
+- NULL is replaced with nullptr.
+- C++'s constexpr is used to define constants
 - cstddef and cstdint types are used - size_t, intXX_t, etc...
 - C++ standard threads are assumed
+
+### But no RAII. Yet.
+
+There are a  number of things in the interpreter  that may be better
+expresed using small RAII classes. This has not been done and is
+related to changing the way errors are reported. C++ exceptions
+could be succesfully used to implement ICI's internal error raising
+and reporting rather than using return codes as it presently does.
+Such a change requires the use of RAII techniques to manage object
+reference counts for ICI objects not yet registered with the collector.
+
+Changing to use exceptions would clean up a significant amount of
+code. Many error conditions tested for are related to unlikely
+conditions and all the checking does add up. Previous micro-benchmarks
+I conducted demonstrated far superior performance of C++ exceptions
+over return codes when the exception/error is unlikely. Removing
+all those error code checks adds up. The source code is also nicer.
 
 ## ICI namespace
 
@@ -56,11 +70,6 @@ really a reversion  to the naming used in the  original ICI code, what
 was termed _old names_. Prefixes were  added so ICI worked more nicely
 as a C  library embedded within applications but  C++ namespaces allow
 us to revert this. The code is easier to read as a result.
-
-## No RAII. Yet.
-
-There are a  number of things in the interpreter  that could be better
-expresed using small RAII classes. This has not been done.
 
 # Major Changes
 
@@ -80,8 +89,12 @@ Why? The old names mimic C and  while that was sort of nice ICI really
 isn't C  and the semantics  are quite  different. But really.  The new
 names are shorter. The renaming of  `thread` to `go` obviously shows a
 recent  influence and  the  renaming  of `struct`  to  `map` some  C++
-bias. However that change does  have advantages. `map` **not** being a
-C++ keyword lets us use the name in code without disguise.
+bias. However that particular change does  have some advantages. As
+`map` is **not** a C++ keyword we can use it in code without disguise.
+No more `ici_struct`. Adopting `var` is for the Javascript people and
+the implicit `var` using `:=` largely replaces it anyway. `static` and
+`extern` are C-specific notions really, I'm not too fussed about it
+but `local` and `export` do signifying things a little more clearly.
 
 ## ICI objects
 
@@ -121,7 +134,7 @@ The result of all the changes is easier to read code.
 
 Some types such as `ici::array` have many operations the C code
 defined using _free_ functions. These are now member functions.  This
-is an experiment really and not all typs have been changed to use this
+is an experiment really and not all types have been changed to use this
 style (member vs. free functions).  I generally pefer the free
 function approach but members work reasonably well with the array
 type.
@@ -131,46 +144,50 @@ type.
 ICI types are now represented by instances of classes derived from a
 base `ici::type` class.
 
-The `ici::type` class is a proper C++ base class defined using virtual
-member functions  for the  various per-type operations.  The different
-ICI types  define classes that construct  themselves appropriately and
-override the  member functions  they need  to override.  This approach
-replaces   the   initialized   `struct   ici_type`   structures   used
-previously - a manually implemented virtual function table.
+The `ici::type` class is a C++ base class with virtual member functions
+for the  various per-type operations.  The different ICI types define
+classes that construct  themselves appropriately and override the member
+functions  they need  to override.  This approach replaces   the   initialized 
+`struct   ici_type`   structures   used previously - which was just a manually
+implemented virtual function table.
 
-The  `ici::type`  class  provides default  implementations  of  member
-functions to provide  the default behaviour, e.g.  the default _fetch_
-implementation results in an error and so forth.
+The  `ici::type`  class  provides default  implementations  of  the
+different member functions to provide  the default behaviourf for types.
+e.g.  the default _fetch_ and _assign_ implementations result in errors
+(equivalent to the C code's _fetch_fail_ and _assign_fail_) and so forth.
 
 ### More type operations
 
 The per-type operations have been extended. All types now provide
 _forall_, _save_ and _restore_ operations. _forall_ is used to
 implement the _forall_ statement, _save_ and _restore_ defining
-object serialization.
+object serialization. This allows forall'ing over user-defined
+types and makes serialization more efficient.
 
 ## Threads
 
-The C++ standard threading support is used for ICI's thread related
+C++ standard threading support is used for ICI's thread related
 code. This makes the code both portable and simpler.
 
 ## ICI file types
 
 The old `struct ici_ftype` has been replaced with a class,
-`ici::ftype` that defines an I/O interface for different types of
-_files_. The C code again implemented a virtual dispatch table
-which is now a C++ class with virtual member functions.
+`ici::ftype` that defines an I/O interface for ICI files.
+The C code again implemented a virtual dispatch table
+which is now expressed via a C++ class with virtual member
+functions.
 
-This actually makes things much clearer. In particular the
-_popen_ file type is now derived from the _stdio_ type and
-overrides a single function to implement itself.
+This makes things much simpler. In particular the _popen_ file
+type is now derived from the _stdio_ type and overrides a single
+function to implement itself.
 
-The number of functions in the _ftype_ has been reduced.
+The number of functions in an _ftype_ has been reduced too.
 
 ## Now standard _modules_
 
 The `sys`, `net`, `channel` and `serialization` modules are now
-included in the base interpreter.
+included in the base interpreter. Serialization has been embedded
+into the language now and the code cleaned up.
 
 ## Issues (worked-around)
 
@@ -189,8 +206,4 @@ replaced with a version to work around me not figuring out the
 appropriate C++-ims to statically initialize the array used to store
 the static string's characters. There will be a method, perhaps ugly,
 but I gave up at the time (one of the first things changed) and copied
-the character.
-
-There will be C++ way to achieve the previous behavious of having the
-compiler generate a complete image of the string object (of course
-there is, this is the language with `constexpr` functions).
+the characters at startup.
