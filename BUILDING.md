@@ -1,10 +1,17 @@
 # How To Build
 
-Building uses GNU make and my dcc tool, installable via
-"go get github.com/atrn/dcc" (it is written in Go). dcc
-is a compiler driver, like cc(1), but automatically uses
-dependencies, of all forms, to **avoid** building where
-possible.
+Building uses GNU `make` and my program `dcc`. GNU `make` is used to
+_direct_ overall build processing but compilation, linking and library
+creation is handled by `dcc`.  `dcc` is a compiler driver, like
+`cc(1)`, but one that automatically creates and uses dependencies to
+**avoid** doing work if at all possible. `dcc` has other features that
+let it take care of all compilation, linking and library creation, and
+`dcc` do so via an efficient parallel compilation process.  `dcc` is
+written in Go and installation Go be installed. Assuming conventional
+Go usage, installing `dcc` is a simple matter of running the command,
+
+    $ go get github.com/atrn/dcc
+
 
 ## Summary
 

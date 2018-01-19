@@ -3,6 +3,7 @@
 # Basic options.
 #
 -std=c++14 -Wall -Wextra -g
+
 # Uncomment for a release build (ICI uses NDEBUG).
 #
 -DNDEBUG
