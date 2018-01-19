@@ -14,7 +14,7 @@ features allowing it to be used for my _anici_ experiment (mobile
 agent programming).
 
 The file (CPLUSPLUS.md)[CPLUSPLUS.md] documents the C++ conversion and
-keyword changes.
+language keyword changes.
 
 The ketword changes technically makes this version of ICI a different
 language - ICI programs that worked with the previous C-implemented
