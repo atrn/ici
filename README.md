@@ -13,7 +13,7 @@ of ICI includes networking and object serialiation as standard
 features allowing it to be used for my _anici_ experiment (mobile
 agent programming).
 
-The file (CPLUSPLUS.md)[CPLUSPLUS.md] documents the C++ conversion and
+The file [CPLUSPLUS.md](CPLUSPLUS.md) documents the C++ conversion and
 language keyword changes.
 
 The ketword changes technically makes this version of ICI a different
@@ -25,7 +25,7 @@ As ICI development has largely been dormant for the past decade I
 don't feel the change to the language is a bad thing. The re-casting
 of the interpreter as a C++ program is a major change.
 
-The file (README)[README] is the original _readme_ file from
+The file [README](README) is the original _readme_ file from
 the C distribution.
 
 The ICI documentation has **not** been updated to reflect the
