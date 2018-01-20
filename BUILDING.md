@@ -60,8 +60,10 @@ UNIX-ish systems. The following command builds a static executable,
 
 ## Cmake
 
-There is a primitive `CMakeLists.txt` file that works to compile a
-simple interpreter executable. It doesn't all the things the Makefile
-driven build does, but of course could with sufficient _cmake-ing_.
-There are **no** plans to move builds to use cmake but contributions
-will be of course accepted. I'm happy with make+dcc.
+There is a very basic `CMakeLists.txt` file that works to compile a
+basic interpreter executable. The CMakeFile doesn't all the things
+the Makefile build does (DLL vs static lib, creating ici.h etc...)
+but of course it could with sufficient _cmake-ing_.  However there
+are **no** plans to move builds to use cmake and no plans to do
+such cmake-ing. Contributions will be gladly accepted. I'm happy
+enough with the make/dcc combination.
