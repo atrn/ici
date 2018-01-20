@@ -189,7 +189,7 @@ static array *ident_list(parse *p) {
         if (a->push_check()) {
             goto fail;
         }
-        a->push(p->p_got.t_obj, owned);
+        a->push(p->p_got.t_obj, with_decref);
         curtok = T_NONE; /* Take ownership of name. */
         if (next(p, nullptr) != T_COMMA) {
             reject(p);
@@ -593,7 +593,7 @@ static int primary(parse *p, expr **ep, int exclude) {
                         a->decref();
                         goto fail;
                     }
-                    a->push(o, owned);
+                    a->push(o, with_decref);
                     if (next(p, nullptr) == T_COMMA) {
                         continue;
                     }
@@ -694,7 +694,7 @@ static int primary(parse *p, expr **ep, int exclude) {
                     goto fail;
                 }
                 autos->o_super = objwsupof(d);
-                vs.push(autos, owned);
+                vs.push(autos, with_decref);
                 ++p->p_module_depth;
                 o = evaluate(p, 0);
                 --p->p_module_depth;
@@ -724,7 +724,7 @@ static int primary(parse *p, expr **ep, int exclude) {
                     d->decref();
                     goto fail;
                 }
-                vs.push(autos, owned);
+                vs.push(autos, with_decref);
             }
             for (;;) {
                 switch (next(p, nullptr)) {
@@ -1535,7 +1535,7 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
             if (a2 != nullptr) {
                 a->push(&o_ifelse);
                 a->push(a1);
-                a->push(a2, owned);
+                a->push(a2, with_decref);
             } else {
                 a->push(&o_if);
                 a->push(a1);
@@ -1577,7 +1577,7 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
                 return -1;
             }
             a->push(&o_loop);
-            a->push(a1, owned);
+            a->push(a1, with_decref);
             break;
         }
         if (p->p_got.t_obj == SS(do)) {
@@ -1627,7 +1627,7 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
                 return -1;
             }
             a->push(&o_loop);
-            a->push(a1, owned);
+            a->push(a1, with_decref);
             break;
         }
         if (p->p_got.t_obj == SS(forall)) {
@@ -1697,12 +1697,12 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
                 a1->decref();
                 return -1;
             }
-            a->push(a1, owned);
+            a->push(a1, with_decref);
             auto fo = new_op(op_forall, 0, 0);
             if (!fo) {
                 return -1;
             }
-            a->push(fo, owned);
+            a->push(fo, with_decref);
             break;
 
         }
@@ -1784,12 +1784,12 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
                 a1->decref();
                 return -1;
             }
-            a->push(a1, owned);
+            a->push(a1, with_decref);
             auto fo = new_op(op_for, 0, stepz);
             if (!fo) {
                 return -1;
             }
-            a->push(fo, owned);
+            a->push(fo, with_decref);
             break;
         }
         if (p->p_got.t_obj == SS(switch)) {
@@ -1818,8 +1818,8 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
                 p->p_got.t_obj->decref();
                 return -1;
             }
-            a->push(p->p_got.t_obj, owned);
-            a->push(d, owned);
+            a->push(p->p_got.t_obj, with_decref);
+            a->push(d, with_decref);
             a->push(&o_switch);
             break;
         }
@@ -1901,8 +1901,8 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
                 a2->decref();
                 return -1;
             }
-            a->push(a1, owned);
-            a->push(a2, owned);
+            a->push(a1, with_decref);
+            a->push(a2, with_decref);
             a->push(&o_onerror);
             break;
         }
@@ -1918,7 +1918,7 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
             if ((a1 = new_array(1)) == nullptr) {
                 return -1;
             }
-            a->push(a1, owned);
+            a->push(a1, with_decref);
             if (statement(p, a1, nullptr, "critsect", 1) == -1) {
                 return -1;
             }
@@ -1941,7 +1941,7 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
             if ((a1 = new_array(2)) == nullptr) {
                 return -1;
             }
-            a->push(a1, owned);
+            a->push(a1, with_decref);
             a->push(&o_critsect);
             /*
              * Start a new code array (a2) and establish it as the body of
@@ -1954,7 +1954,7 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
                 return -1;
             }
             a1->push(&o_loop);
-            a1->push(a2, owned);
+            a1->push(a2, with_decref);
             /*
              * Into the new code array (a1, the body of the loop) we build:
              *     condition expression (for value)

@@ -123,7 +123,7 @@ int init()
     {
         return 1;
     }
-    vs.push(scope, owned);
+    vs.push(scope, with_decref);
     if (init_path(externs))
     {
         return 1;

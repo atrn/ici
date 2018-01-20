@@ -136,8 +136,8 @@ int compile_expr(array *a, expr *e, int why)
             }
             a2->push(&o_end);
             a->push(&o_ifelse);
-            a->push(a1, owned);
-            a->push(a2, owned);
+            a->push(a1, with_decref);
+            a->push(a2, with_decref);
             return 0;
         }
         if (e->e_what == T_LESSEQGRT)
@@ -156,7 +156,7 @@ int compile_expr(array *a, expr *e, int why)
             }
             auto o = new_op(nullptr, OP_SWAP, NOTTEMP(why));
             if (!o) return 1;
-            a->push(o, owned);
+            a->push(o, with_decref);
             return 0;
         }
         if (e->e_what == T_EQ || e->e_what == T_COLONEQ)
@@ -182,7 +182,7 @@ int compile_expr(array *a, expr *e, int why)
                 }
                 auto o = new_op(nullptr, OP_ASSIGNLOCALVAR, NOTTEMP(why));
                 if (!o) return 1;
-                a->push(o, owned);
+                a->push(o, with_decref);
                 return 0;
             }
             if (e->e_arg[0]->e_what == T_NAME)
@@ -197,7 +197,7 @@ int compile_expr(array *a, expr *e, int why)
                 }
                 auto o = new_op(nullptr, OP_ASSIGN_TO_NAME, NOTTEMP(why));
                 if (!o) return 1;
-                a->push(o, owned);
+                a->push(o, with_decref);
                 a->push(e->e_arg[0]->e_obj);
                 return 0;
             }
@@ -215,7 +215,7 @@ int compile_expr(array *a, expr *e, int why)
             }
             auto o = new_op(nullptr, e->e_what == T_EQ ? OP_ASSIGN : OP_ASSIGNLOCAL, NOTTEMP(why));
             if (!o) return 1;
-            a->push(o, owned);
+            a->push(o, with_decref);
             return 0;
         }
         if (e->e_what >= T_EQ)
@@ -245,7 +245,7 @@ int compile_expr(array *a, expr *e, int why)
             a->push(o);
             o = new_op(nullptr, OP_ASSIGN, NOTTEMP(why));
             if (!o) return 1;
-            a->push(o, owned);
+            a->push(o, with_decref);
             return 0;
         }
         if (why == FOR_LVALUE)
@@ -277,7 +277,7 @@ int compile_expr(array *a, expr *e, int why)
                 return 1;
             }
             a1->push(&o_end);
-            a->push(a1, owned);
+            a->push(a1, with_decref);
             a->push(e->e_what == T_ANDAND ? &o_andand : &o_barbar);
             if (why == FOR_EFFECT)
             {
@@ -439,7 +439,7 @@ int compile_expr(array *a, expr *e, int why)
                     a->push(op1);
                     op2 = new_op(nullptr, OP_ASSIGN, FOR_EFFECT);
                     if (!op2) return 1;
-                    a->push(op2, owned);
+                    a->push(op2, with_decref);
                 }
             }
             else
@@ -463,7 +463,7 @@ int compile_expr(array *a, expr *e, int why)
                 a->push(op1);
                 op2 = new_op(nullptr, OP_ASSIGN, NOTTEMP(why));
                 if (!op2) return 1;
-                a->push(op2, owned);
+                a->push(op2, with_decref);
                 return 0;
             }
             break;
@@ -518,7 +518,7 @@ int compile_expr(array *a, expr *e, int why)
             }
             op1 = new_op(op_unary, 0, t_subtype(e->e_what));
             if (!op1) return 1;
-            a->push(op1, owned);
+            a->push(op1, with_decref);
             // if ((*a->a_top = new_op(op_unary, 0, t_subtype(e->e_what))) == nullptr)
             // {
             //     return 1;
@@ -542,7 +542,7 @@ int compile_expr(array *a, expr *e, int why)
             }
             op1 = new_op(nullptr, OP_AT, 0);
             if (!op1) return 1;
-            a->push(op1, owned);
+            a->push(op1, with_decref);
             break;
 
         case T_AND: /* Unary. */
@@ -633,7 +633,7 @@ int compile_expr(array *a, expr *e, int why)
             }
             op1 = new_op(nullptr, OP_COLON, e->e_what == T_COLONCARET ? OPC_COLON_CARET : 0);
             if (!op1) return 1;
-            a->push(op1, owned);
+            a->push(op1, with_decref);
             break;
 
         case T_PTR:

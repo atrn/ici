@@ -73,7 +73,7 @@ namespace ici
  * Note that one must never take the atomic form of a stack, and
  * assume the result is still a stack.
  */
-extern struct tag_owned {} owned;
+extern struct tag_with_decref {} with_decref;
 
 struct array : object
 {
@@ -155,7 +155,7 @@ struct array : object
      * (and decrefs it).  This can only be used if the array has sufficient
      * space as indicated by a succesful call to push_check.
      */
-    inline void push(object *o, struct tag_owned) {
+    inline void push(object *o, struct tag_with_decref) {
         *a_top++ = o;
         o->decref();
     }

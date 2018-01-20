@@ -1272,10 +1272,10 @@ static int sys_pipe()
     }
     if ((fd = new_int(pfd[0])) == nullptr)
         goto fail;
-    a->push(fd, owned);
+    a->push(fd, with_decref);
     if ((fd = new_int(pfd[1])) == nullptr)
         goto fail;
-    a->push(fd, owned);
+    a->push(fd, with_decref);
     return ret_with_decref(a);
 
  fail:
@@ -1700,7 +1700,7 @@ static int sys_passwd()
             a->decref();
             return 1;
         }
-        a->push(s, owned);
+        a->push(s, with_decref);
     }
     endpwent();
     return ret_with_decref(a);

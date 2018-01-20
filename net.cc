@@ -1766,14 +1766,14 @@ static int net_socketpair()
         a->decref();
         goto fail1;
     }
-    a->push(s, owned);
+    a->push(s, with_decref);
     if ((s = new_netsocket(sv[1])) == nullptr)
     {
         close(sv[1]);
         a->decref();
         goto fail;
     }
-    a->push(s, owned);
+    a->push(s, with_decref);
     return ret_with_decref(a);
 
 fail1:

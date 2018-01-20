@@ -80,7 +80,7 @@ static int get(parse *p, array *a)
         else if (a->push_check() == 0)
         {
             if (auto s = new_src(p->p_lineno, p->p_file->f_name))
-                a->push(s, owned);
+                a->push(s, with_decref);
         }
     }
 

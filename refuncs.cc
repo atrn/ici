@@ -199,7 +199,7 @@ static array *do_smash
             do_repl(s, repls[-i]->s_chars, repls[-i]->s_nchars, ns->s_chars);
             if ((ns = stringof(atom(ns, 1))) == nullptr)
                 goto fail;
-            a->push(ns, owned);
+            a->push(ns, with_decref);
         }
     }
     if (include_remainder && s != se)
@@ -212,7 +212,7 @@ static array *do_smash
             goto fail;
         if ((ns = new_str(s, se - s)) == nullptr)
             goto fail;
-        a->push(ns, owned);
+        a->push(ns, with_decref);
     }
     return a;
 

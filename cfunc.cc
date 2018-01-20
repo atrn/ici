@@ -2609,7 +2609,7 @@ f_gettokens()
                 goto fail;
             if ((s = new_str(buf, j)) == nullptr)
                 goto fail;
-            a->push(s, owned);
+            a->push(s, with_decref);
             if (loose_it)
                 f->decref();
             return ret_with_decref(a);
@@ -2623,7 +2623,7 @@ f_gettokens()
                 goto fail;
             if ((s = new_str(buf, j)) == nullptr)
                 goto fail;
-            a->push(s, owned);
+            a->push(s, with_decref);
             if (hardsep)
             {
                 j = 0;
@@ -2638,14 +2638,14 @@ f_gettokens()
                 goto fail;
             if ((s = new_str(buf, j)) == nullptr)
                 goto fail;
-            a->push(s, owned);
+            a->push(s, with_decref);
         case (S_IDLE << 8) + W_DELIM:
             if (a->push_check())
                 goto fail;
             buf[0] = c;
             if ((s = new_str(buf, 1)) == nullptr)
                 goto fail;
-            a->push(s, owned);
+            a->push(s, with_decref);
             j = 0;
             state = S_IDLE;
             break;

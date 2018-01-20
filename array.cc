@@ -16,7 +16,7 @@
 namespace ici
 {
 
-struct tag_owned owned;
+struct tag_with_decref with_decref;
 
 /*
  * Function to do the hard work for the inline function push_check().

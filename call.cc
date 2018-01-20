@@ -126,7 +126,7 @@ int callv(object *subject, object *callable, const char *types, va_list va)
     {
         auto no = new_int(nargs);
         if (!no) goto fail;
-        os.push(no, owned);
+        os.push(no, with_decref);
     }
     if (subject != nullptr)
     {

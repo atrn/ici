@@ -102,7 +102,7 @@ call_signal_handler(object *func, int signo)
         return 1;
     if ((isigno = new_int(signo)) == nullptr)
         return 1;
-    os.push(isigno, owned);
+    os.push(isigno, with_decref);
     os.push(o_one); /* One argument. */
     os.push(func);
     if ((ret_obj = evaluate(&o_call, 3)) == nullptr)
