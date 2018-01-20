@@ -4,7 +4,7 @@ This is a  note about the changes  to the ICI code  resulting from its
 re-working  from  C to  C++.  The  note  assumes familarity  with  the
 previous C code and C++.
 
-# The general approach
+## The general approach
 
 The interpreter's  architecture is retained.  All is as before  but is
 now expressed in C++. C++ is mostly  used as a _better C_ and the code
@@ -45,7 +45,7 @@ Various C-isms have been replaced by C++-isms:
 - cstddef and cstdint types are used - size_t, intXX_t, etc...
 - C++ standard threads are assumed
 
-### But no RAII. Yet.
+### But no RAII
 
 There are a  number of things in the interpreter  that may be better
 expresed using small RAII classes. This has not been done and is
@@ -70,8 +70,6 @@ really a reversion  to the naming used in the  original ICI code, what
 was termed _old names_. Prefixes were  added so ICI worked more nicely
 as a C  library embedded within applications but  C++ namespaces allow
 us to revert this. The code is easier to read as a result.
-
-# Major Changes
 
 ## ICI language changes
 
@@ -147,7 +145,7 @@ base `ici::type` class.
 The `ici::type` class is a C++ base class with virtual member functions
 for the  various per-type operations.  The different ICI types define
 classes that construct  themselves appropriately and override the member
-functions  they need  to override.  This approach replaces   the   initialized 
+functions  they need  to override.  This approach replaces   the   initialized
 `struct   ici_type`   structures   used previously - which was just a manually
 implemented virtual function table.
 
