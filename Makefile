@@ -7,7 +7,7 @@
 .PHONY: all default lib clean ici test install
 
 os=    $(shell uname|tr A-Z a-z)
-
+sudo?=
 prog=  ici
 lib=   libici.a
 ifeq ($(os),darwin)
@@ -114,9 +114,8 @@ clean:;	rm -rf etc/main.o etc/.dcc.d *.o .dcc.d $(prog) ici.h $(dll) $(lib)
 
 # Installation
 
-.PHONY: install-ici-dot-h install-libici install-ici-exe
-
-install: install-ici-dot-h install-libici install-ici-exe
+.PHONY:  install-ici-dot-h install-libici install-ici-exe install-ici-corefiles
+install: install-ici-dot-h install-libici install-ici-exe install-ici-corefiles
 
 install-ici-dot-h:
 	mkdir -p $(dest)/include
@@ -134,5 +133,17 @@ endif
 install-ici-exe:
 	mkdir -p $(dest)/bin
 	install -c -m 555 $(prog) $(dest)/bin
+
+install-ici-corefiles:
 	mkdir -p $(dest)/lib/ici
 	install -c -m 444 ici-core*.ici $(dest)/lib/ici
+
+.PHONY: full-install
+full-install:
+	$(MAKE) clean
+	$(MAKE) build=dll conf=$(conf)
+	$(sudo) $(MAKE) build=dll install dest=$(dest)
+	$(MAKE) clean
+	$(MAKE) build=lib conf=$(conf)
+	$(sudo) $(MAKE) build=lib install-libici install-ici-exe dest=$(dest)
+
