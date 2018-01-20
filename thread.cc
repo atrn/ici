@@ -56,7 +56,6 @@ static exec *leave2(bool unlock)
     exec *x;
 
     x = ex;
-    // if (!__sync_fetch_and_add(&x->x_critsect, 0))
     if (!x->x_critsect)
     {
         /*
@@ -98,7 +97,6 @@ static exec *leave2(bool unlock)
  */
 void enter(exec *x)
 {
-    // if (!__sync_fetch_and_add(&x->x_critsect, 0))
     if (!x->x_critsect)
     {
         ++ici_n_active_threads;
@@ -143,7 +141,6 @@ void yield()
     exec  *x;
 
     x = ex;
-    // if (ici_n_active_threads > 1 && __sync_fetch_and_add(&x->x_critsect, 0) == 0)
     if (ici_n_active_threads > 1 && x->x_critsect == 0)
     {
         os.decref();

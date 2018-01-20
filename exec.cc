@@ -510,7 +510,6 @@ object *evaluate(object *code, int n_operands)
             if (o->flagged(CF_CRIT_SECT))
             {
                 --ex->x_critsect;
-		// __sync_fetch_and_sub(&ex->x_critsect, 1);
                 /*
                  * Force a check for a yield (see top of loop). If we
                  * don't do this, there is a chance a loop that spends
@@ -979,7 +978,6 @@ object *evaluate(object *code, int n_operands)
                             if (s[-1]->flagged(CF_CRIT_SECT))
                             {
                                 --ex->x_critsect;
-				// __sync_fetch_and_sub(&ex->x_critsect, 1);
                                 exec_count = 1;
                             }
                             else if (s[-1]->flagged(CF_EVAL_BASE))
@@ -1052,7 +1050,6 @@ object *evaluate(object *code, int n_operands)
                             if (s[-1]->flagged(CF_CRIT_SECT))
                             {
                                 --ex->x_critsect;
-				// __sync_fetch_and_sub(&ex->x_critsect, 1);
                                 exec_count = 1;
                             }
                         }
@@ -1173,7 +1170,6 @@ object *evaluate(object *code, int n_operands)
                     ++xs.a_top;
                     --os.a_top;
                     ++ex->x_critsect;
-		    // __sync_fetch_and_add(&ex->x_critsect, 1);
                 }
                 continue;
 
@@ -1183,10 +1179,8 @@ object *evaluate(object *code, int n_operands)
                  * obj => - (os)
                  */
                 --ex->x_critsect;
-		// __sync_fetch_and_sub(&ex->x_critsect, 1);
                 waitfor(os.a_top[-1]);
                 ++ex->x_critsect;
-		// __sync_fetch_and_add(&ex->x_critsect, 1);
                 --os.a_top;
                 goto stable_stacks_continue;
 
@@ -1229,7 +1223,6 @@ object *evaluate(object *code, int n_operands)
                 if (c->flagged(CF_CRIT_SECT))
                 {
                     --ex->x_critsect;
-		    // __sync_fetch_and_sub(&ex->x_critsect, 1);
                     exec_count = 1;
                     continue;
                 }

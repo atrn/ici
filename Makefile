@@ -17,6 +17,7 @@ dll=	libici.so
 endif
 conf?= conf/$(os).h
 dest?= /opt/ici
+dccflags?=
 
 # The 'build' macro controls the type of build.  Uncomment one of the
 # following lines to select the desired type of build.
@@ -81,10 +82,10 @@ ifeq ($(build),dll)
 # This build variant has the interpreter code in a dynamic library.
 #
 $(prog): lib
-	@dcc etc/main.cc -o $@ -L. -lici
+	@dcc $(dccflags) etc/main.cc -o $@ -L. -lici
 
 lib:
-	@dcc --dll $(dll) -fPIC $(srcs) -lc++ $(libs) $(ldflags)
+	@dcc $(dccflags) --dll $(dll) -fPIC $(srcs) -lc++ $(libs) $(ldflags)
 
 
 else ifeq ($(build),exe)
@@ -92,7 +93,7 @@ else ifeq ($(build),exe)
 # interpreter and does not create any library.
 #
 $(prog):
-	@dcc etc/main.cc $(srcs) -o $@
+	@dcc $(dccflags) etc/main.cc $(srcs) -o $@
 
 else ifeq ($(build),lib)
 
@@ -100,10 +101,10 @@ else ifeq ($(build),lib)
 # linked against that library.
 #
 $(prog): lib
-	@dcc etc/main.cc -o $@ -L. -lici  $(libs)
+	@dcc $(dccflags) etc/main.cc -o $@ -L. -lici  $(libs)
 
 lib:
-	@dcc --lib $(lib) $(srcs)
+	@dcc $(dccflags) --lib $(lib) $(srcs)
 
 else
 $(error "Bad build - nothing matched!")

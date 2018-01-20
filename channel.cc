@@ -243,8 +243,11 @@ alt(array *alts)
  * int = alt(array)
  *
  * Determine which of a collection of channels is ready to perform I/O
- * and returns its index within that collection (allowing the I/O to
- * be performed).
+ * and returns an index to a channel within that collection which is
+ * ready.
+ *
+ * @todo return a set of ready channels
+ * @todo randomize selection to avoid livelock
  */
 static int f_alt()
 {
