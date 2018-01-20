@@ -146,4 +146,4 @@ full-install:
 	$(MAKE) clean
 	$(MAKE) build=lib conf=$(conf)
 	$(sudo) $(MAKE) build=lib install-libici install-ici-exe dest=$(dest)
-
+	$(MAKE) clean
