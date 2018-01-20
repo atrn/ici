@@ -1666,7 +1666,7 @@ public:
 
 };
 
-static ftype *skt_ftype = ptr_to_instance_of<class skt_ftype>();
+static ftype *skt_ftype = single_instance_of<class skt_ftype>();
 
 static skt_file * skt_open(handle *s, const char *mode)
 {

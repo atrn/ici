@@ -12,6 +12,6 @@ void debugger::fnresult(object *) {}
 void debugger::src(struct src *) {}
 void debugger::watch(object *, object *, object *) {}
 
-debugger *o_debug = ptr_to_instance_of<debugger>();
+debugger *o_debug = single_instance_of<debugger>();
 
 } // namespace ici

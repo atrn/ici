@@ -500,7 +500,7 @@ extern int set_timezone_vals(map *);
 // Defines a static instance of some type T and returns its address.
 // Aka a "Myer Singleton" but we only ever call it once for each T.
 //
-template <typename T> inline T *ptr_to_instance_of() {
+template <typename T> inline T *single_instance_of() {
     static T value;
     return &value;
 }
