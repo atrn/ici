@@ -1201,7 +1201,7 @@ f_call()
     object  **base;
     object  **e;
     int       i;
-    ici_int  *nargso;
+    integer  *nargso;
     object   *func;
 
     if (NARGS() < 2)

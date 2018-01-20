@@ -7,7 +7,7 @@
 namespace ici
 {
 
-ici_int *small_ints[small_int_count];
+integer *small_ints[small_int_count];
 
 /*
  * Return the int object with the value 'v'.  The returned object has had its
@@ -19,7 +19,7 @@ ici_int *small_ints[small_int_count];
  *
  * This --func-- forms part of the --ici-api--.
  */
-ici_int *new_int(int64_t i)
+integer *new_int(int64_t i)
 {
     object *o;
     object **po;
@@ -41,11 +41,11 @@ ici_int *new_int(int64_t i)
         }
     }
     ++supress_collect;
-    if ((o = ici_talloc(ici_int)) == NULL) {
+    if ((o = ici_talloc(integer)) == NULL) {
         --supress_collect;
         return NULL;
     }
-    set_tfnz(o, TC_INT, object::O_ATOM, 1, sizeof (ici_int));
+    set_tfnz(o, TC_INT, object::O_ATOM, 1, sizeof (integer));
     rego(o);
     intof(o)->i_value = i;
     --supress_collect;

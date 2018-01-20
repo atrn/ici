@@ -18,7 +18,7 @@ namespace ici
 
 union ostemp
 {
-    ici_int   i;
+    integer   i;
     ici_float f;
 };
 

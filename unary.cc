@@ -18,7 +18,7 @@ attempted(const char *what, const char *towhat)
 
 int op_unary()
 {
-    ici_int *i;
+    integer *i;
 
     switch (opof(xs.a_top[-1])->op_code)
     {

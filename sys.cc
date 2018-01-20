@@ -1002,7 +1002,7 @@ static int
 assign_timeval(map *s, str *k, struct timeval *tv)
 {
     map    *ss;
-    ici_int       *i;
+    integer       *i;
 
     if (k == NULL)
         ss = s;
@@ -1261,7 +1261,7 @@ static int sys_pipe()
 #else
     int         pfd[2];
     array     *a;
-    ici_int   *fd;
+    integer   *fd;
 
     if ((a = new_array(2)) == NULL)
         return 1;
@@ -1597,7 +1597,7 @@ static int sys_wait()
 #else
     int                 pid;
     map          *s;
-    ici_int             *i;
+    integer             *i;
     int                 status;
 
     if ((pid = wait(&status)) < 0)
@@ -1981,8 +1981,8 @@ static int sys_getrlimit()
     object        *what;
     int            resource;
     struct rlimit  rlimit;
-    map    *limit;
-    ici_int       *iv;
+    map           *limit;
+    integer       *iv;
 
     if (typecheck("o", &what))
         return 1;

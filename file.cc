@@ -120,7 +120,7 @@ object * file_type::fetch(object *o, object *k)
     }
     if (fileof(o)->f_type == parse_ftype && k == SS(line))
     {
-        ici_int *l;
+        integer *l;
 
         if ((l = new_int(parseof(fileof(o)->f_file)->p_lineno)) != NULL) {
             l->decref();

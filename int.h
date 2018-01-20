@@ -16,12 +16,12 @@ namespace ici
  *
  * This --struct-- forms part of the --ici-api--.
  */
-struct ici_int : object
+struct integer : object
 {
     int64_t i_value;
 };
 
-inline ici_int *intof(object *o) { return o->as<ici_int>(); }
+inline integer *intof(object *o) { return o->as<integer>(); }
 inline bool isint(object *o) { return o->isa(TC_INT); }
 
 /*
@@ -31,7 +31,7 @@ inline bool isint(object *o) { return o->isa(TC_INT); }
 class int_type : public type
 {
 public:
-    int_type() : type("int", sizeof (struct ici_int)) {}
+    int_type() : type("int", sizeof (struct integer)) {}
     int cmp(object *, object *) override;
     unsigned long hash(object *) override;
     int save(archiver *, object *) override;
@@ -44,7 +44,7 @@ public:
 constexpr int small_int_count = 256;
 constexpr int small_int_mask  = 0xFF;
 
-extern ici_int *small_ints[small_int_count];
+extern integer *small_ints[small_int_count];
 
 } // namespace ici
 

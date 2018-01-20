@@ -797,7 +797,7 @@ static int net_select()
         return 1;
     /* Add in count */
     {
-        ici_int  *nobj;
+        integer  *nobj;
 
         if ((nobj = new_int(n)) == NULL)
             goto fail;

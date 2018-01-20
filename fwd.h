@@ -202,7 +202,7 @@ struct file;
 struct forall;
 struct func;
 struct handle;
-struct ici_int;
+struct integer;
 struct ici_float;
 struct map;
 struct mark;
@@ -230,8 +230,8 @@ constexpr int                   nsubexp = 10;
 // Globals
 //
 extern DLI null                 o_null;
-extern DLI ici_int              *o_zero;
-extern DLI ici_int              *o_one;
+extern DLI integer              *o_zero;
+extern DLI integer              *o_one;
 extern DLI char                 *error;
 extern DLI exec                 *execs;
 extern DLI exec                 *ex;
@@ -311,7 +311,7 @@ extern ptr           *new_ptr(object *, object *);
 extern objwsup       *new_module(cfunc *cf);
 extern objwsup       *new_class(cfunc *cf, objwsup *super);
 extern map           *new_map();
-extern ici_int       *new_int(int64_t);
+extern integer       *new_int(int64_t);
 extern ici_float     *new_float(double);
 extern handle        *new_handle(void *, str *, objwsup *);
 extern method        *new_method(object *, object *);

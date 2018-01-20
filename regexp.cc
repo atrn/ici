@@ -163,7 +163,7 @@ object *regexp_type::fetch(object *o, object *k)
     if (k == SS(options))
     {
         int       options;
-        ici_int   *io;
+        integer   *io;
 
         pcre_info(regexpof(o)->r_re, &options, NULL);
         if ((io = new_int(options)) == NULL)

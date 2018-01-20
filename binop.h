@@ -980,12 +980,12 @@ usei:
             }
         }
         ++supress_collect;
-        if ((o = ici_talloc(ici_int)) == nullptr)
+        if ((o = ici_talloc(integer)) == nullptr)
         {
             --supress_collect;
             FAIL();
         }
-        set_tfnz(o, TC_INT, object::O_ATOM, 1, sizeof (ici_int));
+        set_tfnz(o, TC_INT, object::O_ATOM, 1, sizeof (integer));
         intof(o)->i_value = i;
         rego(o);
         --supress_collect;

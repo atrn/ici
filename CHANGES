@@ -1,5 +1,11 @@
 Major Changes in Version 5
 
+*    'ici_int' has been renamed 'integer'
+
+     The "ici_" prefix is to avoid the keyword but is a
+     little ugly with the use of a namespace. The new
+     name is the same length.
+
 *    'struct' has been renamed 'map'
 
      ICI previously re-used C's 'struct' keyword as the name

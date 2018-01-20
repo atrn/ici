@@ -95,7 +95,7 @@ static int  currently_blocked;
 static int
 call_signal_handler(object *func, int signo)
 {
-    ici_int           *isigno;
+    integer           *isigno;
     object           *ret_obj;
 
     if (os.push_check(3 + 80)) /* see comment in ici/call.c */

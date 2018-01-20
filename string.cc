@@ -417,7 +417,7 @@ int string_type::assign(object *o, object *k, object *v)
 int string_type::forall(object *o) {
     struct forall *fa = forallof(o);
     str *s;
-    ici_int *i;
+    integer *i;
 
     s = stringof(fa->fa_aggr);
     if (++fa->fa_index >= s->s_nchars) {

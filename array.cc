@@ -668,7 +668,7 @@ int array_type::forall(object *o)
 {
     auto     fa = forallof(o);
     array   *a;
-    ici_int *i;
+    integer *i;
 
     a = arrayof(fa->fa_aggr);
     if (++fa->fa_index >= a->len())

@@ -1363,7 +1363,7 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
     map        *d;
     objwsup    *ows;
     object     *o;
-    ici_int    *i;
+    integer    *i;
     int         stepz;
 
     switch (next(p, a)) {

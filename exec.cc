@@ -58,8 +58,8 @@ array     xs;
 array     os;
 array     vs;
 
-ici_int   *o_zero;
-ici_int   *o_one;
+integer   *o_zero;
+integer   *o_one;
 
 /*
  * Set this to non-zero to cause an "aborted" failure even when the ICI
