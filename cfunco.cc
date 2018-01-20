@@ -73,8 +73,8 @@ int assign_cfuncs(objwsup *s, cfunc *cf)
     while (cf->cf_name != NULL)
     {
         /* ### should be a decref here? ### */
-        assert(ici_fetch_base(s, cf->cf_name) == ici_null);
-        if (ici_fetch_base(s, cf->cf_name) != ici_null)
+        assert(ici_fetch_base(s, cf->cf_name) == null);
+        if (ici_fetch_base(s, cf->cf_name) != null)
         {
             fprintf(stderr, "WARNING: duplicate builtin function '%s'\n", cf->cf_name->s_chars);
         }
@@ -159,7 +159,7 @@ object * cfunc_type::fetch(object *o, object *k)
 {
     if (k == SS(name))
         return cfuncof(o)->cf_name;
-    return ici_null;
+    return null;
 }
 
 void cfunc_type::objname(object *o, char p[objnamez])

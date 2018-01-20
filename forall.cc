@@ -24,7 +24,7 @@ int op_forall()
 {
     forall *fa;
 
-    if (os.a_top[-2] == ici_null)
+    if (os.a_top[-2] == null)
     {
         os.a_top -= 6;
         --xs.a_top;

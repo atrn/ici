@@ -148,12 +148,12 @@ int archiver::save_ref(object *o) {
 }
 
 object *archiver::lookup(object *obj) {
-    object *v = ici_null;
+    object *v = null;
     if (auto k = make_key(obj)) {
         v = a_sent->fetch(k);
         k->decref();
     }
-    return v == ici_null ? NULL : v;
+    return v == null ? NULL : v;
 }
 
 int archiver::op_func_code(int_func *fn)

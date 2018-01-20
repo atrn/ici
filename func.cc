@@ -138,7 +138,7 @@ object * func_type::fetch(object *o, object *k)
     }
     if (r == NULL && error == NULL)
     {
-        r = ici_null;
+        r = null;
     }
     return r;
 }

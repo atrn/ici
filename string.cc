@@ -423,7 +423,7 @@ int string_type::forall(object *o) {
     if (++fa->fa_index >= s->s_nchars) {
         return -1;
     }
-    if (fa->fa_vaggr != ici_null) {
+    if (fa->fa_vaggr != null) {
         if ((s = new_str(&s->s_chars[fa->fa_index], 1)) == NULL) {
             return 1;
 	}
@@ -432,7 +432,7 @@ int string_type::forall(object *o) {
 	}
         s->decref();
     }
-    if (fa->fa_kaggr != ici_null) {
+    if (fa->fa_kaggr != null) {
         if ((i = new_int((int64_t)fa->fa_index)) == NULL) {
             return 1;
 	}

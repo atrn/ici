@@ -116,7 +116,7 @@ object * file_type::fetch(object *o, object *k)
         if (fileof(o)->f_name != NULL) {
             return fileof(o)->f_name;
 	}
-        return ici_null;
+        return null;
     }
     if (fileof(o)->f_type == parse_ftype && k == SS(line))
     {

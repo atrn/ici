@@ -48,7 +48,7 @@ object * method_type::fetch(object *o, object *k)
         return m->m_subject;
     if (k == SS(callable))
         return m->m_callable;
-    return ici_null;
+    return null;
 }
 
 int method_type::call(object *o, object *)

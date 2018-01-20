@@ -64,7 +64,7 @@ int main(int argc, char *argv[]) {
      */
     if ((av = new_array(1)) == NULL)
         goto fail;
-    av->push(ici_null); /* Leave room for argv[0]. */
+    av->push(null); /* Leave room for argv[0]. */
     arg0 = NULL;
     if (argc <= 1)
         goto usage;
@@ -170,7 +170,7 @@ int main(int argc, char *argv[]) {
             }
         }
     }
-    if (av->a_base[0] == ici_null)
+    if (av->a_base[0] == null)
     {
         if (arg0 == NULL)
             arg0 = argv[0];

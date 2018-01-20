@@ -402,7 +402,7 @@
             re_bra[2] < 0 || re_bra[3] < 0
         )
         {
-            o = ici_null;
+            o = null;
             USEo();
         }
         else
@@ -426,7 +426,7 @@
         re_nbra = ici_pcre_exec_simple(regexpof(o0), stringof(o1));
         if (re_nbra < 0)
         {
-            o = ici_null;
+            o = null;
             USEo();
         }
         if ((o = new_array(re_nbra)) == nullptr)
@@ -622,7 +622,7 @@
                 {
                     continue;
                 }
-                if (ici_assign(s, *sl, ici_null))
+                if (ici_assign(s, *sl, null))
                 {
                     s->decref();
                     FAIL();
@@ -656,7 +656,7 @@
                 }
                 if
                 (
-                    ici_fetch(o1, *sl) != ici_null
+                    ici_fetch(o1, *sl) != null
                     &&
                     ici_assign(s, *sl, o_one)
                 )
@@ -852,7 +852,7 @@ usef:
         {
             FAIL();
         }
-        if ((o = ex->x_os_temp_cache->a_base[n]) == ici_null)
+        if ((o = ex->x_os_temp_cache->a_base[n]) == null)
         {
             if ((o = ici_object_cast(ici_talloc(ostemp))) == nullptr)
             {
@@ -942,7 +942,7 @@ usei:
         {
             FAIL();
         }
-        if ((o = ex->x_os_temp_cache->a_base[n]) == ici_null)
+        if ((o = ex->x_os_temp_cache->a_base[n]) == null)
         {
             if ((o = ici_object_cast(ici_talloc(ostemp))) == nullptr)
             {

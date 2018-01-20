@@ -70,7 +70,7 @@ int callv(object *subject, object *callable, const char *types, va_list va)
     }
     for (arg = 0; arg < nargs; ++arg)
     {
-        os.push(ici_null);
+        os.push(null);
     }
     for (arg = -1; arg >= -nargs; --arg)
     {
@@ -209,13 +209,13 @@ int callv(str *func_name, const char *types, va_list va)
         va_list tmp;
         va_copy(tmp, va);
         member_obj = va_arg(tmp, object *);
-        if ((func_obj = ici_fetch(member_obj, func_name)) == ici_null)
+        if ((func_obj = ici_fetch(member_obj, func_name)) == null)
         {
             return set_error("\"%s\" undefined in object", func_name->s_chars);
         }
         va_end(tmp);
     }
-    else if ((func_obj = ici_fetch(vs.a_top[-1], func_name)) == ici_null)
+    else if ((func_obj = ici_fetch(vs.a_top[-1], func_name)) == null)
     {
         return set_error("\"%s\" undefined", func_name->s_chars);
     }
@@ -320,12 +320,12 @@ int call(str *func_name, const char *types, ...)
     {
         va_start(va, types);
         member_obj = va_arg(va, object *);
-        if ((func_obj = ici_fetch(member_obj, func_name)) == ici_null)
+        if ((func_obj = ici_fetch(member_obj, func_name)) == null)
         {
             return set_error("\"%s\" undefined in object", func_name->s_chars);
         }
     }
-    else if ((func_obj = ici_fetch(vs.a_top[-1], func_name)) == ici_null)
+    else if ((func_obj = ici_fetch(vs.a_top[-1], func_name)) == null)
     {
         return set_error("\"%s\" undefined", func_name->s_chars);
     }

@@ -641,12 +641,12 @@ int map_type::forall(object *o)
         {
             continue;
         }
-        if (fa->fa_vaggr != ici_null)
+        if (fa->fa_vaggr != null)
         {
             if (ici_assign(fa->fa_vaggr, fa->fa_vkey, sl->sl_value))
                 return 1;
         }
-        if (fa->fa_kaggr != ici_null)
+        if (fa->fa_kaggr != null)
         {
             if (ici_assign(fa->fa_kaggr, fa->fa_kkey, sl->sl_key))
                 return 1;
@@ -682,7 +682,7 @@ object *map_type::fetch(object *o, object *k)
     case -1: return NULL;               /* Error. */
     case  1: return v;                  /* Found. */
     }
-    return ici_null;                    /* Not found. */
+    return null;                    /* Not found. */
 }
 
 object *map_type::fetch_base(object *o, object *k)
@@ -692,7 +692,7 @@ object *map_type::fetch_base(object *o, object *k)
     sl = find_raw_slot(mapof(o), k);
     if (sl->sl_key == NULL)
     {
-        return ici_null;
+        return null;
     }
     if (isstring(k))
     {
@@ -716,7 +716,7 @@ int map_type::save(archiver *ar, object *o) {
     object *super = objwsupof(s)->o_super;
 
     if (super == nullptr) {
-        super = ici_null;
+        super = null;
     }
     if (ar->save_name(o) || ar->save(super) || ar->write(int64_t(s->s_nels)))
         return 1;
@@ -747,7 +747,7 @@ object *map_type::restore(archiver *ar) {
     if ((super = restore(ar)) == nullptr) {
         goto fail1;
     }
-    if (super != ici_null) {
+    if (super != null) {
         objwsupof(s)->o_super = objwsupof(super);
         super->decref();
     }

@@ -334,7 +334,7 @@ int compile_expr(array *a, expr *e, int why)
         case T_NULL:
             if (why != FOR_EFFECT)
             {
-                a->push(ici_null);
+                a->push(null);
             }
             break;
 

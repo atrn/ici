@@ -417,7 +417,7 @@ object * handle_type::fetch_base(object *o, object *k)
     if (!hassuper(o))
         return fetch_fail(o, k);
     if (!o->flagged(ICI_H_HAS_PRIV_MAP))
-        return ici_null;
+        return null;
     return ici_fetch_base(h->o_super, k);
 }
 

@@ -77,7 +77,7 @@ int array::fault_stack(ptrdiff_t i)
     }
     while (--i >= 0)
     {
-        push(ici_null);
+        push(null);
     }
     return 0;
 }
@@ -308,7 +308,7 @@ int array::push_front(object *o)
 }
 
 /*
- * Pop and return the top of the given array, or 'ici_null' if it is empty.
+ * Pop and return the top of the given array, or 'null' if it is empty.
  * Returns NULL on error (for example, attempting to pop and atomic array).
  * Usual error conventions.
  *
@@ -350,11 +350,11 @@ object *array::pop_back()
     }
     assert(a_base <= a_top);
     assert(a_top <= a_limit);
-    return ici_null;
+    return null;
 }
 
 /*
- * Pop and return the front of the given array, or 'ici_null' if it is empty.
+ * Pop and return the front of the given array, or 'null' if it is empty.
  * Returns NULL on error (for example, attempting to pop and atomic array).
  * Usual error conventions.
  *
@@ -396,12 +396,12 @@ object *array::pop_front()
     }
     assert(a_base <= a_bot);
     assert(a_bot <= a_limit);
-    return ici_null;
+    return null;
 }
 
 /*
  * Return a pointer to the slot in the array 'a' that does, or should contain
- * the index 'i'.  This will grow and 'ici_null' fill the array as necessary
+ * the index 'i'.  This will grow and 'null' fill the array as necessary
  * (and fail if the array is atomic).  Only positive 'i'.  Returns NULL on
  * error, usual conventions.  This will not fail if 'i' is less than 'len()'.
  *
@@ -428,7 +428,7 @@ object **array::find_slot(ptrdiff_t i)
     i = i - n + 1; /* Number of elements we need to add. */
     while (--i >= 0)
     {
-        if (push_back(ici_null))
+        if (push_back(null))
         {
             return NULL;
         }
@@ -437,7 +437,7 @@ object **array::find_slot(ptrdiff_t i)
 }
 
 /*
- * Return the element or the array 'a' from index 'i', or 'ici_null' if out of
+ * Return the element or the array 'a' from index 'i', or 'null' if out of
  * range.  No incref is done on the object.
  *
  * This --func-- forms part of the --ici-api--.
@@ -451,7 +451,7 @@ object *array::get(ptrdiff_t i)
     {
         return *span(i, NULL);
     }
-    return ici_null;
+    return null;
 }
 
 /*
@@ -673,12 +673,12 @@ int array_type::forall(object *o)
     a = arrayof(fa->fa_aggr);
     if (++fa->fa_index >= a->len())
         return -1;
-    if (fa->fa_vaggr != ici_null)
+    if (fa->fa_vaggr != null)
     {
         if (ici_assign(fa->fa_vaggr, fa->fa_vkey, a->get(fa->fa_index)))
             return 1;
     }
-    if (fa->fa_kaggr != ici_null)
+    if (fa->fa_kaggr != null)
     {
         if ((i = new_int((long)fa->fa_index)) == NULL)
             return 1;

@@ -16,9 +16,10 @@ int null_type::save(archiver *, object *)
 
 object *null_type::restore(archiver *)
 {
-    return ici_null;
+    return null;
 }
 
-null o_null;
+struct null o_null;
+struct null *null = &o_null;
 
 } // namespace ici

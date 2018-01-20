@@ -201,7 +201,7 @@ inline object *fetch(object *s, object *k) {
  * parse).  The execution procedes on top of the current stacks
  * (execution, operand and variable).  This call to evaluate will return when
  * the execution stack again returns to the level it was when entered.  It
- * then returns the object left on the operand stack, or ici_null if there
+ * then returns the object left on the operand stack, or null if there
  * wasn't one.  The returned object is ici_incref()ed.  Returns NULL on error,
  * usual conventions (i.e.  'error' points to the error message).
  *
@@ -435,7 +435,7 @@ object *evaluate(object *code, int n_operands)
                      * Try to load a library of that name and repeat
                      * the lookup before deciding it is undefined.
                      */
-                    if ((f = ici_fetch(vs.a_top[-1], SS(load))) == ici_null)
+                    if ((f = ici_fetch(vs.a_top[-1], SS(load))) == null)
                     {
                         set_error("\"%s\" undefined", stringof(o)->s_chars);
                         goto fail;
@@ -484,7 +484,7 @@ object *evaluate(object *code, int n_operands)
              * to return from evaluate().
              *
              * First note the top of the operand stack, if there is anything
-             * on it, it becomes the return value, else we return ici_null.
+             * on it, it becomes the return value, else we return null.
              * The caller knows if there is really a value to return.
              */
             xs.push(o);  /* Restore formal state. */
@@ -500,7 +500,7 @@ object *evaluate(object *code, int n_operands)
                 }
                 else
                 {
-                    o = ici_null;
+                    o = null;
                 }
                 o->incref();
                 unwind();
@@ -1146,7 +1146,7 @@ object *evaluate(object *code, int n_operands)
                             goto stable_stacks_continue;
                         }
                     }
-                    xs.push(ici_null);
+                    xs.push(null);
                     xs.push(&o_switcher);
                     get_pc(arrayof(os.a_top[-2]), xs.a_top);
                     pcof(*xs.a_top)->pc_next += intof(sl->sl_value)->i_value;
@@ -1340,7 +1340,7 @@ object *exec_type::fetch(object *o, object *k)
     {
         if (x->x_error == NULL)
         {
-            return ici_null;
+            return null;
         }
         str *s = new_str_nul_term(x->x_error);
         if (s != NULL)
@@ -1354,7 +1354,7 @@ object *exec_type::fetch(object *o, object *k)
         switch (x->x_state)
         {
         case XS_ACTIVE:
-            return ici_null;
+            return null;
 
         case XS_RETURNED:
             return x->x_result;
@@ -1377,7 +1377,7 @@ object *exec_type::fetch(object *o, object *k)
         default:                assert(0);
         }
     }
-    return ici_null;
+    return null;
 }
 
 op    o_quote{OP_QUOTE};

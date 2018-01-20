@@ -259,7 +259,7 @@ extern DLI ftype                *parse_ftype;
  *
  * This --macro-- forms part of the --ici-api--.
  */
-#define ici_null                (&ici::o_null)
+extern DLI null                 *null;
 
 /*
  * Use 'return null_ret();' to return a ICI NULL from an intrinsic
@@ -367,7 +367,7 @@ extern array         *need_path();
 
 extern char          *objname(char [objnamez], object *);
 
-#define null_ret()    ret_no_decref(ici_null)
+#define null_ret()    ret_no_decref(null)
 
 extern int            find_on_path(char [FILENAME_MAX], const char *);
 

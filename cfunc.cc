@@ -1297,7 +1297,7 @@ f_exit()
     switch (NARGS())
     {
     case 0:
-        rc = ici_null;
+        rc = null;
         break;
 
     case 1:
@@ -1310,7 +1310,7 @@ f_exit()
     }
     if (isint(rc))
         status = (int)intof(rc)->i_value;
-    else if (rc == ici_null)
+    else if (rc == null)
         status = 0;
     else if (isstring(rc))
     {
@@ -2163,7 +2163,7 @@ f_assign()
         if (isset(s))
             v = o_one;
         else
-            v = ici_null;
+            v = null;
         break;
 
     case 3:
@@ -2700,7 +2700,7 @@ f_sort()
 #define SWAP(a, b)      {o = base[a]; base[a] = base[b]; base[b] = o;}
 #define CMP(rp, a, b)   call(f, "i=ooo", rp, base[a], base[b], uarg)
 
-    uarg = ici_null;
+    uarg = null;
     switch (NARGS())
     {
     case 3:

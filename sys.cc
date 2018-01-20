@@ -440,15 +440,15 @@ struct_to_flock(map *d, struct flock *flock)
 {
     object    *o;
 
-    if ((o = ici_fetch(d, SS(start))) == ici_null)
+    if ((o = ici_fetch(d, SS(start))) == null)
         flock->l_start = 0;
     else
         flock->l_start = intof(o)->i_value;
-    if ((o = ici_fetch(d, SS(len))) == ici_null)
+    if ((o = ici_fetch(d, SS(len))) == null)
         flock->l_len = 0;
     else
         flock->l_len = intof(o)->i_value;
-    if ((o = ici_fetch(d, SS(type))) == ici_null)
+    if ((o = ici_fetch(d, SS(type))) == null)
         flock->l_type = F_RDLCK;
     else if (isstring(o))
     {
@@ -469,7 +469,7 @@ struct_to_flock(map *d, struct flock *flock)
         set_error("invalid lock type");
         return 1;
     }
-    if ((o = ici_fetch(d, SS(whence))) == ici_null)
+    if ((o = ici_fetch(d, SS(whence))) == null)
         flock->l_whence = SEEK_SET;
     else
         flock->l_whence = intof(o)->i_value;
@@ -540,7 +540,7 @@ static int sys_fcntl()
     {
     case 2:
         iarg = 1;
-        arg = ici_null;
+        arg = null;
         if (typecheck("io", &fd, &what))
             return 1;
         break;
@@ -652,7 +652,7 @@ static int sys_mkdir()
     if (mkdir(path, mode) == -1)
         return get_last_errno("mkdir", path);
 #endif
-    return ret_no_decref(ici_null);
+    return ret_no_decref(null);
 }
 
 /*
@@ -675,7 +675,7 @@ static int sys_mkfifo()
         return 1;
     if (mkfifo(path, mode) == -1)
         return get_last_errno("mkfifo", path);
-    return ret_no_decref(ici_null);
+    return ret_no_decref(null);
 #endif /* _WIN32 */
 }
 
@@ -782,7 +782,7 @@ static int sys_symlink()
         return 1;
     if (symlink(a, b) == -1)
         return get_last_errno("symlink", a);
-    return ret_no_decref(ici_null);
+    return ret_no_decref(null);
 #endif /* _WIN32 */
 }
 
@@ -1100,13 +1100,13 @@ fetch_timeval(object *s, struct timeval *tv)
 
     if (!ismap(s))
         return 1;
-    if ((o = ici_fetch(s, SS(usec))) == ici_null)
+    if ((o = ici_fetch(s, SS(usec))) == null)
         tv->tv_usec = 0;
     else if (isint(o))
         tv->tv_usec = intof(o)->i_value;
     else
         return 1;
-    if ((o = ici_fetch(s, SS(sec))) == ici_null)
+    if ((o = ici_fetch(s, SS(sec))) == null)
         tv->tv_sec = 0;
     else if (isint(o))
         tv->tv_sec = intof(o)->i_value;
@@ -1153,11 +1153,11 @@ static int sys_setitimer()
         else
             return argerror(0);
     }
-    if ((o = ici_fetch(s, SS(interval))) == ici_null)
+    if ((o = ici_fetch(s, SS(interval))) == null)
         value.it_interval.tv_sec = value.it_interval.tv_usec = 0;
     else if (fetch_timeval(o, &value.it_interval))
         goto invalid_itimerval;
-    if ((o = ici_fetch(s, SS(value))) == ici_null)
+    if ((o = ici_fetch(s, SS(value))) == null)
         value.it_value.tv_sec = value.it_value.tv_usec = 0;
     else if (fetch_timeval(o, &value.it_value))
         goto invalid_itimerval;
@@ -2067,12 +2067,12 @@ static int sys_setrlimit()
     }
     else if (ismap(value))
     {
-        if ((iv = ici_fetch(value, SS(cur))) == ici_null)
+        if ((iv = ici_fetch(value, SS(cur))) == null)
             goto fail;
         if (!isint(iv))
             goto fail;
         rlimit.rlim_cur = intof(iv)->i_value;
-        if ((iv = ici_fetch(value, SS(max))) == ici_null)
+        if ((iv = ici_fetch(value, SS(max))) == null)
             goto fail;
         if (!isint(iv))
             goto fail;

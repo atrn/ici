@@ -114,7 +114,7 @@ object * mem_type::fetch(object *o, object *k)
         return fetch_fail(o, k);
     i = intof(k)->i_value;
     if (i < 0 || i >= (int64_t)m->m_length)
-        return ici_null;
+        return null;
     switch (m->m_accessz)
     {
     case 1:

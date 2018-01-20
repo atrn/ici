@@ -277,7 +277,7 @@ object * set_type::fetch(object *o, object *k)
 {
     auto slot = *ici_find_set_slot(setof(o), k);
     if (slot == NULL) {
-        return ici_null;
+        return null;
     }
     return o_one;
 }
@@ -295,9 +295,9 @@ int set_type::forall(object *o)
         {
             continue;
         }
-        if (fa->fa_kaggr == ici_null)
+        if (fa->fa_kaggr == null)
         {
-            if (fa->fa_vaggr != ici_null)
+            if (fa->fa_vaggr != null)
             {
                 if (ici_assign(fa->fa_vaggr, fa->fa_vkey, *sl))
                 {
@@ -307,7 +307,7 @@ int set_type::forall(object *o)
         }
         else
         {
-            if (fa->fa_vaggr != ici_null)
+            if (fa->fa_vaggr != null)
             {
                 if (ici_assign(fa->fa_vaggr, fa->fa_vkey, o_one))
                     return 1;

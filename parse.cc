@@ -241,10 +241,10 @@ static int function(parse *p, str *name) {
         goto fail;
     }
     for (fp = a->a_base; fp < a->a_top; ++fp) {
-        if (ici_assign(f->f_autos, *fp, ici_null))
+        if (ici_assign(f->f_autos, *fp, null))
             goto fail;
     }
-    ici_assign(f->f_autos, SS(vargs), ici_null);
+    ici_assign(f->f_autos, SS(vargs), null);
     f->f_autos->o_super = objwsupof(vs.a_top[-1])->o_super;
     p->p_func = f;
     f->f_args = a;
@@ -263,7 +263,7 @@ static int function(parse *p, str *name) {
     if (f->f_code->push_check(3)) {
         goto fail;
     }
-    f->f_code->push(ici_null);
+    f->f_code->push(null);
     f->f_code->push(&o_return);
     f->f_code->push(&o_end);
 #   if DISASSEMBLE
@@ -333,7 +333,7 @@ static int data_def(parse *p, objwsup *ows) {
             break;
 
         default:
-            o = ici_null;
+            o = null;
             o->incref();
             reject(p);
         }
@@ -342,7 +342,7 @@ static int data_def(parse *p, objwsup *ows) {
          * Assign to the new variable if it doesn't appear to exist
          * or has an explicit initialisation.
          */
-        if (hasinit || ici_fetch_base(ows, n) == ici_null) {
+        if (hasinit || ici_fetch_base(ows, n) == null) {
             if (ici_assign_base(ows, n, o)) {
                 goto fail;
             }
@@ -767,7 +767,7 @@ static int primary(parse *p, expr **ep, int exclude) {
                     }
                     else if (curtok == T_COMMA || curtok == T_OFFSQUARE) {
                         reject(p);
-                        o = ici_null;
+                        o = null;
                         o->incref();
                     } else {
                         reject(p);
@@ -1284,7 +1284,7 @@ static int const_expression(parse *p, object **po, int exclude) {
      */
     switch (e->e_what) {
     case T_NULL:
-        *po = ici_null;
+        *po = null;
         goto simple;
 
     case T_INT:
@@ -1645,8 +1645,8 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
                 if (a->push_check(2)) {
                     return -1;
                 }
-                a->push(ici_null);
-                a->push(ici_null);
+                a->push(null);
+                a->push(null);
             }
             if (next(p, a) == T_COMMA) {
                 if (expression(p, a, FOR_LVALUE, T_COMMA) == -1) {
@@ -1670,8 +1670,8 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
                 if (a->push_check(2)) {
                     return -1;
                 }
-                a->push(ici_null);
-                a->push(ici_null);
+                a->push(null);
+                a->push(null);
             }
             if (expression(p, a, FOR_VALUE, T_NONE) == -1) {
                 return -1;
@@ -1860,7 +1860,7 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
             case -1: return -1;
             case 0:
                 if (a->push_check()) return -1;
-                a->push(ici_null);
+                a->push(null);
             }
             if (next(p, a) != T_SEMICOLON) {
                 reject(p);

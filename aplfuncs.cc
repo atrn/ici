@@ -219,7 +219,7 @@ static int f_build()
         return null_ret();
     if (c.c_cstart == NULL)
     {
-        default_content = ici_null;
+        default_content = null;
         c.c_cstart = &default_content;
         c.c_climit = c.c_cstart + 1;
         c.c_cstep = 1;
