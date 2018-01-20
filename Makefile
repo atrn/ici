@@ -142,9 +142,9 @@ install-ici-corefiles:
 .PHONY: full-install
 full-install:
 	$(MAKE) clean
-	$(MAKE) build=dll conf=$(conf)
+	$(MAKE) build=dll conf=$(conf) dccflags=--quiet
 	$(sudo) $(MAKE) build=dll install dest=$(dest)
 	$(MAKE) clean
-	$(MAKE) build=lib conf=$(conf)
+	$(MAKE) build=lib conf=$(conf) dccflags=--quiet
 	$(sudo) $(MAKE) build=lib install-libici install-ici-exe dest=$(dest)
 	$(MAKE) clean
