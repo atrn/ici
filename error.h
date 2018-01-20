@@ -18,7 +18,8 @@ namespace ici
 constexpr int max_error_msg = 1024;
 
 /*
- * Set the global ici::error value.
+ * Set the global ici::error value and return
+ * non-zero as per the error returning convention.
  *
  * This --func-- forms part of the --ici-api--.
  */

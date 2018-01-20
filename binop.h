@@ -828,7 +828,7 @@
                 binop_name(opof(o)->op_code),
                 objname(n2, o1));
         }
-        error = buf;
+        set_error(buf);
         FAIL();
     }
 
