@@ -16,7 +16,7 @@ namespace ici
 /*
  * Unwind the execution stack until a catcher is found.  Then unwind
  * the scope and operand stacks to the matching depth (but only if it is).
- * Returns the catcher, or NULL if there wasn't one.
+ * Returns the catcher, or nullptr if there wasn't one.
  */
 catcher *unwind()
 {
@@ -35,13 +35,13 @@ catcher *unwind()
         }
     }
     assert(0);
-    return NULL;
+    return nullptr;
 }
 
 /*
  * Return a new catcher object with the given catcher object and
  * corresponding to the operand and variable stack depths given.
- * The catcher, o, may be NULL.
+ * The catcher, o, may be nullptr.
  *
  * Note: catch's are special. Unlike most types this new_catcher function
  * returns its object with a ref count of 0 not 1.
@@ -50,8 +50,8 @@ catcher *new_catcher(object *o, int odepth, int vdepth, int flags)
 {
      catcher *c;
 
-    if ((c = ici_talloc(catcher)) == NULL)
-        return NULL;
+    if ((c = ici_talloc(catcher)) == nullptr)
+        return nullptr;
     set_tfnz(c, TC_CATCHER, flags, 0, 0);
     c->c_catcher = o;
     c->c_odepth = odepth;
@@ -67,7 +67,7 @@ catcher *new_catcher(object *o, int odepth, int vdepth, int flags)
  */
 int op_onerror()
 {
-    if ((xs.a_top[-1] = new_catcher(os.a_top[-1], os.a_top - os.a_base - 2, vs.a_top - vs.a_base, 0)) == NULL)
+    if ((xs.a_top[-1] = new_catcher(os.a_top[-1], os.a_top - os.a_base - 2, vs.a_top - vs.a_base, 0)) == nullptr)
         return 1;
     get_pc(arrayof(os.a_top[-2]), xs.a_top);
     ++xs.a_top;

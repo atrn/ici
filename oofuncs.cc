@@ -30,7 +30,7 @@ int method_check(object *o, int tcode)
     char        n1[objnamez];
     char        n2[objnamez];
 
-    if (o == NULL)
+    if (o == nullptr)
     {
         return set_error("attempt to call method %s as a function",
             objname(n1, os.a_top[-1]));
@@ -54,7 +54,7 @@ m_new(object *o)
 
     if (method_check(o, 0))
         return 1;
-    if ((s = new_map()) == NULL)
+    if ((s = new_map()) == nullptr)
         return 1;
     s->o_super = objwsupof(o);
     return ret_with_decref(s);
@@ -70,7 +70,7 @@ m_isa(object *o)
         return 1;
     if (typecheck("o", &klass))
         return 1;
-    for (s = objwsupof(o); s != NULL; s = s->o_super)
+    for (s = objwsupof(o); s != nullptr; s = s->o_super)
     {
         if (s == klass)
             return ret_no_decref(o_one);
@@ -88,7 +88,7 @@ m_respondsto(object *o)
         return 1;
     if (typecheck("o", &classname))
         return 1;
-    if ((v = ici_fetch(o, classname)) == NULL)
+    if ((v = ici_fetch(o, classname)) == nullptr)
         return 1;
     if (ismethod(v))
     {

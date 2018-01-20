@@ -22,10 +22,10 @@ convert(WCHAR *s)
         -1,
         buffer,
         sizeof buffer,
-        NULL,
-        NULL
+        nullptr,
+        nullptr
     );
-    return len == 0 ? NULL : buffer;
+    return len == 0 ? nullptr : buffer;
 }
 
 int set_timezone_vals(map *s)
@@ -55,7 +55,7 @@ int set_timezone_vals(map *s)
     default:
         return set_error("unexpected result, %ld, from GetDynamicTimeZoneInformation", result);
     }
-    if (zone == NULL)
+    if (zone == nullptr)
     {
         return ici_get_last_win32_error();
     }

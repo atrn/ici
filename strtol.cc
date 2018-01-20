@@ -33,7 +33,7 @@ int64_t xstrtol(char const *s, char **ptr, int base)
     if ((minus = (*s == '-')) || (*s == '+'))
         s++;
     v = strtoull(s, (char **)&eptr, base);
-    if (ptr != NULL)
+    if (ptr != nullptr)
        *ptr = (char *)((eptr == s) ? start : eptr);
     return minus ? -(long)v : (long)v;
 }

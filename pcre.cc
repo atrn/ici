@@ -185,10 +185,10 @@ int
 pcre_info(const pcre *external_re, int *optptr, int *first_char)
 {
 const real_pcre *re = (const real_pcre *)external_re;
-if (re == NULL) return PCRE_ERROR_NULL;
+if (re == nullptr) return PCRE_ERROR_NULL;
 if (re->magic_number != MAGIC_NUMBER) return PCRE_ERROR_BADMAGIC;
-if (optptr != NULL) *optptr = (int)(re->options & PUBLIC_OPTIONS);
-if (first_char != NULL)
+if (optptr != nullptr) *optptr = (int)(re->options & PUBLIC_OPTIONS);
+if (first_char != nullptr)
   *first_char = ((re->options & PCRE_FIRSTSET) != 0)? re->first_char :
      ((re->options & PCRE_STARTLINE) != 0)? -1 : -2;
 return re->top_bracket;
@@ -659,7 +659,7 @@ int subcountlits = 0;
 uschar *tempcode;
 const uschar *ptr = *ptrptr;
 const uschar *tempptr;
-uschar *previous = NULL;
+uschar *previous = nullptr;
 uschar class[32];
 
 /* Set up the default and non-default settings for greediness */
@@ -708,12 +708,12 @@ for (;; ptr++)
     /* Handle single-character metacharacters */
 
     case '^':
-    previous = NULL;
+    previous = nullptr;
     *code++ = OP_CIRC;
     break;
 
     case '$':
-    previous = NULL;
+    previous = nullptr;
     *code++ = OP_DOLL;
     break;
 
@@ -923,7 +923,7 @@ for (;; ptr++)
     case '{':
     if (!is_counted_repeat(ptr+1, cd)) goto NORMAL_CHAR;
     ptr = read_repeat_counts(ptr+1, &repeat_min, &repeat_max, errorptr, cd);
-    if (*errorptr != NULL) goto FAILED;
+    if (*errorptr != nullptr) goto FAILED;
     goto REPEAT;
 
     case '*':
@@ -941,7 +941,7 @@ for (;; ptr++)
     repeat_max = 1;
 
     REPEAT:
-    if (previous == NULL)
+    if (previous == nullptr)
       {
       *errorptr = ERR9;
       goto FAILED;
@@ -1126,7 +1126,7 @@ for (;; ptr++)
        int i;
       int ketoffset = 0;
       int len = code - previous;
-      uschar *bralink = NULL;
+      uschar *bralink = nullptr;
 
       /* If the maximum repeat count is unlimited, find the end of the bracket
       by scanning through from the start, and compute the offset back to it
@@ -1196,7 +1196,7 @@ for (;; ptr++)
           /* We chain together the bracket offset fields that have to be
           filled in later when the ends of the brackets are reached. */
 
-          offset = (bralink == NULL)? 0 : previous - bralink;
+          offset = (bralink == nullptr)? 0 : previous - bralink;
           bralink = previous;
           *previous++ = offset >> 8;
           *previous++ = offset & 255;
@@ -1238,7 +1238,7 @@ for (;; ptr++)
             {
             int offset;
             *code++ = OP_BRA;
-            offset = (bralink == NULL)? 0 : code - bralink;
+            offset = (bralink == nullptr)? 0 : code - bralink;
             bralink = code;
             *code++ = offset >> 8;
             *code++ = offset & 255;
@@ -1251,13 +1251,13 @@ for (;; ptr++)
         /* Now chain through the pending brackets, and fill in their length
         fields (which are holding the chain links pro tem). */
 
-        while (bralink != NULL)
+        while (bralink != nullptr)
           {
           int oldlinkoffset;
           int offset = code - bralink + 1;
           uschar *bra = code - offset;
           oldlinkoffset = (bra[1] << 8) + bra[2];
-          bralink = (oldlinkoffset == 0)? NULL : bralink - oldlinkoffset;
+          bralink = (oldlinkoffset == 0)? nullptr : bralink - oldlinkoffset;
           *code++ = OP_KET;
           *code++ = bra[1] = offset >> 8;
           *code++ = bra[2] = (offset & 255);
@@ -1283,7 +1283,7 @@ for (;; ptr++)
     /* In all case we no longer have a previous item. */
 
     END_REPEAT:
-    previous = NULL;
+    previous = nullptr;
     break;
 
 
@@ -1405,7 +1405,7 @@ for (;; ptr++)
             *code++ = *optchanged = newoptions & PCRE_IMS;
             }
           options = newoptions;  /* Change options at this level */
-          previous = NULL;       /* This item can't be repeated */
+          previous = nullptr;       /* This item can't be repeated */
           continue;              /* It is complete */
           }
 
@@ -1436,7 +1436,7 @@ for (;; ptr++)
     to pass its address because some compilers complain otherwise. Pass in a
     new setting for the ims options if they have changed. */
 
-    previous = (bravalue >= OP_ONCE)? code : NULL;
+    previous = (bravalue >= OP_ONCE)? code : nullptr;
     *code = bravalue;
     tempcode = code;
 
@@ -1537,7 +1537,7 @@ for (;; ptr++)
         }
       else
         {
-        previous = (-c > ESC_b && -c < ESC_Z)? code : NULL;
+        previous = (-c > ESC_b && -c < ESC_Z)? code : nullptr;
         *code++ = -c;
         }
       continue;
@@ -1658,7 +1658,7 @@ const uschar *ptr = *ptrptr;
 uschar *code = *codeptr;
 uschar *last_branch = code;
 uschar *start_bracket = code;
-uschar *reverse_count = NULL;
+uschar *reverse_count = nullptr;
 int oldoptions = options & PCRE_IMS;
 int branchreqchar, branchcountlits;
 
@@ -1911,7 +1911,7 @@ static BOOL
 is_startline(const uschar *code)
 {
 do {
-   const uschar *scode = first_significant_code(code + 3, NULL, 0, FALSE);
+   const uschar *scode = first_significant_code(code + 3, nullptr, 0, FALSE);
     int op = *scode;
    if (op >= OP_BRA || op == OP_ASSERT || op == OP_ONCE || op == OP_COND)
      { if (!is_startline(scode)) return FALSE; }
@@ -2002,9 +2002,9 @@ Arguments:
   options      various option bits
   errorptr     pointer to pointer to error text
   erroroffset  ptr offset in pattern where error was detected
-  tables       pointer to character tables or NULL
+  tables       pointer to character tables or nullptr
 
-Returns:       pointer to compiled data block, or NULL on error,
+Returns:       pointer to compiled data block, or nullptr on error,
                with errorptr and erroroffset set
 */
 
@@ -2031,30 +2031,30 @@ uschar bralenstack[BRASTACK_SIZE];
 uschar *code_base, *code_end;
 #endif
 
-/* We can't pass back an error message if errorptr is NULL; I guess the best we
-can do is just return NULL. */
+/* We can't pass back an error message if errorptr is nullptr; I guess the best we
+can do is just return nullptr. */
 
-if (errorptr == NULL) return NULL;
-*errorptr = NULL;
+if (errorptr == nullptr) return nullptr;
+*errorptr = nullptr;
 
 /* However, we can give a message for this error */
 
-if (erroroffset == NULL)
+if (erroroffset == nullptr)
   {
   *errorptr = ERR16;
-  return NULL;
+  return nullptr;
   }
 *erroroffset = 0;
 
 if ((options & ~PUBLIC_OPTIONS) != 0)
   {
   *errorptr = ERR17;
-  return NULL;
+  return nullptr;
   }
 
 /* Set up pointers to the individual character tables */
 
-if (tables == NULL) tables = pcre_default_tables;
+if (tables == nullptr) tables = pcre_default_tables;
 compile_block.lcc = tables + lcc_offset;
 compile_block.fcc = tables + fcc_offset;
 compile_block.cbits = tables + cbits_offset;
@@ -2099,7 +2099,7 @@ while ((c = *(++ptr)) != 0)
       {
       const uschar *save_ptr = ptr;
       c = check_escape(&ptr, errorptr, bracount, options, FALSE, &compile_block);
-      if (*errorptr != NULL) goto PCRE_ERROR_RETURN;
+      if (*errorptr != nullptr) goto PCRE_ERROR_RETURN;
       if (c >= 0)
         {
         ptr = save_ptr;
@@ -2121,7 +2121,7 @@ while ((c = *(++ptr)) != 0)
       if (ptr[1] == '{' && is_counted_repeat(ptr+2, &compile_block))
         {
         ptr = read_repeat_counts(ptr+2, &min, &max, errorptr, &compile_block);
-        if (*errorptr != NULL) goto PCRE_ERROR_RETURN;
+        if (*errorptr != nullptr) goto PCRE_ERROR_RETURN;
         if ((min == 0 && (max == 1 || max == -1)) ||
           (min == 1 && max == -1))
             length++;
@@ -2146,7 +2146,7 @@ while ((c = *(++ptr)) != 0)
     case '{':
     if (!is_counted_repeat(ptr+1, &compile_block)) goto NORMAL_CHAR;
     ptr = read_repeat_counts(ptr+1, &min, &max, errorptr, &compile_block);
-    if (*errorptr != NULL) goto PCRE_ERROR_RETURN;
+    if (*errorptr != nullptr) goto PCRE_ERROR_RETURN;
     if ((min == 0 && (max == 1 || max == -1)) ||
       (min == 1 && max == -1))
         length++;
@@ -2182,7 +2182,7 @@ while ((c = *(++ptr)) != 0)
         {
         int ch = check_escape(&ptr, errorptr, bracount, options, TRUE,
           &compile_block);
-        if (*errorptr != NULL) goto PCRE_ERROR_RETURN;
+        if (*errorptr != nullptr) goto PCRE_ERROR_RETURN;
         if (-ch == ESC_b) class_charcount++; else class_charcount = 10;
         }
       else class_charcount++;
@@ -2201,7 +2201,7 @@ while ((c = *(++ptr)) != 0)
       if (*ptr != 0 && ptr[1] == '{' && is_counted_repeat(ptr+2, &compile_block))
         {
         ptr = read_repeat_counts(ptr+2, &min, &max, errorptr, &compile_block);
-        if (*errorptr != NULL) goto PCRE_ERROR_RETURN;
+        if (*errorptr != nullptr) goto PCRE_ERROR_RETURN;
         if ((min == 0 && (max == 1 || max == -1)) ||
           (min == 1 && max == -1))
             length++;
@@ -2281,7 +2281,7 @@ while ((c = *(++ptr)) != 0)
           {
           ptr++;   /* Can treat like ':' as far as spacing is concerned */
 
-          if (ptr[2] != '?' || strchr("=!<", ptr[3]) == NULL)
+          if (ptr[2] != '?' || strchr("=!<", ptr[3]) == nullptr)
             {
             ptr += 2;    /* To get right offset in message */
             *errorptr = ERR28;
@@ -2446,7 +2446,7 @@ while ((c = *(++ptr)) != 0)
         {
         ptr = read_repeat_counts(ptr+2, &minval, &maxval, errorptr,
           &compile_block);
-        if (*errorptr != NULL) goto PCRE_ERROR_RETURN;
+        if (*errorptr != nullptr) goto PCRE_ERROR_RETURN;
         }
       else if (c == '*') { minval = 0; maxval = -1; ptr++; }
       else if (c == '+') { maxval = -1; ptr++; }
@@ -2507,7 +2507,7 @@ while ((c = *(++ptr)) != 0)
         const uschar *saveptr = ptr;
         c = check_escape(&ptr, errorptr, bracount, options, FALSE,
           &compile_block);
-        if (*errorptr != NULL) goto PCRE_ERROR_RETURN;
+        if (*errorptr != nullptr) goto PCRE_ERROR_RETURN;
         if (c < 0) { ptr = saveptr; break; }
         }
 
@@ -2532,7 +2532,7 @@ length += 4;    /* For final KET and END */
 if (length > 65539)
   {
   *errorptr = ERR20;
-  return NULL;
+  return nullptr;
   }
 
 /* Compute the size of data block needed and get it, either from malloc or
@@ -2544,10 +2544,10 @@ difference to the value of the offsetof(). */
 size = length + offsetof(real_pcre, code[0]);
 re = (real_pcre *)(pcre_malloc)(size);
 
-if (re == NULL)
+if (re == nullptr)
   {
   *errorptr = ERR21;
-  return NULL;
+  return nullptr;
   }
 
 /* Put in the magic number and the options. */
@@ -2561,7 +2561,7 @@ re->size = size;
 /* ICI */
 
 /* Set up a starting, non-extracting bracket, then compile the expression. On
-error, *errorptr will be set non-NULL, so we don't need to look at the result
+error, *errorptr will be set non-nullptr, so we don't need to look at the result
 of the function here. */
 
 ptr = (const uschar *)pattern;
@@ -2575,7 +2575,7 @@ re->top_backref = top_backref;
 
 /* If not reached end of pattern on success, there's an excess bracket. */
 
-if (*errorptr == NULL && *ptr != 0) *errorptr = ERR22;
+if (*errorptr == nullptr && *ptr != 0) *errorptr = ERR22;
 
 /* Fill in the terminating state and check for disastrous overflow, but
 if debugging, leave the test till after things are printed out. */
@@ -2593,12 +2593,12 @@ if (top_backref > re->top_bracket) *errorptr = ERR15;
 
 /* Failed to compile */
 
-if (*errorptr != NULL)
+if (*errorptr != nullptr)
   {
   (pcre_free)(re);
   PCRE_ERROR_RETURN:
   *erroroffset = ptr - (const uschar *)pattern;
-  return NULL;
+  return nullptr;
   }
 
 /* If the anchored option was not passed, set flag if we can determine that the
@@ -2876,7 +2876,7 @@ if (code - re->code > length)
   *errorptr = ERR23;
   (pcre_free)(re);
   *erroroffset = ptr - (uschar *)pattern;
-  return NULL;
+  return nullptr;
   }
 #endif
 
@@ -3065,7 +3065,7 @@ for (;;)
 
     else
       {
-      if (match(eptr, ecode+3, offset_top, md, ims, TRUE, NULL))
+      if (match(eptr, ecode+3, offset_top, md, ims, TRUE, nullptr))
         {
         ecode += 3 + (ecode[4] << 8) + ecode[5];
         while (*ecode == OP_ALT) ecode += (ecode[1] << 8) + ecode[2];
@@ -3108,7 +3108,7 @@ for (;;)
     case OP_ASSERTBACK:
     do
       {
-      if (match(eptr, ecode+3, offset_top, md, ims, FALSE, NULL)) break;
+      if (match(eptr, ecode+3, offset_top, md, ims, FALSE, nullptr)) break;
       ecode += (ecode[1] << 8) + ecode[2];
       }
     while (*ecode == OP_ALT);
@@ -3132,7 +3132,7 @@ for (;;)
     case OP_ASSERTBACK_NOT:
     do
       {
-      if (match(eptr, ecode+3, offset_top, md, ims, FALSE, NULL)) return FALSE;
+      if (match(eptr, ecode+3, offset_top, md, ims, FALSE, nullptr)) return FALSE;
       ecode += (ecode[1] << 8) + ecode[2];
       }
     while (*ecode == OP_ALT);
@@ -4179,7 +4179,7 @@ each substring: the offsets to the start and end of the substring.
 
 Arguments:
   external_re     points to the compiled expression
-  external_extra  points to "hints" from pcre_study() or is NULL
+  external_extra  points to "hints" from pcre_study() or is nullptr
   subject         points to the subject string
   length          length of subject string (may contain binary zeros)
   start_offset    where to start in the subject string
@@ -4204,7 +4204,7 @@ int req_char = -1;
 int req_char2 = -1;
 unsigned long int ims = 0;
 match_data match_block;
-const uschar *start_bits = NULL;
+const uschar *start_bits = nullptr;
 const uschar *start_match = (const uschar *)subject + start_offset;
 const uschar *end_subject;
 const uschar *req_char_ptr = start_match - 1;
@@ -4216,8 +4216,8 @@ BOOL startline = (re->options & PCRE_STARTLINE) != 0;
 
 if ((options & ~PUBLIC_EXEC_OPTIONS) != 0) return PCRE_ERROR_BADOPTION;
 
-if (re == NULL || subject == NULL ||
-   (offsets == NULL && offsetcount > 0)) return PCRE_ERROR_NULL;
+if (re == nullptr || subject == nullptr ||
+   (offsets == nullptr && offsetcount > 0)) return PCRE_ERROR_NULL;
 if (re->magic_number != MAGIC_NUMBER) return PCRE_ERROR_BADMAGIC;
 
 match_block.start_subject = (const uschar *)subject;
@@ -4252,7 +4252,7 @@ if (re->top_backref > 0 && re->top_backref >= ocount/3)
   {
   ocount = re->top_backref * 3 + 3;
   match_block.offset_vector = (int *)(pcre_malloc)(ocount * sizeof (int));
-  if (match_block.offset_vector == NULL) return PCRE_ERROR_NOMEMORY;
+  if (match_block.offset_vector == nullptr) return PCRE_ERROR_NOMEMORY;
   using_temporary_offsets = TRUE;
   DPRINTF(("Got memory to hold back references\n"));
   }
@@ -4273,7 +4273,7 @@ if (resetcount > offsetcount) resetcount = ocount;
 never be used unless previously set, but they get saved and restored, and so we
 initialize them to avoid reading uninitialized locations. */
 
-if (match_block.offset_vector != NULL)
+if (match_block.offset_vector != nullptr)
   {
    int *iptr = match_block.offset_vector + ocount;
    int *iend = iptr - resetcount/2 + 1;
@@ -4294,7 +4294,7 @@ if (!anchored)
     if ((ims & PCRE_CASELESS) != 0) first_char = match_block.lcc[first_char];
     }
   else
-    if (!startline && extra != NULL &&
+    if (!startline && extra != nullptr &&
       (extra->options & PCRE_STUDY_MAPPED) != 0)
         start_bits = extra->start_bits;
   }
@@ -4353,7 +4353,7 @@ do
 
   /* Or to a non-unique first char after study */
 
-  else if (start_bits != NULL)
+  else if (start_bits != nullptr)
     {
     while (start_match < end_subject)
       {

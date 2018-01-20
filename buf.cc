@@ -20,9 +20,9 @@ int growbuf(size_t n)
     if (bufz > n)
         return 0;
     n = (n + 2) * 2;
-    if ((p = (char *)ici_nalloc(n)) == NULL)
+    if ((p = (char *)ici_nalloc(n)) == nullptr)
         return 1;
-    if (buf != NULL)
+    if (buf != nullptr)
     {
         memcpy(p, buf, bufz);
         ici_nfree(buf, bufz + 1);

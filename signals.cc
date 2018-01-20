@@ -69,7 +69,7 @@ volatile long   signal_count[NSIG];
  *
  *  signal_handler
  *
- *      An array of pointers to functions, one per signal. If non-NULL
+ *      An array of pointers to functions, one per signal. If non-nullptr
  *      the signal is being handled by an ici function object to by
  *      the pointer.
  *
@@ -100,12 +100,12 @@ call_signal_handler(object *func, int signo)
 
     if (os.push_check(3 + 80)) /* see comment in ici/call.c */
         return 1;
-    if ((isigno = new_int(signo)) == NULL)
+    if ((isigno = new_int(signo)) == nullptr)
         return 1;
     os.push(isigno, owned);
     os.push(o_one); /* One argument. */
     os.push(func);
-    if ((ret_obj = evaluate(&o_call, 3)) == NULL)
+    if ((ret_obj = evaluate(&o_call, 3)) == nullptr)
         goto fail;
     ret_obj->decref();
     return 0;
@@ -198,7 +198,7 @@ signam_to_signo(char *nam)
 /*
  * Map a signal number to a name.
  *
- * Returns a name for the given signal or NULL if the signal number
+ * Returns a name for the given signal or nullptr if the signal number
  * is invalid.
  */
 static const char *
@@ -208,7 +208,7 @@ signo_to_signam(int signo)
     return strsignal(signo);
 #else
     if (signo < 1 || signo >= NSIG)
-        return NULL;
+        return nullptr;
     return signal_names[signo_to_index(signo)];
 #endif
 }
@@ -230,7 +230,7 @@ ici_signal_handler(int signo)
     if (currently_blocked)
     {
         func = signal_handler[signo_to_index(signo)];
-        if (func != NULL)
+        if (func != nullptr)
         {
             if (call_signal_handler(func, signo))
             {
@@ -265,7 +265,7 @@ void init_signals()
     currently_blocked = 0;
     for (signo = 0; signo < NSIG; ++signo)
     {
-        signal_handler[signo] = NULL;
+        signal_handler[signo] = nullptr;
         signal_count[signo] = 0;
     }
 }
@@ -300,7 +300,7 @@ int invoke_signal_handlers()
         if (sigismember((sigset_t *)&signals_pending, signo))
         {
 	    sigdelset((sigset_t *)&signals_pending, signo);
-            if ((fn = signal_handler[signo_to_index(signo)]) != NULL)
+            if ((fn = signal_handler[signo_to_index(signo)]) != nullptr)
                 if (call_signal_handler(fn, signo))
                     return 1;
             signal_count[signo_to_index(signo)] = 0;
@@ -310,7 +310,7 @@ int invoke_signal_handlers()
         if (signals_pending & mask)
         {
             signals_pending &= ~mask;
-            if ((fn = signal_handler[signo_to_index(signo)]) != NULL)
+            if ((fn = signal_handler[signo_to_index(signo)]) != nullptr)
                 if (call_signal_handler(fn, signo))
                     return 1;
             signal_count[signo_to_index(signo)] = 0;
@@ -342,7 +342,7 @@ f_signal(...)
     object   *prev_handler;
     object   *result;
 
-    handlero = NULL;
+    handlero = nullptr;
     switch (NARGS())
     {
     case 2:
@@ -377,7 +377,7 @@ f_signal(...)
 
     prev_handler = signal_handler[signo_to_index(signo)];
 
-    if (handlero == NULL)
+    if (handlero == nullptr)
     {
         if (prev_handler)
             return ret_no_decref(handlero);
@@ -395,12 +395,12 @@ f_signal(...)
 
     if (stringof(handlero) == SS(default))
     {
-        signal_handler[signo_to_index(signo)] = NULL;
+        signal_handler[signo_to_index(signo)] = nullptr;
         handler = SIG_DFL;
     }
     else if (stringof(handlero) == SS(ignore))
     {
-        signal_handler[signo_to_index(signo)] = NULL;
+        signal_handler[signo_to_index(signo)] = nullptr;
         handler = SIG_IGN;
     }
     else if (isfunc(handlero) || ismethod(handlero))
@@ -453,7 +453,7 @@ f_signam(...)
 
     if (typecheck("i", &signo))
         return 1;
-    if ((nam = (char *)signo_to_signam(signo)) == NULL)
+    if ((nam = (char *)signo_to_signam(signo)) == nullptr)
     {
         return set_error("invalid signal number");
     }

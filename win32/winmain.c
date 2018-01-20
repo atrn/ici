@@ -17,51 +17,51 @@ determine_argv(HINSTANCE inst, char *cmd_line)
 
     if (!GetModuleFileName(inst, fname, sizeof fname))
         goto fail;
-    if ((argv0 = _strdup(fname)) == NULL)
+    if ((argv0 = _strdup(fname)) == nullptr)
         goto fail;
-    argv1 = NULL;
+    argv1 = nullptr;
     if
     (
-        (p = strchr(fname, '.')) != NULL
+        (p = strchr(fname, '.')) != nullptr
         &&
         stricmp(p, ".exe") == 0
         &&
         (strcpy(p, ".ici"), access(fname, 4) == 0)
         &&
-        (argv1 = _strdup(fname)) == NULL
+        (argv1 = _strdup(fname)) == nullptr
     )
         goto fail;
 
-    if ((p = cmd_line) == NULL)
+    if ((p = cmd_line) == nullptr)
     {
         i = 0;
     }
     else
     {
-        for (i = 1; (p = strchr(p, ' ')) != NULL; ++p)
+        for (i = 1; (p = strchr(p, ' ')) != nullptr; ++p)
             ++i;
     }
     n = 1                   /* argv0 */
-        + (argv1 != NULL)   /* argv1 */
+        + (argv1 != nullptr)   /* argv1 */
         + i
-        + 1;                /* NULL on end. */
-    if ((argv = (char **)malloc(n * sizeof(char *))) == NULL)
+        + 1;                /* nullptr on end. */
+    if ((argv = (char **)malloc(n * sizeof(char *))) == nullptr)
         goto fail;
 
     i = 0;
     argv[i++] = argv0;
-    if (argv1 != NULL)
+    if (argv1 != nullptr)
         argv[i++] = argv1;
-    if ((p = cmd_line) != NULL)
+    if ((p = cmd_line) != nullptr)
     {
         argv[i++] = p;
-        while ((p = strchr(p, ' ')) != NULL)
+        while ((p = strchr(p, ' ')) != nullptr)
         {
             *p++ = '\0';
             argv[i++] = p;
         }
     }
-    argv[i] = NULL;
+    argv[i] = nullptr;
     argc = i;
     return 0;
 
@@ -77,12 +77,12 @@ WinMain(HINSTANCE inst, HINSTANCE prev_inst, char *cmd_line, int cmd_show)
 
     if (determine_argv(inst, cmd_line))
     {
-        MessageBox(NULL, "Ran out of memory.", "ICI", MB_OK);
+        MessageBox(nullptr, "Ran out of memory.", "ICI", MB_OK);
         return EXIT_FAILURE;
     }
     if (ici_main(argc, argv))
     {
-        MessageBox(NULL, ici_error, "ICI", MB_OK);
+        MessageBox(nullptr, ici_error, "ICI", MB_OK);
         return EXIT_FAILURE;
     }
     return EXIT_SUCCESS;

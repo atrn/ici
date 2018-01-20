@@ -52,7 +52,7 @@ int set_val(objwsup *s, str *name, int type, void *vp)
         break;
 
     case 'u':
-        o = new_file((char *)vp, stdio_ftype, name, NULL);
+        o = new_file((char *)vp, stdio_ftype, name, nullptr);
         o->set(file::noclose);
         break;
 
@@ -65,7 +65,7 @@ int set_val(objwsup *s, str *name, int type, void *vp)
         return set_error("illegal type key-letter given to set_val");
     }
 
-    if (o == NULL)
+    if (o == nullptr)
         return 1;
     i = ici_assign_base(s, name, o);
     o->decref();
@@ -94,7 +94,7 @@ int ici_assign_float(object *o, object *k, double v)
 {
     ici_float  *f;
 
-    if ((f = new_float(v)) == NULL)
+    if ((f = new_float(v)) == nullptr)
         return 1;
     if (ici_assign(o, k, f))
         return 1;
@@ -110,7 +110,7 @@ int fetch_num(object *o, object *k, double *vp)
 {
     object   *v;
 
-    if ((v = ici_fetch(o, k)) == NULL)
+    if ((v = ici_fetch(o, k)) == nullptr)
         return 1;
     if (isint(v))
         *vp = intof(v)->i_value;
@@ -130,7 +130,7 @@ int fetch_int(object *o, object *k, long *vp)
 {
     object   *v;
 
-    if ((v = ici_fetch(o, k)) == NULL)
+    if ((v = ici_fetch(o, k)) == nullptr)
         return 1;
     if (!isint(v))
         return ici_fetch_mismatch(o, k, v, "an int");
@@ -162,7 +162,7 @@ int cmkvar(objwsup *scope, const char *name, int type, void *vp)
     str   *s;
     int         i;
 
-    if ((s = new_str_nul_term(name)) == NULL)
+    if ((s = new_str_nul_term(name)) == nullptr)
         return 1;
     i = set_val(scope, s, type, vp);
     s->decref();

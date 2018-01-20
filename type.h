@@ -45,7 +45,7 @@ protected:
      * Flags are used to indicate that a type class overrides the
      * similarly named member functions. These are used to detetermine
      * behaviour in a number of places that do not want the default
-     * implementation. The C code essentially used NULL function
+     * implementation. The C code essentially used nullptr function
      * pointers as flags and didn't use inheritence to obtain default
      * behaviour and avoided the issue. We should look to see how to
      * not use these.
@@ -146,7 +146,7 @@ public:
 
     /* copy(o)              Must return a copy of the given object.  This is the
      *                      basis for the implementation of the copy() function.
-     *                      On failure, NULL is returned and error is set.  The
+     *                      On failure, nullptr is returned and error is set.  The
      *                      returned object has been ici_incref'ed.  The returned
      *                      object should cmp() as being equal, but be a distinct
      *                      object for objects that are not intrinsically atomic.

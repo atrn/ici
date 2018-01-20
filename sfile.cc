@@ -57,7 +57,7 @@ public:
     int close(void *file) override
     {
         charbuf *cb = (charbuf *)file;
-        if (cb->cb_ref == NULL)
+        if (cb->cb_ref == nullptr)
             ici_free(cb->cb_data);
         ici_tfree(cb, charbuf);
         return 0;
@@ -194,9 +194,9 @@ ftype *strbuf_ftype = ptr_to_instance_of<class stringbuf_ftype>();
 
 /*
  * Create an ICI file object that treats the character buffer referenced by
- * 'data' (of length 'size') as a file.  If 'ref' is non-NULL it must refer to
+ * 'data' (of length 'size') as a file.  If 'ref' is non-nullptr it must refer to
  * either a string object or a memory object that owns the data, and the data
- * is used in-place.  But if 'ref' is NULL, it is assumed that the data must
+ * is used in-place.  But if 'ref' is nullptr, it is assumed that the data must
  * be copied into a private allocation first.  The private allocation will be
  * freed when the file is closed.
  *
@@ -207,22 +207,22 @@ ftype *strbuf_ftype = ptr_to_instance_of<class stringbuf_ftype>();
  * data is preserved.  Writing past the end of a string buffer will extend it;
  * writing past the end of a memory object gets truncated.
  *
- * Returns NULL on error, usual conventions.
+ * Returns nullptr on error, usual conventions.
  *
  * This --func-- forms part of the --ici-api--.
  */
 file *open_charbuf(char *data, int size, object *ref, bool readonly)
 {
-    file     *f      = NULL;
+    file     *f      = nullptr;
     charbuf  *cb;
 
-    if ((cb = ici_talloc(charbuf)) == NULL)
-        return NULL;
+    if ((cb = ici_talloc(charbuf)) == nullptr)
+        return nullptr;
     cb->cb_size = size;
     cb->cb_eof = 0;
     cb->cb_readonly = readonly;
     cb->cb_ref = ref;
-    if (ref != NULL)
+    if (ref != nullptr)
     {
         /*
          * Use this object's data in-place; the ici_file_t object keeps a
@@ -239,15 +239,15 @@ file *open_charbuf(char *data, int size, object *ref, bool readonly)
         if (isstring(ref))
         {
             if (ref->flags(object::O_ATOM|ICI_S_SEP_ALLOC) == ICI_S_SEP_ALLOC)
-                f = new_file((char *)cb, strbuf_ftype, NULL, ref);
+                f = new_file((char *)cb, strbuf_ftype, nullptr, ref);
             else if (readonly)
-                f = new_file((char *)cb, charbuf_ftype, NULL, ref);
+                f = new_file((char *)cb, charbuf_ftype, nullptr, ref);
             else
                 set_error("attempt to open an atomic string for writing");
         }
         else if (ismem(ref))
         {
-            f = new_file((char *)cb, charbuf_ftype, NULL, ref);
+            f = new_file((char *)cb, charbuf_ftype, nullptr, ref);
         }
         else if (!chkbuf(50))
         {
@@ -263,12 +263,12 @@ file *open_charbuf(char *data, int size, object *ref, bool readonly)
          */
         if (readonly)
         {
-            if ((cb->cb_data = (char *)ici_alloc(size)) != NULL)
+            if ((cb->cb_data = (char *)ici_alloc(size)) != nullptr)
             {
                 memcpy(cb->cb_data, data, size);
                 cb->cb_ptr = cb->cb_data;
-                f = new_file((char *)cb, charbuf_ftype, NULL, ref);
-                if (f == NULL)
+                f = new_file((char *)cb, charbuf_ftype, nullptr, ref);
+                if (f == nullptr)
                     ici_free(cb->cb_data);
             }
         }
@@ -277,7 +277,7 @@ file *open_charbuf(char *data, int size, object *ref, bool readonly)
             set_error("attempt to open non-object char buffer for writing");
         }
     }
-    if (f == NULL)
+    if (f == nullptr)
         ici_tfree(cb, charbuf);
     return f;
 }

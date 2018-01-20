@@ -38,7 +38,7 @@ f_regexp(...)
     default:
         return argcount(2);
     }
-    if (ICI_CF_ARG2() != NULL)
+    if (ICI_CF_ARG2() != nullptr)
         opts |= PCRE_CASELESS;
     return ret_with_decref(new_regexp(stringof(ARG(0)), opts));
 }
@@ -58,7 +58,7 @@ f_regexp(...)
  * by the 'repl' with substitutions made from the current match on 's'.
  * 'replz' is number of chars in repl.
  *
- * Returns the length of the string stored into the buffer. If d is NULL,
+ * Returns the length of the string stored into the buffer. If d is nullptr,
  * no storage into the buffer is done, but the length calculation still is.
  */
 static int
@@ -86,7 +86,7 @@ do_repl
                 normal = 0;
             else
             {
-                if (d != NULL)
+                if (d != nullptr)
                     d[dz] = c;
                 ++dz;
             }
@@ -96,34 +96,34 @@ do_repl
             normal = 1;
             if (c == '0')
             {
-                if (d != NULL)
+                if (d != nullptr)
                     memcpy(&d[dz], s, START(0)- s);
                 dz += START(0) - s;
             }
             else if (c == '&')
             {
-                if (d != NULL)
+                if (d != nullptr)
                     memcpy(&d[dz], START(0), END(0) - START(0));
                 dz += END(0) - START(0);
             }
             else if (c == '\\')
             {
-                if (d != NULL)
+                if (d != nullptr)
                     d[dz] = '\\';
                 ++dz;
             }
             else if (!isdigit(c))
             {
-                if (d != NULL)
+                if (d != nullptr)
                 {
                     d[dz] = '\\';
                     d[dz + 1] = c;
                 }
                 dz += 2;
             }
-            else if (START(c -= '0') != NULL)
+            else if (START(c -= '0') != nullptr)
             {
-                if (d != NULL)
+                if (d != nullptr)
                     memcpy(&d[dz], START(c), END(c) - START(c));
                 dz += END(c) - START(c);
             }
@@ -143,7 +143,7 @@ do_repl
  * \0 indicating the unmatched portion, \& the whole matched portions and
  * \1, \2... being the mached sub-bracketed portions.
  *
- * Return an array, or NULL on error. The array has been increfed.
+ * Return an array, or nullptr on error. The array has been increfed.
  */
 static array *do_smash
 (
@@ -161,7 +161,7 @@ static array *do_smash
     str   *ns;
     int    size;
 
-    if ((a = new_array()) == NULL)
+    if ((a = new_array()) == nullptr)
         goto fail;
     for (s = thestr->s_chars, se = s + thestr->s_nchars; ; s = END(0))
     {
@@ -193,11 +193,11 @@ static array *do_smash
         {
             if (a->push_check())
                goto fail;
-            size = do_repl(s, repls[-i]->s_chars, repls[-i]->s_nchars, NULL);
-            if ((ns = str_alloc(size)) == NULL)
+            size = do_repl(s, repls[-i]->s_chars, repls[-i]->s_nchars, nullptr);
+            if ((ns = str_alloc(size)) == nullptr)
                 goto fail;
             do_repl(s, repls[-i]->s_chars, repls[-i]->s_nchars, ns->s_chars);
-            if ((ns = stringof(atom(ns, 1))) == NULL)
+            if ((ns = stringof(atom(ns, 1))) == nullptr)
                 goto fail;
             a->push(ns, owned);
         }
@@ -210,16 +210,16 @@ static array *do_smash
          */
         if (a->push_check())
             goto fail;
-        if ((ns = new_str(s, se - s)) == NULL)
+        if ((ns = new_str(s, se - s)) == nullptr)
             goto fail;
         a->push(ns, owned);
     }
     return a;
 
 fail:
-    if (a != NULL)
+    if (a != nullptr)
         a->decref();
-    return NULL;
+    return nullptr;
 }
 
 /*
@@ -265,7 +265,7 @@ static str *do_sub(str *thestr, regexp *re, char *repl, int *ofs)
         )
     )
     {
-        return NULL;
+        return nullptr;
     }
 
 
@@ -275,7 +275,7 @@ static str *do_sub(str *thestr, regexp *re, char *repl, int *ofs)
      * for which the correct behaviour is to loop infinitely.  Don't.
      */
     if (END(0) == START(0))
-        return NULL;
+        return nullptr;
 
     /*
      * The string is divided into three parts. The bit before the matched
@@ -311,7 +311,7 @@ static str *do_sub(str *thestr, regexp *re, char *repl, int *ofs)
                 ++len;
             else if (!isdigit(c))
                 len += 2;
-            else if (START(c -= '0') != NULL)
+            else if (START(c -= '0') != nullptr)
                 len += END(c) - START(c);
         }
     }
@@ -320,7 +320,7 @@ static str *do_sub(str *thestr, regexp *re, char *repl, int *ofs)
      * Now get that much space and stuff it with the string. The "+1" for
      * the NUL character at the end of the string.
      */
-    if ((dst = (char *)ici_alloc(len + 1)) == NULL)
+    if ((dst = (char *)ici_alloc(len + 1)) == nullptr)
         return (str *)-1;
 
     /*
@@ -358,7 +358,7 @@ static str *do_sub(str *thestr, regexp *re, char *repl, int *ofs)
                 *d++ = '\\';
                 *d++ = c;
             }
-            else if (START(c -= '0') != NULL)
+            else if (START(c -= '0') != nullptr)
             {
                 memcpy(d, START(c), END(c) - START(c));
                 d += END(c) - START(c);
@@ -383,7 +383,7 @@ static str *do_sub(str *thestr, regexp *re, char *repl, int *ofs)
     d[len] = '\0';
     rc = new_str_nul_term(dst);
     ici_free(dst);
-    if (rc == NULL)
+    if (rc == nullptr)
         return (str *)-1;
     return rc;
 }
@@ -412,9 +412,9 @@ f_sub(...)
         re = regexpof(o);
     else if (!isstring(o))
         return argerror(1);
-    else if ((re = new_regexp(stringof(o), 0)) == NULL)
+    else if ((re = new_regexp(stringof(o), 0)) == nullptr)
         return 1;
-    if ((rc = do_sub(stringof(thestr), re, repl, &ofs)) == NULL)
+    if ((rc = do_sub(stringof(thestr), re, repl, &ofs)) == nullptr)
         rc = stringof(thestr);
     else if (rc == (str *)-1)
     {
@@ -448,7 +448,7 @@ f_gsub(...)
     /*
      * Get the ICI arguments.
      */
-    a = NULL;
+    a = nullptr;
     if (NARGS() < 3)
         return argcount(3);
     if (!isstring(ARG(0)))
@@ -461,7 +461,7 @@ f_gsub(...)
     {
         if (!isstring(ARG(1)))
             return argerror(1);
-        if ((re = new_regexp(stringof(ARG(1)), 0)) == NULL)
+        if ((re = new_regexp(stringof(ARG(1)), 0)) == nullptr)
             return 1;
     }
     else
@@ -469,18 +469,18 @@ f_gsub(...)
 
     repls[0] = repl;
     repls[1] = SS(slosh0);
-    if ((a = do_smash(thestr, re, &repls[1], 2, 1)) == NULL)
+    if ((a = do_smash(thestr, re, &repls[1], 2, 1)) == nullptr)
         goto fail;
     for (p = a->a_base, size = 0; p < a->a_top; ++p)
         size += stringof(*p)->s_nchars;
-    if ((ns = str_alloc(size)) == NULL)
+    if ((ns = str_alloc(size)) == nullptr)
         goto fail;
     for (p = a->a_base, s = ns->s_chars; p < a->a_top; ++p)
     {
         memcpy(s, stringof(*p)->s_chars, stringof(*p)->s_nchars);
         s += stringof(*p)->s_nchars;
     }
-    if ((ns = stringof(atom(ns, 1))) == NULL)
+    if ((ns = stringof(atom(ns, 1))) == nullptr)
         goto fail;
     a->decref();
     if (!isregexp(ARG(1)))
@@ -488,7 +488,7 @@ f_gsub(...)
     return ret_with_decref(ns);
 
 fail:
-    if (a != NULL)
+    if (a != nullptr)
         a->decref();
     if (!isregexp(ARG(1)))
         re->decref();
@@ -496,7 +496,7 @@ fail:
 }
 
 /*
- * Return the number of pointers in a NULL terminated array of pointers.
+ * Return the number of pointers in a nullptr terminated array of pointers.
  */
 static int
 nptrs(char **p)
@@ -504,7 +504,7 @@ nptrs(char **p)
     int        i;
 
     i = 0;
-    while (*p++ != NULL)
+    while (*p++ != nullptr)
         ++i;
     return i;
 }
@@ -531,13 +531,13 @@ f_old_smash()
         strs = smash(s, delim[0]);
     else
         strs = ssmash(s, delim);
-    if (strs == NULL)
+    if (strs == nullptr)
         return 1;
-    if ((sa = new_array(nptrs(strs))) == NULL)
+    if ((sa = new_array(nptrs(strs))) == nullptr)
         goto fail;
-    for (p = strs; *p != NULL; ++p)
+    for (p = strs; *p != nullptr; ++p)
     {
-        if ((*sa->a_top = str_get_nul_term(*p)) == NULL)
+        if ((*sa->a_top = str_get_nul_term(*p)) == nullptr)
             goto fail;
         ++sa->a_top;
     }
@@ -545,7 +545,7 @@ f_old_smash()
     return ret_with_decref(sa);
 
 fail:
-    if (sa != NULL)
+    if (sa != nullptr)
         sa->decref();
     ici_free((char *)strs);
     return 1;
@@ -592,9 +592,9 @@ f_smash(...)
 
     if (nargs < 2)
     {
-        if (smash_default_re == NULL)
+        if (smash_default_re == nullptr)
         {
-            if ((smash_default_re = new_regexp(SS(sloshn), 0)) == NULL)
+            if ((smash_default_re = new_regexp(SS(sloshn), 0)) == nullptr)
                 return 1;
         }
         re = smash_default_re;
@@ -630,7 +630,7 @@ f_smash(...)
 ICI_DEFINE_CFUNCS(re)
 {
     ICI_DEFINE_CFUNC(regexp,       f_regexp),
-    ICI_DEFINE_CFUNC2(regexpi,     f_regexp,       NULL,   (void *)""),
+    ICI_DEFINE_CFUNC2(regexpi,     f_regexp,       nullptr,   (void *)""),
     ICI_DEFINE_CFUNC(sub,          f_sub),
     ICI_DEFINE_CFUNC(gsub,         f_gsub),
     ICI_DEFINE_CFUNC(smash,        f_smash),

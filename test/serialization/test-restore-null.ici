@@ -1,5 +1,5 @@
 file = fopen("test-save-null.ici.dat");
 o = restore(file);
 close(file);
-if (typeof(o) != "NULL")
+if (typeof(o) != "nullptr")
     fail("restore failed");

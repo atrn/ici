@@ -22,7 +22,7 @@
  * send an object along a channel the "put" operation is used,
  * receieving an object uses the "get" operation. Any type of object
  * may be sent via channels including channels themselves. There is no
- * defined "end of communications" object however NULL is typically
+ * defined "end of communications" object however nullptr is typically
  * used to indicate that no more communications will occur along a
  * channel.
  *
@@ -104,16 +104,16 @@ f_channel()
         capacity = size_t(val);
     }
     chan = ici_talloc(channel);
-    if (chan == NULL)
+    if (chan == nullptr)
         return 1;
-    if ((chan->c_q = new_array(capacity ? capacity : 1)) == NULL)
+    if ((chan->c_q = new_array(capacity ? capacity : 1)) == nullptr)
     {
         ici_tfree(chan, channel);
         return 1;
     }
     set_tfnz(chan, TC_CHANNEL, object::O_SUPER, 1, 0);
     chan->c_capacity = capacity;
-    chan->c_altobj = NULL;
+    chan->c_altobj = nullptr;
     rego(chan);
     return ret_with_decref(chan);
 }
@@ -143,7 +143,7 @@ f_get()
     }
     o = q->pop_front();
     wakeup(q);
-    if (channelof(c)->c_altobj != NULL)
+    if (channelof(c)->c_altobj != nullptr)
 	wakeup(channelof(c)->c_altobj);
     return ret_no_decref(o);
 }
@@ -191,7 +191,7 @@ f_put()
     }
     q->push_back(o);
     wakeup(q);
-    if (channelof(c)->c_altobj != NULL)
+    if (channelof(c)->c_altobj != nullptr)
         wakeup(channelof(c)->c_altobj);
     return null_ret();
 }
@@ -260,7 +260,7 @@ static int f_alt()
         if (waitfor(alts))
             return 1;
     }
-    alt_setup(alts, NULL);
+    alt_setup(alts, nullptr);
     return int_ret(idx);
 }
 

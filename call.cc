@@ -19,9 +19,9 @@ namespace ici
  * 'va' is a va_list (variable argument list) passed from an outer var-args
  * function.
  *
- * If 'subject' is NULL, then 'callable' is taken to be a callable object
+ * If 'subject' is nullptr, then 'callable' is taken to be a callable object
  * (could be a function, a method, or something else) and is called directly.
- * If 'subject' is non-NULL, it is taken to be an instance object and 
+ * If 'subject' is non-nullptr, it is taken to be an instance object and 
  * 'callable' should be the name of one of its methods (i.e. an 'str *').
  *
  * This --func-- forms part of the --ici-api--.
@@ -44,7 +44,7 @@ int callv(object *subject, object *callable, const char *types, va_list va)
     }
     else
     {
-        member_obj = NULL;
+        member_obj = nullptr;
     }
 
     if (types[0] != '\0' && types[1] == '=')
@@ -56,7 +56,7 @@ int callv(object *subject, object *callable, const char *types, va_list va)
     else
     {
         ret_type = '\0';
-        ret_ptr = NULL;
+        ret_ptr = nullptr;
     }
 
     os_depth = os.a_top - os.a_base;
@@ -81,7 +81,7 @@ int callv(object *subject, object *callable, const char *types, va_list va)
             break;
 
         case 'i':
-            if ((os.a_top[arg] = new_int(va_arg(va, long))) == NULL)
+            if ((os.a_top[arg] = new_int(va_arg(va, long))) == nullptr)
             {
                 goto fail;
             }
@@ -94,7 +94,7 @@ int callv(object *subject, object *callable, const char *types, va_list va)
             break;
 
         case 's':
-            if ((os.a_top[arg] = new_str_nul_term(va_arg(va, char *))) == NULL)
+            if ((os.a_top[arg] = new_str_nul_term(va_arg(va, char *))) == nullptr)
             {
                 goto fail;
             }
@@ -102,7 +102,7 @@ int callv(object *subject, object *callable, const char *types, va_list va)
             break;
 
         case 'f':
-            if ((os.a_top[arg] = new_float(va_arg(va, double))) == NULL)
+            if ((os.a_top[arg] = new_float(va_arg(va, double))) == nullptr)
             {
                 goto fail;
             }
@@ -114,7 +114,7 @@ int callv(object *subject, object *callable, const char *types, va_list va)
             goto fail;
         }
     }
-    if (member_obj != NULL)
+    if (member_obj != nullptr)
     {
         os.push(member_obj);
         nargs++;
@@ -128,15 +128,15 @@ int callv(object *subject, object *callable, const char *types, va_list va)
         if (!no) goto fail;
         os.push(no, owned);
     }
-    if (subject != NULL)
+    if (subject != nullptr)
     {
         os.push(subject);
     }
     os.push(callable);
 
     os_depth = (os.a_top - os.a_base) - os_depth;
-    call_op = subject != NULL ? &o_method_call : &o_call;
-    if ((ret_obj = evaluate(call_op, os_depth)) == NULL)
+    call_op = subject != nullptr ? &o_method_call : &o_call;
+    if ((ret_obj = evaluate(call_op, os_depth)) == nullptr)
     {
         goto fail;
     }
@@ -203,7 +203,7 @@ int callv(str *func_name, const char *types, va_list va)
     object *func_obj;
     object *member_obj;
 
-    func_obj = NULL;
+    func_obj = nullptr;
     if (types[0] != '\0' && types[1] == '@')
     {
         va_list tmp;
@@ -315,7 +315,7 @@ int call(str *func_name, const char *types, ...)
     va_list  va;
     int      result;
 
-    func_obj = NULL;
+    func_obj = nullptr;
     if (types[0] != '\0' && types[1] == '@')
     {
         va_start(va, types);
@@ -330,7 +330,7 @@ int call(str *func_name, const char *types, ...)
         return set_error("\"%s\" undefined", func_name->s_chars);
     }
     va_start(va, types);
-    result = callv((object *)NULL, func_obj, types, va);
+    result = callv((object *)nullptr, func_obj, types, va);
     va_end(va);
     return result;
 }

@@ -102,8 +102,8 @@ namespace ici
 
 /*
  * Set the error string using a static message or a formatted message.
- * If fmt is NULL then the fallback string is used to set the ici error
- * string.  If fmt is non-NULL it is used to format a message using
+ * If fmt is nullptr then the fallback string is used to set the ici error
+ * string.  If fmt is non-nullptr it is used to format a message using
  * sprintf and any actual parameters.  The formatted message must fit
  * within 256 characters. If buf cannot size itself to contain the
  * formatted message the fallback message is used to set error.
@@ -112,7 +112,7 @@ static int seterror(const char *fallback, const char *fmt, ...)
 {
     va_list va;
 
-    if (fmt == NULL || chkbuf(256))
+    if (fmt == nullptr || chkbuf(256))
         set_error(fallback);
     else
     {
@@ -147,8 +147,8 @@ static handle *new_netsocket(SOCKET fd)
 {
     handle *h;
     long lfd = fd;
-    if ((h = new_handle((void *)lfd, SS(socket), NULL)) == NULL)
-        return NULL;
+    if ((h = new_handle((void *)lfd, SS(socket), nullptr)) == nullptr)
+        return nullptr;
     h->clr(ICI_H_CLOSED);
     h->h_pre_free = socket_prefree;
     /*
@@ -219,7 +219,7 @@ static void unblock(exec *x)
 /*
  * Parse an IP address in the format described above.  The host part is
  * optional and if not specified defaults to the defhost parameter.  The
- * address may be NULL to just initialise the socket address to defhost port
+ * address may be nullptr to just initialise the socket address to defhost port
  * 0.
  *
  * The sockaddr structure is filled in and 0 returned if all is okay.  When a
@@ -242,7 +242,7 @@ static struct sockaddr_in * parseaddr(const char *raddr, long defhost, struct so
     saddr->sin_addr.s_addr = htonl(defhost);
     saddr->sin_port = 0;
     port = 0;
-    if (raddr == NULL) {
+    if (raddr == nullptr) {
         return saddr;
     }
 
@@ -253,11 +253,11 @@ static struct sockaddr_in * parseaddr(const char *raddr, long defhost, struct so
             "network address string too long: \"%.32s\"",
             raddr
         );
-        return NULL;
+        return nullptr;
     }
     strcpy(addr, raddr);
     host = addr;
-    if ((ports = strchr(addr, ':')) != NULL)
+    if ((ports = strchr(addr, ':')) != nullptr)
     {
         if (ports != addr)
         {
@@ -266,10 +266,10 @@ static struct sockaddr_in * parseaddr(const char *raddr, long defhost, struct so
     }
     else
     {
-        host = NULL;
+        host = nullptr;
         ports = addr;
     }
-    if (host != NULL)
+    if (host != nullptr)
     {
         struct hostent *hostent;
         uint32_t        hostaddr;
@@ -282,12 +282,12 @@ static struct sockaddr_in * parseaddr(const char *raddr, long defhost, struct so
             hostaddr = htonl(INADDR_BROADCAST);
         else if ((hostaddr = inet_addr(host)) != (in_addr_t)-1)
             /* NOTHING */ ;
-        else if ((hostent = gethostbyname(host)) != NULL)
+        else if ((hostent = gethostbyname(host)) != nullptr)
             memcpy(&hostaddr, hostent->h_addr, sizeof hostaddr);
         else
         {
             seterror("unknown host", "unknown host: \"%.32s\"", host);
-            return NULL;
+            return nullptr;
         }
         saddr->sin_addr.s_addr = hostaddr;
     }
@@ -295,12 +295,12 @@ static struct sockaddr_in * parseaddr(const char *raddr, long defhost, struct so
     {
         char *proto;
         struct servent *servent;
-        if ((proto = strchr(addr, '/')) != NULL)
+        if ((proto = strchr(addr, '/')) != nullptr)
             *proto++ = 0;
-        if ((servent = getservbyname(ports, proto)) == NULL)
+        if ((servent = getservbyname(ports, proto)) == nullptr)
         {
             seterror("unknown service", "unknown service: \"%s\"", ports);
-            return NULL;
+            return nullptr;
         }
         port = ntohs(servent->s_port);
     }
@@ -321,13 +321,13 @@ static char * unparse_addr(struct sockaddr_in *addr)
     int off;
 
 #if 0
-    if ((serv = getservbyport(addr->sin_port, NULL)) != NULL)
+    if ((serv = getservbyport(addr->sin_port, nullptr)) != nullptr)
         strcpy(addr_buf, serv->s_name);
     else ;
 #endif
 
     addr_buf[0] = '\0';
-    if ((host = gethostbyaddr((char *)&addr->sin_addr.s_addr, sizeof addr->sin_addr, AF_INET)) == NULL)
+    if ((host = gethostbyaddr((char *)&addr->sin_addr.s_addr, sizeof addr->sin_addr, AF_INET)) == nullptr)
         strcat(addr_buf, inet_ntoa(addr->sin_addr));
     else
         strcat(addr_buf, host->h_name);
@@ -396,8 +396,8 @@ static int net_socket(void)
         );
     }
     if ((fd = socket(PF_INET, type, 0)) == SOCKET_ERROR)
-        return get_last_errno("net.socket", NULL);
-    if ((skt = new_netsocket(fd)) == NULL)
+        return get_last_errno("net.socket", nullptr);
+    if ((skt = new_netsocket(fd)) == nullptr)
     {
         closesocket(fd);
         return 1;
@@ -459,7 +459,7 @@ static int net_listen(void)
     if (isclosed(skt))
         return 1;
     if (listen(socket_fd(skt), (int)backlog) == SOCKET_ERROR)
-        return get_last_errno("net.listen", NULL);
+        return get_last_errno("net.listen", nullptr);
     return ret_no_decref(skt);
 }
 
@@ -487,11 +487,11 @@ static int net_accept(void)
     if (isclosed(skt))
         return 1;
     x = potentially_block();
-    fd = accept(socket_fd(skt), NULL, NULL);
+    fd = accept(socket_fd(skt), nullptr, nullptr);
     unblock(x);
     if (fd == SOCKET_ERROR)
     {
-        return get_last_errno("net.accept", NULL);
+        return get_last_errno("net.accept", nullptr);
     }
     return ret_with_decref(new_netsocket(fd));
 }
@@ -528,7 +528,7 @@ static int net_connect(void)
     else {
         return argerror(1);
     }
-    if (parseaddr(addr, INADDR_LOOPBACK, &saddr) == NULL) {
+    if (parseaddr(addr, INADDR_LOOPBACK, &saddr) == nullptr) {
         return 1;
     }
     if (isclosed(skt)) {
@@ -537,7 +537,7 @@ static int net_connect(void)
     x = potentially_block();
     rc = connect(socket_fd(skt), (struct sockaddr *)&saddr, sizeof saddr);
     unblock(x);
-    return rc == SOCKET_ERROR ? get_last_errno("net.connect", NULL) : ret_no_decref(skt);
+    return rc == SOCKET_ERROR ? get_last_errno("net.connect", nullptr) : ret_no_decref(skt);
 }
 
 /*
@@ -591,12 +591,12 @@ static int net_bind(void)
             return 1;
         addr = "0";
     }
-    if (parseaddr(addr, INADDR_ANY, &saddr) == NULL)
+    if (parseaddr(addr, INADDR_ANY, &saddr) == nullptr)
         return 1;
     if (isclosed(skt))
         return 1;
     if (bind(socket_fd(skt), (struct sockaddr *)&saddr, sizeof saddr) == SOCKET_ERROR)
-        return get_last_errno("net.bind", NULL);
+        return get_last_errno("net.bind", nullptr);
     return ret_no_decref(skt);
 }
 
@@ -622,13 +622,13 @@ static int select_add_result
     size_t i;
     slot   *sl;
 
-    if ((rset = new_set()) == NULL)
+    if ((rset = new_set()) == nullptr)
         return 1;
-    if (theset != NULL)
+    if (theset != nullptr)
     {
         for (i = 0; *n > 0 && i < theset->s_nslots; ++i)
         {
-            if ((sl = (slot *)&theset->s_slots[i])->sl_key == NULL)
+            if ((sl = (slot *)&theset->s_slots[i])->sl_key == nullptr)
                 continue;
             if (!ishandleof(sl->sl_key, SS(socket)))
                 continue;
@@ -654,13 +654,13 @@ fail:
 }
 
 /*
- * struct = net.select([int,] set|NULL [, set|NULL [, set|NULL]])
+ * struct = net.select([int,] set|nullptr [, set|nullptr [, set|nullptr]])
  *
  * Checks sockets for I/O readiness with an optional timeout.  Select may be
  * passed up to three sets of sockets that are checked for readiness to
  * perform I/O.  The first set holds the sockets to test for input pending,
  * the second set the sockets to test for output able and the third set the
- * sockets to test for exceptional states.  NULL may be passed in place of a
+ * sockets to test for exceptional states.  nullptr may be passed in place of a
  * set parameter to avoid passing empty sets.  An integer may also appear in
  * the parameter list.  This integer specifies the number of milliseconds to
  * wait for the sockets to become ready.  If a zero timeout is passed the
@@ -685,38 +685,38 @@ static int net_select()
     int            dtabsize      = -1;
     long           timeout       = -1;
     fd_set         fds[3];
-    fd_set         *rfds         = NULL;
-    set            *rset         = NULL;
-    fd_set         *wfds         = NULL;
-    set            *wset         = NULL;
-    fd_set         *efds         = NULL;
-    set            *eset         = NULL;
+    fd_set         *rfds         = nullptr;
+    set            *rset         = nullptr;
+    fd_set         *wfds         = nullptr;
+    set            *wset         = nullptr;
+    fd_set         *efds         = nullptr;
+    set            *eset         = nullptr;
     struct timeval timeval;
     struct timeval *tv;
     map            *result;
-    set            *theset       = NULL; /* Init. to remove compiler warning */
+    set            *theset       = nullptr; /* Init. to remove compiler warning */
     int            whichset      = -1; /* 0 == read, 1 == write, 2 == except*/
     slot           *sl;
     exec           *x;
 
     if (NARGS() == 0)
-        return seterror("incorrect number of arguments for net.select()", NULL);
+        return seterror("incorrect number of arguments for net.select()", nullptr);
     for (i = 0; i < NARGS(); ++i)
     {
         if (isint(ARG(i)))
         {
             if (timeout != -1)
-                return seterror("too many timeout parameters passed to net.select", NULL);
+                return seterror("too many timeout parameters passed to net.select", nullptr);
             timeout = intof(ARG(i))->i_value;
             if (timeout < 0)
-                return seterror("-ve timeout passed to net.select", NULL);
+                return seterror("-ve timeout passed to net.select", nullptr);
         }
         else if (isset(ARG(i)) || isnull(ARG(i)))
         {
             size_t j;
 
             if (++whichset > 2)
-                return seterror("too many set/NULL params to select()", NULL);
+                return seterror("too many set/nullptr params to select()", nullptr);
             if (isset(ARG(i)))
             {
                 fd_set *fs = 0;
@@ -741,12 +741,12 @@ static int net_select()
                 {
                     int k;
 
-                    if ((sl = (slot *)&theset->s_slots[j])->sl_key == NULL)
+                    if ((sl = (slot *)&theset->s_slots[j])->sl_key == nullptr)
                         continue;
                     if (!ishandleof(sl->sl_key, SS(socket)))
                         continue;
                     if (isclosed(handleof(sl->sl_key)))
-                        return seterror("attempt to use a closed socket in net.select", NULL);
+                        return seterror("attempt to use a closed socket in net.select", nullptr);
                     k = socket_fd(handleof(sl->sl_key));
                     FD_SET(k, fs);
                     if (k > dtabsize)
@@ -758,16 +758,16 @@ static int net_select()
                     switch (whichset)
                     {
                     case 0:
-                        rfds = NULL;
-                        rset = NULL;
+                        rfds = nullptr;
+                        rset = nullptr;
                         break;
                     case 1:
-                        wfds = NULL;
-                        wset = NULL;
+                        wfds = nullptr;
+                        wset = nullptr;
                         break;
                     case 2:
-                        efds = NULL;
-                        eset = NULL;
+                        efds = nullptr;
+                        eset = nullptr;
                         break;
                     }
                 }
@@ -778,10 +778,10 @@ static int net_select()
             return argerror(i);
         }
     }
-    if (rfds == NULL && wfds == NULL && efds == NULL)
-        return seterror("nothing to select, all socket sets are empty", NULL);
+    if (rfds == nullptr && wfds == nullptr && efds == nullptr)
+        return seterror("nothing to select, all socket sets are empty", nullptr);
     if (timeout == -1)
-        tv = NULL;
+        tv = nullptr;
     else
     {
         tv = &timeval;
@@ -792,14 +792,14 @@ static int net_select()
     n = select(dtabsize + 1, rfds, wfds, efds, tv);
     unblock(x);
     if (n < 0)
-        return get_last_errno("net.select", NULL);
-    if ((result = new_map()) == NULL)
+        return get_last_errno("net.select", nullptr);
+    if ((result = new_map()) == nullptr)
         return 1;
     /* Add in count */
     {
         integer  *nobj;
 
-        if ((nobj = new_int(n)) == NULL)
+        if ((nobj = new_int(n)) == nullptr)
             goto fail;
         if (ici_assign(result, SS(n), nobj))
         {
@@ -854,7 +854,7 @@ static int net_sendto()
         return 1;
     if (!isstring(msg))
         return argerror(1);
-    if (parseaddr(addr, INADDR_LOOPBACK, &sockaddr) == NULL)
+    if (parseaddr(addr, INADDR_LOOPBACK, &sockaddr) == nullptr)
         return 1;
     if (isclosed(skt))
         return 1;
@@ -868,7 +868,7 @@ static int net_sendto()
         sizeof sockaddr
     );
     if (n < 0)
-        return get_last_errno("net.sendto", NULL);
+        return get_last_errno("net.sendto", nullptr);
     return int_ret(n);
 }
 
@@ -919,8 +919,8 @@ static int net_recvfrom()
     if (isclosed(skt))
         return 1;
     if (len < 0)
-        return seterror("negative transfer count", NULL);
-    if ((msg = (char *)ici_nalloc(len + 1)) == NULL)
+        return seterror("negative transfer count", nullptr);
+    if ((msg = (char *)ici_nalloc(len + 1)) == nullptr)
         return 1;
     x = potentially_block();
     nb = recvfrom(socket_fd(skt), msg, len, 0, (struct sockaddr *)&addr, &addrsz);
@@ -928,32 +928,32 @@ static int net_recvfrom()
     if (nb == SOCKET_ERROR)
     {
         ici_nfree(msg, len + 1);
-        return get_last_errno("net.recvfrom", NULL);
+        return get_last_errno("net.recvfrom", nullptr);
     }
     if (nb == 0)
     {
         ici_nfree(msg, len + 1);
         return null_ret();
     }
-    if ((result = new_map()) == NULL)
+    if ((result = new_map()) == nullptr)
     {
         ici_nfree(msg, len + 1);
         return 1;
     }
-    if ((s = new_str(msg, nb)) == NULL)
+    if ((s = new_str(msg, nb)) == nullptr)
     {
         ici_nfree(msg, len + 1);
         return 1;
     }
     ici_nfree(msg, len + 1);
-    msg = NULL;
+    msg = nullptr;
     if (ici_assign(result, SS(msg), s))
     {
         s->decref();
         goto fail;
     }
     s->decref();
-    if ((s = new_str_nul_term(unparse_addr(&addr))) == NULL)
+    if ((s = new_str_nul_term(unparse_addr(&addr))) == nullptr)
     {
         goto fail;
     }
@@ -966,7 +966,7 @@ static int net_recvfrom()
     return ret_with_decref(result);
 
 fail:
-    if (msg != NULL)
+    if (msg != nullptr)
         ici_nfree(msg, len + 1);
     result->decref();
     return 1;
@@ -996,7 +996,7 @@ static int net_send()
         return 1;
     len = send(socket_fd(skt), msg->s_chars, msg->s_nchars, 0);
     if (len < 0)
-        return get_last_errno("net.send", NULL);
+        return get_last_errno("net.send", nullptr);
     return int_ret(len);
 }
 
@@ -1006,7 +1006,7 @@ static int net_send()
  * Receive data from a socket 'skt' and return it as a string.  The 'int'
  * parameter gives the maximum size of message that will be received.
  * The actual number of bytes transferred may be determined from the 
- * length of the returned string. If the connection is closed NULL is
+ * length of the returned string. If the connection is closed nullptr is
  * returned.
  *
  * This may block, but will allow thread switching while blocked.
@@ -1027,8 +1027,8 @@ static int net_recv()
     if (isclosed(skt))
         return 1;
     if (len < 0)
-        return seterror("negative transfer count", NULL);
-    if ((msg = (char *)ici_nalloc(len + 1)) == NULL)
+        return seterror("negative transfer count", nullptr);
+    if ((msg = (char *)ici_nalloc(len + 1)) == nullptr)
         return 1;
     x = potentially_block();
     nb = recv(socket_fd(skt), msg, len, 0);
@@ -1036,14 +1036,14 @@ static int net_recv()
     if (nb == SOCKET_ERROR)
     {
         ici_nfree(msg, len + 1);
-        return get_last_errno("net.recv", NULL);
+        return get_last_errno("net.recv", nullptr);
     }
     if (nb == 0)
     {
         ici_nfree(msg, len + 1);
         return null_ret();
     }
-    if ((s = new_str(msg, nb)) == NULL)
+    if ((s = new_str(msg, nb)) == nullptr)
         return 1;
     ici_nfree(msg, len + 1);
     return ret_with_decref(s);
@@ -1191,13 +1191,13 @@ static int net_getsockopt()
 #ifndef NDEBUG
         abort();
 #endif
-        return seterror("internal ici error in net.c:sockopt()", NULL);
+        return seterror("internal ici error in net.c:sockopt()", nullptr);
     }
 
     if (isclosed(skt))
         return 1;
     if (getsockopt(socket_fd(skt), optlevel, o, optval, &optlen) == SOCKET_ERROR)
-        return get_last_errno("net.getsockopt", NULL);
+        return get_last_errno("net.getsockopt", nullptr);
     if (o == SO_LINGER)
         intvar = linger.l_onoff ? linger.l_linger : -1;
     else
@@ -1293,13 +1293,13 @@ static int net_setsockopt()
 #ifndef NDEBUG
         abort();
 #endif
-        return seterror("internal ici error in net.c:sockopt()", NULL);
+        return seterror("internal ici error in net.c:sockopt()", nullptr);
     }
 
     if (isclosed(skt))
         return 1;
     if (setsockopt(socket_fd(skt), optlevel, optcode, optval, optlen) == SOCKET_ERROR)
-        return get_last_errno("net.setsockopt", NULL);
+        return get_last_errno("net.setsockopt", nullptr);
     return ret_no_decref(skt);
 
 bad:
@@ -1315,14 +1315,14 @@ bad:
  */
 static int net_hostname()
 {
-    static str *hostname = NULL;
+    static str *hostname = nullptr;
 
-    if (hostname == NULL)
+    if (hostname == nullptr)
     {
         char name_buf[MAXHOSTNAMELEN];
         if (gethostname(name_buf, sizeof name_buf) == -1)
-            return get_last_errno("net.gethostname", NULL);
-        if ((hostname = new_str_nul_term(name_buf)) == NULL)
+            return get_last_errno("net.gethostname", nullptr);
+        if ((hostname = new_str_nul_term(name_buf)) == nullptr)
             return 1;
         hostname->incref();
     }
@@ -1357,7 +1357,7 @@ static net_username()
         if (typecheck("i", &uid))
             return 1;
     }
-    if ((pwent = getpwuid(uid)) == NULL)
+    if ((pwent = getpwuid(uid)) == nullptr)
     {
         sprintf(buf, "can't find name for uid %ld", uid);
         error = buf;
@@ -1389,7 +1389,7 @@ static int net_getpeername()
     if (isclosed(skt))
         return 1;
     if (getpeername(socket_fd(skt), (struct sockaddr *)&addr, &len) == SOCKET_ERROR)
-        return get_last_errno("net.getpeername", NULL);
+        return get_last_errno("net.getpeername", nullptr);
     return str_ret(unparse_addr(&addr));
 }
 
@@ -1411,7 +1411,7 @@ static int net_getsockname()
     if (isclosed(skt))
         return 1;
     if (getsockname(socket_fd(skt), (struct sockaddr *)&addr, &len) == SOCKET_ERROR)
-        return get_last_errno("net.getsockname", NULL);
+        return get_last_errno("net.getsockname", nullptr);
     return str_ret(unparse_addr(&addr));
 }
 
@@ -1433,7 +1433,7 @@ static int net_getportno()
     if (isclosed(skt))
         return 1;
     if (getsockname(socket_fd(skt), (struct sockaddr *)&addr, &len) == SOCKET_ERROR)
-        return get_last_errno("net.getsockname", NULL);
+        return get_last_errno("net.getsockname", nullptr);
     return int_ret(ntohs(addr.sin_port));
 }
 
@@ -1456,7 +1456,7 @@ net_gethostbyname()
 
     if (typecheck("s", &name))
         return 1;
-    if ((hostent = gethostbyname(name)) == NULL)
+    if ((hostent = gethostbyname(name)) == nullptr)
         return seterror("no such host", "no such host: \"%.32s\"", name);
     memcpy(&addr, *hostent->h_addr_list, sizeof addr);
     return str_ret(inet_ntoa(addr));
@@ -1490,8 +1490,8 @@ static int net_gethostbyaddr(void)
         return 1;
     else if ((addr = inet_addr(s)) == 0xFFFFFFFF)
         return seterror("invalid IP address", "invalid IP address: %32s", s);
-    if ((hostent = gethostbyaddr((char *)&addr, sizeof addr, AF_INET)) == NULL)
-        return seterror("unknown host", s != NULL ? "unknown host: %32s" : "unkown host", s);
+    if ((hostent = gethostbyaddr((char *)&addr, sizeof addr, AF_INET)) == nullptr)
+        return seterror("unknown host", s != nullptr ? "unknown host: %32s" : "unkown host", s);
     return str_ret((char *)hostent->h_name);
 }
 
@@ -1674,7 +1674,7 @@ static skt_file * skt_open(handle *s, const char *mode)
 
     ici_talloc(skt_file);
 
-    if ((sf = ici_talloc(skt_file)) != NULL)
+    if ((sf = ici_talloc(skt_file)) != nullptr)
     {
         sf->sf_socket = s;
         sf->sf_socket->incref();
@@ -1691,7 +1691,7 @@ static skt_file * skt_open(handle *s, const char *mode)
             break;
         default:
             seterror("bad open mode for socket", "bad open mode, \"%s\", for socket", mode);
-            return NULL;
+            return nullptr;
         }
     }
     return sf;
@@ -1732,9 +1732,9 @@ static int net_sktopen()
     }
     if (isclosed(skt))
         return 1;
-    if ((sf = skt_open(skt, mode)) == NULL)
+    if ((sf = skt_open(skt, mode)) == nullptr)
         return 1;
-    if ((f = new_file((char *)sf, skt_ftype, NULL, NULL)) == NULL)
+    if ((f = new_file((char *)sf, skt_ftype, nullptr, nullptr)) == nullptr)
     {
         return 1;
     }
@@ -1758,16 +1758,16 @@ static int net_socketpair()
     int     sv[2];
 
     if (socketpair(AF_UNIX, SOCK_STREAM, 0, sv) == -1)
-        return get_last_errno("net.socketpair", NULL);
-    if ((a = new_array(2)) == NULL)
+        return get_last_errno("net.socketpair", nullptr);
+    if ((a = new_array(2)) == nullptr)
         goto fail1;
-    if ((s = new_netsocket(sv[0])) == NULL)
+    if ((s = new_netsocket(sv[0])) == nullptr)
     {
         a->decref();
         goto fail1;
     }
     a->push(s, owned);
-    if ((s = new_netsocket(sv[1])) == NULL)
+    if ((s = new_netsocket(sv[1])) == nullptr)
     {
         close(sv[1]);
         a->decref();

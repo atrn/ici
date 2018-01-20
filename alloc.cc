@@ -59,7 +59,7 @@ static chunk          *ici_chunks;
 
 
 /*
- * Allocate an object of the given 'size'.  Return NULL on failure, usual
+ * Allocate an object of the given 'size'.  Return nullptr on failure, usual
  * conventions.  The resulting object must be freed with ici_nfree() and only
  * ici_nfree().  Note that ici_nfree() also requires to know the size of the
  * object being freed.
@@ -107,7 +107,7 @@ void *ici_nalloc(size_t z)
          * Small block. Try to get it off one of the fast free lists.
          */
         fp = &ici_flists[fi];
-        if ((r = *fp) != NULL)
+        if ((r = *fp) != nullptr)
         {
             *fp = *(char **)r;
             return r;
@@ -126,10 +126,10 @@ void *ici_nalloc(size_t z)
         /*
          * Current chunk empty. Allocate another one.
          */
-        if ((c = (chunk *)malloc(sizeof (chunk))) == NULL)
+        if ((c = (chunk *)malloc(sizeof (chunk))) == nullptr)
         {
             collect();
-            if ((c = (chunk *)malloc(sizeof (chunk))) == NULL)
+            if ((c = (chunk *)malloc(sizeof (chunk))) == nullptr)
                 goto fail;
         }
         c->c_next = ici_chunks;
@@ -142,17 +142,17 @@ void *ici_nalloc(size_t z)
     }
 #endif /* ICI_ALLALLOC */
 
-    if ((r = (char *)malloc(z)) == NULL)
+    if ((r = (char *)malloc(z)) == nullptr)
     {
         collect();
-        if ((r = (char *)malloc(z)) == NULL)
+        if ((r = (char *)malloc(z)) == nullptr)
             goto fail;
     }
     return r;
 
 fail:
     set_error("ran out of memory");
-    return NULL;
+    return nullptr;
 }
 
 /*
@@ -223,13 +223,13 @@ void *ici_alloc(size_t z)
 
     ++ici_n_allocs;
     ici_alloc_mem += z;
-    if ((p = malloc(z)) == NULL)
+    if ((p = malloc(z)) == nullptr)
     {
         collect();
-        if ((p = malloc(z)) == NULL)
+        if ((p = malloc(z)) == nullptr)
         {
             set_error("ran out of memory");
-            return NULL;
+            return nullptr;
         }
     }
     return p;
@@ -278,7 +278,7 @@ void drop_all_small_allocations()
 #if !ICI_ALLALLOC
     chunk *c;
 
-    while ((c = ici_chunks) != NULL)
+    while ((c = ici_chunks) != nullptr)
     {
         ici_chunks = c->c_next;
         free(c);

@@ -18,8 +18,8 @@ static handle ici_handle_proto;
 
 /*
  * Return a handle object corresponding to the given C data 'ptr', with the
- * ICI type 'name' (which may be NULL), and with the given 'super' (which
- * may be NULL).
+ * ICI type 'name' (which may be nullptr), and with the given 'super' (which
+ * may be nullptr).
  *
  * The returned handle will have had its reference count inceremented.
  *
@@ -54,7 +54,7 @@ static handle ici_handle_proto;
  * Handles can support assignment to fields "just like a struct" by
  * the automatic creation of a private struct to store such values in upon
  * first assignment. This mechanism is, by default, only enabled if you
- * supply a non-NULL super. But you can enable it even with a NULL super
+ * supply a non-nullptr super. But you can enable it even with a nullptr super
  * by setting O_SUPER in the handle's object header at any time. (Actually,
  * it is an historical accident that 'super' was ever an argument to this
  * function.)
@@ -82,22 +82,22 @@ handle *new_handle(void *ptr, str *name, objwsup *super)
     ici_handle_proto.h_ptr = ptr;
     ici_handle_proto.h_name = name;
     ici_handle_proto.o_super = super;
-    if ((h = handleof(atom_probe2(&ici_handle_proto, &po))) != NULL)
+    if ((h = handleof(atom_probe2(&ici_handle_proto, &po))) != nullptr)
     {
         h->incref();
         return h;
     }
     ++supress_collect;
-    if ((h = ici_talloc(handle)) == NULL)
-        return NULL;
-    set_tfnz(h, TC_HANDLE, (super != NULL ? object::O_SUPER : 0) | object::O_ATOM, 1, 0);
+    if ((h = ici_talloc(handle)) == nullptr)
+        return nullptr;
+    set_tfnz(h, TC_HANDLE, (super != nullptr ? object::O_SUPER : 0) | object::O_ATOM, 1, 0);
     h->h_ptr = ptr;
     h->h_name = name;
     h->o_super = super;
-    h->h_pre_free = NULL;
-    h->h_member_map = NULL;
-    h->h_member_intf = NULL;
-    h->h_general_intf = NULL;
+    h->h_pre_free = nullptr;
+    h->h_member_map = nullptr;
+    h->h_member_intf = nullptr;
+    h->h_general_intf = nullptr;
     rego(h);
     --supress_collect;
     store_atom_and_count(po, h);
@@ -107,7 +107,7 @@ handle *new_handle(void *ptr, str *name, objwsup *super)
 /*
  * If it exists, return a pointer to the handle corresponding to the C data
  * structure 'ptr' with the ICI type 'name'.  If it doesn't exist, return
- * NULL.  The handle (if returned) will have been increfed.
+ * nullptr.  The handle (if returned) will have been increfed.
  *
  * This function can be used to probe to see if there is an ICI handle
  * associated with your C data structure in existence, but avoids allocating
@@ -123,16 +123,16 @@ handle *handle_probe(void *ptr, str *name)
 
     ici_handle_proto.h_ptr = ptr;
     ici_handle_proto.h_name = name;
-    if ((h = handleof(atom_probe(&ici_handle_proto))) != NULL)
+    if ((h = handleof(atom_probe(&ici_handle_proto))) != nullptr)
         h->incref();
     return h;
 }
 
 /*
  * Verify that a method on a handle has been invoked correctly.  In
- * particular, that 'inst' is not NULL and is a handle with the given 'name'.
- * If OK and 'h' is non-NULL, the handle is stored through it.  If 'p' is
- * non-NULL, the associted pointer ('h_ptr') is stored through it.  Return 1
+ * particular, that 'inst' is not nullptr and is a handle with the given 'name'.
+ * If OK and 'h' is non-nullptr, the handle is stored through it.  If 'p' is
+ * non-nullptr, the associted pointer ('h_ptr') is stored through it.  Return 1
  * on error and sets error, else 0.
  *
  * For example, a typical method where the instance should be a handle
@@ -144,7 +144,7 @@ handle *handle_probe(void *ptr, str *name)
  *      char                *s;
  *      XML_Parser          p;
  *
- *      if (handle_method_check(inst, ICIS(XML_Parser), NULL, &p))
+ *      if (handle_method_check(inst, ICIS(XML_Parser), nullptr, &p))
  *          return 1;
  *      if (typecheck("s", &s))
  *          return 1;
@@ -169,9 +169,9 @@ int handle_method_check(object *inst, str *name, handle **h, void **p)
                              objname(n1, os.a_top[-1]),
                              objname(n2, inst));
     }
-    if (h != NULL)
+    if (h != nullptr)
         *h = handleof(inst);
-    if (p != NULL)
+    if (p != nullptr)
         *p = handleof(inst)->h_ptr;
     return 0;
 }
@@ -197,11 +197,11 @@ ici_handle_method(object *inst)
                              objname(n1, os.a_top[-1]),
                              objname(n2, inst));
     }
-    r = NULL;
+    r = nullptr;
     id = (long)cfuncof(os.a_top[-1])->cf_arg1;
-    if ((*handleof(inst)->h_member_intf)(handleof(inst)->h_ptr, id, NULL, &r))
+    if ((*handleof(inst)->h_member_intf)(handleof(inst)->h_ptr, id, nullptr, &r))
         return 1;
-    if (r == NULL)
+    if (r == nullptr)
     {
         return set_error("attempt to apply method %s to %s",
                              objname(n1, os.a_top[-1]),
@@ -221,7 +221,7 @@ ici_handle_method(object *inst)
  * to be invoked as methods calls must include the flag ICI_H_METHOD in the ID.
  * (This flag is removed from the ID when it is passed back to your code. ICI_H_METHOD
  * is the most significant bit in the 32 bit ID.) The list is terminated by an
- * entry with a name of NULL.
+ * entry with a name of nullptr.
  *
  * For example:
  *
@@ -233,14 +233,14 @@ ici_handle_method(object *inst)
  *      {"Property2",        P_Property1},
  *      {"Method1",          M_Method1},
  *      {"Method2",          M_Method2},
- *      {NULL},
+ *      {nullptr},
  *  }
  *
  *  object   *ici_member_map;
  *
  *  ...
  *      member_map = make_handle_member_map(member_name_ids)
- *      if (member_map == NULL)
+ *      if (member_map == nullptr)
  *          ...
  *
  * This --func-- forms part of the --ici-api--.
@@ -251,12 +251,12 @@ object *make_handle_member_map(name_id *ni)
     str          *n;
     object       *id;
 
-    if ((m = new_map()) == NULL)
-        return NULL;
-    for (; ni->ni_name != NULL; ++ni)
+    if ((m = new_map()) == nullptr)
+        return nullptr;
+    for (; ni->ni_name != nullptr; ++ni)
     {
-        id = NULL;
-        if ((n = new_str_nul_term(ni->ni_name)) == NULL)
+        id = nullptr;
+        if ((n = new_str_nul_term(ni->ni_name)) == nullptr)
             goto fail;
         if (ni->ni_id & ICI_H_METHOD)
         {
@@ -265,14 +265,14 @@ object *make_handle_member_map(name_id *ni)
                 n,
                 (int (*)(...))(ici_handle_method),
                 (void *)(ni->ni_id & ~ICI_H_METHOD),
-                NULL
+                nullptr
             );
-            if (id == NULL)
+            if (id == nullptr)
                 goto fail;
         }
         else
         {
-            if ((id = new_int(ni->ni_id)) == NULL)
+            if ((id = new_int(ni->ni_id)) == nullptr)
                 goto fail;
         }
         if (ici_assign(m, n, id))
@@ -283,18 +283,18 @@ object *make_handle_member_map(name_id *ni)
     return m;
 
  fail:
-    if (n != NULL)
+    if (n != nullptr)
         n->decref();
-    if (id != NULL)
+    if (id != nullptr)
         id->decref();
     m->decref();
-    return NULL;
+    return nullptr;
 }
 
 
 void handle_type::objname(object *o, char p[objnamez])
 {
-    if (handleof(o)->h_name == NULL)
+    if (handleof(o)->h_name == nullptr)
         strcpy(p, "handle");
     else
     {
@@ -308,9 +308,9 @@ void handle_type::objname(object *o, char p[objnamez])
 size_t handle_type::mark(object *o)
 {
     auto mem = type::mark(o);
-    if (objwsupof(o)->o_super != NULL)
+    if (objwsupof(o)->o_super != nullptr)
         mem += ici_mark(objwsupof(o)->o_super);
-    if (handleof(o)->h_name != NULL)
+    if (handleof(o)->h_name != nullptr)
         mem += ici_mark(handleof(o)->h_name);
     return mem;
 }
@@ -332,32 +332,32 @@ object * handle_type::fetch(object *o, object *k)
     object *r;
 
     h = handleof(o);
-    if (h->h_member_map != NULL && !o->flagged(ICI_H_CLOSED))
+    if (h->h_member_map != nullptr && !o->flagged(ICI_H_CLOSED))
     {
         object       *id;
 
-        if ((id = ici_fetch(h->h_member_map, k)) == NULL)
-            return NULL;
+        if ((id = ici_fetch(h->h_member_map, k)) == nullptr)
+            return nullptr;
         if (iscfunc(id))
             return id;
         if (isint(id))
         {
-            r = NULL;
-            if ((*h->h_member_intf)(h->h_ptr, intof(id)->i_value, NULL, &r))
-                return NULL;
-            if (r != NULL)
+            r = nullptr;
+            if ((*h->h_member_intf)(h->h_ptr, intof(id)->i_value, nullptr, &r))
+                return nullptr;
+            if (r != nullptr)
                 return r;
         }
     }
-    if (h->h_general_intf != NULL)
+    if (h->h_general_intf != nullptr)
     {
-        r = NULL;
-        if ((*h->h_general_intf)(h, k, NULL, &r))
-            return NULL;
-        if (r != NULL)
+        r = nullptr;
+        if ((*h->h_general_intf)(h, k, nullptr, &r))
+            return nullptr;
+        if (r != nullptr)
             return r;
     }
-    if (!hassuper(o) || handleof(o)->o_super == NULL)
+    if (!hassuper(o) || handleof(o)->o_super == nullptr)
         return fetch_fail(o, k);
     return ici_fetch(handleof(o)->o_super, k);
 }
@@ -368,7 +368,7 @@ object * handle_type::fetch(object *o, object *k)
  * unless it really is. Return -1 on error, 0 if it was not found,
  * and 1 if was found. If found, the value is stored in *v.
  *
- * If not NULL, b is a struct that was the base element of this
+ * If not nullptr, b is a struct that was the base element of this
  * assignment. This is used to mantain the lookup lookaside mechanism.
  */
 int handle_type::fetch_super(object *o, object *k, object **v, map *b)
@@ -378,7 +378,7 @@ int handle_type::fetch_super(object *o, object *k, object **v, map *b)
         fetch_fail(o, k);
         return 1;
     }
-    if (handleof(o)->o_super == NULL)
+    if (handleof(o)->o_super == nullptr)
         return 0;
     return ici_fetch_super(handleof(o)->o_super, k, v, b);
 }
@@ -389,29 +389,29 @@ object * handle_type::fetch_base(object *o, object *k)
     object *r;
 
     h = handleof(o);
-    if (h->h_member_map != NULL && !o->flagged(ICI_H_CLOSED))
+    if (h->h_member_map != nullptr && !o->flagged(ICI_H_CLOSED))
     {
         object       *id;
 
-        if ((id = ici_fetch(h->h_member_map, k)) == NULL)
-            return NULL;
+        if ((id = ici_fetch(h->h_member_map, k)) == nullptr)
+            return nullptr;
         if (iscfunc(id))
             return id;
         if (isint(id))
         {
-            r = NULL;
-            if ((*h->h_member_intf)(h->h_ptr, intof(id)->i_value, NULL, &r))
-                return NULL;
-            if (r != NULL)
+            r = nullptr;
+            if ((*h->h_member_intf)(h->h_ptr, intof(id)->i_value, nullptr, &r))
+                return nullptr;
+            if (r != nullptr)
                 return r;
         }
     }
-    if (h->h_general_intf != NULL)
+    if (h->h_general_intf != nullptr)
     {
-        r = NULL;
-        if ((*h->h_general_intf)(h, k, NULL, &r))
-            return NULL;
-        if (r != NULL)
+        r = nullptr;
+        if ((*h->h_general_intf)(h, k, nullptr, &r))
+            return nullptr;
+        if (r != nullptr)
             return r;
     }
     if (!hassuper(o))
@@ -431,27 +431,27 @@ int handle_type::assign_base(object *o, object *k, object *v)
     object *r;
 
     h = handleof(o);
-    if (h->h_member_map != NULL && !o->flagged(ICI_H_CLOSED))
+    if (h->h_member_map != nullptr && !o->flagged(ICI_H_CLOSED))
     {
         object       *id;
 
-        if ((id = ici_fetch(h->h_member_map, k)) == NULL)
+        if ((id = ici_fetch(h->h_member_map, k)) == nullptr)
             return 1;
         if (isint(id))
         {
-            r = NULL;
+            r = nullptr;
             if ((*h->h_member_intf)(h->h_ptr, intof(id)->i_value, v, &r))
                 return 1;
-            if (r != NULL)
+            if (r != nullptr)
                 return 0;
         }
     }
-    if (h->h_general_intf != NULL)
+    if (h->h_general_intf != nullptr)
     {
-        r = NULL;
+        r = nullptr;
         if ((*h->h_general_intf)(h, k, v, &r))
             return 1;
-        if (r != NULL)
+        if (r != nullptr)
             return 0;
     }
     if (!hassuper(o))
@@ -467,7 +467,7 @@ int handle_type::assign_base(object *o, object *k, object *v)
          * This operation disturbs the struct-lookup lookaside mechanism.
          * We invalidate all existing entries by incrementing vsver.
          */
-        if ((s = objwsupof(new_map())) == NULL)
+        if ((s = objwsupof(new_map())) == nullptr)
             return 1;
         s->o_super = objwsupof(o)->o_super;
         objwsupof(o)->o_super = s;
@@ -487,27 +487,27 @@ int handle_type::assign(object *o, object *k, object *v)
     object *r;
 
     h = handleof(o);
-    r = NULL;
-    if (h->h_member_map != NULL && !o->flagged(ICI_H_CLOSED))
+    r = nullptr;
+    if (h->h_member_map != nullptr && !o->flagged(ICI_H_CLOSED))
     {
         object       *id;
 
-        if ((id = ici_fetch(h->h_member_map, k)) == NULL)
+        if ((id = ici_fetch(h->h_member_map, k)) == nullptr)
             return 1;
         if (isint(id))
         {
             if ((*h->h_member_intf)(h->h_ptr, intof(id)->i_value, v, &r))
                 return 1;
-            if (r != NULL)
+            if (r != nullptr)
                 return 0;
         }
     }
-    if (h->h_general_intf != NULL)
+    if (h->h_general_intf != nullptr)
     {
-        r = NULL;
+        r = nullptr;
         if ((*h->h_general_intf)(h, k, v, &r))
             return 1;
-        if (r != NULL)
+        if (r != nullptr)
             return 0;
     }
     if (!hassuper(o))
@@ -517,9 +517,9 @@ int handle_type::assign(object *o, object *k, object *v)
     /*
      * We don't have a base struct of our own yet. Try the super.
      */
-    if (handleof(o)->o_super != NULL)
+    if (handleof(o)->o_super != nullptr)
     {
-        switch (ici_assign_super(h->o_super, k, v, NULL))
+        switch (ici_assign_super(h->o_super, k, v, nullptr))
         {
         case -1: return 1;
         case 1:  return 0;
@@ -542,14 +542,14 @@ int handle_type::assign(object *o, object *k, object *v)
  * If 0 is returned, nothing has been modified during the
  * operation of this function.
  *
- * If not NULL, b is a struct that was the base element of this
+ * If not nullptr, b is a struct that was the base element of this
  * assignment. This is used to mantain the lookup lookaside mechanism.
  */
 int handle_type::assign_super(object *o, object *k, object *v, map *b)
 {
     if (!hassuper(o))
         return assign_fail(o, k, v);
-    if (handleof(o)->o_super == NULL)
+    if (handleof(o)->o_super == nullptr)
         return 0;
     return ici_assign_super(handleof(o)->o_super, k, v, b);
 }
@@ -560,7 +560,7 @@ int handle_type::assign_super(object *o, object *k, object *v, map *b)
  */
 void handle_type::free(object *o)
 {
-    if (handleof(o)->h_pre_free != NULL)
+    if (handleof(o)->h_pre_free != nullptr)
         (*handleof(o)->h_pre_free)(handleof(o));
     ici_tfree(o, handle);
 }

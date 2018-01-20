@@ -11,8 +11,8 @@ src *new_src(int lineno, str *filename)
 {
     src *s;
 
-    if ((s = ici_talloc(src)) == NULL)
-        return NULL;
+    if ((s = ici_talloc(src)) == nullptr)
+        return nullptr;
     set_tfnz(s, TC_SRC, 0, 1, 0);
     s->s_lineno = lineno;
     s->s_filename = filename;
@@ -40,19 +40,19 @@ object *src_type::restore(archiver *ar) {
     object *filename;
 
     if (ar->read(line)) {
-        return NULL;
+        return nullptr;
     }
-    if ((filename = ar->restore()) == NULL) {
-        return NULL;
+    if ((filename = ar->restore()) == nullptr) {
+        return nullptr;
     }
     if (!isstring(filename)) {
         set_error("unexpected filename type (%s)", filename->type_name());
         filename->decref();
-        return NULL;
+        return nullptr;
     }
-    if ((result = new_src(line, stringof(filename))) == NULL) {
+    if ((result = new_src(line, stringof(filename))) == nullptr) {
         filename->decref();
-        return NULL;
+        return nullptr;
     }
     filename->decref();
     return result;

@@ -27,7 +27,7 @@ f_eventloop()
     x = leave();
     for (;;)
     {
-        switch (GetMessage(&msg, NULL, 0, 0))
+        switch (GetMessage(&msg, nullptr, 0, 0))
         {
         case 0:
             enter(x);
@@ -39,8 +39,8 @@ f_eventloop()
         }
         enter(x);
         TranslateMessage(&msg);
-        error = NULL;
-        if (DispatchMessage(&msg) == ICI_EVENT_ERROR && error != NULL)
+        error = nullptr;
+        if (DispatchMessage(&msg) == ICI_EVENT_ERROR && error != nullptr)
             return 1;
         x = leave();
     }

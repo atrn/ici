@@ -609,7 +609,7 @@ italic</I>
 <TD ROWSPAN="1" COLSPAN="1">
 <P CLASS="CellBody">
 <A NAME="pgfId=216653">
- </A>NULL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</P>
+ </A>nullptr&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</P>
 </TD>
 <TD ROWSPAN="1" COLSPAN="1">
 <P CLASS="CellBody">
@@ -1210,7 +1210,7 @@ identifier</I>
 <P CLASS="CellBody">
 <A NAME="pgfId=246769">
  </A><B CLASS="+Bold">
-NULL</B>
+nullptr</B>
 </P>
 </TD>
 </TR>
@@ -1426,7 +1426,7 @@ a = 2					/* OK */</PRE>
  </A>The first is illegal because an integer is not an lvalue, the second is legal because a variable reference is an lvalue. Certain expression elements, such as assignment, require an operand to be an lvalue.  The parser checks this.</P>
 <P CLASS="Body">
 <A NAME="pgfId=175636">
- </A>The next factor in the list above is NULL.  The keyword NULL stands for the value  NULL which is the general undefined value.  It has its own type, NULL.  Variables which have no explicit initialisation have an initial value of NULL.  Its other uses will become obvious later in this document.</P>
+ </A>The next factor in the list above is nullptr.  The keyword nullptr stands for the value  nullptr which is the general undefined value.  It has its own type, nullptr.  Variables which have no explicit initialisation have an initial value of nullptr.  Its other uses will become obvious later in this document.</P>
 <P CLASS="Body">
 <A NAME="pgfId=175638">
  </A>Next is the construct ( expression ). The brackets serve merely to make the expression within the bracket act as a simple factor and are used for grouping, as in ordinary mathematics.</P>
@@ -2592,7 +2592,7 @@ Any of:</I>
 <TD ROWSPAN="1" COLSPAN="1">
 <P CLASS="CellBody">
 <A NAME="pgfId=247724">
- </A>Logical not; applied to 0 or NULL, gives 1, else gives 0.</P>
+ </A>Logical not; applied to 0 or nullptr, gives 1, else gives 0.</P>
 </TD>
 </TR>
 <TR>
@@ -3956,10 +3956,10 @@ statement</I>
 </TABLE>
 <P CLASS="Body">
 <A NAME="pgfId=175892">
- </A>The parser converts both to an internal form.  Upon execution, the expression is evaluated.  If the expression evaluates to anything other than 0 (integer zero) or NULL, the following statement is executed; otherwise it is not.  In the first form this is all that happens, in the second form, if the expression evaluated to 0 or NULL the statement following the else is executed; otherwise it is not.</P>
+ </A>The parser converts both to an internal form.  Upon execution, the expression is evaluated.  If the expression evaluates to anything other than 0 (integer zero) or nullptr, the following statement is executed; otherwise it is not.  In the first form this is all that happens, in the second form, if the expression evaluated to 0 or nullptr the statement following the else is executed; otherwise it is not.</P>
 <P CLASS="Body">
 <A NAME="pgfId=175893">
- </A>The interpretation of both 0 and NULL as false, and anything else as true, is common to all logical operations in ICI.  There is no special boolean type.</P>
+ </A>The interpretation of both 0 and nullptr as false, and anything else as true, is common to all logical operations in ICI.  There is no special boolean type.</P>
 <P CLASS="Body">
 <A NAME="pgfId=175895">
  </A>The ambiguity introduced by multiple if statements with an lesser number of else clauses is resolved by binding else clauses with their closest possible if.  Thus:</P>
@@ -4010,7 +4010,7 @@ statement</I>
 </TABLE>
 <P CLASS="Body">
 <A NAME="pgfId=175908">
- </A>The parser converts it to an internal form.  Upon execution a loop is established.  Within the loop the expression is evaluated, and if it is false (0 or NULL) the loop is terminated and flow of control continues after the while statement.  But if the expression evaluates to true (not 0 and not NULL) the statement is executed and then flow of control moves back to the start of the loop where the test is performed again (although other statements, as seen below, can be used to modify this natural flow of control).</P>
+ </A>The parser converts it to an internal form.  Upon execution a loop is established.  Within the loop the expression is evaluated, and if it is false (0 or nullptr) the loop is terminated and flow of control continues after the while statement.  But if the expression evaluates to true (not 0 and not nullptr) the statement is executed and then flow of control moves back to the start of the loop where the test is performed again (although other statements, as seen below, can be used to modify this natural flow of control).</P>
 </DIV>
 <DIV>
 <H4 CLASS="Heading2">
@@ -4061,7 +4061,7 @@ Line 3</PRE>
  </A>	forall ( expression [ ,expression ] in expression ) statement</P>
 <P CLASS="Body">
 <A NAME="pgfId=175932">
- </A>The parser converts it to an internal form.  In doing so the first and second expressions are required to be lvalues (that is, capable of being assigned to).  Upon execution the first expression is evaluated and that storage location is noted.  If the second expression is present the same is done for it.  The third expression is then evaluated and the result noted; it must evaluate to an array, a set, a struct, a string, or NULL; we will call this the aggregate.  If this is NULL, the forall statement is finished and flow of control continues after the statement; otherwise, a loop is established.</P>
+ </A>The parser converts it to an internal form.  In doing so the first and second expressions are required to be lvalues (that is, capable of being assigned to).  Upon execution the first expression is evaluated and that storage location is noted.  If the second expression is present the same is done for it.  The third expression is then evaluated and the result noted; it must evaluate to an array, a set, a struct, a string, or nullptr; we will call this the aggregate.  If this is nullptr, the forall statement is finished and flow of control continues after the statement; otherwise, a loop is established.</P>
 <P CLASS="Body">
 <A NAME="pgfId=175934">
  </A>Within the loop, an element is selected from the noted aggregate.  The value of that element is assigned to the location given by the first expression.  If the second expression was present, it is assigned the key used to access that element.  Then  the statement is executed.  Finally, flow of control resumes at the start of the loop.</P>
@@ -4201,7 +4201,7 @@ return</CODE>
 </P>
 <P CLASS="Body">
 <A NAME="pgfId=175538">
- </A>The parser converts this to an internal form.  Upon execution, the execution engine evaluates the expression if it is present.  If it is not, the value NULL is substituted.  Then the current function terminates with that value as its apparent value in any expression it is embedded in.  It is an error for there to be no enclosing function.</P>
+ </A>The parser converts this to an internal form.  Upon execution, the execution engine evaluates the expression if it is present.  If it is not, the value nullptr is substituted.  Then the current function terminates with that value as its apparent value in any expression it is embedded in.  It is an error for there to be no enclosing function.</P>
 </DIV>
 <DIV>
 <H4 CLASS="Heading2">
@@ -4327,7 +4327,7 @@ auto</CODE>
  </A>The storage class keyword establishes which scope the variables in the list are established in, as discussed earlier.  Note that declaring the same identifier at different scope levels is permissible and that they are different variables.</P>
 <P CLASS="Body">
 <A NAME="pgfId=176056">
- </A>A declaration with no initialisation first checks if the variable already exists at the given scope.  If it does, it is left unmodified.  In particular, any value it currently has is undisturbed.  If it does not exist it is established and is given the value NULL.</P>
+ </A>A declaration with no initialisation first checks if the variable already exists at the given scope.  If it does, it is left unmodified.  In particular, any value it currently has is undisturbed.  If it does not exist it is established and is given the value nullptr.</P>
 <P CLASS="Body">
 <A NAME="pgfId=176057">
  </A>A declaration with an initialisation establishes the variable in the given scope and gives it the given value even if it already exists and even if it has some other value.</P>
@@ -4440,7 +4440,7 @@ printf(&quot;%s\n&quot;, aStatic);</PRE>
 </UL>
 <P CLASS="Body">
 <A NAME="pgfId=176104">
- </A>A return statement executed within the function will cause the function to return to the caller and act as though its value were the expression given in the return statement.  If no expression was given in the return statement, or if execution fell through the bottom of the function, the apparent return value is NULL.  In any event, upon return the scope is restored to that of the caller.  All internal references to the group of automatic variables are lost (although as will be seen later explicit program references may cause them to remain active).</P>
+ </A>A return statement executed within the function will cause the function to return to the caller and act as though its value were the expression given in the return statement.  If no expression was given in the return statement, or if execution fell through the bottom of the function, the apparent return value is nullptr.  In any event, upon return the scope is restored to that of the caller.  All internal references to the group of automatic variables are lost (although as will be seen later explicit program references may cause them to remain active).</P>
 <P CLASS="Body">
 <A NAME="pgfId=176106">
  </A>Simple functions have been seen in earlier examples.  We will now consider further issues.</P>
@@ -4797,7 +4797,7 @@ x[z] = 3;</PRE>
  </A>The function super can be used to discover the current super of a struct and to set a new super.  With just one argument it returns the current super of that struct, with a second argument it also replaces the super by that value.</P>
 <P CLASS="Body">
 <A NAME="pgfId=176194">
- </A>When a key is being looked-up in a structure for reading, and it is not found and there is a super struct, the key is further looked for in the super struct, if it is found there its value from that struct is returned.  If it is not found it will be looked for in the next super struct etc.  If no structures in the super chain contain the key, the special value NULL is returned.</P>
+ </A>When a key is being looked-up in a structure for reading, and it is not found and there is a super struct, the key is further looked for in the super struct, if it is found there its value from that struct is returned.  If it is not found it will be looked for in the next super struct etc.  If no structures in the super chain contain the key, the special value nullptr is returned.</P>
 <P CLASS="Body">
 <A NAME="pgfId=176195">
  </A>When a key is being looked up in a structure for writing, it will similarly be searched for in the super chain.  If it is found in a writeable structure the value in the structure in which it was found will be set to the new value.  If it was never found, it will be added along with the given value to the very first struct, that is, the structure at the base, or root, of the super chain.</P>
@@ -4873,7 +4873,7 @@ static theStruct = [struct:theSuper, x = 100, y = 200];</PRE>
  </A>Auto, static and extern declarations make explicit assignments to the appropriate structure.</P>
 <P CLASS="Body">
 <A NAME="pgfId=176216">
- </A>In these terms it can be said that an un-adorned identifier in an expression is an implicit reference to an element of the current scope structure.  The inheritance and name hiding of the variable scope mechanism is a product of the super chain. But there is a difference in the handling of undefined entries. Whereas normal lookup of undefined entries in a structure produces a default value of NULL or implicit creation, the implicit lookup of undefined variables triggers an attempt to dynamically load a library to define the variable (see Undefined variables and dynamic loading below), and failing that, produce an error (&quot;%s undefined&quot;).</P>
+ </A>In these terms it can be said that an un-adorned identifier in an expression is an implicit reference to an element of the current scope structure.  The inheritance and name hiding of the variable scope mechanism is a product of the super chain. But there is a difference in the handling of undefined entries. Whereas normal lookup of undefined entries in a structure produces a default value of nullptr or implicit creation, the implicit lookup of undefined variables triggers an attempt to dynamically load a library to define the variable (see Undefined variables and dynamic loading below), and failing that, produce an error (&quot;%s undefined&quot;).</P>
 <P CLASS="Body">
 <A NAME="pgfId=176217">
  </A>The function scope can be used to obtain the current scope structure; and to set it (use with care).</P>
@@ -5013,7 +5013,7 @@ any	Has no effect except the result is not an lvalue.</P>
 <A NAME="pgfId=176257">
  </A><CODE CLASS="CourierBold">
 !</CODE>
-any	Logical negation: If any is 0 (integer) or NULL, 1 is returned, else 0 is returned.</P>
+any	Logical negation: If any is 0 (integer) or nullptr, 1 is returned, else 0 is returned.</P>
 <P CLASS="TagIn4cm">
 <A NAME="pgfId=176258">
  </A><CODE CLASS="CourierBold">
@@ -5400,7 +5400,7 @@ regexp</I>
 string</I>
  which is matched by the first bracket enclosed portion of <I CLASS="+Italic">
 regexp</I>
-, or NULL if there is no match or <I CLASS="+Italic">
+, or nullptr if there is no match or <I CLASS="+Italic">
 regexp</I>
  does not contain a (...) portion. The arguments may be in any order.  For example, a &quot;basename&quot; operation can be performed with:</P>
 <PRE CLASS="CodeIn4cm"><A NAME="pgfId=176293"></A>		argv[0] ~~= #([^/]*)$#;</PRE>
@@ -5414,7 +5414,7 @@ regexp</I>
 string</I>
  which are matched by the (...) enclosed portions of <I CLASS="+Italic">
 regexp</I>
-, or NULL if there is no match. The arguments may be in any order.</P>
+, or nullptr if there is no match. The arguments may be in any order.</P>
 <P CLASS="TagIn4cm">
 <A NAME="pgfId=176295">
  </A><I CLASS="+Italic">
@@ -5456,7 +5456,7 @@ any1</I>
 any2</I>
 	Logical and: Evaluates the expression which determines <I CLASS="+Italic">
 any1</I>
-, if this evaluates to 0 or NULL (i.e. <I CLASS="+Italic">
+, if this evaluates to 0 or nullptr (i.e. <I CLASS="+Italic">
 false</I>
 ), 0 is returned, else <I CLASS="+Italic">
 any2</I>
@@ -5476,7 +5476,7 @@ any1</I>
 any2</I>
 	Logical or: Evaluates the expression which determines <I CLASS="+Italic">
 any1</I>
-, if this evaluates to other than 0 or NULL (i.e. <I CLASS="+Italic">
+, if this evaluates to other than 0 or nullptr (i.e. <I CLASS="+Italic">
 true</I>
 ), 1 is returned, else <I CLASS="+Italic">
 any2</I>
@@ -5497,7 +5497,7 @@ any2</I>
 any3</I>
  	Choice: If <I CLASS="+Italic">
 any1</I>
- is neither 0 or NULL (i.e. <I CLASS="+Italic">
+ is neither 0 or nullptr (i.e. <I CLASS="+Italic">
 true</I>
 ), the expression which determines  <I CLASS="+Italic">
 any2</I>
@@ -5765,7 +5765,7 @@ any2</I>
 <PRE CLASS="PreformattedRAlign"><A NAME="pgfId=233824"></A>&nbsp;</PRE>
 </TD>
 <TD ROWSPAN="1" COLSPAN="1">
-<PRE CLASS="Preformatted"><A NAME="pgfId=233826"></A><A HREF="ici.html#exit" CLASS="Hypertext">exit</A>([int|string|NULL])</PRE>
+<PRE CLASS="Preformatted"><A NAME="pgfId=233826"></A><A HREF="ici.html#exit" CLASS="Hypertext">exit</A>([int|string|nullptr])</PRE>
 </TD>
 </TR>
 <TR>
@@ -6452,7 +6452,7 @@ file = currentfile()</CODE>
  </A></H4>
 <P CLASS="Body">
 <A NAME="pgfId=175633">
- </A>Returns the file associated with the innermost parsing context, or NULL if there is no module being parsed.</P>
+ </A>Returns the file associated with the innermost parsing context, or nullptr if there is no module being parsed.</P>
 <P CLASS="Body">
 <A NAME="pgfId=175634">
  </A>This function can be used to include data in a program source file which is out-of-band with respect to the normal parse stream.  But to do this it is necessary to know up to what character in the file in question the parser has consumed.</P>
@@ -6493,7 +6493,7 @@ del(struct, key)</CODE>
  </A></H4>
 <P CLASS="Body">
 <A NAME="pgfId=175655">
- </A>Deletes the element of struct identified by key. Any super structs are ignored.  Returns NULL.  For example:</P>
+ </A>Deletes the element of struct identified by key. Any super structs are ignored.  Returns nullptr.  For example:</P>
 <PRE CLASS="CodeIn1cm"><A NAME="pgfId=175657"></A>static s = [struct a = 1, b = 2, c = 3];
 static v, k;
 forall (v, k in s)
@@ -6555,12 +6555,12 @@ eventloop()</CODE>
 <H4 CLASS="Heading2">
 <A NAME="pgfId=175672">
  </A><CODE CLASS="+Code">
-exit([string|int|NULL])</CODE>
+exit([string|int|nullptr])</CODE>
 <A NAME="exit">
  </A></H4>
 <P CLASS="Body">
 <A NAME="pgfId=175674">
- </A>Causes the interpreter to finish execution and exit. If no parameter, the empty string or NULL is passed the exit status is zero. If an integer is passed that is the exit status. If a non-empty string is passed then that string is printed to the interpreter's standard error output and an exit status of one used.  This is implementation dependent and may be replaced by a more general exception mechanism.  Avoid.</P>
+ </A>Causes the interpreter to finish execution and exit. If no parameter, the empty string or nullptr is passed the exit status is zero. If an integer is passed that is the exit status. If a non-empty string is passed then that string is printed to the interpreter's standard error output and an exit status of one used.  This is implementation dependent and may be replaced by a more general exception mechanism.  Avoid.</P>
 </DIV>
 <DIV>
 <H4 CLASS="Heading2">
@@ -6606,7 +6606,7 @@ value = fetch(struct, key)</CODE>
  </A></H4>
 <P CLASS="Body">
 <A NAME="pgfId=175690">
- </A>Returns the value from struct associated with key, ignoring any super structs. Returns NULL is key is not an element of struct.</P>
+ </A>Returns the value from struct associated with key, ignoring any super structs. Returns nullptr is key is not an element of struct.</P>
 </DIV>
 <DIV>
 <H4 CLASS="Heading2">
@@ -6662,7 +6662,7 @@ string = getchar([file])</CODE>
 <A NAME="pgfId=180246">
  </A>Reads a single character from <I CLASS="+Italic">
 file</I>
- and returns it as a string. Returns NULL upon end of file. If <I CLASS="+Italic">
+ and returns it as a string. Returns nullptr upon end of file. If <I CLASS="+Italic">
 file</I>
  is not given the current value of <I CLASS="+Italic">
 stdin</I>
@@ -6697,7 +6697,7 @@ string = getline([file])</CODE>
  </A>Reads a line of text from <I CLASS="+Italic">
 file</I>
  and returns it as a string. Any end-of-line marker is removed. Returns <I CLASS="+Italic">
-NULL</I>
+nullptr</I>
  upon end of file. If <I CLASS="+Italic">
 file</I>
  is not given the current value of <I CLASS="+Italic">
@@ -6716,7 +6716,7 @@ string = gettoken([file [, seps]])</CODE>
  </A>Read a token (that is, a string) from file.</P>
 <P CLASS="Body">
 <A NAME="pgfId=175707">
- </A>Seps must be a string.  It is interpreted as a set of characters which do not from part of the token.  Any leading sequence of these characters is first skipped.  Then a sequence of characters not in seps is gathered until end of file or a character from seps is found.  This terminating character is not consumed.  The gathered string is returned, or NULL if end of file was encountered before any token was gathered.</P>
+ </A>Seps must be a string.  It is interpreted as a set of characters which do not from part of the token.  Any leading sequence of these characters is first skipped.  Then a sequence of characters not in seps is gathered until end of file or a character from seps is found.  This terminating character is not consumed.  The gathered string is returned, or nullptr if end of file was encountered before any token was gathered.</P>
 <P CLASS="Body">
 <A NAME="pgfId=175709">
  </A>If file is not given the current value of stdin in the current scope is used.</P>
@@ -6733,7 +6733,7 @@ array = gettokens([file [, seps [, terms]]])</CODE>
  </A></H4>
 <P CLASS="Body">
 <A NAME="pgfId=175712">
- </A>Read tokens (that is, strings) from file.  The tokens are character sequences separated by seps and terminated by terms.  Returns an array of strings, NULL on end of file.</P>
+ </A>Read tokens (that is, strings) from file.  The tokens are character sequences separated by seps and terminated by terms.  Returns an array of strings, nullptr on end of file.</P>
 <P CLASS="Body">
 <A NAME="pgfId=175714">
  </A>If seps is a string, it is interpreted as a set of characters, any sequence of which will separate one token from the next.  In this case leading and trailing separators in the input stream are discarded.</P>
@@ -7036,7 +7036,7 @@ any = pop(array)</CODE>
  </A></H4>
 <P CLASS="Body">
 <A NAME="pgfId=175910">
- </A>Returns the last element of array and reduces the length of array by one.  If the array was empty to start with, NULL is returned.</P>
+ </A>Returns the last element of array and reduces the length of array by one.  If the array was empty to start with, nullptr is returned.</P>
 </DIV>
 <DIV>
 <H4 CLASS="Heading2">
@@ -7415,7 +7415,7 @@ current = super(struct [, replacement])</CODE>
  </A></H4>
 <P CLASS="Body">
 <A NAME="pgfId=176063">
- </A>Returns the current super struct of struct, and, if replacement is supplied, sets it to a new value.  If replacement is NULL any current super struct reference is cleared (that is, after this struct will have no super).</P>
+ </A>Returns the current super struct of struct, and, if replacement is supplied, sets it to a new value.  If replacement is nullptr any current super struct reference is cleared (that is, after this struct will have no super).</P>
 </DIV>
 <DIV>
 <H4 CLASS="Heading2">
@@ -8653,10 +8653,10 @@ udp</I>
 <DIV>
 <H4 CLASS="Heading2">
 <A NAME="pgfId=178762">
- </A>struct = select([int,] set|NULL [, set|NULL [, set|NULL]])</H4>
+ </A>struct = select([int,] set|nullptr [, set|nullptr [, set|nullptr]])</H4>
 <P CLASS="Body">
 <A NAME="pgfId=178763">
- </A>Check sockets for I/O readiness with optional timeout. Select may be passed up to three sets of sockets that are checked for readiness to perform I/O. The first set holds the sockets to test for input pending, the second set the sockets to test for output able and the third set the sockets to test for exceptional states. NULL may be passed in place of a set parameter to avoid passing empty sets. An integer may also appear in the parameter list. This integer specifies the number of milliseconds to wait for the sockets to become ready. If a zero timeout is passed the sockets are polled to test their state. If no timeout is passed the call blocks until at least one of the sockets is ready for I/O.</P>
+ </A>Check sockets for I/O readiness with optional timeout. Select may be passed up to three sets of sockets that are checked for readiness to perform I/O. The first set holds the sockets to test for input pending, the second set the sockets to test for output able and the third set the sockets to test for exceptional states. nullptr may be passed in place of a set parameter to avoid passing empty sets. An integer may also appear in the parameter list. This integer specifies the number of milliseconds to wait for the sockets to become ready. If a zero timeout is passed the sockets are polled to test their state. If no timeout is passed the call blocks until at least one of the sockets is ready for I/O.</P>
 <P CLASS="Body">
 <A NAME="pgfId=178775">
  </A>The result of select is a struct containing three sets, of sockets, identified by the keys <CODE CLASS="+Code">
@@ -9742,7 +9742,7 @@ ici_var_library_init()
 }</PRE>
 <P CLASS="Body">
 <A NAME="pgfId=180575">
- </A>where var is the as yet undefined variable name. This is the initialisation function which is called when the library is loaded. This function should return an ICI object, or NULL on error, in which case the ICI error variable must be set. The returned object will be assigned to var as described above.</P>
+ </A>where var is the as yet undefined variable name. This is the initialisation function which is called when the library is loaded. This function should return an ICI object, or nullptr on error, in which case the ICI error variable must be set. The returned object will be assigned to var as described above.</P>
 <P CLASS="Body">
 <A NAME="pgfId=181934">
  </A>Modules of the dynamically loaded library which include ICI header files must have the directory holding the ICI header files on their include search path and have two preprocessor definitions established before any of the ICI headers are included (they are typically defined in the makefile or project settings). These are:</P>
@@ -9768,7 +9768,7 @@ ici_var_library_init()
  * mbox_msg =&gt; mbox.msg(string) from ICI
  *
  * Pops up a modal message box with the given string in it and waits for the
- * use to hit OK. Returns NULL.
+ * use to hit OK. Returns nullptr.
  */
 int
 mbox_msg()
@@ -9777,7 +9777,7 @@ mbox_msg()
 
     if (typecheck(&quot;s&quot;, &amp;msg))
 	return 1;
-    MessageBox(NULL, msg, (LPCTSTR)&quot;ICI&quot;, MB_OK | MB_SETFOREGROUND);
+    MessageBox(nullptr, msg, (LPCTSTR)&quot;ICI&quot;, MB_OK | MB_SETFOREGROUND);
     return null_ret();
 }
 
@@ -9803,10 +9803,10 @@ ici_mbox_library_init()
 {
     struct_t	*s;
 
-    if ((s = new_struct()) == NULL)
-	return NULL;
+    if ((s = new_struct()) == nullptr)
+	return nullptr;
     if (ici_assign_cfuncs(s, mbox_cfuncs))
-	return NULL;
+	return nullptr;
     return objof(s);
 }</PRE>
 <P CLASS="Body">

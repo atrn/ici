@@ -173,16 +173,16 @@ inline void decrement_break_continue_depth(parse *p) {
 
 /*
  * Returns a non-decref atomic array of identifiers parsed from a comma
- * seperated list, or NULL on error.  The array may be empty.
+ * seperated list, or nullptr on error.  The array may be empty.
  */
 static array *ident_list(parse *p) {
     array *a;
 
-    if ((a = new_array()) == NULL) {
-        return NULL;
+    if ((a = new_array()) == nullptr) {
+        return nullptr;
     }
     for (;;) {
-        if (next(p, NULL) != T_NAME) {
+        if (next(p, nullptr) != T_NAME) {
             reject(p);
             return a;
         }
@@ -191,7 +191,7 @@ static array *ident_list(parse *p) {
         }
         a->push(p->p_got.t_obj, owned);
         curtok = T_NONE; /* Take ownership of name. */
-        if (next(p, NULL) != T_COMMA) {
+        if (next(p, nullptr) != T_COMMA) {
             reject(p);
             return arrayof(atom(a, 1));
         }
@@ -199,7 +199,7 @@ static array *ident_list(parse *p) {
 
 fail:
     a->decref();
-    return NULL;
+    return nullptr;
 }
 
 /*
@@ -215,25 +215,25 @@ static int function(parse *p, str *name) {
     func  *saved_func;
     object **fp;
 
-    a = NULL;
-    f = NULL;
-    if (next(p, NULL) != T_ONROUND) {
+    a = nullptr;
+    f = nullptr;
+    if (next(p, nullptr) != T_ONROUND) {
         reject(p);
         return 0;
     }
-    if ((a = ident_list(p)) == NULL) {
+    if ((a = ident_list(p)) == nullptr) {
         return -1;
     }
     saved_func = p->p_func;
-    if (next(p, NULL) != T_OFFROUND) {
+    if (next(p, nullptr) != T_OFFROUND) {
         reject(p);
         not_followed_by("ident ( [args]", "\")\"");
         goto fail;
     }
-    if ((f = new_func()) == NULL) {
+    if ((f = new_func()) == nullptr) {
         goto fail;
     }
-    if ((f->f_autos = new_map()) == NULL) {
+    if ((f->f_autos = new_map()) == nullptr) {
         goto fail;
     }
     f->f_autos->decref();
@@ -249,9 +249,9 @@ static int function(parse *p, str *name) {
     p->p_func = f;
     f->f_args = a;
     a->decref();
-    a = NULL;
+    a = nullptr;
     f->f_name = name;
-    switch (compound_statement(p, NULL)) {
+    switch (compound_statement(p, nullptr)) {
     case 0: not_followed_by("ident ( [args] )", "\"{\"");
     case -1: goto fail;
     }
@@ -267,7 +267,7 @@ static int function(parse *p, str *name) {
     f->f_code->push(&o_return);
     f->f_code->push(&o_end);
 #   if DISASSEMBLE
-    printf("%s()\n", name == NULL ? "?" : name->s_chars);
+    printf("%s()\n", name == nullptr ? "?" : name->s_chars);
     disassemble(4, f->f_code);
 #   endif
     f->f_autos = mapof(atom(f->f_autos, 2));
@@ -276,10 +276,10 @@ static int function(parse *p, str *name) {
     return 1;
 
 fail:
-    if (a != NULL) {
+    if (a != nullptr) {
         a->decref();
     }
-    if (f != NULL) {
+    if (f != nullptr) {
         f->decref();
     }
     p->p_func = saved_func;
@@ -295,14 +295,14 @@ static int data_def(parse *p, objwsup *ows) {
     int      wasfunc;
     int      hasinit;
 
-    n = NULL;
-    o = NULL;
+    n = nullptr;
+    o = nullptr;
     wasfunc = 0;
     /*
      * Work through the list of identifiers being declared.
      */
     for (;;) {
-        if (next(p, NULL) != T_NAME) {
+        if (next(p, nullptr) != T_NAME) {
             reject(p);
             set_error("syntax error in variable definition");
             goto fail;
@@ -313,7 +313,7 @@ static int data_def(parse *p, objwsup *ows) {
          * Gather any initialisation or function.
          */
         hasinit = 0;
-        switch (next(p, NULL)) {
+        switch (next(p, nullptr)) {
         case T_EQ:
             switch (const_expression(p, &o, T_COMMA)) {
             case 0: not_followed_by("ident =", an_expression);
@@ -348,15 +348,15 @@ static int data_def(parse *p, objwsup *ows) {
             }
         }
         n->decref();
-        n = NULL;
+        n = nullptr;
         o->decref();
-        o = NULL;
+        o = nullptr;
 
         if (wasfunc) {
             return 1;
         }
 
-        switch (next(p, NULL)) {
+        switch (next(p, nullptr)) {
         case T_COMMA: continue;
         case T_SEMICOLON: return 1;
         }
@@ -366,10 +366,10 @@ static int data_def(parse *p, objwsup *ows) {
     }
 
  fail:
-    if (n != NULL) {
+    if (n != nullptr) {
         n->decref();
     }
-    if (o != NULL) {
+    if (o != nullptr) {
         o->decref();
     }
     return -1;
@@ -379,16 +379,16 @@ static int compound_statement(parse *p, map *sw)
 {
     array *a;
 
-    a = NULL;
-    if (next(p, NULL) != T_ONCURLY) {
+    a = nullptr;
+    if (next(p, nullptr) != T_ONCURLY) {
         reject(p);
         return 0;
     }
-    if ((a = new_array()) == NULL) {
+    if ((a = new_array()) == nullptr) {
         goto fail;
     }
     for (;;) {
-        switch (statement(p, a, sw, NULL, 0)) {
+        switch (statement(p, a, sw, nullptr, 0)) {
         case -1: goto fail;
         case 1: continue;
         }
@@ -414,7 +414,7 @@ static int compound_statement(parse *p, map *sw)
     return 1;
 
  fail:
-    if (a != NULL) {
+    if (a != nullptr) {
         a->decref();
     }
     return -1;
@@ -426,11 +426,11 @@ static int compound_statement(parse *p, map *sw)
 static void free_expr(expr *e) {
     expr *e1;
 
-    while (e != NULL) {
-        if (e->e_arg[1] != NULL) {
+    while (e != nullptr) {
+        if (e->e_arg[1] != nullptr) {
             free_expr(e->e_arg[1]);
         }
-        if (e->e_obj != NULL) {
+        if (e->e_obj != nullptr) {
             e->e_obj->decref();
         }
         e1 = e;
@@ -448,7 +448,7 @@ static int bracketed_expr(parse *p, expr **ep) {
     case 0: not_followed_by("(", an_expression);
     case -1: return -1;
     }
-    if (next(p, NULL) != T_OFFROUND) {
+    if (next(p, nullptr) != T_OFFROUND) {
         reject(p);
         return not_followed_by("( expr", "\")\"");
     }
@@ -473,24 +473,24 @@ static int primary(parse *p, expr **ep, int exclude) {
     object     *name;
     int        token;
 
-    *ep = NULL;
-    if ((e = ici_talloc(expr)) == NULL) {
+    *ep = nullptr;
+    if ((e = ici_talloc(expr)) == nullptr) {
         return -1;
     }
-    e->e_arg[0] = NULL;
-    e->e_arg[1] = NULL;
-    e->e_obj = NULL;
-    switch (next(p, NULL)) {
+    e->e_arg[0] = nullptr;
+    e->e_arg[1] = nullptr;
+    e->e_obj = nullptr;
+    switch (next(p, nullptr)) {
     case T_INT:
         e->e_what = T_INT;
-        if ((e->e_obj = new_int(p->p_got.t_int)) == NULL) {
+        if ((e->e_obj = new_int(p->p_got.t_int)) == nullptr) {
             goto fail;
         }
         break;
 
     case T_FLOAT:
         e->e_what = T_FLOAT;
-        if ((e->e_obj = new_float(p->p_got.t_float)) == NULL) {
+        if ((e->e_obj = new_float(p->p_got.t_float)) == nullptr) {
             goto fail;
         }
         break;
@@ -506,7 +506,7 @@ static int primary(parse *p, expr **ep, int exclude) {
     gather_string_or_re:
         curtok = T_NONE; /* Take ownership of obj. */
         o = p->p_got.t_obj;
-        while (next(p, NULL) == token || (token == T_REGEXP && curtok == T_STRING)) {
+        while (next(p, nullptr) == token || (token == T_REGEXP && curtok == T_STRING)) {
             int        i;
 
             i = stringof(p->p_got.t_obj)->s_nchars;
@@ -519,7 +519,7 @@ static int primary(parse *p, expr **ep, int exclude) {
             o->decref();
             curtok = T_NONE; /* Take ownership of obj. */
             p->p_got.t_obj->decref();
-            if ((o = new_str(buf, i)) == NULL) {
+            if ((o = new_str(buf, i)) == nullptr) {
                 goto fail;
             }
             curtok = T_NONE;
@@ -528,7 +528,7 @@ static int primary(parse *p, expr **ep, int exclude) {
         if (token == T_REGEXP) {
             e->e_obj = new_regexp(stringof(o), 0);
             o->decref();
-            if (e->e_obj == NULL) {
+            if (e->e_obj == nullptr) {
                 goto fail;
             }
         }
@@ -564,14 +564,14 @@ static int primary(parse *p, expr **ep, int exclude) {
 
     case T_ONROUND:
         ici_tfree(e, expr);
-        e = NULL;
+        e = nullptr;
         if (bracketed_expr(p, &e) < 1) {
             goto fail;
         }
         break;
 
     case T_ONSQUARE:
-        if (next(p, NULL) != T_NAME) {
+        if (next(p, nullptr) != T_NAME) {
             reject(p);
             not_followed_by("[", "an identifier");
             goto fail;
@@ -579,7 +579,7 @@ static int primary(parse *p, expr **ep, int exclude) {
         curtok = T_NONE; /* Take ownership of name. */
         if (p->p_got.t_obj == SS(array)) {
             p->p_got.t_obj->decref();
-            if ((a = new_array()) == NULL) {
+            if ((a = new_array()) == nullptr) {
                 goto fail;
             }
             for (;;) {
@@ -594,7 +594,7 @@ static int primary(parse *p, expr **ep, int exclude) {
                         goto fail;
                     }
                     a->push(o, owned);
-                    if (next(p, NULL) == T_COMMA) {
+                    if (next(p, nullptr) == T_COMMA) {
                         continue;
                     }
                     reject(p);
@@ -602,7 +602,7 @@ static int primary(parse *p, expr **ep, int exclude) {
                 }
                 break;
             }
-            if (next(p, NULL) != T_OFFSQUARE) {
+            if (next(p, nullptr) != T_OFFSQUARE) {
                 reject(p);
                 a->decref();
                 not_followed_by("[array expr, expr ...", "\",\" or \"]\"");
@@ -623,9 +623,9 @@ static int primary(parse *p, expr **ep, int exclude) {
             map    *super;
 
             p->p_got.t_obj->decref();
-            d = NULL;
-            super = NULL;
-            if (next(p, NULL) == T_COLON || curtok == T_EQ) {
+            d = nullptr;
+            super = nullptr;
+            if (next(p, nullptr) == T_COLON || curtok == T_EQ) {
                 int     is_eq;
                 char    n[objnamez];
 
@@ -650,7 +650,7 @@ static int primary(parse *p, expr **ep, int exclude) {
                 } else {
                     super = mapof(o);
                 }
-                switch (next(p, NULL)) {
+                switch (next(p, nullptr)) {
                 case T_OFFSQUARE:
                     reject(p);
                 case T_COMMA:
@@ -658,10 +658,10 @@ static int primary(parse *p, expr **ep, int exclude) {
 
                 default:
                     reject(p);
-                    if (super != NULL) {
+                    if (super != nullptr) {
                         super->decref();
                     }
-                    if (d != NULL) {
+                    if (d != nullptr) {
                         o->decref();
                     }
                     sprintf(n, "[%s %c expr", stringof(name)->s_chars, is_eq ? '=' : ':');
@@ -672,11 +672,11 @@ static int primary(parse *p, expr **ep, int exclude) {
             else {
                 reject(p);
             }
-            if (d == NULL) {
-                if ((d = new_map()) == NULL) {
+            if (d == nullptr) {
+                if ((d = new_map()) == nullptr) {
                     goto fail;
                 }
-                if (super == NULL) {
+                if (super == nullptr) {
                     if (name != SS(map)) {
                         d->o_super = objwsupof(vs.a_top[-1])->o_super;
                     }
@@ -689,7 +689,7 @@ static int primary(parse *p, expr **ep, int exclude) {
             if (name == SS(module)) {
                 map    *autos;
 
-                if ((autos = new_map()) == NULL) {
+                if ((autos = new_map()) == nullptr) {
                     d->decref();
                     goto fail;
                 }
@@ -699,7 +699,7 @@ static int primary(parse *p, expr **ep, int exclude) {
                 o = evaluate(p, 0);
                 --p->p_module_depth;
                 --vs.a_top;
-                if (o == NULL) {
+                if (o == nullptr) {
                     d->decref();
                     goto fail;
                 }
@@ -715,7 +715,7 @@ static int primary(parse *p, expr **ep, int exclude) {
                  * A class definition operates within the scope context of
                  * the class. Create autos with the new struct as the super.
                  */
-                if ((autos = new_map()) == NULL) {
+                if ((autos = new_map()) == nullptr) {
                     d->decref();
                     goto fail;
                 }
@@ -727,7 +727,7 @@ static int primary(parse *p, expr **ep, int exclude) {
                 vs.push(autos, owned);
             }
             for (;;) {
-                switch (next(p, NULL)) {
+                switch (next(p, nullptr)) {
                 case T_OFFSQUARE:
                     break;
 
@@ -736,7 +736,7 @@ static int primary(parse *p, expr **ep, int exclude) {
                     case 0: not_followed_by("[struct ... (", an_expression);
                     case -1: d->decref(); goto fail;
                     }
-                    if (next(p, NULL) != T_OFFROUND) {
+                    if (next(p, nullptr) != T_OFFROUND) {
                         reject(p);
                         not_followed_by("[struct ... (expr", "\")\"");
                         d->decref();
@@ -750,7 +750,7 @@ static int primary(parse *p, expr **ep, int exclude) {
                     curtok = T_NONE; /* Take ownership of name. */
                 gotkey:
                     wasfunc = 0;
-                    if (next(p, NULL) == T_ONROUND) {
+                    if (next(p, nullptr) == T_ONROUND) {
                         reject(p);
                         if (function(p, stringof(n)) < 0) {
                             d->decref();
@@ -781,7 +781,7 @@ static int primary(parse *p, expr **ep, int exclude) {
                     }
                     n->decref();
                     o->decref();
-                    switch (next(p, NULL)) {
+                    switch (next(p, nullptr)) {
                     case T_OFFSQUARE:
                         reject(p);
                     case T_COMMA:
@@ -817,7 +817,7 @@ static int primary(parse *p, expr **ep, int exclude) {
         }
         else if (p->p_got.t_obj == SS(set)) {
             p->p_got.t_obj->decref();
-            if ((s = new_set()) == NULL) {
+            if ((s = new_set()) == nullptr) {
                 goto fail;
             }
             for (;;) {
@@ -832,7 +832,7 @@ static int primary(parse *p, expr **ep, int exclude) {
                         goto fail;
                     }
                     o->decref();
-                    if (next(p, NULL) == T_COMMA) {
+                    if (next(p, nullptr) == T_COMMA) {
                         continue;
                     }
                     reject(p);
@@ -840,7 +840,7 @@ static int primary(parse *p, expr **ep, int exclude) {
                 }
                 break;
             }
-            if (next(p, NULL) != T_OFFSQUARE) {
+            if (next(p, nullptr) != T_OFFSQUARE) {
                 reject(p);
                 s->decref();
                 not_followed_by("[set expr, expr ...", "\"]\"");
@@ -858,7 +858,7 @@ static int primary(parse *p, expr **ep, int exclude) {
             }
             e->e_what = T_CONST;
             e->e_obj = p->p_got.t_obj;
-            if (next(p, NULL) != T_OFFSQUARE) {
+            if (next(p, nullptr) != T_OFFSQUARE) {
                 reject(p);
                 not_followed_by("[func function-body ", "\"]\"");
                 goto fail;
@@ -868,23 +868,23 @@ static int primary(parse *p, expr **ep, int exclude) {
             file   *f;     /* The parse file. */
             object *c;     /* The callable parser function. */
 
-            f = NULL;
-            n = NULL;
-            c = NULL;
+            f = nullptr;
+            n = nullptr;
+            c = nullptr;
             s = stringof(p->p_got.t_obj);
-            if ((o = eval(s)) == NULL) {
+            if ((o = eval(s)) == nullptr) {
                 goto fail_user_parse;
             }
             if (o->can_call()) {
                 c = o;
-                o = NULL;
+                o = nullptr;
             } else {
-                if ((c = ici_fetch(o, SS(parser))) == NULL) {
+                if ((c = ici_fetch(o, SS(parser))) == nullptr) {
                     goto fail_user_parse;
                 }
             }
             f = new_file(p, parse_ftype, p->p_file->f_name, p);
-            if (f == NULL) {
+            if (f == nullptr) {
                 goto fail_user_parse;
             }
             c->incref();
@@ -894,12 +894,12 @@ static int primary(parse *p, expr **ep, int exclude) {
             e->e_what = T_CONST;
             e->e_obj = n;
             s->decref();
-            if (o != NULL) {
+            if (o != nullptr) {
                 o->decref();
             }
             f->decref();
             c->decref();
-            if (next(p, NULL) != T_OFFSQUARE) {
+            if (next(p, nullptr) != T_OFFSQUARE) {
                 reject(p);
                 not_followed_by("[name ... ", "\"]\"");
                 goto fail;
@@ -908,13 +908,13 @@ static int primary(parse *p, expr **ep, int exclude) {
 
         fail_user_parse:
             s->decref();
-            if (o != NULL) {
+            if (o != nullptr) {
                 o->decref();
             }
-            if (f != NULL) {
+            if (f != nullptr) {
                 f->decref();
             }
-            if (c != NULL) {
+            if (c != nullptr) {
                 c->decref();
             }
             goto fail;
@@ -927,26 +927,26 @@ static int primary(parse *p, expr **ep, int exclude) {
         return 0;
     }
     *ep = e;
-    e = NULL;
+    e = nullptr;
     for (;;) {
         int     oldcurtok;
 
-        switch (next(p, NULL)) {
+        switch (next(p, nullptr)) {
         case T_ONSQUARE:
-            if ((e = ici_talloc(expr)) == NULL) {
+            if ((e = ici_talloc(expr)) == nullptr) {
                 goto fail;
             }
             e->e_what = T_ONSQUARE;
             e->e_arg[0] = *ep;
-            e->e_arg[1] = NULL;
-            e->e_obj = NULL;
+            e->e_arg[1] = nullptr;
+            e->e_obj = nullptr;
             *ep = e;
-            e = NULL;
+            e = nullptr;
             switch (expression(p, &(*ep)->e_arg[1], T_NONE)) {
             case 0: not_followed_by("[", an_expression);
             case -1: goto fail;
             }
-            if (next(p, NULL) != T_OFFSQUARE) {
+            if (next(p, nullptr) != T_OFFSQUARE) {
                 reject(p);
                 not_followed_by("[ expr", "\"]\"");
                 goto fail;
@@ -962,7 +962,7 @@ static int primary(parse *p, expr **ep, int exclude) {
                 reject(p);
                 return 1;
             }
-            if ((e = ici_talloc(expr)) == NULL) {
+            if ((e = ici_talloc(expr)) == nullptr) {
                 goto fail;
             }
             if ((oldcurtok = curtok) == T_AT) {
@@ -974,23 +974,23 @@ static int primary(parse *p, expr **ep, int exclude) {
                 e->e_what = curtok;
             }
             e->e_arg[0] = *ep;
-            e->e_arg[1] = NULL;
-            e->e_obj = NULL;
+            e->e_arg[1] = nullptr;
+            e->e_obj = nullptr;
             *ep = e;
-            e = NULL;
-            switch (next(p, NULL)) {
+            e = nullptr;
+            switch (next(p, nullptr)) {
             case T_NAME:
                 curtok = T_NONE; /* Take ownership of name. */
-                if ((e = ici_talloc(expr)) == NULL) {
+                if ((e = ici_talloc(expr)) == nullptr) {
                     goto fail;
                 }
                 e->e_what = T_STRING;
-                e->e_arg[0] = NULL;
-                e->e_arg[1] = NULL;
-                e->e_obj = NULL;
+                e->e_arg[0] = nullptr;
+                e->e_arg[1] = nullptr;
+                e->e_obj = nullptr;
                 e->e_obj = p->p_got.t_obj;
                 (*ep)->e_arg[1] = e;
-                e = NULL;
+                e = nullptr;
                 break;
 
             case T_ONROUND:
@@ -1015,34 +1015,34 @@ static int primary(parse *p, expr **ep, int exclude) {
             break;
 
         case T_ONROUND: /* Function call. */
-            if ((e = ici_talloc(expr)) == NULL) {
+            if ((e = ici_talloc(expr)) == nullptr) {
                 goto fail;
             }
             e->e_what = T_ONROUND;
             e->e_arg[0] = *ep;
-            e->e_arg[1] = NULL;
-            e->e_obj = NULL;
+            e->e_arg[1] = nullptr;
+            e->e_obj = nullptr;
             *ep = e;
-            e = NULL;
+            e = nullptr;
             for (;;) {
                 expr  *e1;
 
-                e1 = NULL;
+                e1 = nullptr;
                 switch (expression(p, &e1, T_COMMA)) {
                 case -1:
                     goto fail;
 
                 case 1:
-                    if ((e = ici_talloc(expr)) == NULL) {
+                    if ((e = ici_talloc(expr)) == nullptr) {
                         goto fail;
                     }
                     e->e_arg[1] = (*ep)->e_arg[1];
                     (*ep)->e_arg[1] = e;
                     e->e_what = T_COMMA;
                     e->e_arg[0] = e1;
-                    e->e_obj = NULL;
-                    e = NULL;
-                    if (next(p, NULL) == T_COMMA) {
+                    e->e_obj = nullptr;
+                    e = nullptr;
+                    if (next(p, nullptr) == T_COMMA) {
                         continue;
                     }
                     reject(p);
@@ -1050,12 +1050,12 @@ static int primary(parse *p, expr **ep, int exclude) {
                 }
                 break;
             }
-            if (next(p, NULL) != T_OFFROUND) {
+            if (next(p, nullptr) != T_OFFROUND) {
                 reject(p);
                 set_error("error in function call arguments");
                 goto fail;
             }
-            if (next(p, NULL) == T_ONCURLY) {
+            if (next(p, nullptr) == T_ONCURLY) {
                 /*
                  * Gratuitous check to get a better error message.
                  */
@@ -1072,14 +1072,14 @@ static int primary(parse *p, expr **ep, int exclude) {
     }
 
  fail:
-    if (e != NULL) {
-        if (e->e_obj != NULL) {
+    if (e != nullptr) {
+        if (e->e_obj != nullptr) {
             e->e_obj->decref();
         }
         ici_tfree(e, expr);
     }
     free_expr(*ep);
-    *ep = NULL;
+    *ep = nullptr;
     return -1;
 }
 
@@ -1094,7 +1094,7 @@ static int unary(parse *p, expr **ep, int exclude) {
     expr      *e;
     int         what;
 
-    switch (next(p, NULL)) {
+    switch (next(p, nullptr)) {
     case T_ASTERIX:
     case T_AND:
     case T_MINUS:
@@ -1110,13 +1110,13 @@ static int unary(parse *p, expr **ep, int exclude) {
         case 0: set_error("badly formed expression");
         case -1: return -1;
         }
-        if ((e = ici_talloc(expr)) == NULL) {
+        if ((e = ici_talloc(expr)) == nullptr) {
             return -1;
         }
         e->e_what = what;
         e->e_arg[0] = *ep;
-        e->e_arg[1] = NULL;
-        e->e_obj = NULL;
+        e->e_arg[1] = nullptr;
+        e->e_obj = nullptr;
         *ep = e;
         break;
 
@@ -1127,17 +1127,17 @@ static int unary(parse *p, expr **ep, int exclude) {
         case -1: return -1;
         }
     }
-    switch (next(p, NULL))
+    switch (next(p, nullptr))
     {
     case T_PLUSPLUS:
     case T_MINUSMINUS:
-        if ((e = ici_talloc(expr)) == NULL) {
+        if ((e = ici_talloc(expr)) == nullptr) {
             return -1;
         }
         e->e_what = curtok;
-        e->e_arg[0] = NULL;
+        e->e_arg[0] = nullptr;
         e->e_arg[1] = *ep;
-        e->e_obj = NULL;
+        e->e_obj = nullptr;
         *ep = e;
         break;
 
@@ -1191,7 +1191,7 @@ static int expression(parse *p, expr **ep, int exclude) {
      * While there is a following binary operator, merge it and the
      * following factor into the expression.
      */
-    while (t_type(next(p, NULL)) == T_BINOP && curtok != exclude) {
+    while (t_type(next(p, nullptr)) == T_BINOP && curtok != exclude) {
         /*
          * Cause assignments to be right associative.
          */
@@ -1220,13 +1220,13 @@ static int expression(parse *p, expr **ep, int exclude) {
          * Allocate a new node and rebuild this bit with the new operator
          * and the following factor.
          */
-        if ((e = ici_talloc(expr)) == NULL) {
+        if ((e = ici_talloc(expr)) == nullptr) {
             return -1;
         }
         e->e_what = curtok;
         e->e_arg[0] = *ep;
-        e->e_arg[1] = NULL;
-        e->e_obj = NULL;
+        e->e_arg[1] = nullptr;
+        e->e_obj = nullptr;
         switch (unary(p, &e->e_arg[1], in_quest_colon ? T_COLON : exclude)) {
         case 0:
             set_error("\"expr %s\" %s %s", binop_name(t_subtype(e->e_what)), not_by, an_expression);
@@ -1244,7 +1244,7 @@ static int expression(parse *p, expr **ep, int exclude) {
 static int expression(parse *p, array *a, int why, int exclude) {
     expr      *e;
 
-    e = NULL;
+    e = nullptr;
     switch (expression(p, &e, exclude)) {
     case 0: return 0;
     case -1: goto fail;
@@ -1272,8 +1272,8 @@ static int const_expression(parse *p, object **po, int exclude) {
     array     *a;
     int       ret;
 
-    a = NULL;
-    e = NULL;
+    a = nullptr;
+    e = nullptr;
     if ((ret = expression(p, &e, exclude)) <= 0) {
         return ret;
     }
@@ -1297,7 +1297,7 @@ static int const_expression(parse *p, object **po, int exclude) {
         free_expr(e);
         return 1;
     }
-    if ((a = new_array()) == NULL) {
+    if ((a = new_array()) == nullptr) {
         goto fail;
     }
     if (compile_expr(a, e, FOR_VALUE)) {
@@ -1308,15 +1308,15 @@ static int const_expression(parse *p, object **po, int exclude) {
     }
     a->push(&o_end);
     free_expr(e);
-    e = NULL;
-    if ((*po = evaluate(a, 0)) == NULL) {
+    e = nullptr;
+    if ((*po = evaluate(a, 0)) == nullptr) {
         goto fail;
     }
     a->decref();
     return 1;
 
  fail:
-    if (a != NULL) {
+    if (a != nullptr) {
         a->decref();
     }
     free_expr(e);
@@ -1351,8 +1351,8 @@ static int xx_brac_expr_brac(parse *p, array *a, const char *xx) {
 
 /*
  * a    Code array being appended to.
- * sw   Switch structure, else NULL.
- * m    Who needs it, else NULL.
+ * sw   Switch structure, else nullptr.
+ * m    Who needs it, else nullptr.
  * endme If non-zero, put an o_end at the end of the code array before
  *      returning.
  */
@@ -1369,7 +1369,7 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
     switch (next(p, a)) {
     case T_ONCURLY:
         for (;;) {
-            switch (statement(p, a, NULL, NULL, 0)) {
+            switch (statement(p, a, nullptr, nullptr, 0)) {
             case -1: return -1;
             case 1: continue;
             }
@@ -1395,7 +1395,7 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
         curtok = T_NONE; /* Assume we own the name. */
         if (p->p_got.t_obj == SS(export)) {
             p->p_got.t_obj->decref();
-            if ((ows = objwsupof(vs.a_top[-1])->o_super) == NULL || (ows = ows->o_super) == NULL) {
+            if ((ows = objwsupof(vs.a_top[-1])->o_super) == nullptr || (ows = ows->o_super) == nullptr) {
                 set_error("global declaration, but no global variable scope");
                 return -1;
             }
@@ -1403,7 +1403,7 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
         }
         if (p->p_got.t_obj == SS(local)) {
             p->p_got.t_obj->decref();
-            if ((ows = objwsupof(vs.a_top[-1])->o_super) == NULL) {
+            if ((ows = objwsupof(vs.a_top[-1])->o_super) == nullptr) {
                 set_error("local declaration, but no local variable scope");
                 return -1;
             }
@@ -1411,7 +1411,7 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
         }
         if (p->p_got.t_obj == SS(var)) {
             p->p_got.t_obj->decref();
-            if (p->p_func == NULL) {
+            if (p->p_func == nullptr) {
                 ows = objwsupof(vs.a_top[-1]);
             } else {
                 ows = objwsupof(p->p_func->f_autos);
@@ -1424,7 +1424,7 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
         }
         if (p->p_got.t_obj == SS(case)) {
             p->p_got.t_obj->decref();
-            if (sw == NULL) {
+            if (sw == nullptr) {
                 set_error("\"case\" not at top level of switch body");
                 return -1;
             }
@@ -1444,7 +1444,7 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
                  */
                 --stepz;
             }
-            if ((i = new_int((long)stepz)) == NULL) {
+            if ((i = new_int((long)stepz)) == nullptr) {
                 o->decref();
                 return -1;
             }
@@ -1463,7 +1463,7 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
         }
         if (p->p_got.t_obj == SS(default)) {
             p->p_got.t_obj->decref();
-            if (sw == NULL) {
+            if (sw == nullptr) {
                 set_error("\"default\" not at top level of switch body");
                 return -1;
             }
@@ -1483,7 +1483,7 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
                  */
                 --stepz;
             }
-            if ((i = new_int((long)stepz)) == NULL) {
+            if ((i = new_int((long)stepz)) == nullptr) {
                 return -1;
             }
             if (ici_assign(sw, &o_mark, i)) {
@@ -1498,26 +1498,26 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
             if (xx_brac_expr_brac(p, a, "if") != 1) {
                 return -1;
             }
-            if ((a1 = new_array()) == NULL) {
+            if ((a1 = new_array()) == nullptr) {
                 return -1;
             }
-            if (statement(p, a1, NULL, "if (expr)", 1) == -1) {
+            if (statement(p, a1, nullptr, "if (expr)", 1) == -1) {
                 a1->decref();
                 return -1;
             }
-            a2 = NULL;
+            a2 = nullptr;
             /*
              * Don't pass any code array to next() on else clause to stop
              * spurious src marker.
              */
-            if (next(p, NULL) == T_NAME && p->p_got.t_obj == SS(else)) {
+            if (next(p, nullptr) == T_NAME && p->p_got.t_obj == SS(else)) {
                 curtok = T_NONE; /* Take ownership of name. */
                 p->p_got.t_obj->decref();
-                if ((a2 = new_array()) == NULL) {
+                if ((a2 = new_array()) == nullptr) {
                     a1->decref();
                     return -1;
                 }
-                if (statement(p, a2, NULL, "if (expr) stmt else", 1) == -1) {
+                if (statement(p, a2, nullptr, "if (expr) stmt else", 1) == -1) {
                     a1->decref();
                     a2->decref();
                     return -1;
@@ -1527,12 +1527,12 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
             }
             if (a->push_check(3)) {
                 a1->decref();
-                if (a2 != NULL) {
+                if (a2 != nullptr) {
                     a2->decref();
                 }
                 return -1;
             }
-            if (a2 != NULL) {
+            if (a2 != nullptr) {
                 a->push(&o_ifelse);
                 a->push(a1);
                 a->push(a2, owned);
@@ -1545,7 +1545,7 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
         }
         if (p->p_got.t_obj == SS(while)) {
             p->p_got.t_obj->decref();
-            if ((a1 = new_array()) == NULL) {
+            if ((a1 = new_array()) == nullptr) {
                 return -1;
             }
             if (xx_brac_expr_brac(p, a1, "while") != 1) {
@@ -1560,7 +1560,7 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
             {
                 int rc;
                 increment_break_continue_depth(p);
-                rc = statement(p, a1, NULL, "while (expr)", 0);
+                rc = statement(p, a1, nullptr, "while (expr)", 0);
                 decrement_break_continue_depth(p);
                 if (rc == -1) {
                     a1->decref();
@@ -1582,13 +1582,13 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
         }
         if (p->p_got.t_obj == SS(do)) {
             p->p_got.t_obj->decref();
-            if ((a1 = new_array()) == NULL) {
+            if ((a1 = new_array()) == nullptr) {
                 return -1;
             }
             {
                 int rc;
                 increment_break_continue_depth(p);
-                rc = statement(p, a1, NULL, "do", 0);
+                rc = statement(p, a1, nullptr, "do", 0);
                 decrement_break_continue_depth(p);
                 if (rc == -1) {
                     a1->decref();
@@ -1602,7 +1602,7 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
             }
             curtok = T_NONE; /* Take ownership of name. */
             p->p_got.t_obj->decref();
-            if (next(p, NULL) != T_ONROUND) {
+            if (next(p, nullptr) != T_ONROUND) {
                 reject(p);
                 a1->decref();
                 return not_followed_by("do statement while", "\"(\"");
@@ -1611,7 +1611,7 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
             case 0: set_error("syntax error");
             case -1: a1->decref(); return -1;
             }
-            if (next(p, a1) != T_OFFROUND || next(p, NULL) != T_SEMICOLON) {
+            if (next(p, a1) != T_OFFROUND || next(p, nullptr) != T_SEMICOLON) {
                 reject(p);
                 a1->decref();
                 return not_followed_by("do statement while (expr", "\");\"");
@@ -1680,13 +1680,13 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
                 reject(p);
                 return not_followed_by("forall (expr [, expr] in expr", "\")\"");
             }
-            if ((a1 = new_array()) == NULL) {
+            if ((a1 = new_array()) == nullptr) {
                 return -1;
             }
             {
                 int rc;
                 increment_break_continue_depth(p);
-                rc = statement(p, a1, NULL, "forall (expr [, expr] in expr)", 1);
+                rc = statement(p, a1, nullptr, "forall (expr [, expr] in expr)", 1);
                 decrement_break_continue_depth(p);
                 if (rc == -1) {
                     a1->decref();
@@ -1723,7 +1723,7 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
             /*
              * Get the condition expression, but don't generate code yet.
              */
-            e = NULL;
+            e = nullptr;
             if (expression(p, &e, T_NONE) == -1) {
                 return -1;
             }
@@ -1735,7 +1735,7 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
             /*
              * a1 is the body of the loop.  Get the step expression.
              */
-            if ((a1 = new_array()) == NULL) {
+            if ((a1 = new_array()) == nullptr) {
                 return -1;
             }
             if (expression(p, a1, FOR_EFFECT, T_NONE) == -1) {
@@ -1744,7 +1744,7 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
             }
             stepz = a1->a_top - a1->a_base;
 
-            if (e != NULL) {
+            if (e != nullptr) {
                 /*
                  * Now compile in the test expression.
                  */
@@ -1768,7 +1768,7 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
             {
                 int rc;
                 increment_break_continue_depth(p);
-                rc = statement(p, a1, NULL, "for (expr; expr; expr)", 0);
+                rc = statement(p, a1, nullptr, "for (expr; expr; expr)", 0);
                 decrement_break_continue_depth(p);
                 if (rc == -1) {
                     a1->decref();
@@ -1797,7 +1797,7 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
             if (xx_brac_expr_brac(p, a, "switch") != 1) {
                 return -1;
             }
-            if ((d = new_map()) == NULL) {
+            if ((d = new_map()) == nullptr) {
                 return -1;
             }
             {
@@ -1874,24 +1874,24 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
         }
         if (p->p_got.t_obj == SS(try)) {
             p->p_got.t_obj->decref();
-            if ((a1 = new_array()) == NULL) {
+            if ((a1 = new_array()) == nullptr) {
                 return -1;
             }
-            if (statement(p, a1, NULL, "try", 1) == -1) {
+            if (statement(p, a1, nullptr, "try", 1) == -1) {
                 a1->decref();
                 return -1;
             }
-            if (next(p, NULL) != T_NAME || p->p_got.t_obj != SS(onerror)) {
+            if (next(p, nullptr) != T_NAME || p->p_got.t_obj != SS(onerror)) {
                 reject(p);
                 a1->decref();
                 return not_followed_by("try statement", "\"onerror\"");
             }
             curtok = T_NONE; /* Take ownership of name. */
             p->p_got.t_obj->decref();
-            if ((a2 = new_array()) == NULL) {
+            if ((a2 = new_array()) == nullptr) {
                 return -1;
             }
-            if (statement(p, a2, NULL, "try statement onerror", 1) == -1) {
+            if (statement(p, a2, nullptr, "try statement onerror", 1) == -1) {
                 a1->decref();
                 a2->decref();
                 return -1;
@@ -1915,11 +1915,11 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
             if (a->push_check(2)) {
                 return -1;
             }
-            if ((a1 = new_array(1)) == NULL) {
+            if ((a1 = new_array(1)) == nullptr) {
                 return -1;
             }
             a->push(a1, owned);
-            if (statement(p, a1, NULL, "critsect", 1) == -1) {
+            if (statement(p, a1, nullptr, "critsect", 1) == -1) {
                 return -1;
             }
             a->push(&o_critsect);
@@ -1938,7 +1938,7 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
             if (a->push_check(2)) {
                 return -1;
             }
-            if ((a1 = new_array(2)) == NULL) {
+            if ((a1 = new_array(2)) == nullptr) {
                 return -1;
             }
             a->push(a1, owned);
@@ -1950,7 +1950,7 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
             if (a1->push_check(2)) {
                 return -1;
             }
-            if ((a2 = new_array(2)) == NULL) {
+            if ((a2 = new_array(2)) == nullptr) {
                 return -1;
             }
             a1->push(&o_loop);
@@ -1997,7 +1997,7 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
                 reject(p);
                 return not_followed_by("waitfor (expr; expr", "\")\"");
             }
-            if (statement(p, a1, NULL, "waitfor (expr; expr)", 1) == -1) {
+            if (statement(p, a1, nullptr, "waitfor (expr; expr)", 1) == -1) {
                 return -1;
             }
             break;
@@ -2039,7 +2039,7 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
     return 1;
 
  none:
-    if (m != NULL) {
+    if (m != nullptr) {
         set_error("\"%s\" %s a reasonable statement", m, not_by);
         return -1;
     }
@@ -2059,11 +2059,11 @@ int parse_file(file *f, objwsup *s) {
     struct parse  *p;
     object *o;
 
-    if ((p = new_parse(f)) == NULL) {
+    if ((p = new_parse(f)) == nullptr) {
         return -1;
     }
     vs.push(s);
-    if ((o = evaluate(p, 0)) == NULL) {
+    if ((o = evaluate(p, 0)) == nullptr) {
         --vs.a_top;
         p->decref();
         return -1;
@@ -2097,19 +2097,19 @@ int parse_file(const char *mname, char *fileo, ftype *ftype) {
     objwsup       *a;     /* Autos. */
     file          *f;
 
-    a = NULL;
-    f = NULL;
-    if ((f = new_file(fileo, ftype, str_get_nul_term(mname), NULL)) == NULL) {
+    a = nullptr;
+    f = nullptr;
+    if ((f = new_file(fileo, ftype, str_get_nul_term(mname), nullptr)) == nullptr) {
         goto fail;
     }
 
-    if ((a = objwsupof(new_map())) == NULL) {
+    if ((a = objwsupof(new_map())) == nullptr) {
         goto fail;
     }
     if (ici_assign(a, SS(_file_), f->f_name)) {
         goto fail;
     }
-    if ((a->o_super = s = objwsupof(new_map())) == NULL) {
+    if ((a->o_super = s = objwsupof(new_map())) == nullptr) {
         goto fail;
     }
     s->decref();
@@ -2124,10 +2124,10 @@ int parse_file(const char *mname, char *fileo, ftype *ftype) {
     return 0;
 
  fail:
-    if (f != NULL) {
+    if (f != nullptr) {
         f->decref();
     }
-    if (a != NULL) {
+    if (a != nullptr) {
         a->decref();
     }
     return -1;
@@ -2148,7 +2148,7 @@ int parse_file(const char *fname) {
     FILE                *stream;
     int                 r;
 
-    if ((stream = fopen(fname, "r")) == NULL) {
+    if ((stream = fopen(fname, "r")) == nullptr) {
         return get_last_errno("fopen", fname);
     }
     r = parse_file(fname, (char *)stream, stdio_ftype);
@@ -2160,14 +2160,14 @@ int parse_exec() {
     parse *p;
     array *a;
 
-    if ((a = new_array()) == NULL) {
+    if ((a = new_array()) == nullptr) {
         return 1;
     }
 
     p = parseof(xs.a_top[-1]);
 
     for (;;) {
-        switch (statement(p, a, NULL, NULL, 1)) {
+        switch (statement(p, a, nullptr, nullptr, 1)) {
         case 1:
             if (a->a_top == a->a_base) {
                 continue;
@@ -2210,8 +2210,8 @@ int parse_exec() {
 parse *new_parse(file *f) {
     parse    *p;
 
-    if ((p = (parse *)ici_talloc(parse)) == NULL) {
-        return NULL;
+    if ((p = (parse *)ici_talloc(parse)) == nullptr) {
+        return nullptr;
     }
     memset(p, 0, sizeof (parse));
     set_tfnz(p, TC_PARSE, 0, 1, 0);
@@ -2219,7 +2219,7 @@ parse *new_parse(file *f) {
     p->p_file = f;
     p->p_sol = 1;
     p->p_lineno = 1;
-    p->p_func = NULL;
+    p->p_func = nullptr;
     p->p_ungot.t_what = T_NONE;
     return p;
 }
@@ -2256,7 +2256,7 @@ const char *ici_token_name(int t) {
     case t_type(T_FLOAT):       return "float";
     case t_type(T_BINOP):       return binop_name(t_subtype(t));
     case t_type(T_ERROR):       return "error";
-    case t_type(T_NULL):        return "NULL";
+    case t_type(T_NULL):        return "nullptr";
     case t_type(T_ONROUND):     return "(";
     case t_type(T_OFFROUND):    return ")";
     case t_type(T_ONCURLY):     return "{";
@@ -2283,11 +2283,11 @@ static parse * parse_file_argcheck() {
     file *f;
 
     if (typecheck("u", &f)) {
-        return NULL;
+        return nullptr;
     }
     if (f->f_type != parse_ftype) {
         argerror(0);
-        return NULL;
+        return nullptr;
     }
     return parseof(f->f_file);
 }
@@ -2300,10 +2300,10 @@ static int f_parseopen() {
     if (typecheck("u", &f)) {
 	return 1;
     }
-    if ((p = new_parse(f)) == NULL) {
+    if ((p = new_parse(f)) == nullptr) {
 	return 1;
     }
-    if ((pf = new_file((char *)p, parse_ftype, f->f_name, NULL)) == NULL) {
+    if ((pf = new_file((char *)p, parse_ftype, f->f_name, nullptr)) == nullptr) {
         p->decref();
 	return 1;
     }
@@ -2315,10 +2315,10 @@ static int f_parsetoken() {
     parse *p;
     int    t;
 
-    if ((p = parse_file_argcheck()) == NULL) {
+    if ((p = parse_file_argcheck()) == nullptr) {
         return 1;
     }
-    if ((t = next(p, NULL)) == T_ERROR) {
+    if ((t = next(p, nullptr)) == T_ERROR) {
         return 1;
     }
     return t == T_EOF ? null_ret() : str_ret(ici_token_name(t));
@@ -2327,7 +2327,7 @@ static int f_parsetoken() {
 static int f_tokenobj() {
     parse *p;
 
-    if ((p = parse_file_argcheck()) == NULL) {
+    if ((p = parse_file_argcheck()) == nullptr) {
         return 1;
     }
     switch (p->p_got.t_what) {
@@ -2348,7 +2348,7 @@ static int f_tokenobj() {
 static int f_rejecttoken() {
     parse *p;
 
-    if ((p = parse_file_argcheck()) == NULL) {
+    if ((p = parse_file_argcheck()) == nullptr) {
         return 1;
     }
     reject(p);
@@ -2357,9 +2357,9 @@ static int f_rejecttoken() {
 
 static int f_parsevalue() {
     parse         *p;
-    object           *o = NULL;
+    object           *o = nullptr;
 
-    if ((p = parse_file_argcheck()) == NULL) {
+    if ((p = parse_file_argcheck()) == nullptr) {
         return 1;
     }
     switch (const_expression(p, &o, T_COMMA)) {

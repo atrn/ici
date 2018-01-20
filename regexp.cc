@@ -32,31 +32,31 @@ int     re_nbra;
  *
  * The returned object has had its reference count incremented.
  *
- * Returns NULL on error, usual conventions.
+ * Returns nullptr on error, usual conventions.
  */
 regexp *new_regexp(str *s, int flags)
 {
     regexp     *r;
     pcre       *re;
-    pcre_extra *rex = NULL;
+    pcre_extra *rex = nullptr;
     int         errofs;
 
     /* Special test for possible failure of new_str_nul_term() in lex.c */
-    if (s == NULL)
-        return NULL;
-    re = pcre_compile(s->s_chars, flags, (const char **)&error, &errofs, NULL);
-    if (re == NULL)
-        return NULL;
-    if (pcre_info(re, NULL, NULL) > nsubexp)
+    if (s == nullptr)
+        return nullptr;
+    re = pcre_compile(s->s_chars, flags, (const char **)&error, &errofs, nullptr);
+    if (re == nullptr)
+        return nullptr;
+    if (pcre_info(re, nullptr, nullptr) > nsubexp)
     {
         set_error("too many subexpressions in regexp, limit is %d", nsubexp);
         goto fail;
     }
     rex = pcre_study(re, 0, (const char **)&error);
-    if (error != NULL)
+    if (error != nullptr)
         goto fail;
-    /* Note rex can be NULL if no extra info required */
-    if ((r = (regexp *)ici_talloc(regexp)) == NULL)
+    /* Note rex can be nullptr if no extra info required */
+    if ((r = (regexp *)ici_talloc(regexp)) == nullptr)
         goto fail;
     set_tfnz(r, TC_REGEXP, 0, 1, 0);
     r->r_re  = re;
@@ -66,11 +66,11 @@ regexp *new_regexp(str *s, int flags)
     return regexpof(atom(r, 1));
 
  fail:
-    if (rex != NULL)
+    if (rex != nullptr)
         ici_free(rex);
-    if (re != NULL)
+    if (re != nullptr)
         ici_free(re);
-    return NULL;
+    return nullptr;
 }
 
 /*
@@ -125,7 +125,7 @@ size_t regexp_type::mark(object *o)
  */
 void regexp_type::free(object *o)
 {
-    if (regexpof(o)->r_rex != NULL)
+    if (regexpof(o)->r_rex != nullptr)
         ici_free(regexpof(o)->r_rex);
     ici_free(regexpof(o)->r_re);
     ici_tfree(o, regexp);
@@ -139,7 +139,7 @@ unsigned long regexp_type::hash(object *o)
 {
     /* static unsigned long     primes[] = {0xBF8D, 0x9A4F, 0x1C81, 0x6DDB}; */
     int re_options;
-    pcre_info(regexpof(o)->r_re, &re_options, NULL);
+    pcre_info(regexpof(o)->r_re, &re_options, nullptr);
     return ((unsigned long)regexpof(o)->r_pat + re_options) * 0x9A4F;
 }
 
@@ -151,8 +151,8 @@ int regexp_type::cmp(object *o1, object *o2)
 {
     int re1_options;
     int re2_options;
-    pcre_info(regexpof(o1)->r_re, &re1_options, NULL);
-    pcre_info(regexpof(o2)->r_re, &re2_options, NULL);
+    pcre_info(regexpof(o1)->r_re, &re1_options, nullptr);
+    pcre_info(regexpof(o2)->r_re, &re2_options, nullptr);
     return re1_options != re2_options ? 1 : ici_cmp(regexpof(o1)->r_pat, regexpof(o2)->r_pat);
 }
 
@@ -165,9 +165,9 @@ object *regexp_type::fetch(object *o, object *k)
         int       options;
         integer   *io;
 
-        pcre_info(regexpof(o)->r_re, &options, NULL);
-        if ((io = new_int(options)) == NULL)
-            return NULL;
+        pcre_info(regexpof(o)->r_re, &options, nullptr);
+        if ((io = new_int(options)) == nullptr)
+            return nullptr;
         io->decref();
         return io;
     }
@@ -177,7 +177,7 @@ object *regexp_type::fetch(object *o, object *k)
 int regexp_type::save(archiver *ar, object *o) {
     auto re = regexpof(o);
     int32_t options;
-    ici_pcre_info(re->r_re, &options, NULL);
+    ici_pcre_info(re->r_re, &options, nullptr);
     return ar->save_name(o) || ar->write(options) || ar->save(re->r_pat);
 }
 

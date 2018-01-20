@@ -50,7 +50,7 @@ cfunc *ici_funcs[] =
 #ifndef NOPROFILE
     ici_profile_cfuncs,
 #endif
-    NULL
+    nullptr
 };
 
 /*

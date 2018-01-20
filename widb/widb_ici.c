@@ -18,7 +18,7 @@ BOOL widb_ici_initialised = FALSE;
  *
  * The code inside widb_ici.c keeps this up-to-date.
  */
-ici_array_t *widb_exec_name_stack = NULL;
+ici_array_t *widb_exec_name_stack = nullptr;
 static int exec_no_name_count[1000];       // Our recursion is limited.
 static int exec_no_name_index = 0;
 
@@ -48,7 +48,7 @@ ici_debug_src(ici_src_t *src)
         ici_decref(src);
 
         ici_decref(widb_scope);
-        widb_scope = NULL;
+        widb_scope = nullptr;
     }
 }
 
@@ -66,15 +66,15 @@ static void
 ici_debug_fncall(ici_obj_t *o, ici_obj_t **ap, int nargs)
 {
     char        n1[30];
-    ici_str_t   *name = NULL;
+    ici_str_t   *name = nullptr;
 
     // Does the function have a valid name?  Only for ICI functions.
-    if (o != NULL && isptr(o))
+    if (o != nullptr && isptr(o))
     {
         ici_obj_t *agg = ptrof(o)->p_aggr;
         o = ici_fetch(agg, ptrof(o)->p_key);
     }
-    if (o != NULL)
+    if (o != nullptr)
     {
         //
         // The function has a name, that means it should appear in the user's
@@ -82,13 +82,13 @@ ici_debug_fncall(ici_obj_t *o, ici_obj_t **ap, int nargs)
         //
 
         // Ensure that the stack exists.
-        if (widb_exec_name_stack == NULL)
+        if (widb_exec_name_stack == nullptr)
             widb_exec_name_stack = ici_array_new(0);
 
         // Make a new entry.
         VERIFY(0 == ici_stk_push_chk(widb_exec_name_stack, 1));
         ici_objname(n1, o);
-        VERIFY(NULL != (name = ici_str_get_nul_term(n1)));
+        VERIFY(nullptr != (name = ici_str_get_nul_term(n1)));
         *widb_exec_name_stack->a_top++ = objof(name);
 
         ++ exec_no_name_index;
@@ -118,7 +118,7 @@ ici_debug_fncall(ici_obj_t *o, ici_obj_t **ap, int nargs)
 static void
 ici_debug_fnresult(ici_obj_t *o)
 {
-    if (widb_exec_name_stack != NULL)
+    if (widb_exec_name_stack != nullptr)
     {
         if (exec_no_name_count[exec_no_name_index] == 0)
         {
@@ -168,7 +168,7 @@ ici_debug_error(char *err, ici_src_t *src)
     // double-click on it.
     if
     (
-        src->s_filename != NULL
+        src->s_filename != nullptr
         &&
         isstring(objof(src->s_filename))
         &&
@@ -200,7 +200,7 @@ ici_debug_error(char *err, ici_src_t *src)
             widb_debug(src);
             ici_decref(src);
             ici_decref(widb_scope);
-            widb_scope = NULL;
+            widb_scope = nullptr;
             break;
 
         case IDIGNORE:
@@ -265,7 +265,7 @@ f_WIDB_view_object()
     ici_obj_t *o;
     if (ici_typecheck("o", &o))
         return 1;
-    WIDB_view_object(o, NULL);
+    WIDB_view_object(o, nullptr);
     return ici_null_ret();
 }
 
@@ -278,10 +278,10 @@ f_WIDB_view_object()
 static void
 widb_ici_uninit(void)
 {
-    if (widb_exec_name_stack != NULL)
+    if (widb_exec_name_stack != nullptr)
     {
         ici_decref(widb_exec_name_stack);
-        widb_exec_name_stack = NULL;
+        widb_exec_name_stack = nullptr;
     }
 }
 
@@ -303,8 +303,8 @@ ici_widb_library_init() /* Was widb_ici_init() */
         {CF_OBJ}
     };
 
-    if ((s = ici_module_new(cfuncs)) == NULL)
-        return NULL;
+    if ((s = ici_module_new(cfuncs)) == nullptr)
+        return nullptr;
     ici_debug = &ici_debug_funcs;
     ici_debug_enabled = 1;
     /* To save users the effort of enabling profiling, we'll do it for them. */

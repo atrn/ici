@@ -173,7 +173,7 @@ below).  While these identifiers are not otherwise restricted, special action ma
 taken if they are used as simple variable names. They probably should be avoided.  The 
 complete list is:
 
-	NULL	auto	break	case
+	nullptr	auto	break	case
 	continue	default	do	else
 	extern	for	forall	if
 	in	onerror	return	static
@@ -226,7 +226,7 @@ factor	integer-number
 	string
 	regular-expression
 	identifier
-	NULL
+	nullptr
 	( expression )
 	[ array expression-list  ]
 	[ set expression-list ]
@@ -263,9 +263,9 @@ The first is illegal because an integer is not an lvalue, the second is legal be
 reference is an lvalue. Certain expression elements, such as assignment, require an oper-
 and to be an lvalue.  The parser checks this.
 
-The next factor in the list above is NULL.  The keyword NULL stands for the value  
-NULL which is the general undefined value.  It has its own type, NULL.  Variables which 
-have no explicit initialisation have an initial value of NULL.  Its other uses will become 
+The next factor in the list above is nullptr.  The keyword nullptr stands for the value  
+nullptr which is the general undefined value.  It has its own type, nullptr.  Variables which 
+have no explicit initialisation have an initial value of nullptr.  Its other uses will become 
 obvious later in this document.
 
 Next is the construct ( expression ). The brackets serve merely to make the expression 
@@ -547,7 +547,7 @@ Prefix operators
 
 	+	Positive; no real effect.
 
-	!	Logical not; applied to 0 or NULL, gives 1, else gives 0.
+	!	Logical not; applied to 0 or nullptr, gives 1, else gives 0.
 
 	~	Bit-wise complement.
 
@@ -802,12 +802,12 @@ The if statement has two forms:
 	if ( expression ) statement else statement
 
 The parser converts both to an internal form.  Upon execution, the expression is evaluated.  
-If the expression evaluates to anything other than 0 (integer zero) or NULL, the following 
+If the expression evaluates to anything other than 0 (integer zero) or nullptr, the following 
 statement is executed; otherwise it is not.  In the first form this is all that happens, in the 
-second form, if the expression evaluated to 0 or NULL the statement following the else is 
+second form, if the expression evaluated to 0 or nullptr the statement following the else is 
 executed; otherwise it is not.
 
-The interpretation of both 0 and NULL as false, and anything else as true, is common to 
+The interpretation of both 0 and nullptr as false, and anything else as true, is common to 
 all logical operations in ICI.  There is no special boolean type.
 
 The ambiguity introduced by multiple if statements with an lesser number of else clauses 
@@ -832,9 +832,9 @@ The while statement has the form:
 	while  ( expression ) statement
 
 The parser converts it to an internal form.  Upon execution a loop is established.  Within 
-the loop the expression is evaluated, and if it is false (0 or NULL) the loop is terminated 
+the loop the expression is evaluated, and if it is false (0 or nullptr) the loop is terminated 
 and flow of control continues after the while statement.  But if the expression evaluates to 
-true (not 0 and not NULL) the statement is executed and then flow of control moves back 
+true (not 0 and not nullptr) the statement is executed and then flow of control moves back 
 to the start of the loop where the test is performed again (although other statements, as 
 seen below, can be used to modify this natural flow of control).
 
@@ -881,8 +881,8 @@ The parser converts it to an internal form.  In doing so the first and second ex
 required to be lvalues (that is, capable of being assigned to).  Upon execution the first ex-
 pression is evaluated and that storage location is noted.  If the second expression is present 
 the same is done for it.  The third expression is then evaluated and the result noted; it must 
-evaluate to an array, a set, a struct, a string, or NULL; we will call this the aggregate.  If 
-this is NULL, the forall statement is finished and flow of control continues after the state-
+evaluate to an array, a set, a struct, a string, or nullptr; we will call this the aggregate.  If 
+this is nullptr, the forall statement is finished and flow of control continues after the state-
 ment; otherwise, a loop is established.
 
 Within the loop, an element is selected from the noted aggregate.  The value of that ele-
@@ -1028,7 +1028,7 @@ The return statement has the form:
 	return [ expression ] ;
 
 The parser converts this to an internal form.  Upon execution, the execution engine eval-
-uates the expression if it is present.  If it is not, the value NULL is substituted.  Then the 
+uates the expression if it is present.  If it is not, the value nullptr is substituted.  Then the 
 current function terminates with that value as its apparent value in any expression it is em-
 bedded in.  It is an error for there to be no enclosing function.
 
@@ -1130,7 +1130,7 @@ permissible and that they are different variables.
 
 A declaration with no initialisation first checks if the variable already exists at the given 
 scope.  If it does, it is left unmodified.  In particular, any value it currently has is undis-
-turbed.  If it does not exist it is established and is given the value NULL.
+turbed.  If it does not exist it is established and is given the value nullptr.
 
 A declaration with an initialisation establishes the variable in the given scope and gives it 
 the given value even if it already exists and even if it has some other value.
@@ -1228,7 +1228,7 @@ o	The flow of control is diverted to the code generated by parsing the function.
 A return statement executed within the function will cause the function to return to the 
 caller and act as though its value were the expression given in the return statement.  If no 
 expression was given in the return statement, or if execution fell through the bottom of the 
-function, the apparent return value is NULL.  In any event, upon return the scope is re-
+function, the apparent return value is nullptr.  In any event, upon return the scope is re-
 stored to that of the caller.  All internal references to the group of automatic variables are 
 lost (although as will be seen later explicit program references may cause them to remain 
 active).
@@ -1599,7 +1599,7 @@ argument it also replaces the super by that value.
 When a key is being looked-up in a structure for reading, and it is not found and there is 
 a super struct, the key is further looked for in the super struct, if it is found there its value 
 from that struct is returned.  If it is not found it will be looked for in the next super struct 
-etc.  If no structures in the super chain contain the key, the special value NULL is re-
+etc.  If no structures in the super chain contain the key, the special value nullptr is re-
 turned.
 
 When a key is being looked up in a structure for writing, it will similarly be searched for 
@@ -1673,7 +1673,7 @@ In these terms it can be said that an un-adorned identifier in an expression is 
 reference to an element of the current scope structure.  The inheritance and name hiding 
 of the variable scope mechanism is a product of the super chain. But there is a difference 
 in the handling of undefined entries. Whereas normal lookup of undefined entries in a 
-structure produces a default value of NULL or implicit creation, the implicit lookup of un-
+structure produces a default value of nullptr or implicit creation, the implicit lookup of un-
 defined variables triggers an attempt to dynamically load a library to define the variable 
 (see Undefined variables and dynamic loading below), and failing that, produce an error 
 ("%s undefined").
@@ -1808,7 +1808,7 @@ type as the argument. The result is not an lvalue.
 
 +any	Has no effect except the result is not an lvalue.
 
-!any	Logical negation: If any is 0 (integer) or NULL, 1 is returned, else 
+!any	Logical negation: If any is 0 (integer) or nullptr, 1 is returned, else 
 0 is returned.
 
 ~int	Bit-wise complement: The bit-wise complement of int is returned.
@@ -1954,7 +1954,7 @@ any order.
 
 string ~~ regexp	Regular expression sub-string extraction: Returns the sub-string 
 of string which is matched by the first bracket enclosed portion of 
-regexp, or NULL if there is no match or regexp does not contain 
+regexp, or nullptr if there is no match or regexp does not contain 
 a (...) portion. The arguments may be in any order.  For example, 
 a "basename" operation can be performed with:
 
@@ -1962,7 +1962,7 @@ a "basename" operation can be performed with:
 
 string ~~~ regexp	Regular expression multiple sub-string extraction: Returns an ar-
 ray of the the sub-strings of string which are matched by the (...) 
-enclosed portions of regexp, or NULL if there is no match. The 
+enclosed portions of regexp, or nullptr if there is no match. The 
 arguments may be in any order.
 
 int1 & int2	Bit-wise and: Returns the bit-wise and of int1 and int2.
@@ -1973,18 +1973,18 @@ int2.
 int1 | int2	Bit-wise or: Returns the bit-wise or of int1 and int2.
 
 any1 && any2	Logical and: Evaluates the expression which determines any1, if 
-this evaluates to 0 or NULL (i.e. false), 0 is returned, else any2 is 
+this evaluates to 0 or nullptr (i.e. false), 0 is returned, else any2 is 
 evaluated and returned. Note that if any1 does not evaluate to a 
 true value, the expression which determines any2 is never evalu-
 ated.
 
 any1 || any2	Logical or: Evaluates the expression which determines any1, if 
-this evaluates to other than 0 or NULL (i.e. true), 1 is returned, 
+this evaluates to other than 0 or nullptr (i.e. true), 1 is returned, 
 else any2 is evaluated and returned. Note that if any1 does not 
 evaluate to a false value, the expression which determines any2 is 
 never evaluated.
 
-any1 ? any2 : any3 	Choice: If any1 is neither 0 or NULL (i.e. true), the expression 
+any1 ? any2 : any3 	Choice: If any1 is neither 0 or nullptr (i.e. true), the expression 
 which determines  any2 is evaluated and returned, else the expres-
 sion which determines any3 is evaluated and returned.  Only one 
 of any2 and any3 are evaluated.  The result may be an lvalue if the 
@@ -2101,7 +2101,7 @@ scriptions of each of them.
 
 		eventloop()
 
-		exit([int|string|NULL])
+		exit([int|string|nullptr])
 
 	float =	exp(number)
 
@@ -2319,7 +2319,7 @@ Returns the cosine of angle (a float interpreted in radians).
 
 file = currentfile()
 
-Returns the file associated with the innermost parsing context, or NULL if there is no 
+Returns the file associated with the innermost parsing context, or nullptr if there is no 
 module being parsed.
 
 This function can be used to include data in a program source file which is out-of-band 
@@ -2359,7 +2359,7 @@ The functions  parse and scope are described below.
 del(struct, key)
 
 Deletes the element of struct identified by key. Any super structs are ignored.  Returns 
-NULL.  For example:
+nullptr.  For example:
 
 static s = [struct a = 1, b = 2, c = 3];
 static v, k;
@@ -2394,10 +2394,10 @@ Enters an internal event loop and never returns (but can be broken out of with a
 The exact nature of the event loop is system specific. Some dynamically loaded modules 
 require an event loop for their operation.
 
-exit([string|int|NULL])
+exit([string|int|nullptr])
 
 Causes the interpreter to finish execution and exit. If no parameter, the empty string or 
-NULL is passed the exit status is zero. If an integer is passed that is the exit status. If a 
+nullptr is passed the exit status is zero. If an integer is passed that is the exit status. If a 
 non-empty string is passed then that string is printed to the interpreter's standard error out-
 put and an exit status of one used.  This is implementation dependent and may be replaced 
 by a more general exception mechanism.  Avoid.
@@ -2421,7 +2421,7 @@ if (qf > 255)
 value = fetch(struct, key)
 
 Returns the value from struct associated with key, ignoring any super structs. Returns 
-NULL is key is not an element of struct.
+nullptr is key is not an element of struct.
 
 value = float(x)
 
@@ -2442,7 +2442,7 @@ moved in future versions of the interpreter. Avoid.
 
 string = getchar([file])
 
-Reads a single character from file and returns it as a string. Returns NULL upon end of 
+Reads a single character from file and returns it as a string. Returns nullptr upon end of 
 file. If file is not given the current value of stdin in the current scope is used.
 
 string = getfile([file])
@@ -2453,7 +2453,7 @@ end of file. If file is not given the current value of stdin in the current scop
 string = getline([file])
 
 Reads a line of text from file and returns it as a string. Any end-of-line marker is removed. 
-Returns NULL upon end of file. If file is not given the current value of stdin in the current 
+Returns nullptr upon end of file. If file is not given the current value of stdin in the current 
 scope is used.
 
 string = gettoken([file [, seps]])
@@ -2463,7 +2463,7 @@ Read a token (that is, a string) from file.
 Seps must be a string.  It is interpreted as a set of characters which do not from part of the 
 token.  Any leading sequence of these characters is first skipped.  Then a sequence of 
 characters not in seps is gathered until end of file or a character from seps is found.  This 
-terminating character is not consumed.  The gathered string is returned, or NULL if end 
+terminating character is not consumed.  The gathered string is returned, or nullptr if end 
 of file was encountered before any token was gathered.
 
 If file is not given the current value of stdin in the current scope is used.
@@ -2473,7 +2473,7 @@ If seps is not given the string " \t\n" is assumed.
 array = gettokens([file [, seps [, terms]]])
 
 Read tokens (that is, strings) from file.  The tokens are character sequences separated by 
-seps and terminated by terms.  Returns an array of strings, NULL on end of file.
+seps and terminated by terms.  Returns an array of strings, nullptr on end of file.
 
 If seps is a string, it is interpreted as a set of characters, any sequence of which will sep-
 arate one token from the next.  In this case leading and trailing separators in the input 
@@ -2678,7 +2678,7 @@ system limit may be reached before the unused files are garbage collected.
 any = pop(array)
 
 Returns the last element of array and reduces the length of array by one.  If the array was 
-empty to start with, NULL is returned.
+empty to start with, nullptr is returned.
 
 file = popen(string, [flags])
 
@@ -2928,7 +2928,7 @@ tions of the regular expression may be matched by using \n where n is a decimal 
 current = super(struct [, replacement])
 
 Returns the current super struct of struct, and, if replacement is supplied, sets it to a new 
-value.  If replacement is NULL any current super struct reference is cleared (that is, after 
+value.  If replacement is nullptr any current super struct reference is cleared (that is, after 
 this struct will have no super).
 
 x = tan(angle)
@@ -3634,12 +3634,12 @@ system selects an unused local port number for the socket. If the host portion o
 dress is not specified "?" (any) is used. If the address is passed as an integer it specifies 
 the port number to be bound, the host portion is "?". Bind returns the socket parameter.
 
-struct = select([int,] set|NULL [, set|NULL [, set|NULL]])
+struct = select([int,] set|nullptr [, set|nullptr [, set|nullptr]])
 
 Check sockets for I/O readiness with optional timeout. Select may be passed up to three 
 sets of sockets that are checked for readiness to perform I/O. The first set holds the sockets 
 to test for input pending, the second set the sockets to test for output able and the third set 
-the sockets to test for exceptional states. NULL may be passed in place of a set parameter 
+the sockets to test for exceptional states. nullptr may be passed in place of a set parameter 
 to avoid passing empty sets. An integer may also appear in the parameter list. This integer 
 specifies the number of milliseconds to wait for the sockets to become ready. If a zero 
 timeout is passed the sockets are polled to test their state. If no timeout is passed the call 
@@ -4723,7 +4723,7 @@ ici_var_library_init()
 }
 
 where var is the as yet undefined variable name. This is the initialisation function which 
-is called when the library is loaded. This function should return an ICI object, or NULL 
+is called when the library is loaded. This function should return an ICI object, or nullptr 
 on error, in which case the ICI error variable must be set. The returned object will be as-
 signed to var as described above.
 
@@ -4759,7 +4759,7 @@ loaded ICI module.
  * mbox_msg => mbox.msg(string) from ICI
  *
  * Pops up a modal message box with the given string in it and waits for the
- * use to hit OK. Returns NULL.
+ * use to hit OK. Returns nullptr.
  */
 int
 mbox_msg()
@@ -4768,7 +4768,7 @@ mbox_msg()
 
     if (typecheck("s", &msg))
 	return 1;
-    MessageBox(NULL, msg, (LPCTSTR)"ICI", MB_OK | MB_SETFOREGROUND);
+    MessageBox(nullptr, msg, (LPCTSTR)"ICI", MB_OK | MB_SETFOREGROUND);
     return null_ret();
 }
 
@@ -4794,10 +4794,10 @@ ici_mbox_library_init()
 {
     struct_t	*s;
 
-    if ((s = new_struct()) == NULL)
-	return NULL;
+    if ((s = new_struct()) == nullptr)
+	return nullptr;
     if (ici_assign_cfuncs(s, mbox_cfuncs))
-	return NULL;
+	return nullptr;
     return objof(s);
 }
 

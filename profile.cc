@@ -54,14 +54,14 @@ int ici_profile_active = 0;
 /*
  * The call currently being executed.
  */
-profilecall *ici_prof_cur_call = NULL;
+profilecall *ici_prof_cur_call = nullptr;
 
 
 /*
  * The function to call when profiling completes.  This might (for example)
  * display the call graph in a dialog box.
  */
-void (*ici_prof_done_callback)(profilecall *) = NULL;
+void (*ici_prof_done_callback)(profilecall *) = nullptr;
 
 
 /*
@@ -118,7 +118,7 @@ ici_profilecall_new(profilecall *called_by)
     /*
      * We always explicitly create these buggers, they aren't atomic.
      *
-     *    if ((g = atom_gob(gob)) != NULL)
+     *    if ((g = atom_gob(gob)) != nullptr)
      *    {
      *        g->incref();
      *        return g;
@@ -126,8 +126,8 @@ ici_profilecall_new(profilecall *called_by)
      */
 
     /* Allocate storage for it. */
-    if ((pc = ici_talloc(profilecall)) == NULL)
-        return NULL;
+    if ((pc = ici_talloc(profilecall)) == nullptr)
+        return nullptr;
 
     /* Fill in the bits common to all ICI objects. */
     set_tfnz(pc, TC_PROFILECALL, 0, 1, 0);
@@ -135,10 +135,10 @@ ici_profilecall_new(profilecall *called_by)
     /* Fill in ici_profilecall specific bits. */
     pc->pc_calledby = called_by;
     pc->pc_calls = new_map();
-    if (pc->pc_calls == NULL)
+    if (pc->pc_calls == nullptr)
     {
         ici_tfree(pc, profilecall);
-        return NULL;
+        return nullptr;
     }
     pc->pc_calls->decref();
     pc->pc_total = 0;
@@ -211,12 +211,12 @@ void ici_profile_call(func *f)
     start = time_in_ms();
 
     /* Has this function been called from the current function before? */
-    assert(ici_prof_cur_call != NULL);
+    assert(ici_prof_cur_call != nullptr);
     if (isnull(pc = profilecallof(ici_fetch(ici_prof_cur_call->pc_calls, f))))
     {
         /* No, create a new record. */
         pc = ici_profilecall_new(ici_prof_cur_call);
-        assert(pc != NULL);
+        assert(pc != nullptr);
         pc->decref();
 
         /* Add it to the calling function. */
@@ -254,7 +254,7 @@ static void write_outfile(FILE *of, profilecall *pc, int indent)
         -- sl
     )
     {
-        if (sl->sl_key != NULL)
+        if (sl->sl_key != nullptr)
         {
             char    n1[objnamez];
 
@@ -284,10 +284,10 @@ void
 ici_profile_return()
 {
     /* Is this the return immediately after the call to profile()? */
-    if (ici_prof_cur_call == NULL)
+    if (ici_prof_cur_call == nullptr)
     {
         /* Yes, create the top-level ici_profilecall object. */
-        ici_prof_cur_call = ici_profilecall_new(NULL);
+        ici_prof_cur_call = ici_profilecall_new(nullptr);
         ici_prof_cur_call->pc_laststart = time_in_ms();
         #ifdef _WIN32
             timeBeginPeriod(1);
@@ -299,14 +299,14 @@ ici_profile_return()
         ici_prof_cur_call->pc_total += time_in_ms() - ici_prof_cur_call->pc_laststart;
 
         /* Have we run out? */
-        if (ici_prof_cur_call->pc_calledby == NULL)
+        if (ici_prof_cur_call->pc_calledby == nullptr)
         {
             /* Yeah we've run out, end of profile. */
             #ifdef _WIN32
                 timeEndPeriod(1);
             #endif
 
-            if (ici_prof_done_callback != NULL)
+            if (ici_prof_done_callback != nullptr)
             {
                 /* A callback has been supplied, this will know how to
                  * display or save the data. */
@@ -317,7 +317,7 @@ ici_profile_return()
             {
                 /* A path has been supplied to save the data. */
                 FILE *of = fopen(ici_prof_outfile, "w");
-                if (of != NULL)
+                if (of != nullptr)
                 {
                     fputs("auto profile = ", of);
                     write_outfile(of, ici_prof_cur_call, 0);
@@ -328,7 +328,7 @@ ici_profile_return()
 
             /* No more profiling. */
             ici_prof_cur_call->decref();
-            ici_prof_cur_call = NULL;
+            ici_prof_cur_call = nullptr;
             ici_profile_active = 0;
         }
         else

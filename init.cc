@@ -74,13 +74,13 @@ int init()
     {
         return 1;
     }
-    if ((atoms = (object **)ici_nalloc(INITIAL_ATOMSZ * sizeof (object *))) == NULL)
+    if ((atoms = (object **)ici_nalloc(INITIAL_ATOMSZ * sizeof (object *))) == nullptr)
     {
         return 1;
     }
     atomsz = INITIAL_ATOMSZ;
     memset((char *)atoms, 0, atomsz * sizeof (object *));
-    if ((objs = (object **)ici_nalloc(INITIAL_OBJS * sizeof (object *))) == NULL)
+    if ((objs = (object **)ici_nalloc(INITIAL_OBJS * sizeof (object *))) == nullptr)
     {
         return 1;
     }
@@ -89,7 +89,7 @@ int init()
     objs_top = objs;
     for (i = 0; i < (int)nels(small_ints); ++i)
     {
-        if ((small_ints[i] = new_int(i)) == NULL)
+        if ((small_ints[i] = new_int(i)) == nullptr)
         {
             return -1;
         }
@@ -102,16 +102,16 @@ int init()
     }
     pcre_free = ici_free;
     pcre_malloc = (void *(*)(size_t))ici_alloc;
-    if ((scope = new_map()) == NULL)
+    if ((scope = new_map()) == nullptr)
     {
         return 1;
     }
-    if ((scope->o_super = externs = objwsupof(new_map())) == NULL)
+    if ((scope->o_super = externs = objwsupof(new_map())) == nullptr)
     {
         return 1;
     }
     externs->decref();
-    if ((x = new_exec()) == NULL)
+    if ((x = new_exec()) == nullptr)
     {
         return 1;
     }
@@ -128,7 +128,7 @@ int init()
     {
         return 1;
     }
-    for (cfp = ici_funcs; *cfp != NULL; ++cfp)
+    for (cfp = ici_funcs; *cfp != nullptr; ++cfp)
     {
         if (assign_cfuncs(scope->o_super, *cfp))
         {
@@ -179,7 +179,7 @@ int init()
  * to load it. An external module should call this like:
  *
  *     if (ici::check_interface(version_number, back_compat_version, "myname"))
- *         return NULL;
+ *         return nullptr;
  *
  * As soon as it can on load.  ICI_VER and ICI_BACK_COMPAT_VER come from ici.h
  * at the time that module was compiled.  This functions compares the values

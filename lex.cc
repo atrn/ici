@@ -67,7 +67,7 @@ static int get(parse *p, array *a)
         p->p_sol = 0;
     }
 
-    if (a != NULL && record_line_nums)
+    if (a != nullptr && record_line_nums)
     {
         /*
          * There is a code array being built. Update any trailing
@@ -512,7 +512,7 @@ int lex(parse *p, array *a)
             set_error("newline in #...#");
             goto fail;
         }
-        if ((p->p_got.t_obj = new_str(buf, i)) == NULL)
+        if ((p->p_got.t_obj = new_str(buf, i)) == nullptr)
         {
             goto fail;
         }
@@ -641,7 +641,7 @@ int lex(parse *p, array *a)
                 set_error("newline in \"...\"");
                 goto fail;
             }
-            if ((p->p_got.t_obj = new_str(buf, i)) == NULL)
+            if ((p->p_got.t_obj = new_str(buf, i)) == nullptr)
             {
                 goto fail;
             }
@@ -755,7 +755,7 @@ int lex(parse *p, array *a)
             t = T_FLOAT;
             break;
         }
-        if ((p->p_got.t_obj = new_str_nul_term(buf)) == NULL)
+        if ((p->p_got.t_obj = new_str_nul_term(buf)) == nullptr)
         {
             goto fail;
         }
@@ -778,7 +778,7 @@ class parse_ftype : public ftype
 {
     int getch(void *file) override
     {
-        return get(parseof(file), NULL);
+        return get(parseof(file), nullptr);
     }
 
     int ungetch(int c, void *file) override

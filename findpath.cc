@@ -16,7 +16,7 @@ namespace ici
  * on our path (that is, the current value of 'path' in the current scope).
  * 'name' must point to a buffer of at least FILENAME_MAX chars which will be
  * overwritten with the full file name should it be found.  'ext' must be less
- * than 10 chars long and include any leading dot (or NULL if not required).
+ * than 10 chars long and include any leading dot (or nullptr if not required).
  * Returns 1 if the expansion was made, else 0, never errors.
  */
 int find_on_path(char name[FILENAME_MAX], const char *ext)
@@ -28,9 +28,9 @@ int find_on_path(char name[FILENAME_MAX], const char *ext)
     str     *s;
     char     realname[FILENAME_MAX];
 
-    if ((a = need_path()) == NULL)
+    if ((a = need_path()) == nullptr)
         return 0;
-    xlen = 1 + strlen(name) + (ext != NULL ? strlen(ext) : 0) + 1;
+    xlen = 1 + strlen(name) + (ext != nullptr ? strlen(ext) : 0) + 1;
     for (e = a->astart(); e != a->alimit(); e = a->anext(e))
     {
         if (!isstring(*e))
@@ -42,7 +42,7 @@ int find_on_path(char name[FILENAME_MAX], const char *ext)
         p = realname + s->s_nchars;
         *p++ = ICI_DIR_SEP;
         strcpy(p, name);
-        if (ext != NULL)
+        if (ext != nullptr)
             strcat(p, ext);
         if (access(realname, 0) == 0)
         {

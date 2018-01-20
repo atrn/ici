@@ -22,12 +22,12 @@ ici_get_last_win32_error()
     FormatMessage
     (
         FORMAT_MESSAGE_FROM_SYSTEM,
-        NULL,
+        nullptr,
         GetLastError(),
         MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
         buf,
         bufz,
-        NULL
+        nullptr
     );
     return set_error("%s", buf);
 }

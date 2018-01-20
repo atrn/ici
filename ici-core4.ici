@@ -19,7 +19,7 @@ export
 apply(fn, aggr)
 {
     var vargs = [array];
-    k := v := NULL;
+    k := v := nullptr;
     switch (t := typeof(aggr))
     {
     case "array":
@@ -56,7 +56,7 @@ export
 mapf(aggr, fn)
 {
     var vargs = [array];
-    v := k := r := NULL;
+    v := k := r := nullptr;
     switch (t := typeof(aggr))
     {
     case "array":

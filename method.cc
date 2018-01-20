@@ -18,7 +18,7 @@ namespace ici
  * (typically a struct) with the given 'callable' object (typically a
  * function).  A method is also a callable object.
  *
- * Returns NULL on error, usual conventions.
+ * Returns nullptr on error, usual conventions.
  *
  * This --func-- forms part of the --ici-api--.
  */
@@ -26,8 +26,8 @@ method *new_method(object *subject, object *callable)
 {
     method   *m;
 
-    if ((m = ici_talloc(method)) == NULL)
-        return NULL;
+    if ((m = ici_talloc(method)) == nullptr)
+        return nullptr;
     set_tfnz(m, TC_METHOD, 0, 1, 0);
     m->m_subject = subject;
     m->m_callable = callable;

@@ -9,7 +9,7 @@ for (i := 0; i < n; ++i)
 {
     forall (v, k in h1)
     {
-        if (h2[k] == NULL)
+        if (h2[k] == nullptr)
             h2[k] = 0;
         h2[k] += h1[k];
     }

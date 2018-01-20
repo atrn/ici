@@ -334,10 +334,10 @@ Arguments:
   re        points to the compiled expression
   options   contains option bits
   errorptr  points to where to place error messages;
-            set NULL unless error
+            set nullptr unless error
 
 Returns:    pointer to a pcre_extra block,
-            NULL on error or if no optimization possible
+            nullptr on error or if no optimization possible
 */
 
 pcre_extra *
@@ -348,18 +348,18 @@ real_pcre_extra *extra;
 const real_pcre *re = (const real_pcre *)external_re;
 compile_data compile_block;
 
-*errorptr = NULL;
+*errorptr = nullptr;
 
-if (re == NULL || re->magic_number != MAGIC_NUMBER)
+if (re == nullptr || re->magic_number != MAGIC_NUMBER)
   {
   *errorptr = "argument is not a compiled regular expression";
-  return NULL;
+  return nullptr;
   }
 
 if ((options & ~PUBLIC_STUDY_OPTIONS) != 0)
   {
   *errorptr = "unknown or incorrect option bit(s) set";
-  return NULL;
+  return nullptr;
   }
 
 /* For an anchored pattern, or an unchored pattern that has a first char, or a
@@ -367,7 +367,7 @@ multiline pattern that matches only at "line starts", no further processing at
 present. */
 
 if ((re->options & (PCRE_ANCHORED|PCRE_FIRSTSET|PCRE_STARTLINE)) != 0)
-  return NULL;
+  return nullptr;
 
 /* Set the character tables in the block which is passed around */
 
@@ -380,16 +380,16 @@ compile_block.ctypes = re->tables + ctypes_offset;
 
 memset(start_bits, 0, 32 * sizeof (uschar));
 if (!set_start_bits(re->code, start_bits, (re->options & PCRE_CASELESS) != 0,
-  &compile_block)) return NULL;
+  &compile_block)) return nullptr;
 
 /* Get an "extra" block and put the information therein. */
 
 extra = (real_pcre_extra *)(pcre_malloc)(sizeof (real_pcre_extra));
 
-if (extra == NULL)
+if (extra == nullptr)
   {
   *errorptr = "failed to get memory";
-  return NULL;
+  return nullptr;
   }
 
 extra->options = PCRE_STUDY_MAPPED;

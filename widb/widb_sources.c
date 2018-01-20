@@ -59,7 +59,7 @@ BOOL widb_show_file_line(char const *filename, long line_num)
     int new_source_index;
 
     // Have we encountered this file before (and loaded it)?
-    if (filename == NULL)
+    if (filename == nullptr)
         return FALSE;
     strcpy(new_source.path, filename);
     source = (Source *)lfind
@@ -71,7 +71,7 @@ BOOL widb_show_file_line(char const *filename, long line_num)
         compare_sources
     );
 
-    if (source == NULL)
+    if (source == nullptr)
     {
         int id;
 
@@ -102,9 +102,9 @@ BOOL widb_show_file_line(char const *filename, long line_num)
                 widb_wnd,
                 (HMENU)id,
                 widb_hInst,
-                NULL
+                nullptr
             );
-            _ASSERT(source->list != NULL);
+            _ASSERT(source->list != nullptr);
         }
     
         // Append this source to the "Window" menu (an item's number in the
@@ -113,9 +113,9 @@ BOOL widb_show_file_line(char const *filename, long line_num)
             HMENU menu_bar, win_menu;
             
             menu_bar = GetMenu(widb_wnd);
-            _ASSERT(menu_bar != NULL);
+            _ASSERT(menu_bar != nullptr);
             win_menu = GetSubMenu(menu_bar, WINDOW_MENU_INDEX);
-            _ASSERT(win_menu != NULL);
+            _ASSERT(win_menu != nullptr);
             VERIFY(AppendMenu(win_menu, MF_STRING, id, filename));
         }
 
@@ -143,7 +143,7 @@ BOOL widb_show_file_line(char const *filename, long line_num)
             }
 
             f = fopen(full_path, "r");
-            if (f == NULL)
+            if (f == nullptr)
             {
                 // Can't load it in.
                 SendMessage(source->list, LB_ADDSTRING, 0, (LPARAM)"Couldn't load");
@@ -152,7 +152,7 @@ BOOL widb_show_file_line(char const *filename, long line_num)
             }
 
             // Success, add each line as an item in the list box.
-            while (NULL != fgets(line, sizeof(line), f))
+            while (nullptr != fgets(line, sizeof(line), f))
             {
                 // The last character should be a newline.
                 int line_length = strlen(line);
@@ -257,7 +257,7 @@ void widb_resize_sources(int cx, int cy)
         SetWindowPos
         (
             sources[i].list,
-            NULL,
+            nullptr,
             0, 0, r.right, r.bottom,
             SWP_NOACTIVATE | SWP_NOZORDER
         );

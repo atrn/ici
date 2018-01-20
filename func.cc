@@ -26,9 +26,9 @@ func *new_func()
 {
     func *f;
 
-    if ((f = ici_talloc(func)) == NULL)
+    if ((f = ici_talloc(func)) == nullptr)
     {
-        return NULL;
+        return nullptr;
     }
     memset((char *)f, 0, sizeof (func));
     set_tfnz(f, TC_FUNC, 0, 1, 0);
@@ -122,8 +122,8 @@ object * func_type::fetch(object *o, object *k)
 {
     object           *r;
 
-    error = NULL;
-    r = NULL;
+    error = nullptr;
+    r = nullptr;
     if (k == SS(vars))
     {
         r = funcof(o)->f_autos;
@@ -136,7 +136,7 @@ object * func_type::fetch(object *o, object *k)
     {
         r = funcof(o)->f_name;
     }
-    if (r == NULL && error == NULL)
+    if (r == nullptr && error == nullptr)
     {
         r = null;
     }
@@ -187,11 +187,11 @@ int func_type::call(object *o, object *subject)
 #endif
 
     d = mapof(f->f_autos->copy());
-    if (UNLIKELY(d == NULL))
+    if (UNLIKELY(d == nullptr))
     {
         goto fail;
     }
-    if (UNLIKELY(subject != NULL))
+    if (UNLIKELY(subject != nullptr))
     {
         /*
          * This is a method call, that is, it has a subject object that
@@ -215,7 +215,7 @@ int func_type::call(object *o, object *subject)
         (
             UNLIKELY
             (
-                objwsupof(f->f_autos)->o_super != NULL
+                objwsupof(f->f_autos)->o_super != nullptr
                 &&
                 ici_assign_base(d, SS(class), objwsupof(f->f_autos)->o_super)
             )
@@ -226,7 +226,7 @@ int func_type::call(object *o, object *subject)
     }
     n = NARGS(); /* Number of actual args. */
     ap = ARGS();
-    if (LIKELY(f->f_args != NULL))
+    if (LIKELY(f->f_args != nullptr))
     {
         /*
          * There are explicit formal parameters.
@@ -254,16 +254,16 @@ int func_type::call(object *o, object *subject)
             --n;
         }
     }
-    va = NULL;
+    va = nullptr;
     if (UNLIKELY(n > 0))
     {
         if
         (
             LIKELY
             (
-                (sl = find_raw_slot(d, SS(vargs))) != NULL
+                (sl = find_raw_slot(d, SS(vargs))) != nullptr
                 &&
-                (va = new_array(n)) != NULL
+                (va = new_array(n)) != nullptr
             )
         )
         {
@@ -295,7 +295,7 @@ int func_type::call(object *o, object *subject)
     return 0;
 
  fail:
-    if (d != NULL)
+    if (d != nullptr)
     {
         d->decref();
     }
@@ -327,32 +327,32 @@ int func_type::save(archiver *ar, object *o) {
 
 object *func_type::restore(archiver *ar) {
     object *code;
-    object *args = NULL;
-    object *autos = NULL;
-    object *name = NULL;
+    object *args = nullptr;
+    object *autos = nullptr;
+    object *name = nullptr;
     int32_t nautos;
     func *fn;
     object *oname;
 
     if (ar->restore_name(&oname)) {
-        return NULL;
+        return nullptr;
     }
-    if ((code = ar->restore()) == NULL) {
-        return NULL;
+    if ((code = ar->restore()) == nullptr) {
+        return nullptr;
     }
-    if ((args = ar->restore()) == NULL) {
+    if ((args = ar->restore()) == nullptr) {
         goto fail;
     }
-    if ((autos = ar->restore()) == NULL) {
+    if ((autos = ar->restore()) == nullptr) {
         goto fail;
     }
-    if ((name = ar->restore()) == NULL) {
+    if ((name = ar->restore()) == nullptr) {
         goto fail;
     }
     if (ar->read(nautos)) {
         goto fail;
     }
-    if ((fn = new_func()) == NULL) {
+    if ((fn = new_func()) == nullptr) {
         goto fail;
     }
 
@@ -385,7 +385,7 @@ fail:
     if (name) {
         name->decref();
     }
-    return NULL;
+    return nullptr;
 }
 
 op    o_return{op_return};

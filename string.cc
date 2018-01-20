@@ -72,15 +72,15 @@ str *str_alloc(size_t nchars)
     size_t              az;
 
     az = STR_ALLOCZ(nchars);
-    if ((s = (str *)ici_nalloc(az)) == NULL) {
-        return NULL;
+    if ((s = (str *)ici_nalloc(az)) == nullptr) {
+        return nullptr;
     }
     set_tfnz(s, TC_STRING, 0, 1, az <= 127 ? az : 0);
     s->s_chars = s->s_u.su_inline_chars;
     s->s_nchars = nchars;
     s->s_chars[nchars] = '\0';
-    s->s_map = NULL;
-    s->s_slot = NULL;
+    s->s_map = nullptr;
+    s->s_slot = nullptr;
 #   if ICI_KEEP_STRING_HASH
     s->s_hash = 0;
 #   endif
@@ -101,7 +101,7 @@ str *str_alloc(size_t nchars)
  *
  * See also: 'new_str_nul_term()' and 'str_get_nul_term()'.
  *
- * Returns NULL on error, usual conventions.
+ * Returns nullptr on error, usual conventions.
  *
  * This --func-- forms part of the --ici-api--.
  */
@@ -128,15 +128,15 @@ new_str(const char *p, size_t nchars)
 #       if ICI_KEEP_STRING_HASH
         proto.s.s_hash = 0;
 #       endif
-        if ((s = stringof(atom_probe2(&proto.s, &po))) != NULL) {
+        if ((s = stringof(atom_probe2(&proto.s, &po))) != nullptr) {
             s->incref();
             return s;
         }
         ++supress_collect;
         az = STR_ALLOCZ(nchars);
-        if ((s = (str *)ici_nalloc(az)) == NULL) {
+        if ((s = (str *)ici_nalloc(az)) == nullptr) {
             --supress_collect;
-            return NULL;
+            return nullptr;
         }
         memcpy((char *)s, (char *)&proto.s, az);
         set_tfnz(s, TC_STRING, object::O_ATOM, 1, az);
@@ -146,14 +146,14 @@ new_str(const char *p, size_t nchars)
         store_atom_and_count(po, s);
         return s;
     }
-    if ((s = (str *)ici_nalloc(az)) == NULL) {
-        return NULL;
+    if ((s = (str *)ici_nalloc(az)) == nullptr) {
+        return nullptr;
     }
     set_tfnz(s, TC_STRING, 0, 1, az <= 127 ? az : 0);
     s->s_chars = s->s_u.su_inline_chars;
     s->s_nchars = nchars;
-    s->s_map = NULL;
-    s->s_slot = NULL;
+    s->s_map = nullptr;
+    s->s_slot = nullptr;
     s->s_vsver = 0;
     memcpy(s->s_chars, p, nchars);
     s->s_chars[nchars] = '\0';
@@ -171,7 +171,7 @@ new_str(const char *p, size_t nchars)
  * The returned string has a reference count of 1 (which is caller is
  * expected to decrement, eventually).
  *
- * Returns NULL on error, usual conventions.
+ * Returns nullptr on error, usual conventions.
  *
  * This --func-- forms part of the --ici-api--.
  */
@@ -180,8 +180,8 @@ new_str_nul_term(const char *p)
 {
     str  *s;
 
-    if ((s = new_str(p, strlen(p))) == NULL) {
-        return NULL;
+    if ((s = new_str(p, strlen(p))) == nullptr) {
+        return nullptr;
     }
     return s;
 }
@@ -193,7 +193,7 @@ new_str_nul_term(const char *p)
  * The returned string has a reference count of 0, unlike
  * new_str_nul_term() which is exactly the same in other respects.
  *
- * Returns NULL on error, usual conventions.
+ * Returns nullptr on error, usual conventions.
  *
  * This --func-- forms part of the --ici-api--.
  */
@@ -201,8 +201,8 @@ str *str_get_nul_term(const char *p)
 {
     str   *s;
 
-    if ((s = new_str(p, strlen(p))) == NULL) {
-        return NULL;
+    if ((s = new_str(p, strlen(p))) == nullptr) {
+        return nullptr;
     }
     s->decref();
     return s;
@@ -216,7 +216,7 @@ str *str_get_nul_term(const char *p)
  * The returned string has a reference count of 1 (which is caller is
  * expected to decrement, eventually).
  *
- * Returns NULL on error, usual conventions.
+ * Returns nullptr on error, usual conventions.
  *
  * This --func-- forms part of the --ici-api--.
  */
@@ -224,20 +224,20 @@ str *new_str_buf(size_t n)
 {
     str *s;
 
-    if ((s = ici_talloc(str)) == NULL) {
-        return NULL;
+    if ((s = ici_talloc(str)) == nullptr) {
+        return nullptr;
     }
-    if ((s->s_chars = (char *)ici_nalloc(n)) == NULL) {
+    if ((s->s_chars = (char *)ici_nalloc(n)) == nullptr) {
         ici_tfree(s, str);
-        return NULL;
+        return nullptr;
     }
     set_tfnz(s, TC_STRING, ICI_S_SEP_ALLOC, 1, 0);
     s->s_u.su_nalloc = n;
     s->s_vsver = 0;
     s->s_nchars = 0;
     s->s_hash = 0;
-    s->s_map = NULL;
-    s->s_slot = NULL;
+    s->s_map = nullptr;
+    s->s_slot = nullptr;
     s->s_vsver = 0;
     rego(s);
     return s;
@@ -263,7 +263,7 @@ int str_need_size(str *s, size_t n)
         return 0;
     }
     n <<= 1;
-    if ((chars = (char *)ici_nalloc(n)) == NULL) {
+    if ((chars = (char *)ici_nalloc(n)) == nullptr) {
         return 1;
     }
     memcpy(chars, s->s_chars, s->s_nchars + 1);
@@ -313,15 +313,15 @@ int string_type::cmp(object *o1, object *o2)
 }
 
 /*
- * Return a copy of the given object, or NULL on error.
+ * Return a copy of the given object, or nullptr on error.
  * See the comment on t_copy() in object.h.
  */
 object *string_type::copy(object *o)
 {
     str *ns;
 
-    if ((ns = new_str_buf(stringof(o)->s_nchars + 1)) == NULL) {
-        return NULL;
+    if ((ns = new_str_buf(stringof(o)->s_nchars + 1)) == nullptr) {
+        return nullptr;
     }
     ns->s_nchars = stringof(o)->s_nchars;
     memcpy(ns->s_chars, stringof(o)->s_chars, ns->s_nchars);
@@ -354,7 +354,7 @@ unsigned long string_type::hash(object *o)
 }
 
 /*
- * Return the object at key k of the obejct o, or NULL on error.
+ * Return the object at key k of the obejct o, or nullptr on error.
  * See the comment on t_fetch in object.h.
  */
 object *string_type::fetch(object *o, object *k)
@@ -370,7 +370,7 @@ object *string_type::fetch(object *o, object *k)
     else {
         k = new_str(&stringof(o)->s_chars[i], 1);
     }
-    if (k != NULL) {
+    if (k != nullptr) {
         k->decref();
     }
     return k;
@@ -424,7 +424,7 @@ int string_type::forall(object *o) {
         return -1;
     }
     if (fa->fa_vaggr != null) {
-        if ((s = new_str(&s->s_chars[fa->fa_index], 1)) == NULL) {
+        if ((s = new_str(&s->s_chars[fa->fa_index], 1)) == nullptr) {
             return 1;
 	}
         if (ici_assign(fa->fa_vaggr, fa->fa_vkey, s)) {
@@ -433,7 +433,7 @@ int string_type::forall(object *o) {
         s->decref();
     }
     if (fa->fa_kaggr != null) {
-        if ((i = new_int((int64_t)fa->fa_index)) == NULL) {
+        if ((i = new_int((int64_t)fa->fa_index)) == nullptr) {
             return 1;
 	}
         if (ici_assign(fa->fa_kaggr, fa->fa_kkey, i)) {
@@ -467,7 +467,7 @@ object *string_type::restore(archiver *ar) {
         goto fail;
     }
     hash_string(s);
-    if ((obj = atom(s, 1)) == NULL) {
+    if ((obj = atom(s, 1)) == nullptr) {
         goto fail;
     }
     if (ar->record(name, obj)) {
@@ -478,7 +478,7 @@ object *string_type::restore(archiver *ar) {
 
 fail:
     s->decref();
-    return NULL;
+    return nullptr;
 }
 
 } // namespace ici

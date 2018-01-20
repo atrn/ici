@@ -17,7 +17,7 @@ namespace ici
  * Return a file object with the given 'ftype' and a file type specific
  * pointer 'fp' which is often something like a 'STREAM *' or a file
  * descriptor.  The 'name' is mostly for error messages and stuff.  The
- * returned object has a ref count of 1.  Returns NULL on error.
+ * returned object has a ref count of 1.  Returns nullptr on error.
  *
  * The 'ftype' is a pointer to a struct of stdio-like function pointers that
  * will be used to do I/O operations on the file (see 'ftype').  The
@@ -27,7 +27,7 @@ namespace ici
  *
  * The 'ref' argument is an object reference that the file object will keep in
  * case the 'fp' argument is an implicit reference into some object (for
- * example, this is used for reading an ICI string as a file).  It may be NULL
+ * example, this is used for reading an ICI string as a file).  It may be nullptr
  * if not required.
  *
  * This --func-- forms part of the --ici-api--.
@@ -36,8 +36,8 @@ file *new_file(void *fp, ftype *ftype, str *name, object *ref)
 {
     file *f;
 
-    if ((f = ici_talloc(file)) == NULL)
-        return NULL;
+    if ((f = ici_talloc(file)) == nullptr)
+        return nullptr;
     set_tfnz(f, TC_FILE, 0, 1, 0);
     f->f_file = fp;
     f->f_type = ftype;
@@ -59,7 +59,7 @@ file *new_file(void *fp, ftype *ftype, str *name, object *ref)
  */
 int close_file(file *f)
 {
-    exec *x = NULL;
+    exec *x = nullptr;
     int   r;
 
     if (f->flagged(file::closed))
@@ -113,7 +113,7 @@ int file_type::cmp(object *o1, object *o2)
 object * file_type::fetch(object *o, object *k)
 {
     if (k == SS(name)) {
-        if (fileof(o)->f_name != NULL) {
+        if (fileof(o)->f_name != nullptr) {
             return fileof(o)->f_name;
 	}
         return null;
@@ -122,7 +122,7 @@ object * file_type::fetch(object *o, object *k)
     {
         integer *l;
 
-        if ((l = new_int(parseof(fileof(o)->f_file)->p_lineno)) != NULL) {
+        if ((l = new_int(parseof(fileof(o)->f_file)->p_lineno)) != nullptr) {
             l->decref();
 	}
         return l;

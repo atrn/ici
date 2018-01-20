@@ -3,7 +3,7 @@ memoize(fn, args)
 {
     local cache = map();
     key := array(deepatom(fn), deepatom(args));
-    if ((result := cache[key]) == NULL)
+    if ((result := cache[key]) == nullptr)
     {
 	    result := cache[key] = call(fn, args);
     }

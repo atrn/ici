@@ -397,7 +397,7 @@ Negation; gives negative of any arithmetic value.
 .IP \fB+\fP 2c
 Positive; no real effect.
 .IP \fB!\fP 2c
-Logical not; applied to 0 or NULL, gives 1, else gives 0.
+Logical not; applied to 0 or nullptr, gives 1, else gives 0.
 .IP \fB~\fP 2c
 Bit-wise complement.
 .IP \fB++\fP 2c
@@ -1474,8 +1474,8 @@ reg =
     );
 parts = my_text ~~~ reg;
 
-returns_void = parts == NULL || parts[0] == "void";
-returns_ptr  = parts != NULL && parts[1] ~ #\e*#;\fR
+returns_void = parts == nullptr || parts[0] == "void";
+returns_ptr  = parts != nullptr && parts[1] ~ #\e*#;\fR
 .fi
 
 .SS "The if statement"
@@ -1537,7 +1537,7 @@ The parser converts it to an internal form.  Upon execution a loop is
 established.  Within the loop the expression is evaluated, and if it
 is false (\fB0\fP or \fBNULL\fP) the loop is terminated and flow of control
 continues after the while statement.  But if the expression evaluates
-to true (not 0 and not NULL) the statement is executed and then flow
+to true (not 0 and not nullptr) the statement is executed and then flow
 of control moves back to the start of the loop where the test is
 performed again (although other statements, as seen below, can be used
 to modify this natural flow of control).
@@ -1591,8 +1591,8 @@ being assigned to).  Upon execution the first expression is
 evaluated and that storage location is noted.  If the second
 expression is present the same is done for it.  The third expression
 is then evaluated and the result noted; it must evaluate to an array,
-a set, a struct, a string, or NULL; we will call this the aggregate.
-If this is NULL, the forall statement is finished and flow of control
+a set, a struct, a string, or nullptr; we will call this the aggregate.
+If this is nullptr, the forall statement is finished and flow of control
 continues after the statement; otherwise, a loop is established.
 
 .PP
@@ -1702,7 +1702,7 @@ The return statement has the form:
 .PP
 The parser converts this to an internal form.  Upon execution, the
 execution engine evaluates the expression if it is present.  If it
-is not, the value NULL is substituted.  Then the current function
+is not, the value nullptr is substituted.  Then the current function
 terminates with that value as its apparent value in any expression it
 is embedded in.  It is an error for there to be no enclosing
 function.
@@ -1811,7 +1811,7 @@ variables.
 A declaration with no initialisation first checks if the variable
 already exists at the given scope.  If it does, it is left unmodified.
 In particular, any value it currently has is undisturbed.  If it
-does not exist it is established and is given the value NULL.
+does not exist it is established and is given the value nullptr.
 
 .PP
 A declaration with an initialisation establishes the variable in the
@@ -1931,7 +1931,7 @@ Has no effect except the result is not an lvalue.
 
 .TP 1i
 .B "!any"
-Logical negation: If any is 0 (integer) or NULL, 1 is
+Logical negation: If any is 0 (integer) or nullptr, 1 is
 returned, else 0 is returned.
 
 .TP 1i
@@ -2172,7 +2172,7 @@ may be in any order.
 .B "string ~~ regexp"
 Regular expression sub-string extraction:
 Returns the sub-string of string which is matched by the first bracket
-enclosed portion of regexp, or NULL if there is no match or regexp
+enclosed portion of regexp, or nullptr if there is no match or regexp
 does not contain a (...) portion. The arguments may be in any order.
 For example, a "basename" operation can be performed with:
 
@@ -2182,7 +2182,7 @@ For example, a "basename" operation can be performed with:
 .B "string ~~~ regexp"
 Regular expression multiple sub-string extraction:
 Returns an array of the the sub-strings of string which are matched by
-the (...) enclosed portions of regexp, or NULL if there is no match. The
+the (...) enclosed portions of regexp, or nullptr if there is no match. The
 arguments may be in any order.
 
 .TP 1i
@@ -2201,21 +2201,21 @@ Bit-wise or: Returns the bit-wise or of int1 and int2.
 .TP 1i
 .B "any1 && any2"
 Logical and: Evaluates the expression which determines
-any1, if this evaluates to 0 or NULL (i.e. false), 0 is returned, else
+any1, if this evaluates to 0 or nullptr (i.e. false), 0 is returned, else
 any2 is evaluated and returned. Note that if any1 does not evaluate to
 a true value, the expression which determines any2 is never evaluated.
 
 .TP 1i
 .B "any1 || any2"
 Logical or: Evaluates the expression which determines
-any1, if this evaluates to other than 0 or NULL (i.e. true), 1 is
+any1, if this evaluates to other than 0 or nullptr (i.e. true), 1 is
 returned, else any2 is evaluated and returned. Note that if any1 does
 not evaluate to a false value, the expression which determines any2 is
 never evaluated.
 
 .TP 1i
 .B "any1 ? any2 : any3"
-Choice: If any1 is neither 0 or NULL (i.e. true),
+Choice: If any1 is neither 0 or nullptr (i.e. true),
 the expression which determines  any2 is evaluated and returned,
 else the expression which determines any3 is evaluated and returned.
 Only one of any2 and any3 are evaluated.  The result may be an lvalue
@@ -2430,7 +2430,7 @@ own sections.
 .sp 0.5
 	int =	\fBeof\fP(file)
 .sp 0.5
-		\fBexit\fP([int|string|NULL])
+		\fBexit\fP([int|string|nullptr])
 .sp 0.5
 	float =	\fBexp\fP(number)
 .sp 0.5
@@ -2657,7 +2657,7 @@ Returns the cosine of angle (a float interpreted in radians).
 
 file = \fBcurrentfile\fP()
 
-Returns the file associated with the innermost parsing context, or NULL
+Returns the file associated with the innermost parsing context, or nullptr
 if there is no module being parsed.
 
 This function can be used to include data in a program source file which
@@ -2703,7 +2703,7 @@ The functions  parse and scope are described below.
 \fBdel\fP(struct, key)
 
 Deletes the element of struct identified by key. Any super structs
-are ignored.  Returns NULL.  For example:
+are ignored.  Returns nullptr.  For example:
 
 .nf
 \fCstatic s = [struct a = 1, b = 2, c = 3];
@@ -2737,10 +2737,10 @@ given the current value of stdin in the current scope is used.
 
 Returns 1 (one) if obj1 and obj2 are the same object, else 0 (zero).
 
-\fBexit\fP([string|int|NULL])
+\fBexit\fP([string|int|nullptr])
 
 Causes the interpreter to finish execution and exit. If no parameter or
-the empty string or NULL is passed, the exit status is zero. If an integer
+the empty string or nullptr is passed, the exit status is zero. If an integer
 is passed that is the exit status. If a non-empty string is passed then
 that string is printed to the interpreter's standard error output and
 an exit status of one used.  This is implementation dependent and may
@@ -2769,7 +2769,7 @@ For example:
 value = \fBfetch\fP(struct, key)
 
 Returns the value from struct associated with key, ignoring any super
-structs. Returns NULL if the key is not an element of struct.
+structs. Returns nullptr if the key is not an element of struct.
 
 value = \fBfloat\fP(x)
 
@@ -2794,7 +2794,7 @@ interpreter. Avoid.\fP
 string = \fBgetchar\fP([file])
 
 Reads a single character from file and returns it as a string. Returns
-NULL upon end of file. If file is not given the current value of stdin
+nullptr upon end of file. If file is not given the current value of stdin
 in the current scope is used.
 
 string = \fBgetfile\fP([file])
@@ -2806,7 +2806,7 @@ of stdin in the current scope is used.
 string = \fBgetline\fP([file])
 
 Reads a line of text from file and returns it as a string. Any end-of-line
-marker is removed.  Returns NULL upon end of file. If file is not given
+marker is removed.  Returns nullptr upon end of file. If file is not given
 the current value of stdin in the current scope is used.
 
 string = \fBgettoken\fP([file [, seps]])
@@ -2817,7 +2817,7 @@ Seps must be a string.  It is interpreted as a set of characters which
 do not from part of the token.  Any leading sequence of these characters
 is first skipped.  Then a sequence of characters not in seps is gathered
 until end of file or a character from seps is found.  This terminating
-character is not consumed.  The gathered string is returned, or NULL if
+character is not consumed.  The gathered string is returned, or nullptr if
 end of file was encountered before any token was gathered.
 
 If file is not given the current value of stdin in the current scope
@@ -2829,7 +2829,7 @@ array = \fBgettokens\fP([file [, seps [, terms [, delims]]]])
 
 Read tokens (that is, strings) from file.  The tokens are character
 sequences separated by seps and terminated by terms.  Returns an array
-of strings, NULL on end of file.
+of strings, nullptr on end of file.
 
 If \fIseps\fP is a string, it is interpreted as a set of characters, any
 sequence of which will separate one token from the next.  In this case
@@ -3078,7 +3078,7 @@ system limit may be reached before the unused files are garbage collected.
 any = \fBpop\fP(array)
 
 Returns the last element of array and reduces the length of array by one.
-If the array was empty to start with, NULL is returned.
+If the array was empty to start with, nullptr is returned.
 
 file = \fBpopen\fP(string, [flags])
 
@@ -3333,7 +3333,7 @@ expression may be matched by using \en where n is a decimal digit.
 current = \fBsuper\fP(struct [, replacement])
 
 Returns the current super struct of struct, and, if replacement is
-supplied, sets it to a new value.  If replacement is NULL any current
+supplied, sets it to a new value.  If replacement is nullptr any current
 super struct reference is cleared (that is, after this struct will have
 no super).
 
@@ -3611,7 +3611,7 @@ This function is used to obtain the names of files within a given directory.
 It returns an array of filenames.
 
 The pathname argument provides the directory pathname.
-If NULL or omitted, the current directory is used.
+If nullptr or omitted, the current directory is used.
 
 A regular expression can be used to select just matching names.
 
@@ -4253,13 +4253,13 @@ socket. If the host portion of the address is not specified "?" (any) is
 used. If the address is passed as an integer it specifies the port number
 to be bound, the host portion is "?". Bind returns the socket parameter.
 
-struct = \fBselect\fP([int,] set|NULL [, set|NULL [, set|NULL]])
+struct = \fBselect\fP([int,] set|nullptr [, set|nullptr [, set|nullptr]])
 
 Check sockets for I/O readiness with optional timeout. Select may be
 passed up to three sets of sockets that are checked for readiness to
 perform I/O. The first set holds the sockets to test for input pending,
 the second set the sockets to test for output able and the third set the
-sockets to test for exceptional states. NULL may be passed in place of
+sockets to test for exceptional states. nullptr may be passed in place of
 a set parameter to avoid passing empty sets. An integer may also appear
 in the parameter list. This integer specifies the number of milliseconds
 to wait for the sockets to become ready. If a zero timeout is passed the

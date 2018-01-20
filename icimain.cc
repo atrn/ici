@@ -39,7 +39,7 @@ int main(int argc, char *argv[]) {
     char       *s;
     const char *fmt;
     char       *arg0;
-    array      *av   = NULL;
+    array      *av   = nullptr;
     FILE       *stream;
     file       *f;
     int         help = 0;
@@ -62,10 +62,10 @@ int main(int argc, char *argv[]) {
      * ie, arguments which are passed into the ICI code.  Stash these in
      * the array av.  NB: must be in sync with the second pass below.
      */
-    if ((av = new_array(1)) == NULL)
+    if ((av = new_array(1)) == nullptr)
         goto fail;
     av->push(null); /* Leave room for argv[0]. */
-    arg0 = NULL;
+    arg0 = nullptr;
     if (argc <= 1)
         goto usage;
     if
@@ -86,7 +86,7 @@ int main(int argc, char *argv[]) {
         {
             if (av->push_check())
                 goto fail;
-            if ((*av->a_top = str_get_nul_term(argv[i])) == NULL)
+            if ((*av->a_top = str_get_nul_term(argv[i])) == nullptr)
                 goto fail;
             ++av->a_top;
         }
@@ -121,7 +121,7 @@ int main(int argc, char *argv[]) {
                             goto usage;
                         else
                             s = argv[i];
-                        if ((av->a_base[0] = str_get_nul_term(s)) == NULL)
+                        if ((av->a_base[0] = str_get_nul_term(s)) == nullptr)
                             goto fail;
                         break;
 
@@ -130,7 +130,7 @@ int main(int argc, char *argv[]) {
                         {
                             if (av->push_check())
                                 goto fail;
-                            if ((*av->a_top = str_get_nul_term(argv[i])) == NULL)
+                            if ((*av->a_top = str_get_nul_term(argv[i])) == nullptr)
                                 goto fail;
                             ++av->a_top;
                         }
@@ -164,7 +164,7 @@ int main(int argc, char *argv[]) {
             {
                 if (av->push_check())
                     goto fail;
-                if ((*av->a_top = str_get_nul_term(argv[i])) == NULL)
+                if ((*av->a_top = str_get_nul_term(argv[i])) == nullptr)
                     goto fail;
                 ++av->a_top;
             }
@@ -172,9 +172,9 @@ int main(int argc, char *argv[]) {
     }
     if (av->a_base[0] == null)
     {
-        if (arg0 == NULL)
+        if (arg0 == nullptr)
             arg0 = argv[0];
-        if ((av->a_base[0] = str_get_nul_term(arg0)) == NULL)
+        if ((av->a_base[0] = str_get_nul_term(arg0)) == nullptr)
             goto fail;
     }
     else
@@ -198,7 +198,7 @@ int main(int argc, char *argv[]) {
         )
             goto fail;
         av->decref();
-        av = NULL;
+        av = nullptr;
     }
 
     /*
@@ -214,7 +214,7 @@ int main(int argc, char *argv[]) {
 #       endif
     )
     {
-        if ((stream = fopen(argv[1], "r")) == NULL)
+        if ((stream = fopen(argv[1], "r")) == nullptr)
         {
             set_error("%s: Could not open %s.", argv[0], argv[1]);
             goto fail;
@@ -255,7 +255,7 @@ int main(int argc, char *argv[]) {
                         goto usage;
                     else
                         s = argv[i];
-                    if ((f = sopen(s, strlen(s), NULL)) == NULL)
+                    if ((f = sopen(s, strlen(s), nullptr)) == nullptr)
                         goto fail;
                     f->f_name = SS(empty_string);
                     if (parse_file(f, objwsupof(vs.a_top[-1])) < 0)
@@ -285,7 +285,7 @@ int main(int argc, char *argv[]) {
                     if (chkbuf(strlen(s) + strlen(fmt)))
                         goto fail;
                     sprintf(buf, fmt, s);
-                    if ((stream = fopen(buf, "r")) == NULL)
+                    if ((stream = fopen(buf, "r")) == nullptr)
                     {
                         set_error("%s: Could not open %s.", argv[0], s);
                         goto fail;
@@ -296,7 +296,7 @@ int main(int argc, char *argv[]) {
 
                 case '0': case '1': case '2': case '3': case '4':
                 case '5': case '6': case '7': case '8': case '9':
-                    if ((stream = fdopen(argv[i][j] - '0', "r")) == NULL)
+                    if ((stream = fdopen(argv[i][j] - '0', "r")) == nullptr)
                     {
                         set_error("%s: Could not access file descriptor %d.",
                             argv[0], argv[i][j] - '0');
@@ -355,7 +355,7 @@ usage:
         fprintf(stderr, "\n");
         fprintf(stderr, "See 'The ICI Programming Language' (ici.pdf from ici.sf.net).\n");
     }
-    if (av != NULL)
+    if (av != nullptr)
         av->decref();
     uninit();
     set_error("invalid command line arguments");

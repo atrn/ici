@@ -41,8 +41,8 @@ cfunc *new_cfunc(str *name, int (*func)(...), void *arg1, void *arg2)
 {
     cfunc *cf;
 
-    if ((cf = ici_talloc(cfunc)) == NULL)
-        return NULL;
+    if ((cf = ici_talloc(cfunc)) == nullptr)
+        return nullptr;
     set_tfnz(cf, TC_CFUNC, 0, 1, sizeof (cfunc));
     cf->cf_name = name;
     cf->cf_cfunc = func;
@@ -55,7 +55,7 @@ cfunc *new_cfunc(str *name, int (*func)(...), void *arg1, void *arg2)
 /*
  * Assign into the structure 's' all the intrinsic functions listed in the
  * array of 'cfunc' structures pointed to by 'cf'.  The array must be
- * terminated by an entry with a 'cf_name' of NULL.  Typically, entries in the
+ * terminated by an entry with a 'cf_name' of nullptr.  Typically, entries in the
  * array are formated as:
  *
  *  ICI_DEFINE_CFUNC(func, f_func),
@@ -70,7 +70,7 @@ cfunc *new_cfunc(str *name, int (*func)(...), void *arg1, void *arg2)
  */
 int assign_cfuncs(objwsup *s, cfunc *cf)
 {
-    while (cf->cf_name != NULL)
+    while (cf->cf_name != nullptr)
     {
         /* ### should be a decref here? ### */
         assert(ici_fetch_base(s, cf->cf_name) == null);
@@ -104,11 +104,11 @@ int define_cfuncs(cfunc *cf)
 
 /*
  * Create a new class struct and assign the given cfuncs into it (as in
- * assign_cfuncs()).  If 'super' is NULL, the super of the new struct is
+ * assign_cfuncs()).  If 'super' is nullptr, the super of the new struct is
  * set to the outer-most writeable struct in the current scope.  Thus this is
- * a new top-level class (not derived from anything).  If super is non-NULL,
+ * a new top-level class (not derived from anything).  If super is non-nullptr,
  * it is presumably the parent class and is used directly as the super.
- * Returns NULL on error, usual conventions.  The returned struct has an
+ * Returns nullptr on error, usual conventions.  The returned struct has an
  * incref the caller owns.
  *
  * This --func-- forms part of the --ici-api--.
@@ -117,29 +117,29 @@ objwsup *new_class(cfunc *cf, objwsup *super)
 {
     objwsup       *s;
 
-    if ((s = objwsupof(new_map())) == NULL)
-        return NULL;
+    if ((s = objwsupof(new_map())) == nullptr)
+        return nullptr;
     if (assign_cfuncs(s, cf))
     {
         s->decref();
-        return NULL;
+        return nullptr;
     }
-    if (super == NULL && (super = outermost_writeable()) == NULL)
-        return NULL;
+    if (super == nullptr && (super = outermost_writeable()) == nullptr)
+        return nullptr;
     s->o_super = super;
     return s;
 }
 
 /*
  * Create a new module struct and assign the given cfuncs into it (as in
- * assign_cfuncs()).  Returns NULL on error, usual conventions.  The
+ * assign_cfuncs()).  Returns nullptr on error, usual conventions.  The
  * returned struct has an incref the caller owns.
  *
  * This --func-- forms part of the --ici-api--.
  */
 objwsup *new_module(cfunc *cf)
 {
-    return new_class(cf, NULL);
+    return new_class(cf, nullptr);
 }
 
 #ifdef NOTDEF

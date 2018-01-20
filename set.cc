@@ -26,7 +26,7 @@ object **ici_find_set_slot(set *s, object *k)
     object  **e;
 
     e = &s->s_slots[hashindex(k, s)];
-    while (*e != NULL)
+    while (*e != nullptr)
     {
         if (*e == k)
             return e;
@@ -38,7 +38,7 @@ object **ici_find_set_slot(set *s, object *k)
 
 /*
  * Return a new ICI set object. The returned set has been increfed.
- * Returns NULL on error, usual conventions.
+ * Returns nullptr on error, usual conventions.
  *
  * This --func-- forms part of the --ici-api--.
  */
@@ -49,15 +49,15 @@ set *new_set()
     /*
      * NB: there is a copy of this sequence in copy_set.
      */
-    if ((s = ici_talloc(set)) == NULL)
-        return NULL;
+    if ((s = ici_talloc(set)) == nullptr)
+        return nullptr;
     set_tfnz(s, TC_SET, 0, 1, 0);
     s->s_nels = 0;
     s->s_nslots = 4; /* Must be power of 2. */
-    if ((s->s_slots = (object **)ici_nalloc(4 * sizeof (object *))) == NULL)
+    if ((s->s_slots = (object **)ici_nalloc(4 * sizeof (object *))) == nullptr)
     {
         ici_tfree(s, set);
-        return NULL;
+        return nullptr;
     }
     memset(s->s_slots, 0, 4 * sizeof (object *));
     rego(s);
@@ -76,7 +76,7 @@ static int grow_set(set *s)
 
     oldn = s->s_nslots;
     z = (oldn * 2) * sizeof (object *);
-    if ((e = (object **)ici_nalloc(z)) == NULL)
+    if ((e = (object **)ici_nalloc(z)) == nullptr)
         return 1;
     memset((char *)e, 0, z);
     oldslots = s->s_slots;
@@ -85,7 +85,7 @@ static int grow_set(set *s)
     for (z = oldn; z > 0; )
     {
         --z;
-        if (oldslots[z] != NULL)
+        if (oldslots[z] != nullptr)
             *ici_find_set_slot(s, oldslots[z]) = oldslots[z];
     }
     ici_nfree(oldslots, oldn * sizeof (object *));
@@ -101,7 +101,7 @@ int unassign(set *s, object *k)
     object  **ss;
     object  **ws;   /* Wanted position. */
 
-    if (*(ss = ici_find_set_slot(s, k)) == NULL)
+    if (*(ss = ici_find_set_slot(s, k)) == nullptr)
         return 0;
     --s->s_nels;
     sl = ss;
@@ -113,7 +113,7 @@ int unassign(set *s, object *k)
     {
         if (--sl < s->s_slots)
             sl = s->s_slots + s->s_nslots - 1;
-        if (*sl == NULL)
+        if (*sl == nullptr)
             break;
         ws = &s->s_slots[hashindex(*sl, s)];
         if
@@ -132,7 +132,7 @@ int unassign(set *s, object *k)
             ss = sl;
         }
     }
-    *ss = NULL;
+    *ss = nullptr;
     return 0;
 }
 
@@ -158,7 +158,7 @@ size_t set_type::mark(object *o)
 void set_type::free(object *o)
 {
     auto s = setof(o);
-    if (s->s_slots != NULL)
+    if (s->s_slots != nullptr)
         ici_nfree(s->s_slots, s->s_nslots * sizeof (object *));
     ici_tfree(o, set);
 }
@@ -178,7 +178,7 @@ int set_type::cmp(object *o1, object *o2)
     e = setof(o1)->s_slots;
     for (auto i = setof(o1)->s_nslots; i-- > 0; )
     {
-        if (*e != NULL && *ici_find_set_slot(setof(o2), *e) == NULL)
+        if (*e != nullptr && *ici_find_set_slot(setof(o2), *e) == nullptr)
             return 1;
         ++e;
     }
@@ -195,7 +195,7 @@ unsigned long set_type::hash(object *o)
     object        **po;
 
     /*
-     * This assumes NULL will become zero when cast to unsigned long.
+     * This assumes nullptr will become zero when cast to unsigned long.
      */
 
     h = 0;
@@ -206,7 +206,7 @@ unsigned long set_type::hash(object *o)
 }
 
 /*
- * Return a copy of the given object, or NULL on error.
+ * Return a copy of the given object, or nullptr on error.
  * See the comment on t_copy() in object.h.
  */
 object * set_type::copy(object *o)
@@ -215,13 +215,13 @@ object * set_type::copy(object *o)
     set   *ns;
 
     s = setof(o);
-    if ((ns = ici_talloc(set)) == NULL)
-        return NULL;
+    if ((ns = ici_talloc(set)) == nullptr)
+        return nullptr;
     set_tfnz(ns, TC_SET, 0, 1, 0);
     ns->s_nels = 0;
     ns->s_nslots = 0;
     rego(ns);
-    if ((ns->s_slots = (object **)ici_nalloc(s->s_nslots * sizeof (object *))) == NULL)
+    if ((ns->s_slots = (object **)ici_nalloc(s->s_nslots * sizeof (object *))) == nullptr)
         goto fail;
     memcpy(ns->s_slots, s->s_slots, s->s_nslots * sizeof (object *));
     ns->s_nels = s->s_nels;
@@ -230,7 +230,7 @@ object * set_type::copy(object *o)
 
 fail:
     ns->decref();
-    return NULL;
+    return nullptr;
 }
 
 
@@ -253,7 +253,7 @@ int set_type::assign(object *o, object *k, object *v)
     {
         return unassign(s, k);
     }
-    if (*(e = ici_find_set_slot(s, k)) != NULL)
+    if (*(e = ici_find_set_slot(s, k)) != nullptr)
         return 0;
     if (s->s_nels >= s->s_nslots - s->s_nslots / 4)
     {
@@ -270,13 +270,13 @@ int set_type::assign(object *o, object *k, object *v)
 }
 
 /*
- * Return the object at key k of the obejct o, or NULL on error.
+ * Return the object at key k of the obejct o, or nullptr on error.
  * See the comment on t_fetch in object.h.
  */
 object * set_type::fetch(object *o, object *k)
 {
     auto slot = *ici_find_set_slot(setof(o), k);
-    if (slot == NULL) {
+    if (slot == nullptr) {
         return null;
     }
     return o_one;
@@ -291,7 +291,7 @@ int set_type::forall(object *o)
     s = setof(fa->fa_aggr);
     while (++fa->fa_index < s->s_nslots)
     {
-        if (*(sl = &s->s_slots[fa->fa_index]) == NULL)
+        if (*(sl = &s->s_slots[fa->fa_index]) == nullptr)
         {
             continue;
         }
@@ -381,9 +381,9 @@ int set_issubset(set *a, set *b) /* a is a subset of b */
 
     for (sl = a->s_slots, i = 0; i < a->s_nslots; ++i, ++sl)
     {
-        if (*sl == NULL)
+        if (*sl == nullptr)
             continue;
-        if (*ici_find_set_slot(b, *sl) == NULL)
+        if (*ici_find_set_slot(b, *sl) == nullptr)
             return 0;
     }
     return 1;

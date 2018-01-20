@@ -49,7 +49,7 @@ int        exec_count;
  * these fixed-address locations when we switch into a particular context
  * to save a level of indirection on top-of-stack references (it can make
  * up to 20% difference in CPU time). While we are executing in a particular
- * context, the "real" arrays have their a_base pointer zapped to NULL so
+ * context, the "real" arrays have their a_base pointer zapped to nullptr so
  * those copies of the base, limit and top pointers. When we switch away
  * from a particular context, we copies these stacks back to real array
  * structs (see thread.c).
@@ -88,7 +88,7 @@ void init_exec() {
 /*
  * Create and return a pointer to a new ICI execution context.
  * On return, all stacks (execution, operand and variable) are empty.
- * Returns NULL on failure, in which case error has been set.
+ * Returns nullptr on failure, in which case error has been set.
  * The new exec struct is linked onto the global list of all exec
  * structs (execs).
  */
@@ -96,35 +96,35 @@ exec *new_exec() {
     exec          *x;
     static src    default_src;
 
-    if ((x = ici_talloc(exec)) ==  NULL)
+    if ((x = ici_talloc(exec)) ==  nullptr)
     {
-        return NULL;
+        return nullptr;
     }
     memset(x, 0, sizeof *x);
     set_tfnz(x, TC_EXEC, 0, 1, 0);
     rego(x);
     x->x_src = &default_src;
-    if ((x->x_xs = new_array(80)) == NULL)
+    if ((x->x_xs = new_array(80)) == nullptr)
     {
         goto fail;
     }
     x->x_xs->decref();
-    if ((x->x_os = new_array(80)) == NULL)
+    if ((x->x_os = new_array(80)) == nullptr)
     {
         goto fail;
     }
     x->x_os->decref();
-    if ((x->x_vs = new_array(80)) == NULL)
+    if ((x->x_vs = new_array(80)) == nullptr)
     {
         goto fail;
     }
     x->x_vs->decref();
-    if ((x->x_pc_closet = new_array(80)) == NULL)
+    if ((x->x_pc_closet = new_array(80)) == nullptr)
     {
         goto fail;
     }
     x->x_pc_closet->decref();
-    if ((x->x_os_temp_cache = new_array(80)) == NULL)
+    if ((x->x_os_temp_cache = new_array(80)) == nullptr)
     {
         goto fail;
     }
@@ -134,12 +134,12 @@ exec *new_exec() {
     x->x_count = 100;
     x->x_n_engine_recurse = 0;
     x->x_next = execs;
-    x->x_error = NULL;
+    x->x_error = nullptr;
     execs = x;
     return x;
 
 fail:
-    return NULL;
+    return nullptr;
 }
 
 /*
@@ -176,7 +176,7 @@ int engine_stack_check()
         }
         while (pcs->a_top < pcs->a_limit)
         {
-            if ((*pcs->a_top = new_pc()) == NULL)
+            if ((*pcs->a_top = new_pc()) == nullptr)
             {
                 return 1;
             }
@@ -202,7 +202,7 @@ inline object *fetch(object *s, object *k) {
  * (execution, operand and variable).  This call to evaluate will return when
  * the execution stack again returns to the level it was when entered.  It
  * then returns the object left on the operand stack, or null if there
- * wasn't one.  The returned object is ici_incref()ed.  Returns NULL on error,
+ * wasn't one.  The returned object is ici_incref()ed.  Returns nullptr on error,
  * usual conventions (i.e.  'error' points to the error message).
  *
  * n_operands is the number of objects on the operand stack that are arguments
@@ -256,7 +256,7 @@ object *evaluate(object *code, int n_operands)
      * to complain.
      */
     set_tfnz(&frame, TC_CATCHER, CF_EVAL_BASE, 0, 0);
-    frame.c_catcher = NULL;
+    frame.c_catcher = nullptr;
     frame.c_odepth = (os.a_top - os.a_base) - n_operands;
     frame.c_vdepth = vs.a_top - vs.a_base;
     xs.push(&frame);
@@ -401,7 +401,7 @@ object *evaluate(object *code, int n_operands)
                  * looked up this name since the last change to the scope
                  * or structures etc.
                  */
-                assert(ici_fetch_super(vs.a_top[-1], o, os.a_top, NULL) == 1);
+                assert(ici_fetch_super(vs.a_top[-1], o, os.a_top, nullptr) == 1);
                 assert(*os.a_top == stringof(o)->s_slot->sl_value);
                 os.push(stringof(o)->s_slot->sl_value);
             }
@@ -568,7 +568,7 @@ object *evaluate(object *code, int n_operands)
                     t = os.a_top[-2];
                     if (flags & OPC_COLON_CARET)
                     {
-                        if ((o = fetch(vs.a_top[-1], SS(class))) == NULL)
+                        if ((o = fetch(vs.a_top[-1], SS(class))) == nullptr)
                         {
                             goto fail;
                         }
@@ -579,7 +579,7 @@ object *evaluate(object *code, int n_operands)
                             set_error("\"class\" evaluated to %s in :^ operation", objname(n1, o));
                             goto fail;
                         }
-                        if ((t = objwsupof(o)->o_super) == NULL)
+                        if ((t = objwsupof(o)->o_super) == nullptr)
                         {
                             set_error("class has no super class in :^ operation");
                             goto fail;
@@ -587,20 +587,20 @@ object *evaluate(object *code, int n_operands)
                     }
                     if (t->icitype()->can_fetch_method())
                     {
-                        if ((o = t->icitype()->fetch_method(t, os.a_top[-1])) == NULL)
+                        if ((o = t->icitype()->fetch_method(t, os.a_top[-1])) == nullptr)
                         {
                             goto fail;
                         }
                     }
                     else
                     {
-                        if ((o = fetch(t, os.a_top[-1])) == NULL)
+                        if ((o = fetch(t, os.a_top[-1])) == nullptr)
                         {
                             goto fail;
                         }
                         if (isnull(o))
                         {
-                            if ((o = fetch(t, SS(unknown_method))) == NULL)
+                            if ((o = fetch(t, SS(unknown_method))) == nullptr)
                             {
                                 goto fail;
                             }
@@ -612,7 +612,7 @@ object *evaluate(object *code, int n_operands)
                                 ++os.a_top;
                                 os.a_top[-1] = SS(unknown_method);
                                 os.a_top[-2] = os.a_top[-3];
-                                if ((os.a_top[-3] = new_int(nargs + 1)) == NULL)
+                                if ((os.a_top[-3] = new_int(nargs + 1)) == nullptr)
                                 {
                                     goto fail;
                                 }
@@ -625,7 +625,7 @@ object *evaluate(object *code, int n_operands)
                     {
                         method *m;
 
-                        if ((m = new_method(os.a_top[-2], o)) == NULL)
+                        if ((m = new_method(os.a_top[-2], o)) == nullptr)
                         {
                             goto fail;
                         }
@@ -648,14 +648,14 @@ object *evaluate(object *code, int n_operands)
 
             case OP_CALL:
                 xs.push(o);  /* Restore to formal state. */
-                o = NULL;                   /* No subject object. */
+                o = nullptr;                   /* No subject object. */
             do_call:
                 if (UNLIKELY(!os.a_top[-1]->can_call()))
                 {
                     char    n1[objnamez];
 
                     set_error("attempt to call %s", objname(n1, os.a_top[-1]));
-                    if (o != NULL)
+                    if (o != nullptr)
                     {
                         o->decref();
                     }
@@ -667,13 +667,13 @@ object *evaluate(object *code, int n_operands)
 		}
                 if (os.a_top[-1]->call(o))
                 {
-                    if (o != NULL)
+                    if (o != nullptr)
                     {
                         o->decref();
                     }
                     goto fail;
                 }
-                if (o != NULL)
+                if (o != nullptr)
                 {
                     o->decref();
                 }
@@ -710,7 +710,7 @@ object *evaluate(object *code, int n_operands)
                 /*
                  * aggr key => value (os)
                  */
-                if ((o = fetch(os.a_top[-2], os.a_top[-1])) == NULL)
+                if ((o = fetch(os.a_top[-2], os.a_top[-1])) == nullptr)
                 {
                     goto fail;
                 }
@@ -722,7 +722,7 @@ object *evaluate(object *code, int n_operands)
                 /*
                  * aggr key => aggr key value (os)
                  */
-                if ((o = fetch(os.a_top[-2], os.a_top[-1])) == NULL)
+                if ((o = fetch(os.a_top[-2], os.a_top[-1])) == nullptr)
                 {
                     goto fail;
                 }
@@ -735,7 +735,7 @@ object *evaluate(object *code, int n_operands)
                  *
                  * Used in postfix ++/-- for value.
                  */
-                if ((o = fetch(os.a_top[-2], os.a_top[-1])) == NULL)
+                if ((o = fetch(os.a_top[-2], os.a_top[-1])) == nullptr)
                 {
                     goto fail;
                 }
@@ -857,12 +857,12 @@ object *evaluate(object *code, int n_operands)
                     object  *v1;
                     object  *v2;
 
-                    if ((v1 = ici_fetch(os.a_top[-4], os.a_top[-3])) == NULL)
+                    if ((v1 = ici_fetch(os.a_top[-4], os.a_top[-3])) == nullptr)
                     {
                         goto fail;
                     }
                     v1->incref();
-                    if ((v2 = ici_fetch(os.a_top[-2], os.a_top[-1])) == NULL)
+                    if ((v2 = ici_fetch(os.a_top[-2], os.a_top[-1])) == nullptr)
                     {
                         v1->decref();
                         goto fail;
@@ -1118,7 +1118,7 @@ object *evaluate(object *code, int n_operands)
 
             case OP_SWITCHER:
                 /*
-                 * NULL self (xs) =>
+                 * nullptr self (xs) =>
                  *
                  * This only happens when we fall of the bottom of a switch
                  * without a break.
@@ -1129,14 +1129,14 @@ object *evaluate(object *code, int n_operands)
             case OP_SWITCH:
                 /*
                  * value array struct => (os)
-                 *           => NULL switcher (pc(array) + struct.value) (xs)
+                 *           => nullptr switcher (pc(array) + struct.value) (xs)
                  */
                 {
                     slot *sl;
 
-                    if ((sl = find_raw_slot(mapof(os.a_top[-1]), os.a_top[-3]))->sl_key == NULL)
+                    if ((sl = find_raw_slot(mapof(os.a_top[-1]), os.a_top[-3]))->sl_key == nullptr)
                     {
-                        if ((sl = find_raw_slot(mapof(os.a_top[-1]), &o_mark))->sl_key == NULL)
+                        if ((sl = find_raw_slot(mapof(os.a_top[-1]), &o_mark))->sl_key == nullptr)
                         {
                             /*
                              * No matching case, no default. Pop everything off and
@@ -1159,12 +1159,12 @@ object *evaluate(object *code, int n_operands)
                 {
                     *xs.a_top = new_catcher
                     (
-                        NULL,
+                        nullptr,
                         (os.a_top - os.a_base) - 1,
                         vs.a_top - vs.a_base,
                         CF_CRIT_SECT
                     );
-                    if (*xs.a_top == NULL)
+                    if (*xs.a_top == nullptr)
                     {
                         goto fail;
                     }
@@ -1216,13 +1216,13 @@ object *evaluate(object *code, int n_operands)
         {
             catcher *c;
 
-            if (error == NULL)
+            if (error == nullptr)
             {
                 set_error("error");
             }
             for (;;)
             {
-                if ((c = unwind()) == NULL || c->flagged(CF_EVAL_BASE))
+                if ((c = unwind()) == nullptr || c->flagged(CF_EVAL_BASE))
                 {
                     goto badfail;
                 }
@@ -1268,7 +1268,7 @@ object *evaluate(object *code, int n_operands)
 #endif
             expand_error(ex->x_src->s_lineno, ex->x_src->s_filename);
             --ex->x_n_engine_recurse;
-            return NULL;
+            return nullptr;
         }
     }
 }
@@ -1284,7 +1284,7 @@ object *evaluate(object *code, int n_operands)
  *
  * The returned object has had it's reference count incremented.
  *
- * Returns NULL on error, usual conventions.
+ * Returns nullptr on error, usual conventions.
  *
  * This --func-- forms part of the --ici-api--.
  */
@@ -1306,7 +1306,7 @@ size_t exec_type::mark(object *o)
         + mark_optional(x->x_os_temp_cache)
         + mark_optional(x->x_waitfor)
         + mark_optional(x->x_result)
-        + (x->x_error != NULL ? strlen(x->x_error) + 1: 0);
+        + (x->x_error != nullptr ? strlen(x->x_error) + 1: 0);
 }
 
 void exec_type::free(object *o)
@@ -1314,7 +1314,7 @@ void exec_type::free(object *o)
     exec *x;
     exec **xp;
 
-    for (xp = &execs; (x = *xp) != NULL; xp = &x->x_next)
+    for (xp = &execs; (x = *xp) != nullptr; xp = &x->x_next)
     {
         if (x == execof(o))
         {
@@ -1322,9 +1322,9 @@ void exec_type::free(object *o)
             break;
         }
     }
-    assert(x != NULL);
+    assert(x != nullptr);
     delete x->x_semaphore;
-    if (x->x_error != NULL)
+    if (x->x_error != nullptr)
     {
         ::free(x->x_error); /* It came from strdup() so use free directly */
     }
@@ -1338,12 +1338,12 @@ object *exec_type::fetch(object *o, object *k)
     x = execof(o);
     if (k == SS(error))
     {
-        if (x->x_error == NULL)
+        if (x->x_error == nullptr)
         {
             return null;
         }
         str *s = new_str_nul_term(x->x_error);
-        if (s != NULL)
+        if (s != nullptr)
         {
             s->decref();
         }
@@ -1360,8 +1360,8 @@ object *exec_type::fetch(object *o, object *k)
             return x->x_result;
 
         case XS_FAILED:
-            set_error("%s", x->x_result == NULL  ? "failed" : stringof(x->x_result)->s_chars);
-            return NULL;
+            set_error("%s", x->x_result == nullptr  ? "failed" : stringof(x->x_result)->s_chars);
+            return nullptr;
 
         default:
             assert(0);

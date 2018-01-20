@@ -30,7 +30,7 @@ int op_forall()
         --xs.a_top;
         return 0;
     }
-    if ((fa = ici_talloc(forall)) == NULL)
+    if ((fa = ici_talloc(forall)) == nullptr)
     {
         return 1;
     }

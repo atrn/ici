@@ -7,7 +7,7 @@ namespace ici
 {
 
 /*
- * Expand the current error string (assumed non-NULL) to include more
+ * Expand the current error string (assumed non-nullptr) to include more
  * information.  But only if it seems not to contain it already.  Zero
  * argument values are ignored.
  */
@@ -17,7 +17,7 @@ void expand_error(int lineno, str *fname)
     int         z;
 
     s = strchr(error + 2, ':');
-    if (s != NULL && s > error && s[-1] >= '0' && s[-1] <= '9')
+    if (s != nullptr && s > error && s[-1] >= '0' && s[-1] <= '9')
         return;
 
     /*
@@ -25,19 +25,19 @@ void expand_error(int lineno, str *fname)
      * but shuffle it through some new memory because it might
      * currently be in the standard buffer.
      */
-    z = strlen(error) + (fname == NULL ? 0 : fname->s_nchars) + 20;
-    if ((s = (char *)ici_nalloc(z)) == NULL)
+    z = strlen(error) + (fname == nullptr ? 0 : fname->s_nchars) + 20;
+    if ((s = (char *)ici_nalloc(z)) == nullptr)
         return;
     if (lineno != 0)
     {
-        if (fname != NULL && fname->s_nchars > 0)
+        if (fname != nullptr && fname->s_nchars > 0)
             sprintf(s, "%s, %d: %s", fname->s_chars, lineno, error);
         else
             sprintf(s, "%d: %s", lineno, error);
     }
     else
     {
-        if (fname != NULL && fname->s_nchars > 0)
+        if (fname != nullptr && fname->s_nchars > 0)
             sprintf(s, "%s: %s", fname->s_chars, error);
         else
             sprintf(s, "%s", error);

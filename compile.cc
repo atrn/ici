@@ -28,14 +28,14 @@ static object *new_binop(int op, int why)
     op = t_subtype(op);
     if (why != FOR_TEMP)
     {
-        if ((o = binops[op]) != NULL)
+        if ((o = binops[op]) != nullptr)
         {
             return o;
         }
     }
     else
     {
-        if ((o = binops_temps[op]) != NULL)
+        if ((o = binops_temps[op]) != nullptr)
         {
             return o;
         }
@@ -46,13 +46,13 @@ static object *new_binop(int op, int why)
      * an in-line switch in exec(). The other case is when that blows
      * your compiler away and it is seperated out as a function.
      */
-    o = new_op(NULL, why == FOR_TEMP ? OP_BINOP_FOR_TEMP : OP_BINOP, op);
+    o = new_op(nullptr, why == FOR_TEMP ? OP_BINOP_FOR_TEMP : OP_BINOP, op);
 #else
     o = new_op(op_binop, 0, op);
 #endif
-    if (o == NULL)
+    if (o == nullptr)
     {
-        return NULL;
+        return nullptr;
     }
     if (why != FOR_TEMP)
     {
@@ -79,7 +79,7 @@ int compile_expr(array *a, expr *e, int why)
     {
         return 1;
     }
-    if (t_type(e->e_what) == T_BINOP && e->e_arg[1] != NULL)
+    if (t_type(e->e_what) == T_BINOP && e->e_arg[1] != nullptr)
     {
         if (e->e_what == T_COMMA)
         {
@@ -106,7 +106,7 @@ int compile_expr(array *a, expr *e, int why)
             {
                 return 1;
             }
-            if ((a1 = new_array()) == NULL)
+            if ((a1 = new_array()) == nullptr)
             {
                 return 1;
             }
@@ -116,7 +116,7 @@ int compile_expr(array *a, expr *e, int why)
                 return 1;
             }
             a1->push(&o_end);
-            if ((a2 = new_array()) == NULL)
+            if ((a2 = new_array()) == nullptr)
             {
                 a1->decref();
                 return 1;
@@ -154,7 +154,7 @@ int compile_expr(array *a, expr *e, int why)
             {
                 return 1;
             }
-            auto o = new_op(NULL, OP_SWAP, NOTTEMP(why));
+            auto o = new_op(nullptr, OP_SWAP, NOTTEMP(why));
             if (!o) return 1;
             a->push(o, owned);
             return 0;
@@ -180,7 +180,7 @@ int compile_expr(array *a, expr *e, int why)
                 {
                     return 1;
                 }
-                auto o = new_op(NULL, OP_ASSIGNLOCALVAR, NOTTEMP(why));
+                auto o = new_op(nullptr, OP_ASSIGNLOCALVAR, NOTTEMP(why));
                 if (!o) return 1;
                 a->push(o, owned);
                 return 0;
@@ -195,7 +195,7 @@ int compile_expr(array *a, expr *e, int why)
                 {
                     return 1;
                 }
-                auto o = new_op(NULL, OP_ASSIGN_TO_NAME, NOTTEMP(why));
+                auto o = new_op(nullptr, OP_ASSIGN_TO_NAME, NOTTEMP(why));
                 if (!o) return 1;
                 a->push(o, owned);
                 a->push(e->e_arg[0]->e_obj);
@@ -213,7 +213,7 @@ int compile_expr(array *a, expr *e, int why)
             {
                 return 1;
             }
-            auto o = new_op(NULL, e->e_what == T_EQ ? OP_ASSIGN : OP_ASSIGNLOCAL, NOTTEMP(why));
+            auto o = new_op(nullptr, e->e_what == T_EQ ? OP_ASSIGN : OP_ASSIGNLOCAL, NOTTEMP(why));
             if (!o) return 1;
             a->push(o, owned);
             return 0;
@@ -243,7 +243,7 @@ int compile_expr(array *a, expr *e, int why)
             auto o = new_binop(e->e_what, FOR_VALUE);
             if (!o) return 1;
             a->push(o);
-            o = new_op(NULL, OP_ASSIGN, NOTTEMP(why));
+            o = new_op(nullptr, OP_ASSIGN, NOTTEMP(why));
             if (!o) return 1;
             a->push(o, owned);
             return 0;
@@ -260,7 +260,7 @@ int compile_expr(array *a, expr *e, int why)
             {
                 return 1;
             }
-            if ((a1 = new_array()) == NULL)
+            if ((a1 = new_array()) == nullptr)
             {
                 return 1;
             }
@@ -311,7 +311,7 @@ int compile_expr(array *a, expr *e, int why)
             return 0;
         }
         return 1;
-        // if ((*a->a_top = new_binop(e->e_what, why)) == NULL)
+        // if ((*a->a_top = new_binop(e->e_what, why)) == nullptr)
         // {
         //     return 1;
         // }
@@ -342,7 +342,7 @@ int compile_expr(array *a, expr *e, int why)
             {
                 array *a1;
 
-                if ((a1 = new_array()) == NULL)
+                if ((a1 = new_array()) == nullptr)
                 {
                     return 1;
                 }
@@ -361,7 +361,7 @@ int compile_expr(array *a, expr *e, int why)
                     return 1;
                 }
                 a1->push(&o_end);
-                if ((e->e_obj = evaluate(a1, 0)) == NULL)
+                if ((e->e_obj = evaluate(a1, 0)) == nullptr)
                 {
                     a1->decref();
                     return 1;
@@ -413,7 +413,7 @@ int compile_expr(array *a, expr *e, int why)
 
         case T_PLUSPLUS:
         case T_MINUSMINUS:
-            if (e->e_arg[0] == NULL)
+            if (e->e_arg[0] == nullptr)
             {
                 /*
                  * Postfix.
@@ -437,7 +437,7 @@ int compile_expr(array *a, expr *e, int why)
                     op1 = new_binop(e->e_what == T_PLUSPLUS ? T_PLUS : T_MINUS, FOR_VALUE);
                     if (!op1) return 1;
                     a->push(op1);
-                    op2 = new_op(NULL, OP_ASSIGN, FOR_EFFECT);
+                    op2 = new_op(nullptr, OP_ASSIGN, FOR_EFFECT);
                     if (!op2) return 1;
                     a->push(op2, owned);
                 }
@@ -461,7 +461,7 @@ int compile_expr(array *a, expr *e, int why)
                 op1 = new_binop(e->e_what == T_PLUSPLUS ? T_PLUS : T_MINUS, FOR_VALUE);
                 if (!op1) return 1;
                 a->push(op1);
-                op2 = new_op(NULL, OP_ASSIGN, NOTTEMP(why));
+                op2 = new_op(nullptr, OP_ASSIGN, NOTTEMP(why));
                 if (!op2) return 1;
                 a->push(op2, owned);
                 return 0;
@@ -489,7 +489,7 @@ int compile_expr(array *a, expr *e, int why)
             op1 = new_binop(e->e_what, why);
             if (!op1) break;
             a->push(op1);
-            // if ((*a->a_top = new_binop(e->e_what, why)) == NULL)
+            // if ((*a->a_top = new_binop(e->e_what, why)) == nullptr)
             // {
             //     break;
             // }
@@ -519,7 +519,7 @@ int compile_expr(array *a, expr *e, int why)
             op1 = new_op(op_unary, 0, t_subtype(e->e_what));
             if (!op1) return 1;
             a->push(op1, owned);
-            // if ((*a->a_top = new_op(op_unary, 0, t_subtype(e->e_what))) == NULL)
+            // if ((*a->a_top = new_op(op_unary, 0, t_subtype(e->e_what))) == nullptr)
             // {
             //     return 1;
             // }
@@ -540,7 +540,7 @@ int compile_expr(array *a, expr *e, int why)
             {
                 return 1;
             }
-            op1 = new_op(NULL, OP_AT, 0);
+            op1 = new_op(nullptr, OP_AT, 0);
             if (!op1) return 1;
             a->push(op1, owned);
             break;
@@ -631,7 +631,7 @@ int compile_expr(array *a, expr *e, int why)
             {
                 return 1;
             }
-            op1 = new_op(NULL, OP_COLON, e->e_what == T_COLONCARET ? OPC_COLON_CARET : 0);
+            op1 = new_op(nullptr, OP_COLON, e->e_what == T_COLONCARET ? OPC_COLON_CARET : 0);
             if (!op1) return 1;
             a->push(op1, owned);
             break;
@@ -709,7 +709,7 @@ int compile_expr(array *a, expr *e, int why)
                  * left order. Also code the number of actuals.
                  */
                 nargs = 0;
-                for (e1 = e->e_arg[1]; e1 != NULL; e1 = e1->e_arg[1])
+                for (e1 = e->e_arg[1]; e1 != nullptr; e1 = e1->e_arg[1])
                 {
                     if (compile_expr(a, e1->e_arg[0], FOR_VALUE))
                     {
@@ -721,7 +721,7 @@ int compile_expr(array *a, expr *e, int why)
                 {
                     return 1;
                 }
-                if ((*a->a_top = new_int(nargs)) == NULL)
+                if ((*a->a_top = new_int(nargs)) == nullptr)
                 {
                     return 1;
                 }
@@ -810,15 +810,15 @@ void uninit_compile()
 
     for (i = 0; i <= BINOP_MAX; ++ i)
     {
-        if (binops[i] != NULL)
+        if (binops[i] != nullptr)
         {
             binops[i]->decref();
-            binops[i] = NULL;
+            binops[i] = nullptr;
         }
-        if (binops_temps[i] != NULL)
+        if (binops_temps[i] != nullptr)
         {
             binops_temps[i]->decref();
-            binops_temps[i] = NULL;
+            binops_temps[i] = nullptr;
         }
     }
 }

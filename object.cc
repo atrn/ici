@@ -60,7 +60,7 @@ char *objname(char p[objnamez], object *o)
         sprintf(p, "%lld", static_cast<long long int>(intof(o)->i_value));
     else if (isfloat(o))
         sprintf(p, "%g", floatof(o)->f_value);
-    else if (strchr("aeiou", o->type_name()[0]) != NULL)
+    else if (strchr("aeiou", o->type_name()[0]) != nullptr)
         sprintf(p, "an %s", o->type_name());
     else
         sprintf(p, "a %s", o->type_name());
@@ -89,7 +89,7 @@ static void grow_atoms_core(ptrdiff_t newz)
     ++supress_collect;
     po = (object **)ici_nalloc(newz * sizeof (object *));
     --supress_collect;
-    if (po == NULL)
+    if (po == nullptr)
         return;
     atomsz = newz;
     memset((char *)po, 0, newz * sizeof (object *));
@@ -100,13 +100,13 @@ static void grow_atoms_core(ptrdiff_t newz)
     {
         object   *o;
 
-        if ((o = olda[i]) != NULL)
+        if ((o = olda[i]) != nullptr)
         {
             for
             (
                 po = &atoms[atom_hash_index(hash(o))];
-                *po != NULL;
-                --po < atoms ? po = atoms + atomsz - 1 : NULL
+                *po != nullptr;
+                --po < atoms ? po = atoms + atomsz - 1 : nullptr
             )
                 ;
             *po = o;
@@ -175,8 +175,8 @@ object *atom(object *o, int lone)
     for
     (
         po = &atoms[atom_hash_index(hash(o))];
-        *po != NULL;
-        --po < atoms ? po = atoms + atomsz - 1 : NULL
+        *po != nullptr;
+        --po < atoms ? po = atoms + atomsz - 1 : nullptr
     )
     {
         if (o->o_tcode == (*po)->o_tcode && ici_cmp(o, *po) == 0)
@@ -198,7 +198,7 @@ object *atom(object *o, int lone)
         ++supress_collect;
         *po = ici_copy(o);
         --supress_collect;
-        if (*po == NULL)
+        if (*po == nullptr)
             return o;
         o = *po;
     }
@@ -214,7 +214,7 @@ object *atom(object *o, int lone)
 /*
  * See comment on ici_atom_probe() below.
  *
- * The argument ppo, if given, and if this function returns NULL, will be
+ * The argument ppo, if given, and if this function returns nullptr, will be
  * updated to point to the slot in the atom pool where this object belongs.
  * The caller may use this to store the new object in *provided* the atom pool
  * is not disturbed in the meantime, and is checked for possible growth
@@ -228,21 +228,21 @@ object *atom_probe2(object *o, object ***ppo)
     for
     (
         po = &atoms[atom_hash_index(hash(o))];
-        *po != NULL;
-        --po < atoms ? po = atoms + atomsz - 1 : NULL
+        *po != nullptr;
+        --po < atoms ? po = atoms + atomsz - 1 : nullptr
     )
     {
         if (o->o_tcode == (*po)->o_tcode && ici_cmp(o, *po) == 0)
             return *po;
     }
-    if (ppo != NULL)
+    if (ppo != nullptr)
         *ppo = po;
-    return NULL;
+    return nullptr;
 }
 
 /*
  * Probe the atom pool for an atomic form of o.  If found, return that atomic
- * form, else NULL.  This can be use by *_new() routines of intrinsically
+ * form, else nullptr.  This can be use by *_new() routines of intrinsically
  * atomic objects.  These routines generally set up a dummy version of the
  * object being made which is passed to this probe.  If it finds a match, that
  * is returned, thus avoiding the allocation of an object that may be thrown
@@ -252,7 +252,7 @@ object *atom_probe2(object *o, object ***ppo)
  */
 object *atom_probe(object *o)
 {
-    return atom_probe2(o, NULL);
+    return atom_probe2(o, nullptr);
 }
 
 /*
@@ -275,8 +275,8 @@ unatom(object *o)
     for
     (
         ss = &atoms[atom_hash_index(hash(o))];
-        *ss != NULL;
-        --ss < atoms ? ss = atoms + atomsz - 1 : NULL
+        *ss != nullptr;
+        --ss < atoms ? ss = atoms + atomsz - 1 : nullptr
     )
     {
         if (o == *ss)
@@ -302,7 +302,7 @@ deleteo:
     {
         if (--sl < atoms)
             sl = atoms + atomsz - 1;
-        if (*sl == NULL)
+        if (*sl == nullptr)
             break;
         ws = &atoms[atom_hash_index(hash(*sl))];
         if
@@ -321,7 +321,7 @@ deleteo:
             ss = sl;
         }
     }
-    *ss = NULL;
+    *ss = nullptr;
     return 0;
 }
 
@@ -334,7 +334,7 @@ void grow_objs(object *o)
     oldz = objs_limit - objs;
     newz = 2 * oldz;
     ++supress_collect;
-    if ((newobjs = (object **)ici_nalloc(newz * sizeof (object *))) == NULL)
+    if ((newobjs = (object **)ici_nalloc(newz * sizeof (object *))) == nullptr)
     {
         --supress_collect;
         return;
@@ -394,14 +394,14 @@ void collect()
     {
         object **a;
 
-        if ((a = &atoms[atomsz]) != NULL)
+        if ((a = &atoms[atomsz]) != nullptr)
         {
             while (--a >= atoms)
             {
-                if (*a == NULL)
+                if (*a == nullptr)
                     continue;
                 assert((*a)->isatom());
-                assert(atom_probe2(*a, NULL) == *a);
+                assert(atom_probe2(*a, nullptr) == *a);
             }
         }
     }
@@ -449,8 +449,8 @@ void collect()
         a = &atoms[atomsz];
         while (--a >= atoms)
         {
-            if ((o = *a) != NULL && o->o_nrefs == 0 && !o->marked())
-                *a = NULL;
+            if ((o = *a) != nullptr && o->o_nrefs == 0 && !o->marked())
+                *a = nullptr;
         }
         ici_natoms -= ndead_atoms;
         /*
@@ -510,15 +510,15 @@ printf("mem=%ld vs. %ld, nobjects=%d, ici_natoms=%d\n", mem, ici_mem, objs_top -
      * with a special cases for small sizes.
      */
 #   if ALLCOLLECT
-    ici_mem_limit = 0;
+        ici_mem_limit = 0;
 #   else
     if (ici_mem < 128 * 1024)
     {
-	ici_mem_limit = 256 * 1024;
+	    ici_mem_limit = 256 * 1024;
     }
     else
     {
-	ici_mem_limit = (ici_mem * 3) / 2;
+	    ici_mem_limit = (ici_mem * 3) / 2;
     }
 #   endif
     --supress_collect;

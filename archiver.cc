@@ -79,7 +79,7 @@ constexpr auto num_op_funcs = nels(op_funcs);
 
 int archive_init()
 {
-    op_funcs[0] = NULL;
+    op_funcs[0] = nullptr;
     op_funcs[1] = o_mklvalue.op_func;
     op_funcs[2] = o_onerror.op_func;
     op_funcs[3] = o_return.op_func;
@@ -153,7 +153,7 @@ object *archiver::lookup(object *obj) {
         v = a_sent->fetch(k);
         k->decref();
     }
-    return v == null ? NULL : v;
+    return v == null ? nullptr : v;
 }
 
 int archiver::op_func_code(int_func *fn)
@@ -168,7 +168,7 @@ int archiver::op_func_code(int_func *fn)
 int_func *archiver::op_func(int code)
 {
     if (code < 0 || size_t(code) >= num_op_funcs) {
-        return NULL;
+        return nullptr;
     }
     return op_funcs[code];
 }
@@ -341,7 +341,7 @@ int f_archive_save(...)
     case 1:
         if (typecheck("o", &obj))
             return 1;
-        if ((file = need_stdout()) == NULL)
+        if ((file = need_stdout()) == nullptr)
             return 1;
         break;
 
@@ -361,13 +361,13 @@ f_archive_restore(...)
 {
     file *file;
     objwsup *scp;
-    object *obj = NULL;
+    object *obj = nullptr;
 
     scp = mapof(vs.a_top[-1])->o_super;
     switch (NARGS())
     {
     case 0:
-        if ((file = need_stdin()) == NULL)
+        if ((file = need_stdin()) == nullptr)
         {
             return 1;
         }
@@ -380,7 +380,7 @@ f_archive_restore(...)
             {
 		return 1;
             }
-	    if ((file = need_stdin()) == NULL)
+	    if ((file = need_stdin()) == nullptr)
             {
 		return 1;
             }
@@ -402,7 +402,7 @@ f_archive_restore(...)
         }
     }
 
-    return obj == NULL ? 1 : ret_with_decref(obj);
+    return obj == nullptr ? 1 : ret_with_decref(obj);
 }
 
 ICI_DEFINE_CFUNCS(save_restore)

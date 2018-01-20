@@ -17,7 +17,7 @@ namespace ici
  * will be called when the mem object is about to be freed with 'base'
  * as an argument.
  *
- * Returns NULL on error, usual conventions.
+ * Returns nullptr on error, usual conventions.
  *
  * This --func-- forms part of the --ici-api--.
  */
@@ -25,8 +25,8 @@ mem *new_mem(void *base, size_t length, int accessz, void (*free_func)(void *))
 {
     mem  *m;
 
-    if ((m = ici_talloc(mem)) == NULL)
-        return NULL;
+    if ((m = ici_talloc(mem)) == nullptr)
+        return nullptr;
     set_tfnz(m, TC_MEM, 0, 1, sizeof (mem));
     rego(m);
     m->m_base = base;
@@ -65,7 +65,7 @@ unsigned long mem_type::hash(object *o)
 void mem_type::free(object *o)
 {
     auto m = memof(o);
-    if (m->m_free != NULL)
+    if (m->m_free != nullptr)
     {
         (*m->m_free)(m->m_base);
     }

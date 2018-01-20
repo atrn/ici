@@ -26,7 +26,7 @@ static                  int push_path_elements(array *a, const char *path); /* F
 #  include <dlfcn.h>
 
 typedef void    *dll_t;
-#define valid_dll(dll)  ((dll) != NULL)
+#define valid_dll(dll)  ((dll) != nullptr)
 
 # endif /* _WIN32 */
 
@@ -53,8 +53,8 @@ objwsup *outermost_writeable()
     objwsup       *outer;
     objwsup       *ows;
 
-    outer = NULL;
-    for (ows = objwsupof(vs.a_top[-1]); ows != NULL; ows = ows->o_super)
+    outer = nullptr;
+    for (ows = objwsupof(vs.a_top[-1]); ows != nullptr; ows = ows->o_super)
     {
         if (ows->isatom())
             continue;
@@ -62,7 +62,7 @@ objwsup *outermost_writeable()
             continue;
         outer = ows;
     }
-    if (outer == NULL)
+    if (outer == nullptr)
         set_error("no writeable structs in current scope");
     return outer;
 }
@@ -93,11 +93,11 @@ f_load(...)
     file       *file;
     FILE       *stream;
 
-    externs = NULL;
-    statics = NULL;
-    autos = NULL;
-    file = NULL;
-    result = NULL;
+    externs = nullptr;
+    statics = nullptr;
+    autos = nullptr;
+    file = nullptr;
+    result = nullptr;
 
     /*
      * This is here to stop a compiler warning, complaining that entry_symbol
@@ -113,7 +113,7 @@ f_load(...)
      * Find the outer-most writeable scope. This is where the new name
      * will be defined should it be loadable as a library.
      */
-    if ((outer = outermost_writeable()) == NULL)
+    if ((outer = outermost_writeable()) == nullptr)
         return 0;
 
     /*
@@ -143,7 +143,7 @@ f_load(...)
         {
             const char  *err;
 
-            if ((err = (char *)dlerror()) == NULL)
+            if ((err = (char *)dlerror()) == nullptr)
                 err = "dynamic link error";
             set_error("failed to load \"%s\", %s", fname, err);
             return -1;
@@ -154,7 +154,7 @@ f_load(...)
         sprintf(entry_symbol, "ici_%s_init", name->s_chars);
 #endif
         library_init = (object *(*)())dlsym(lib, entry_symbol);
-        if (library_init == NULL)
+        if (library_init == nullptr)
         {
 #ifndef SUNOS5 /* Doing the dlclose results in a crash under Solaris - why? */
             dlclose(lib);
@@ -168,7 +168,7 @@ f_load(...)
             }
             return -1;
         }
-        if ((o = (*library_init)()) == NULL)
+        if ((o = (*library_init)()) == nullptr)
         {
             dlclose(lib);
             return -1;
@@ -191,33 +191,33 @@ f_load(...)
          * and autos, assign the statics into the extern scope under
          * the given name, then parse the new module.
          */
-        if ((stream = fopen(fname, "r")) == NULL)
+        if ((stream = fopen(fname, "r")) == nullptr)
             return get_last_errno("open", fname);
-        if ((fn = new_str_nul_term(fname)) == NULL)
+        if ((fn = new_str_nul_term(fname)) == nullptr)
         {
             fclose(stream);
             goto fail;
         }
-        file = new_file((char *)stream, stdio_ftype, fn, NULL);
+        file = new_file((char *)stream, stdio_ftype, fn, nullptr);
         fn->decref();
-        if (file == NULL)
+        if (file == nullptr)
         {
             fclose(stream);
             goto fail;
         }
-        if ((autos = new_map()) == NULL)
+        if ((autos = new_map()) == nullptr)
         {
             goto fail;
         }
-        if ((statics = new_map()) == NULL)
+        if ((statics = new_map()) == nullptr)
         {
             goto fail;
         }
         autos->o_super = objwsupof(statics);
         statics->decref();
-        if (externs == NULL)
+        if (externs == nullptr)
         {
-            if ((externs = new_map()) == NULL)
+            if ((externs = new_map()) == nullptr)
             {
                 goto fail;
             }
@@ -237,7 +237,7 @@ f_load(...)
         autos->decref();
         file->decref();
     }
-    if (result == NULL)
+    if (result == nullptr)
     {
         set_error("\"%s\" undefined and could not find %s%s%s or %s%s.ici ",
             name->s_chars,
@@ -251,11 +251,11 @@ f_load(...)
     return ret_with_decref(result);
 
 fail:
-    if (file != NULL)
+    if (file != nullptr)
         file->decref();
-    if (autos != NULL)
+    if (autos != nullptr)
         autos->decref();
-    if (result != NULL)
+    if (result != nullptr)
         result->decref();
     return 1;
 }
@@ -273,9 +273,9 @@ static int push_os_path_elements(array *a)
     char                fname[MAX_PATH];
     char                *p;
 
-    if (GetModuleFileName(NULL, fname, sizeof fname - 10) > 0)
+    if (GetModuleFileName(nullptr, fname, sizeof fname - 10) > 0)
     {
-        if ((p = strrchr(fname, ICI_DIR_SEP)) != NULL)
+        if ((p = strrchr(fname, ICI_DIR_SEP)) != nullptr)
         {
             *p = '\0';
         }
@@ -302,7 +302,7 @@ static int push_os_path_elements(array *a)
         strcpy(p, "ici");
         PUSH(a, fname);
     }
-    if ((p = getenv("PATH")) != NULL)
+    if ((p = getenv("PATH")) != nullptr)
     {
         PUSH(a, p);
     }
@@ -324,11 +324,11 @@ static int push_os_path_elements(array *a)
     char                fname[FILENAME_MAX];
 
     PUSH(a, "/usr/lib/ici:/usr/local/lib/ici:/opt/lib/ici:/opt/ici/lib/ici:.");
-    if ((path = getenv("PATH")) != NULL)
+    if ((path = getenv("PATH")) != nullptr)
     {
         for (p = path; *p != '\0'; p = *q == '\0' ? q : q + 1)
         {
-            if ((q = strchr(p, ':')) == NULL)
+            if ((q = strchr(p, ':')) == nullptr)
             {
                 q = p + strlen(p);
             }
@@ -364,11 +364,11 @@ static int push_path_elements(array *a, const char *path)
 
     for (p = path; *p != '\0'; p = *q == '\0' ? q : q + 1)
     {
-        if ((q = strchr(p, ICI_PATH_SEP)) == NULL)
+        if ((q = strchr(p, ICI_PATH_SEP)) == nullptr)
         {
             q = p + strlen(p);
         }
-        if ((s = new_str(p, q - p)) == NULL)
+        if ((s = new_str(p, q - p)) == nullptr)
         {
             return 1;
         }
@@ -411,7 +411,7 @@ int init_path(objwsup *externs)
     int    r;
     char  *path;
 
-    if ((a = new_array()) == NULL)
+    if ((a = new_array()) == nullptr)
     {
         return 1;
     }
@@ -421,7 +421,7 @@ int init_path(objwsup *externs)
     {
         return 1;
     }
-    if ((path = getenv("ICIPATH")) != NULL)
+    if ((path = getenv("ICIPATH")) != nullptr)
     {
         PUSH(a, path);
     }

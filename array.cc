@@ -46,7 +46,7 @@ int array::grow_stack(ptrdiff_t n)
     {
         n = (a_limit - a_base) * 3 / 2;
     }
-    if ((e = (object **)ici_nalloc(n * sizeof (object *))) == NULL)
+    if ((e = (object **)ici_nalloc(n * sizeof (object *))) == nullptr)
     {
         return 1;
     }
@@ -99,7 +99,7 @@ size_t array::len()
 /*
  * Return a pointer to the first object in the array at index i, and
  * reduce *np to the number of contiguous elements available from that
- * point onwards. np may be NULL if not required.
+ * point onwards. np may be nullptr if not required.
  *
  * This is the commonest routine for finding an element at a given
  * index in an array. It only works for valid indexes.
@@ -126,7 +126,7 @@ object **array::span(int i, ptrdiff_t *np)
         n = a_top - e;
     }
     assert(n >= 0);
-    if (np != NULL && *np > n)
+    if (np != nullptr && *np > n)
     {
         *np = n;
     }
@@ -177,7 +177,7 @@ int array::grow()
     {
         m = 8;
     }
-    if ((e = (object **)ici_nalloc(m * sizeof (object *))) == NULL)
+    if ((e = (object **)ici_nalloc(m * sizeof (object *))) == nullptr)
     {
         return 1;
     }
@@ -309,7 +309,7 @@ int array::push_front(object *o)
 
 /*
  * Pop and return the top of the given array, or 'null' if it is empty.
- * Returns NULL on error (for example, attempting to pop and atomic array).
+ * Returns nullptr on error (for example, attempting to pop and atomic array).
  * Usual error conventions.
  *
  * This --func-- forms part of the --ici-api--.
@@ -319,7 +319,7 @@ object *array::pop_back()
     if (isatom())
     {
         set_error("attempt to pop atomic array");
-        return NULL;
+        return nullptr;
     }
     if (a_bot <= a_top)
     {
@@ -355,7 +355,7 @@ object *array::pop_back()
 
 /*
  * Pop and return the front of the given array, or 'null' if it is empty.
- * Returns NULL on error (for example, attempting to pop and atomic array).
+ * Returns nullptr on error (for example, attempting to pop and atomic array).
  * Usual error conventions.
  *
  * This --func-- forms part of the --ici-api--.
@@ -365,7 +365,7 @@ object *array::pop_front()
     if (isatom())
     {
         set_error("attempt to rpop atomic array");
-        return NULL;
+        return nullptr;
     }
     if (a_bot <= a_top)
     {
@@ -402,7 +402,7 @@ object *array::pop_front()
 /*
  * Return a pointer to the slot in the array 'a' that does, or should contain
  * the index 'i'.  This will grow and 'null' fill the array as necessary
- * (and fail if the array is atomic).  Only positive 'i'.  Returns NULL on
+ * (and fail if the array is atomic).  Only positive 'i'.  Returns nullptr on
  * error, usual conventions.  This will not fail if 'i' is less than 'len()'.
  *
  * This --func-- forms part of the --ici-api--.
@@ -418,19 +418,19 @@ object **array::find_slot(ptrdiff_t i)
          * Within the range of exisiting objects. Just use
          * span to find the pointer to it.
          */
-        return span(i, NULL);
+        return span(i, nullptr);
     }
     if (isatom())
     {
         set_error("attempt to modify an atomic array");
-        return NULL;
+        return nullptr;
     }
     i = i - n + 1; /* Number of elements we need to add. */
     while (--i >= 0)
     {
         if (push_back(null))
         {
-            return NULL;
+            return nullptr;
         }
     }
     return &a_top[-1];
@@ -449,7 +449,7 @@ object *array::get(ptrdiff_t i)
     n = len();
     if (i >= 0 && i < n)
     {
-        return *span(i, NULL);
+        return *span(i, nullptr);
     }
     return null;
 }
@@ -458,7 +458,7 @@ object *array::get(ptrdiff_t i)
  * Return a new array.  It will have room for at least 'n' elements to be
  * pushed contigously (that is, there is no need to use ici_push_check() for
  * objects pushed immediately, up to that limit).  If 'n' is 0 an internal
- * default will be used.  The returned array has ref count 1.  Returns NULL on
+ * default will be used.  The returned array has ref count 1.  Returns nullptr on
  * failure, usual conventions.
  *
  * This --func-- forms part of the --ici-api--.
@@ -467,23 +467,23 @@ array *new_array(ptrdiff_t n)
 {
     array *a;
 
-    if ((a = ici_talloc(array)) == NULL)
+    if ((a = ici_talloc(array)) == nullptr)
     {
-        return NULL;
+        return nullptr;
     }
     set_tfnz(a, TC_ARRAY, 0, 1, 0);
-    a->a_base = NULL;
-    a->a_top = NULL;
-    a->a_limit = NULL;
-    a->a_bot = NULL;
+    a->a_base = nullptr;
+    a->a_top = nullptr;
+    a->a_limit = nullptr;
+    a->a_bot = nullptr;
     if (n == 0)
     {
         n = 8; // initial capacity
     }
-    if ((a->a_base = (object **)ici_nalloc(n * sizeof (object *))) == NULL)
+    if ((a->a_base = (object **)ici_nalloc(n * sizeof (object *))) == nullptr)
     {
         ici_tfree(a, array);
-        return NULL;
+        return nullptr;
     }
     a->a_top = a->a_base;
     a->a_bot = a->a_base;
@@ -499,7 +499,7 @@ int op_mklvalue()
 {
     array *a;
 
-    if ((a = new_array(1)) == NULL)
+    if ((a = new_array(1)) == nullptr)
     {
         return 1;
     }
@@ -517,7 +517,7 @@ size_t array_type::mark(object *o)
 {
     auto a = arrayof(o);
     auto mem = type::mark(a);
-    if (a->a_base == NULL)
+    if (a->a_base == nullptr)
     {
         return mem;
     }
@@ -546,7 +546,7 @@ size_t array_type::mark(object *o)
 void array_type::free(object *o)
 {
     auto a = arrayof(o);
-    if (a->a_base != NULL)
+    if (a->a_base != nullptr)
     {
         ici_nfree(a->a_base, (a->a_limit - a->a_base) * sizeof (object *));
     }
@@ -615,9 +615,9 @@ object * array_type::copy(object *o)
     ptrdiff_t  n;
 
     n = arrayof(o)->len();
-    if ((na = new_array(n)) == NULL)
+    if ((na = new_array(n)) == nullptr)
     {
-        return NULL;
+        return nullptr;
     }
     arrayof(o)->gather(na->a_top, 0, n);
     na->a_top += n;
@@ -642,7 +642,7 @@ int array_type::assign(object *o, object *k, object *v)
     {
         i += arrayof(o)->len();
     }
-    if ((e = arrayof(o)->find_slot(i)) == NULL)
+    if ((e = arrayof(o)->find_slot(i)) == nullptr)
     {
         return 1;
     }
@@ -680,7 +680,7 @@ int array_type::forall(object *o)
     }
     if (fa->fa_kaggr != null)
     {
-        if ((i = new_int((long)fa->fa_index)) == NULL)
+        if ((i = new_int((long)fa->fa_index)) == nullptr)
             return 1;
         if (ici_assign(fa->fa_kaggr, fa->fa_kkey, i))
             return 1;

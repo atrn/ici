@@ -53,15 +53,15 @@ void uninit()
      * This catches the case where uninit() is called without ici_init
      * ever being called.
      */
-    assert(o_zero != NULL);
-    if (o_zero == NULL)
+    assert(o_zero != nullptr);
+    if (o_zero == nullptr)
         return;
 
     /*
      * Clean up anything registered by modules that are only optionally
      * compiled in, or loaded modules that register wrap-up functions.
      */
-    while (wraps != NULL)
+    while (wraps != nullptr)
     {
         (*wraps->w_func)();
         wraps = wraps->w_next;
@@ -75,11 +75,11 @@ void uninit()
     for (i = 0; i < (int)nels(small_ints); ++i)
     {
         small_ints[i]->decref();
-        small_ints[i] = NULL;
+        small_ints[i] = nullptr;
     }
-    if (ver_cache != NULL)
+    if (ver_cache != nullptr)
         ver_cache->decref();
-    if (smash_default_re != NULL)
+    if (smash_default_re != nullptr)
         smash_default_re->decref();
 
     /* Call uninitialisation functions for compulsory bits of ICI. */
@@ -100,7 +100,7 @@ void uninit()
      * threads running (not that they can actually be running -- we have the
      * mutex).
      */
-    for (x = execs; x != NULL; x = x->x_next)
+    for (x = execs; x != nullptr; x = x->x_next)
         x->o_nrefs = 0;
 
     /*
@@ -142,16 +142,16 @@ void uninit()
         return error from ici_main.*/
         ici_nfree(buf, bufz + 1);
     }
-    buf = NULL;
+    buf = nullptr;
     bufz = 0;
 
     /*
      * Destroy the now empty atom pool and list of registered objects.
      */
     ici_nfree(atoms, atomsz * sizeof (object *));
-    atoms = NULL;
+    atoms = nullptr;
     ici_nfree(objs, (objs_limit - objs) * sizeof (object *));
-    objs = NULL;
+    objs = nullptr;
 
     drop_all_small_allocations();
     /*fprintf(stderr, "ici_mem = %ld, n = %d\n", ici_mem, ici_n_allocs);*/

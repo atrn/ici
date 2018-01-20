@@ -43,7 +43,7 @@ unsigned long ptr_type::hash(object *o)
 }
 
 /*
- * Return the object at key k of the obejct o, or NULL on error.
+ * Return the object at key k of the obejct o, or nullptr on error.
  * See the comment on t_fetch in object.h.
  *
  * Fetching a "sub element" of a pointer is the operation of pointer indexing.
@@ -59,8 +59,8 @@ object * ptr_type::fetch(object *o, object *k)
         return fetch_fail(o, k);
     if (ptrof(o)->p_key == o_zero)
         k->incref();
-    else if ((k = new_int(intof(k)->i_value + intof(ptrof(o)->p_key)->i_value)) == NULL)
-        return NULL;
+    else if ((k = new_int(intof(k)->i_value + intof(ptrof(o)->p_key)->i_value)) == nullptr)
+        return nullptr;
     o = ici_fetch(ptrof(o)->p_aggr, k);
     k->decref();
     return o;
@@ -80,7 +80,7 @@ int ptr_type::assign(object *o, object *k, object *v)
         return assign_fail(o, k, v);
     if (ptrof(o)->p_key == o_zero)
         k->incref();
-    else if ((k = new_int(intof(k)->i_value + intof(ptrof(o)->p_key)->i_value)) == NULL)
+    else if ((k = new_int(intof(k)->i_value + intof(ptrof(o)->p_key)->i_value)) == nullptr)
         return 1;
     if (ici_assign(ptrof(o)->p_aggr, k, v))
     {
@@ -95,7 +95,7 @@ int ptr_type::call(object *o, object *)
 {
     object   *f;
 
-    if ((f = ici_fetch(ptrof(o)->p_aggr, ptrof(o)->p_key)) == NULL)
+    if ((f = ici_fetch(ptrof(o)->p_aggr, ptrof(o)->p_key)) == nullptr)
         return 1;
     if (!f->can_call())
     {
@@ -106,7 +106,7 @@ int ptr_type::call(object *o, object *)
      * Replace ourselves on the operand stack with 'self' (our aggr) and
      * push on the new object being called.
      */
-    if ((os.a_top[-1] = new_int(NARGS() + 1)) == NULL)
+    if ((os.a_top[-1] = new_int(NARGS() + 1)) == nullptr)
         return 1;
     (os.a_top[-1])->decref();
     os.a_top[-2] = ptrof(o)->p_aggr;
@@ -118,7 +118,7 @@ int ptr_type::call(object *o, object *)
      * Then behave as if the target had been called. Should this do the
      * debug hooks? Assume not for now.
      */
-    return f->call(NULL);
+    return f->call(nullptr);
 }
 
 /*
@@ -127,7 +127,7 @@ int ptr_type::call(object *o, object *)
  *
  * The returned object has had it' reference count incremented.
  *
- * Returns NULL on error, usual conventions.
+ * Returns nullptr on error, usual conventions.
  *
  * This --func-- forms part of the --ici-api--.
  */
@@ -135,8 +135,8 @@ ptr *new_ptr(object *a, object *k)
 {
     ptr *p;
 
-    if ((p = ici_talloc(ptr)) == NULL)
-        return NULL;
+    if ((p = ici_talloc(ptr)) == nullptr)
+        return nullptr;
     set_tfnz(p, TC_PTR, 0, 1, 0);
     p->p_aggr = a;
     p->p_key = k;
@@ -150,7 +150,7 @@ int op_mkptr()
 {
     object  *o;
 
-    if ((o = new_ptr(os.a_top[-2], os.a_top[-1])) == NULL)
+    if ((o = new_ptr(os.a_top[-2], os.a_top[-1])) == nullptr)
         return 1;
     os.a_top[-2] = o;
     o->decref();
@@ -190,7 +190,7 @@ int op_fetch()
     {
         return set_error("pointer required, but %s given", objname(n, os.a_top[-1]));
     }
-    if ((o = ici_fetch(p->p_aggr, p->p_key)) == NULL)
+    if ((o = ici_fetch(p->p_aggr, p->p_key)) == nullptr)
         return 1;
     os.a_top[-1] = o;
     --xs.a_top;

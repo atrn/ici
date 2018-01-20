@@ -42,7 +42,7 @@ inline size_t hashindex(object *k, map *s) {
 slot *find_raw_slot(map *s, object *k)
 {
     slot *sl = &s->s_slots[hashindex(k, s)];
-    while (LIKELY(sl->sl_key != NULL))
+    while (LIKELY(sl->sl_key != nullptr))
     {
         if (LIKELY(sl->sl_key == k))
 	{
@@ -59,7 +59,7 @@ slot *find_raw_slot(map *s, object *k)
 
 /*
  * Return a new ICI struct object. The returned struct has been increfed.
- * Returns NULL on error, usual conventions.
+ * Returns nullptr on error, usual conventions.
  *
  * This --func-- forms part of the --ici-api--.
  */
@@ -70,17 +70,17 @@ map *new_map()
     /*
      * NB: there is a copy of this sequence in copy_map.
      */
-    if ((s = ici_talloc(map)) == NULL)
-        return NULL;
+    if ((s = ici_talloc(map)) == nullptr)
+        return nullptr;
     set_tfnz(s, TC_MAP, object::O_SUPER, 1, 0);
-    s->o_super = NULL;
-    s->s_slots = NULL;
+    s->o_super = nullptr;
+    s->s_slots = nullptr;
     s->s_nels = 0;
     s->s_nslots = 4; /* Must be power of 2. */
-    if ((s->s_slots = (slot*)ici_nalloc(4 * sizeof (slot))) == NULL)
+    if ((s->s_slots = (slot*)ici_nalloc(4 * sizeof (slot))) == nullptr)
     {
         ici_tfree(s, map);
-        return NULL;
+        return nullptr;
     }
     memset(s->s_slots, 0, 4 * sizeof (slot));
     rego(s);
@@ -107,7 +107,7 @@ void invalidate_map_lookaside(map *s)
     sle = sl + s->s_nslots;
     while (sl < sle)
     {
-        if (sl->sl_key != NULL && isstring(sl->sl_key))
+        if (sl->sl_key != nullptr && isstring(sl->sl_key))
         {
             str = stringof(sl->sl_key);
             /*stringof(sl->sl_key)->s_vsver = 0;*/
@@ -131,7 +131,7 @@ grow_map(map *s)
     int   i;
 
     i = (s->s_nslots * 2) * sizeof (slot);
-    if ((sl = (slot*)ici_nalloc(i)) == NULL)
+    if ((sl = (slot*)ici_nalloc(i)) == nullptr)
         return 1;
     memset((char *)sl, 0, i);
     oldslots = s->s_slots;
@@ -140,7 +140,7 @@ grow_map(map *s)
     s->s_nslots *= 2;
     while (--i >= 0)
     {
-        if (oldslots[i].sl_key != NULL)
+        if (oldslots[i].sl_key != nullptr)
 	{
             *find_raw_slot(s, oldslots[i].sl_key) = oldslots[i];
 	}
@@ -161,7 +161,7 @@ int unassign(map *s, object *k)
     slot *ss;
     slot *ws;    /* Wanted position. */
 
-    if ((ss = find_raw_slot(s, k))->sl_key == NULL)
+    if ((ss = find_raw_slot(s, k))->sl_key == nullptr)
     {
         return 0;
     }
@@ -177,7 +177,7 @@ int unassign(map *s, object *k)
         {
             sl = s->s_slots + s->s_nslots - 1;
         }
-        if (sl->sl_key == NULL)
+        if (sl->sl_key == nullptr)
         {
             break;
         }
@@ -210,8 +210,8 @@ int unassign(map *s, object *k)
     {
         stringof(k)->s_vsver = 0;
     }
-    ss->sl_key = NULL;
-    ss->sl_value = NULL;
+    ss->sl_key = nullptr;
+    ss->sl_value = nullptr;
     return 0;
 }
 
@@ -221,7 +221,7 @@ int unassign(map *s, object *k)
  * unless it really is. Return -1 on error, 0 if it was not found,
  * and 1 if was found. If found, the value is stored in *v.
  *
- * If not NULL, b is a struct that was the base element of this
+ * If not nullptr, b is a struct that was the base element of this
  * fetch. This is used to mantain the lookup lookaside mechanism.
  */
 int map_type::fetch_super(object *o, object *k, object **v, map *b)
@@ -231,11 +231,11 @@ int map_type::fetch_super(object *o, object *k, object **v, map *b)
     do
     {
         sl = &mapof(o)->s_slots[hashindex(k, mapof(o))];
-        while (sl->sl_key != NULL)
+        while (sl->sl_key != nullptr)
         {
             if (sl->sl_key == k)
             {
-                if (b != NULL && isstring(k))
+                if (b != nullptr && isstring(k))
                 {
                     stringof(k)->s_vsver = vsver;
                     stringof(k)->s_map = b;
@@ -257,7 +257,7 @@ int map_type::fetch_super(object *o, object *k, object **v, map *b)
                 sl = mapof(o)->s_slots + mapof(o)->s_nslots - 1;
             }
         }
-        if ((o = mapof(o)->o_super) == NULL)
+        if ((o = mapof(o)->o_super) == nullptr)
         {
             return 0;
         }
@@ -289,16 +289,16 @@ size_t map_type::mark(object *o)
                 --sl
             )
             {
-                if (sl->sl_key != NULL)
+                if (sl->sl_key != nullptr)
                     mem += ici_mark(sl->sl_key);
-                if (sl->sl_value != NULL)
+                if (sl->sl_value != nullptr)
                     mem += ici_mark(sl->sl_value);
             }
         }
 
     } while
         (
-            (o = mapof(o)->o_super) != NULL
+            (o = mapof(o)->o_super) != nullptr
             &&
             !o->marked()
         );
@@ -312,7 +312,7 @@ size_t map_type::mark(object *o)
  */
 void map_type::free(object *o)
 {
-    if (mapof(o)->s_slots != NULL)
+    if (mapof(o)->s_slots != nullptr)
     {
         ici_nfree(mapof(o)->s_slots, mapof(o)->s_nslots * sizeof (slot));
     }
@@ -332,7 +332,7 @@ unsigned long map_type::hash(object *o)
     sl = mapof(o)->s_slots;
     i = mapof(o)->s_nels;
     /*
-     * This assumes NULL will become zero when cast to unsigned long.
+     * This assumes nullptr will become zero when cast to unsigned long.
      */
     while (--i >= 0)
     {
@@ -369,7 +369,7 @@ int map_type::cmp(object *o1, object *o2)
     i = mapof(o1)->s_nslots;
     while (i-- > 0)
     {
-        if (sl1->sl_key != NULL)
+        if (sl1->sl_key != nullptr)
         {
             sl2 = find_raw_slot(mapof(o2), sl1->sl_key);
             if (sl1->sl_key != sl2->sl_key || sl1->sl_value != sl2->sl_value)
@@ -384,7 +384,7 @@ int map_type::cmp(object *o1, object *o2)
 
 
 /*
- * Return a copy of the given object, or NULL on error.
+ * Return a copy of the given object, or nullptr on error.
  * See the comment on t_copy() in object.h.
  */
 object *map_type::copy(object *o)
@@ -393,17 +393,17 @@ object *map_type::copy(object *o)
     map    *ns;
 
     s = mapof(o);
-    if ((ns = (map *)ici_talloc(map)) == NULL)
+    if ((ns = (map *)ici_talloc(map)) == nullptr)
     {
-        return NULL;
+        return nullptr;
     }
     set_tfnz(ns, TC_MAP, object::O_SUPER, 1, 0);
     ns->o_super = s->o_super;
     ns->s_nels = 0;
     ns->s_nslots = 0;
-    ns->s_slots = NULL;
+    ns->s_slots = nullptr;
     rego(ns);
-    if ((ns->s_slots = (slot*)ici_nalloc(s->s_nslots * sizeof (slot))) == NULL)
+    if ((ns->s_slots = (slot*)ici_nalloc(s->s_nslots * sizeof (slot))) == nullptr)
     {
         goto fail;
     }
@@ -422,7 +422,7 @@ object *map_type::copy(object *o)
 
  fail:
     ns->decref();
-    return NULL;
+    return nullptr;
 }
 
 
@@ -435,7 +435,7 @@ object *map_type::copy(object *o)
  * If 0 is returned, no struct may have been modified during the
  * operation of this function.
  *
- * If not NULL, b is a struct that was the base element of this
+ * If not nullptr, b is a struct that was the base element of this
  * assignment. This is used to mantain the lookup lookaside mechanism.
  */
 int map_type::assign_super(object *o, object *k, object *v, map *b)
@@ -447,12 +447,12 @@ int map_type::assign_super(object *o, object *k, object *v, map *b)
         if (!o->isatom())
         {
             sl = &mapof(o)->s_slots[hashindex(k, mapof(o))];
-            while (sl->sl_key != NULL)
+            while (sl->sl_key != nullptr)
             {
                 if (sl->sl_key == k)
                 {
                     sl->sl_value = v;
-                    if (b != NULL && isstring(k))
+                    if (b != nullptr && isstring(k))
                     {
                         stringof(k)->s_vsver = vsver;
                         stringof(k)->s_map = b;
@@ -467,7 +467,7 @@ int map_type::assign_super(object *o, object *k, object *v, map *b)
                 }
             }
         }
-        if ((o = mapof(o)->o_super) == NULL)
+        if ((o = mapof(o)->o_super) == nullptr)
         {
             return 0;
         }
@@ -500,7 +500,7 @@ int map_type::assign(object *o, object *k, object *v)
     {
 #ifndef NDEBUG
         object       *av;
-        assert(fetch_super(o, k, &av, NULL) == 1);
+        assert(fetch_super(o, k, &av, nullptr) == 1);
         assert(stringof(k)->s_slot->sl_value == av);
 #endif
         stringof(k)->s_slot->sl_value = v;
@@ -510,7 +510,7 @@ int map_type::assign(object *o, object *k, object *v)
      * Look for it in the base struct.
      */
     sl = &mapof(o)->s_slots[hashindex(k, mapof(o))];
-    while (sl->sl_key != NULL)
+    while (sl->sl_key != nullptr)
     {
         if (sl->sl_key == k)
         {
@@ -523,7 +523,7 @@ int map_type::assign(object *o, object *k, object *v)
         if (--sl < mapof(o)->s_slots)
             sl = mapof(o)->s_slots + mapof(o)->s_nslots - 1;
     }
-    if (mapof(o)->o_super != NULL)
+    if (mapof(o)->o_super != nullptr)
     {
         switch (ici_assign_super(mapof(o)->o_super, k, v, mapof(o)))
         {
@@ -549,7 +549,7 @@ int map_type::assign(object *o, object *k, object *v)
          * Re-find our empty slot.
          */
         sl = &mapof(o)->s_slots[hashindex(k, mapof(o))];
-        while (sl->sl_key != NULL)
+        while (sl->sl_key != nullptr)
         {
             if (--sl < mapof(o)->s_slots)
                 sl = mapof(o)->s_slots + mapof(o)->s_nslots - 1;
@@ -584,7 +584,7 @@ int map_type::assign_base(object *o, object *k, object *v)
         return set_error("attempt to modify an atomic struct");
     }
     sl = find_raw_slot(s, k);
-    if (sl->sl_key != NULL)
+    if (sl->sl_key != nullptr)
     {
         goto do_assign;
     }
@@ -605,7 +605,7 @@ int map_type::assign_base(object *o, object *k, object *v)
          * Re-find out empty slot.
          */
         sl = &s->s_slots[hashindex(k, s)];
-        while (LIKELY(sl->sl_key != NULL))
+        while (LIKELY(sl->sl_key != nullptr))
         {
             --sl;
             if (UNLIKELY(sl < s->s_slots))
@@ -637,7 +637,7 @@ int map_type::forall(object *o)
     {
         slot *sl = &s->s_slots[fa->fa_index];
 
-        if (sl->sl_key == NULL)
+        if (sl->sl_key == nullptr)
         {
             continue;
         }
@@ -657,7 +657,7 @@ int map_type::forall(object *o)
 }
 
 /*
- * Return the object at key k of the obejct o, or NULL on error.
+ * Return the object at key k of the obejct o, or nullptr on error.
  * See the comment on t_fetch in object.h.
  */
 object *map_type::fetch(object *o, object *k)
@@ -673,13 +673,13 @@ object *map_type::fetch(object *o, object *k)
         stringof(k)->s_vsver == vsver
     )
     {
-        assert(fetch_super(o, k, &v, NULL) == 1);
+        assert(fetch_super(o, k, &v, nullptr) == 1);
         assert(stringof(k)->s_slot->sl_value == v);
         return stringof(k)->s_slot->sl_value;
     }
     switch (fetch_super(o, k, &v, mapof(o)))
     {
-    case -1: return NULL;               /* Error. */
+    case -1: return nullptr;               /* Error. */
     case  1: return v;                  /* Found. */
     }
     return null;                    /* Not found. */
@@ -690,7 +690,7 @@ object *map_type::fetch_base(object *o, object *k)
     slot *sl;
 
     sl = find_raw_slot(mapof(o), k);
-    if (sl->sl_key == NULL)
+    if (sl->sl_key == nullptr)
     {
         return null;
     }

@@ -10,10 +10,10 @@ namespace ici
  * Convert the current errno (that is, the standard C global error code) into
  * an ICI error message based on the standard C 'strerror' function.  Returns
  * 1 so it can be use directly in a return from an ICI instrinsic function or
- * similar.  If 'dothis' and/or 'tothis' are non-NULL, they are included in
+ * similar.  If 'dothis' and/or 'tothis' are non-nullptr, they are included in
  * the error message.  'dothis' should be a short name like "'open'".
  * 'tothis' is typically a file name.  The messages it sets are, depending on
- * which of 'dothis' and 'tothis' are NULL, the message will be one of:
+ * which of 'dothis' and 'tothis' are nullptr, the message will be one of:
  *
  *  strerror
  *  failed to dothis: strerror
@@ -26,13 +26,13 @@ int get_last_errno(const char *dothis, const char *tothis)
 {
     const char          *e;
 
-    if ((e = strerror(errno)) == NULL)
+    if ((e = strerror(errno)) == nullptr)
         e = "system call failure";
-    if (dothis == NULL && tothis == NULL)
+    if (dothis == nullptr && tothis == nullptr)
         return set_error("%s", e);
-    if (dothis != NULL && tothis == NULL)
+    if (dothis != nullptr && tothis == nullptr)
         return set_error("failed to %s: %s", dothis, e);
-    if (dothis != NULL && tothis != NULL)
+    if (dothis != nullptr && tothis != nullptr)
         return set_error("failed to %s %s: %s", dothis, tothis, e);
     return set_error("%s: %s", tothis, e);
 }

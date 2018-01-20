@@ -266,7 +266,7 @@ sys_ret(int ret)
     char        n1[objnamez];
 
     if (ret < 0)
-        return get_last_errno(objname(n1, os.a_top[-1]), NULL);
+        return get_last_errno(objname(n1, os.a_top[-1]), nullptr);
     return int_ret((long)ret);
 }
 
@@ -373,13 +373,13 @@ static int sys_fdopen()
     default:
         return argcount(2);
     }
-    if ((stream = fdopen(fd, mode)) == NULL)
+    if ((stream = fdopen(fd, mode)) == nullptr)
     {
         set_error("can't fdopen");
         return 1;
     }
-    setvbuf(stream, NULL, _IOLBF, 0);
-    if ((f = new_file((char *)stream, stdio_ftype, NULL, NULL)) == NULL)
+    setvbuf(stream, nullptr, _IOLBF, 0);
+    if ((f = new_file((char *)stream, stdio_ftype, nullptr, nullptr)) == nullptr)
     {
         fclose(stream);
         return 1;
@@ -507,8 +507,8 @@ struct_to_flock(map *d, struct flock *flock)
  * "setlk"              F_SETLK - Set or clear a lock (see below).
  *
  * For 'setlk', the third parameter 'arg' must be supplied.  It may be a
- * struct (or NULL) that will be used to populate a 'struct flock' with the
- * following items (a default is used for each if missing or NULL):
+ * struct (or nullptr) that will be used to populate a 'struct flock' with the
+ * following items (a default is used for each if missing or nullptr):
  *
  * start                An int which will be used in the 'l_start' field.
  *                      Default 0.
@@ -697,7 +697,7 @@ static int sys_read()
 
     if (typecheck("ii", &fd, &len))
         return 1;
-    if ((msg = (char *)ici_alloc(len+1)) == NULL)
+    if ((msg = (char *)ici_alloc(len+1)) == nullptr)
         return 1;
     switch (r = read(fd, msg, len))
     {
@@ -709,7 +709,7 @@ static int sys_read()
         ici_free(msg);
         return null_ret();
     }
-    if ((s = str_alloc(r)) == NULL)
+    if ((s = str_alloc(r)) == nullptr)
     {
         ici_free(msg);
         return 1;
@@ -858,10 +858,10 @@ static int sys_stat()
         return argerror(0);
     if (rc == -1)
         return sys_ret(rc);
-    if ((s = new_map()) == NULL)
+    if ((s = new_map()) == nullptr)
         return 1;
 #define SETFIELD(x)                                     \
-    if ((o = new_int(statb.st_ ##x)) == NULL)       \
+    if ((o = new_int(statb.st_ ##x)) == nullptr)       \
         goto fail;                                      \
     else if (ici_assign(s, SS(x), o))                  \
     {                                                   \
@@ -922,10 +922,10 @@ static int sys_lstat()
         return argerror(0);
     if (rc == -1)
         return sys_ret(rc);
-    if ((s = new_map()) == NULL)
+    if ((s = new_map()) == nullptr)
         return 1;
 #define SETFIELD(x)                                     \
-    if ((o = new_int(statb.st_ ##x)) == NULL)       \
+    if ((o = new_int(statb.st_ ##x)) == nullptr)       \
         goto fail;                                      \
     else if (ici_assign(s, SS(x), o))                  \
     {                                                   \
@@ -976,7 +976,7 @@ static int sys_ctime()
     time_t  timev;
     str    *s;
 
-    if (typecheck("i", &timev) || (s = new_str_nul_term(ctime(&timev))) == NULL)
+    if (typecheck("i", &timev) || (s = new_str_nul_term(ctime(&timev))) == nullptr)
         return 1;
     return ret_with_decref(s);
 }
@@ -993,7 +993,7 @@ static int sys_ctime()
  */
 static int sys_time()
 {
-    return int_ret(time(NULL));
+    return int_ret(time(nullptr));
 }
 
 #ifndef _WIN32
@@ -1004,11 +1004,11 @@ assign_timeval(map *s, str *k, struct timeval *tv)
     map    *ss;
     integer       *i;
 
-    if (k == NULL)
+    if (k == nullptr)
         ss = s;
-    else if ((ss = new_map()) == NULL)
+    else if ((ss = new_map()) == nullptr)
         return 1;
-    if ((i = new_int(tv->tv_usec)) == NULL)
+    if ((i = new_int(tv->tv_usec)) == nullptr)
         goto fail;
     if (ici_assign(ss, SS(usec), i))
     {
@@ -1016,7 +1016,7 @@ assign_timeval(map *s, str *k, struct timeval *tv)
         goto fail;
     }
     i->decref();
-    if ((i = new_int(tv->tv_sec)) == NULL)
+    if ((i = new_int(tv->tv_sec)) == nullptr)
         goto fail;
     if (ici_assign(ss, SS(sec), i))
     {
@@ -1024,12 +1024,12 @@ assign_timeval(map *s, str *k, struct timeval *tv)
         goto fail;
     }
     i->decref();
-    if (k != NULL && ici_assign(s, k, ss))
+    if (k != nullptr && ici_assign(s, k, ss))
         goto fail;
     return 0;
 
  fail:
-    if (k != NULL)
+    if (k != nullptr)
         ss->decref();
     return 1;
 }
@@ -1078,7 +1078,7 @@ static int sys_getitimer()
     }
     if (getitimer(which, &value) == -1)
         return sys_ret(-1);
-    if ((s = new_map()) == NULL)
+    if ((s = new_map()) == nullptr)
         return 1;
     if
     (
@@ -1163,7 +1163,7 @@ static int sys_setitimer()
         goto invalid_itimerval;
     if (setitimer(which, &value, &ovalue) == -1)
         return sys_ret(-1);
-    if ((s = new_map()) == NULL)
+    if ((s = new_map()) == nullptr)
         return 1;
     if
     (
@@ -1197,11 +1197,11 @@ static int sys_gettimeofday()
     map          *s;
     struct timeval      tv;
 
-    if (gettimeofday(&tv, NULL) == -1)
+    if (gettimeofday(&tv, nullptr) == -1)
         return sys_ret(-1);
-    if ((s = new_map()) == NULL)
+    if ((s = new_map()) == nullptr)
         return 1;
-    if (assign_timeval(s, NULL, &tv))
+    if (assign_timeval(s, nullptr, &tv))
     {
         s->decref();
         return 1;
@@ -1263,17 +1263,17 @@ static int sys_pipe()
     array     *a;
     integer   *fd;
 
-    if ((a = new_array(2)) == NULL)
+    if ((a = new_array(2)) == nullptr)
         return 1;
     if (pipe(pfd) == -1)
     {
         a->decref();
         return sys_ret(-1);
     }
-    if ((fd = new_int(pfd[0])) == NULL)
+    if ((fd = new_int(pfd[0])) == nullptr)
         goto fail;
     a->push(fd, owned);
-    if ((fd = new_int(pfd[1])) == NULL)
+    if ((fd = new_int(pfd[1])) == nullptr)
         goto fail;
     a->push(fd, owned);
     return ret_with_decref(a);
@@ -1383,7 +1383,7 @@ static int sys_exec()
                 char    **newp;                                         \
                 int      i;                                             \
                 maxargv += argc;                                        \
-                if ((newp = (char **)ici_alloc(maxargv * sizeof (char *))) == NULL) \
+                if ((newp = (char **)ici_alloc(maxargv * sizeof (char *))) == nullptr) \
                 {                                                       \
                     if (argv != sargv)                                  \
                         ici_free(argv);                                 \
@@ -1428,7 +1428,7 @@ static int sys_exec()
             if (isstring(*p))
                 ADDARG(stringof(*p)->s_chars);
     }
-    ADDARG(NULL);
+    ADDARG(nullptr);
     n = (*(int (*)(...))ICI_CF_ARG1())(path, argv);
     if (argv != sargv)
         ici_free(argv);
@@ -1482,7 +1482,7 @@ static int sys_spawn()
                 char    **newp;                                         \
                 int      i;                                             \
                 maxargv += argc;                                        \
-                if ((newp = ici_alloc(maxargv * sizeof (char *))) == NULL) \
+                if ((newp = ici_alloc(maxargv * sizeof (char *))) == nullptr) \
                 {                                                       \
                     if (argv != sargv)                                  \
                         ici_free(argv);                                 \
@@ -1537,7 +1537,7 @@ static int sys_spawn()
             if (isstring(*p))
                 ADDARG(stringof(*p)->s_chars);
     }
-    ADDARG(NULL);
+    ADDARG(nullptr);
     n = (*(int (*)())ICI_CF_ARG1())(mode, path, argv);
     if (argv != sargv)
         ici_free(argv);
@@ -1602,9 +1602,9 @@ static int sys_wait()
 
     if ((pid = wait(&status)) < 0)
         return sys_ret(-1);
-    if ((s = new_map()) == NULL)
+    if ((s = new_map()) == nullptr)
         return 1;
-    if ((i = new_int(pid)) == NULL)
+    if ((i = new_int(pid)) == nullptr)
         goto fail;
     if (ici_assign(s, SS(pid), i))
     {
@@ -1612,7 +1612,7 @@ static int sys_wait()
         goto fail;
     }
     i->decref();
-    if ((i = new_int(status)) == NULL)
+    if ((i = new_int(status)) == nullptr)
         goto fail;
     if (ici_assign(s, SS(status), i))
     {
@@ -1680,7 +1680,7 @@ static int sys_passwd()
             pwent = getpwnam(stringof(ARG(0))->s_chars);
         else
             return argerror(0);
-        if (pwent == NULL)
+        if (pwent == nullptr)
             set_error("no such user");
         return ret_with_decref(password_map(pwent));
 
@@ -1688,14 +1688,14 @@ static int sys_passwd()
         return argcount(1);
     }
 
-    if ((a = new_array()) == NULL)
+    if ((a = new_array()) == nullptr)
         return 1;
     setpwent();
-    while ((pwent = getpwent()) != NULL)
+    while ((pwent = getpwent()) != nullptr)
     {
         map *s;
 
-        if (a->push_check() || (s = password_map(pwent)) == NULL)
+        if (a->push_check() || (s = password_map(pwent)) == nullptr)
         {
             a->decref();
             return 1;
@@ -1712,13 +1712,13 @@ password_map(struct passwd *pwent)
     map *d;
     object     *o;
 
-    if (pwent == NULL)
-        return NULL;
-    if ((d = new_map()) != NULL)
+    if (pwent == nullptr)
+        return nullptr;
+    if ((d = new_map()) != nullptr)
     {
 
 #define SET_INT_FIELD(x)                                \
-        if ((o = new_int(pwent->pw_ ##x)) == NULL)  \
+        if ((o = new_int(pwent->pw_ ##x)) == nullptr)  \
             goto fail;                                  \
         else if (ici_assign(d, SS(x), o))              \
         {                                               \
@@ -1729,7 +1729,7 @@ password_map(struct passwd *pwent)
             o->decref()
 
 #define SET_STR_FIELD(x)                                        \
-        if ((o = new_str_nul_term(pwent->pw_ ##x)) == NULL) \
+        if ((o = new_str_nul_term(pwent->pw_ ##x)) == nullptr) \
             goto fail;                                          \
         else if (ici_assign(d, SS(x), o))                       \
         {                                                       \
@@ -1755,7 +1755,7 @@ password_map(struct passwd *pwent)
 
  fail:
     d->decref();
-    return NULL;
+    return nullptr;
 }
 
 /*
@@ -1999,9 +1999,9 @@ static int sys_getrlimit()
     if (getrlimit(resource, &rlimit) < 0)
         return sys_ret(-1);
 
-    if ((limit = new_map()) == NULL)
+    if ((limit = new_map()) == nullptr)
         return 1;
-    if ((iv = new_int(rlimit.rlim_cur)) == NULL)
+    if ((iv = new_int(rlimit.rlim_cur)) == nullptr)
         goto fail;
     if (ici_assign(limit, SS(cur), iv))
     {
@@ -2009,7 +2009,7 @@ static int sys_getrlimit()
         goto fail;
     }
     iv->decref();
-    if ((iv = new_int(rlimit.rlim_max)) == NULL)
+    if ((iv = new_int(rlimit.rlim_max)) == nullptr)
         goto fail;
     if (ici_assign(limit, SS(max), iv))
     {

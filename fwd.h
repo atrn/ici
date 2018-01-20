@@ -255,14 +255,14 @@ extern DLI ftype                *popen_ftype;
 extern DLI ftype                *parse_ftype;
 
 /*
- * This ICI NULL object.
+ * This ICI nullptr object.
  *
  * This --macro-- forms part of the --ici-api--.
  */
 extern DLI null                 *null;
 
 /*
- * Use 'return null_ret();' to return a ICI NULL from an intrinsic
+ * Use 'return null_ret();' to return a ICI nullptr from an intrinsic
  * fuction.
  *
  * This --macro-- forms part of the --ici-api--.

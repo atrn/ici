@@ -86,7 +86,7 @@ init_window()
 
     /* If resources haven't been previously provided we assume they're in
      * the same modules as the executable. */
-    if (widb_resources == NULL)
+    if (widb_resources == nullptr)
         widb_resources = widb_hInst;
 
     // Remember the current directory.
@@ -117,18 +117,18 @@ init_window()
         wcex.cbClsExtra    = 0;
         wcex.cbWndExtra    = 0;
         wcex.hInstance     = widb_hInst;
-        wcex.hIcon         = NULL;
-        wcex.hCursor       = LoadCursor(NULL, IDC_ARROW);
+        wcex.hIcon         = nullptr;
+        wcex.hCursor       = LoadCursor(nullptr, IDC_ARROW);
         wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW+1);
-        wcex.lpszMenuName  = NULL;
+        wcex.lpszMenuName  = nullptr;
         wcex.lpszClassName = window_class_name;
-        wcex.hIconSm       = NULL;
+        wcex.hIconSm       = nullptr;
         if (!RegisterClassEx(&wcex))
             return FALSE;
 
         // Load the menu.
         menu = LoadMenu(widb_resources, MAKEINTRESOURCE(IDM_WIDB));
-        _ASSERT(menu != NULL);
+        _ASSERT(menu != nullptr);
 
         // Retrieve sub-menus for use by enabling/disabling functions.
         wnd_view_menu = GetSubMenu(menu, 1);
@@ -147,12 +147,12 @@ init_window()
         0,
         CW_USEDEFAULT,
         0,
-        NULL,
+        nullptr,
         menu,
         widb_hInst,
-        NULL
+        nullptr
     );
-    if (widb_wnd == NULL)
+    if (widb_wnd == nullptr)
         return FALSE;
 
     return TRUE;
@@ -162,7 +162,7 @@ init_window()
 static DWORD WINAPI
 debug_thread_proc(LPVOID lpParameter)
 {
-    HANDLE hAccelTable = NULL;
+    HANDLE hAccelTable = nullptr;
     MSG msg;
 
     // Create the debugger window.
@@ -176,7 +176,7 @@ debug_thread_proc(LPVOID lpParameter)
     hAccelTable = LoadAccelerators(widb_resources, MAKEINTRESOURCE(IDA_WIDB));
 
     // Process messages until WM_QUIT.
-    while (GetMessage(&msg, NULL, 0, 0))
+    while (GetMessage(&msg, nullptr, 0, 0))
     {
         // process this message
         if (!TranslateAccelerator(widb_wnd/*msg.hwnd*/, hAccelTable, &msg))
@@ -202,7 +202,7 @@ widb_debug(ici_src_t *src)
     static HANDLE thread;
 
     // Does the thread exist?
-    if (thread == NULL)
+    if (thread == nullptr)
     {
         DWORD thread_id;
 
@@ -212,20 +212,20 @@ widb_debug(ici_src_t *src)
         // The first time the thread signals this means that it has created
         // its main window (and filled in widb_wnd).  Subsequent times
         // are when the debugger wants us (the main thread) to run again.
-        wnd_resume_app_thread = CreateEvent(NULL, FALSE, FALSE, NULL);
-        _ASSERT(wnd_resume_app_thread != NULL);
+        wnd_resume_app_thread = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+        _ASSERT(wnd_resume_app_thread != nullptr);
 
         // Create the thread.
         thread = CreateThread
                  (
-                     NULL,
+                     nullptr,
                      0,
                      debug_thread_proc,
-                     NULL,
+                     nullptr,
                      0,
                      &thread_id
                  );
-        _ASSERT(thread != NULL);
+        _ASSERT(thread != nullptr);
 
         // Wait until the thread has initialised so we've got access to
         // widb_wnd.
@@ -235,8 +235,8 @@ widb_debug(ici_src_t *src)
 
     // Tell the debugger what line we're stopped at.
     {
-        char *filename = NULL;
-        if (src->s_filename != NULL)
+        char *filename = nullptr;
+        if (src->s_filename != nullptr)
             filename = src->s_filename->s_chars;
         PostMessage(widb_wnd, WM_USER, (WPARAM)filename, (LPARAM)src->s_lineno);
     }
@@ -297,7 +297,7 @@ resume_application(HWND old_foreground_window)
     enable_debug_menus(FALSE);
 
     // Move the debugger back out of the way.
-    if (old_foreground_window != NULL)
+    if (old_foreground_window != nullptr)
         SetForegroundWindow(old_foreground_window);
 
     // Give control back to the main thread.
@@ -317,7 +317,7 @@ resume_application(HWND old_foreground_window)
  */
 LRESULT CALLBACK wnd_proc(HWND wnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    static HWND old_foreground_wnd = NULL;
+    static HWND old_foreground_wnd = nullptr;
 
     switch (message)
     {
@@ -327,7 +327,7 @@ LRESULT CALLBACK wnd_proc(HWND wnd, UINT message, WPARAM wParam, LPARAM lParam)
             // it's empty.
             {
                 HMENU menu_bar = GetMenu(wnd);
-                _ASSERT(menu_bar != NULL);
+                _ASSERT(menu_bar != nullptr);
                 VERIFY
                 (
                     InsertMenu
@@ -488,7 +488,7 @@ LRESULT CALLBACK wnd_proc(HWND wnd, UINT message, WPARAM wParam, LPARAM lParam)
 
             // We're out of here, we better make sure no-one tries to reference
             // us.
-            widb_wnd = NULL;
+            widb_wnd = nullptr;
             break;
 
         case WM_PAINT:

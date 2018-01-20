@@ -11,7 +11,7 @@ integer *small_ints[small_int_count];
 
 /*
  * Return the int object with the value 'v'.  The returned object has had its
- * ref count incremented.  Returns NULL on error, usual convention.  Note that
+ * ref count incremented.  Returns nullptr on error, usual convention.  Note that
  * ints are intrinsically atomic, so if the given integer already exists, it
  * will just incref it and return it.
  *
@@ -24,15 +24,15 @@ integer *new_int(int64_t i)
     object *o;
     object **po;
 
-    if ((i & ~small_int_mask) == 0 && (o = small_ints[i]) != NULL) {
+    if ((i & ~small_int_mask) == 0 && (o = small_ints[i]) != nullptr) {
         o->incref();
         return intof(o);
     }
     for
     (
         po = &atoms[atom_hash_index((unsigned long)i * INT_PRIME)];
-        (o = *po) != NULL;
-        --po < atoms ? po = atoms + atomsz - 1 : NULL
+        (o = *po) != nullptr;
+        --po < atoms ? po = atoms + atomsz - 1 : nullptr
     )
     {
         if (isint(o) && intof(o)->i_value == i) {
@@ -41,9 +41,9 @@ integer *new_int(int64_t i)
         }
     }
     ++supress_collect;
-    if ((o = ici_talloc(integer)) == NULL) {
+    if ((o = ici_talloc(integer)) == nullptr) {
         --supress_collect;
-        return NULL;
+        return nullptr;
     }
     set_tfnz(o, TC_INT, object::O_ATOM, 1, sizeof (integer));
     rego(o);

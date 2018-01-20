@@ -117,9 +117,9 @@ void enter(exec *x)
             vs = *x->x_vs;
             exec_count = x->x_count;
         }
-        x->x_os->a_base = NULL;
-        x->x_xs->a_base = NULL;
-        x->x_vs->a_base = NULL;
+        x->x_os->a_base = nullptr;
+        x->x_xs->a_base = nullptr;
+        x->x_vs->a_base = nullptr;
         os.incref();
         xs.incref();
         vs.incref();
@@ -170,9 +170,9 @@ void yield()
             vs = *x->x_vs;
             exec_count = x->x_count;
         }
-        x->x_os->a_base = NULL;
-        x->x_xs->a_base = NULL;
-        x->x_vs->a_base = NULL;
+        x->x_os->a_base = nullptr;
+        x->x_xs->a_base = nullptr;
+        x->x_vs->a_base = nullptr;
         os.incref();
         xs.incref();
         vs.incref();
@@ -204,7 +204,7 @@ int waitfor(object *o)
     exec       *x;
     const char *e;
 
-    e = NULL;
+    e = nullptr;
     ex->x_waitfor = o;
     x = leave2(false); // leave ici_mutex locked
     {
@@ -214,7 +214,7 @@ int waitfor(object *o)
         // lock's dtor unlocks ici_mutex
     }
     enter(x);
-    if (e != NULL)
+    if (e != nullptr)
     {
         return set_error("%s", e);
     }
@@ -231,11 +231,11 @@ int wakeup(object *o)
 {
     exec *x;
 
-    for (x = execs; x != NULL; x = x->x_next)
+    for (x = execs; x != nullptr; x = x->x_next)
     {
         if (x->x_waitfor == o)
         {
-            x->x_waitfor = NULL;
+            x->x_waitfor = nullptr;
             x->x_semaphore->notify_all();
         }
     }
@@ -257,7 +257,7 @@ static void ici_thread_base(void *arg)
 
     enter(x);
     n_ops = os.a_top - os.a_base;
-    if ((x->x_result = evaluate(&o_call, n_ops)) == NULL)
+    if ((x->x_result = evaluate(&o_call, n_ops)) == nullptr)
     {
         x->x_result = str_get_nul_term(error);
         x->x_state = XS_FAILED;
@@ -285,7 +285,7 @@ f_go(...)
     if (NARGS() < 1 || !ARG(0)->can_call())
         return argerror(0);
 
-    if ((x = new_exec()) == NULL)
+    if ((x = new_exec()) == nullptr)
         return 1;
     /*
      * Copy the most-recently-executed source marker to the new thread
@@ -304,7 +304,7 @@ f_go(...)
      * Now push the number of actuals and the object to call on the
      * new operand stack.
      */
-    if ((*x->x_os->a_top = new_int(NARGS() - 1)) == NULL)
+    if ((*x->x_os->a_top = new_int(NARGS() - 1)) == nullptr)
         goto fail;
     (*x->x_os->a_top)->decref();
     ++x->x_os->a_top;

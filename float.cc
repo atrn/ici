@@ -11,7 +11,7 @@ namespace ici
 /*
  * Return an ICI float object corresponding to the given value 'v'.  Note that
  * floats are intrinsically atomic.  The returned object will have had its
- * reference count inceremented. Returns NULL on error, usual conventions.
+ * reference count inceremented. Returns nullptr on error, usual conventions.
  *
  * This --func-- forms part of the --ici-api--.
  */
@@ -22,13 +22,13 @@ ici_float *new_float(double v)
     static ici_float   proto;
 
     proto.f_value = v;
-    if ((f = floatof(atom_probe2(&proto, &po))) != NULL) {
+    if ((f = floatof(atom_probe2(&proto, &po))) != nullptr) {
         f->incref();
         return f;
     }
     ++supress_collect;
-    if ((f = ici_talloc(ici_float)) == NULL) {
-        return NULL;
+    if ((f = ici_talloc(ici_float)) == nullptr) {
+        return nullptr;
     }
     set_tfnz(f, TC_FLOAT, object::O_ATOM, 1, sizeof (ici_float));
     f->f_value = v;
@@ -93,7 +93,7 @@ int float_type::save(archiver *ar, object *obj) {
 object *float_type::restore(archiver *ar) {
     double val;
     if (ar->read(val)) {
-        return NULL;
+        return nullptr;
     }
     return new_float(val);
 }

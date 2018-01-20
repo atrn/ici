@@ -358,7 +358,7 @@ int xmain(int argc, char **argv)
     (void)argv;
     crc = 0;
     buf = malloc(SIZE);
-    if (buf == NULL) {
+    if (buf == nullptr) {
         fputs("out of memory", stderr);
         return 1;
     }

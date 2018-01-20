@@ -40,7 +40,7 @@ times and larger, and slower, executables.
 Various C-isms have been replaced by C++-isms:
 
 - parameterised macros are replaced by inline functions
-- NULL is replaced with nullptr.
+- nullptr is replaced with nullptr.
 - C++'s constexpr is used to define constants
 - cstddef and cstdint types are used - size_t, intXX_t, etc...
 - C++ standard threads are assumed

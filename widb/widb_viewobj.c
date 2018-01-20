@@ -87,7 +87,7 @@ func_totals(ici_struct_t *funcs, profilecall_t *pc)
         /* Does this slot have anything in it? */
         sl = &pc->pc_calls->s_slots[i];
         f = funcof(sl->sl_key);
-        if (f != NULL)
+        if (f != nullptr)
         {
             profilecall_t *tot_pc;
             profilecall_t *parent;
@@ -97,8 +97,8 @@ func_totals(ici_struct_t *funcs, profilecall_t *pc)
             if (isnull(objof(tot_pc = profilecallof(ici_fetch(objof(funcs), f)))))
             {
                 /* No, create a new record. */
-                tot_pc = ici_profilecall_new(NULL);
-                _ASSERT(tot_pc != NULL);
+                tot_pc = ici_profilecall_new(nullptr);
+                _ASSERT(tot_pc != nullptr);
 
                 /* Add it to the calling function. */
                 ici_assign(objof(funcs), f, objof(tot_pc));
@@ -111,7 +111,7 @@ func_totals(ici_struct_t *funcs, profilecall_t *pc)
             for
             (
                 parent = called->pc_calledby, parent = parent->pc_calledby;
-                parent != NULL;
+                parent != nullptr;
                 parent = parent->pc_calledby
             )
             {
@@ -121,7 +121,7 @@ func_totals(ici_struct_t *funcs, profilecall_t *pc)
                     break;
                 }
             }
-            if (parent == NULL)
+            if (parent == nullptr)
             {
                 tot_pc->pc_total += called->pc_total;
                 tot_pc->pc_call_count += called->pc_call_count;
@@ -157,7 +157,7 @@ func_intrinsic_totals(profilecall_t *funcs, profilecall_t *pc)
         /* Does this slot have anything in it? */
         sl = &pc->pc_calls->s_slots[i];
         f = funcof(sl->sl_key);
-        if (f != NULL)
+        if (f != nullptr)
         {
             int j;
             profilecall_t *tot_pc;
@@ -168,7 +168,7 @@ func_intrinsic_totals(profilecall_t *funcs, profilecall_t *pc)
             {
                 /* No, create a new record. */
                 tot_pc = ici_profilecall_new(funcs);
-                _ASSERT(tot_pc != NULL);
+                _ASSERT(tot_pc != nullptr);
 
                 /* Add it to the calling function. */
                 ici_assign(funcs->pc_calls, f, objof(tot_pc));
@@ -187,7 +187,7 @@ func_intrinsic_totals(profilecall_t *funcs, profilecall_t *pc)
 
                 /* Does this slot have anything in it? */
                 j_sl = &called->pc_calls->s_slots[j];
-                if (j_sl->sl_key != NULL)
+                if (j_sl->sl_key != nullptr)
                 {
                     profilecall_t *sub_called = profilecallof(j_sl->sl_value);
                     tot_pc->pc_total -= sub_called->pc_total;
@@ -215,15 +215,15 @@ profile_done_callback(profilecall_t *pc)
      * profiling information.  Each member of this struct has a key naming
      * the type of profiling data and a value that's the information. */
     profile = objof(ici_struct_new());
-    _ASSERT(profile != NULL);
+    _ASSERT(profile != nullptr);
 
     /* Construct a list of fundamental functions (ie. functions that don't
      * call other functions). */
     name = objof(ici_str_new_nul_term("function totals"));
-    _ASSERT(name != NULL);
+    _ASSERT(name != nullptr);
     /* Hold them in a profilecall_t so that they're sorted by pc_total */
     totals = ici_struct_new();
-    _ASSERT(totals != NULL);
+    _ASSERT(totals != nullptr);
     VERIFY(!ici_assign(profile, name, objof(totals)));
     ici_decref(name);
     ici_decref(objof(totals));
@@ -232,10 +232,10 @@ profile_done_callback(profilecall_t *pc)
     /* Construct a list of fundamental functions (ie. functions that don't
      * call other functions). */
     name = objof(ici_str_new_nul_term("function intrinsic totals"));
-    _ASSERT(name != NULL);
+    _ASSERT(name != nullptr);
     /* Hold them in a profilecall_t so that they're sorted by pc_total */
-    intrinsic_totals = ici_profilecall_new(NULL);
-    _ASSERT(intrinsic_totals != NULL);
+    intrinsic_totals = ici_profilecall_new(nullptr);
+    _ASSERT(intrinsic_totals != nullptr);
     VERIFY(!ici_assign(profile, name, objof(intrinsic_totals)));
     ici_decref(name);
     ici_decref(objof(intrinsic_totals));
@@ -250,7 +250,7 @@ profile_done_callback(profilecall_t *pc)
 
             /* Does this slot have anything in it? */
             sl = &intrinsic_totals->pc_calls->s_slots[i];
-            if (sl->sl_key != NULL)
+            if (sl->sl_key != nullptr)
                 intrinsic_totals->pc_total +=
                     profilecallof(sl->sl_value)->pc_total;
         }
@@ -258,12 +258,12 @@ profile_done_callback(profilecall_t *pc)
 
     /* Add the call basic call graph output. */
     name = objof(ici_str_new_nul_term("call graph"));
-    _ASSERT(name != NULL);
+    _ASSERT(name != nullptr);
     VERIFY(!ici_assign(profile, name, pc));
     ici_decref(name);
 
     /* Display it. */
-    WIDB_view_object(profile, NULL);
+    WIDB_view_object(profile, nullptr);
     ici_decref(profile);
 }
 
@@ -336,7 +336,7 @@ get_simple_value(ici_obj_t *o)
     else if (isfloat(o))
     {
         sprintf(retval, "%g", floatof(o)->f_value);
-        if (strchr(retval, '.') == NULL && strchr(retval, 'e') == NULL)
+        if (strchr(retval, '.') == nullptr && strchr(retval, 'e') == nullptr)
             strcat(retval, ".0");
     }
 #if NOPROFILE
@@ -373,7 +373,7 @@ get_simple_value(ici_obj_t *o)
 
 
 /*
- * Ensures that copied strings are NULL terminated.
+ * Ensures that copied strings are nullptr terminated.
  */
 static char *
 safe_strncpy(char *target, char const *source, size_t count)
@@ -449,7 +449,7 @@ add_item(HWND hDlg, HTREEITEM parent, ici_obj_t *o, int expand)
         0,
         (LPARAM)&insert
     );
-    _ASSERT(new_item != NULL);
+    _ASSERT(new_item != nullptr);
 
     if (expand && has_children)
         add_item_children(hDlg, new_item, object_to_expand);
@@ -524,7 +524,7 @@ add_item_children(HWND hDlg, HTREEITEM parent, ici_obj_t *parent_o)
     // otherwise there will be extra copies.
     if
     (
-        NULL != (HTREEITEM) SendDlgItemMessage
+        nullptr != (HTREEITEM) SendDlgItemMessage
                             (
                                 hDlg,
                                 IDC_WIDB_VIEWOBJ_TREE,
@@ -546,7 +546,7 @@ add_item_children(HWND hDlg, HTREEITEM parent, ici_obj_t *parent_o)
         s = structof(parent_o);
 
         // Add any super the struct has.
-        if (s->o_head.o_super != NULL)
+        if (s->o_head.o_super != nullptr)
         {
             add_item(hDlg, parent, objof(s->o_head.o_super), FALSE);
         }
@@ -557,7 +557,7 @@ add_item_children(HWND hDlg, HTREEITEM parent, ici_obj_t *parent_o)
         {
             // Only add hash elements that actually exist.
             ici_obj_t *element = s->s_slots[i].sl_key;
-            if (element != NULL)
+            if (element != nullptr)
                 sorted[nels_sorted ++] = element;
         }
 
@@ -568,7 +568,7 @@ add_item_children(HWND hDlg, HTREEITEM parent, ici_obj_t *parent_o)
         for (sorted_i = 0; sorted_i < nels_sorted; ++ sorted_i)
         {
             ici_obj_t *element = objof(ici_ptr_new(parent_o, sorted[sorted_i]));
-            _ASSERT(element != NULL);
+            _ASSERT(element != nullptr);
             add_item(hDlg, parent, element, FALSE);
             ici_decref(element);
         }
@@ -598,7 +598,7 @@ add_item_children(HWND hDlg, HTREEITEM parent, ici_obj_t *parent_o)
         for (i = 0; i < s->s_nslots; i ++)
         {
             ici_obj_t *element = s->s_slots[i];
-            if (element != NULL)
+            if (element != nullptr)
                 sorted[nels_sorted ++] = element;
         }
 
@@ -616,18 +616,18 @@ add_item_children(HWND hDlg, HTREEITEM parent, ici_obj_t *parent_o)
         ici_obj_t *element;
 
         name = objof(ici_str_new_nul_term("autos"));
-        _ASSERT(name != NULL);
+        _ASSERT(name != nullptr);
         element = objof(ici_ptr_new(parent_o, name));
         ici_decref(name);
-        _ASSERT(element != NULL);
+        _ASSERT(element != nullptr);
         add_item(hDlg, parent, element, FALSE);
         ici_decref(element);
 
         name = objof(ici_str_new_nul_term("args"));
-        _ASSERT(name != NULL);
+        _ASSERT(name != nullptr);
         element = objof(ici_ptr_new(parent_o, name));
         ici_decref(name);
-        _ASSERT(element != NULL);
+        _ASSERT(element != nullptr);
         add_item(hDlg, parent, element, FALSE);
         ici_decref(element);
     }
@@ -651,7 +651,7 @@ add_item_children(HWND hDlg, HTREEITEM parent, ici_obj_t *parent_o)
         {
             // Only add hash elements that actually exist.
             ici_obj_t *element = s->s_slots[i].sl_key;
-            if (element != NULL)
+            if (element != nullptr)
             {
                 sorted[nels_sorted * 2] = s->s_slots[i].sl_value;
                 sorted[nels_sorted * 2 + 1] = element;
@@ -670,7 +670,7 @@ add_item_children(HWND hDlg, HTREEITEM parent, ici_obj_t *parent_o)
                                     ici_ptr_new(objof(s),
                                     sorted[sorted_i * 2 + 1])
                                 );
-            _ASSERT(element != NULL);
+            _ASSERT(element != nullptr);
             add_item(hDlg, parent, element, FALSE);
             ici_decref(element);
         }
@@ -689,12 +689,12 @@ get_obj_from_tv_item(HWND tree, HTREEITEM tv_item)
     TVITEM item;
     ici_obj_t *o;
 
-    _ASSERT(tree != NULL && tv_item != NULL);
+    _ASSERT(tree != nullptr && tv_item != nullptr);
     item.hItem = tv_item;
     item.mask = TVIF_PARAM;
     VERIFY(TreeView_GetItem(tree, &item));
     o = (ici_obj_t *)item.lParam;
-    _ASSERT(o != NULL);
+    _ASSERT(o != nullptr);
     return o;
 }
 
@@ -722,7 +722,7 @@ static LRESULT CALLBACK tree_wnd_proc
 
                     // Which object is currently selected?
                     sel = TreeView_GetSelection(hWnd);
-                    _ASSERT(sel != NULL);
+                    _ASSERT(sel != nullptr);
                     sel_obj = get_obj_from_tv_item(hWnd, sel);
 
                     display_mem_use(sel_obj, hWnd, hWnd, sel);
@@ -800,14 +800,14 @@ static LRESULT CALLBACK view_object_wnd_proc
             {
                 HWND tree;
                 tree = GetDlgItem(hDlg, IDC_WIDB_VIEWOBJ_TREE);
-                _ASSERT(tree != NULL);
+                _ASSERT(tree != nullptr);
                 tree_wnd_proc_parent = (WNDPROC) SetWindowLong
                                                  (
                                                      tree,
                                                      GWL_WNDPROC,
                                                      (LONG)tree_wnd_proc
                                                  );
-                _ASSERT(tree_wnd_proc_parent != NULL);
+                _ASSERT(tree_wnd_proc_parent != nullptr);
             }
             return TRUE;
 
@@ -840,7 +840,7 @@ static LRESULT CALLBACK view_object_wnd_proc
                             // to, this is the commonly useful case.
                             ici_ptr_t *p = ptrof(to_expand);
                             to_expand = ici_fetch(p->p_aggr, p->p_key);
-                            _ASSERT(to_expand != NULL && !isnull(to_expand));
+                            _ASSERT(to_expand != nullptr && !isnull(to_expand));
                         }
                         add_item_children
                         (
@@ -885,7 +885,7 @@ static LRESULT CALLBACK view_object_wnd_proc
  * o            The object to view, this may be of any ICI type, but only
  *              string, array, struct, float, pointer and int may be decoded.
  * parent       The window that this dialog should appear over.  This may be
- *              NULL if WIDB_set_dialog_parent() has previously been called.
+ *              nullptr if WIDB_set_dialog_parent() has previously been called.
  */
 void
 WIDB_view_object(ici_obj_t *o, HWND parent)
@@ -897,7 +897,7 @@ WIDB_view_object(ici_obj_t *o, HWND parent)
     (
         widb_resources,
         MAKEINTRESOURCE(IDD_WIDB_VIEWOBJ),
-        parent == NULL ? widb_dialog_parent : parent,
+        parent == nullptr ? widb_dialog_parent : parent,
         (DLGPROC)view_object_wnd_proc
     );
     if (result == -1)
@@ -906,12 +906,12 @@ WIDB_view_object(ici_obj_t *o, HWND parent)
         FormatMessage
         (
             FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-            NULL,
+            nullptr,
             GetLastError(),
             MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
             buf,
             sizeof(buf),
-            NULL
+            nullptr
         );
         fprintf(stderr, "Couldn't show dialog box: %s\n", buf);
     }
@@ -950,7 +950,7 @@ display_mem_use(ici_obj_t *o, HWND hDlg, HWND tree, HTREEITEM tv_item)
         HTREEITEM parent;
 
         parent = tv_item;
-        while ((parent = TreeView_GetParent(tree, parent)) != NULL)
+        while ((parent = TreeView_GetParent(tree, parent)) != nullptr)
         {
             ici_obj_t *parent_o = get_obj_from_tv_item(tree, parent);
             if (isptr(parent_o))
@@ -1028,7 +1028,7 @@ edit_object(ici_obj_t *o, HWND parent)
 
         p = ptrof(o);
         to_edit = ici_fetch(p->p_aggr, p->p_key);
-        _ASSERT(to_edit != NULL);
+        _ASSERT(to_edit != nullptr);
 
         // So far we only have capability to edit strings.
         if (isstring(to_edit))
@@ -1051,12 +1051,12 @@ edit_object(ici_obj_t *o, HWND parent)
                     FormatMessage
                     (
                         FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-                        NULL,
+                        nullptr,
                         GetLastError(),
                         MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
                         buf,
                         sizeof(buf),
-                        NULL
+                        nullptr
                     );
                     fprintf(stderr,"Couldn't show edit dialog box: %s\n", buf);
                     break;
@@ -1103,13 +1103,13 @@ static LRESULT CALLBACK edit_string_wnd_proc
             int i;
 
             // Get the string we're editing.
-            _ASSERT(to_edit != NULL && isstring(to_edit));
+            _ASSERT(to_edit != nullptr && isstring(to_edit));
             edit_control = GetDlgItem(hDlg, IDC_WIDB_EDIT);
-            _ASSERT(edit_control != NULL);
+            _ASSERT(edit_control != nullptr);
 
             // Convert LF to CR/LF pairs for Windows.
             text = (char *)malloc(stringof(to_edit)->s_nchars * 2 + 1);
-            _ASSERT(text != NULL);
+            _ASSERT(text != nullptr);
             (void) memcpy
                    (
                        text,
@@ -1149,7 +1149,7 @@ static LRESULT CALLBACK edit_string_wnd_proc
                 edit_control = GetDlgItem(hDlg, IDC_WIDB_EDIT);
                 text_len = GetWindowTextLength(edit_control);
                 text = malloc(text_len + 1);
-                _ASSERT(text != NULL);
+                _ASSERT(text != nullptr);
                 GetWindowText(edit_control, text, text_len + 1);
 
                 // Convert CR/LF pairs back to plain LF.
@@ -1170,7 +1170,7 @@ static LRESULT CALLBACK edit_string_wnd_proc
                 // Save the text back into the object we're editing.
                 ici_decref(to_edit);
                 to_edit = objof(ici_str_new(text, text_len));
-                _ASSERT(to_edit != NULL);
+                _ASSERT(to_edit != nullptr);
                 free(text);
                 EndDialog(hDlg, IDOK);
                 return TRUE;

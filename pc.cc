@@ -14,10 +14,10 @@ pc *new_pc()
 {
     pc *p;
 
-    if ((p = ici_talloc(pc)) == NULL)
-        return NULL;
+    if ((p = ici_talloc(pc)) == nullptr)
+        return nullptr;
     set_tfnz(p, TC_PC, 0, 0, 0);
-    p->pc_code = NULL;
+    p->pc_code = nullptr;
     rego(p);
     return p;
 }

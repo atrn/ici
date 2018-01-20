@@ -205,7 +205,7 @@ ici(1)                                                     ici(1)
    Reserved Words
        The complete list of ici's reserved words is:
 
-                 NULL      auto      break
+                 nullptr      auto      break
                  case      continue  default
                  do        else      extern
                  for       forall    if
@@ -343,7 +343,7 @@ ici(1)                                                     ici(1)
                  string
                  regular-expression
                  identifier
-                 NULL
+                 nullptr
                  ( expression )
                  [ array expression-list  ]
                  [ set expression-list ]
@@ -451,7 +451,7 @@ ici(1)                                                     ici(1)
 
        +       Positive; no real effect.
 
-       !       Logical  not;  applied to 0 or NULL, gives 1, else
+       !       Logical  not;  applied to 0 or nullptr, gives 1, else
                gives 0.
 
 
@@ -2008,8 +2008,8 @@ ici(1)                                                     ici(1)
            );
        parts = my_text ~~~ reg;
 
-       returns_void = parts == NULL || parts[0] == "void";
-       returns_ptr  = parts != NULL && parts[1] ~ #\*#;
+       returns_void = parts == nullptr || parts[0] == "void";
+       returns_ptr  = parts != nullptr && parts[1] ~ #\*#;
 
 
    The if statement
@@ -2021,14 +2021,14 @@ ici(1)                                                     ici(1)
 
        The parser converts both to an internal form.  Upon execu-
        tion, the expression  is  evaluated.   If  the  expression
-       evaluates to anything other than 0 (integer zero) or NULL,
+       evaluates to anything other than 0 (integer zero) or nullptr,
        the following statement is executed; otherwise it is  not.
        In  the first form this is all that happens, in the second
-       form, if the expression evaluated to 0 or NULL the  state-
+       form, if the expression evaluated to 0 or nullptr the  state-
        ment  following the else is executed; otherwise it is not.
 
 
-       The interpretation of both 0 and NULL as false,  and  any-
+       The interpretation of both 0 and nullptr as false,  and  any-
        thing else as true, is common to all logical operations in
        ici.  There is no special boolean type.
 
@@ -2076,10 +2076,10 @@ ici(1)                                                     ici(1)
 
        The parser converts it to an internal form.   Upon  execu-
        tion  a  loop is established.  Within the loop the expres-
-       sion is evaluated, and if it is false (0 or NULL) the loop
+       sion is evaluated, and if it is false (0 or nullptr) the loop
        is  terminated  and  flow  of  control continues after the
        while statement.  But if the expression evaluates to  true
-       (not  0  and  not NULL) the statement is executed and then
+       (not  0  and  not nullptr) the statement is executed and then
        flow of control moves back to the start of the loop  where
        the test is performed again (although other statements, as
        seen below, can be used to modify  this  natural  flow  of
@@ -2149,8 +2149,8 @@ ici(1)                                                     ici(1)
        location  is  noted.   If the second expression is present
        the same is done for it.  The  third  expression  is  then
        evaluated  and  the  result  noted; it must evaluate to an
-       array, a set, a struct, a string, or NULL;  we  will  call
-       this the aggregate.  If this is NULL, the forall statement
+       array, a set, a struct, a string, or nullptr;  we  will  call
+       this the aggregate.  If this is nullptr, the forall statement
        is finished and flow of control continues after the state-
        ment; otherwise, a loop is established.
 
@@ -2283,7 +2283,7 @@ ici(1)                                                     ici(1)
 
        The parser converts this to an internal form.  Upon execu-
        tion, the execution engine evaluates the expression if  it
-       is  present.  If it is not, the value NULL is substituted.
+       is  present.  If it is not, the value nullptr is substituted.
        Then the current function terminates with  that  value  as
        its  apparent  value  in any expression it is embedded in.
        It is an error for there to be no enclosing function.
@@ -2418,7 +2418,7 @@ ici(1)                                                     ici(1)
        variable already exists at the given scope.  If  it  does,
        it  is  left unmodified.  In particular, any value it cur-
        rently has is undisturbed.  If it does  not  exist  it  is
-       established and is given the value NULL.
+       established and is given the value nullptr.
 
 
        A declaration with an initialisation establishes the vari-
@@ -2545,7 +2545,7 @@ ici(1)                                                     ici(1)
                  lvalue.
 
 
-       !any      Logical negation: If any is 0 (integer) or NULL,
+       !any      Logical negation: If any is 0 (integer) or nullptr,
                  1 is returned, else 0 is returned.
 
 
@@ -2852,7 +2852,7 @@ ici(1)                                                     ici(1)
                  Regular    expression   sub-string   extraction:
                  Returns  the  sub-string  of  string  which   is
                  matched by the first bracket enclosed portion of
-                 regexp, or NULL if there is no match  or  regexp
+                 regexp, or nullptr if there is no match  or  regexp
                  does  not contain a (...) portion. The arguments
                  may be in any order.  For example, a  "basename"
                  operation can be performed with:
@@ -2864,7 +2864,7 @@ ici(1)                                                     ici(1)
                  Regular  expression  multiple sub-string extrac-
                  tion: Returns an array of the the sub-strings of
                  string  which  are matched by the (...) enclosed
-                 portions of regexp,  or  NULL  if  there  is  no
+                 portions of regexp,  or  nullptr  if  there  is  no
                  match. The arguments may be in any order.
 
 
@@ -2885,7 +2885,7 @@ ici(1)                                                     ici(1)
 
        any1 && any2
                  Logical  and:  Evaluates  the  expression  which
-                 determines  any1, if this evaluates to 0 or NULL
+                 determines  any1, if this evaluates to 0 or nullptr
                  (i.e. false), 0 is returned, else any2 is evalu-
                  ated  and  returned.  Note that if any1 does not
                  evaluate to a true value, the  expression  which
@@ -2895,7 +2895,7 @@ ici(1)                                                     ici(1)
        any1 || any2
                  Logical   or:  Evaluates  the  expression  which
                  determines any1, if this evaluates to other than
-                 0  or NULL (i.e. true), 1 is returned, else any2
+                 0  or nullptr (i.e. true), 1 is returned, else any2
 
 
 
@@ -2914,7 +2914,7 @@ ici(1)                                                     ici(1)
 
 
        any1 ? any2 : any3
-                 Choice: If any1  is  neither  0  or  NULL  (i.e.
+                 Choice: If any1  is  neither  0  or  nullptr  (i.e.
                  true),  the expression which determines  any2 is
                  evaluated  and  returned,  else  the  expression
                  which determines any3 is evaluated and returned.
@@ -3157,7 +3157,7 @@ ici(1)                                                     ici(1)
                            del(struct, any)
                  int =     eq(any, any)
                  int =     eof(file)
-                           exit([int|string|NULL])
+                           exit([int|string|nullptr])
                  float =   exp(number)
                  array =   explode(string)
 
@@ -3371,7 +3371,7 @@ ici(1)                                                     ici(1)
 
 
        Returns the file associated  with  the  innermost  parsing
-       context, or NULL if there is no module being parsed.
+       context, or nullptr if there is no module being parsed.
 
        This  function  can  be  used to include data in a program
        source file which is out-of-band with respect to the  nor-
@@ -3414,7 +3414,7 @@ ici(1)                                                     ici(1)
        del(struct, key)
 
        Deletes the element of struct identified by key. Any super
-       structs are ignored.  Returns NULL.  For example:
+       structs are ignored.  Returns nullptr.  For example:
 
        static s = [struct a = 1, b = 2, c = 3];
        static v, k;
@@ -3458,10 +3458,10 @@ ici(1)                                                     ici(1)
        Returns 1 (one) if obj1 and obj2 are the same object, else
        0 (zero).
 
-       exit([string|int|NULL])
+       exit([string|int|nullptr])
 
        Causes the interpreter to finish execution and exit. If no
-       parameter or the empty string or NULL is passed, the  exit
+       parameter or the empty string or nullptr is passed, the  exit
        status  is  zero. If an integer is passed that is the exit
        status. If a non-empty string is passed then  that  string
        is  printed to the interpreter's standard error output and
@@ -3502,7 +3502,7 @@ ici(1)                                                     ici(1)
 ici(1)                                                     ici(1)
 
 
-       ignoring any super structs. Returns NULL if the key is not
+       ignoring any super structs. Returns nullptr if the key is not
        an element of struct.
 
        value = float(x)
@@ -3530,7 +3530,7 @@ ici(1)                                                     ici(1)
        string = getchar([file])
 
        Reads  a  single  character  from file and returns it as a
-       string. Returns NULL upon end of  file.  If  file  is  not
+       string. Returns nullptr upon end of  file.  If  file  is  not
        given  the  current value of stdin in the current scope is
        used.
 
@@ -3544,7 +3544,7 @@ ici(1)                                                     ici(1)
        string = getline([file])
 
        Reads a line of text from file and returns it as a string.
-       Any end-of-line marker is removed.  Returns NULL upon  end
+       Any end-of-line marker is removed.  Returns nullptr upon  end
        of  file.  If file is not given the current value of stdin
        in the current scope is used.
 
@@ -3570,7 +3570,7 @@ ici(1)                                                     ici(1)
 
        of file or a character from seps is found.  This terminat-
        ing  character  is  not  consumed.  The gathered string is
-       returned, or NULL if end of file  was  encountered  before
+       returned, or nullptr if end of file  was  encountered  before
        any token was gathered.
 
        If  file  is  not  given the current value of stdin in the
@@ -3582,7 +3582,7 @@ ici(1)                                                     ici(1)
 
        Read tokens (that is, strings) from file.  The tokens  are
        character  sequences  separated  by seps and terminated by
-       terms.  Returns an array of strings, NULL on end of  file.
+       terms.  Returns an array of strings, nullptr on end of  file.
 
        If seps is a string, it is interpreted as a set of charac-
        ters, any sequence of which will separate one  token  from
@@ -3900,7 +3900,7 @@ ici(1)                                                     ici(1)
 
        Returns  the  last element of array and reduces the length
        of array by one.  If the array was empty  to  start  with,
-       NULL is returned.
+       nullptr is returned.
 
        file = popen(string, [flags])
 
@@ -4239,7 +4239,7 @@ ici(1)                                                     ici(1)
 
        Returns  the  current  super  struct  of  struct,  and, if
        replacement is supplied, sets  it  to  a  new  value.   If
-       replacement  is NULL any current super struct reference is
+       replacement  is nullptr any current super struct reference is
        cleared (that is, after this struct will have no super).
 
        x = tan(angle)
@@ -4513,7 +4513,7 @@ ici(1)                                                     ici(1)
        a given directory.  It returns an array of filenames.
 
        The pathname argument provides the directory pathname.  If
-       NULL or omitted, the current directory is used.
+       nullptr or omitted, the current directory is used.
 
        A regular expression can be used to select  just  matching
        names.
@@ -5286,14 +5286,14 @@ ici(1)                                                     ici(1)
 
        socket parameter.
 
-       struct = select([int,] set|NULL [, set|NULL [, set|NULL]])
+       struct = select([int,] set|nullptr [, set|nullptr [, set|nullptr]])
 
        Check  sockets  for  I/O  readiness with optional timeout.
        Select may be passed up to three sets of sockets that  are
        checked  for readiness to perform I/O. The first set holds
        the sockets to test for input pending, the second set  the
        sockets  to  test  for  output  able and the third set the
-       sockets to test for exceptional states. NULL may be passed
+       sockets to test for exceptional states. nullptr may be passed
        in  place  of a set parameter to avoid passing empty sets.
        An integer may also appear in  the  parameter  list.  This
        integer  specifies  the number of milliseconds to wait for
