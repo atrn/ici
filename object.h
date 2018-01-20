@@ -213,7 +213,7 @@ struct object
      * zero if already marked.
      */
     inline size_t mark() {
-        if (flagged(O_MARK)) {
+        if (marked()) {
             return 0;
         }
         if (o_leafz != 0) {
@@ -559,8 +559,6 @@ constexpr int TC_MAX_CORE =     26;
 /*
  * End of ici.h export. --ici.h-end--
  */
-
-#define ICI_TRI(a,b,t)      (((((a) << 4) + b) << 6) + t_subtype(t))
 
 /*
  * Forced cast of some pointer (e.g. ostemp union type)

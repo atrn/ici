@@ -9,6 +9,9 @@
  */
 
 #ifndef BINOPFUNC
+
+#define ICI_TRI(a,b,t)      (((((a) << 4) + b) << 6) + t_subtype(t))
+
 // This uses knowledge of the exec switch in exec.c to avoid chains of
 // gotos.  The continue_with_same_pc label is defined there.
 //
