@@ -73,26 +73,10 @@ char version_string[] =
     CONFIG_FILE ", "
     __DATE__ " " __TIME__ ", "
     CONFIG_STR
-    " ("
-
 #ifndef NDEBUG
-    "DEBUG-BUILD "
+    " DEBUG-BUILD"
 #endif
-    "math "
-    "waitfor "
-    "system "
-    "pipes "
-    "dir "
-    "load "
-#ifndef NOSTARTUPFILE
-    "startupfile "
-#endif
-#ifndef NODEBUGGING
-    "debugging "
-#endif
-    "signals "
-
-    ")";
+    "";
 
 #else /* __STDC__ */
 
