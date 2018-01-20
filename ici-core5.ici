@@ -5,7 +5,7 @@ export
 deepatom(o)
 {
     t := typeof(o);
-    r := v := k := nullptr;
+    r := v := k := NULL;
     switch (t)
     {
     case "array":
@@ -39,7 +39,7 @@ deepcopy(o)
 {
     t := typeof(o);
     r := o;
-    v := k := nullptr;
+    v := k := NULL;
     switch (t)
     {
     case "array":

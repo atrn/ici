@@ -9,7 +9,7 @@ print()
 {
     var vargs, stream, o, v, k, term = "\n", sdelim = "", raw = 0, supers = [set];
 
-    if (vargs == nullptr)
+    if (vargs == NULL)
     {
 	stream = stdout;
 	o = "\n";

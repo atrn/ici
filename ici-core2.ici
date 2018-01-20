@@ -41,7 +41,7 @@ export
 basename(path, ext)
 {
     var        s;
-    var        ext = nullptr;
+    var        ext = NULL;
 
     if (!(s := path ~~ #([^/\\]*)$#))
         s = path;
@@ -62,14 +62,14 @@ basename(path, ext)
  * a map parameter that contains the following key/value pairs:
  *
  *      directory       The function to be called for each directory found
- *                      during the traversal.  If not specified or nullptr then
+ *                      during the traversal.  If not specified or NULL then
  *                      no function is called for directories found during
  *                      the traversal.
  *
  *      error		The function called when a call to dir() raises an error.
  *
  *      file            The function to be called for each file found during
- *                      the traversal.  If not specified or nullptr then no function
+ *                      the traversal.  If not specified or NULL then no function
  *                      is called for files found during the traversal.
  *
  *      dirpattern      An optional regular expression that filters the names
@@ -88,7 +88,7 @@ walk(directory, w)
     if (!(filepattern := w.filepattern))
 	    filepattern = #.*#;
 
-    names := name := nullptr;
+    names := name := NULL;
     try
     	names := dir(directory, dirpattern, "d");
     onerror
@@ -155,9 +155,9 @@ use()
     var        vargs = [array];
     var        f, s;
     var        path;
-    var        err = nullptr;
+    var        err = NULL;
 
-    if ((path = getenv("ICIPATH")) == nullptr)
+    if ((path = getenv("ICIPATH")) == NULL)
         path = ".:/usr/local/lib/ici";
     scp = super(top(vstack(), -1));
     forall (fn in vargs)

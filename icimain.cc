@@ -7,7 +7,6 @@
 #include "str.h"
 #include "map.h"
 #include "buf.h"
-#include "wrap.h"
 #include "func.h"
 #ifndef NOPROFILE
 #include "profile.h"

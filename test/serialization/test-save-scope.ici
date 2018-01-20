@@ -3,12 +3,12 @@ xdeepcopy(o, ss, depth)
 {
     var depth = 0;
 
-    v := k := nullptr;
+    v := k := NULL;
     switch (typeof(o))
     {
     case "map":
         if (ss[o])
-            return nullptr;
+            return NULL;
         ss[o] := 1;
         r := map();
 	if (super(o))

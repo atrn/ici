@@ -2,7 +2,7 @@
  * Apply certain cleanups to all the FrameMaker produced HTML files in a
  * given directory.
  */
-if ((base = argv[1]) == nullptr)
+if ((base = argv[1]) == NULL)
     base = "../../../web-site/book";
 fnames = dir(base, #.html?#);
 html = struct();

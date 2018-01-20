@@ -50,16 +50,16 @@ printf("stmt...\n");
         fail("forall loop gave wrong sum");
 
     y = 0;
-    forall (x in nullptr)
+    forall (x in NULL)
         y += x;
     if (y != 0)
-        fail("nullptr forall loop failed");
+        fail("NULL forall loop failed");
 
 
     x = [map];
     super(x, y = @[map a = 1]);
     ++x.a;
-    super(x, nullptr);
+    super(x, NULL);
     if (x.a != 2)
         fail("failed to inc new element");
     if (y.a != 1)
@@ -241,8 +241,8 @@ printf("binops...\n");
         [map op = "==",  a = [map a=1,b=2], b = [map a=1,b=3], r = 0],
         [map op = "==",  a = [map a=1], b = [map a=1,b=2], r = 0],
         [map op = "==",  a = [map a=1,b=2], b = [map a=1], r = 0],
-        [map op = "==",  a = nullptr, b = nullptr, r = 1],
-        [map op = "==",  a = nullptr, b = 0, r = 0],
+        [map op = "==",  a = NULL, b = NULL, r = 1],
+        [map op = "==",  a = NULL, b = 0, r = 0],
 
         [map op = "!=",  a = 13, b = 2, r = 1],
         [map op = "!=",  a = 13, b = 13, r = 0],
@@ -280,8 +280,8 @@ printf("binops...\n");
         [map op = "!=",  a = [map a=1,b=2], b = [map a=1,b=3], r = 1],
         [map op = "!=",  a = [map a=1], b = [map a=1,b=2], r = 1],
         [map op = "!=",  a = [map a=1,b=2], b = [map a=1], r = 1],
-        [map op = "!=",  a = nullptr, b = nullptr, r = 0],
-        [map op = "!=",  a = nullptr, b = 0, r = 1],
+        [map op = "!=",  a = NULL, b = NULL, r = 0],
+        [map op = "!=",  a = NULL, b = 0, r = 1],
 
         [map op = "&",   a = 7, b = 13, r = 5],
         [map op = "&=",  a = 7, b = 13, r = 5],
@@ -304,10 +304,10 @@ printf("binops...\n");
         [map op = "~~=", a = #a(.)c#, b = "abc", r = "b"],
         [map op = "~~",  a = "abc", b = #a(.)c#, r = "b"],
         [map op = "~~=", a = "abc", b = #a(.)c#, r = "b"],
-        [map op = "~~",  a = #a(.)c$#, b = "ab", r = nullptr],
-        [map op = "~~=", a = #a(.)c$#, b = "ab", r = nullptr],
-        [map op = "~~",  a = "ab", b = #a(.)c$#, r = nullptr],
-        [map op = "~~=", a = "ab", b = #a(.)c$#, r = nullptr],
+        [map op = "~~",  a = #a(.)c$#, b = "ab", r = NULL],
+        [map op = "~~=", a = #a(.)c$#, b = "ab", r = NULL],
+        [map op = "~~",  a = "ab", b = #a(.)c$#, r = NULL],
+        [map op = "~~=", a = "ab", b = #a(.)c$#, r = NULL],
 
         [map op = "~~~", a = #a(.)c(.)e#, b = "abcde", r = [array "b", "d"]],
         [map op = "~~~", a = "abcde", b = #a(.)c(.)e#, r = [array "b", "d"]],
@@ -413,7 +413,7 @@ printf("sets...\n");
             }
             else
             {
-                if (victim.(e) != nullptr)
+                if (victim.(e) != NULL)
                     fail(sprintf("element present at pass %d of sets test", i));
             }
         }
@@ -466,8 +466,8 @@ printf("del...\n");
             }
             else
             {
-                if (victim.(e) != nullptr)
-                    fail(sprintf("value not nullptr at pass %d of del() test", i));
+                if (victim.(e) != NULL)
+                    fail(sprintf("value not NULL at pass %d of del() test", i));
             }
         }
     }
@@ -716,7 +716,7 @@ printf("func...\n");
        fail("-ve (-2) index did not produce expected result");
     if (x[-3] != 1)
        fail("-ve (-3) index did not produce expected result");
-    if (x[-4] != nullptr)
+    if (x[-4] != NULL)
        fail("-ve (-4) index did not produce expected result");
 
     x = [map a=1, b=2, c=[array 3, 4]];
@@ -873,7 +873,7 @@ printf("func...\n");
             [map name="mem",     obj=$alloc(0)],
             [map name="ptr",     obj=$&x],
             [map name="regexp",  obj=#.#],
-            [map name="nullptr",    obj=nullptr],
+            [map name="NULL",    obj=NULL],
             [map name="file",    obj=currentfile()],
         ]
     )
@@ -899,7 +899,7 @@ printf("func...\n");
     {
         // var vargs;
 
-        if (a != 1 || b != 2 || vargs != nullptr)
+        if (a != 1 || b != 2 || vargs != NULL)
             fail("call() didn't transfer as expected");
         return 3;
     }
@@ -909,7 +909,7 @@ printf("func...\n");
     if (call(afunc, 1, [array 2]) != 3)
         fail("call() didn't return correctly");
 
-    if (call(afunc, 1, 2, nullptr) != 3)
+    if (call(afunc, 1, 2, NULL) != 3)
         fail("call() didn't return correctly");
 
     x = keys([map a=1, b=2]);
@@ -1121,11 +1121,11 @@ printf("regexp...\n");
      *                      For test_match() this is an int, 0 or 1 - the result
      *                      of the `~' operator.
      *
-     *                      For test_extract() it is a string or nullptr (if the
+     *                      For test_extract() it is a string or NULL (if the
      *                      sub-string extraction is expected to fail).
      *
      *                      For test_extractv() it is either an array of strings
-     *                      or nullptr (again if the extraction is to fail).
+     *                      or NULL (again if the extraction is to fail).
      *
      *                      For test_sub() it is a string.
      *
@@ -1160,8 +1160,8 @@ printf("regexp...\n");
                     "\"%s\" ~~ \"%s\" produced \"%s\", expected \"%s\"",
                     pat,
                     str,
-                    typeof(rc) == "nullptr" ? "nullptr" : rc,
-                    typeof(result) == "nullptr" ? "nullptr" : result
+                    typeof(rc) == "NULL" ? "NULL" : rc,
+                    typeof(result) == "NULL" ? "NULL" : result
                 )
             );
         }
@@ -1183,8 +1183,8 @@ printf("regexp...\n");
                     "\"%s\" ~~~ \"%s\" produced %s, expected %s",
                     str,
                     pat,
-                    rc == nullptr ? "nullptr" : "an array",
-                    result == nullptr ? "nullptr" : "an array"
+                    rc == NULL ? "NULL" : "an array",
+                    result == NULL ? "NULL" : "an array"
                 )
             );
         }
@@ -1312,7 +1312,7 @@ printf("regexp...\n");
     /*
      * String extraction
      */
-    extract("Should be nullptr returned", "THIS", nullptr);
+    extract("Should be NULL returned", "THIS", NULL);
     extract("Should be THIS returned", "(THIS)", "THIS");
     extract("A [{ in a char class", "([\\[{])",         "[");
 
@@ -1365,7 +1365,7 @@ printf("thread...\n");
     }
 
     x := go(ack, 2, 3);
-    waitfor (x.result != nullptr; x)
+    waitfor (x.result != NULL; x)
         ;
     if (x.result != 9)
         fail("incorrect result from func in other thread");
@@ -1373,7 +1373,7 @@ printf("thread...\n");
     local count;
     var x, i, did_crit = 0;
     go([func(){for (count = 0; count < 50000; ++count);}]);
-    while (count == nullptr)
+    while (count == NULL)
         ;
     while (count < 50000)
     {
@@ -1458,11 +1458,11 @@ printf("misc...\n");
 ];
 
 [module
-    x = nullptr;
+    x = NULL;
     try
         x = xml;
     onerror
-        x = nullptr;
+        x = NULL;
 
     y = gettokens(currentfile(), "", "!")[0];
     <mydoc>
@@ -1472,7 +1472,7 @@ printf("misc...\n");
     </mydoc>
     !
 
-    if (x == nullptr)
+    if (x == NULL)
     {
         ; // printf("not available, skipped.\n");
     }
