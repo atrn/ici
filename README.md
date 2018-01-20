@@ -34,6 +34,10 @@ distribution and some of may still apply. I haven't checked. In
 general, other than in these _readme_ files, the ICI documentation has
 **not** been updated to reflect changes and additions.
 
+## Building
+
+See [BUILDING.md](BUILDING.md) for details on how to build.
+
 ## License
 
 ICI was previously distributed under a public domain license and the
