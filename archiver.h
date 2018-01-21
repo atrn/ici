@@ -101,14 +101,7 @@ private:
     objwsup *a_scope;
 
 private:
-    int get() {
-        char c;
-        if (read(&c) == 1) {
-            return c;
-        }
-        return -1;
-    }
-
+    int get() { return a_file->getch(); }
     static void byteswap(void *ptr, int sz);
 };
 
