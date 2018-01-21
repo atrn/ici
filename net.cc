@@ -274,12 +274,12 @@ static struct sockaddr_in * parseaddr(const char *raddr, long defhost, struct so
         struct hostent *hostent;
         uint32_t        hostaddr;
 
-        if (!strcmp(host, "."))
-            hostaddr = htonl(INADDR_LOOPBACK);
-        else if (!strcmp(host, "?"))
+        if (*host == '\0')
             hostaddr = htonl(INADDR_ANY);
+        else if (!strcmp(host, "."))
+            hostaddr = htonl(INADDR_LOOPBACK);
         else if (!strcmp(host, "*"))
-            hostaddr = htonl(INADDR_BROADCAST);
+            hostaddr = htonl(INADDR_ANY);
         else if ((hostaddr = inet_addr(host)) != (in_addr_t)-1)
             /* NOTHING */ ;
         else if ((hostent = gethostbyname(host)) != nullptr)
@@ -336,11 +336,9 @@ static char * unparse_addr(struct sockaddr_in *addr)
     off = strlen(addr_buf);
 
     if (addr->sin_addr.s_addr == INADDR_ANY)
-        strcpy(addr_buf+off, "?");
+        strcpy(addr_buf+off, "*");
     else if (addr->sin_addr.s_addr == INADDR_LOOPBACK)
         strcat(addr_buf+off, ".");
-    else if (addr->sin_addr.s_addr == INADDR_BROADCAST)
-        strcat(addr_buf+off, "*");
     else
         sprintf(addr_buf+off, "%u", ntohs(addr->sin_port));
     return addr_buf;
