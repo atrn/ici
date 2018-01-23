@@ -176,6 +176,9 @@ object *regexp_type::fetch(object *o, object *k)
 
 int regexp_type::save(archiver *ar, object *o) {
     auto re = regexpof(o);
+    if (auto p = ar->lookup(o)) {
+        return ar->save_ref(p);
+    }
     int32_t options;
     ici_pcre_info(re->r_re, &options, nullptr);
     return ar->save_name(o) || ar->write(options) || ar->save(re->r_pat);

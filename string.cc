@@ -446,7 +446,13 @@ int string_type::forall(object *o) {
 
 int string_type::save(archiver *ar, object *o) {
     auto s = stringof(o);
-    return ar->save_name(o) || ar->write(int32_t(s->s_nchars)) || ar->write(s->s_chars, s->s_nchars);
+    if (auto p = ar->lookup(o)) {
+        return ar->save_ref(p);
+    }
+    if (ar->save_name(o) || ar->write(int32_t(s->s_nchars)) || ar->write(s->s_chars, s->s_nchars)) {
+        return 1;
+    }
+    return 0;
 }
 
 object *string_type::restore(archiver *ar) {

@@ -35,6 +35,8 @@ class mark_type : public type
 public:
     mark_type() : type("mark", sizeof (struct mark)) {}
     void free(object *) override;
+    int save(archiver *, object *) override;
+    object *restore(archiver *) override;
 };
 
 } // namespace ici

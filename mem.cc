@@ -140,6 +140,9 @@ object * mem_type::fetch(object *o, object *k)
 
 int mem_type::save(archiver *ar, object *o) {
     auto m = memof(o);
+    if (auto p = ar->lookup(o)) {
+        return ar->save_ref(p);
+    }
     return ar->save_name(o)
         || ar->write(int64_t(m->m_length))
         || ar->write(int16_t(m->m_accessz))

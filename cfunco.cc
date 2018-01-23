@@ -1,6 +1,7 @@
 #define ICI_CORE
 #include "fwd.h"
 #include "cfunc.h"
+#include "archiver.h"
 #include "debugger.h"
 #include "exec.h"
 #include "ptr.h"
@@ -207,6 +208,53 @@ int cfunc_type::call(object *o, object *subject)
         return result;
     }
     return (*cfuncof(o)->cf_cfunc)(subject);
+}
+
+int cfunc_type::save(archiver *ar, object *o) {
+    auto cf = cfuncof(o);
+    if (auto p = ar->lookup(o)) {
+        return ar->save_ref(p);
+    }
+    if (ar->save_name(o) || ar->write(int16_t(cf->cf_name->s_nchars)) || ar->write(cf->cf_name->s_chars, cf->cf_name->s_nchars)) {
+        return 1;
+    }
+    return 0;
+}
+
+object *cfunc_type::restore(archiver *ar) {
+    object *name;
+    if (ar->restore_name(&name)) {
+        return nullptr;
+    }
+    int16_t n;
+    if (ar->read(n)) {
+        return nullptr;
+    }
+    char buf[1024];
+    if (size_t(n) >= sizeof buf) {
+        set_error("attempt to restore %d byte cfunc", n);
+        return nullptr;
+    }
+    if (ar->read(buf, n-1)) {
+        return nullptr;
+    }
+    buf[n] = '\0';
+    auto s = new_str(buf, n);
+    if (!s) {
+        return nullptr;
+    }
+    auto scope = mapof(vs.a_top[-1]);
+    auto f = ici_fetch(scope, s);
+    s->decref();
+    if (f == nullptr || f == null) {
+        set_error("attempt to restore unknown C function \"%s\"", buf);
+        return nullptr;
+    }
+    if (!iscfunc(f)) {
+        set_error("attempt to restore %s object as C function \"%s\"", f->icitype()->name, buf);
+        return nullptr;
+    }
+    return f;
 }
 
 } // namespace ici

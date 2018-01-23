@@ -691,7 +691,9 @@ int array_type::forall(object *o)
 
 int array_type::save(archiver *ar, object *o) {
     auto a = arrayof(o);
-
+    if (auto p = ar->lookup(o)) {
+        return ar->save_ref(p);
+    }
     if (ar->save_name(o) || ar->write(int64_t(a->len())))
         return 1;
     for (object **e = a->astart(); e != a->alimit(); e = a->anext(e)) {

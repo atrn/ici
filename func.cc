@@ -304,13 +304,11 @@ int func_type::call(object *o, object *subject)
 
 int func_type::save(archiver *ar, object *o) {
     auto f = funcof(o);
-    map *autos;
 
-    if (iscfunc(o)) {
-        auto cf = cfuncof(o);
-        return ar->write(int16_t(cf->cf_name->s_nchars)) || ar->write(cf->cf_name->s_chars, cf->cf_name->s_nchars);
+    if (auto p = ar->lookup(o)) {
+        return ar->save_ref(p);
     }
-
+    map *autos;
     if (ar->save_name(o) || ar->save(f->f_code) || ar->save(f->f_args))
         return 1;
     if ((autos = mapof(f->f_autos->copy())) == nullptr)

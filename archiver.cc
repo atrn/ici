@@ -56,19 +56,19 @@
 namespace ici
 {
 
-inline long long ici_htonll(long long v)
+inline long long ici_htonll(int64_t v)
 {
     assert(sizeof (long long) == 8);
 #if ICI_ARCHIVE_LITTLE_ENDIAN_HOST
-    uint32_t msw = v >> 32ull;
+    uint32_t msw = uint32_t(v >> 32ull);
     uint32_t lsw = v & ((1ull<<32)-1);
-    return (long long)htonl(msw) | ((long long)htonl(lsw) << 32ull);
+    return (int64_t)htonl(msw) | ((int64_t)htonl(lsw) << 32ull);
 #else
     return v;
 #endif
 }
 
-long long ici_ntohll(long long v)
+long long ici_ntohll(int64_t v)
 {
     return ici_htonll(v);
 }
@@ -207,9 +207,9 @@ int archiver::read(void *buf, int len)
         if ((ch = get()) == -1)
         {
             set_error("eof");
-	    return 1;
+            return 1;
         }
-	*p++ = ch;
+        *p++ = ch;
     }
     return 0;
 }
@@ -254,7 +254,7 @@ int archiver::read(double *dbl)
 }
 
 int archiver::write(const void *p, int n) {
-    return a_file->write(p, n);
+    return a_file->write(p, n) != n;
 }
 
 int archiver::write(int16_t hword)
