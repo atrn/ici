@@ -148,3 +148,7 @@ full-install:
 	$(MAKE) build=lib conf=$(conf) dccflags=--quiet
 	$(sudo) $(MAKE) build=lib install-libici install-ici-exe dest=$(dest)
 	$(MAKE) clean
+
+.PHONY: debug
+debug:
+	@CXXFLAGSFILE=CXXFLAGS.debug $(MAKE) all

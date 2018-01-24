@@ -9,4 +9,6 @@
 -std=c++14 -Wall -Wextra -g
 -g -O0
 -UNDEBUG
--DDEBUG
+
+# For PCRE...
+#-DDEBUG
