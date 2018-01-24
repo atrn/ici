@@ -70,9 +70,9 @@ protected:
     }
 
     /*
-     * size() returns the size of the type's associated object structure.
+     * objectsize() returns the size of the type's associated object structure.
      */
-    inline size_t size() const { return _size; }
+    inline size_t objectsize() const { return _size; }
 
 public:
     /*

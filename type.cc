@@ -6,11 +6,11 @@ namespace ici
 
 size_t type::mark(object *o) {
     o->setmark();
-    return size();
+    return objectsize();
 }
 
 void type::free(object *o) {
-    ici_nfree(o, size());
+    ici_nfree(o, objectsize());
 }
 
 unsigned long type::hash(object *o) {

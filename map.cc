@@ -279,7 +279,7 @@ size_t map_type::mark(object *o)
     do /* Merge tail recursion on o_super. */
     {
         o->setmark();
-        mem = size() + mapof(o)->s_nslots * sizeof (slot);
+        mem = objectsize() + mapof(o)->s_nslots * sizeof (slot);
         if (mapof(o)->s_nels != 0)
         {
             for

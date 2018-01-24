@@ -673,13 +673,11 @@ int array_type::forall(object *o)
     a = arrayof(fa->fa_aggr);
     if (++fa->fa_index >= a->len())
         return -1;
-    if (fa->fa_vaggr != null)
-    {
+    if (fa->fa_vaggr != null) {
         if (ici_assign(fa->fa_vaggr, fa->fa_vkey, a->get(fa->fa_index)))
             return 1;
     }
-    if (fa->fa_kaggr != null)
-    {
+    if (fa->fa_kaggr != null) {
         if ((i = new_int((long)fa->fa_index)) == nullptr)
             return 1;
         if (ici_assign(fa->fa_kaggr, fa->fa_kkey, i))

@@ -23,11 +23,8 @@ src *new_src(int lineno, str *filename)
 size_t src_type::mark(object *o)
 {
     auto s = srcof(o);
-    auto mem = size();
     s->setmark();
-    if (s->s_filename)
-        mem += ici_mark(s->s_filename);
-    return mem;
+    return objectsize() + mark_optional(s->s_filename);
 }
 
 int src_type::save(archiver *ar, object *o) {
