@@ -39,7 +39,7 @@ dccflags?=
 #   is installed and made available to users.
 #
 
-build?=dll
+#build?=dll
 #build?=exe
 #build?=lib
 
@@ -75,7 +75,7 @@ all: $(prog) ici.h
 # depends on all files that may contribute to the output.
 #
 ici.h: $(prog) mk-ici-h.ici $(hdrs)
-	LD_LIBRARY_PATH=`pwd` DYLD_LIBRARY_PATH=`pwd` ./$(prog) mk-ici-h.ici $(conf)
+	@echo $(prog) mk-ici-h.ici; LD_LIBRARY_PATH=`pwd` DYLD_LIBRARY_PATH=`pwd` ./$(prog) mk-ici-h.ici $(conf)
 
 
 ifeq ($(build),dll)
@@ -110,7 +110,7 @@ else
 $(error "Bad build - nothing matched!")
 endif
 
-clean:;	rm -rf etc/main.o etc/.dcc.d *.o .dcc.d $(prog) ici.h $(dll) $(lib)
+clean:;	@echo rm $(prog) $(lib) $(dll) '*.o'; rm -rf etc/main.o etc/.dcc.d *.o .dcc.d $(prog) ici.h $(dll) $(lib)
 
 
 # Installation
