@@ -3734,14 +3734,14 @@ closedir(DIR *dir)
 static int
 f_dir()
 {
-    const char          *path   = ".";
-    const char          *format = "f";
+    const char    *path   = ".";
+    const char    *format = "f";
     regexp        *pattern = nullptr;
-    object           *o;
+    object        *o;
     array         *a;
-    DIR                 *dir;
-    struct dirent       *dirent;
-    int                 fmt;
+    DIR           *dir;
+    struct dirent *dirent;
+    int           fmt;
     str           *s;
 
     switch (NARGS())
@@ -3898,7 +3898,7 @@ f_dir()
                 closedir(dir);
                 goto fail;
             }
-            a->push(s);
+            a->push(s, with_decref);
         }
     }
     closedir(dir);
