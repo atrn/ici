@@ -4,7 +4,6 @@
 #include "pc.h"
 #include "map.h"
 #include "set.h"
-#include "forall.h"
 #include "str.h"
 #include "buf.h"
 #include "null.h"
@@ -12,10 +11,6 @@
 namespace ici
 {
 
-/*
- * Mark this and referenced unmarked objects, return memory costs.
- * See comments on t_mark() in object.h.
- */
 /*
  * va vk ka kk aggr code        => (os)
  *                              => forall (xs)
@@ -75,6 +70,10 @@ int exec_forall()
     }
 }
 
+/*
+ * Mark this and referenced unmarked objects, return memory costs.
+ * See comments on t_mark() in object.h.
+ */
 size_t forall_type::mark(object *o)
 {
     auto fa = forallof(o);
