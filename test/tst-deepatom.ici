@@ -1,3 +1,2 @@
-include("deepatom.ici");
-
+// include("deepatom.ici");
 a := deepatom(argv);

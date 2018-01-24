@@ -1,20 +1,13 @@
 signal
 (
     "quit",
-    [func ()
-    {
-	printf("\n* SIGQUIT\n");
-	exit(0);
-    }]
+    [func () { printf("\n* SIGQUIT\n"); exit(0); }]
 );
 
 signal
 (
     "int",
-    [func ()
-    {
-	printf("\n* SIGINT *\n");
-    }]
+    [func () { printf("\n* SIGINT *\n"); }]
 );
 
 var s;

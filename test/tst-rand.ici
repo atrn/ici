@@ -1,0 +1,29 @@
+N := int(argv[1]) || 18;
+M := int(argv[2]) || 6;
+Z := int(argv[3]) || 45;
+
+if (N < 1 || M < 1 || Z < 1) {
+    fail("bad parameters");
+}
+
+rand(N * getpid() * time());
+
+games := set();
+while (len(games) < N) {
+    game := set();
+    while (len(game) < M) {
+	number := 1 + rand() % Z;
+	assign(game, number);
+    }
+    sorted := sort(keys(game));
+    assign(games, @sorted);
+}
+
+print := [func (v) { printf("%2d ", v); }];
+play := 1;
+forall (game in games) {
+    printf("#%-2d :  ", play);
+    apply(print, game);
+    printf("\n");
+    ++play;
+}

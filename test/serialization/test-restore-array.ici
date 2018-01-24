@@ -15,7 +15,7 @@ local check(a, i, v)
 }
 
 file = fopen("test-save-array.ici.dat");
-o = restore(file);
+o := restore(file);
 close(file);
 if (typeof(o) != "array")
     fail("restore failed: restored a " + typeof(o));

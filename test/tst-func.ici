@@ -720,8 +720,8 @@ try
     a[-3] = 1;
 onerror
     ;
-if (error == NULL)
-    fail("failed to fail on -ve array index write");
+if (error != NULL)
+    fail("failed -ve array index write");
 
 error = NULL;
 try

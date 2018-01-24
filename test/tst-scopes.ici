@@ -1,5 +1,4 @@
-public
-report(where)
+export report(where)
 {
     s := top(vstack(), -1); // caller's scope
     printf("In %s, variable is %s\n", where, s.variable);

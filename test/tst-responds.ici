@@ -1,16 +1,12 @@
 local Class = [class
-
-    new()
-    {
+    new() {
 	return this:^new();
     }
 
-    method1()
-    {
+    method1() {
     }
 
-    method2()
-    {
+    method2() {
     }
 ];
 

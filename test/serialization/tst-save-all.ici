@@ -1,14 +1,12 @@
-local ici = getenv("ici") || "ici";
-
 local run(prog)
 {
     if (p = getenv("DYLD_LIBRARY_PATH")) {
-	cmd := sprintf("DYLD_LIBRARY_PATH=%s %s %s", p, ici, prog);
+	cmd := sprintf("DYLD_LIBRARY_PATH=%s ici %s", p, prog);
     } else {
-	cmd := ici + " " + prog;
+	cmd := "ici " + prog;
     }
     if ((status = system(cmd)) != 0)
-	fail(sprintf("%s: failed, exit status %d", cmd, status));
+	printf("%s: failed, exit status %d", cmd, status);
 }
 
 re := #test-save-(.*)\.ici$#;
@@ -16,11 +14,7 @@ save_files := sort(dir(".", re));
 forall (save_test in save_files)
 {
     test_name := save_test ~~ re;
-    restore_test := "test-restore-" + test_name + ".ici";
     printf("%s .. ", test_name); flush();
-
     run(save_test);
-    run(restore_test);
-
-    printf("passed\n");
+    printf("\n");
 }

@@ -1,18 +1,12 @@
 walk
 (
     argv[1] || ".",
-    [map
-
-	filepattern = regexp(argv[2] || ".*"),
-
-	file = [func (pathname)
-	{
-	    printf("%s\n", pathname);
-	}],
-
-	error = [func (pathname, error)
-	{
-	    printf(stderr, "ERROR: %s: %s\n", pathname, error);
-	}]
+    [map filepattern = regexp(argv[2] || ".*"),
+	 file = [func (pathname) {
+	     // printf("file: %s\n", pathname);
+	 }],
+	 error = [func (pathname, error) {
+	     printf(stderr, "ERROR: %s: %s\n", pathname, error);
+	 }]
     ]
 );

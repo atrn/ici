@@ -1,3 +1,10 @@
+local epsilon = 0.000001;
+
+local floateq(a, b) {
+    d := abs(a - b);
+    return d < epsilon;
+}
+
 file = fopen("test-save-float.ici.dat");
 o = restore(file);
 close(file);
