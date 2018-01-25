@@ -101,27 +101,27 @@ archiver::~archiver() {
     }
 }
 
-int archiver::record(object *key, object *val) {
+int archiver::record(object *obj, object *ref) {
     int rc = 1;
-    if (auto k = make_key(key)) {
-        rc = a_sent->assign(k, val);
+    if (auto k = make_key(obj)) {
+        rc = a_sent->assign(k, ref);
         k->decref();
     }
     return rc;
 }
 
-void archiver::remove(object *key) {
-    if (auto k = make_key(key)) {
+void archiver::remove(object *obj) {
+    if (auto k = make_key(obj)) {
         unassign(a_sent, k);
         k->decref();
     }
 }
 
 int archiver::save_name(object *o) {
+    const int64_t ref = (int64_t)o;
     if (record(o, o)) {
         return 1;
     }
-    const int64_t ref = (int64_t)o;
     if (write(ref)) {
         return 1;
     }
@@ -267,6 +267,9 @@ int archiver::write(double v) {
 }
 
 int archiver::save(object *o) {
+    if (auto p = lookup(o)) { // already sent in this session
+        return save_ref(p);
+    }
     uint8_t tcode = o->o_tcode & 0x1F;
     if (o->isatom()) tcode |= O_ARCHIVE_ATOMIC;
     return write(tcode) || o->icitype()->save(this, o);

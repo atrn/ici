@@ -324,9 +324,6 @@ int set_type::forall(object *o)
 
 int set_type::save(archiver *ar, object *o) {
     auto s = setof(o);
-    if (auto p = ar->lookup(o)) {
-        return ar->save_ref(p);
-    }
     if (ar->save_name(o)) {
         return 1;
     }

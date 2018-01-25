@@ -304,10 +304,6 @@ int func_type::call(object *o, object *subject)
 
 int func_type::save(archiver *ar, object *o) {
     auto f = funcof(o);
-
-    if (auto p = ar->lookup(o)) {
-        return ar->save_ref(p);
-    }
     map *autos;
     if (ar->save_name(o)) {
         return 1;

@@ -713,11 +713,6 @@ object *map_type::fetch_base(object *o, object *k)
 
 int map_type::save(archiver *ar, object *o) {
     map *s = mapof(o);
-
-    if (auto p = ar->lookup(o)) {
-        return ar->save_ref(p);
-    }
-
     object *super = objwsupof(s)->o_super;
 
     if (super == nullptr) {

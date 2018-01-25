@@ -212,9 +212,6 @@ int cfunc_type::call(object *o, object *subject)
 
 int cfunc_type::save(archiver *ar, object *o) {
     auto cf = cfuncof(o);
-    if (auto p = ar->lookup(o)) {
-        return ar->save_ref(p);
-    }
     if (ar->save_name(o)) {
         return 1;
     }

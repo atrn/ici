@@ -689,9 +689,6 @@ int array_type::forall(object *o)
 
 int array_type::save(archiver *ar, object *o) {
     auto a = arrayof(o);
-    if (auto p = ar->lookup(o)) {
-        return ar->save_ref(p);
-    }
     if (ar->save_name(o)) {
         return 1;
     }
