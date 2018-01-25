@@ -1,0 +1,23 @@
+local expected = "Hello, World!";
+local etype = "string";
+
+local N = int(argv[1]) || 100;
+
+file = fopen("test-save-array-simple.ici.dat");
+o := restore(file);
+close(file);
+
+if (typeof(o) != "array")
+    fail("restore failed: restored a " + typeof(o));
+
+if (len(o) != N)
+    fail(sprintf("restore failed: nels == %d", len(o)));
+
+for (i := 0; i < N; ++i) {
+    if (typeof(o[i]) != etype) {
+        fail(sprintf("restore failed: element %d: is-a %s", i, typeof(o[i])));
+    }
+    if (o[i] != expected) {
+        fail(sprintf("restore failed: element %d: %s != %s", i, string(o[i]), string(expected)));
+    }
+}

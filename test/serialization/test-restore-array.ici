@@ -1,4 +1,4 @@
-local N = 1000;
+local N = int(argv[1]) || 1000;
 
 local check(a, i, v)
 {

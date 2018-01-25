@@ -1,3 +1,7 @@
+export data_file_name(test) {
+       return sub(test, #\.ici#, ".dat");
+}
+
 export floateq(a, b) {
     return abs(b - a) < 1e-16;
 }

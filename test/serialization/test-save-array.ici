@@ -1,7 +1,6 @@
-local N = 1000;
-
+local N = int(argv[1]) || 1000;
 file := fopen(basename(argv[0]) + ".dat", "w");
-o := array(1, "two", 3.1415, "four", "FIVE", 6.0);
+o := @array(1, "two", 3.1415, "four", "FIVE", 6.0);
 a := array();
 for (i := 0; i < N; ++i)
     push(a, o);
