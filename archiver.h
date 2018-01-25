@@ -103,6 +103,8 @@ private:
 private:
     int get() { return a_file->getch(); }
     static void byteswap(void *ptr, int sz);
+    friend long long ici_ntohll(long long);
+    friend long long ici_htonll(long long);
 };
 
 /*

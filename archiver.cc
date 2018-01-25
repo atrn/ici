@@ -56,29 +56,21 @@
 namespace ici
 {
 
-inline long long ici_htonll(int64_t v)
-{
-    assert(sizeof (long long) == 8);
-#if ICI_ARCHIVE_LITTLE_ENDIAN_HOST
-    uint32_t msw = uint32_t(v >> 32ull);
-    uint32_t lsw = v & ((1ull<<32)-1);
-    return (int64_t)htonl(msw) | ((int64_t)htonl(lsw) << 32ull);
-#else
+inline long long ici_htonll(int64_t v) {
+    // archiver::byteswap(&v, sizeof v);
     return v;
-#endif
 }
 
-long long ici_ntohll(int64_t v)
-{
-    return ici_htonll(v);
+inline long long ici_ntohll(int64_t v) {
+    // archiver::byteswap(&v, sizeof v);
+    return v;
 }
 
 typedef int int_func();
 static int_func *op_funcs[7];
 constexpr auto num_op_funcs = nels(op_funcs);
 
-int archive_init()
-{
+int archive_init() {
     op_funcs[0] = nullptr;
     op_funcs[1] = o_mklvalue.op_func;
     op_funcs[2] = o_onerror.op_func;
@@ -89,8 +81,7 @@ int archive_init()
     return 0;
 }
 
-void archive_uninit()
-{
+void archive_uninit() {
 }
 
 inline object *make_key(object *obj) {
@@ -112,8 +103,7 @@ archiver::~archiver() {
 
 int archiver::record(object *key, object *val) {
     int rc = 1;
-    if (auto k = make_key(key))
-    {
+    if (auto k = make_key(key)) {
         rc = a_sent->assign(k, val);
         k->decref();
     }
@@ -121,8 +111,7 @@ int archiver::record(object *key, object *val) {
 }
 
 void archiver::remove(object *key) {
-    if (auto k = make_key(key))
-    {
+    if (auto k = make_key(key)) {
         unassign(a_sent, k);
         k->decref();
     }
@@ -165,47 +154,34 @@ int archiver::op_func_code(int_func *fn)
     return -1;
 }
 
-int_func *archiver::op_func(int code)
-{
+int_func *archiver::op_func(int code) {
     if (code < 0 || size_t(code) >= num_op_funcs) {
         return nullptr;
     }
     return op_funcs[code];
 }
 
-void archiver::byteswap(void *ptr, int sz)
-{
-#if ICI_ARCHIVE_LITTLE_ENDIAN_HOST
-    if (sz == sizeof (long long)) {
-        long long *ll = (long long *)ptr;
-        *ll = ici_htonll(*ll);
-        return;
-    }
-
+void archiver::byteswap(void *ptr, int sz) {
+#if 1 // ICI_ARCHIVE_LITTLE_ENDIAN_HOST
+    (void)ptr;
+    (void)sz;
+#else
     char *s = (char *)ptr;
     char *e = s + sz - 1;
     int i;
-
     for (i = 0; i < sz / 2 ; ++i) {
         char t = s[i];
         s[i] = e[-i];
         e[-i] = t;
     }
-#else
-    (void)ptr;
-    (void)sz;
 #endif
 }
 
-int archiver::read(void *buf, int len)
-{
+int archiver::read(void *buf, int len) {
     char *p = (char *)buf;
-    while (len-- > 0)
-    {
+    while (len-- > 0) {
         int ch;
-
-        if ((ch = get()) == -1)
-        {
+        if ((ch = get()) == -1) {
             set_error("eof");
             return 1;
         }
@@ -214,42 +190,41 @@ int archiver::read(void *buf, int len)
     return 0;
 }
 
-int archiver::read(int16_t *hword)
-{
+int archiver::read(int16_t *hword) {
     int16_t tmp;
     if (read(&tmp, sizeof tmp)) {
     	return 1;
     }
-    *hword = ntohs(tmp);
+    // *hword = ntohs(tmp);
+    *hword = tmp;
     return 0;
 }
 
-int archiver::read(int32_t *aword)
-{
+int archiver::read(int32_t *aword) {
     int32_t tmp;
     if (read(&tmp, sizeof tmp)) {
     	return 1;
     }
-    *aword = ntohl(tmp);
+    // *aword = ntohl(tmp);
+    *aword = tmp;
     return 0;
 }
 
-int archiver::read(int64_t *dword)
-{
+int archiver::read(int64_t *dword) {
     int64_t tmp;
     if (read(&tmp, sizeof tmp)) {
     	return 1;
     }
-    *dword = ici_ntohll(tmp);
+    // *dword = ici_ntohll(tmp);
+    *dword = tmp;
     return 0;
 }
 
-int archiver::read(double *dbl)
-{
+int archiver::read(double *dbl) {
     if (read(dbl, sizeof *dbl)) {
         return 1;
     }
-    byteswap(&dbl, sizeof dbl);
+    // byteswap(&dbl, sizeof dbl);
     return 0;
 }
 
@@ -257,39 +232,33 @@ int archiver::write(const void *p, int n) {
     return a_file->write(p, n) != n;
 }
 
-int archiver::write(int16_t hword)
-{
-    const int16_t swapped = htons(hword);
-    return write(&swapped, sizeof swapped);
+int archiver::write(int16_t hword) {
+    // byteswap(&hword, sizeof hword);
+    return write(&hword, sizeof hword);
 }
 
-int archiver::write(int32_t aword)
-{
-    const int32_t swapped = htonl(aword);
-    return write(&swapped, sizeof swapped);
+int archiver::write(int32_t aword) {
+    // byteswap(&aword, sizeof aword);
+    return write(&aword, sizeof aword);
 }
 
-int archiver::write(int64_t dword)
-{
-    const auto swapped = ici_htonll(dword);
-    return write(&swapped, sizeof swapped);
+int archiver::write(int64_t dword) {
+    // byteswap(&dword, sizeof dword);
+    return write(&dword, sizeof dword);
 }
 
-int archiver::write(double v)
-{
-    byteswap(&v, sizeof v);
+int archiver::write(double v) {
+    // byteswap(&v, sizeof v);
     return write(&v, sizeof v);
 }
 
-int archiver::save(object *o)
-{
+int archiver::save(object *o) {
     uint8_t tcode = o->o_tcode & 0x1F;
     if (o->isatom()) tcode |= O_ARCHIVE_ATOMIC;
     return write(tcode) || o->icitype()->save(this, o);
 }
 
-object *archiver::restore()
-{
+object *archiver::restore() {
     uint8_t tcode, flags;
     if (read(tcode)) {
     	return nullptr;
@@ -320,8 +289,7 @@ object *archiver::restore()
  *
  * This --topic-- forms part of the --ici-serialisation-- documentation.
  */
-int f_archive_save(...)
-{
+int f_archive_save(...) {
     objwsup *scp = mapof(vs.a_top[-1])->o_super;
     file *file;
     object *obj;
@@ -356,40 +324,32 @@ int f_archive_save(...)
     return failed ? failed : null_ret();
 }
 
-int
-f_archive_restore(...)
-{
+int f_archive_restore(...) {
     file *file;
     objwsup *scp;
     object *obj = nullptr;
 
     scp = mapof(vs.a_top[-1])->o_super;
-    switch (NARGS())
-    {
+    switch (NARGS()) {
     case 0:
-        if ((file = need_stdin()) == nullptr)
-        {
+        if ((file = need_stdin()) == nullptr) {
             return 1;
         }
 	break;
 
     case 1:
-        if (typecheck("u", &file))
-	{
-            if (typecheck("d", &scp))
-            {
+        if (typecheck("u", &file)) {
+            if (typecheck("d", &scp)) {
 		return 1;
             }
-	    if ((file = need_stdin()) == nullptr)
-            {
+	    if ((file = need_stdin()) == nullptr) {
 		return 1;
             }
 	}
 	break;
 
     default:
-	if (typecheck("ud", &file, &scp))
-        {
+	if (typecheck("ud", &file, &scp)) {
 	    return 1;
         }
 	break;
