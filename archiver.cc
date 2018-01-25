@@ -118,8 +118,14 @@ void archiver::remove(object *key) {
 }
 
 int archiver::save_name(object *o) {
+    if (record(o, o)) {
+        return 1;
+    }
     const int64_t ref = (int64_t)o;
-    return record(o, o) || write(ref);
+    if (write(ref)) {
+        return 1;
+    }
+    return 0;
 }
 
 int archiver::restore_name(object **name) {
@@ -134,6 +140,14 @@ int archiver::restore_name(object **name) {
 int archiver::save_ref(object *o) {
     const int64_t ref = (int64_t)o;
     return write(TC_REF) || write(ref);
+}
+
+object *archiver::restore_ref() {
+    object *name;
+    if (restore_name(&name)) {
+        return nullptr;
+    }
+    return lookup(name);
 }
 
 object *archiver::lookup(object *obj) {
@@ -262,6 +276,9 @@ object *archiver::restore() {
     uint8_t tcode, flags;
     if (read(tcode)) {
     	return nullptr;
+    }
+    if (tcode == TC_REF) {
+        return restore_ref();
     }
     flags = tcode & O_ARCHIVE_ATOMIC ? object::O_ATOM : 0;
     tcode &= ~O_ARCHIVE_ATOMIC;

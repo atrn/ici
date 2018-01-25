@@ -215,7 +215,13 @@ int cfunc_type::save(archiver *ar, object *o) {
     if (auto p = ar->lookup(o)) {
         return ar->save_ref(p);
     }
-    if (ar->save_name(o) || ar->write(int16_t(cf->cf_name->s_nchars)) || ar->write(cf->cf_name->s_chars, cf->cf_name->s_nchars)) {
+    if (ar->save_name(o)) {
+        return 1;
+    }
+    if (ar->write(int16_t(cf->cf_name->s_nchars))) {
+        return 1;
+    }
+    if (ar->write(cf->cf_name->s_chars, cf->cf_name->s_nchars)) {
         return 1;
     }
     return 0;
@@ -244,17 +250,17 @@ object *cfunc_type::restore(archiver *ar) {
         return nullptr;
     }
     auto scope = mapof(vs.a_top[-1]);
-    auto f = ici_fetch(scope, s);
+    auto cf = ici_fetch(scope, s);
     s->decref();
-    if (f == nullptr || f == null) {
+    if (cf == nullptr || cf == null) {
         set_error("attempt to restore unknown C function \"%s\"", buf);
         return nullptr;
     }
-    if (!iscfunc(f)) {
-        set_error("attempt to restore %s object as C function \"%s\"", f->icitype()->name, buf);
+    if (!iscfunc(cf)) {
+        set_error("attempt to restore %s object as C function \"%s\"", cf->icitype()->name, buf);
         return nullptr;
     }
-    return f;
+    return ici_copy(cf);
 }
 
 } // namespace ici

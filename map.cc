@@ -723,12 +723,20 @@ int map_type::save(archiver *ar, object *o) {
     if (super == nullptr) {
         super = null;
     }
-    if (ar->save_name(o) || ar->save(super) || ar->write(int64_t(s->s_nels)))
+    if (ar->save_name(o)) {
         return 1;
+    }
+    if (ar->save(super)) {
+        return 1;
+    }
+    if (ar->write(int64_t(s->s_nels))) {
+        return 1;
+    }
     for (slot *sl = s->s_slots; size_t(sl - s->s_slots) < s->s_nslots; ++sl) {
         if (sl->sl_key && sl->sl_value) {
-            if (ar->save(sl->sl_key) || ar->save(sl->sl_value))
+            if (ar->save(sl->sl_key) || ar->save(sl->sl_value)) {
                 return 1;
+            }
         }
     }
     return 0;

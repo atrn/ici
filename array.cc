@@ -692,11 +692,16 @@ int array_type::save(archiver *ar, object *o) {
     if (auto p = ar->lookup(o)) {
         return ar->save_ref(p);
     }
-    if (ar->save_name(o) || ar->write(int64_t(a->len())))
+    if (ar->save_name(o)) {
         return 1;
+    }
+    if (ar->write(int64_t(a->len()))) {
+        return 1;
+    }
     for (object **e = a->astart(); e != a->alimit(); e = a->anext(e)) {
-        if (ar->save(*e))
+        if (ar->save(*e)) {
             return 1;
+        }
     }
     return 0;
 }
@@ -728,7 +733,7 @@ object *array_type::restore(archiver *ar) {
             o->decref();
             goto fail1;
         }
-	o->decref();
+        o->decref();
     }
     return a;
 

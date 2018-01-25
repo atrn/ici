@@ -63,8 +63,9 @@ public:
     void remove(object *);
 
     int save_name(object *);
-    int save_ref(object *);
     int restore_name(object **);
+    int save_ref(object *);
+    object *restore_ref();
 
     virtual int read(void *buf, int len);
     virtual int write(const void *, int);

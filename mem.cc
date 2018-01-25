@@ -143,10 +143,19 @@ int mem_type::save(archiver *ar, object *o) {
     if (auto p = ar->lookup(o)) {
         return ar->save_ref(p);
     }
-    return ar->save_name(o)
-        || ar->write(int64_t(m->m_length))
-        || ar->write(int16_t(m->m_accessz))
-        || ar->write(m->m_base, m->m_length * m->m_accessz);
+    if (ar->save_name(o)) {
+        return 1;
+    }
+    if (ar->write(int64_t(m->m_length))) {
+        return 1;
+    }
+    if (ar->write(int16_t(m->m_accessz))) {
+        return 1;
+    }
+    if (ar->write(m->m_base, m->m_length * m->m_accessz)) {
+        return 1;
+    }
+    return 0;
 }
 
 object *mem_type::restore(archiver *ar) {

@@ -181,7 +181,16 @@ int regexp_type::save(archiver *ar, object *o) {
     }
     int32_t options;
     ici_pcre_info(re->r_re, &options, nullptr);
-    return ar->save_name(o) || ar->write(options) || ar->save(re->r_pat);
+    if (ar->save_name(o)) {
+        return 1;
+    }
+    if (ar->write(options)) {
+        return 1;
+    }
+    if (ar->save(re->r_pat)) {
+        return 1;
+    }
+    return 0;
 }
 
 object *regexp_type::restore(archiver *ar) {

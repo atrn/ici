@@ -327,11 +327,16 @@ int set_type::save(archiver *ar, object *o) {
     if (auto p = ar->lookup(o)) {
         return ar->save_ref(p);
     }
-    if (ar->save_name(o) || ar->write(int64_t(s->s_nels)))
+    if (ar->save_name(o)) {
         return 1;
+    }
+    if (ar->write(int64_t(s->s_nels))) {
+        return 1;
+    }
     for (object **e = s->s_slots; size_t(e - s->s_slots) < s->s_nslots; ++e) {
-        if (*e && ar->save(*e))
+        if (*e && ar->save(*e)) {
             return 1;
+        }
     }
     return 0;
 }

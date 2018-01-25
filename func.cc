@@ -309,10 +309,18 @@ int func_type::save(archiver *ar, object *o) {
         return ar->save_ref(p);
     }
     map *autos;
-    if (ar->save_name(o) || ar->save(f->f_code) || ar->save(f->f_args))
+    if (ar->save_name(o)) {
         return 1;
-    if ((autos = mapof(f->f_autos->copy())) == nullptr)
+    }
+    if (ar->save(f->f_code)) {
         return 1;
+    }
+    if (ar->save(f->f_args)) {
+        return 1;
+    }
+    if ((autos = mapof(f->f_autos->copy())) == nullptr) {
+        return 1;
+    }
     autos->o_super = nullptr;
     unassign(autos, SS(_func_));
     if (ar->save(autos)) {
@@ -320,7 +328,13 @@ int func_type::save(archiver *ar, object *o) {
         return 1;
     }
     autos->decref();
-    return ar->save(f->f_name) || ar->write(int32_t(f->f_nautos));
+    if (ar->save(f->f_name)) {
+        return 1;
+    }
+    if (ar->write(int32_t(f->f_nautos))) {
+        return 1;
+    }
+    return 0;
 }
 
 object *func_type::restore(archiver *ar) {

@@ -14,7 +14,7 @@ int mark_type::save(archiver *, object *) {
 }
 
 object *mark_type::restore(archiver *) {
-    return &o_mark;
+    return ici_copy(&o_mark);
 }
 
 mark o_mark;

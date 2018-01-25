@@ -449,7 +449,13 @@ int string_type::save(archiver *ar, object *o) {
     if (auto p = ar->lookup(o)) {
         return ar->save_ref(p);
     }
-    if (ar->save_name(o) || ar->write(int32_t(s->s_nchars)) || ar->write(s->s_chars, s->s_nchars)) {
+    if (ar->save_name(o)) {
+        return 1;
+    }
+    if (ar->write(int32_t(s->s_nchars))) {
+        return 1;
+    }
+    if (ar->write(s->s_chars, s->s_nchars)) {
         return 1;
     }
     return 0;
@@ -466,7 +472,8 @@ object *string_type::restore(archiver *ar) {
     }
     if (ar->read(len)) {
         return nullptr;
-    } if ((s = str_alloc(len)) == nullptr) {
+    }
+    if ((s = str_alloc(len)) == nullptr) {
         return nullptr;
     }
     if (ar->read(s->s_chars, len)) {
