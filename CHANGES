@@ -13,13 +13,12 @@ Major Changes in Version 5
      shorter and a slightly better term for what the
      structure actually is.
 
-*    ftype's are now classes. Previously ICI implmented its
-     own vtable structure for file access methods. Now its
-     a class using virtual functions for the file access
-     functions.
+*    ftype's are now C++ classes. Previously ICI implemented
+     its own vtable-like structure for file access types. Now
+     this is done using a C++ class with virtual functions.
 
 *    threads are now implemented using the C++ standard library
-     and are now standard since we rely upon a C++ version where
+     and are now standard since we rely upon a C++ versions where
      thread support is standard.
 
 *    ICI int types are now defined to be 64-bits and are
