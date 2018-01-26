@@ -1,0 +1,3 @@
+file := fopen(test.data_file(), "w");
+save(file, basename);
+close(file);
