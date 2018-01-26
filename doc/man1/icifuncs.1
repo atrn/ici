@@ -93,7 +93,7 @@ is a detailed description of each of them.
 	int = 	\fBinst\fP|class:respondsto(string)
 	any = 	\fBrpop\fP(array)
 		\fBrpush\fP(array, any)
-	struct = 	\fBscope\fP([struct])
+	map = 	\fBscope\fP([map])
 	int = 	\fBseek\fP(file, int, int)
 	set = 	\fBset\fP(any...)
 	string|func = 	\fBsignal\fP(int|string [, func|string])
@@ -108,9 +108,9 @@ is a detailed description of each of them.
 	string = 	\fBstrbuf\fP([string])
 	string = 	\fBstrcat\fP(string [, int] , string...)
 	string = 	\fBstring\fP(any)
-	struct = 	\fBstruct\fP(any, any...)
+	map = 	\fBstruct\fP(any, any...)
 	string = 	\fBsub\fP(string, regexp, string)
-	struct = 	\fBsuper\fP(struct [, struct])
+	map = 	\fBsuper\fP(map [, map])
 	int = 	\fBsystem\fP(string)
 	float = 	\fBtan\fP(number)
 	exec = 	\fBthread\fP(callable [, args...])
@@ -123,7 +123,7 @@ is a detailed description of each of them.
 	string = 	\fBversion\fP()
 	array = 	\fBvstack\fP([int])
 		\fBwakeup\fP(any)
-	struct = 	\fBwhich\fP(key [, struct])
+	map = 	\fBwhich\fP(key [, map])
 .fi
 .DT
 .SH DETAILS
@@ -194,10 +194,10 @@ $array(1, 2, "a string")
 .SS "float = asin(x)"
 .P
 Returns the arc sine of \fIx\fP in the range -pi/2 to pi/2.
-.SS "value = assign(struct, key, value)"
+.SS "value = assign(map, key, value)"
 .P
 Sets the element of \fIstruct\fP identified by \fIkey\fP to \fIvalue\fP,
-ignoring any super struct. Returns \fIvalue\fP.
+ignoring any super map. Returns \fIvalue\fP.
 .SS "angle = atan(x)"
 .P
 Returns the arc tangent of \fIx\fP in the range -pi/2 to
@@ -206,7 +206,7 @@ pi/2.
 .P
 Returns the angle from the origin to the rectangular
 coordinates \fIx\fP, \fIy\fP (floats ) in the range -pi to pi.
-.SS "array|struct = build(dims... [, options, content...])"
+.SS "array|map = build(dims... [, options, content...])"
 .P
 Build allows construction of a regular data structure
 such as a multi-dimensional array or an array of structures.
@@ -228,7 +228,7 @@ Each dimension specification is either:
 causing an array of that many elements to be made and have every element set through recursive application on subsequent dimensions, or
 .TP 16
 \fBan array\fP
-causing a struct with the elements of the array as keys to be made and each value set through recursive application on subsequent dimensions.
+causing a map with the elements of the array as keys to be made and each value set through recursive application on subsequent dimensions.
 .P
 So, for example:
 .P
@@ -270,8 +270,8 @@ build(names_array, [array "count", "sum"], "c", 0, 0.0)
 .fi
 .RE 1
 .P
-will return a struct which, when indexed by a name
-in names_array reveals a struct with fields \fIcount\fP and
+will return a map which, when indexed by a name
+in names_array reveals a map with fields \fIcount\fP and
 \fIsum\fP initialised to 0 and 0.0 respectively.
 .P
 Also:
@@ -296,7 +296,7 @@ build(nels(names), [array "name", "value"], "a", names, values)
 .P
 will transpose them into an array of structs, each
 with a name and value field.
-.SS "float|struct = calendar(struct|float)"
+.SS "float|map = calendar(map|float)"
 .P
 Converts between calendar time and arithmetic time.
 An arithmetic time is expressed as a signed float time
@@ -483,7 +483,7 @@ that register themselves with the interpreter through
 an internal API.
 .SS "del(aggr, key)"
 .P
-Deletes an element of \fIaggr\fP, which must be a struct, a set
+Deletes an element of \fIaggr\fP, which must be a map, a set
 or an array, as identified by \fIkey\fP.  Any super structs are ignored.
 For structs and sets this is an efficient operation. For arrays it
 is O(\fIn\fP) where \fIn\fP is the length from the index key, to the nearest
@@ -495,7 +495,7 @@ For example:
 .P
 .RS 5
 .nf
-static s = [struct a = 1, b = 2, c = 3];
+static s = [map a = 1, b = 2, c = 3];
 static v, k;
 forall (v, k in s)
     printf("%s=%d\n", k, v);
@@ -591,11 +591,11 @@ if (qf > 255)
     fail(sprintf("Q factor %d is too large", qf));
 .fi
 .RE 1
-.SS "value = fetch(struct, key)"
+.SS "value = fetch(map, key)"
 .P
 Returns the value from \fIstruct\fP (which actually may be
 any type of object) associated with \fIkey\fP, ignoring any
-supers. Returns NULL if key is not an element of struct.
+supers. Returns NULL if key is not an element of map.
 .SS "value = float(x)"
 .P
 Returns a floating point interpretation of \fIx\fP, or 0.0
@@ -821,7 +821,7 @@ Returns a string formed from the concatenation of elements
 of \fIarray\fP. Integers in the array will be interpreted
 as character codes; strings in the array will be included
 in the concatenation directly. Other types are ignored.
-.SS "struct = include(string [, scope])"
+.SS "map = include(string [, scope])"
 .P
 Parses the code contained in the file named by the
 \fIstring\fP into the \fIscope\fP. If scope is not passed the current
@@ -902,11 +902,11 @@ or is a sub-class of, \fIany\fP.
 Return 1 (one) if \fIany\fP is an atomic (read-only) object,
 else 0 (zero). Note that integers and floats are always atomic
 and strings are atomic unless made with \fIstrbuf\fP.
-.SS "array = keys(struct)"
+.SS "array = keys(map)"
 .P
 Returns an array of all the keys from \fIstruct\fP. The order
 is not predictable, but is repeatable if no elements
-are added or deleted from the struct between calls
+are added or deleted from the map between calls
 and is the same order as taken by a forall loop.
 .SS "any = load(string)"
 .P
@@ -968,7 +968,7 @@ and if it is anything else, one is returned.
 .P
 Creates a new instance of the given \fIclass\fP. In practice
 new is often also defined in sub-classes. This is the
-global \fInew\fP. The new \fIinst\fP will be a fresh struct with \fIclass\fP
+global \fInew\fP. The new \fIinst\fP will be a fresh map with \fIclass\fP
 as its super.
 .SS "float = now()"
 .P
@@ -993,23 +993,23 @@ is not a number\fP is generated.
 .SS "scope = parse(source [, scope])"
 .P
 Parses \fIsource\fP in a new variable scope, or, if \fIscope\fP
-(a struct) is supplied, in that scope. \fIsource\fP may either
+(a map) is supplied, in that scope. \fIsource\fP may either
 be a file or a string, and in either case it is the
 source of text for the parse. If the parse is successful,
 the auto scope structure of the sub-module is
 returned. If an explicit scope was supplied this will
 be that structure.
 .P
-If \fIscope\fP is not supplied a new struct is created for
+If \fIscope\fP is not supplied a new map is created for
 the auto variables. This structure in turn is given
-a new structure as its super struct for the static
+a new structure as its super map for the static
 variables. Finally, this structure's super is set to
 the current static variables. Thus the static variables
 of the current module form the externs of the sub-module.
 .P
 If \fIscope\fP is supplied it is used directly as the scope
 for the sub-module. Thus the base structure will be
-the struct for autos, its super will be the struct
+the map for autos, its super will be the map
 for statics etc.
 .P
 For example:
@@ -1225,10 +1225,10 @@ ICI data structue of the form:
 .P
 .RS 5
 .nf
-auto profile = [struct
+auto profile = [map
     total = <time in ms for this call>,
     call_count = <number of call to this func>,
-    calls = [struct <nested profile structs...>],
+    calls = [map <nested profile structs...>],
 ];
 .fi
 .RE 1
@@ -1269,26 +1269,26 @@ like:
 .P
 .RS 5
 .nf
-auto profile = [struct
+auto profile = [map
  total = 153,
  call_count = 0,
- calls = [struct
-  ("count20000()") = [struct
+ calls = [map
+  ("count20000()") = [map
    total = 96,
    call_count = 1,
-   calls = [struct
-    ("count10000()") = [struct
+   calls = [map
+    ("count10000()") = [map
      total = 96,
      call_count = 2,
-     calls = [struct
+     calls = [map
      ],
     ],
    ],
   ],
-  ("count10000()") = [struct
+  ("count10000()") = [map
    total = 57,
    call_count = 1,
-   calls = [struct
+   calls = [map
    ],
   ],
  ],
@@ -1415,7 +1415,7 @@ time operation (that is, no actual data copying is
 done).
 .SS "current = scope([replacement])"
 .P
-Returns the current scope structure. This is a struct
+Returns the current scope structure. This is a map
 whose base element holds the auto variables, the super
 of that hold the statics, the super of that holds the
 externs etc. Note that this is a real reference to
@@ -1423,7 +1423,7 @@ the current scope structure. Changing, adding and deleting
 elements of these structures will affect the values
 and presence of variables in the current scope.
 .P
-If a \fIreplacement\fP is given, that struct replaces the
+If a \fIreplacement\fP is given, that map replaces the
 current scope structure, with the obvious implications.
 This should clearly be used with caution. Replacing
 the current scope with a structure which has no reference
@@ -1672,7 +1672,7 @@ or, if a \fIstring\fP argument is given, is initilised with characters
 copied from that string. This is the only function that produces
 non-atomic strings. All other operations that produce strings
 make atomic (immutable, read-only) strings. Note that a non-atomic
-string will not reference the same element of a struct as an atomic
+string will not reference the same element of a map as an atomic
 string of equal value. See also \fIstrcat()\fP.
 .SS "string = strcat(string [, int] , string...)"
 Copies string(s) onto the end of (or to some integer
@@ -1692,55 +1692,55 @@ Returns a short textual representation of \fIany\fP. If any
 is an int or float it is converted as if by a \fB%d\fP or
 \fB%g\fP format. If it is a string it is returned directly.
 Any other type will returns its type name surrounded
-by angle brackets, as in \fI<struct>\fP.
-.SS "struct = struct([super,] key, value...)"
+by angle brackets, as in \fI<map>\fP.
+.SS "map = map([super,] key, value...)"
 .P
 Returns a new structure. This is the run-time equivalent
-of the struct literal. If there are an odd number of
+of the map literal. If there are an odd number of
 arguments the first is used as the super of the new
-struct; it must be a struct. The remaining pairs of
+map; it must be a map. The remaining pairs of
 arguments are treated as key and value pairs to initialise
 the structure with; they may be of any type. For example:
 .P
 .RS 5
 .nf
-struct()
+map()
 .fi
 .RE 1
 .P
-returns a new empty struct;
+returns a new empty map;
 .P
 .RS 5
 .nf
-struct(anotherStruct)
+map(anotherStruct)
 .fi
 .RE 1
 .P
-returns a new empty struct which has \fIanotherStruct\fP
+returns a new empty map which has \fIanotherStruct\fP
 as its super;
 .P
 .RS 5
 .nf
-struct("a", 1, "b", 2)
+map("a", 1, "b", 2)
 .fi
 .RE 1
 .P
-returns a new struct which has two entries a and b
+returns a new map which has two entries a and b
 with the values 1 and 2; and
 .P
 .RS 5
 .nf
-struct(anotherStruct, "a", 1, "b", 2)
+map(anotherStruct, "a", 1, "b", 2)
 .fi
 .RE 1
 .P
-returns a new struct which has two entries a and b
+returns a new map which has two entries a and b
 with the values 1 and 2 and a super of \fIanotherStruct\fP.
 .P
-Note that the super of the new struct is set after
+Note that the super of the new map is set after
 the assignments of the new elements have been made.
 Thus the initial elements given as arguments will not
-affect values in any super struct.
+affect values in any super map.
 .P
 The following two expressions are equivalent:
 .P
@@ -1752,7 +1752,7 @@ $struct(anotherStruct, "a", 1, "b", 2)
 .P
 .RS 5
 .nf
-[struct:anotherStruct, a = 1, b = 2]
+[map:anotherStruct, a = 1, b = 2]
 .fi
 .RE 1
 .SS "string = sub(string, string|regexp, string)"
@@ -1773,12 +1773,12 @@ be matched by using \fB\\\fP\fIn\fP where \fIn\fP
 is a decimal digit. (Remember to use an extra backslash
 in a literal string to get a single backslash. For
 example "\\&".
-.SS "current = super(struct [, replacement])"
+.SS "current = super(map [, replacement])"
 .P
-Returns the current super struct of \fIstruct\fP, and, if
+Returns the current super map of \fIstruct\fP, and, if
 \fIreplacement\fP is supplied, sets it to a new value. If
-\fIreplacement\fP is NULL any current super struct reference
-is cleared (that is, after this struct will have no
+\fIreplacement\fP is NULL any current super map reference
+is cleared (that is, after this map will have no
 super).
 .SS "int = system(string)"
 .P
@@ -1892,11 +1892,11 @@ the value of stdin in the callers context).
 .P
 Wakes up all ICI threads that are waiting for \fIany\fP (and
 thus allow them to re-evaluate their wait expression).
-.SS "struct = which(key [, struct])"
+.SS "map = which(key [, map])"
 .P
-Finds the first struct (or other object) in a super chain that
+Finds the first map (or other object) in a super chain that
 has the given \fIkey\fP as an element. If the argument \fIstruct\fP
-is given (which is normally a struct, but may be any object that
+is given (which is normally a map, but may be any object that
 supports a super), that object is used as the base of the search,
 else the current scope is used. Returns NULL if  \fIkey\fP was not
 an element of any object in the super chain.

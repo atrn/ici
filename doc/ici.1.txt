@@ -3025,7 +3025,7 @@ ici(1)                                                     ici(1)
        to extend one structure's scope by defining a super struc-
        ture for it.  This can be done either with the notation:
 
-           static  my_instance = [struct:my_parent x, y ];
+           static  my_instance = [map:my_parent x, y ];
 
        or with the functional notation
 
@@ -3048,7 +3048,7 @@ ici(1)                                                     ici(1)
            @my_parent
 
        to refer to an atomic (unchanging) version of your `class'
-       struct.
+       map.
 
 
        The  method call is achieved by an extension of the normal
@@ -3060,8 +3060,8 @@ ici(1)                                                     ici(1)
        passed as an implicit first parameter.
 
        The  binary  operator  `@'  forms  such  a pointer from an
-       aggregate object (usually  a  struct)  and  an  identifier
-       (i.e.  a  member  of  the struct).  This is the same basic
+       aggregate object (usually  a  map)  and  an  identifier
+       (i.e.  a  member  of  the map).  This is the same basic
        technique used for  dynamic  dispatch  in  languages  like
        Smalltalk and Objective-C.
 
@@ -3079,7 +3079,7 @@ ici(1)                                                     ici(1)
         * Class definition.
         */
        static Point =
-       [struct
+       [map
            p_x     = 0.0,
            p_y     = 0.0,
            p_swap  = [func (self) { self.p_x <=> self.p_y; } ],
@@ -3087,7 +3087,7 @@ ici(1)                                                     ici(1)
            p_what  = showtype,
        ];
 
-       static p1 = struct(@Point);  /* Set super struct to be atomic Point */
+       static p1 = map(@Point);  /* Set super map to be atomic Point */
 
            p1.p_x = 1.2;
            p1.p_y = 3.4;
@@ -3112,7 +3112,7 @@ ici(1)                                                     ici(1)
 
        Which produces this output when run:
 
-       p1 is a struct
+       p1 is a map
        Pt <1.2 3.4>
        Pt <3.4 1.2>
 
@@ -3123,7 +3123,7 @@ ici(1)                                                     ici(1)
                inheritance name search mechanism.
 
        +       The  `@'  binary  operator to form a keyed pointer
-               that will select the named member of the struct.
+               that will select the named member of the map.
 
        +       The "()" (call) operator's special treatment of  a
                function-keyed pointer.
@@ -3144,7 +3144,7 @@ ici(1)                                                     ici(1)
                  mem =     alloc(int [, int])
                  array =   array(any...)
                  float =   asin(number)
-                 any =     assign(struct, any, any)
+                 any =     assign(map, any, any)
                  float =   atan(number)
                  float =   atan2(number, number)
                  any =     call(func, array)
@@ -3154,7 +3154,7 @@ ici(1)                                                     ici(1)
                  any =     copy(any)
                  float =   cos(number)
                  file =    currentfile()
-                           del(struct, any)
+                           del(map, any)
                  int =     eq(any, any)
                  int =     eof(file)
                            exit([int|string|nullptr])
@@ -3173,7 +3173,7 @@ ici(1)                                                     ici(1)
 
 
                            fail(string)
-                 any =     fetch(struct, any)
+                 any =     fetch(map, any)
                  float =   float(any)
                  float =   floor(number)
                  int =     flush(file)
@@ -3189,19 +3189,19 @@ ici(1)                                                     ici(1)
        [,string [,string]]]])
                  string =  gsub(string, regexp, string)
                  string =  implode(array)
-                 struct =  include(string [, struct])
+                 map =  include(string [, map])
                  int =     int(any)
                  string =  interval(string, int [, int])
                  array =   interval(array, int [, int])
                  int =     isatom(any)
-                 array =   keys(struct)
+                 array =   keys(map)
                  float =   log(number)
                  float =   log10(number)
                  mem =     mem(int, int [,int])
                  file =    mopen(string [, string])
                  int =     nels(any)
                  int|float =         num(string|int|float)
-                 struct =  parse(file|string [, struct])
+                 map =  parse(file|string [, map])
                  any =     pop(array)
                  file =    popen(string [, string])
                  float =   pow(number, number)
@@ -3214,7 +3214,7 @@ ici(1)                                                     ici(1)
                  regexp =  regexp(string)
                  regexp =  regexpi(string)
                            remove(string)
-                 struct =  scope([struct])
+                 map =  scope([map])
                  int =     seek(file, int, int)
                  set =     set(any...)
                  float =   sin(number)
@@ -3225,7 +3225,7 @@ ici(1)                                                     ici(1)
                  string =  sprintf(string [, any...])
                  float =   sqrt(number)
                  string =  string(any)
-                 struct =  struct(any, any...)
+                 map =  map(any, any...)
 
 
 
@@ -3239,7 +3239,7 @@ ici(1)                                                     ici(1)
 
 
                  string =  sub(string, regexp, string)
-                 struct =  super(struct [, struct])
+                 map =  super(map [, map])
                  int =     system(string)
                  float =   tan(number)
                  string =  tochar(int)
@@ -3306,10 +3306,10 @@ ici(1)                                                     ici(1)
 
        Returns the arc sine of x  in the range -pi/2 to pi/2.
 
-       value = assign(struct, key, value)
+       value = assign(map, key, value)
 
-       Sets  the  element  of  struct identified by key to value,
-       ignoring any super struct.  Returns value.
+       Sets  the  element  of  map identified by key to value,
+       ignoring any super map.  Returns value.
 
        angle = atan(x)
 
@@ -3344,10 +3344,10 @@ ici(1)                                                     ici(1)
        Returns  a copy of old.  If old is an intrinsically atomic
        type such as an int or string, the new will  be  the  same
        object  as  the  old.   But  if  old  is an array, set, or
-       struct, a copy will be returned.  The copy will be  a  new
+       map, a copy will be returned.  The copy will be  a  new
        non-atomic object (even if old was atomic) which will con-
        tain exactly the same objects as old and will be equal  to
-       it  (that is ==).  If old is a struct with a super struct,
+       it  (that is ==).  If old is a map with a super map,
        new will have the same super (exactly the same super,  not
        a copy of it).
 
@@ -3411,12 +3411,12 @@ ici(1)                                                     ici(1)
 
        The functions  parse and scope are described below.
 
-       del(struct, key)
+       del(map, key)
 
-       Deletes the element of struct identified by key. Any super
+       Deletes the element of map identified by key. Any super
        structs are ignored.  Returns nullptr.  For example:
 
-       static s = [struct a = 1, b = 2, c = 3];
+       static s = [map a = 1, b = 2, c = 3];
        static v, k;
 
        forall (v, k in s)
@@ -3487,9 +3487,9 @@ ici(1)                                                     ici(1)
        if (qf > 255)
            fail(sprintf("Q factor %d is too large", qf));
 
-       value = fetch(struct, key)
+       value = fetch(map, key)
 
-       Returns   the  value  from  struct  associated  with  key,
+       Returns   the  value  from  map  associated  with  key,
 
 
 
@@ -3503,7 +3503,7 @@ ici(1)                                                     ici(1)
 
 
        ignoring any super structs. Returns nullptr if the key is not
-       an element of struct.
+       an element of map.
 
        value = float(x)
 
@@ -3675,7 +3675,7 @@ ici(1)                                                     ici(1)
        character  codes; strings in the array will be included in
        the concatenation directly.  Other types are ignored.
 
-       struct = include(string [, scope])
+       map = include(string [, scope])
 
        Parses the code contained in the file named by the  string
        into  the  scope. If scope is not passed the current scope
@@ -3732,11 +3732,11 @@ ici(1)                                                     ici(1)
        else 0 (zero).  Note that integers, floats and strings are
        always atomic.
 
-       array = keys(struct)
+       array = keys(map)
 
-       Returns  an  array of all the keys from struct.  The order
+       Returns  an  array of all the keys from map.  The order
        is not predictable, but is repeatable if no  elements  are
-       added  or deleted from the struct between calls and is the
+       added  or deleted from the map between calls and is the
        same order as taken by a forall loop.
 
        float = log(x)
@@ -3784,7 +3784,7 @@ ici(1)                                                     ici(1)
 
        array     the length of the array is returned; if it is a
 
-       struct    the number of key/value pairs is returned; if it
+       map    the number of key/value pairs is returned; if it
                  is a
 
        set       the number of elements is returned; if it is a
@@ -3815,7 +3815,7 @@ ici(1)                                                     ici(1)
        scope = parse(source [, scope])
 
        Parses  source  in  a  new variable scope, or, if scope (a
-       struct) is supplied, in that scope.  Source may either  be
+       map) is supplied, in that scope.  Source may either  be
        a file or a string, and in either case it is the source of
        text for the parse.  If the parse is successful, the vari-
        ables  scope  structure of the sub-module is returned.  If
@@ -3834,16 +3834,16 @@ ici(1)                                                     ici(1)
 
        structure.
 
-       If  scope  is not supplied a new struct is created for the
+       If  scope  is not supplied a new map is created for the
        auto variables.  This structure in turn  is  given  a  new
-       structure  as  its  super struct for the static variables.
+       structure  as  its  super map for the static variables.
        Finally, this structure's super  is  set  to  the  current
        static  variables.   Thus the static variables of the cur-
        rent module form the externs of the sub-module.
 
        If scope is supplied it is used directly as the scope  for
        the  sub-module.   Thus  the  base  structure  will be the
-       struct for autos, its super will be the struct for statics
+       map for autos, its super will be the map for statics
        etc.
 
        For example:
@@ -3994,7 +3994,7 @@ ici(1)                                                     ici(1)
 
        current = scope([replacement])
 
-       Returns  the  current  scope  structure.  This is a struct
+       Returns  the  current  scope  structure.  This is a map
        whose base element holds the auto variables, the super  of
        that hold the statics, the super of that holds the externs
        etc.  Note that this is a real reference  to  the  current
@@ -4002,7 +4002,7 @@ ici(1)                                                     ici(1)
        of these structures will affect the values and presence of
        variables in the current scope.
 
-       If  a replacement is given, that struct  replaces the cur-
+       If  a replacement is given, that map  replaces the cur-
        rent scope structure, with the obvious implications.  This
        should  clearly  be used with caution.  Replacing the cur-
        rent scope with a structure which has no reference to  the
@@ -4166,46 +4166,46 @@ ici(1)                                                     ici(1)
        an  int  or float it is converted as if by a %d or %g for-
        mat.  If it is a string  it  is  returned  directly.   Any
        other  type will returns its type name surrounded by angle
-       brackets, as in <struct>.
+       brackets, as in <map>.
 
-       struct = struct([super,] key, value...)
+       map = map([super,] key, value...)
 
        Returns a new structure.  This is the run-time  equivalent
-       of  the  struct  literal.   If  there are an odd number of
+       of  the  map  literal.   If  there are an odd number of
        arguments the first is  used  as  the  super  of  the  new
-       struct; it must be a struct.  The remaining pairs of argu-
+       map; it must be a map.  The remaining pairs of argu-
        ments are treated as key and value pairs to initialise the
        structure with; they may be of any type.  For example:
 
-       struct()
+       map()
 
-       returns a new empty struct;
+       returns a new empty map;
 
-       struct(anotherStruct)
+       map(anotherStruct)
 
-       returns  a new empty struct which has anotherStruct as its
+       returns  a new empty map which has anotherStruct as its
        super;
 
-       struct("a", 1, "b", 2)
+       map("a", 1, "b", 2)
 
-       returns a new struct which has two entries a  and  b  with
+       returns a new map which has two entries a  and  b  with
        the values 1 and 2; and
 
-       struct(anotherStruct, "a", 1, "b", 2)
+       map(anotherStruct, "a", 1, "b", 2)
 
-       returns  a  new  struct which has two entries a and b with
+       returns  a  new  map which has two entries a and b with
        the values 1 and 2 and a super of anotherStruct.
 
-       Note that the super of the new struct  is  set  after  the
+       Note that the super of the new map  is  set  after  the
        assignments  of  the new elements have been made. Thus the
        initial elements given as arguments will not affect values
-       in any super struct.
+       in any super map.
 
        The following two expressions are equivalent:
 
        $struct(anotherStruct, "a", 1, "b", 2)
 
-       [struct:anotherStruct, a = 1, b = 2]
+       [map:anotherStruct, a = 1, b = 2]
 
        string = sub(string, string|regexp, string)
 
@@ -4235,12 +4235,12 @@ ici(1)                                                     ici(1)
        portions of the regular expression may be matched by using
        \n where n is a decimal digit.
 
-       current = super(struct [, replacement])
+       current = super(map [, replacement])
 
-       Returns  the  current  super  struct  of  struct,  and, if
+       Returns  the  current  super  map  of  map,  and, if
        replacement is supplied, sets  it  to  a  new  value.   If
-       replacement  is nullptr any current super struct reference is
-       cleared (that is, after this struct will have no super).
+       replacement  is nullptr any current super map reference is
+       cleared (that is, after this map will have no super).
 
        x = tan(angle)
 
@@ -4431,7 +4431,7 @@ ici(1)                                                     ici(1)
                  int =     lseek(int, int [, int])
                  int =     open(string, int [, int])
                  array =   pipe()
-                 struct =  stat(string|int|file)
+                 map =  stat(string|int|file)
                  int =     wait()
                  string =  ctime(int)
                  int =     time()
@@ -4475,7 +4475,7 @@ ici(1)                                                     ici(1)
                  int =     spawn([int, ] string, string...)
                  int =     spawn([int, ] string, array)
                            rename(string, string)
-                 struct =  passwd(int|string)
+                 map =  passwd(int|string)
                  array =   passwd()
 
 
@@ -4598,13 +4598,13 @@ ici(1)                                                     ici(1)
        file  descriptors  used  to  refer to the input and output
        endpoints of the pipe.
 
-       struct = stat(pathname|int|file)
+       map = stat(pathname|int|file)
 
        Obtain information on the named file system  object,  file
        descriptor  or  file  underlying  an  ici  file object and
-       return a struct containing that information. If the param-
+       return a map containing that information. If the param-
        eter  is  a  file  object that file object must refer to a
-       file opened with ici's fopen function. The returned struct
+       file opened with ici's fopen function. The returned map
        contains  the following keys (which have the same names as
        the fields of the Unix statbuf structure with the  leading
        "st_" prefix removed):
@@ -4899,7 +4899,7 @@ ici(1)                                                     ici(1)
        of an existing file and the second is the new name that it
        is to be given.
 
-       struct = passwd(int | string)
+       map = passwd(int | string)
 
        array = passwd()
 
@@ -4907,9 +4907,9 @@ ici(1)                                                     ici(1)
        (which may or may not be an actual file according  to  the
        local  system  configuration). With no parameters passwd()
        returns an array of all password file entries, each  entry
-       is  a  struct. With a parameter passwd() returns the entry
+       is  a  map. With a parameter passwd() returns the entry
        for the specific user id., int parameter,  or  user  name,
-       string  parameter.  A password file entry is a struct with
+       string  parameter.  A password file entry is a map with
        the following keys and values:
 
 
@@ -5220,7 +5220,7 @@ ici(1)                                                     ici(1)
 
                  skt =     connect(skt, string)
                  skt =     bind(skt, string)
-                 struct =  select([int,] set [, set [, set]])
+                 map =  select([int,] set [, set [, set]])
                  int =     getsockopt(skt, string)
                            setsockopt(skt, string, int)
                  string =  domainname()
@@ -5229,7 +5229,7 @@ ici(1)                                                     ici(1)
                  string =  getpeername(skt)
                  string =  getsockname(skt)
                            sendto(skt, string, string)
-                 struct =  recvfrom(skt, int)
+                 map =  recvfrom(skt, int)
                            send(skt, string)
                  string =  recv(skt, int)
                  int =     getportno(skt)
@@ -5286,7 +5286,7 @@ ici(1)                                                     ici(1)
 
        socket parameter.
 
-       struct = select([int,] set|nullptr [, set|nullptr [, set|nullptr]])
+       map = select([int,] set|nullptr [, set|nullptr [, set|nullptr]])
 
        Check  sockets  for  I/O  readiness with optional timeout.
        Select may be passed up to three sets of sockets that  are
@@ -5302,7 +5302,7 @@ ici(1)                                                     ici(1)
        is passed the call blocks until at least one of the  sock-
        ets is ready for I/O.
 
-       The result of select is a struct containing three sets, of
+       The result of select is a map containing three sets, of
        sockets, identified by the keys read, write and except.
 
        int = getsockopt(skt, string, int)
@@ -5372,12 +5372,12 @@ ici(1)                                                     ici(1)
 
        Returns an array containing a pair of connected sockets.
 
-       struct = recvfrom(skt, int)
+       map = recvfrom(skt, int)
 
-       Receive a message on a socket and return a struct contain-
+       Receive a message on a socket and return a map contain-
        ing the data of the message, in  string,  and  the  source
        address  of  the data. The int parameter gives the maximum
-       number of bytes to receive. The result is  a  struct  with
+       number of bytes to receive. The result is  a  map  with
        the keys msg and addr used to access the returned informa-
        tion.
 

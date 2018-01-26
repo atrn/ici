@@ -1278,7 +1278,7 @@ expression-list</I>
 <P CLASS="CellBody">
 <A NAME="pgfId=246922">
  </A><B CLASS="+Bold">
-[ struct</B>
+[ map</B>
  <I CLASS="+Italic">
 [</I>
  <I CLASS="+Italic">
@@ -1441,10 +1441,10 @@ a = 2					/* OK */</PRE>
 <DIV>
 <H4 CLASS="Heading2">
 <A NAME="pgfId=175642">
- </A>An introduction to arrays, sets and structs</H4>
+ </A>An introduction to arrays, sets and maps</H4>
 <P CLASS="Body">
 <A NAME="pgfId=175643">
- </A>There are three fundamental aggregate types in ICI: arrays, sets, and structs.  Certain properties are shared by all of these (and other types as will be seen later).  The most basic property is that they are each collections of other values.  The next is that they may be &quot;indexed&quot; to reference values within them.  For example, consider the code fragment:</P>
+ </A>There are three fundamental aggregate types in ICI: arrays, sets, and maps.  Certain properties are shared by all of these (and other types as will be seen later).  The most basic property is that they are each collections of other values.  The next is that they may be &quot;indexed&quot; to reference values within them.  For example, consider the code fragment:</P>
 <PRE CLASS="CodeIn4cm"><A NAME="pgfId=175536"></A>a = [array 5, 6, 7];
 i = a[0];</PRE>
 <P CLASS="Body">
@@ -1476,8 +1476,8 @@ if (s[200])
  </A>Notice that there was no second printing of &quot;200 is in the set&quot; because it was removed from the set on the third last line by assigning zero to it.</P>
 <P CLASS="Body">
 <A NAME="pgfId=175654">
- </A>Now consider structs.  Structs are unordered collections of values indexed by any values. Other properties of structs will be discussed later.  The typical indexes of structs are strings.  For this reason notational shortcuts exist for indexing structures by simple strings.  Also,  because each element of a struct is actually an index and value pair, the syntax of a struct literal is slightly different from the arrays and sets seen above.  Consider the following code fragment:</P>
-<PRE CLASS="CodeIn1cm"><A NAME="pgfId=175656"></A>s = [struct a = 123, b = 456, xxx = &quot;a string&quot;];
+ </A>Now consider maps.  Maps are unordered collections of values indexed by any values. Other properties of maps will be discussed later.  The typical indexes of maps are strings.  For this reason notational shortcuts exist for indexing structures by simple strings.  Also,  because each element of a map is actually an index and value pair, the syntax of a map literal is slightly different from the arrays and sets seen above.  Consider the following code fragment:</P>
+<PRE CLASS="CodeIn1cm"><A NAME="pgfId=175656"></A>s = [map a = 123, b = 456, xxx = &quot;a string&quot;];
 printf(&quot;s[\&quot;a\&quot;] = %d\n&quot;, s[&quot;a&quot;]);
 printf(&quot;s.a = %d\n&quot;, s.a);
 printf(&quot;s.xxx = \&quot;%s\&quot;\n&quot;, s.xxx);</PRE>
@@ -1489,7 +1489,7 @@ s.a = 123
 s.xxx = &quot;a string&quot;</PRE>
 <P CLASS="Body">
 <A NAME="pgfId=175660">
- </A>Notice that on the second line the structure was indexed by the string &quot;a&quot;, but that the assignment in the struct literal did not have quotes around the a.  This is part of the notational shortcut which will be discussed further, below.  Also notice the use of s.a in place of s[&quot;a&quot;].  This is a similar shortcut, also discussed below.</P>
+ </A>Notice that on the second line the structure was indexed by the string &quot;a&quot;, but that the assignment in the map literal did not have quotes around the a.  This is part of the notational shortcut which will be discussed further, below.  Also notice the use of s.a in place of s[&quot;a&quot;].  This is a similar shortcut, also discussed below.</P>
 </DIV>
 <DIV>
 <H4 CLASS="Heading2">
@@ -1545,7 +1545,7 @@ expression-list</I>
 <P CLASS="CellBody">
 <A NAME="pgfId=246986">
  </A><B CLASS="+Bold">
-[ struct</B>
+[ map</B>
  <I CLASS="+Italic">
 [</I>
  <I CLASS="+Italic">
@@ -1815,7 +1815,7 @@ assignment</I>
 <P CLASS="CellBody">
 <A NAME="pgfId=247096">
  </A><I CLASS="+Italic">
-struct-key</I>
+map-key</I>
 </P>
 </TD>
 </TR>
@@ -1829,7 +1829,7 @@ struct-key</I>
 <P CLASS="CellBody">
 <A NAME="pgfId=247187">
  </A><I CLASS="+Italic">
-struct-key </I>
+map-key </I>
 <B CLASS="+Bold">
 =</B>
 <I CLASS="+Italic">
@@ -1847,7 +1847,7 @@ struct-key </I>
 <P CLASS="CellBody">
 <A NAME="pgfId=247193">
  </A><I CLASS="+Italic">
-struct-key function-body</I>
+map-key function-body</I>
 </P>
 </TD>
 </TR>
@@ -1868,7 +1868,7 @@ struct-key function-body</I>
 <P CLASS="CellBody">
 <A NAME="pgfId=247102">
  </A><I CLASS="+Italic">
-struct-key</I>
+map-key</I>
 </P>
 </TD>
 <TD ROWSPAN="1" COLSPAN="1">
@@ -1900,9 +1900,9 @@ expression</I>
 </TABLE>
 <P CLASS="Body">
 <A NAME="pgfId=175680">
- </A>Each assignment is either an assignment to a simple identifier or an assignment to a full expression in brackets.  The assignment to an identifier is merely a notational abbreviation for an assignment to a string.  The following two struct literals are equivalent:</P>
-<PRE CLASS="CodeIn1cm"><A NAME="pgfId=247279"></A>[struct abc = 4]
-[struct (&quot;abc&quot;) = 4]</PRE>
+ </A>Each assignment is either an assignment to a simple identifier or an assignment to a full expression in brackets.  The assignment to an identifier is merely a notational abbreviation for an assignment to a string.  The following two map literals are equivalent:</P>
+<PRE CLASS="CodeIn1cm"><A NAME="pgfId=247279"></A>[map abc = 4]
+[map (&quot;abc&quot;) = 4]</PRE>
 <P CLASS="Body">
 <A NAME="pgfId=247280">
  </A>The syntax of a function-body is:</P>
@@ -2011,17 +2011,17 @@ identifier-list</I>
 <A NAME="pgfId=175695">
  </A>Aggregates in general, and literal aggregates in particular, are fully nestable:</P>
 <PRE CLASS="CodeIn1cm"><A NAME="pgfId=175697"></A>[array
-	[struct a = 1, c = 2],
+	[map a = 1, c = 2],
 	[set &quot;a&quot;, 1.2, 3],
 	&quot;a string&quot;,
 ]</PRE>
 <P CLASS="Body">
 <A NAME="pgfId=175700">
  </A>Note that aggregate literals are entirely evaluated by the parser.  That is, each expression is evaluated and reduced to a particular value, these values are then used to build an object of the required type.  For example:</P>
-<PRE CLASS="CodeIn1cm"><A NAME="pgfId=175702"></A>[struct a = sin(0.5), b = cos(0.5)]</PRE>
+<PRE CLASS="CodeIn1cm"><A NAME="pgfId=175702"></A>[map a = sin(0.5), b = cos(0.5)]</PRE>
 <P CLASS="Body">
 <A NAME="pgfId=175703">
- </A>Causes the functions sin and cos to be called during the parsing process and the result assigned to the keys a and b in the struct being constructed.  It is possible to refer to variables which may be in existence while such a literal is being parsed<A HREF="#pgfId=175518" CLASS="footnote">
+ </A>Causes the functions sin and cos to be called during the parsing process and the result assigned to the keys a and b in the map being constructed.  It is possible to refer to variables which may be in existence while such a literal is being parsed<A HREF="#pgfId=175518" CLASS="footnote">
 1</A>.</P>
 <P CLASS="Body">
 <A NAME="pgfId=175705">
@@ -4061,7 +4061,7 @@ Line 3</PRE>
  </A>	forall ( expression [ ,expression ] in expression ) statement</P>
 <P CLASS="Body">
 <A NAME="pgfId=175932">
- </A>The parser converts it to an internal form.  In doing so the first and second expressions are required to be lvalues (that is, capable of being assigned to).  Upon execution the first expression is evaluated and that storage location is noted.  If the second expression is present the same is done for it.  The third expression is then evaluated and the result noted; it must evaluate to an array, a set, a struct, a string, or nullptr; we will call this the aggregate.  If this is nullptr, the forall statement is finished and flow of control continues after the statement; otherwise, a loop is established.</P>
+ </A>The parser converts it to an internal form.  In doing so the first and second expressions are required to be lvalues (that is, capable of being assigned to).  Upon execution the first expression is evaluated and that storage location is noted.  If the second expression is present the same is done for it.  The third expression is then evaluated and the result noted; it must evaluate to an array, a set, a map, a string, or nullptr; we will call this the aggregate.  If this is nullptr, the forall statement is finished and flow of control continues after the statement; otherwise, a loop is established.</P>
 <P CLASS="Body">
 <A NAME="pgfId=175934">
  </A>Within the loop, an element is selected from the noted aggregate.  The value of that element is assigned to the location given by the first expression.  If the second expression was present, it is assigned the key used to access that element.  Then  the statement is executed.  Finally, flow of control resumes at the start of the loop.</P>
@@ -4082,7 +4082,7 @@ blue</PRE>
 <P CLASS="Body">
 <A NAME="pgfId=175943">
  </A>And:</P>
-<PRE CLASS="CodeIn1cm"><A NAME="pgfId=175944"></A>forall (value, key in [struct a = 1, b = 2, c = 3])
+<PRE CLASS="CodeIn1cm"><A NAME="pgfId=175944"></A>forall (value, key in [map a = 1, b = 2, c = 3])
 	printf(&quot;%s = %d\n&quot;, key, value);</PRE>
 <P CLASS="Body">
 <A NAME="pgfId=175946">
@@ -4117,7 +4117,7 @@ b</PRE>
  </A>When a forall loop is applied to a string (which is not a true aggregate), the &quot;sub-elements&quot; will be successive one character sub-strings.</P>
 <P CLASS="Body">
 <A NAME="pgfId=175967">
- </A>Note that although the sequence of choice of elements from a set or struct is at first examination unpredictable, it will be the same in a second forall loop applied without the structure or set being modified in the interim.</P>
+ </A>Note that although the sequence of choice of elements from a set or map is at first examination unpredictable, it will be the same in a second forall loop applied without the structure or set being modified in the interim.</P>
 </DIV>
 <DIV>
 <H4 CLASS="Heading2">
@@ -4544,7 +4544,7 @@ Result = 123, total = 456.</PRE>
  </A>In addition to the above ICI has a simple mechanism for calling <I CLASS="+Italic">
 methods</I>
  -- functions contained within an object (typically a <I CLASS="+Italic">
-struct</I>
+map</I>
 ) that accept that object as their first parameter. The method call mechanism is enabled via a modification to the <I CLASS="+Italic">
 call</I>
  operator, &quot;()&quot;, to add semantics for calling a pointer object and through the addition of a new operator, binary-@, to form a pointer object from an object and a key. ICI pointers, described below, consist of an object and a key. To indirect though the pointer the object is indexed by the key and the resulting object used as the result. This is the same operation used in dynamic dispatch in languages such as Smalltalk and Objective-C.</P>
@@ -4553,7 +4553,7 @@ call</I>
  </A>The call operator now accepts a pointer as its first operand (we may think of the call operator as a n-ary operator that takes a function or pointer object as its first operand the function parameters as the remaining operands). When a pointer is &quot;called&quot; the key is used to index the pointer's container object and the result, which must be a function object, is called. In addition the container object within the pointer is passed as an implicit first parameter to the function (thus passing the actual object used to invoke the method to the method). Apart from the calling semantics the functions used to implemented methods are in all respects normal ICI functions.</P>
 <P CLASS="Body">
 <A NAME="pgfId=180313">
- </A>Struct objects are typically used as the &quot;container&quot; for objects used with methods. The super mechanism provides the hierarichal search needed to allow class objects to be shared by multiple instances and provide a natural means of encapsulating information.</P>
+ </A>Map objects are typically used as the &quot;container&quot; for objects used with methods. The super mechanism provides the hierarichal search needed to allow class objects to be shared by multiple instances and provide a natural means of encapsulating information.</P>
 <P CLASS="Body">
 <A NAME="pgfId=180314">
  </A>A typical way of using methods is,</P>
@@ -4561,7 +4561,7 @@ call</I>
 <PRE CLASS="CodeIn1cm1"><A NAME="pgfId=180316"></A> * Define a &quot;class&quot; object representing our class and</PRE>
 <PRE CLASS="CodeIn1cm1"><A NAME="pgfId=180317"></A> * containing the class methods.</PRE>
 <PRE CLASS="CodeIn1cm1"><A NAME="pgfId=180318"></A> */</PRE>
-<PRE CLASS="CodeIn1cm1"><A NAME="pgfId=180319"></A>static MyClass = [struct</PRE>
+<PRE CLASS="CodeIn1cm1"><A NAME="pgfId=180319"></A>static MyClass = [map</PRE>
 <PRE CLASS="CodeIn1cm1"><A NAME="pgfId=180320"></A>&nbsp;</PRE>
 <PRE CLASS="CodeIn1cm1"><A NAME="pgfId=180321"></A>    doubleX = [func (self)</PRE>
 <PRE CLASS="CodeIn1cm1"><A NAME="pgfId=180322"></A>    {</PRE>
@@ -4573,7 +4573,7 @@ call</I>
 <PRE CLASS="CodeIn1cm1"><A NAME="pgfId=180328"></A>...</PRE>
 <PRE CLASS="CodeIn1cm1"><A NAME="pgfId=180329"></A>&nbsp;</PRE>
 <PRE CLASS="CodeIn1cm1"><A NAME="pgfId=180330"></A>static a;</PRE>
-<PRE CLASS="CodeIn1cm1"><A NAME="pgfId=180331"></A>a = struct(@MyClass);</PRE>
+<PRE CLASS="CodeIn1cm1"><A NAME="pgfId=180331"></A>a = map(@MyClass);</PRE>
 <PRE CLASS="CodeIn1cm1"><A NAME="pgfId=180332"></A>a.x = 21;</PRE>
 <PRE CLASS="CodeIn1cm1"><A NAME="pgfId=180333"></A>printf(&quot;%d\n&quot;, a@doubleX());</PRE>
 <P CLASS="Body">
@@ -4755,7 +4755,7 @@ y = @y;</PRE>
 <P CLASS="Body">
 <A NAME="pgfId=176181">
  </A>Any object, not just a string, can be used as a key in a structure.  For instance:</P>
-<PRE CLASS="CodeIn1cm"><A NAME="pgfId=176182"></A>static x = [struct];
+<PRE CLASS="CodeIn1cm"><A NAME="pgfId=176182"></A>static x = [map];
 static z = [array 10, 11];
 
 x[&quot;abc&quot;] = 1;
@@ -4804,8 +4804,8 @@ x[z] = 3;</PRE>
 <P CLASS="Body">
 <A NAME="pgfId=176196">
  </A>Consider the following example:</P>
-<PRE CLASS="CodeIn1cm"><A NAME="pgfId=176197"></A>static theSuper = [struct a = 1, b = 2, c = 3];
-static theStruct = [struct x = 100, y = 200];
+<PRE CLASS="CodeIn1cm"><A NAME="pgfId=176197"></A>static theSuper = [map a = 1, b = 2, c = 3];
+static theStruct = [map x = 100, y = 200];
 
 super(theStruct, theSuper);</PRE>
 <P CLASS="Body">
@@ -4855,8 +4855,8 @@ theStruct.z = 789;</PRE>
 <P CLASS="Body">
 <A NAME="pgfId=176210">
  </A>Within a struct-literal a colon prefixed expression after the struct identifier is used as the super struct.  For example, the declarations used in the previous example could be written as:</P>
-<PRE CLASS="CodeIn1cm"><A NAME="pgfId=176211"></A>static theSuper = [struct a = 1, b = 2, c = 3];
-static theStruct = [struct:theSuper, x = 100, y = 200];</PRE>
+<PRE CLASS="CodeIn1cm"><A NAME="pgfId=176211"></A>static theSuper = [map a = 1, b = 2, c = 3];
+static theStruct = [map:theSuper, x = 100, y = 200];</PRE>
 </DIV>
 <DIV>
 <H4 CLASS="Heading2">
@@ -4915,7 +4915,7 @@ printf(&quot;x = %d, y[1] = %d\n&quot;, x, y[1]);</PRE>
 <P CLASS="Body">
 <A NAME="pgfId=176229">
  </A>would set the last element of the array to 789, because the pointer currently references element 1, and the given index is 1, and 1 + 1 is 2 which is the last element.  The index arithmetic provided by pointers will work with any types, as long as the indexes are integers, thus:</P>
-<PRE CLASS="CodeIn1cm"><A NAME="pgfId=176230"></A>static s = [struct (20) = 1, (30) = 2, (40) = 3];
+<PRE CLASS="CodeIn1cm"><A NAME="pgfId=176230"></A>static s = [map (20) = 1, (30) = 2, (40) = 3];
 static p = &amp;s[30];
 
 p[-10] = -1;
@@ -6110,7 +6110,7 @@ any2</I>
 <PRE CLASS="PreformattedRAlign"><A NAME="pgfId=233997"></A>struct =</PRE>
 </TD>
 <TD ROWSPAN="1" COLSPAN="1">
-<PRE CLASS="Preformatted"><A NAME="pgfId=233999"></A>scope([struct])</PRE>
+<PRE CLASS="Preformatted"><A NAME="pgfId=233999"></A>scope([map])</PRE>
 </TD>
 </TR>
 <TR>
@@ -6494,7 +6494,7 @@ del(struct, key)</CODE>
 <P CLASS="Body">
 <A NAME="pgfId=175655">
  </A>Deletes the element of struct identified by key. Any super structs are ignored.  Returns nullptr.  For example:</P>
-<PRE CLASS="CodeIn1cm"><A NAME="pgfId=175657"></A>static s = [struct a = 1, b = 2, c = 3];
+<PRE CLASS="CodeIn1cm"><A NAME="pgfId=175657"></A>static s = [map a = 1, b = 2, c = 3];
 static v, k;
 forall (v, k in s)
 	printf(&quot;%s=%d\n&quot;, k, v);
@@ -7389,7 +7389,7 @@ struct = struct([super,] key, value...)</CODE>
 <A NAME="pgfId=176055">
  </A>The following two expressions are equivalent:</P>
 <PRE CLASS="CodeIn1cm"><A NAME="pgfId=176058"></A>$struct(anotherStruct, &quot;a&quot;, 1, &quot;b&quot;, 2)</PRE>
-<PRE CLASS="CodeIn1cm"><A NAME="pgfId=176061"></A>[struct:anotherStruct, a = 1, b = 2]</PRE>
+<PRE CLASS="CodeIn1cm"><A NAME="pgfId=176061"></A>[map:anotherStruct, a = 1, b = 2]</PRE>
 </DIV>
 <DIV>
 <H4 CLASS="Heading2">

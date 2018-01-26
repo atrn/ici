@@ -11,7 +11,7 @@ Inheritance is already provided through the ability to extend
 one structure's scope by defining a super structure for it.
 This can be done either with the notation:
 
-    \fCstatic  my_instance = [struct:my_parent x, y ];\fR
+    \fCstatic  my_instance = [map:my_parent x, y ];\fR
 
 or with the functional notation
 
@@ -22,7 +22,7 @@ for the super structure, and use that:
 
     \fC@my_parent\fR
 
-to refer to an atomic (unchanging) version of your `class' struct.
+to refer to an atomic (unchanging) version of your `class' map.
 
 .PP
 The method call is achieved by an extension of the normal function call
@@ -35,7 +35,7 @@ the function is called with
 the object pointed-to passed as \fIan implicit first parameter\fP.
 .PP
 The binary operator `@' forms such a pointer from an aggregate object
-(usually a struct) and an identifier (i.e. a member of the struct).
+(usually a map) and an identifier (i.e. a member of the map).
 This is the same basic technique used for dynamic dispatch in languages
 like Smalltalk and Objective-C.
 
@@ -54,7 +54,7 @@ showtype(any, label)
  * Class definition.
  */
 static Point =
-[struct
+[map
     p_x     = 0.0,
     p_y     = 0.0,
     p_swap  = [func (self) { self.p_x <=> self.p_y; } ],
@@ -62,7 +62,7 @@ static Point =
     p_what  = showtype,
 ];
 
-static p1 = struct(@Point);  /* Set super struct to be atomic Point */
+static p1 = map(@Point);  /* Set super map to be atomic Point */
 
     p1.p_x = 1.2;
     p1.p_y = 3.4;
@@ -75,7 +75,7 @@ static p1 = struct(@Point);  /* Set super struct to be atomic Point */
 
 Which produces this output when run:
 
-\fCp1 is a struct
+\fCp1 is a map
 Pt <1.2 3.4>
 Pt <3.4 1.2>\fR
 .fi
@@ -88,7 +88,7 @@ Ici's \fIsuper\fP linkage to provide the
 normal OO inheritance name search mechanism.
 .IP \(bu 2c
 The `@' binary operator to form a keyed pointer that will
-select the named member of the struct.
+select the named member of the map.
 .IP \(bu 2c
 The "()" (call) operator's special treatment of a function-keyed pointer.
 .PP

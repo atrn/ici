@@ -230,7 +230,7 @@ factor	integer-number
 	( expression )
 	[ array expression-list  ]
 	[ set expression-list ]
-	[ struct [ : expression , ] assignment-list ]
+	[ map [ : expression , ] assignment-list ]
 	[ func function-body ]
 
 The constructs integer-number, character-code, floating-point-number, string, and regu-
@@ -328,11 +328,11 @@ from the set on the third last line by assigning zero to it.
 Now consider structs.  Structs are unordered collections of values indexed by any values. 
 Other properties of structs will be discussed later.  The typical indexes of structs are 
 strings.  For this reason notational shortcuts exist for indexing structures by simple 
-strings.  Also,  because each element of a struct is actually an index and value pair, the 
-syntax of a struct literal is slightly different from the arrays and sets seen above.  Consider 
+strings.  Also,  because each element of a map is actually an index and value pair, the 
+syntax of a map literal is slightly different from the arrays and sets seen above.  Consider 
 the following code fragment:
 
-s = [struct a = 123, b = 456, xxx = "a string"];
+s = [map a = 123, b = 456, xxx = "a string"];
 printf("s[\"a\"] = %d\n", s["a"]);
 printf("s.a = %d\n", s.a);
 printf("s.xxx = \"%s\"\n", s.xxx);
@@ -344,7 +344,7 @@ s.a = 123
 s.xxx = "a string"
 
 Notice that on the second line the structure was indexed by the string "a", but that the as-
-signment in the struct literal did not have quotes around the a.  This is part of the notation-
+signment in the map literal did not have quotes around the a.  This is part of the notation-
 al shortcut which will be discussed further, below.  Also notice the use of s.a in place of 
 s["a"].  This is a similar shortcut, also discussed below.
 
@@ -354,7 +354,7 @@ The aggregate literals, which in summary are:
 
 	[ array expression-list ]
 	[ set expression-list ]
-	[ struct [ : expression , ] assignment-list ]
+	[ map [ : expression , ] assignment-list ]
 	[ func function-body ]
 
 involve three further constructs, the expression-list, which is a comma separated list of ex-
@@ -383,17 +383,17 @@ assignment-list	empty
 	assignment [ , ]
 	assignment , assignment-list
 
-assignment	struct-key =  expression
+assignment	map-key =  expression
 
-struct-key	identifier
+map-key	identifier
 	( expression )
 
 Each assignment is either an assignment to a simple identifier or an assignment to a full 
 expression in brackets.  The assignment to an identifier is merely a notational abbreviation 
-for an assignment to a string.  The following two struct literals are equivalent:
+for an assignment to a string.  The following two map literals are equivalent:
 
-[struct abc = 4]
-[struct ("abc") = 4]
+[map abc = 4]
+[map ("abc") = 4]
 
 The syntax of a function-body is:
 
@@ -420,7 +420,7 @@ The meaning of functions will discussed in more detail below.
 Aggregates in general, and literal aggregates in particular, are fully nestable:
 
 [array
-	[struct a = 1, c = 2],
+	[map a = 1, c = 2],
 	[set "a", 1.2, 3],
 	"a string",
 ]
@@ -429,10 +429,10 @@ Note that aggregate literals are entirely evaluated by the parser.  That is, eac
 is evaluated and reduced to a particular value, these values are then used to build an object 
 of the required type.  For example:
 
-[struct a = sin(0.5), b = cos(0.5)]
+[map a = sin(0.5), b = cos(0.5)]
 
 Causes the functions sin and cos to be called during the parsing process and the result as-
-signed to the keys a and b in the struct being constructed.  It is possible to refer to variables 
+signed to the keys a and b in the map being constructed.  It is possible to refer to variables 
 which may be in existence while such a literal is being parsed.
 
 This ends our consideration of the lowest level element of an expression, the factor.
@@ -881,7 +881,7 @@ The parser converts it to an internal form.  In doing so the first and second ex
 required to be lvalues (that is, capable of being assigned to).  Upon execution the first ex-
 pression is evaluated and that storage location is noted.  If the second expression is present 
 the same is done for it.  The third expression is then evaluated and the result noted; it must 
-evaluate to an array, a set, a struct, a string, or nullptr; we will call this the aggregate.  If 
+evaluate to an array, a set, a map, a string, or nullptr; we will call this the aggregate.  If 
 this is nullptr, the forall statement is finished and flow of control continues after the state-
 ment; otherwise, a loop is established.
 
@@ -910,7 +910,7 @@ blue
 
 And:
 
-forall (value, key in [struct a = 1, b = 2, c = 3])
+forall (value, key in [map a = 1, b = 2, c = 3])
 	printf("%s = %d\n", key, value);
 
 when run will produce (possibly in some other order):
@@ -947,7 +947,7 @@ b
 When a forall loop is applied to a string (which is not a true aggregate), the "sub-elements" 
 will be successive one character sub-strings.
 
-Note that although the sequence of choice of elements from a set or struct is at first exam-
+Note that although the sequence of choice of elements from a set or map is at first exam-
 ination unpredictable, it will be the same in a second forall loop applied without the struc-
 ture or set being modified in the interim.
 
@@ -1348,7 +1348,7 @@ into an array and assigned to vargs, overriding its explicit initialisation.
 Method Calls
 
 In addition to the above ICI has a simple mechanism for calling methods - functions con-
-tained within an object (typically a struct) that accept that object as their first parameter. 
+tained within an object (typically a map) that accept that object as their first parameter. 
 The method call mechanism is enabled via a modification to the call operator, "()", to add 
 semantics for calling a pointer object and through the addition of a new operator, binary-
 @, to form a pointer object from an object and a key. ICI pointers, described below, con-
@@ -1365,7 +1365,7 @@ rameter to the function (thus passing the actual object used to invoke the metho
 method). Apart from the calling semantics the functions used to implemented methods are 
 in all respects normal ICI functions.
 
-Struct objects are typically used as the "container" for objects used with methods. The su-
+Map objects are typically used as the "container" for objects used with methods. The su-
 per mechanism provides the hierarichal search needed to allow class objects to be shared 
 by multiple instances and provide a natural means of encapsulating information.
 
@@ -1379,7 +1379,7 @@ A typical way of using methods is,
 
  */
 
-static MyClass = [struct
+static MyClass = [map
 
 
 
@@ -1403,7 +1403,7 @@ static MyClass = [struct
 
 static a;
 
-a = struct(@MyClass);
+a = map(@MyClass);
 
 a.x = 21;
 
@@ -1411,15 +1411,15 @@ printf("%d\n", a@doubleX());
 
 
 
-We first define a class by using a literal struct to contain our named methods. You could 
-also define class variables in this struct as it is shared by all instances of that class. In our 
-class we've got a We first define a class by using a literal struct to contain our named 
-methods. You could also define class variables in this struct as it is shared by all instances 
+We first define a class by using a literal map to contain our named methods. You could 
+also define class variables in this map as it is shared by all instances of that class. In our 
+class we've got a We first define a class by using a literal map to contain our named 
+methods. You could also define class variables in this map as it is shared by all instances 
 of that class. In our class we've got a single method, doubleX, that doubles the value of 
 an instance variable called x.
 
-Later in the program we create an instance of a MyClass object by making a new struct 
-object and setting its super struct to the class struct. The super is made atomic which en-
+Later in the program we create an instance of a MyClass object by making a new map 
+object and setting its super map to the class map. The super is made atomic which en-
 sures all instances share the same object and makes it read-only for them. Then we create 
 an "instance variable" within the object by assigning 21 to a.x and finally invoke the meth-
 od. We do not pass any parameters to doubleX. The call through the pointer object formed 
@@ -1562,7 +1562,7 @@ Structure and set keys
 
 Any object, not just a string, can be used as a key in a structure.  For instance:
 
-static x = [struct];
+static x = [map];
 static z = [array 10, 11];
 
 x["abc"] = 1;
@@ -1592,26 +1592,26 @@ Structure super types
 Up till now structures have been described as simple lookup tables which map a key, or 
 index, to a value.  But a structure may have associated with it a super structure.
 
-The function super can be used to discover the current super of a struct and to set a new 
-super.  With just one argument it returns the current super of that struct, with a second 
+The function super can be used to discover the current super of a map and to set a new 
+super.  With just one argument it returns the current super of that map, with a second 
 argument it also replaces the super by that value.
 
 When a key is being looked-up in a structure for reading, and it is not found and there is 
-a super struct, the key is further looked for in the super struct, if it is found there its value 
-from that struct is returned.  If it is not found it will be looked for in the next super struct 
+a super map, the key is further looked for in the super map, if it is found there its value 
+from that map is returned.  If it is not found it will be looked for in the next super map 
 etc.  If no structures in the super chain contain the key, the special value nullptr is re-
 turned.
 
 When a key is being looked up in a structure for writing, it will similarly be searched for 
 in the super chain.  If it is found in a writeable structure the value in the structure in which 
 it was found will be set to the new value.  If it was never found, it will be added along with 
-the given value to the very first struct, that is, the structure at the base, or root, of the super 
+the given value to the very first map, that is, the structure at the base, or root, of the super 
 chain.
 
 Consider the following example:
 
-static theSuper = [struct a = 1, b = 2, c = 3];
-static theStruct = [struct x = 100, y = 200];
+static theSuper = [map a = 1, b = 2, c = 3];
+static theStruct = [map x = 100, y = 200];
 
 super(theStruct, theSuper);
 
@@ -1625,7 +1625,7 @@ theStruct.z = 789;
 
 the situation could be diagrammatically represented as:
 
-If a super struct is not writeable (that is, it is atomic) values will not be written in it and 
+If a super map is not writeable (that is, it is atomic) values will not be written in it and 
 will lodge in the base structure instead.  Thus consider what happens if we replace the su-
 per structure in the previous example by its read-only version:
 
@@ -1642,19 +1642,19 @@ value will then have ten added to it, and the result will be written back into t
 ture; because the super structure is read-only and cannot be modified.  The finally situa-
 tion can be represented diagrammatically as:
 
-Note that many structs may share the same super struct.  Thus a single read-only super 
-struct can be used hold initial values; saving explicit initialisations and storage space.
+Note that many structs may share the same super map.  Thus a single read-only super 
+map can be used hold initial values; saving explicit initialisations and storage space.
 
-The function assign may be used to set a value in a struct explicitly, without reference to 
-any super structs; and the function fetch may be used to read a value from a struct explic-
+The function assign may be used to set a value in a map explicitly, without reference to 
+any super structs; and the function fetch may be used to read a value from a map explic-
 itly, without reference to any super structs.
 
-Within a struct-literal a colon prefixed expression after the struct identifier is used as the 
-super struct.  For example, the declarations used in the previous example could be written 
+Within a map-literal a colon prefixed expression after the map identifier is used as the 
+super map.  For example, the declarations used in the previous example could be written 
 as:
 
-static theSuper = [struct a = 1, b = 2, c = 3];
-static theStruct = [struct:theSuper, x = 100, y = 200];
+static theSuper = [map a = 1, b = 2, c = 3];
+static theStruct = [map:theSuper, x = 100, y = 200];
 
 An aside on variables and scope
 
@@ -1663,7 +1663,7 @@ ables and scope can be made.
 
 ICI variables are entries in ordinary structs.  At all times, the current scope is identified 
 by a structure.  The auto variables are the entries in this base structure.  Its super is the 
-struct containing the static variables.  The next super struct contains the externs, and suc-
+map containing the static variables.  The next super map contains the externs, and suc-
 cessive super structs are successive outer scopes.
 
 Auto, static and extern declarations make explicit assignments to the appropriate struc-
@@ -1683,14 +1683,14 @@ care).
 
 Note that when there is an atomic structure in the scope chain the mechanism described 
 at the end of the previous section does not operate correctly.  Writing to a variable in the 
-atomic struct will give a spurious undefined error rather than lodging it in the base struc-
+atomic map will give a spurious undefined error rather than lodging it in the base struc-
 ture.  This is a deficiency which will be corrected in a later release.
 
 Pointers
 
 Pointers are references to storage locations.  Storage locations are the elements of any-
-thing which can be indexed.  That is, array elements, set elements, struct elements and oth-
-ers (which we will see below) can be pointed to.  Variables (which are just struct 
+thing which can be indexed.  That is, array elements, set elements, map elements and oth-
+ers (which we will see below) can be pointed to.  Variables (which are just map 
 elements) can be pointed to.  In more general terms, any lvalue can be pointed to.
 
 The & operator is used to obtain a pointer to a location.  Thus if the following were exe-
@@ -1718,7 +1718,7 @@ key used to access the location in question.  For instance, in the example above
 bers the array, and the number 1; that is, the aggregate and the index.  The generation of 
 a pointer does not affect the location being pointed to.  In fact the location may not even 
 exist yet.  When a pointer is referenced the same operation takes place as if the location 
-was referenced explicitly.  Thus a search down the super chain of a struct may occur, or 
+was referenced explicitly.  Thus a search down the super chain of a map may occur, or 
 an array may be extended to include the index being written to, etc.
 
 In addition to simple indirection (that is the * operator), pointers may be indexed. But the 
@@ -1734,14 +1734,14 @@ ement 1, and the given index is 1, and 1 + 1 is 2 which is the last element.  Th
 metic provided by pointers will work with any types, as long as the indexes are integers, 
 thus:
 
-static s = [struct (20) = 1, (30) = 2, (40) = 3];
+static s = [map (20) = 1, (30) = 2, (40) = 3];
 static p = &s[30];
 
 p[-10] = -1;
 p[0] = -2;
 p[10] = -3;
 
-Would replace each of the elements in the struct s by their negative value.
+Would replace each of the elements in the map s by their negative value.
 
 This concludes the general discussion of ICI as a whole.  We will now examine the exact 
 nature of each of the data types, then each of the expression operators, and finally each of 
@@ -1772,7 +1772,7 @@ summary these are:
 
 	string	An ordered sequence of 8 bit characters.
 
-	struct	An unordered set of pairs of objects.
+	map	An unordered set of pairs of objects.
 
 
 
@@ -1884,7 +1884,7 @@ push function (see below) appends an element to the array a refers
 to, without making a new array. The second case is much faster, 
 but modifies an existing array.
 
-struct1 + struct2	Structure concatenation: Returns a new struct which is a copy of 
+struct1 + struct2	Structure concatenation: Returns a new map which is a copy of 
 struct1, with all the elements of struct2 assigned into it.  Obeys 
 the semantics of copying and assignment discussed in other sec-
 tions with regard to super structs..  The execution time order is  
@@ -2075,7 +2075,7 @@ scriptions of each of them.
 
 	float =	asin(number)
 
-	any =	assign(struct, any, any)
+	any =	assign(map, any, any)
 
 	float =	atan(number)
 
@@ -2093,7 +2093,7 @@ scriptions of each of them.
 
 	file =	currentfile()
 
-		del(struct, any)
+		del(map, any)
 
 	int =	eq(any, any)
 
@@ -2109,7 +2109,7 @@ scriptions of each of them.
 
 		fail(string)
 
-	any =	fetch(struct, any)
+	any =	fetch(map, any)
 
 	float =	float(any)
 
@@ -2139,7 +2139,7 @@ scriptions of each of them.
 
 	string =	implode(array)
 
-	struct =	include(string [, struct])
+	map =	include(string [, map])
 
 	int =	int(any)
 
@@ -2147,7 +2147,7 @@ scriptions of each of them.
 
 	int =	isatom(any)
 
-	array =	keys(struct)
+	array =	keys(map)
 
 	float =	log(number)
 
@@ -2161,7 +2161,7 @@ scriptions of each of them.
 
 	int|float =	num(string|int|float)
 
-	struct =	parse(file|string [, struct])
+	map =	parse(file|string [, map])
 
 	any =	pop(array)
 
@@ -2187,7 +2187,7 @@ scriptions of each of them.
 
 		remove(string)
 
-	struct =	scope([struct])
+	map =	scope([map])
 
 	int =	seek(file, int, int)
 
@@ -2209,11 +2209,11 @@ scriptions of each of them.
 
 	string =	string(any)
 
-	struct =	struct(any, any...)
+	map =	map(any, any...)
 
 	string =	sub(string, regexp, string)
 
-	struct =	super(struct [, struct])
+	map =	super(map [, map])
 
 	int =	system(string)
 
@@ -2275,9 +2275,9 @@ float = asin(x)
 
 Returns the arc sine of x  in the range -pi/2 to pi/2.
 
-value = assign(struct, key, value)
+value = assign(map, key, value)
 
-Sets the element of struct identified by key to value, ignoring any super struct.  Returns 
+Sets the element of map identified by key to value, ignoring any super map.  Returns 
 value.
 
 angle = atan(x)
@@ -2308,10 +2308,10 @@ db()
 new = copy(old)
 
 Returns a copy of old.  If old is an intrinsically atomic type such as an int or string, the 
-new will be the same object as the old.  But if old is an array, set, or struct, a copy will be 
+new will be the same object as the old.  But if old is an array, set, or map, a copy will be 
 returned.  The copy will be a new non-atomic object (even if old was atomic) which will 
-contain exactly the same objects as old and will be equal to it (that is ==).  If old is a struct 
-with a super struct, new will have the same super (exactly the same super, not a copy of it).
+contain exactly the same objects as old and will be equal to it (that is ==).  If old is a map 
+with a super map, new will have the same super (exactly the same super, not a copy of it).
 
 x = cos(angle)
 
@@ -2356,12 +2356,12 @@ etc();
 
 The functions  parse and scope are described below.
 
-del(struct, key)
+del(map, key)
 
-Deletes the element of struct identified by key. Any super structs are ignored.  Returns 
+Deletes the element of map identified by key. Any super structs are ignored.  Returns 
 nullptr.  For example:
 
-static s = [struct a = 1, b = 2, c = 3];
+static s = [map a = 1, b = 2, c = 3];
 static v, k;
 forall (v, k in s)
 	printf("%s=%d\n", k, v);
@@ -2418,10 +2418,10 @@ error handling in the try statement above.  For example:
 if (qf > 255)
 	fail(sprintf("Q factor %d is too large", qf));
 
-value = fetch(struct, key)
+value = fetch(map, key)
 
-Returns the value from struct associated with key, ignoring any super structs. Returns 
-nullptr is key is not an element of struct.
+Returns the value from map associated with key, ignoring any super structs. Returns 
+nullptr is key is not an element of map.
 
 value = float(x)
 
@@ -2534,7 +2534,7 @@ Returns a string formed from the concatenation of elements of array.  Integers i
 ray will be interpreted as character codes; strings in the array will be included in the con-
 catenation directly.  Other types are ignored.
 
-struct = include(string [, scope])
+map = include(string [, scope])
 
 Parses the code contained in the file named by the string into the scope. If scope is not 
 passed the current scope is used. Include always returns the scope into which the code was 
@@ -2570,10 +2570,10 @@ isatom(any)
 Return 1 (one) if any is an atomic (read-only) object, else 0 (zero).  Note that integers, 
 floats and strings are always atomic.
 
-array = keys(struct)
+array = keys(map)
 
-Returns an array of all the keys from struct.  The order is not predictable, but is repeatable 
-if no elements are added or deleted from the struct between calls and is the same order as 
+Returns an array of all the keys from map.  The order is not predictable, but is repeatable 
+if no elements are added or deleted from the map between calls and is the same order as 
 taken by a forall loop.
 
 float = log(x)
@@ -2604,7 +2604,7 @@ If any is an:
 
 array	the length of the array is returned; if it is a
 
-struct	the number of key/value pairs is returned; if it is a
+map	the number of key/value pairs is returned; if it is a
 
 set	the number of elements is returned; if it is a
 
@@ -2626,18 +2626,18 @@ If x can not be interpreted as a number the error %s is not a number is generate
 
 scope = parse(source [, scope])
 
-Parses source in a new variable scope, or, if scope (a struct) is supplied, in that scope.  
+Parses source in a new variable scope, or, if scope (a map) is supplied, in that scope.  
 Source may either be a file or a string, and in either case it is the source of text for the 
 parse.  If the parse is successful, the variables scope structure of the sub-module is re-
 turned.  If an explicit scope was supplied this will be that structure.
 
-If scope is not supplied a new struct is created for the auto variables.  This structure in turn 
-is given a new structure as its super struct for the static variables.  Finally, this structure's 
+If scope is not supplied a new map is created for the auto variables.  This structure in turn 
+is given a new structure as its super map for the static variables.  Finally, this structure's 
 super is set to the current static variables.  Thus the static variables of the current module 
 form the externs of the sub-module.
 
 If scope is supplied it is used directly as the scope for the sub-module.  Thus the base 
-structure will be the struct for autos, its super will be the struct for statics etc.
+structure will be the map for autos, its super will be the map for statics etc.
 
 For example:
 
@@ -2753,13 +2753,13 @@ Deletes the file whose name is given in string.
 
 current = scope([replacement])
 
-Returns the current scope structure.  This is a struct whose base element holds the auto 
+Returns the current scope structure.  This is a map whose base element holds the auto 
 variables, the super of that hold the statics, the super of that holds the externs etc.  Note 
 that this is a real reference to the current scope structure.  Changing, adding and deleting 
 elements of these structures will affect the values and presence of variables in the current 
 scope.
 
-If a replacement is given, that struct  replaces the current scope structure, with the obvious 
+If a replacement is given, that map  replaces the current scope structure, with the obvious 
 implications.  This should clearly be used with caution.  Replacing the current scope with 
 a structure which has no reference to the standard functions also has the obvious effect.
 
@@ -2878,41 +2878,41 @@ string = string(any)
 
 Returns a short textual representation of any. If any is an int or float it is converted as if 
 by a %d or %g format.  If it is a string it is returned directly.  Any other type will returns 
-its type name surrounded by angle brackets, as in <struct>.
+its type name surrounded by angle brackets, as in <map>.
 
-struct = struct([super,] key, value...)
+map = map([super,] key, value...)
 
-Returns a new structure.  This is the run-time equivalent of the struct literal.  If there are 
-an odd number of arguments the first is used as the super of the new struct; it must be a 
-struct.  The remaining pairs of arguments are treated as key and value pairs to initialise 
+Returns a new structure.  This is the run-time equivalent of the map literal.  If there are 
+an odd number of arguments the first is used as the super of the new map; it must be a 
+map.  The remaining pairs of arguments are treated as key and value pairs to initialise 
 the structure with; they may be of any type.  For example:
 
-struct()
+map()
 
-returns a new empty struct;
+returns a new empty map;
 
-struct(anotherStruct)
+map(anotherStruct)
 
-returns a new empty struct which has anotherStruct as its super;
+returns a new empty map which has anotherStruct as its super;
 
-struct("a", 1, "b", 2)
+map("a", 1, "b", 2)
 
-returns a new struct which has two entries a and b with the values 1 and 2; and
+returns a new map which has two entries a and b with the values 1 and 2; and
 
-struct(anotherStruct, "a", 1, "b", 2)
+map(anotherStruct, "a", 1, "b", 2)
 
-returns a new struct which has two entries a and b with the values 1 and 2 and a super of 
+returns a new map which has two entries a and b with the values 1 and 2 and a super of 
 anotherStruct.
 
-Note that the super of the new struct is set after the assignments of the new elements have 
+Note that the super of the new map is set after the assignments of the new elements have 
 been made. Thus the initial elements given as arguments will not affect values in any su-
-per struct.
+per map.
 
 The following two expressions are equivalent:
 
 $struct(anotherStruct, "a", 1, "b", 2)
 
-[struct:anotherStruct, a = 1, b = 2]
+[map:anotherStruct, a = 1, b = 2]
 
 string = sub(string, string|regexp, string)
 
@@ -2925,11 +2925,11 @@ this is original string. The replacement string may contain the special sequence
 which is replaced by the string that matched the regular expression. Parenthesized por-
 tions of the regular expression may be matched by using \n where n is a decimal digit.
 
-current = super(struct [, replacement])
+current = super(map [, replacement])
 
-Returns the current super struct of struct, and, if replacement is supplied, sets it to a new 
-value.  If replacement is nullptr any current super struct reference is cleared (that is, after 
-this struct will have no super).
+Returns the current super map of map, and, if replacement is supplied, sets it to a new 
+value.  If replacement is nullptr any current super map reference is cleared (that is, after 
+this map will have no super).
 
 x = tan(angle)
 
@@ -2940,7 +2940,7 @@ foat = now()
 Returns the current time expressed as a signed float time in seconds since 0:00, 1st Jan 
 2000 UTC.
 
-float|struct = calendar(struct|float)
+float|map = calendar(map|float)
 
 Converts between calendar time and airthmetic time. An arithmetic time is expressed as 
 a signed float time in seconds since 0:00, 1st Jan 2000 UTC. The calendar time is ex-
@@ -3120,7 +3120,7 @@ descriptions of each of them.
 
 	array = 	pipe()
 
-	struct =	stat(string|int|file)
+	map =	stat(string|int|file)
 
 	int =	wait()
 
@@ -3208,7 +3208,7 @@ descriptions of each of them.
 
 		rename(string, string)
 
-	struct =	passwd(int|string)
+	map =	passwd(int|string)
 
 	array =	passwd()
 
@@ -3276,12 +3276,12 @@ array = pipe()
 Create a pipe and return an array containing two, integer, file descriptors used to refer to 
 the input and output endpoints of the pipe.
 
-struct = stat(string|int|file)
+map = stat(string|int|file)
 
 Obtain information on the named file system object, file descriptor or file underlying an 
-ICI file object and return a struct containing that information. If the parameter is a file ob-
+ICI file object and return a map containing that information. If the parameter is a file ob-
 ject that file object must refer to a file opened with ICI's fopen function. The returned 
-struct contains the following keys (which have the same names as the fields of the Unix 
+map contains the following keys (which have the same names as the fields of the Unix 
 statbuf structure with the leading "st_" prefix removed),
 
 dev
@@ -3506,15 +3506,15 @@ rename(string, string)
 Change the name of a file. The first parameter is the name of an existing file and the sec-
 ond is the new name that it is to be given.
 
-struct = passwd(int | string)
+map = passwd(int | string)
 
 array = passwd()
 
 The passwd() function accesses the Unix password file (which may or may not be an ac-
 tual file according to the local system configuration). With no parameters passwd() re-
-turns an array of all password file entries, each entry is a struct. With a parameter passwd() 
+turns an array of all password file entries, each entry is a map. With a parameter passwd() 
 returns the entry for the specific user id., int parameter, or user name, string parameter. A 
-password file entry is a struct with the following keys and values,
+password file entry is a map with the following keys and values,
 
 name			The user's login name, a string.
 
@@ -3570,7 +3570,7 @@ descriptions of each of them.
 
 	skt = 	bind(skt, string)
 
-	struct = 	select([int,] set [, set [, set]])
+	map = 	select([int,] set [, set [, set]])
 
 	int = 	getsockopt(skt, string)
 
@@ -3588,7 +3588,7 @@ descriptions of each of them.
 
 		sendto(skt, string, string)
 
-	struct = 	recvfrom(skt, int)
+	map = 	recvfrom(skt, int)
 
 		send(skt, string)
 
@@ -3634,7 +3634,7 @@ system selects an unused local port number for the socket. If the host portion o
 dress is not specified "?" (any) is used. If the address is passed as an integer it specifies 
 the port number to be bound, the host portion is "?". Bind returns the socket parameter.
 
-struct = select([int,] set|nullptr [, set|nullptr [, set|nullptr]])
+map = select([int,] set|nullptr [, set|nullptr [, set|nullptr]])
 
 Check sockets for I/O readiness with optional timeout. Select may be passed up to three 
 sets of sockets that are checked for readiness to perform I/O. The first set holds the sockets 
@@ -3645,7 +3645,7 @@ specifies the number of milliseconds to wait for the sockets to become ready. If
 timeout is passed the sockets are polled to test their state. If no timeout is passed the call 
 blocks until at least one of the sockets is ready for I/O.
 
-The result of select is a struct containing three sets, of sockets, identified by the keys read, 
+The result of select is a map containing three sets, of sockets, identified by the keys read, 
 write and except.
 
 int = getsockopt(skt, string, int)
@@ -3713,11 +3713,11 @@ array = socketpair()
 
 Returns an array containing a pair of connected sockets.
 
-struct = recvfrom(skt, int)
+map = recvfrom(skt, int)
 
-Receive a message on a socket and return a struct containing the data of the message, in 
+Receive a message on a socket and return a map containing the data of the message, in 
 string, and the source address of the data. The int parameter gives the maximum number 
-of bytes to receive. The result is a struct with the keys msg and addr used to access the 
+of bytes to receive. The result is a map with the keys msg and addr used to access the 
 returned information.
 
 send(skt, string)
@@ -4661,7 +4661,7 @@ icivar.ici
 
 is considered, where var is the as yet undefined variable name. This file is searched for on 
 the current host specific search path. If found, a new extern, static and auto scope is es-
-tablished and the new extern scope struct is assigned to var in the outermost writable 
+tablished and the new extern scope map is assigned to var in the outermost writable 
 scope available. That outermost writable scope also forms the super of the new extern 
 scope. The module is then parsed with the given scope, after which the variable lookup is 
 repeated. In normal practice this will mean that the loaded module has an outer scope 
@@ -4708,7 +4708,7 @@ host's dynamic library loading mechanism. An initialisation function in the load
 may return an ICI object (see below). Should an object be returned, it is assigned to var 
 in the outermost writable scope available. Further, should the returned variable be a struc-
 ture, additional loading of an ICI module of the same name is allowed (as described 
-above) and the returned struct forms the structure for externs in that load.
+above) and the returned map forms the structure for externs in that load.
 
 The basics of writing dynamic loading native machine code modules
 
@@ -4753,7 +4753,7 @@ loaded ICI module.
 
 #include <windows.h>
 #include "func.h"
-#include "struct.h"
+#include "map.h"
 
 /*
  * mbox_msg => mbox.msg(string) from ICI
@@ -4785,16 +4785,16 @@ cfunc_t	mbox_cfuncs[] =
  * ici_mbox_library_init
  *
  * Initialisation routine called on load of this module into the ICI
- * interpreters address space. Creates and returns a struct which will
- * be assigned to "mbox". This struct contains references to our
+ * interpreters address space. Creates and returns a map which will
+ * be assigned to "mbox". This map contains references to our
  * intrinsic functions.
  */
 object_t *
 ici_mbox_library_init()
 {
-    struct_t	*s;
+    map_t	*s;
 
-    if ((s = new_struct()) == nullptr)
+    if ((s = new_map()) == nullptr)
 	return nullptr;
     if (ici_assign_cfuncs(s, mbox_cfuncs))
 	return nullptr;

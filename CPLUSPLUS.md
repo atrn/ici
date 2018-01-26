@@ -50,17 +50,7 @@ Various C-isms have been replaced by C++-isms:
 There are a  number of things in the interpreter  that may be better
 expresed using small RAII classes. This has not been done and is
 related to changing the way errors are reported. C++ exceptions
-could be succesfully used to implement ICI's internal error raising
-and reporting rather than using return codes as it presently does.
-Such a change requires the use of RAII techniques to manage object
-reference counts for ICI objects not yet registered with the collector.
-
-Changing to use exceptions would clean up a significant amount of
-code. Many error conditions tested for are related to unlikely
-conditions and all the checking does add up. Previous micro-benchmarks
-I conducted demonstrated far superior performance of C++ exceptions
-over return codes when the exception/error is unlikely. Removing
-all those error code checks adds up. The source code is also nicer.
+aren't really viable without far more C++ to cope with them.
 
 ## ICI namespace
 

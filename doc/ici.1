@@ -2302,7 +2302,7 @@ Inheritance is already provided through the ability to extend
 one structure's scope by defining a super structure for it.
 This can be done either with the notation:
 
-    \fCstatic  my_instance = [struct:my_parent x, y ];\fR
+    \fCstatic  my_instance = [map:my_parent x, y ];\fR
 
 or with the functional notation
 
@@ -2313,7 +2313,7 @@ for the super structure, and use that:
 
     \fC@my_parent\fR
 
-to refer to an atomic (unchanging) version of your `class' struct.
+to refer to an atomic (unchanging) version of your `class' map.
 
 .PP
 The method call is achieved by an extension of the normal function call
@@ -2326,7 +2326,7 @@ the function is called with
 the object pointed-to passed as \fIan implicit first parameter\fP.
 .PP
 The binary operator `@' forms such a pointer from an aggregate object
-(usually a struct) and an identifier (i.e. a member of the struct).
+(usually a map) and an identifier (i.e. a member of the map).
 This is the same basic technique used for dynamic dispatch in languages
 like Smalltalk and Objective-C.
 
@@ -2345,7 +2345,7 @@ showtype(any, label)
  * Class definition.
  */
 static Point =
-[struct
+[map
     p_x     = 0.0,
     p_y     = 0.0,
     p_swap  = [func (self) { self.p_x <=> self.p_y; } ],
@@ -2353,7 +2353,7 @@ static Point =
     p_what  = showtype,
 ];
 
-static p1 = struct(@Point);  /* Set super struct to be atomic Point */
+static p1 = map(@Point);  /* Set super map to be atomic Point */
 
     p1.p_x = 1.2;
     p1.p_y = 3.4;
@@ -2366,7 +2366,7 @@ static p1 = struct(@Point);  /* Set super struct to be atomic Point */
 
 Which produces this output when run:
 
-\fCp1 is a struct
+\fCp1 is a map
 Pt <1.2 3.4>
 Pt <3.4 1.2>\fR
 .fi
@@ -2379,7 +2379,7 @@ Ici's \fIsuper\fP linkage to provide the
 normal OO inheritance name search mechanism.
 .IP \(bu 2c
 The `@' binary operator to form a keyed pointer that will
-select the named member of the struct.
+select the named member of the map.
 .IP \(bu 2c
 The "()" (call) operator's special treatment of a function-keyed pointer.
 .PP
@@ -2404,7 +2404,7 @@ own sections.
 .sp 0.5
 	float =	\fBasin\fP(number)
 .sp 0.5
-	any =	\fBassign\fP(struct, any, any)
+	any =	\fBassign\fP(map, any, any)
 .sp 0.5
 	float =	\fBatan\fP(number)
 .sp 0.5
@@ -2424,7 +2424,7 @@ own sections.
 .sp 0.5
 	file =	\fBcurrentfile\fP()
 .sp 0.5
-		\fBdel\fP(struct, any)
+		\fBdel\fP(map, any)
 .sp 0.5
 	int =	\fBeq\fP(any, any)
 .sp 0.5
@@ -2438,7 +2438,7 @@ own sections.
 .sp 0.5
 		\fBfail\fP(string)
 .sp 0.5
-	any =	\fBfetch\fP(struct, any)
+	any =	\fBfetch\fP(map, any)
 .sp 0.5
 	float =	\fBfloat\fP(any)
 .sp 0.5
@@ -2468,7 +2468,7 @@ own sections.
 .sp 0.5
 	string =	\fBimplode\fP(array)
 .sp 0.5
-	struct =	\fBinclude\fP(string [, struct])
+	map =	\fBinclude\fP(string [, map])
 .sp 0.5
 	int =	\fBint\fP(any)
 .sp 0.5
@@ -2478,7 +2478,7 @@ own sections.
 .sp 0.5
 	int =	\fBisatom\fP(any)
 .sp 0.5
-	array =	\fBkeys\fP(struct)
+	array =	\fBkeys\fP(map)
 .sp 0.5
 	float =	\fBlog\fP(number)
 .sp 0.5
@@ -2492,7 +2492,7 @@ own sections.
 .sp 0.5
 	int|float =	\fBnum\fP(string|int|float)
 .sp 0.5
-	struct =	\fBparse\fP(file|string [, struct])
+	map =	\fBparse\fP(file|string [, map])
 .sp 0.5
 	any =	\fBpop\fP(array)
 .sp 0.5
@@ -2518,7 +2518,7 @@ own sections.
 .sp 0.5
 		\fBremove\fP(string)
 .sp 0.5
-	struct =	\fBscope\fP([struct])
+	map =	\fBscope\fP([map])
 .sp 0.5
 	int =	\fBseek\fP(file, int, int)
 .sp 0.5
@@ -2540,11 +2540,11 @@ own sections.
 .sp 0.5
 	string =	\fBstring\fP(any)
 .sp 0.5
-	struct =	\fBstruct\fP(any, any...)
+	map =	\fBstruct\fP(any, any...)
 .sp 0.5
 	string =	\fBsub\fP(string, regexp, string)
 .sp 0.5
-	struct =	\fBsuper\fP(struct [, struct])
+	map =	\fBsuper\fP(map [, map])
 .sp 0.5
 	int =	\fBsystem\fP(string)
 .sp 0.5
@@ -2606,10 +2606,10 @@ float = \fBasin\fP(x)
 
 Returns the arc sine of x  in the range -pi/2 to pi/2.
 
-value = \fBassign\fP(struct, key, value)
+value = \fBassign\fP(map, key, value)
 
-Sets the element of struct identified by key to value, ignoring any
-super struct.  Returns value.
+Sets the element of map identified by key to value, ignoring any
+super map.  Returns value.
 
 angle = \fBatan\fP(x)
 
@@ -2645,10 +2645,10 @@ new = \fBcopy\fP(old)
 
 Returns a copy of old.  If old is an intrinsically atomic type such as
 an int or string, the new will be the same object as the old.  But if
-old is an array, set, or struct, a copy will be returned.  The copy will
+old is an array, set, or map, a copy will be returned.  The copy will
 be a new non-atomic object (even if old was atomic) which will contain
 exactly the same objects as old and will be equal to it (that is ==).
-If old is a struct with a super struct, new will have the same super
+If old is a map with a super map, new will have the same super
 (exactly the same super, not a copy of it).
 
 x = \fBcos\fP(angle)
@@ -2700,13 +2700,13 @@ etc();\fR
 
 The functions  parse and scope are described below.
 
-\fBdel\fP(struct, key)
+\fBdel\fP(map, key)
 
-Deletes the element of struct identified by key. Any super structs
+Deletes the element of map identified by key. Any super structs
 are ignored.  Returns nullptr.  For example:
 
 .nf
-\fCstatic s = [struct a = 1, b = 2, c = 3];
+\fCstatic s = [map a = 1, b = 2, c = 3];
 static v, k;
 
 forall (v, k in s)
@@ -2766,10 +2766,10 @@ For example:
     fail(sprintf("Q factor %d is too large", qf));\fR
 .fi
 
-value = \fBfetch\fP(struct, key)
+value = \fBfetch\fP(map, key)
 
-Returns the value from struct associated with key, ignoring any super
-structs. Returns nullptr if the key is not an element of struct.
+Returns the value from map associated with key, ignoring any super
+structs. Returns nullptr if the key is not an element of map.
 
 value = \fBfloat\fP(x)
 
@@ -2909,7 +2909,7 @@ Integers in the array will be interpreted as character codes; strings in
 the array will be included in the concatenation directly.  Other types
 are ignored.
 
-struct = \fBinclude\fP(string [, scope])
+map = \fBinclude\fP(string [, scope])
 
 Parses the code contained in the file named by the string into the
 scope. If scope is not passed the current scope is used. Include always
@@ -2950,11 +2950,11 @@ And the first three elements of an array with:
 Return 1 (one) if any is an atomic (read-only) object, else 0 (zero).
 Note that integers, floats and strings are always atomic.
 
-array = \fBkeys\fP(struct)
+array = \fBkeys\fP(map)
 
-Returns an array of all the keys from struct.  The order is not
+Returns an array of all the keys from map.  The order is not
 predictable, but is repeatable if no elements are added or deleted from
-the struct between calls and is the same order as taken by a forall loop.
+the map between calls and is the same order as taken by a forall loop.
 
 float = \fBlog\fP(x)
 
@@ -2988,7 +2988,7 @@ the type of any.  If any is an:
 .B array
 the length of the array is returned; if it is a
 .TP 1i
-.B struct
+.B map
 the number of key/value pairs is returned; if it is a
 .TP 1i
 .B set
@@ -3017,21 +3017,21 @@ is generated.
 
 scope = \fBparse\fP(source [, scope])
 
-Parses source in a new variable scope, or, if scope (a struct) is
+Parses source in a new variable scope, or, if scope (a map) is
 supplied, in that scope.  Source may either be a file or a string, and
 in either case it is the source of text for the parse.  If the parse is
 successful, the variables scope structure of the sub-module is returned.
 If an explicit scope was supplied this will be that structure.
 
-If scope is not supplied a new struct is created for the auto variables.
-This structure in turn is given a new structure as its super struct
+If scope is not supplied a new map is created for the auto variables.
+This structure in turn is given a new structure as its super map
 for the static variables.  Finally, this structure's super is set to
 the current static variables.  Thus the static variables of the current
 module form the externs of the sub-module.
 
 If scope is supplied it is used directly as the scope for the sub-module.
-Thus the base structure will be the struct for autos, its super will be
-the struct for statics etc.
+Thus the base structure will be the map for autos, its super will be
+the map for statics etc.
 
 For example:
 
@@ -3154,14 +3154,14 @@ Deletes the file whose name is given in string.
 
 current = \fBscope\fP([replacement])
 
-Returns the current scope structure.  This is a struct whose base element
+Returns the current scope structure.  This is a map whose base element
 holds the auto variables, the super of that hold the statics, the super
 of that holds the externs etc.  Note that this is a real reference to
 the current scope structure.  Changing, adding and deleting elements
 of these structures will affect the values and presence of variables in
 the current scope.
 
-If a replacement is given, that struct  replaces the current scope
+If a replacement is given, that map  replaces the current scope
 structure, with the obvious implications.  This should clearly be used
 with caution.  Replacing the current scope with a structure which has
 no reference to the standard functions also has the obvious effect.
@@ -3279,43 +3279,43 @@ string = \fBstring\fP(any)
 Returns a short textual representation of any. If any is an int or float
 it is converted as if by a %d or %g format.  If it is a string it is
 returned directly.  Any other type will returns its type name surrounded
-by angle brackets, as in <struct>.
+by angle brackets, as in <map>.
 
-struct = \fBstruct\fP([super,] key, value...)
+map = \fBstruct\fP([super,] key, value...)
 
-Returns a new structure.  This is the run-time equivalent of the struct
+Returns a new structure.  This is the run-time equivalent of the map
 literal.  If there are an odd number of arguments the first is used as
-the super of the new struct; it must be a struct.  The remaining pairs of
+the super of the new map; it must be a map.  The remaining pairs of
 arguments are treated as key and value pairs to initialise the structure
 with; they may be of any type.  For example:
 
 \fCstruct()\fR
 
-returns a new empty struct;
+returns a new empty map;
 
 \fCstruct(anotherStruct)\fR
 
-returns a new empty struct which has anotherStruct as its super;
+returns a new empty map which has anotherStruct as its super;
 
 \fCstruct("a", 1, "b", 2)\fR
 
-returns a new struct which has two entries a and b with the values 1
+returns a new map which has two entries a and b with the values 1
 and 2; and
 
 \fCstruct(anotherStruct, "a", 1, "b", 2)\fR
 
-returns a new struct which has two entries a and b with the values 1
+returns a new map which has two entries a and b with the values 1
 and 2 and a super of anotherStruct.
 
-Note that the super of the new struct is set after the assignments of
+Note that the super of the new map is set after the assignments of
 the new elements have been made. Thus the initial elements given as
-arguments will not affect values in any super struct.
+arguments will not affect values in any super map.
 
 The following two expressions are equivalent:
 
 \fC$struct(anotherStruct, "a", 1, "b", 2)\fR
 
-\fC[struct:anotherStruct, a = 1, b = 2]\fR
+\fC[map:anotherStruct, a = 1, b = 2]\fR
 
 string = \fBsub\fP(string, string|regexp, string)
 
@@ -3330,11 +3330,11 @@ contain the special sequence "\e&" which is replaced by the string that
 matched the regular expression. Parenthesized portions of the regular
 expression may be matched by using \en where n is a decimal digit.
 
-current = \fBsuper\fP(struct [, replacement])
+current = \fBsuper\fP(map [, replacement])
 
-Returns the current super struct of struct, and, if replacement is
+Returns the current super map of map, and, if replacement is
 supplied, sets it to a new value.  If replacement is nullptr any current
-super struct reference is cleared (that is, after this struct will have
+super map reference is cleared (that is, after this map will have
 no super).
 
 x = \fBtan\fP(angle)
@@ -3498,7 +3498,7 @@ this is a detailed description of each of them.
 .sp 0.5
 	array = 	\fBpipe\fP()
 .sp 0.5
-	struct =	\fBstat\fP(string|int|file)
+	map =	\fBstat\fP(string|int|file)
 .sp 0.5
 	int =	\fBwait\fP()
 .sp 0.5
@@ -3586,7 +3586,7 @@ this is a detailed description of each of them.
 .sp 0.5
 		\fBrename\fP(string, string)
 .sp 0.5
-	struct =	\fBpasswd\fP(int|string)
+	map =	\fBpasswd\fP(int|string)
 .sp 0.5
 	array =	\fBpasswd\fP()
 .sp 2
@@ -3677,12 +3677,12 @@ array = \fBpipe\fP()
 Create a pipe and return an array containing two, integer, file
 descriptors used to refer to the input and output endpoints of the pipe.
 
-struct = \fBstat\fP(pathname|int|file)
+map = \fBstat\fP(pathname|int|file)
 
 Obtain information on the named file system object, file descriptor or
-file underlying an ici file object and return a struct containing that
+file underlying an ici file object and return a map containing that
 information. If the parameter is a file object that file object must
-refer to a file opened with ici's fopen function. The returned struct
+refer to a file opened with ici's fopen function. The returned map
 contains the following keys (which have the same names as the fields of
 the Unix statbuf structure with the leading "st_" prefix removed):
 
@@ -3902,16 +3902,16 @@ This function is only available on Win32 platforms.
 Change the name of a file. The first parameter is the name of an existing
 file and the second is the new name that it is to be given.
 
-struct = \fBpasswd\fP(int | string)
+map = \fBpasswd\fP(int | string)
 
 array = \fBpasswd\fP()
 
 The passwd() function accesses the Unix password file (which may or may
 not be an actual file according to the local system configuration). With
 no parameters passwd() returns an array of all password file entries,
-each entry is a struct. With a parameter passwd() returns the entry for
+each entry is a map. With a parameter passwd() returns the entry for
 the specific user id., int parameter, or user name, string parameter. A
-password file entry is a struct with the following keys and values:
+password file entry is a map with the following keys and values:
 
 .TP 1i
 .B name
@@ -4187,7 +4187,7 @@ this is a detailed description of each of them.
 .sp 0.5
 	skt = 	\fBbind\fP(skt, string)
 .sp 0.5
-	struct = 	\fBselect\fP([int,] set [, set [, set]])
+	map = 	\fBselect\fP([int,] set [, set [, set]])
 .sp 0.5
 	int = 	\fBgetsockopt\fP(skt, string)
 .sp 0.5
@@ -4205,7 +4205,7 @@ this is a detailed description of each of them.
 .sp 0.5
 		\fBsendto\fP(skt, string, string)
 .sp 0.5
-	struct = 	\fBrecvfrom\fP(skt, int)
+	map = 	\fBrecvfrom\fP(skt, int)
 .sp 0.5
 		\fBsend\fP(skt, string)
 .sp 0.5
@@ -4253,7 +4253,7 @@ socket. If the host portion of the address is not specified "?" (any) is
 used. If the address is passed as an integer it specifies the port number
 to be bound, the host portion is "?". Bind returns the socket parameter.
 
-struct = \fBselect\fP([int,] set|nullptr [, set|nullptr [, set|nullptr]])
+map = \fBselect\fP([int,] set|nullptr [, set|nullptr [, set|nullptr]])
 
 Check sockets for I/O readiness with optional timeout. Select may be
 passed up to three sets of sockets that are checked for readiness to
@@ -4266,7 +4266,7 @@ to wait for the sockets to become ready. If a zero timeout is passed the
 sockets are polled to test their state. If no timeout is passed the call
 blocks until at least one of the sockets is ready for I/O.
 
-The result of select is a struct containing three sets, of sockets,
+The result of select is a map containing three sets, of sockets,
 identified by the keys read, write and except.
 
 int = \fBgetsockopt\fP(skt, string, int)
@@ -4324,12 +4324,12 @@ array = \fBsocketpair\fP()
 
 Returns an array containing a pair of connected sockets.
 
-struct = \fBrecvfrom\fP(skt, int)
+map = \fBrecvfrom\fP(skt, int)
 
-Receive a message on a socket and return a struct containing the data
+Receive a message on a socket and return a map containing the data
 of the message, in string, and the source address of the data. The int
 parameter gives the maximum number of bytes to receive. The result is a
-struct with the keys msg and addr used to access the returned information.
+map with the keys msg and addr used to access the returned information.
 
 \fBsend\fP(skt, string)
 
