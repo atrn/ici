@@ -1,19 +1,5 @@
 # How To Build
 
-There are several ways to build ici. The _official_ way (i.e. the
-method I used to build and install on my machines) uses GNU make
-to direct things and another tool, `dcc`, to look after building.
-
-The _make+dcc_ method supports building ICI in a number of different
-ways - standalone executable, static library + standalone executable
-or dynamic library and associated executable.
-
-A simple `CMakeLists.txt` is supplied with the sources which will
-build an interpreter executable.
-
-The `etc` directory contains a number of example Makefiles for
-building without `dcc`.
-
 ## Summary
 
 Supported platforms:
@@ -24,16 +10,37 @@ Supported platforms:
 
 Steps:
 
-- install `dcc`
+- install `dcc` (`go get github.com/atrn/dcc`, see below)
 - type `make` (`gmake` on BSDs)
 
-## Building
+## Overview
+
+There are several ways to build ici. The _official_ way (i.e. the
+method I used to build and install on my machines) uses GNU make
+to direct things and another tool, `dcc`, to look after building.
+
+The _make+dcc_ method supports building ICI in a number of different
+ways - standalone executable, static library + standalone executable
+or dynamic library and associated executable (read the Makefile).
+
+## cmake
+
+A `CMakeLists.txt` is supplied with the sources which will build an
+interpreter executable. Cmake support is minimal but can be used to
+generate files for IDEs and other build tools (ninja works very well).
+
+## Example makefiles
+
+A number of more conventional makefiles are located in the `etc`
+directory. These can be used as is or as a starting point.
+
+## Building with make and dcc
 
 The supported build system for ICI uses GNU `make` and my compiler
 driver program, `dcc`. You likely already have GNU `make` or know
 where to get it.
 
-### Getting `dcc`
+### Install `dcc`
 
 `dcc` is open source (licensed under the GNU GPL v2) and available
 from [http://github.com/atrn/dcc](http://github.com/atrn/dcc). `dcc`
@@ -51,7 +58,7 @@ By default `go get` will install the binary under your _$GOPATH_,
 which is `~/go/bin` if not defined otherwise I assume you know what
 you're doing and where to find the executable.
 
-## Building ICI
+### Build ICI
 
 With `dcc` installed building ICI is done using `make,
 
@@ -65,7 +72,7 @@ set installation locations and other variables.
 
 The makefile is quite simple (`dcc` does the real work).
 
-## Building without dcc
+## Building manually
 
 Building a static version of ici is essentially trivial on current
 UNIX-ish systems. The following command builds a static executable,
@@ -75,20 +82,31 @@ UNIX-ish systems. The following command builds a static executable,
 The `etc` directory contains a number of Makefiles that use this
 approach.
 
+### Platform configuration
+
+More control over the configuration is available by setting the
+`CONFIG_FILE` macro to the name of a header file that defines the
+interpreter's configuration. The file named by `CONFIG_FILE` is
+included by the standard header file `fwd.h`. If `CONFIG_FILE` is not
+set `fwd.h` automatically selects a file for the host.
+
+The per-system configuration header files are located in the `conf`
+directory.
+
 ## CMakeLists.txt
 
-There is a very basic `CMakeLists.txt` file that works to compile a
-basic interpreter executable. The CMakeFile doesn't all the things
-the Makefile build does (DLL vs static lib, creating ici.h etc...)
-but of course it could with sufficient _cmake-ing_.  However there
-are **no** plans to move builds to use cmake and no plans to do
-such cmake-ing. Contributions will be gladly accepted. I'm happy
-enough with the make/dcc combination.
+The `CMakeLists.txt` is very basic but works to compile a standalone
+interpreter executable. The CMakeFile doesn't do the same things the
+Makefile does (DLL vs static lib, creating ici.h, installing) but of
+course it could with sufficient _cmake-ing_.  However I have **no**
+plans to that _cmake-ing_. I'm happy enough with the make and dcc.
+Contributions will be gladly accepted however.
 
 Using `cmake` an interpreter can be built via a the command,
 
     $ cmake -BBUILD -H. && make -CBUILD
 
-Adjust build options can be done at generation time or later by
-adjusting cmake's settings _cache_ (either manually or by using the
-ccmake tool).
+Adjust build options can be done at generation time by setting cmake
+variables on the command line or by editing the cmake's settings
+_cache_ (either manually or by using the ccmake tool) and
+re-generating build files.
