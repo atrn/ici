@@ -6,7 +6,7 @@
 /anici.h
 *.dylib
 *.so
-/.dcc/
+/.dcc.d/
 /anici.static
 /test/serialization/*.dat
 /libanici.so

@@ -1,12 +1,26 @@
 # How To Build
 
+There are several ways to build ici. The _official_ way (i.e. the
+method I used to build and install on my machines) uses GNU make
+to direct things and another tool, `dcc`, to look after building.
+
+The _make+dcc_ method supports building ICI in a number of different
+ways - standalone executable, static library + standalone executable
+or dynamic library and associated executable.
+
+A simple `CMakeLists.txt` is supplied with the sources which will
+build an interpreter executable.
+
+The `etc` directory contains a number of example Makefiles for
+building without `dcc`.
+
 ## Summary
 
 Supported platforms:
 
 - MacOS
-- Most Linux-based OSes
 - BSD's
+- Most Linux-based OSes
 
 Steps:
 
@@ -58,7 +72,10 @@ UNIX-ish systems. The following command builds a static executable,
 
     $ c++ -std=c++14 -I. -UNDEBUG *.cc etc/main.cc -o ici
 
-## Cmake
+The `etc` directory contains a number of Makefiles that use this
+approach.
+
+## CMakeLists.txt
 
 There is a very basic `CMakeLists.txt` file that works to compile a
 basic interpreter executable. The CMakeFile doesn't all the things
@@ -67,3 +84,11 @@ but of course it could with sufficient _cmake-ing_.  However there
 are **no** plans to move builds to use cmake and no plans to do
 such cmake-ing. Contributions will be gladly accepted. I'm happy
 enough with the make/dcc combination.
+
+Using `cmake` an interpreter can be built via a the command,
+
+    $ cmake -BBUILD -H. && make -CBUILD
+
+Adjust build options can be done at generation time or later by
+adjusting cmake's settings _cache_ (either manually or by using the
+ccmake tool).

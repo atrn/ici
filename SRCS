@@ -1,6 +1,0 @@
-# This file is read by dmake and defines the source files to
-# be compiled. This file is only needed because we put main()
-# in etc/main.cc and dmake doesn't search subdirectories for
-# source files.
-
-etc/main.cc *.cc
