@@ -2,6 +2,7 @@
 #include "fwd.h"
 #include "channel.h"
 #include "cfunc.h"
+#include "forall.h"
 #include "array.h"
 #include "int.h"
 #include "null.h"
@@ -64,16 +65,105 @@
 
 #include "channel.h"
 
-namespace ici
-{
+namespace ici {
+
+// ----------------------------------------------------------------
+
+channel *new_channel(size_t capacity) {
+    channel *chan = ici_talloc(channel);
+    if (chan == nullptr)
+        return nullptr;
+    set_tfnz(chan, TC_CHANNEL, 0, 1, 0);
+    if ((chan->c_q = new_array(capacity)) == nullptr) {
+        ici_tfree(chan, channel);
+        return nullptr;
+    }
+    chan->c_capacity = capacity;
+    chan->c_altobj = nullptr;
+    rego(chan);
+    return chan;
+}
+
+object *get(channel *c) {
+    auto q = channelof(c)->c_q;
+    while (q->len() < 1) {
+        if (waitfor(q)) {
+            return nullptr;
+        }
+    }
+    auto o = q->pop_front();
+    wakeup(q);
+    if (c->c_altobj) {
+	wakeup(c->c_altobj);
+    }
+    return o;
+}
+
+int put(channel *c, object *o) {
+    auto q = channelof(c)->c_q;
+
+    // unbuffered
+    if (channelof(c)->c_capacity == 0) {
+        while (q->len() > 0) {
+            if (waitfor(q)) {
+                return 1;
+            }
+        }
+    } else {
+        while (q->len() >= channelof(c)->c_capacity) {
+            if (waitfor(q)) {
+                return 1;
+            }
+        }
+    }
+    q->push_back(o);
+    wakeup(q);
+    if (channelof(c)->c_altobj != nullptr) {
+        wakeup(channelof(c)->c_altobj);
+    }
+    return 0;
+}
+
+// ----------------------------------------------------------------
 
 size_t channel_type::mark(object *o)
 {
     auto mem = type::mark(o);
-    mem += ici_mark(objwsupof(o)->o_super);
     mem += ici_mark(channelof(o)->c_q);
     mem += mark_optional(channelof(o)->c_altobj);
     return mem;
+}
+
+int channel_type::forall(object *o) {
+    auto fa = forallof(o);
+    auto chan = channelof(fa->fa_aggr);
+    auto val = get(chan);
+    if (fa->fa_kaggr == null) {
+        if (fa->fa_vaggr != null) {
+            if (ici_assign(fa->fa_vaggr, fa->fa_vkey, val)) {
+                return 1;
+            }
+        }
+    } else {
+        if (fa->fa_vaggr != null) {
+            if (ici_assign(fa->fa_vaggr, fa->fa_vkey, val)) {
+                return 1;
+            }
+        }
+        if (ici_assign(fa->fa_kaggr, fa->fa_kkey, val)) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+int channel_type::save(archiver *ar, object *o) {
+    // auto *c = channelof(o);
+    return type::save(ar, o);
+}
+
+object *channel_type::restore(archiver *ar) {
+    return type::restore(ar);
 }
 
 /*
@@ -85,37 +175,27 @@ size_t channel_type::mark(object *o)
  *
  * This --topic-- forms part of the --ici-channel-- documentation.
  */
-static int
-f_channel()
-{
-    size_t  capacity = 0;
-    channel *chan;
+static int f_channel() {
+    size_t capacity = 0;
 
-    if (NARGS() != 0)
-    {
+    if (NARGS() != 0) {
         long val;
-        if (typecheck("i", &val))
+        if (typecheck("i", &val)) {
             return 1;
-        if (val < 0)
-        {
+        }
+        if (val < 0) {
             set_error("channel capacity must be non-negative");
             return 1;
         }
         capacity = size_t(val);
     }
-    chan = ici_talloc(channel);
-    if (chan == nullptr)
-        return 1;
-    if ((chan->c_q = new_array(capacity ? capacity : 1)) == nullptr)
-    {
-        ici_tfree(chan, channel);
-        return 1;
+    if (capacity == 0) {
+        capacity = 1;
     }
-    set_tfnz(chan, TC_CHANNEL, object::O_SUPER, 1, 0);
-    chan->c_capacity = capacity;
-    chan->c_altobj = nullptr;
-    rego(chan);
-    return ret_with_decref(chan);
+    if (auto chan = new_channel(capacity)) {
+        return ret_with_decref(chan);
+    }
+    return 1;
 }
 
 /*
@@ -124,28 +204,15 @@ f_channel()
  * Return the next object from the channel.  If there are no objects
  * in the channel the caller is blocked until an object is available.
  */
-static int
-f_get()
-{
+static int f_get() {
     object *c;
-    object *o;
-    array *q;
-
-    if (typecheck("o", &c))
+    if (typecheck("o", &c)) {
         return 1;
-    if (!ischannel(c))
-        return argerror(0);
-    q = channelof(c)->c_q;
-    while (q->len() < 1)
-    {
-        if (waitfor(q))
-            return 1;
     }
-    o = q->pop_front();
-    wakeup(q);
-    if (channelof(c)->c_altobj != nullptr)
-	wakeup(channelof(c)->c_altobj);
-    return ret_no_decref(o);
+    if (!ischannel(c)) {
+        return argerror(0);
+    }
+    return ret_no_decref(get(channelof(c)));
 }
 
 /*
@@ -159,62 +226,37 @@ f_get()
  *
  * This --topic-- forms part of the --ici-channel-- documentation.
  */
-static int
-f_put()
+static int f_put()
 {
     object *c;
     object *o;
-    array *q;
 
-    if (typecheck("oo", &c, &o))
+    if (typecheck("oo", &c, &o)) {
         return 1;
-    if (!ischannel(c))
+    }
+    if (!ischannel(c)) {
         return 1;
-    q = channelof(c)->c_q;
-
-    // unbuffered
-    if (channelof(c)->c_capacity == 0)
-    {
-        while (q->len() > 0)
-        {
-            if (waitfor(q))
-                return 1;
-        }
     }
-    else
-    {
-        while (q->len() >= channelof(c)->c_capacity)
-        {
-            if (waitfor(q))
-                return 1;
-        }
+    if (put(channelof(c), o)) {
+        return 1;
     }
-    q->push_back(o);
-    wakeup(q);
-    if (channelof(c)->c_altobj != nullptr)
-        wakeup(channelof(c)->c_altobj);
     return null_ret();
 }
 
 //================================================================
 
-static int
-alt_setup(array *alts, object *obj)
+static int alt_setup(array *alts, object *obj)
 {
     size_t n = alts->len();
     size_t i;
 
-    for (i = 0; i < n; ++i)
-    {
+    for (i = 0; i < n; ++i) {
 	object *o = alts->get(i);
         channel *chan;
-	if (ischannel(o))
-	{
+	if (ischannel(o)) {
 	    chan = channelof(o);
 	    chan->c_altobj = obj;
-	}
-	else if (!isnull(o))
-	{
+	} else if (!isnull(o)) {
 	    set_error("bad object in array passed to channel.alt");
 	    return 1;
 	}
@@ -222,15 +264,12 @@ alt_setup(array *alts, object *obj)
     return 0;
 }
 
-static int
-alt(array *alts)
-{
+static int alt(array *alts) {
     int idx = -1;
     int n = alts->len();
     int i;
 
-    for (i = 0; i < n && idx == -1; ++i)
-    {
+    for (i = 0; i < n && idx == -1; ++i) {
         object *o = alts->get(i);
         if (ischannel(o) && channelof(o)->c_q->len() > 0) {
             idx = i;
@@ -249,19 +288,20 @@ alt(array *alts)
  * @todo return a set of ready channels
  * @todo randomize selection to avoid livelock
  */
-static int f_alt()
-{
+static int f_alt() {
     int idx;
     array *alts;
 
-    if (typecheck("a", &alts))
+    if (typecheck("a", &alts)) {
         return 1;
-    if (alt_setup(alts, alts))
+    }
+    if (alt_setup(alts, alts)) {
 	return 1;
-    while ((idx = alt(alts)) == -1)
-    {
-        if (waitfor(alts))
+    }
+    while ((idx = alt(alts)) == -1) {
+        if (waitfor(alts)) {
             return 1;
+        }
     }
     alt_setup(alts, nullptr);
     return int_ret(idx);

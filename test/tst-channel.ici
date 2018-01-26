@@ -1,0 +1,77 @@
+N := 100*1000;
+
+// The binding class is a poor man's closure, holding
+// a function and an array of arguments to use when
+// invoking it. Users use the binding's invoke method
+// to call the function with those arguments.
+//
+local binding = [class
+    new(f) {
+        var vargs = [array];
+        this = this:^new();
+        this.f := f;
+        this.args := vargs;
+        return this;
+    }
+
+    invoke() {
+        return call(this.f, this.args);
+    }
+];
+
+// Bind uses a binding instance to return a callable thing that binds
+// a function to some arguments.
+//
+// We post the result of bind() to a runner which calls the bound
+// function with the supplied arguments.
+//
+local bind(f) {
+    var vargs = [array];
+    inst := call(binding:new, f, vargs);
+    return inst:invoke;
+}
+
+// runner tests forall-ing over a channel
+//
+// Because we don't yet support closing channels we send a NULL to
+// signify the end of input.  When closed channels are supported the
+// forall will stop when the channel closes and the explicit sentinel
+// won't be required.
+//
+// We also don't do anything about errors raised by the called object.
+// Real usage would probably trap errors and report or handle them in
+// some way.
+//
+local runner(chan) {
+    forall (f in chan) {
+        if (f) {
+            f();
+        } else {
+            return;
+        }
+    }
+}
+
+// Shorthand.
+//
+local join(exec) {
+    waitfor(exec.status == "finished"; exec);
+}
+
+
+// The test...
+//
+// - create the work channel
+// - start a runner
+// - post bound functions to the runner
+// - tell the runner to stop
+// - wait for the runner to finish
+//
+
+ch := channel(200);
+e := go(runner, ch);
+for (x := 1; x <= N; ++x) {
+    put(ch, bind(printf, "%d ", x));
+}
+put(ch, NULL);
+join(e);

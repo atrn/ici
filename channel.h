@@ -11,7 +11,7 @@ namespace ici
 /*
  * This --struct-- forms part of the --ici-api--.
  */
-struct channel : objwsup
+struct channel : object
 {
     array *  c_q;
     size_t   c_capacity;
@@ -30,6 +30,9 @@ class channel_type : public type
 public:
     channel_type() : type("channel", sizeof (struct channel)) {}
     size_t mark(object *o) override;
+    int forall(object *o) override;
+    int save(archiver *, object *) override;
+    object *restore(archiver *) override;
 };
 
 } // namespace ici
