@@ -55,15 +55,70 @@
 
 namespace ici
 {
-
-inline long long ici_htonll(int64_t v) {
-    // archiver::byteswap(&v, sizeof v);
-    return v;
+static void swapout(void *ptr, int sz) {
+#if defined(ICI_ARCHIVE_LITTLE_ENDIAN_HOST)
+    switch (sz) {
+    case 2:
+        {
+            int16_t *v = (int16_t *)ptr;
+            auto tmp = htons(*v);
+            *v = tmp;
+        }
+        break;
+    case 4:
+        {
+            int32_t *v = (int32_t *)ptr;
+            auto tmp = htonl(*v);
+            *v = tmp;
+        }
+        break;
+    case 8:
+        {
+            int64_t *v = (int64_t *)ptr;
+            auto tmp = htonll(*v);
+            *v = tmp;
+        }
+        break;
+    default:
+        abort();
+    }
+#else
+    (void)ptr;
+    (void)sz;
+#endif
 }
 
-inline long long ici_ntohll(int64_t v) {
-    // archiver::byteswap(&v, sizeof v);
-    return v;
+static void swapin(void *ptr, int sz) {
+#if defined(ICI_ARCHIVE_LITTLE_ENDIAN_HOST)
+    switch (sz) {
+    case 2:
+        {
+            int16_t *v = (int16_t *)ptr;
+            auto tmp = ntohs(*v);
+            *v = tmp;
+        }
+        break;
+    case 4:
+        {
+            int32_t *v = (int32_t *)ptr;
+            auto tmp = ntohl(*v);
+            *v = tmp;
+        }
+        break;
+    case 8:
+        {
+            int64_t *v = (int64_t *)ptr;
+            auto tmp = ntohll(*v);
+            *v = tmp;
+        }
+        break;
+    default:
+        abort();
+    }
+#else
+    (void)ptr;
+    (void)sz;
+#endif
 }
 
 typedef int int_func();
@@ -206,53 +261,31 @@ int_func *archiver::op_func(int code) {
     return op_funcs[code];
 }
 
-void archiver::byteswap(void *ptr, int sz) {
-#if 1 // ICI_ARCHIVE_LITTLE_ENDIAN_HOST
-    (void)ptr;
-    (void)sz;
-#else
-    char *s = (char *)ptr;
-    char *e = s + sz - 1;
-    int i;
-    for (i = 0; i < sz / 2 ; ++i) {
-        char t = s[i];
-        s[i] = e[-i];
-        e[-i] = t;
-    }
-#endif
-}
-
 int archiver::read(void *buf, int len) {
     return a_file->read(buf, len) != len;
 }
 
 int archiver::read(int16_t *hword) {
-    int16_t tmp;
-    if (read(&tmp, sizeof tmp)) {
+    if (read(hword, sizeof *hword)) {
     	return 1;
     }
-    // *hword = ntohs(tmp);
-    *hword = tmp;
+    swapin(hword, sizeof *hword);
     return 0;
 }
 
 int archiver::read(int32_t *aword) {
-    int32_t tmp;
-    if (read(&tmp, sizeof tmp)) {
+    if (read(aword, sizeof *aword)) {
     	return 1;
     }
-    // *aword = ntohl(tmp);
-    *aword = tmp;
+    swapin(aword, sizeof *aword);
     return 0;
 }
 
 int archiver::read(int64_t *dword) {
-    int64_t tmp;
-    if (read(&tmp, sizeof tmp)) {
+    if (read(dword, sizeof *dword)) {
     	return 1;
     }
-    // *dword = ici_ntohll(tmp);
-    *dword = tmp;
+    swapin(dword, sizeof *dword);
     return 0;
 }
 
@@ -260,7 +293,7 @@ int archiver::read(double *dbl) {
     if (read(dbl, sizeof *dbl)) {
         return 1;
     }
-    // byteswap(&dbl, sizeof dbl);
+    swapin(dbl, sizeof *dbl);
     return 0;
 }
 
@@ -269,22 +302,22 @@ int archiver::write(const void *p, int n) {
 }
 
 int archiver::write(int16_t hword) {
-    // byteswap(&hword, sizeof hword);
+    swapout(&hword, sizeof hword);
     return write(&hword, sizeof hword);
 }
 
 int archiver::write(int32_t aword) {
-    // byteswap(&aword, sizeof aword);
+    swapout(&aword, sizeof aword);
     return write(&aword, sizeof aword);
 }
 
 int archiver::write(int64_t dword) {
-    // byteswap(&dword, sizeof dword);
+    swapout(&dword, sizeof dword);
     return write(&dword, sizeof dword);
 }
 
 int archiver::write(double v) {
-    // byteswap(&v, sizeof v);
+    swapout(&v, sizeof v);
     return write(&v, sizeof v);
 }
 

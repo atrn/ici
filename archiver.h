@@ -25,9 +25,6 @@ int f_archive_restore(...);
 #define ICI_ARCHIVE_LITTLE_ENDIAN_HOST 1
 #endif
 
-long long ici_ntohll(long long v);
-long long ici_htonll(long long v);
-
 /*
  * Bit of the tcode set when the object is atomic.
  */
@@ -93,10 +90,8 @@ private:
     map *   a_sent;
     objwsup *a_scope;
 
-private:
-    static void byteswap(void *ptr, int sz);
-    friend long long ici_ntohll(long long);
-    friend long long ici_htonll(long long);
+// public:
+//     static void byteswap(void *ptr, int sz);
 };
 
 /*
