@@ -98,7 +98,7 @@ inline object *& ARG(int n) { return os.a_top[-3 - (n)]; }
  *
  * This --func-- forms part of the --ici-api--.
  */
-inline int NARGS() { return intof(os.a_top[-2])->i_value; }
+inline int NARGS() { return int(intof(os.a_top[-2])->i_value); }
 
 /*
  * In a call from ICI to a function coded in C, this macro returns

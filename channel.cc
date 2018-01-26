@@ -201,8 +201,8 @@ f_put()
 static int
 alt_setup(array *alts, object *obj)
 {
-    int n = alts->len();
-    int i;
+    size_t n = alts->len();
+    size_t i;
 
     for (i = 0; i < n; ++i)
     {

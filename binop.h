@@ -705,7 +705,7 @@
     case ICI_TRI(TC_STRING, TC_STRING, T_LESSEQ):
     case ICI_TRI(TC_STRING, TC_STRING, T_GRTEQ):
         {
-            int   compare;
+            ssize_t   compare;
             str   *s1;
             str   *s2;
 
@@ -848,7 +848,7 @@ use1:
 usef:
     if (can_temp)
     {
-        int             n;
+        ptrdiff_t n;
 
         n = &os.a_top[-2] - os.a_base;
         if (ex->x_os_temp_cache->stk_probe(n))
@@ -938,7 +938,7 @@ usef:
 usei:
     if (can_temp)
     {
-        int             n;
+        ptrdiff_t   n;
 
         n = &os.a_top[-2] - os.a_base;
         if (UNLIKELY(ex->x_os_temp_cache->stk_probe(n)))

@@ -78,7 +78,7 @@ void *ici_nalloc(size_t z)
 {
     char                *r;
 #if !ICI_ALLALLOC
-    int                 fi;
+    size_t              fi;
     static char const   which_flist[] = {0, 1, 2, 2, 3, 3, 3, 3};
 #endif
 

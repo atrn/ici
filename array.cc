@@ -104,7 +104,7 @@ size_t array::len()
  * This is the commonest routine for finding an element at a given
  * index in an array. It only works for valid indexes.
  */
-object **array::span(int i, ptrdiff_t *np)
+object **array::span(size_t i, ptrdiff_t *np)
 {
     object    **e;
     ptrdiff_t   n;

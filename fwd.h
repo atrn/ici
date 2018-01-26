@@ -293,7 +293,7 @@ extern int           parse_file(const char *, char *, ftype *);
 extern int           parse_file(const char *);
 extern object        *eval(str *);
 
-extern unsigned long  crc(unsigned long, unsigned char const *, ptrdiff_t);
+extern uint32_t     crc(unsigned long, unsigned char const *, ptrdiff_t);
 
 extern str           *str_get_nul_term(const char *);
 extern int            str_need_size(str *, size_t);

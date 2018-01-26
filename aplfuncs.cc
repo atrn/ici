@@ -125,7 +125,7 @@ buildxx(object **r, object **dnext, struct context *c)
     if (isint(*dnext))
     {
         array     *a;
-        int       n;
+        int64_t   n;
 
         /*
          * We have an int dimension. We must make an array that big and

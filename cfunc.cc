@@ -909,7 +909,7 @@ static int f_int()
         return ret_no_decref(o);
     else if (isstring(o))
     {
-        int base = 0;
+        int64_t base = 0;
 
         if (NARGS() > 1)
         {
@@ -919,7 +919,7 @@ static int f_int()
             if (base != 0 && (base < 2 || base > 36))
                 return argerror(1);
         }
-        v = xstrtol(stringof(o)->s_chars, nullptr, base);
+        v = xstrtol(stringof(o)->s_chars, nullptr, int(base));
     }
     else if (isfloat(o))
         v = (long)floatof(o)->f_value;

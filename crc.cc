@@ -62,12 +62,11 @@ extern unsigned long const crc_table[256] =
  * bad.  But it seems that if it is used by several different hash generators,
  * the improvement in hash performance outweighs the penalties.
  */
-unsigned long
-crc(unsigned long val, unsigned char const *p, ptrdiff_t n)
+uint32_t crc(unsigned long val, unsigned char const *p, ptrdiff_t n)
 {
 #ifndef ICI_SW_CRC
     extern uint32_t crc32c(uint32_t, const void *, size_t);
-    return crc32c(val, p, n) * 0x0020C323UL;
+    return crc32c(val, p, n) * 0x0020C323U;
 #else
     while (--n >= 0)
     {
