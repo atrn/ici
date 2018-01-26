@@ -456,17 +456,12 @@ int                     f_coreici(object *);
 extern int             op_binop();
 extern int             op_onerror();
 extern int             op_for();
-extern int             op_andand();
-extern int             op_switcher();
-extern int             op_switch();
 extern int             op_forall();
 extern int             op_return();
-extern int             op_call();
 extern int             op_mkptr();
 extern int             op_openptr();
 extern int             op_fetch();
 extern int             op_unary();
-extern int             op_call();
 
 extern int             set_error(const char *, ...);
 extern void            expand_error(int, str *);

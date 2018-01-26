@@ -210,29 +210,30 @@ int cfunc_type::call(object *o, object *subject)
     return (*cfuncof(o)->cf_cfunc)(subject);
 }
 
+static const char * const icicore_prefix = "icicore+";
+static int icicore_prefix_len = 8;
+
 int cfunc_type::save(archiver *ar, object *o) {
     auto cf = cfuncof(o);
 
     if (ar->save_name(o)) {
         return 1;
     }
-
     auto func = reinterpret_cast<int (*)(object*)>(cf->cf_cfunc);
-
-    int16_t len = cf->cf_name->s_nchars;
-
+    const int16_t namelen = cf->cf_name->s_nchars;
+    int16_t len = namelen;
     if (func == f_coreici) {
-        len += 8; // "icicore." prefix
+        len += icicore_prefix_len;
     }
     if (ar->write(len)) {
         return 1;
     }
     if (func == f_coreici) {
-        if (ar->write("icicore.", 8)) {
+        if (ar->write(icicore_prefix, icicore_prefix_len)) {
             return 1;
         }
     }
-    if (ar->write(cf->cf_name->s_chars, len)) {
+    if (ar->write(cf->cf_name->s_chars, namelen)) {
         return 1;
     }
     return 0;
@@ -273,6 +274,9 @@ object *cfunc_type::restore(archiver *ar) {
         return nullptr;
     }
     buf[len] = '\0';
+    if (strncmp(buf, icicore_prefix, icicore_prefix_len) == 0) {
+        return restore_core(buf+icicore_prefix_len);
+    }
     auto s = new_str(buf, len);
     if (!s) {
         return nullptr;
@@ -281,9 +285,6 @@ object *cfunc_type::restore(archiver *ar) {
     auto cf = ici_fetch(scope, s);
     s->decref();
     if (cf == nullptr || cf == null) {
-        if (strncmp(buf, "icicore.", 8) == 0) {
-            return restore_core(buf+8);
-        }
         set_error("attempt to restore unknown C function \"%s\"", buf);
         return nullptr;
     }

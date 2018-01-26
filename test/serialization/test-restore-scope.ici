@@ -5,3 +5,7 @@ close(file);
 if (typeof(o) != "map") {
     fail("restored scope not a map");
 }
+
+if (o.cos == NULL) {
+	fail("No cos in restored scope");
+}

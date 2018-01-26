@@ -1,3 +1,5 @@
+// Utilities for the tests.
+
 export count() {
        return int(argv[1]) || 100;
 }

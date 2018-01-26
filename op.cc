@@ -11,7 +11,7 @@ namespace ici
 op *new_op(int (*func)(), int16_t ecode, int16_t code) {
     op         *o;
     object     **po;
-    static op  proto = {TC_OP};
+    static op  proto(TC_OP);
 
     proto.op_func = func;
     proto.op_code = code;
@@ -60,9 +60,19 @@ unsigned long op_type::hash(object *o)
 
 int op_type::save(archiver *ar, object *o) {
     auto op = opof(o);
-    return ar->write(int16_t(ar->op_func_code(op->op_func)))
-        || ar->write(int16_t(op->op_ecode))
-        || ar->write(int16_t(op->op_code));
+    int16_t f = ar->op_func_code(op->op_func);
+    int16_t ecode = op->op_ecode;
+    int16_t code = op->op_code;
+    if (ar->write(f)) {
+        return 1;
+    }
+    if (ar->write(ecode)) {
+        return 1;
+    }
+    if (ar->write(code)) {
+        return 1;
+    }
+    return 0;
 }
 
 object *op_type::restore(archiver *ar) {
@@ -76,7 +86,12 @@ object *op_type::restore(archiver *ar) {
     if (ar->read(&op_code)) {
         return nullptr;
     }
-    return new_op(archiver::op_func(op_func_code), op_ecode, op_code);
+    auto ofunc = archiver::op_func(op_func_code);
+    if (op_func_code && !ofunc) {
+        set_error("bad op func");
+        return nullptr;
+    }
+    return new_op(ofunc, op_ecode, op_code);
 }
 
 } // namespace ici

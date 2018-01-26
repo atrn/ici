@@ -15,23 +15,23 @@ struct op : object
 {
     op() : object(TC_OP) {}
 
-    op(int (*func)())
+    explicit op(int (*func)())
         : object(TC_OP)
         , op_func(func)
         , op_ecode(0)
         , op_code(0)
     {}
 
-    op(int ecode, int code = 0)
+    explicit op(int ecode, int code = 0)
         : object(TC_OP)
         , op_func(nullptr)
         , op_ecode(ecode)
         , op_code(code)
     {}
 
-    int   (*op_func)();
-    int16_t op_ecode; /* See OP_* below. */
-    int16_t op_code;
+    int   (*op_func)() = 0;
+    int16_t op_ecode = 0; /* See OP_* below. */
+    int16_t op_code = 0;
 };
 
 inline op *opof(object *o) { return o->as<op>(); }

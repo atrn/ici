@@ -67,7 +67,15 @@ inline long long ici_ntohll(int64_t v) {
 }
 
 typedef int int_func();
-static int_func *op_funcs[7];
+
+#ifdef BINOPFUNC
+static const int nops = 13;
+#else
+static const int nops = 12;
+#endif
+
+static int_func *op_funcs[nops];
+
 constexpr auto num_op_funcs = nels(op_funcs);
 
 int archive_init() {
@@ -78,6 +86,14 @@ int archive_init() {
     op_funcs[4] = o_mkptr.op_func;
     op_funcs[5] = o_openptr.op_func;
     op_funcs[6] = o_fetch.op_func;
+    op_funcs[7] = op_unary;
+    op_funcs[8] = op_forall;
+    op_funcs[9] = op_for;
+    op_funcs[10] = op_onerror;
+    op_funcs[11] = op_return;
+#ifdef BINOPFUNC
+    op_funcs[12] = op_binop;
+#endif
     return 0;
 }
 

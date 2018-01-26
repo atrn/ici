@@ -141,13 +141,13 @@ install-ici-corefiles:
 
 .PHONY: full-install
 full-install:
-	$(MAKE) clean
-	$(MAKE) build=dll conf=$(conf) dccflags=--quiet
-	$(sudo) $(MAKE) build=dll install dest=$(dest)
-	$(MAKE) clean
-	$(MAKE) build=lib conf=$(conf) dccflags=--quiet
-	$(sudo) $(MAKE) build=lib install-libici install-ici-exe dest=$(dest)
-	$(MAKE) clean
+	@echo make clean; $(MAKE) clean
+	@echo make build=dll; $(MAKE) build=dll conf=$(conf) dccflags=--quiet
+	@echo $(sudo) make install; $(sudo) $(MAKE) build=dll install dest=$(dest)
+	@echo make clean; $(MAKE) clean
+	@echo make build=lib; $(MAKE) build=lib conf=$(conf) dccflags=--quiet
+	@echo $(sudo) make install; $(sudo) $(MAKE) build=lib install-libici install-ici-exe dest=$(dest)
+	@echo make clean; $(MAKE) clean
 
 .PHONY: debug
 debug:

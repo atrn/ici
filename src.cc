@@ -28,7 +28,14 @@ size_t src_type::mark(object *o)
 }
 
 int src_type::save(archiver *ar, object *o) {
-    return ar->write(int32_t(srcof(o)->s_lineno)) || ar->save(srcof(o)->s_filename);
+    const int32_t lineno = srcof(o)->s_lineno;
+    if (ar->write(lineno)) {
+        return 1;
+    }
+    if (ar->save(srcof(o)->s_filename)) {
+        return 1;
+    }
+    return 0;
 }
 
 object *src_type::restore(archiver *ar) {

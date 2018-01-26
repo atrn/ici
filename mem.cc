@@ -147,7 +147,8 @@ int mem_type::save(archiver *ar, object *o) {
     if (ar->write(len)) {
         return 1;
     }
-    if (ar->write(int16_t(m->m_accessz))) {
+    const int16_t accessz = m->m_accessz;
+    if (ar->write(accessz)) {
         return 1;
     }
     if (ar->write(m->m_base, m->m_length * m->m_accessz)) {
