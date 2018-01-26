@@ -2,5 +2,6 @@ file := fopen(test.data_file());
 o := restore(file);
 close(file);
 
-if (typeof(o) != "map")
+if (typeof(o) != "map") {
     fail("restored scope not a map");
+}

@@ -1,0 +1,66 @@
+parent := map("X", 10, "Y", 10);
+value := map("x", 0, "y", 0.1, "z", "1.3");
+
+file := fopen(test.data_file());
+o := restore(file);
+close(file);
+
+if (typeof(o) != "map") {
+    test.failure("restored a %s, expected a map", typeof(o));
+}
+
+k = call(set, keys(o));
+
+if (len(k) != 3) {
+    test.failure("expected 3 map key/value pairs");
+}
+
+if (!k["x"]) {
+    test.failure("not \"x\" key");
+}
+
+if (!k["y"]) {
+    test.failure("not \"y\" key");
+}
+
+if (!k["z"]) {
+    test.failure("not \"z\" key");
+}
+
+if (typeof(o.x) != "int") {
+    test.failure("x member not an int");
+}
+
+if (o.x != 0) {
+    test.failure("x member not int(0)");
+}
+
+if (typeof(o.y) != "float") {
+    test.failure("y member not an float");
+}
+
+if (o.y != 0.1) {
+    test.failure("y member not 0.1");
+}
+
+if (typeof(o.z) != "string") {
+    test.failure("z member not an string");
+}
+
+if (o.z != "1.3") {
+    test.failure("z member not \"1.3\"");
+}
+
+parent := super(o);
+
+if (typeof(parent) != "map") {
+    test.failure("map restored with no super");
+}
+
+if (typeof(parent.X) != "int") {
+    test.failure("super'X is not an int");
+}
+
+if (parent.X != 10) {
+    test.failure("super's X is not 10");
+}
