@@ -27,6 +27,10 @@ int ftype::eof(void *) {
     return 0;
 }
 
+int ftype::read(void *, long, void *) {
+    return 0;
+}
+
 int ftype::write(const void *, long, void *) {
     return 0;
 }
@@ -70,6 +74,10 @@ long stdio_ftype::seek(void *file, long offset, int whence) {
 
 int stdio_ftype::eof(void *file) {
     return ::feof((FILE *)file);
+}
+
+int stdio_ftype::read(void *buf, long n, void *file) {
+    return ::fread(buf, 1, n, (FILE *)file);
 }
 
 int stdio_ftype::write(const void *buf, long n, void *file) {

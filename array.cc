@@ -692,7 +692,8 @@ int array_type::save(archiver *ar, object *o) {
     if (ar->save_name(o)) {
         return 1;
     }
-    if (ar->write(int64_t(a->len()))) {
+    const int64_t len = a->len();
+    if (ar->write(len)) {
         return 1;
     }
     for (object **e = a->astart(); e != a->alimit(); e = a->anext(e)) {
@@ -704,23 +705,23 @@ int array_type::save(archiver *ar, object *o) {
 }
 
 object *array_type::restore(archiver *ar) {
-    int64_t n;
+    int64_t len;
     array *a;
     object *name;
 
     if (ar->restore_name(&name)) {
         return nullptr;
     }
-    if (ar->read(n)) {
+    if (ar->read(&len)) {
         return nullptr;
     }
-    if ((a = new_array(n)) == nullptr) {
+    if ((a = new_array(len)) == nullptr) {
         return nullptr;
     }
     if (ar->record(name, a)) {
         goto fail;
     }
-    for (; n > 0; --n) {
+    for (; len > 0; --len) {
         object *o;
 
         if ((o = ar->restore()) == nullptr) {

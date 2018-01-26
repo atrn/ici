@@ -230,7 +230,7 @@ object *cfunc_type::restore(archiver *ar) {
         return nullptr;
     }
     int16_t n;
-    if (ar->read(n)) {
+    if (ar->read(&n)) {
         return nullptr;
     }
     char buf[1024];

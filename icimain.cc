@@ -43,6 +43,7 @@ int main(int argc, char *argv[]) {
     file       *f;
     int         help = 0;
 
+#if 0
 #   ifndef NDEBUG
         /*
          * There is an alarming tendancy to forget the NDEBUG define for
@@ -52,6 +53,7 @@ int main(int argc, char *argv[]) {
          */
         fprintf(stderr, "%s: Warning - this is a debug build.\n", argv[0]);
 #   endif
+#endif
 
     if (init())
         goto fail;

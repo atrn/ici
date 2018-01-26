@@ -80,7 +80,7 @@ int int_type::save(archiver *ar, object *obj) {
 
 object *int_type::restore(archiver *ar) {
     int64_t value;
-    if (ar->read(value)) {
+    if (ar->read(&value)) {
         return nullptr;
     }
     return new_int(value);

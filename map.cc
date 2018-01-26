@@ -724,7 +724,8 @@ int map_type::save(archiver *ar, object *o) {
     if (ar->save(super)) {
         return 1;
     }
-    if (ar->write(int64_t(s->s_nels))) {
+    const int64_t nels = s->s_nels;
+    if (ar->write(nels)) {
         return 1;
     }
     for (slot *sl = s->s_slots; size_t(sl - s->s_slots) < s->s_nslots; ++sl) {
@@ -759,7 +760,7 @@ object *map_type::restore(archiver *ar) {
         objwsupof(s)->o_super = objwsupof(super);
         super->decref();
     }
-    if (ar->read(n)) {
+    if (ar->read(&n)) {
         goto fail1;
     }
     for (int64_t i = 0; i < n; ++i) {

@@ -36,7 +36,7 @@ object *src_type::restore(archiver *ar) {
     object *result;
     object *filename;
 
-    if (ar->read(line)) {
+    if (ar->read(&line)) {
         return nullptr;
     }
     if ((filename = ar->restore()) == nullptr) {

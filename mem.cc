@@ -143,7 +143,8 @@ int mem_type::save(archiver *ar, object *o) {
     if (ar->save_name(o)) {
         return 1;
     }
-    if (ar->write(int64_t(m->m_length))) {
+    const int64_t len = m->m_length;
+    if (ar->write(len)) {
         return 1;
     }
     if (ar->write(int16_t(m->m_accessz))) {
@@ -163,7 +164,7 @@ object *mem_type::restore(archiver *ar) {
     mem *m = 0;
     object *name;
 
-    if (ar->restore_name(&name) || ar->read(len) || ar->read(accessz)) {
+    if (ar->restore_name(&name) || ar->read(&len) || ar->read(&accessz)) {
         return nullptr;
     }
     sz = size_t(len) * size_t(accessz);

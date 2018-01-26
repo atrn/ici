@@ -449,7 +449,8 @@ int string_type::save(archiver *ar, object *o) {
     if (ar->save_name(o)) {
         return 1;
     }
-    if (ar->write(int32_t(s->s_nchars))) {
+    int32_t len = int32_t(s->s_nchars);
+    if (ar->write(len)) {
         return 1;
     }
     if (ar->write(s->s_chars, s->s_nchars)) {
@@ -467,7 +468,7 @@ object *string_type::restore(archiver *ar) {
     if (ar->restore_name(&name)) {
         return nullptr;
     }
-    if (ar->read(len)) {
+    if (ar->read(&len)) {
         return nullptr;
     }
     if ((s = str_alloc(len)) == nullptr) {

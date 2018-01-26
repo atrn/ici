@@ -102,12 +102,15 @@ archiver::~archiver() {
 }
 
 int archiver::record(object *obj, object *ref) {
-    int rc = 1;
     if (auto k = make_key(obj)) {
-        rc = a_sent->assign(k, ref);
+        if (a_sent->assign(k, ref)) {
+            k->decref();
+            return 1;
+        }
         k->decref();
+        return 0;
     }
-    return rc;
+    return 1;
 }
 
 void archiver::remove(object *obj) {
@@ -130,7 +133,7 @@ int archiver::save_name(object *o) {
 
 int archiver::restore_name(object **name) {
     int64_t ref;
-    if (read(ref)) {
+    if (read(&ref)) {
         return 1;
     }
     *name = (object *)ref;
@@ -138,8 +141,15 @@ int archiver::restore_name(object **name) {
 }
 
 int archiver::save_ref(object *o) {
+    const uint8_t tcode = TC_REF;
     const int64_t ref = (int64_t)o;
-    return write(TC_REF) || write(ref);
+    if (write(tcode)) {
+        return 1;
+    }
+    if (write(ref)) {
+        return 1;
+    }
+    return 0;
 }
 
 object *archiver::restore_ref() {
@@ -147,7 +157,10 @@ object *archiver::restore_ref() {
     if (restore_name(&name)) {
         return nullptr;
     }
-    return lookup(name);
+    if (auto o = lookup(name)) {
+        return ici_copy(o);
+    }
+    return nullptr;
 }
 
 object *archiver::lookup(object *obj) {
@@ -162,8 +175,9 @@ object *archiver::lookup(object *obj) {
 int archiver::op_func_code(int_func *fn)
 {
     for (size_t i = 0; i < num_op_funcs; ++i) {
-        if (fn == op_funcs[i])
-            return i;
+        if (fn == op_funcs[i]) {
+            return int(i);
+        }
     }
     return -1;
 }
@@ -192,16 +206,7 @@ void archiver::byteswap(void *ptr, int sz) {
 }
 
 int archiver::read(void *buf, int len) {
-    char *p = (char *)buf;
-    while (len-- > 0) {
-        int ch;
-        if ((ch = get()) == -1) {
-            set_error("eof");
-            return 1;
-        }
-        *p++ = ch;
-    }
-    return 0;
+    return a_file->read(buf, len) != len;
 }
 
 int archiver::read(int16_t *hword) {
@@ -270,23 +275,35 @@ int archiver::save(object *o) {
     if (auto p = lookup(o)) { // already sent in this session
         return save_ref(p);
     }
-    uint8_t tcode = o->o_tcode & 0x1F;
-    if (o->isatom()) tcode |= O_ARCHIVE_ATOMIC;
-    return write(tcode) || o->icitype()->save(this, o);
+    uint8_t tcode = o->o_tcode & 0x1F; // mask out user-bits
+    if (o->isatom()) {
+        tcode |= O_ARCHIVE_ATOMIC;
+    }
+    if (write(tcode)) {
+        return 1;
+    }
+    if (o->icitype()->save(this, o)) {
+        return 1;
+    }
+    return 0;
 }
 
 object *archiver::restore() {
-    uint8_t tcode, flags;
-    if (read(tcode)) {
+    uint8_t tcode;
+    uint8_t flags = 0;
+    if (read(&tcode)) {
     	return nullptr;
     }
     if (tcode == TC_REF) {
         return restore_ref();
     }
-    flags = tcode & O_ARCHIVE_ATOMIC ? object::O_ATOM : 0;
-    tcode &= ~O_ARCHIVE_ATOMIC;
+    if ((tcode & O_ARCHIVE_ATOMIC) != 0) {
+        flags |= object::O_ATOM;
+        tcode &= ~O_ARCHIVE_ATOMIC;
+    }
     auto t = types[tcode];
     if (!t) {
+        set_error("no type with code %02X", tcode);
         return nullptr;
     }
     auto o = t->restore(this);

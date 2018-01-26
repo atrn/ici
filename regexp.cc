@@ -196,7 +196,7 @@ object *regexp_type::restore(archiver *ar) {
     int32_t options;
     str *s;
 
-    if (ar->restore_name(&name) || ar->read(options) || (s = stringof(ar->restore())) == nullptr) {
+    if (ar->restore_name(&name) || ar->read(&options) || (s = stringof(ar->restore())) == nullptr) {
         return nullptr;
     }
     r = new_regexp(s, options);

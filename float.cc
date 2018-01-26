@@ -92,7 +92,7 @@ int float_type::save(archiver *ar, object *obj) {
 
 object *float_type::restore(archiver *ar) {
     double val;
-    if (ar->read(val)) {
+    if (ar->read(&val)) {
         return nullptr;
     }
     return new_float(val);

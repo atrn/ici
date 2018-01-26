@@ -67,7 +67,13 @@ int op_type::save(archiver *ar, object *o) {
 
 object *op_type::restore(archiver *ar) {
     int16_t op_func_code, op_ecode, op_code;
-    if (ar->read(op_func_code) || ar->read(op_ecode) || ar->read(op_code)) {
+    if (ar->read(&op_func_code)) {
+        return nullptr;
+    }
+    if (ar->read(&op_ecode)) {
+        return nullptr;
+    }
+    if (ar->read(&op_code)) {
         return nullptr;
     }
     return new_op(archiver::op_func(op_func_code), op_ecode, op_code);

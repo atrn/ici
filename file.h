@@ -27,6 +27,7 @@ struct file : object
     inline int close() { return f_type->close(f_file); }
     inline long seek(long o, int w) { return f_type->seek(f_file, o, w); }
     inline int eof() { return f_type->eof(f_file); }
+    inline int read(void *p, long n) { return f_type->read(p, n, f_file); }
     inline int write(const void *p, long n) { return f_type->write(p, n, f_file); }
     inline int fileno() { return f_type->fileno(f_file); }
     inline int setvbuf(char *p, int t, size_t z) { return f_type->setvbuf(f_file, p, t, z); }

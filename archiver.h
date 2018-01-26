@@ -25,13 +25,13 @@ int f_archive_restore(...);
 #define ICI_ARCHIVE_LITTLE_ENDIAN_HOST 1
 #endif
 
+long long ici_ntohll(long long v);
+long long ici_htonll(long long v);
+
 /*
  * Bit of the tcode set when the object is atomic.
  */
 constexpr int O_ARCHIVE_ATOMIC = 0x80;
-
-long long ici_ntohll(long long v);
-long long ici_htonll(long long v);
 
 /*
  * The following portion of this file exports to ici.h. --ici.h-start--
@@ -48,7 +48,7 @@ public:
 
     archiver(file *, objwsup *);
     operator bool() const { return a_sent != nullptr; } // check construction sucess
-    virtual ~archiver();
+    ~archiver();
 
     archiver(const archiver &) = delete;
     archiver& operator=(const archiver &) = delete;
@@ -67,23 +67,15 @@ public:
     int save_ref(object *);
     object *restore_ref();
 
-    virtual int read(void *buf, int len);
-    virtual int write(const void *, int);
+    int read(void *buf, int len);
+    int write(const void *, int);
 
-    inline int read(char *abyte) {
+    inline int read(uint8_t *abyte) {
         return read(abyte, 1);
     }
 
-    int write(unsigned char abyte) {
+    int write(uint8_t abyte) {
         return write(&abyte, 1);
-    }
-
-    template <typename T>
-    int read(T &ref) {
-        if (read(&ref, sizeof (T))) {
-            return 1;
-        }
-        return 0;
     }
 
     int read(int16_t *hword);
@@ -102,7 +94,6 @@ private:
     objwsup *a_scope;
 
 private:
-    int get() { return a_file->getch(); }
     static void byteswap(void *ptr, int sz);
     friend long long ici_ntohll(long long);
     friend long long ici_htonll(long long);

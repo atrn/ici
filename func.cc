@@ -357,7 +357,7 @@ object *func_type::restore(archiver *ar) {
     if ((name = ar->restore()) == nullptr) {
         goto fail;
     }
-    if (ar->read(nautos)) {
+    if (ar->read(&nautos)) {
         goto fail;
     }
     if ((fn = new_func()) == nullptr) {

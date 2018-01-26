@@ -53,6 +53,7 @@ public:
     virtual int  close(void *);
     virtual long seek(void *, long, int);
     virtual int  eof(void *);
+    virtual int  read(void *, long, void *);
     virtual int  write(const void *, long, void *);
     virtual int  fileno(void *);
     virtual int  setvbuf(void *, char *, int, size_t);
@@ -73,6 +74,7 @@ public:
     virtual int close(void *) override;
     virtual long seek(void *, long, int) override;
     virtual int eof(void *) override;
+    virtual int read(void *, long, void *) override;
     virtual int write(const void *, long, void *) override;
     virtual int fileno(void *) override;
     virtual int setvbuf(void *, char *, int, size_t) override;
