@@ -49,7 +49,10 @@ stdio_ftype::stdio_ftype() : ftype(nomutex) {
 }
 
 int stdio_ftype::getch(void *file) {
-    return ::fgetc((FILE *)file);
+    blocking_syscall(1);
+    auto result = ::fgetc((FILE *)file);
+    blocking_syscall(0);
+    return result;
 }
 
 int stdio_ftype::ungetch(int c, void *file) {
@@ -77,11 +80,17 @@ int stdio_ftype::eof(void *file) {
 }
 
 int stdio_ftype::read(void *buf, long n, void *file) {
-    return ::fread(buf, 1, n, (FILE *)file);
+    blocking_syscall(1);
+    auto result = ::fread(buf, 1, n, (FILE *)file);
+    blocking_syscall(0);
+    return result;
 }
 
 int stdio_ftype::write(const void *buf, long n, void *file) {
-    return ::fwrite(buf, 1, (size_t)n, (FILE *)file);
+    blocking_syscall(1);
+    auto result = ::fwrite(buf, 1, (size_t)n, (FILE *)file);
+    blocking_syscall(0);
+    return result;
 }
 
 int stdio_ftype::fileno(void *f) {
