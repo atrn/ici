@@ -327,14 +327,15 @@ int func_type::save(archiver *ar, object *o) {
     if (ar->save(f->f_name)) {
         return 1;
     }
-    if (ar->write(int32_t(f->f_nautos))) {
+    int32_t n = f->f_nautos;
+    if (ar->write(n)) {
         return 1;
     }
     return 0;
 }
 
 object *func_type::restore(archiver *ar) {
-    object *code;
+    object *code = nullptr;
     object *args = nullptr;
     object *autos = nullptr;
     object *name = nullptr;
@@ -343,6 +344,12 @@ object *func_type::restore(archiver *ar) {
     object *oname;
 
     if (ar->restore_name(&oname)) {
+        return nullptr;
+    }
+    if ((fn = new_func()) == nullptr) {
+        goto fail;
+    }
+    if (ar->record(oname, fn)) {
         return nullptr;
     }
     if ((code = ar->restore()) == nullptr) {
@@ -360,9 +367,6 @@ object *func_type::restore(archiver *ar) {
     if (ar->read(&nautos)) {
         goto fail;
     }
-    if ((fn = new_func()) == nullptr) {
-        goto fail;
-    }
 
     fn->f_code = arrayof(code);
     fn->f_args = arrayof(args);
@@ -376,14 +380,12 @@ object *func_type::restore(archiver *ar) {
     autos->decref();
     name->decref();
 
-    if (!ar->record(oname, fn)) {
-	return fn;
-    }
-
-    /*FALLTHROUGH*/
+    return fn;
 
 fail:
-    code->decref();
+    if (code) {
+        code->decref();
+    }
     if (args) {
         args->decref();
     }

@@ -3,7 +3,13 @@ export count() {
 }
 
 export data_file() {
-    return sub(argv[0], #\.ici$#, ".dat");
+       parts := basename(argv[0]) ~~~ #^test-([a-z]+)-(.+)\.ici#;
+       if (len(parts) != 2) {
+           fail("failed to split argv[0]: " + typeof(parts) + " : " + string(len(parts)));
+       }
+       filename := "test-" + parts[1] + ".dat";
+       // printf(stderr, "data file: %s\n", filename);
+       return filename;
 }
 
 export floateq(a, b) {

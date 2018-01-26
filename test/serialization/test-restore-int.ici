@@ -1,7 +1,8 @@
+expected := 1;
 file := fopen(test.data_file());
 o := restore(file);
 close(file);
 if (typeof(o) != "int")
     fail("restore failed: restored a " + typeof(o));
-if (o != 1)
+if (o != expected)
     fail("restore failed: restored an int with value " + string(o));

@@ -211,17 +211,18 @@ int main(int argc, char *argv[]) {
         &&
         argv[1][0] != '-'
 #       ifdef WIN32
-            && argv[1][0] != '/'
+        &&
+        argv[1][0] != '/'
 #       endif
     )
     {
-        if ((stream = fopen(argv[1], "r")) == nullptr)
-        {
-            set_error("%s: Could not open %s.", argv[0], argv[1]);
+        if ((stream = fopen(argv[1], "r")) == nullptr) {
+            set_error("%s: Open failed - %s", argv[1], strerror(errno));
             goto fail;
         }
-        if (parse_file(argv[1], (char *)stream, stdio_ftype))
+        if (parse_file(argv[1], (char *)stream, stdio_ftype)) {
             goto fail;
+        }
     }
     else
     {

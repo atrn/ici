@@ -1,7 +1,6 @@
 local expected = "Hello, World!";
 local etype = "string";
-
-local N = int(argv[1]) || 100;
+local N = int(argv[1]) || 3;
 
 file := fopen(test.data_file());
 o := restore(file);

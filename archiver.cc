@@ -158,7 +158,8 @@ object *archiver::restore_ref() {
         return nullptr;
     }
     if (auto o = lookup(name)) {
-        return ici_copy(o);
+        o->incref();
+        return o;
     }
     return nullptr;
 }

@@ -69,7 +69,7 @@ void (*ici_prof_done_callback)(profilecall *) = nullptr;
  *
  * This file contains ICI code that when parsed will build a data structure:
  *
- *  auto profile = [struct
+ *  auto profile = [map
  *                     total = <time in ms for this call>,
  *                     calls = [set <nested profile structs...>],
  *                 ];
@@ -243,10 +243,10 @@ static void write_outfile(FILE *of, profilecall *pc, int indent)
     slot *sl;
     char  *p;
 
-    fputs("[struct\n", of);
+    fputs("[map\n", of);
     fprintf(of, "%*stotal = %ld,\n", indent + 1, "", pc->pc_total);
     fprintf(of, "%*scall_count = %ld,\n", indent + 1, "", pc->pc_call_count);
-    fprintf(of, "%*scalls = [struct\n", indent + 1, "");
+    fprintf(of, "%*scalls = [map\n", indent + 1, "");
     for
     (
         sl = pc->pc_calls->s_slots + pc->pc_calls->s_nslots - 1;

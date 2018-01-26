@@ -6,6 +6,6 @@ if (typeof(o) != "float")
 if (o != 1.0) {
     fail(sprintf("%f: expected to restore 1.0 and we didn't", o));
 }
-exit();
+// exit();
 // if (!test.floateq(o, 3.1415))
 //    fail("restore failed: restored an float with value " + string(o));

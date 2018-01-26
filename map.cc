@@ -713,7 +713,7 @@ object *map_type::fetch_base(object *o, object *k)
 
 int map_type::save(archiver *ar, object *o) {
     map *s = mapof(o);
-    object *super = objwsupof(s)->o_super;
+    object *super = s->o_super;
 
     if (super == nullptr) {
         super = null;
@@ -730,7 +730,10 @@ int map_type::save(archiver *ar, object *o) {
     }
     for (slot *sl = s->s_slots; size_t(sl - s->s_slots) < s->s_nslots; ++sl) {
         if (sl->sl_key && sl->sl_value) {
-            if (ar->save(sl->sl_key) || ar->save(sl->sl_value)) {
+            if (ar->save(sl->sl_key)) {
+                return 1;
+            }
+            if (ar->save(sl->sl_value)) {
                 return 1;
             }
         }
@@ -753,11 +756,11 @@ object *map_type::restore(archiver *ar) {
     if (ar->record(name, s)) {
         goto fail;
     }
-    if ((super = restore(ar)) == nullptr) {
+    if ((super = ar->restore()) == nullptr) {
         goto fail1;
     }
     if (super != null) {
-        objwsupof(s)->o_super = objwsupof(super);
+        s->o_super = objwsupof(super);
         super->decref();
     }
     if (ar->read(&n)) {

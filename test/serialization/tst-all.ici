@@ -7,8 +7,9 @@ local run(prog)
     } else {
 	cmd := ici + " " + prog;
     }
-    if ((status = system(cmd)) != 0)
-	fail(sprintf("%s: failed, exit status %d", cmd, status));
+    if ((status = system(cmd)) != 0) {
+	printf(stderr, "%s: failed, exit status %d", cmd, status);
+    }
 }
 
 re := #test-save-(.*)\.ici$#;

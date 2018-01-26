@@ -733,12 +733,12 @@ static int primary(parse *p, expr **ep, int exclude) {
 
                 case T_ONROUND:
                     switch (const_expression(p, &o, T_NONE)) {
-                    case 0: not_followed_by("[struct ... (", an_expression);
+                    case 0: not_followed_by("[map ... (", an_expression);
                     case -1: d->decref(); goto fail;
                     }
                     if (next(p, nullptr) != T_OFFROUND) {
                         reject(p);
-                        not_followed_by("[struct ... (expr", "\")\"");
+                        not_followed_by("[map ... (expr", "\")\"");
                         d->decref();
                         goto fail;
                     }
@@ -761,7 +761,7 @@ static int primary(parse *p, expr **ep, int exclude) {
                     }
                     else if (curtok == T_EQ) {
                         switch (const_expression(p, &o, T_COMMA)) {
-                        case 0: not_followed_by("[struct ... ident =", an_expression);
+                        case 0: not_followed_by("[map ... ident =", an_expression);
                         case -1: d->decref(); goto fail;
                         }
                     }
@@ -771,7 +771,7 @@ static int primary(parse *p, expr **ep, int exclude) {
                         o->incref();
                     } else {
                         reject(p);
-                        not_followed_by("[struct ... key", "\"=\", \"(\", \",\" or \"]\"");
+                        not_followed_by("[map ... key", "\"=\", \"(\", \",\" or \"]\"");
                         d->decref();
                         n->decref();
                         goto fail;
@@ -794,13 +794,13 @@ static int primary(parse *p, expr **ep, int exclude) {
                         }
                     }
                     reject(p);
-                    not_followed_by("[struct ... key = expr", "\",\" or \"]\"");
+                    not_followed_by("[map ... key = expr", "\",\" or \"]\"");
                     d->decref();
                     goto fail;
 
                 default:
                     reject(p);
-                    not_followed_by("[struct ...", "an initialiser");
+                    not_followed_by("[map ...", "an initialiser");
                     d->decref();
                     goto fail;
                 }
