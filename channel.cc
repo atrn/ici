@@ -87,6 +87,9 @@ channel *new_channel(size_t capacity) {
 object *get(channel *c) {
     auto q = channelof(c)->c_q;
     while (q->len() < 1) {
+        if (c->flagged(ICI_CHANNEL_CLOSED)) {
+            return nullptr;
+        }
         if (waitfor(q)) {
             return nullptr;
         }
@@ -100,6 +103,10 @@ object *get(channel *c) {
 }
 
 int put(channel *c, object *o) {
+    if (c->flagged(ICI_CHANNEL_CLOSED)) {
+        return null_ret();
+    }
+
     auto q = channelof(c)->c_q;
 
     // unbuffered
@@ -124,6 +131,15 @@ int put(channel *c, object *o) {
     return 0;
 }
 
+int close_channel(channel *c) {
+    if (c->flagged(ICI_CHANNEL_CLOSED)) {
+        set_error("attempt to close a channel that is already closed");
+        return 1;
+    }
+    c->set(ICI_CHANNEL_CLOSED);
+    return 0;
+}
+
 // ----------------------------------------------------------------
 
 size_t channel_type::mark(object *o)
@@ -137,7 +153,12 @@ size_t channel_type::mark(object *o)
 int channel_type::forall(object *o) {
     auto fa = forallof(o);
     auto chan = channelof(fa->fa_aggr);
+
     auto val = get(chan);
+    if (val == nullptr) {
+        return -1;
+    }
+
     if (fa->fa_kaggr == null) {
         if (fa->fa_vaggr != null) {
             if (ici_assign(fa->fa_vaggr, fa->fa_vkey, val)) {
@@ -158,7 +179,6 @@ int channel_type::forall(object *o) {
 }
 
 int channel_type::save(archiver *ar, object *o) {
-    // auto *c = channelof(o);
     return type::save(ar, o);
 }
 

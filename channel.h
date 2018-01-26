@@ -5,8 +5,7 @@
 
 #include "object.h"
 
-namespace ici
-{
+namespace ici {
 
 /*
  * This --struct-- forms part of the --ici-api--.
@@ -20,6 +19,8 @@ struct channel : object
 
 inline channel *channelof(object *o) { return o->as<channel>(); }
 inline bool ischannel(object *o) { return o->isa(TC_CHANNEL); }
+
+constexpr int ICI_CHANNEL_CLOSED =  0x20;
 
 /*
  * End of ici.h export. --ici.h-end--

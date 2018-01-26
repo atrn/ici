@@ -195,6 +195,7 @@ class  type;
 struct array;
 struct catcher;
 struct cfunc;
+struct channel;
 // struct debug;
 struct exec;
 struct expr;
@@ -335,7 +336,9 @@ extern int            register_type(type *);
 
 extern file          *open_charbuf(char *, int, object *, bool);
 extern file          *new_file(void *, ftype *, str *, object *);
-extern int            close_file(file *f);
+extern int            close_file(file *);
+
+extern int            close_channel(channel *);
 
 extern int            method_check(object *o, int tcode);
 

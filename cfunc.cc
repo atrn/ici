@@ -3598,16 +3598,24 @@ f_system()
     return int_ret(result);
 }
 
-static int
-f_fclose()
-{
-    file  *f;
-
-    if (typecheck("u", &f))
+static int f_close() {
+    object *o;
+    if (typecheck("o", &o)) {
         return 1;
-    if (close_file(f))
-        return 1;
-    return null_ret();
+    }
+    if (isfile(o)) {
+        if (close_file(fileof(o))) {
+            return 1;
+        }
+        return null_ret();
+    }
+    if (ischannel(o)) {
+        if (close_channel(channelof(o))) {
+            return 1;
+        }
+        return null_ret();
+    }
+    return argerror(0);
 }
 
 static int
@@ -4173,7 +4181,7 @@ ICI_DEFINE_CFUNCS(std)
     ICI_DEFINE_CFUNC(tmpname,   f_tmpname),
     ICI_DEFINE_CFUNC(puts,      f_puts),
     ICI_DEFINE_CFUNC(flush,     f_fflush),
-    ICI_DEFINE_CFUNC(close,     f_fclose),
+    ICI_DEFINE_CFUNC(close,     f_close),
     ICI_DEFINE_CFUNC(seek,      f_fseek),
     ICI_DEFINE_CFUNC(system,    f_system),
     ICI_DEFINE_CFUNC(eof,       f_eof),
