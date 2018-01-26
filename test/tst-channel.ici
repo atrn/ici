@@ -1,77 +1,56 @@
 N := 100*1000;
 
-// The binding class is a poor man's closure, holding
-// a function and an array of arguments to use when
-// invoking it. Users use the binding's invoke method
-// to call the function with those arguments.
-//
-local binding = [class
-    new(f) {
-        var vargs = [array];
-        this = this:^new();
-        this.f := f;
-        this.args := vargs;
-        return this;
-    }
-
-    invoke() {
-        return call(this.f, this.args);
-    }
-];
-
-// Bind uses a binding instance to return a callable thing that binds
-// a function to some arguments.
-//
-// We post the result of bind() to a runner which calls the bound
-// function with the supplied arguments.
+// The bind() function returns a callable object that "binds" some
+// arguments to a function. Calling the returned object calls the
+// "bound" function with those arguments. Arguments passed to the
+// callable object are passed as extra arguments to the "bound"
+// function.
 //
 local bind(f) {
-    var vargs = [array];
-    inst := call(binding:new, f, vargs);
-    return inst:invoke;
+    var binding = [class
+        new(f) {
+            var vargs = @[array];
+            this = this:^new();
+            this.f := f;
+            this.args := vargs;
+            return this;
+        }
+
+        invocation() {
+            var vargs = @[array];
+            return call(this.f, this.args + vargs);
+        }
+    ];
+    var vargs = @[array];
+    bound := call(binding:new, f, vargs);
+    return bound:invocation;
 }
 
-// runner tests forall-ing over a channel
+// runner receives callable objects from a a channel, testing forall
+// with a channel, and calls them. It stops when the channel is
+// closed.
 //
-// Because we don't yet support closing channels we send a NULL to
-// signify the end of input.  When closed channels are supported the
-// forall will stop when the channel closes and the explicit sentinel
-// won't be required.
-//
-// We also don't do anything about errors raised by the called object.
-// Real usage would probably trap errors and report or handle them in
-// some way.
-//
-local runner(chan) {
-    forall (f in chan) {
-        if (f) {
-            f();
-        } else {
-            return;
-        }
+local runner(input) {
+    forall (fn in input) {
+        fn();
     }
 }
-
-// Shorthand.
-//
-local join(exec) {
-    waitfor(exec.status == "finished"; exec);
-}
-
 
 // The test...
 //
-// - create the work channel
-// - start a runner
+// - create a work channel
+// - start a runner to process the channel
 // - post bound functions to the runner
 // - tell the runner to stop
-// - wait for the runner to finish
+// - wait for it to stop
 //
 
-ch := channel(200);
+ch := channel(100);
 e := go(runner, ch);
+
 for (x := 1; x <= N; ++x) {
-    put(ch, bind(printf, "%d ", x));
+    put(ch, bind(printf, "%d\n", x));
 }
-put(ch, NULL);
-join(e);
+close(ch);
+
+waitfor(e.status == "finished"; e);
