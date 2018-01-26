@@ -1,5 +1,9 @@
-export data_file_name(test) {
-       return sub(test, #\.ici#, ".dat");
+export count() {
+       return int(argv[1]) || 100;
+}
+
+export data_file() {
+    return sub(argv[0], #\.ici$#, ".dat");
 }
 
 export floateq(a, b) {
@@ -10,4 +14,3 @@ export failure() {
     var vargs = [array];
     fail(call(sprintf, vargs));
 }
-       

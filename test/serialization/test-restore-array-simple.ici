@@ -3,7 +3,7 @@ local etype = "string";
 
 local N = int(argv[1]) || 100;
 
-file = fopen("test-save-array-simple.ici.dat");
+file := fopen(test.data_file());
 o := restore(file);
 close(file);
 

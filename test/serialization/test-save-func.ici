@@ -3,6 +3,6 @@ local fn(a, b)
     return a + b;
 }
 
-file := fopen(basename(argv[0]) + ".dat", "w");
+file = fopen(test.data_file(), "w");
 save(file, fn);
 close(file);

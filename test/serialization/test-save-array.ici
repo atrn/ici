@@ -1,5 +1,5 @@
 local N = int(argv[1]) || 1000;
-file := fopen(basename(argv[0]) + ".dat", "w");
+file = fopen(test.data_file(), "w");
 o := @array(1, "two", 3.1415, "four", "FIVE", 6.0);
 a := array();
 for (i := 0; i < N; ++i)

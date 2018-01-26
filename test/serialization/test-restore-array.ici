@@ -7,14 +7,14 @@ local check(a, i, v)
         fail(sprintf("restore failed: element %d, type %s expected %s", i, typeof(o), typeof(v)));
 
     if (typeof(o) == "float")
-        r := testutil.floateq(o, v);
+        r := test.floateq(o, v);
     else
         r := o == v;
     if (!r)
 	fail(sprintf("restore failed: element %d == %s", i, string(a[i])));
 }
 
-file = fopen("test-save-array.ici.dat");
+file := fopen(test.data_file());
 o := restore(file);
 close(file);
 if (typeof(o) != "array")

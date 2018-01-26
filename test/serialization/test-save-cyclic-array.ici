@@ -1,4 +1,4 @@
-file := fopen(basename(argv[0]) + ".dat", "w");
+file = fopen(test.data_file(), "w");
 a := array();
 a[0] := a;
 save(file, a);

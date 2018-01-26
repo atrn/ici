@@ -1,5 +1,5 @@
-file = fopen("test-save-scope.ici.dat");
-o = restore(file);
+file := fopen(test.data_file());
+o := restore(file);
 close(file);
 
 if (typeof(o) != "map")

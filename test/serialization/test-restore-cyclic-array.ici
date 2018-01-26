@@ -1,4 +1,4 @@
-file := fopen("test-save-cyclic-array.ici.dat");
+file := fopen(test.data_file());
 a := restore(file);
 close(file);
 

@@ -47,6 +47,6 @@ prep(s)
 }
 
 prep(s);
-file := fopen("test-save-scope.ici.dat", "w");
+file = fopen(test.data_file(), "w");
 save(file, s);
 close(file);
