@@ -378,6 +378,13 @@ object *func_type::restore(archiver *ar) {
     code->decref();
     args->decref();
     autos->decref();
+
+    if (ici_assign(ar->scope(), name, fn)) {
+        name->decref();
+        fn->decref();
+        return nullptr;
+    }
+
     name->decref();
 
     return fn;

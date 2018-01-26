@@ -1,8 +1,10 @@
-local fn(a, b)
+local ack(x, y)
 {
-    return a + b;
+    return x > 0
+        ? ack(x - 1, y > 0 ? ack(x, y - 1) : 1)
+        : y + 1;
 }
 
 file = fopen(test.data_file(), "w");
-save(file, fn);
+save(file, ack);
 close(file);

@@ -3,6 +3,6 @@ o := restore(file);
 close(file);
 if (typeof(o) != "func")
     fail("restore failed: restored a " + typeof(o));
-r := o(1, 2);
-if (r != 3)
-    fail("restored function gave incorrect result");
+r := o(2, 4);
+if (r != 11)
+    fail("restored function gave incorrect result: " + string(r));

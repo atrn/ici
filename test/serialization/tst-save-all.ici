@@ -16,4 +16,5 @@ forall (save_test in save_files)
     test_name := save_test ~~ re;
     printf("%s .. ", test_name); flush();
     run(save_test);
+    printf("\n");
 }

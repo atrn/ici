@@ -8,8 +8,10 @@ local run(prog)
 	cmd := ici + " " + prog;
     }
     if ((status = system(cmd)) != 0) {
-	printf(stderr, "%s: failed, exit status %d", cmd, status);
+	// printf(stderr, "Failed, exit status %d", status);
+	return 1;
     }
+    return 0;
 }
 
 re := #test-save-(.*)\.ici$#;
@@ -18,10 +20,10 @@ forall (save_test in save_files)
 {
     test_name := save_test ~~ re;
     restore_test := "test-restore-" + test_name + ".ici";
-    printf("%s .. ", test_name); flush();
-
-    run(save_test);
-    run(restore_test);
-
-    printf("passed\n");
+    printf("%s...", test_name); flush();
+    err := run(save_test);
+    err |= run(restore_test);
+    if (!err) {
+	printf("ok\n");
+    }
 }
