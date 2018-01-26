@@ -1,0 +1,91 @@
+/*
+ * Regular expression code test cases.
+ *
+ * This file is used by the driver program, tst-regexp.ici, to test various
+ * aspects of ICI's regular expression support. The file consists of ICI
+ * function calls to specific test functions defined by the driver program.
+ * The functions are,
+ *
+ *	match(string, pattern, expected_result)
+ *	matchi(string, pattern, expected_result)
+ *
+ *		These test the ICI `~' operator and regexp() (or regexpi() for
+ *		matchi()) function. The string is matched against the pattern
+ *		and if the result is not what is expected an error is raised.
+ *		The expected_result should be an integer, 1 for success, 0
+ *		for failure (this is the result of the `~' operator).
+ *
+ *	extract(string, pattern, expected_result)
+ *	extracti(string, pattern, expected_result)
+ *
+ *		Tests the `~~' operator (and regexp() or regexpi() functions)
+ *		by extracting, from str, whatever matches the pattern and
+ *		comparing it to the expected result. As for the match function
+ *		the `i' version uses case-insensitive regular expressions.
+ *		The type of expected_result should be a string.
+ *
+ *	extractv(string, pattern, expected_result)
+ *	extractvi(string, pattern, expected_result)
+ *
+ *		Tests the `~~~' operator. Comments as per extract/extracti
+ *		with the expected_result being an array of strings.
+ *
+ */
+
+/*
+ * Test basic regular expression matching
+ */
+
+match(		"",			"^$",				1);
+match(		"some text",		"^$",				0);
+
+match(		"Text and digits 1002", "[0-9]+",			1);
+
+match(		"A [{ in a char class",	"[\\[{]",			1);
+match(		"A [bracket] in a char class",	"[]]",		1);
+
+/*
+ * Case-insensitive matching
+ */
+matchi(		"AABB",		"AABB",				1);
+matchi(		"aaBb",		"aabb",				1);
+
+/*
+ * String extraction
+ */
+extract("Should be NULL returned", "THIS", NULL);
+extract("Should be THIS returned", "(THIS)", "THIS");
+extract("A [{ in a char class",	"([\\[{])",			"[");
+
+/* XXX
+ *
+ * This fails! The regexp looks okay but it doesn't match.
+ */
+#extract("A [bracket] in a char class",	"([][a-z]*)",	"[bracket]");
+
+/*
+ * Multiple string extraction
+ */
+extractv
+(
+    "abc 123 do re mi baby you and me",
+    "abc (123) do (re mi) (baby you) and (me)",
+    [array "123", "re mi", "baby you", "me"]
+);
+
+/*
+ * Test substitution via sub()
+ */
+sub(	"abc",		"a",		"x",		"xbc");
+
+
+/*
+ * Test substitutions using gsub().
+ */
+gsub
+(
+    "C:\\kit\\Test3\\xms2.fpx",
+    "[\"\\\\]",
+    "\\\\\\&",
+    "C:\\\\kit\\\\Test3\\\\xms2.fpx"
+);
