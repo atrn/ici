@@ -451,6 +451,8 @@ extern pc             *new_pc();
 extern unsigned long   hash_float(double);
 extern unsigned long   hash_string(object *);
 
+int                     f_coreici(object *);
+
 extern int             op_binop();
 extern int             op_onerror();
 extern int             op_for();

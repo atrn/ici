@@ -761,8 +761,8 @@ object *map_type::restore(archiver *ar) {
     }
     if (super != null) {
         s->o_super = objwsupof(super);
-        super->decref();
     }
+    super->decref();
     if (ar->read(&n)) {
         goto fail1;
     }

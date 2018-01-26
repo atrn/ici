@@ -212,16 +212,47 @@ int cfunc_type::call(object *o, object *subject)
 
 int cfunc_type::save(archiver *ar, object *o) {
     auto cf = cfuncof(o);
+
     if (ar->save_name(o)) {
         return 1;
     }
-    if (ar->write(int16_t(cf->cf_name->s_nchars))) {
+
+    auto func = reinterpret_cast<int (*)(object*)>(cf->cf_cfunc);
+
+    int16_t len = cf->cf_name->s_nchars;
+
+    if (func == f_coreici) {
+        len += 8; // "icicore." prefix
+    }
+    if (ar->write(len)) {
         return 1;
     }
-    if (ar->write(cf->cf_name->s_chars, cf->cf_name->s_nchars)) {
+    if (func == f_coreici) {
+        if (ar->write("icicore.", 8)) {
+            return 1;
+        }
+    }
+    if (ar->write(cf->cf_name->s_chars, len)) {
         return 1;
     }
     return 0;
+}
+
+extern cfunc ici_std_cfuncs[];
+
+namespace {
+
+object *restore_core(const char *fname) {
+    auto len = strlen(fname);
+    for (cfunc *cf = &ici_std_cfuncs[0]; cf->cf_name != nullptr; ++cf) {
+        if (len == cf->cf_name->s_nchars && strncmp(fname, cf->cf_name->s_chars, len) == 0) {
+            return ici_copy(cf);
+        }
+    }
+    set_error("core function \"%s\" not found", fname);
+    return nullptr;
+}
+
 }
 
 object *cfunc_type::restore(archiver *ar) {
@@ -229,20 +260,20 @@ object *cfunc_type::restore(archiver *ar) {
     if (ar->restore_name(&name)) {
         return nullptr;
     }
-    int16_t n;
-    if (ar->read(&n)) {
+    int16_t len;
+    if (ar->read(&len)) {
         return nullptr;
     }
     char buf[1024];
-    if (size_t(n) >= sizeof buf) {
-        set_error("attempt to restore %d byte cfunc", n);
+    if (size_t(len) >= sizeof buf) {
+        set_error("attempt to restore a cfunc with a %d byte name", len);
         return nullptr;
     }
-    if (ar->read(buf, n-1)) {
+    if (ar->read(buf, len)) {
         return nullptr;
     }
-    buf[n] = '\0';
-    auto s = new_str(buf, n);
+    buf[len] = '\0';
+    auto s = new_str(buf, len);
     if (!s) {
         return nullptr;
     }
@@ -250,6 +281,9 @@ object *cfunc_type::restore(archiver *ar) {
     auto cf = ici_fetch(scope, s);
     s->decref();
     if (cf == nullptr || cf == null) {
+        if (strncmp(buf, "icicore.", 8) == 0) {
+            return restore_core(buf+8);
+        }
         set_error("attempt to restore unknown C function \"%s\"", buf);
         return nullptr;
     }
