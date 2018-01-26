@@ -1,7 +1,7 @@
 apply
 (
     [func (f) {
-	// printf("%-8d %s\n", f.size, f.filename);
+	printf("%-8d %s\n", f.size, f.filename);
     }],
 
     sort
@@ -11,19 +11,16 @@ apply
 	    mapf
 	    (
 		dir(argv[1] || ".", "f"),
-		[func (filename, directory_name)
-		{
-		    return pathjoin(directory_name, filename);
+		[func (filename, dir) {
+		    return pathjoin(dir, filename);
 		}],
 		argv[1] || "."
 	    ),
-	    [func (filename)
-	    {
+	    [func (filename) {
 		return map("filename", filename, "size", stat(filename).size);
 	    }]
 	),
-	[func (a, b)
-	{
+	[func (a, b) {
 	    return cmp(b.size, a.size);
 	}]
     )

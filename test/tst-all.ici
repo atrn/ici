@@ -17,23 +17,22 @@ rpush(path, base);
 chdir(base);
 
 tests := [array
-
     "parse",
-	"stmt",
-	"types",
-	"bino",
-	"flow",
-	"sets",
-	"del",
-	"many",
-	"func",
-	"regexp",
+    "stmt",
+    "types",
+    "bino",
+    "flow",
+    "sets",
+    "del",
+    "many",
+    "func",
+    "regexp",
     "math",
     "thread",
     "misc",
-	"prof",
-//	"exit",
+    "prof",
     "oner",
+//  "exit",
 ];
 
 printf("Should finish with \"deliberate failure\".\n");

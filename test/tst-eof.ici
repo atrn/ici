@@ -1,5 +1,4 @@
-local doit(a)
-{
+local doit(a) {
     printf("\n");
     printf("%d\n", eof(a));
     printf("%s\n", string(getchar(a))); /*x*/
@@ -20,4 +19,3 @@ close(a);
 /*doit(fopen("/tmp/icitest", "r"));
 doit(sopen("xyz", "r"));*/
 doit(popen("cat /tmp/icitest > /tmp/z", "r"));
-
