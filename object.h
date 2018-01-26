@@ -522,64 +522,49 @@ extern void rego(object *);
  * The o_tcode field is a small int. These are the "well known" core
  * language types. See comments on o_tcode above and types above.
  */
-constexpr int TC_OTHER =        0;
-constexpr int TC_PC =           1;
-constexpr int TC_SRC =          2;
-constexpr int TC_PARSE =        3;
-constexpr int TC_OP =           4;
-constexpr int TC_STRING =       5;
-constexpr int TC_CATCHER =      6;
-constexpr int TC_FORALL =       7;
-constexpr int TC_INT =          8;
-constexpr int TC_FLOAT =        9;
-constexpr int TC_REGEXP =       10;
-constexpr int TC_PTR =          11;
-constexpr int TC_ARRAY =        12;
-constexpr int TC_MAP =          13;
-constexpr int TC_SET =          14;
-constexpr int TC_MAX_BINOP =    14; /* Max of 15 for binary op args. */
-
-constexpr int TC_EXEC =         15;
-constexpr int TC_FILE =         16;
-constexpr int TC_FUNC =         17;
-constexpr int TC_CFUNC =        18;
-constexpr int TC_METHOD =       19;
-constexpr int TC_MARK =         20;
-constexpr int TC_NULL =         21;
-constexpr int TC_HANDLE =       22;
-constexpr int TC_MEM =          23;
-constexpr int TC_PROFILECALL =  24;
-/* TC_REF is a special type code used in the serialization protocol to
-   represent a reference to previously serialized object. */
-constexpr int TC_REF =          25;
-constexpr int TC_CHANNEL =      26;
-
-constexpr int TC_MAX_CORE =     26;
+constexpr uint8_t TC_OTHER =        0;
+constexpr uint8_t TC_PC =           1;
+constexpr uint8_t TC_SRC =          2;
+constexpr uint8_t TC_PARSE =        3;
+constexpr uint8_t TC_OP =           4;
+constexpr uint8_t TC_STRING =       5;
+constexpr uint8_t TC_CATCHER =      6;
+constexpr uint8_t TC_FORALL =       7;
+constexpr uint8_t TC_INT =          8;
+constexpr uint8_t TC_FLOAT =        9;
+constexpr uint8_t TC_REGEXP =       10;
+constexpr uint8_t TC_PTR =          11;
+constexpr uint8_t TC_ARRAY =        12;
+constexpr uint8_t TC_MAP =          13;
+constexpr uint8_t TC_SET =          14;
+constexpr uint8_t TC_MAX_BINOP =    14; /* Max of 15 for binary op args. */
+constexpr uint8_t TC_EXEC =         15;
+constexpr uint8_t TC_FILE =         16;
+constexpr uint8_t TC_FUNC =         17;
+constexpr uint8_t TC_CFUNC =        18;
+constexpr uint8_t TC_METHOD =       19;
+constexpr uint8_t TC_MARK =         20;
+constexpr uint8_t TC_NULL =         21;
+constexpr uint8_t TC_HANDLE =       22;
+constexpr uint8_t TC_MEM =          23;
+constexpr uint8_t TC_PROFILECALL =  24;
+constexpr uint8_t TC_REF =          25; // serialized ref to previously saved object
+constexpr uint8_t TC_CHANNEL =      26;
+constexpr uint8_t TC_MAX_CORE =     26;
 
 /*
  * End of ici.h export. --ici.h-end--
  */
 
-/*
- * Forced cast of some pointer (e.g. ostemp union type)
- */
-inline object *ici_object_cast(void *x) {
-    return reinterpret_cast<object *>(x);
-}
-
-inline void ici_freeo(object *o) {
-    return o->free();
-}
-
-inline unsigned long ici_hash(object *o) {
+inline unsigned long hashof(object *o) {
     return o->hash();
 }
 
-inline int ici_cmp(object *o1, object *o2) {
+inline int compare(object *o1, object *o2) {
     return o1->cmp(o2);
 }
 
-inline object *ici_copy(object *o) {
+inline object *copyof(object *o) {
     return o->copy();
 }
 

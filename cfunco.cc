@@ -247,7 +247,7 @@ object *restore_core(const char *fname) {
     auto len = strlen(fname);
     for (cfunc *cf = &ici_std_cfuncs[0]; cf->cf_name != nullptr; ++cf) {
         if (len == cf->cf_name->s_nchars && strncmp(fname, cf->cf_name->s_chars, len) == 0) {
-            return ici_copy(cf);
+            return copyof(cf);
         }
     }
     set_error("core function \"%s\" not found", fname);
@@ -292,7 +292,7 @@ object *cfunc_type::restore(archiver *ar) {
         set_error("attempt to restore %s object as C function \"%s\"", cf->icitype()->name, buf);
         return nullptr;
     }
-    return ici_copy(cf);
+    return copyof(cf);
 }
 
 } // namespace ici

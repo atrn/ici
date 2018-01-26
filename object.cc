@@ -179,7 +179,7 @@ object *atom(object *o, int lone)
         --po < atoms ? po = atoms + atomsz - 1 : nullptr
     )
     {
-        if (o->o_tcode == (*po)->o_tcode && ici_cmp(o, *po) == 0)
+        if (o->o_tcode == (*po)->o_tcode && compare(o, *po) == 0)
         {
             if (lone)
             {
@@ -196,7 +196,7 @@ object *atom(object *o, int lone)
     if (!lone)
     {
         ++supress_collect;
-        *po = ici_copy(o);
+        *po = copyof(o);
         --supress_collect;
         if (*po == nullptr)
             return o;
@@ -232,7 +232,7 @@ object *atom_probe2(object *o, object ***ppo)
         --po < atoms ? po = atoms + atomsz - 1 : nullptr
     )
     {
-        if (o->o_tcode == (*po)->o_tcode && ici_cmp(o, *po) == 0)
+        if (o->o_tcode == (*po)->o_tcode && compare(o, *po) == 0)
             return *po;
     }
     if (ppo != nullptr)
@@ -467,7 +467,7 @@ void collect()
             o = *a;
             if (!o->marked())
             {
-                ici_freeo(o);
+                o->free();
             }
             else
             {
@@ -490,7 +490,7 @@ void collect()
             {
                 if (!o->isatom() || unatom(o) == 0)
                 {
-                    ici_freeo(o);
+                    o->free();
                 }
             }
             else

@@ -857,10 +857,10 @@ static int f_keys()
 static int f_copy(object *o)
 {
     if (o != nullptr)
-        return ret_with_decref(ici_copy(o));
+        return ret_with_decref(copyof(o));
     if (NARGS() != 1)
         return argcount(1);
-    return ret_with_decref(ici_copy(ARG(0)));
+    return ret_with_decref(copyof(ARG(0)));
 }
 
 static int f_typeof()
@@ -1340,7 +1340,7 @@ f_vstack()
     int                 depth;
 
     if (NARGS() == 0)
-        return ret_with_decref(ici_copy(&vs));
+        return ret_with_decref(copyof(&vs));
 
     if (!isint(ARG(0)))
         return argerror(0);

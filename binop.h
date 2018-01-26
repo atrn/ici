@@ -558,7 +558,7 @@
             slot  *sl;
             size_t  i;
 
-            if ((s = mapof(ici_copy(o0))) == nullptr)
+            if ((s = mapof(copyof(o0))) == nullptr)
             {
                 FAIL();
             }
@@ -586,7 +586,7 @@
             object  **sl;
             size_t  i;
 
-            if ((s = setof(ici_copy(o0))) == nullptr)
+            if ((s = setof(copyof(o0))) == nullptr)
             {
                 FAIL();
             }
@@ -614,7 +614,7 @@
             object  **sl;
             size_t  i;
 
-            if ((s = setof(ici_copy(o0))) == nullptr)
+            if ((s = setof(copyof(o0))) == nullptr)
             {
                 FAIL();
             }
@@ -807,14 +807,14 @@
 	    MISMATCH();
 
         case t_subtype(T_EQEQ):
-            if (o0->icitype() == o1->icitype() && ici_cmp(o0, o1) == 0)
+            if (o0->icitype() == o1->icitype() && compare(o0, o1) == 0)
             {
                 USE1();
             }
             USE0();
 
         case t_subtype(T_EXCLAMEQ):
-            if (!(o0->icitype() == o1->icitype() && ici_cmp(o0, o1) == 0))
+            if (!(o0->icitype() == o1->icitype() && compare(o0, o1) == 0))
             {
                 USE1();
             }
@@ -857,7 +857,7 @@ usef:
         }
         if ((o = ex->x_os_temp_cache->a_base[n]) == null)
         {
-            if ((o = ici_object_cast(ici_talloc(ostemp))) == nullptr)
+            if ((o = reinterpret_cast<object *>(ici_talloc(ostemp))) == nullptr)
             {
                 FAIL();
             }
@@ -929,7 +929,7 @@ usef:
         set_tfnz(o, TC_FLOAT, object::O_ATOM, 1, sizeof (ici_float));
         floatof(o)->f_value = f;
         rego(o);
-        assert(h == ici_hash(o));
+        assert(h == hashof(o));
         --supress_collect;
         store_atom_and_count(po, o);
         LOOSEo();
@@ -947,7 +947,7 @@ usei:
         }
         if ((o = ex->x_os_temp_cache->a_base[n]) == null)
         {
-            if ((o = ici_object_cast(ici_talloc(ostemp))) == nullptr)
+            if ((o = reinterpret_cast<object *>(ici_talloc(ostemp))) == nullptr)
             {
                 FAIL();
             }

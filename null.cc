@@ -13,7 +13,7 @@ int null_type::save(archiver *, object *) {
 }
 
 object *null_type::restore(archiver *) {
-    return ici_copy(null);
+    return copyof(null);
 }
 
 struct null o_null;

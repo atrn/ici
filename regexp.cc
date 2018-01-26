@@ -153,7 +153,7 @@ int regexp_type::cmp(object *o1, object *o2)
     int re2_options;
     pcre_info(regexpof(o1)->r_re, &re1_options, nullptr);
     pcre_info(regexpof(o2)->r_re, &re2_options, nullptr);
-    return re1_options != re2_options ? 1 : ici_cmp(regexpof(o1)->r_pat, regexpof(o2)->r_pat);
+    return re1_options != re2_options ? 1 : compare(regexpof(o1)->r_pat, regexpof(o2)->r_pat);
 }
 
 object *regexp_type::fetch(object *o, object *k)
