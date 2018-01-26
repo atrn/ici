@@ -18,6 +18,7 @@ endif
 conf?= conf/$(os).h
 dest?= /opt/ici
 dccflags?=
+cxxflags?=CXXFLAGS
 
 # The 'build' macro controls the type of build.  Uncomment one of the
 # following lines to select the desired type of build.
@@ -82,10 +83,10 @@ ifeq ($(build),dll)
 # This build variant has the interpreter code in a dynamic library.
 #
 $(prog): lib
-	@dcc $(dccflags) etc/main.cc -o $@ -L. -lici
+	@CXXFLASGFILE=$(cxxflags) dcc $(dccflags) etc/main.cc -o $@ -L. -lici
 
 lib:
-	@dcc $(dccflags) --dll $(dll) -fPIC $(srcs) -lc++ $(libs) $(ldflags)
+	@CXXFLAGSFILE=$(cxxflags) dcc $(dccflags) --dll $(dll) -fPIC $(srcs) -lc++ $(libs) $(ldflags)
 
 
 else ifeq ($(build),exe)
@@ -93,7 +94,7 @@ else ifeq ($(build),exe)
 # interpreter and does not create any library.
 #
 $(prog):
-	@dcc $(dccflags) etc/main.cc $(srcs) -o $@
+	@CXXFLAGSFILE=$(cxxflags) dcc $(dccflags) etc/main.cc $(srcs) -o $@
 
 else ifeq ($(build),lib)
 
@@ -101,10 +102,10 @@ else ifeq ($(build),lib)
 # linked against that library.
 #
 $(prog): lib
-	@dcc $(dccflags) etc/main.cc -o $@ -L. -lici  $(libs)
+	@CXXFLAGSFILE=$(cxxflags) dcc $(dccflags) etc/main.cc -o $@ -L. -lici  $(libs)
 
 lib:
-	@dcc $(dccflags) --lib $(lib) $(srcs)
+	@CXXFLAGSFILE=$(cxxflags) dcc $(dccflags) --lib $(lib) $(srcs)
 
 else
 $(error "Bad build - nothing matched!")
