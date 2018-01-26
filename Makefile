@@ -151,4 +151,4 @@ full-install:
 
 .PHONY: debug
 debug:
-	@CXXFLAGSFILE=CXXFLAGS.debug $(MAKE) all
+	@CXXFLAGSFILE=CXXFLAGS.debug $(MAKE) all dccflags=$(dccflags) build=$(build)
