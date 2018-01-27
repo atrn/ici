@@ -1,16 +1,16 @@
 n := argv[1] ? int(argv[1]) : 1;
 
 h1 := map();
-for (i = 0; i < 10000; ++i)
+for (i = 0; i < 10000; ++i) {
     h1[sprintf("foo_%d", i)] = i;
+}
 
 h2 := map();
-for (i := 0; i < n; ++i)
-{
-    forall (v, k in h1)
-    {
-        if (h2[k] == NULL)
+for (i := 0; i < n; ++i) {
+    forall (v, k in h1) {
+        if (h2[k] == NULL) {
             h2[k] = 0;
+	}
         h2[k] += h1[k];
     }
 }

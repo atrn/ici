@@ -1,6 +1,5 @@
-local fib(n)
-{
+local fib(n) {
     return n < 2 ? 1 : fib(n - 2) + fib(n - 1);
 }
-
-printf("%d\n", fib(argv[1] ? int(argv[1]) : 1));
+val := fib(argv[1] ? int(argv[1]) : 1);
+// printf("%d\n", val);

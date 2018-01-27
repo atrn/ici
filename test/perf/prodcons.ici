@@ -4,13 +4,9 @@ local consumed = 0;
 local produced = 0;
 local data = 0;
 
-local
-producer()
-{
-    for (i := 1; i <= n; ++i)
-    {
-        waitfor (count == 0; "access")
-        {
+local producer() {
+    for (i := 1; i <= n; ++i) {
+        waitfor (count == 0; "access") {
             data = i;
             count = 1;
             wakeup("access");
@@ -20,13 +16,9 @@ producer()
     return 1;
 }
 
-local
-consumer()
-{
-    do
-    {
-        waitfor (count != 0; "access")
-        {
+local consumer() {
+    do {
+        waitfor (count != 0; "access") {
             i = data;
             count = 0;
             wakeup("access");

@@ -5,7 +5,6 @@ chdir(base);
 
 [module
     argv := [array "ackermann.ici", "6"]; 
-//    printf("%s: ", argv[0]);
     f := fopen(argv[0]);
     parse(f, scope());
     close(f);
@@ -15,7 +14,6 @@ printf("ackermann cputime: %f\n", cputime());
 
 [module
     argv := [array "ary3.ici", "100"];
-//    printf("%s: ", argv[0]);
     f := fopen(argv[0]);
     parse(f, scope());
     close(f);
@@ -25,7 +23,6 @@ printf("ary3 cputime: %f\n", cputime());
 
 [module
     argv := [array "except.ici", "10000"];
-//    printf("%s: ", argv[0]);
     f := fopen(argv[0]);
     parse(f, scope());
     close(f);
@@ -35,7 +32,6 @@ printf("except cputime: %f\n", cputime());
 
 [module
     argv := [array "fibo.ici", "25"];
-//    printf("%s: ", argv[0]);
     f := fopen(argv[0]);
     parse(f, scope());
     close(f);
@@ -45,7 +41,6 @@ printf("fibo cputime: %f\n", cputime());
 
 [module
     argv := [array "hash2.ici", "5"];
-//    printf("%s: ", argv[0]);
     f := fopen(argv[0]);
     parse(f, scope());
     close(f);
@@ -55,7 +50,6 @@ printf("hash2 cputime: %f\n", cputime());
 
 [module
     argv := [array "lists.ici", "10"];
-//    printf("%s: ", argv[0]);
     f := fopen(argv[0]);
     parse(f, scope());
     close(f);
@@ -65,7 +59,6 @@ printf("lists cputime: %f\n", cputime());
 
 [module
     argv := [array "matrix.ici", "10"];
-//    printf("%s: ", argv[0]);
     f := fopen(argv[0]);
     parse(f, scope());
     close(f);
@@ -75,7 +68,6 @@ printf("matrix cputime: %f\n", cputime());
 
 [module
     argv := [array "methcall.ici", "50000"];
-//    printf("%s: ", argv[0]);
     f := fopen(argv[0]);
     parse(f, scope());
     close(f);
@@ -85,7 +77,6 @@ printf("methcall cputime: %f\n", cputime());
 
 [module
     argv := [array "heapsort.ici", "10000"];
-//    printf("%s: ", argv[0]);
     f := fopen(argv[0]);
     parse(f, scope());
     close(f);
@@ -95,7 +86,6 @@ printf("heapsort cputime: %f\n", cputime());
 
 [module
     argv := [array "nestedloop.ici", "8"];
-//    printf("%s: ", argv[0]);
     ff := fopen(argv[0]);
     parse(ff, scope());
     close(ff);
@@ -105,7 +95,6 @@ printf("nestedloop cputime: %f\n", cputime());
 
 [module
     argv := [array "objinst.ici", "30000"];
-//    printf("%s: ", argv[0]);
     f := fopen(argv[0]);
     parse(f, scope());
     close(f);
@@ -113,10 +102,8 @@ printf("nestedloop cputime: %f\n", cputime());
 
 printf("objinst cputime: %f\n", cputime());
 
-
 [module
     argv := [array "prodcons.ici", "20000"];
-//    printf("%s: ", argv[0]);
     f := fopen(argv[0]);
     parse(f, scope());
     close(f);
@@ -126,7 +113,6 @@ printf("prodcons cputime: %f\n", cputime());
 
 [module
     argv := [array "random.ici", "100000"];
-//    printf("%s: ", argv[0]);
     f := fopen(argv[0]);
     parse(f, scope());
     close(f);
@@ -136,7 +122,6 @@ printf("random cputime: %f\n", cputime());
 
 [module
     argv := [array "sieve.ici", "10"];
-//    printf("%s: ", argv[0]);
     f := fopen(argv[0]);
     parse(f, scope());
     close(f);

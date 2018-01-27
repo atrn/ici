@@ -2,10 +2,10 @@ n = argv[1] ? int(argv[1]) : 1;
 
 x = build(n, "i", 1);
 y = build(n, "c", 0);
-for (k = 0; k < 1000; ++k)
-{
-    for (i = n - 1; i >= 0; --i)
+for (k = 0; k < 1000; ++k) {
+    for (i = n - 1; i >= 0; --i) {
         y[i] += x[i];
+    }
 }
 
 // printf("%d %d\n", y[0], y[n - 1]);

@@ -2,24 +2,27 @@ NUM = argv[1] ? int(argv[1]) : 1;
 
 local SIZE = 10000;
 
-local
-test_lists()
-{
+local test_lists() {
     li1 = build(SIZE, "i", 1);
     li2 = copy(li1);
     li3 = array();
-    while(len(li2))
+    while(len(li2)) {
         push(li3, rpop(li2));
-    while (len(li3))
+    }
+    while (len(li3)) {
         push(li2, pop(li3));
+    }
     n := SIZE / 2;
-    for (i := 0; i < n; ++i)
+    for (i := 0; i < n; ++i) {
         li1[i] <=> li1[SIZE - i - 1];
-    if (li1[0] != SIZE || li1 != li2)
+    }
+    if (li1[0] != SIZE || li1 != li2) {
         return 0;
+    }
     return len(li1);
 }
 
-for (i = 0; i < NUM; ++i)
+for (i = 0; i < NUM; ++i) {
     result = test_lists();
+}
 // printf("%d\n", result);

@@ -1,14 +1,11 @@
-local
-mmult(rows, cols, m1, m2, m3)
-{
-    forall (col, i in m3)
-    {
+local mmult(rows, cols, m1, m2, m3) {
+    forall (col, i in m3) {
         m1i = m1[i];
-        forall (val, j in col)
-        {
+        forall (val, j in col) {
             val = 0;
-            forall (m1ik, k in m1i)
+            forall (m1ik, k in m1i) {
                 val += m1ik * m2[k][j];
+	    }
             col[j] = val;
         }
     }
@@ -19,6 +16,7 @@ n := argv[1] ? int(argv[1]) : 1;
 m1 := build(SIZE, SIZE, "i", 1);
 m2 := build(SIZE, SIZE, "i", 1);
 mm := build(SIZE, SIZE);
-for (i = 0; i < n; ++i)
+for (i = 0; i < n; ++i) {
     mmult(SIZE, SIZE, m1, m2, mm);
+}
 // printf("%d %d %d %d\n", mm[0][0], mm[2][3], mm[3][2], mm[4][4]);

@@ -1,8 +1,6 @@
-local
-Ack(M, N)
-{
-	return M ? (Ack(M - 1, N ? Ack(M, N - 1) : 1)) : N + 1;
+local Ack(M, N) {
+    return M ? (Ack(M - 1, N ? Ack(M, N - 1) : 1)) : N + 1;
 }
-
 n := argv[1] ? int(argv[1]) : 1;
-// printf("Ack(3,%d): %d\n", n, Ack(3, n));
+v := Ack(3, n);
+// printf("Ack(3,%d): %d\n", n, v);

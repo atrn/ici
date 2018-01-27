@@ -1,39 +1,33 @@
 local Toggle = [class
 
-    new(start_state)
-    {
+    new(start_state) {
         t := this:^new();
         t.state := start_state;
         return t;
     }
 
-    activate()
-    {
+    activate() {
         state = !state;
         return this;
     }
     
-    value()
-    {
+    value() {
         return state;
     }
 ];
 
 local NthToggle = [class:Toggle,
 
-    new(start_state, count_max)
-    {
+    new(start_state, count_max) {
         t := this:^new(start_state);
         t.count_max := count_max;
         t.counter := 0;
         return t;
     }
 
-    activate()
-    {
+    activate() {
         this:^activate();
-        if (++counter >= count_max)
-        {
+        if (++counter >= count_max) {
             state = !state;
             counter = 0;
         }
