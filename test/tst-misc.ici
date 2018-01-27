@@ -150,26 +150,27 @@ a := strbuf();
 s := sopen(a, "r+");
 printf(s, "printf ");
 puts("put", s);
-if (a != "printf put")
+if (a != "printf put\n") // puts adds newline
     fail("failed to write to mutable string");
 seek(s, 0, 0);
-if (getfile(s) != "printf put")
+if (getfile(s) != "printf put\n")
     fail("failed to read data written to mutable string");
 
 m := mopen(alloc(20, 1), "r+");
 printf(m, "printf ");
 puts("put", m);
 seek(m, 0, 0);
-if (gettoken(m, "\0") != "printf put")
+if (gettoken(m, "\0") != "printf put\n") // puts adds newline
     fail("failed to read data written to mem object");
-seek(m, 20 - 5, 0);
+seek(m, 20 - 6, 0); // 6 - puts adds newline
 puts("write", m);
 seek(m, 20 - 4, 0);
 error = NULL; try puts("write", m); onerror;
 if (error == NULL)
     fail("failed to fail on write past end of mem object");
 seek(m, 0, 0);
-if (getfile(m) != "printf put\0\0\0\0\0wwrit")
+dat := getfile(m);
+if (dat != "printf put\n\0\0\0wrwrit")
     fail("write did not truncate");
 
 /*
