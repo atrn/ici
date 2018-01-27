@@ -47,7 +47,7 @@ See [doc/BUILDING.md](doc/BUILDING.md) for details on how to build.
 
 ## Documentation
 
-**Most documentation has not updated.**
+**Most documentation has not been updated.**
 
 The majority of the documentation under the `doc` directory is for the
 older version of ICI. While the fundamentals of the language have not
@@ -55,6 +55,10 @@ changed some detail has, e.g. `struct` is now called `map`, and the
 newer functions and types are not documented. Careful reading of the
 [CHANGES](CHANGES) file is the suggested work-around.
 
-The fundamental issue is extracting the documentation from the
-FrameMaker `.fm` files and turning it into something that can be
+The file [doc/html/ici.html](doc/html/ici.html) *has* had the
+name changes applied and is a good starting point to learn
+about the language.
+
+The fundamental issue with the documentation is extracting it from
+the FrameMaker `.fm` files and turning it into something that can be
 maintained.
