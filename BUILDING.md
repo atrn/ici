@@ -5,108 +5,145 @@
 Supported platforms:
 
 - MacOS
-- BSD's
 - Most Linux-based OSes
+- BSD's
 
 Steps:
 
 - install `dcc` (`go get github.com/atrn/dcc`, see below)
-- type `make` (`gmake` on BSDs)
+- build ici using `make` (`gmake` on BSDs)
+- install using `make install dest=/some/path`
 
 ## Overview
 
-There are several ways to build ici. The _official_ way (i.e. the
-method I used to build and install on my machines) uses GNU make
-to direct things and another tool, `dcc`, to look after building.
+There are several ways to build ici. The _official_ way, shown above,
+is the method I use. GNU make is used to direct things and another
+tool, `dcc`, looks after compilation, linking and library creation.
 
-The _make+dcc_ method supports building ICI in a number of different
-ways - standalone executable, static library + standalone executable
-or dynamic library and associated executable (read the Makefile).
+### Building with make and dcc
 
-## cmake
+The _make and dcc_ method supports building ICI in a number of
+different configurations - standalone executable, static library and
+executable, or dynamic library and executable - and adds make targets
+to install ici and other tasks.
 
-A `CMakeLists.txt` is supplied with the sources which will build an
-interpreter executable. Cmake support is minimal but can be used to
-generate files for IDEs and other build tools (ninja works very well).
+This method is described below.
 
-## Example makefiles
+### Building with cmake
 
-A number of more conventional makefiles are located in the `etc`
-directory. These can be used as is or as a starting point.
+A very simple `CMakeLists.txt` is supplied which builds a standalone
+interpreter executable. `cmake` support is minimal but can be used to
+generate files for IDEs and other build tools (ninja works well).
 
-## Building with make and dcc
+Run `cmake` to generate build files, e.g.,
+
+    $ cmake -Bbuild -H.
+
+This will create a `build` directory with the `cmake` generated
+build files. `ccmake` can be used to adjust build settings. For
+more details see the cmake documentation.
+
+### Makefiles
+
+Some conventional makefiles are located in the `etc` directory. These
+can be used as is or act as a starting point for creating better
+makefiles tailored to your environment.
+
+### Building by hand
+
+A standalone executable build is essentially trivial on current
+UNIX-ish systems. The following command is sufficient on supported
+platforms.
+
+    $ c++ -std=c++14 -I. -UNDEBUG *.cc etc/main.cc -o ici
+
+
+
+## Building ICI with make and dcc
 
 The supported build system for ICI uses GNU `make` and my compiler
 driver program, `dcc`. You likely already have GNU `make` or know
-where to get it.
+where to get it. Installing `dcc` is straight forward.
 
 ### Install `dcc`
 
 `dcc` is open source (licensed under the GNU GPL v2) and available
 from [http://github.com/atrn/dcc](http://github.com/atrn/dcc). `dcc`
-is written in Go and installation requires Go be installed. Some
+is written in Go and installation requires Go be installed (some
 platforms do this via their package manager otherwise Go can be
-obtained via [golang.org](http://golang.org/). Installation is
+obtained via [golang.org](http://golang.org/)). Installation is
 straight forward. Follow their instructions.
 
 Assuming a conventional Go installation (i.e. you followed the
-instructions), installing `dcc` is done the command,
+instructions), installing `dcc` is done with the command,
 
     $ go get github.com/atrn/dcc
 
-By default `go get` will install the binary under your _$GOPATH_,
-which is `~/go/bin` if not defined otherwise I assume you know what
-you're doing and where to find the executable.
+By default `go get` will install the binary under your _$GOPATH_ or
+`~/go/bin` by default. If you've set _$GOPATH_ I assume you know
+what you're doing and where the `dcc` executable resides.
 
-### Build ICI
+### Build
 
-With `dcc` installed building ICI is done using `make,
+With `dcc` installed building ICI is done via `make`,
 
     $ make
 
-`make` is used to _direct_ the build process, `dcc` runs the
-compilation, linking and library creation.
+`make` _directs_ the build process and invokes `dcc` for compilation,
+linking and library creation.
 
-To configure the build process the `Makefile` can be edited to
-set installation locations and other variables.
+To configure the build process the `Makefile` can be edited to set
+installation locations and other variables. The makefile is quite
+simple (since `dcc` does the real work) and commented.
 
-The makefile is quite simple (`dcc` does the real work).
+### Targets and macros
 
-## Building manually
+Typically development workflows are supported by make targets
+and macros. Some common operations are shown below:
 
-Building a static version of ici is essentially trivial on current
-UNIX-ish systems. The following command builds a static executable,
+Build a standalone executable,
 
-    $ c++ -std=c++14 -I. -UNDEBUG *.cc etc/main.cc -o ici
+    $ make build=exe
 
-The `etc` directory contains a number of Makefiles that use this
-approach.
+Build a static library, `libici.a`, with the `ici` executable linked
+against that library.
 
-### Platform configuration
+    $ make build=lib
+
+Build a dynamic library, e.g. `libici.so`, and an `ici` executable
+linked against that library.
+
+    $ make build=dll
+
+Clean up files generated by the build.
+
+    $ make clean
+
+Build using debug options.
+
+    $ make debug
+
+
+## Platform configuration
 
 More control over the configuration is available by setting the
-`CONFIG_FILE` macro to the name of a header file that defines the
-interpreter's configuration. The file named by `CONFIG_FILE` is
-included by the standard header file `fwd.h`. If `CONFIG_FILE` is not
-set `fwd.h` automatically selects a file for the host.
+`CONFIG_FILE` macro to the, quoted, name of a header file that defines
+the interpreter's configuration.
 
-The per-system configuration header files are located in the `conf`
-directory.
+The file named by `CONFIG_FILE` is included by the `fwd.h` header file
+(which is included by all ici source files). If `CONFIG_FILE` is not
+set `fwd.h` selects a file for the host if it can determine it.
 
-## CMakeLists.txt
+The standard _conf_ header files are located in the `conf` directory.
 
-The `CMakeLists.txt` is very basic but works to compile a standalone
-interpreter executable. The CMakeFile doesn't do the same things the
-Makefile does (DLL vs static lib, creating ici.h, installing) but of
-course it could with sufficient _cmake-ing_.  However I have **no**
-plans to that _cmake-ing_. I'm happy enough with the make and dcc.
-Contributions will be gladly accepted however.
+## Installation
 
-Using `cmake` an interpreter can be built via a the command,
+Installing requires copying the executable somewhere and copying the
+_core_ `.ici` files to a _lib_ directory.
 
-    $ cmake -BBUILD -H. && make -CBUILD
+- `ici` -> _$(dest)/bin/ici_
+- `ici-core*.ici` -> _$(dest)/lib/ici_
 
-Adjust build options can be done at generation time by setting cmake
-variables on the command line or by editing the cmake's settings
-_cache_ (either manually or by using the ccmake tool) and
-re-generating build files.
+If an ici library was built, static or dynamic, that is copied to a
+_lib_ directory and the `ici.h` header file to the `include` directory
+along with another header, `icistr-setup.h`.

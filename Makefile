@@ -16,7 +16,7 @@ else
 dll=	libici.so
 endif
 conf?= conf/$(os).h
-dest?= /opt/ici
+dest?= /usr/local
 dccflags?=
 cxxflags?=CXXFLAGS
 
