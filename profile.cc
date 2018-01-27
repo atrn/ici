@@ -30,6 +30,7 @@
 #include "profile.h"
 #include "str.h"
 #include "func.h"
+#include "cfunc.h"
 #include "op.h"
 #include "exec.h"
 #include "null.h"

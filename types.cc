@@ -10,6 +10,7 @@
 #include "float.h"
 #include "forall.h"
 #include "func.h"
+#include "cfunc.h"
 #include "handle.h"
 #include "int.h"
 #include "mark.h"

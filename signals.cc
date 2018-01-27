@@ -30,6 +30,7 @@
 
 #include "exec.h"
 #include "op.h"
+#include "cfunc.h"
 #include "func.h"
 #include "str.h"
 #include "method.h"

@@ -4,7 +4,7 @@
 #ifndef NOEVENTS
 #include "exec.h"
 #include "str.h"
-#include "func.h"
+#include "cfunc.h"
 
 #ifdef  _WIN32
 #include <windows.h>

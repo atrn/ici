@@ -2,6 +2,7 @@
 #include "fwd.h"
 #include "parse.h"
 #include "func.h"
+#include "cfunc.h"
 #include "str.h"
 #include "map.h"
 #include "null.h"

@@ -3,6 +3,7 @@
 #define ICI_CORE
 #include "exec.h"
 #include "func.h"
+#include "cfunc.h"
 #include "str.h"
 #include "int.h"
 #include "float.h"

@@ -1,6 +1,7 @@
 #define ICI_CORE
 #include "fwd.h"
 #include "func.h"
+#include "cfunc.h"
 #include "debugger.h"
 #include "exec.h"
 #include "ptr.h"

@@ -44,12 +44,4 @@ public:
 
 } // namespace ici
 
-#ifndef ICI_CFUNC_H
-/*
- * We'd rather not do this, but lots of code expects it. So for backwards
- * compatibility, we'll also include cfunc.h.
- */
-#include "cfunc.h"
-#endif
-
 #endif /* ICI_FUNC_H */

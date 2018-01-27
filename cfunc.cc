@@ -9,6 +9,7 @@
  */
 #define ICI_CORE
 #include "exec.h"
+#include "cfunc.h"
 #include "func.h"
 #include "str.h"
 #include "int.h"

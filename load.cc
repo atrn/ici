@@ -5,6 +5,7 @@
 #include "file.h"
 #include "buf.h"
 #include "func.h"
+#include "cfunc.h"
 
 namespace ici
 {

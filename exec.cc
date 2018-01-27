@@ -5,6 +5,7 @@
 #include "catcher.h"
 #include "ptr.h"
 #include "func.h"
+#include "cfunc.h"
 #include "str.h"
 #include "buf.h"
 #include "pc.h"

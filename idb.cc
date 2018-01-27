@@ -6,6 +6,7 @@
 #include "map.h"
 #include "str.h"
 #include "func.h"
+#include "cfunc.h"
 #include "array.h"
 #include "op.h"
 #include "buf.h"
