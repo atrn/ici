@@ -480,16 +480,16 @@ linefeed</I>
  </A>The term module in ICI refers to a collection of functions, declarations and code which share the same variables.  Typically each source file is a module, but not necessarily.</P>
 <P CLASS="Body">
 <A NAME="pgfId=175586">
- </A>In ICI, modules may be nested in a hierarchical fashion. Within a module, variables can be declared as either static or extern.  When a variable is declared as static it is visible to code defined in the module of its definition, and to code defined in sub-modules of that one. This is termed the scope of the variable.</P>
+ </A>In ICI, modules may be nested in a hierarchical fashion. Within a module, variables can be declared as either local or export.  When a variable is declared as local it is visible to code defined in the module of its definition, and to code defined in sub-modules of that one. This is termed the scope of the variable.</P>
 <P CLASS="Body">
 <A NAME="pgfId=175587">
- </A>When a variable is defined as extern it is declared static in the parent module.  Thus the parent module and all sub-modules of the parent module have that variable in their scope. Variables of this type, whether originally declared extern or static, will be henceforward referred to as static variables.</P>
+ </A>When a variable is defined as export it is declared local in the parent module.  Thus the parent module and all sub-modules of the parent module have that variable in their scope. Variables of this type, whether originally declared export or local, will be henceforward referred to as local variables.</P>
 <P CLASS="Body">
 <A NAME="pgfId=175588">
  </A>Static variables are persistent variables.  That is they remain in existence even when execution completely leaves their scope, despite not being visible to any executing code. They are visible again when code flow again enters their scope.</P>
 <P CLASS="Body">
 <A NAME="pgfId=175589">
- </A>The scoping of static variables is strictly governed by the nesting of the modules, not by the flow of execution.  For example.  Suppose two neighbouring modules (call them module A and module B) each define a variable called theVariable. When some code in module A calls a function defined in module B and that function refers to theVariable; it is referring to the version of theVariable defined in module B, not the one defined in module A.</P>
+ </A>The scoping of local variables is strictly governed by the nesting of the modules, not by the flow of execution.  For example.  Suppose two neighbouring modules (call them module A and module B) each define a variable called theVariable. When some code in module A calls a function defined in module B and that function refers to theVariable; it is referring to the version of theVariable defined in module B, not the one defined in module A.</P>
 <P CLASS="Body">
 <A NAME="pgfId=175590">
  </A>Variables in sub scopes hide variables of the same name defined in outer scopes.</P>
@@ -663,7 +663,7 @@ italic</I>
 <TD ROWSPAN="1" COLSPAN="1">
 <P CLASS="CellBody">
 <A NAME="pgfId=216673">
- </A>extern</P>
+ </A>export</P>
 </TD>
 <TD ROWSPAN="1" COLSPAN="1">
 <P CLASS="CellBody">
@@ -705,7 +705,7 @@ italic</I>
 <TD ROWSPAN="1" COLSPAN="1">
 <P CLASS="CellBody">
 <A NAME="pgfId=216689">
- </A>static</P>
+ </A>local</P>
 </TD>
 </TR>
 <TR>
@@ -1999,11 +1999,11 @@ identifier-list</I>
 <P CLASS="Body">
 <A NAME="pgfId=175688">
  </A>That is, an identifier-list is an optional comma separated list of identifiers with an optional trailing comma.  Literal functions are rare in most programs; functions are normally named and defined with a special declaration form which will be seen in more detail below.  The following two code fragments are equivalent; the first is the abbreviated notation:</P>
-<PRE CLASS="CodeIn1cm"><A NAME="pgfId=175689"></A>static fred(a, b){return a + b;}</PRE>
+<PRE CLASS="CodeIn1cm"><A NAME="pgfId=175689"></A>local fred(a, b){return a + b;}</PRE>
 <P CLASS="Body">
 <A NAME="pgfId=175691">
  </A>and:</P>
-<PRE CLASS="CodeIn1cm"><A NAME="pgfId=175692"></A>static fred = [func (a, b){return a + b;}];</PRE>
+<PRE CLASS="CodeIn1cm"><A NAME="pgfId=175692"></A>local fred = [func (a, b){return a + b;}];</PRE>
 <P CLASS="Body">
 <A NAME="pgfId=175694">
  </A>The meaning of functions will discussed in more detail below.</P>
@@ -4243,7 +4243,7 @@ onerror</CODE>
 <P CLASS="Body">
 <A NAME="pgfId=176020">
  </A>For example:</P>
-<PRE CLASS="CodeIn1cm"><A NAME="pgfId=176021"></A>static
+<PRE CLASS="CodeIn1cm"><A NAME="pgfId=176021"></A>local
 div(a, b)
 {
 	try
@@ -4294,12 +4294,12 @@ printf(&quot;4 / 0 = %d\n&quot;, div(4, 0));</PRE>
 	storage-class identifier function-body</P>
 <P CLASS="Syntax">
 <A NAME="pgfId=176044">
- </A>storage-class	extern<BR>
+ </A>storage-class	export<BR>
 	<CODE CLASS="CourierBold">
-static<BR>
+local<BR>
 </CODE>
 	<CODE CLASS="CourierBold">
-auto</CODE>
+var</CODE>
 </P>
 <P CLASS="Body">
 <A NAME="pgfId=176046">
@@ -4321,7 +4321,7 @@ auto</CODE>
 <P CLASS="Body">
 <A NAME="pgfId=176051">
  </A>That is, a comma separated list of identifiers, each with an optional initialisation, terminated by a semicolon.  For example:</P>
-<PRE CLASS="CodeIn1cm"><A NAME="pgfId=176053"></A>static a, b = 2, c = [array 1, 2, 3];</PRE>
+<PRE CLASS="CodeIn1cm"><A NAME="pgfId=176053"></A>local a, b = 2, c = [array 1, 2, 3];</PRE>
 <P CLASS="Body">
 <A NAME="pgfId=176054">
  </A>The storage class keyword establishes which scope the variables in the list are established in, as discussed earlier.  Note that declaring the same identifier at different scope levels is permissible and that they are different variables.</P>
@@ -4334,7 +4334,7 @@ auto</CODE>
 <P CLASS="Body">
 <A NAME="pgfId=176059">
  </A>Note that initial values are parser evaluated expressions.  That is they are evaluated immediately by the parser, but may take arbitrary actions apart from that.  For example:</P>
-<PRE CLASS="CodeIn1cm"><A NAME="pgfId=176060"></A>static
+<PRE CLASS="CodeIn1cm"><A NAME="pgfId=176060"></A>local
 fibonacci(n)
 {
 	if (n &lt;= 1)
@@ -4342,30 +4342,30 @@ fibonacci(n)
 	return fibonacci(n - 1) + fibonacci(n - 2);
 }
 
-static fib10 = fibonacci(10);</PRE>
+local fib10 = fibonacci(10);</PRE>
 <P CLASS="Body">
 <A NAME="pgfId=176066">
  </A>The declaration of fib10 calls a function.  But that function has already been defined so this will work.</P>
 <P CLASS="Body">
 <A NAME="pgfId=176067">
- </A>Note that the scope of a static variable is (normally) the entire module it is parsed in.  For example:</P>
-<PRE CLASS="CodeIn1cm"><A NAME="pgfId=176069"></A>static
+ </A>Note that the scope of a local variable is (normally) the entire module it is parsed in.  For example:</P>
+<PRE CLASS="CodeIn1cm"><A NAME="pgfId=176069"></A>local
 func()
 {
-	static aStatic = &quot;The value of a static.&quot;;
+	local aStatic = &quot;The value of a local.&quot;;
 }
 
 printf(&quot;%s\n&quot;, aStatic);</PRE>
 <P CLASS="Body">
 <A NAME="pgfId=176073">
  </A>when run will print:</P>
-<PRE CLASS="CodeIn1cm"><A NAME="pgfId=176075"></A>The value of a static.</PRE>
+<PRE CLASS="CodeIn1cm"><A NAME="pgfId=176075"></A>The value of a local.</PRE>
 <P CLASS="Body">
 <A NAME="pgfId=176076">
  </A>That is, despite being declared within a function, the declaration of aStatic has the same effect as if it had been declared outside the function.  Also notice that the function has not been called.  The act of parsing the function caused the declaration to take effect.</P>
 <P CLASS="Body">
 <A NAME="pgfId=176078">
- </A>The behavior of extern variables has already been discussed, that is, they are declared as static in the parent module.  The behavior of auto variables, and in particular their initialisation, will be discussed in a later section.</P>
+ </A>The behavior of export variables has already been discussed, that is, they are declared as local in the parent module.  The behavior of auto variables, and in particular their initialisation, will be discussed in a later section.</P>
 </DIV>
 <DIV>
 <H4 CLASS="Heading2">
@@ -4410,7 +4410,7 @@ printf(&quot;%s\n&quot;, aStatic);</PRE>
  </A>the names and initialisation of auto variables;</LI>
 <LI CLASS="Bullet">
 <A NAME="pgfId=176095">
- </A>the static scope in which the function is declared;</LI>
+ </A>the local scope in which the function is declared;</LI>
 <LI CLASS="Bullet">
 <A NAME="pgfId=176096">
  </A>the code generated by the statements in the function.</LI>
@@ -4433,7 +4433,7 @@ printf(&quot;%s\n&quot;, aStatic);</PRE>
  </A>If there were more actual parameters than formal parameters, and there is an auto variable called vargs, the remaining argument values are formed into an array which is assigned to vargs.</LI>
 <LI CLASS="Bullet">
 <A NAME="pgfId=175541">
- </A>The variable scope is set such that the auto variables are the inner-most scope, the static variables noted with the function are the next outer scope etc.</LI>
+ </A>The variable scope is set such that the auto variables are the inner-most scope, the local variables noted with the function are the next outer scope etc.</LI>
 <LI CLASS="Bullet">
 <A NAME="pgfId=176103">
  </A>The flow of control is diverted to the code generated by parsing the function.</LI>
@@ -4447,12 +4447,12 @@ printf(&quot;%s\n&quot;, aStatic);</PRE>
 <P CLASS="Body">
 <A NAME="pgfId=176108">
  </A>It is very important to note that the parser generates a prototype set of auto variables which are copied, along with their initial values, when the function is called.  The value which an auto variable is initialised with is a parser evaluated expression just like any other initialisation.  It is not evaluated on function entry.  But on function entry the value the parser determined is used to initialise the variable.  For example:</P>
-<PRE CLASS="CodeIn1cm"><A NAME="pgfId=176110"></A>static myVar = 100;
+<PRE CLASS="CodeIn1cm"><A NAME="pgfId=176110"></A>local myVar = 100;
 
-static
+local
 myFunc()
 {
-	auto anAuto = myVar;
+	var anAuto = myVar;
 
 	printf(&quot;%d\n&quot;, anAuto);
 	anAuto = 500;
@@ -4472,10 +4472,10 @@ myFunc();</PRE>
 <P CLASS="Body">
 <A NAME="pgfId=175543">
  </A>As stated above, formal parameters are actually uninitialised auto variables.  Because of the behavior of variable declarations it is possible to explicitly declare an auto variable as well as include it in the formal parameter list.  In addition, such an explicit declaration may have an initialisation.  In this case, the explicit initialisation will be effective when there is no actual parameter to override it.  For example:</P>
-<PRE CLASS="CodeIn1cm"><A NAME="pgfId=175550"></A>static
+<PRE CLASS="CodeIn1cm"><A NAME="pgfId=175550"></A>local
 print(msg, file)
 {
-	auto file = stdout; /* Default value. */
+	var file = stdout; /* Default value. */
 
 	fprintf(file, &quot;%s\n&quot;, msg);
 }
@@ -4488,12 +4488,12 @@ print(&quot;Hello world&quot;, stderr);</PRE>
 <P CLASS="Body">
 <A NAME="pgfId=176130">
  </A>As indicated above there is a mechanism to capture additional actual parameters which were not mentioned in the formal parameter list.  Consider the following example:</P>
-<PRE CLASS="CodeIn1cm"><A NAME="pgfId=176131"></A>static
+<PRE CLASS="CodeIn1cm"><A NAME="pgfId=176131"></A>local
 sum()
 {
-	auto vargs;
-	auto total = 0;
-	auto arg;
+	var vargs;
+	var total = 0;
+	var arg;
 
 	forall (arg in vargs)
 		total += arg;
@@ -4513,11 +4513,11 @@ printf(&quot;1+2+3+4 = %d\n&quot;, sum(1, 2, 3, 4));</PRE>
 <P CLASS="Body">
 <A NAME="pgfId=176135">
  </A>And also consider the following example where a default initialisation to vargs is made.  In the following example the function call is used to invoke a function with an array of actual parameters, the function array is used to form an array at run-time, and addition is used to concatenate arrays; all these features will be further explained in later sections:</P>
-<PRE CLASS="CodeIn1cm"><A NAME="pgfId=176136"></A>static
+<PRE CLASS="CodeIn1cm"><A NAME="pgfId=176136"></A>local
 debug(fmt)
 {
-	auto fmt = &quot;Reached here.\n&quot;;
-	auto vargs = [array];
+	var fmt = &quot;Reached here.\n&quot;;
+	var vargs = [array];
 
 	call(fprintf, array(stderr, fmt) + vargs);
 }
@@ -4561,7 +4561,7 @@ call</I>
 <PRE CLASS="CodeIn1cm1"><A NAME="pgfId=180316"></A> * Define a &quot;class&quot; object representing our class and</PRE>
 <PRE CLASS="CodeIn1cm1"><A NAME="pgfId=180317"></A> * containing the class methods.</PRE>
 <PRE CLASS="CodeIn1cm1"><A NAME="pgfId=180318"></A> */</PRE>
-<PRE CLASS="CodeIn1cm1"><A NAME="pgfId=180319"></A>static MyClass = [map</PRE>
+<PRE CLASS="CodeIn1cm1"><A NAME="pgfId=180319"></A>local MyClass = [map</PRE>
 <PRE CLASS="CodeIn1cm1"><A NAME="pgfId=180320"></A>&nbsp;</PRE>
 <PRE CLASS="CodeIn1cm1"><A NAME="pgfId=180321"></A>    doubleX = [func (self)</PRE>
 <PRE CLASS="CodeIn1cm1"><A NAME="pgfId=180322"></A>    {</PRE>
@@ -4572,7 +4572,7 @@ call</I>
 <PRE CLASS="CodeIn1cm1"><A NAME="pgfId=180327"></A>&nbsp;</PRE>
 <PRE CLASS="CodeIn1cm1"><A NAME="pgfId=180328"></A>...</PRE>
 <PRE CLASS="CodeIn1cm1"><A NAME="pgfId=180329"></A>&nbsp;</PRE>
-<PRE CLASS="CodeIn1cm1"><A NAME="pgfId=180330"></A>static a;</PRE>
+<PRE CLASS="CodeIn1cm1"><A NAME="pgfId=180330"></A>local a;</PRE>
 <PRE CLASS="CodeIn1cm1"><A NAME="pgfId=180331"></A>a = map(@MyClass);</PRE>
 <PRE CLASS="CodeIn1cm1"><A NAME="pgfId=180332"></A>a.x = 21;</PRE>
 <PRE CLASS="CodeIn1cm1"><A NAME="pgfId=180333"></A>printf(&quot;%d\n&quot;, a@doubleX());</PRE>
@@ -4593,8 +4593,8 @@ call</I>
 <P CLASS="Body">
 <A NAME="pgfId=176141">
  </A>Up till now few exact statements about the nature of values and data have been made.  We will now examine values in more detail.  Consider the following code fragment:</P>
-<PRE CLASS="CodeIn1cm"><A NAME="pgfId=175548"></A>static x;
-static y;
+<PRE CLASS="CodeIn1cm"><A NAME="pgfId=175548"></A>local x;
+local y;
 
 x = [array 1, 2, 3, 4];
 y = x;</PRE>
@@ -4617,8 +4617,8 @@ y = x;</PRE>
 <P CLASS="Body">
 <A NAME="pgfId=176146">
  </A>We say that x and y refer to the same object.  Now consider the following code fragment:</P>
-<PRE CLASS="CodeIn1cm"><A NAME="pgfId=176147"></A>static x;
-static y;
+<PRE CLASS="CodeIn1cm"><A NAME="pgfId=176147"></A>local x;
+local y;
 
 x = [array 1, 2, 3, 4];
 y = [array 1, 2, 3, 4];</PRE>
@@ -4688,8 +4688,8 @@ y = &quot;abcde&quot; + &quot;fg&quot;;</PRE>
 <P CLASS="Body">
 <A NAME="pgfId=176163">
  </A>This definition of equality is the basis for resolving the merging of aggregates into unique read-only (atomic) versions.  Two aggregates will resolve to the same atomic object if they are equal.  That is, they must contain exactly the same objects as sub-elements, not just equal objects.  For example:</P>
-<PRE CLASS="CodeIn1cm"><A NAME="pgfId=176164"></A>static x = [array 1, [array 2, 3], 4, 5];
-static y = [array 1, [array 2, 3], 4, 5];</PRE>
+<PRE CLASS="CodeIn1cm"><A NAME="pgfId=176164"></A>local x = [array 1, [array 2, 3], 4, 5];
+local y = [array 1, [array 2, 3], 4, 5];</PRE>
 <P CLASS="Body">
 <A NAME="pgfId=176165">
  </A>Could be represented diagrammatically as:</P>
@@ -4710,9 +4710,9 @@ y = @y;</PRE>
 <P CLASS="Body">
 <A NAME="pgfId=176169">
  </A>That is, both x and y refer to new read-only objects, but they refer to different read-only objects because they have an element which is not the same object.  The simple integers are the same objects because integers are intrinsically atomic objects.  But the two sub-arrays are distinct objects.  Being equal was not sufficient.  The top-level arrays needed to have exactly the same objects as contents to make x and y end up referring to the same read-only array.  In contrast to this consider the following similar situation:</P>
-<PRE CLASS="CodeIn1cm"><A NAME="pgfId=176170"></A>static z = [array 2, 3];
-static x = [array 1, z, 4, 5];
-static y = [array 1, z, 4, 5];</PRE>
+<PRE CLASS="CodeIn1cm"><A NAME="pgfId=176170"></A>local z = [array 2, 3];
+local x = [array 1, z, 4, 5];
+local y = [array 1, z, 4, 5];</PRE>
 <P CLASS="Body">
 <A NAME="pgfId=176171">
  </A>This could be represented diagrammatically as:</P>
@@ -4755,8 +4755,8 @@ y = @y;</PRE>
 <P CLASS="Body">
 <A NAME="pgfId=176181">
  </A>Any object, not just a string, can be used as a key in a structure.  For instance:</P>
-<PRE CLASS="CodeIn1cm"><A NAME="pgfId=176182"></A>static x = [map];
-static z = [array 10, 11];
+<PRE CLASS="CodeIn1cm"><A NAME="pgfId=176182"></A>local x = [map];
+local z = [array 10, 11];
 
 x[&quot;abc&quot;] = 1;
 x[56] = 2;
@@ -4804,8 +4804,8 @@ x[z] = 3;</PRE>
 <P CLASS="Body">
 <A NAME="pgfId=176196">
  </A>Consider the following example:</P>
-<PRE CLASS="CodeIn1cm"><A NAME="pgfId=176197"></A>static theSuper = [map a = 1, b = 2, c = 3];
-static theStruct = [map x = 100, y = 200];
+<PRE CLASS="CodeIn1cm"><A NAME="pgfId=176197"></A>local theSuper = [map a = 1, b = 2, c = 3];
+local theStruct = [map x = 100, y = 200];
 
 super(theStruct, theSuper);</PRE>
 <P CLASS="Body">
@@ -4855,8 +4855,8 @@ theStruct.z = 789;</PRE>
 <P CLASS="Body">
 <A NAME="pgfId=176210">
  </A>Within a struct-literal a colon prefixed expression after the struct identifier is used as the super struct.  For example, the declarations used in the previous example could be written as:</P>
-<PRE CLASS="CodeIn1cm"><A NAME="pgfId=176211"></A>static theSuper = [map a = 1, b = 2, c = 3];
-static theStruct = [map:theSuper, x = 100, y = 200];</PRE>
+<PRE CLASS="CodeIn1cm"><A NAME="pgfId=176211"></A>local theSuper = [map a = 1, b = 2, c = 3];
+local theStruct = [map:theSuper, x = 100, y = 200];</PRE>
 </DIV>
 <DIV>
 <H4 CLASS="Heading2">
@@ -4867,10 +4867,10 @@ static theStruct = [map:theSuper, x = 100, y = 200];</PRE>
  </A>Now that structs and their super have been described a more precise statement about variables and scope can be made.</P>
 <P CLASS="Body">
 <A NAME="pgfId=176214">
- </A>ICI variables are entries in ordinary structs.  At all times, the current scope is identified by a structure.  The auto variables are the entries in this base structure.  Its super is the struct containing the static variables.  The next super struct contains the externs, and successive super structs are successive outer scopes.</P>
+ </A>ICI variables are entries in ordinary structs.  At all times, the current scope is identified by a structure.  The auto variables are the entries in this base structure.  Its super is the struct containing the local variables.  The next super struct contains the externs, and successive super structs are successive outer scopes.</P>
 <P CLASS="Body">
 <A NAME="pgfId=176215">
- </A>Auto, static and extern declarations make explicit assignments to the appropriate structure.</P>
+ </A>Auto, local and export declarations make explicit assignments to the appropriate structure.</P>
 <P CLASS="Body">
 <A NAME="pgfId=176216">
  </A>In these terms it can be said that an un-adorned identifier in an expression is an implicit reference to an element of the current scope structure.  The inheritance and name hiding of the variable scope mechanism is a product of the super chain. But there is a difference in the handling of undefined entries. Whereas normal lookup of undefined entries in a structure produces a default value of nullptr or implicit creation, the implicit lookup of undefined variables triggers an attempt to dynamically load a library to define the variable (see Undefined variables and dynamic loading below), and failing that, produce an error (&quot;%s undefined&quot;).</P>
@@ -4891,10 +4891,10 @@ static theStruct = [map:theSuper, x = 100, y = 200];</PRE>
 <P CLASS="Body">
 <A NAME="pgfId=176221">
  </A>The &amp; operator is used to obtain a pointer to a location.  Thus if the following were executed:</P>
-<PRE CLASS="CodeIn1cm"><A NAME="pgfId=176222"></A>static x;
-static y = [array 1, 2, 3];
-static p1 = &amp;x;
-static p2 = &amp;y[1];</PRE>
+<PRE CLASS="CodeIn1cm"><A NAME="pgfId=176222"></A>local x;
+local y = [array 1, 2, 3];
+local p1 = &amp;x;
+local p2 = &amp;y[1];</PRE>
 <P CLASS="Body">
 <A NAME="pgfId=175574">
  </A>The variable p1 would be a pointer to x and the variables p2 would be a pointer to the second element of y.  Reference to the object a pointer points to can be obtained with the * operator.  Thus if the following were executed:</P>
@@ -4915,8 +4915,8 @@ printf(&quot;x = %d, y[1] = %d\n&quot;, x, y[1]);</PRE>
 <P CLASS="Body">
 <A NAME="pgfId=176229">
  </A>would set the last element of the array to 789, because the pointer currently references element 1, and the given index is 1, and 1 + 1 is 2 which is the last element.  The index arithmetic provided by pointers will work with any types, as long as the indexes are integers, thus:</P>
-<PRE CLASS="CodeIn1cm"><A NAME="pgfId=176230"></A>static s = [map (20) = 1, (30) = 2, (40) = 3];
-static p = &amp;s[30];
+<PRE CLASS="CodeIn1cm"><A NAME="pgfId=176230"></A>local s = [map (20) = 1, (30) = 2, (40) = 3];
+local p = &amp;s[30];
 
 p[-10] = -1;
 p[0] = -2;
@@ -5990,7 +5990,7 @@ any2</I>
 <PRE CLASS="PreformattedRAlign"><A NAME="pgfId=233937"></A>int =</PRE>
 </TD>
 <TD ROWSPAN="1" COLSPAN="1">
-<PRE CLASS="Preformatted"><A NAME="pgfId=233939"></A>nels(any)</PRE>
+<PRE CLASS="Preformatted"><A NAME="pgfId=233939"></A>len(any)</PRE>
 </TD>
 </TR>
 <TR>
@@ -6412,10 +6412,10 @@ return = call(func, args)</CODE>
 <P CLASS="Body">
 <A NAME="pgfId=175619">
  </A>This is often used to pass on an unknown argument list.  For example:</P>
-<PRE CLASS="CodeIn1cm"><A NAME="pgfId=175620"></A>static
+<PRE CLASS="CodeIn1cm"><A NAME="pgfId=175620"></A>local
 db()
 {
-	auto vargs;
+	var vargs;
 
 	if (debug)
 		return call(printf, vargs);
@@ -6459,7 +6459,7 @@ file = currentfile()</CODE>
 <P CLASS="Body">
 <A NAME="pgfId=175637">
  </A>In general: after having parsed any simple statement the parser will have consumed up to and including the terminating semicolon, and no more.  Also, after having parsed a compound statement the parser will have consumed up to and including the terminating close brace and no more.  For example:</P>
-<PRE CLASS="CodeIn1cm"><A NAME="pgfId=175640"></A>static help = gettokens(currentfile(), &quot;&quot;, &quot;!&quot;)[0]
+<PRE CLASS="CodeIn1cm"><A NAME="pgfId=175640"></A>local help = gettokens(currentfile(), &quot;&quot;, &quot;!&quot;)[0]
 
 ;This is the text of the help message.
 It follows exactly after the ; because
@@ -6469,7 +6469,7 @@ gettokens() function (as described below)
 to read the text.
 !
 
-static otherVariable = &quot;etc...&quot;;</PRE>
+local otherVariable = &quot;etc...&quot;;</PRE>
 <P CLASS="Untitled">
 <A NAME="pgfId=175648">
  </A>This function can also be used to parse the rest of a module within an error catcher.  For example:</P>
@@ -6478,7 +6478,7 @@ static otherVariable = &quot;etc...&quot;;</PRE>
 onerror
 	printf(&quot;That didn't work, but never mind.\n&quot;);
 
-static this = that;
+local this = that;
 etc();</PRE>
 <P CLASS="Body">
 <A NAME="pgfId=175650">
@@ -6494,8 +6494,8 @@ del(struct, key)</CODE>
 <P CLASS="Body">
 <A NAME="pgfId=175655">
  </A>Deletes the element of struct identified by key. Any super structs are ignored.  Returns nullptr.  For example:</P>
-<PRE CLASS="CodeIn1cm"><A NAME="pgfId=175657"></A>static s = [map a = 1, b = 2, c = 3];
-static v, k;
+<PRE CLASS="CodeIn1cm"><A NAME="pgfId=175657"></A>local s = [map a = 1, b = 2, c = 3];
+local v, k;
 forall (v, k in s)
 	printf(&quot;%s=%d\n&quot;, k, v);
 del(s, &quot;b&quot;);
@@ -6926,8 +6926,8 @@ mem</I>
 <H4 CLASS="Heading2">
 <A NAME="pgfId=178470">
  </A><CODE CLASS="+Code">
-int = nels(any)</CODE>
-<A NAME="nels">
+int = len(any)</CODE>
+<A NAME="len">
  </A></H4>
 <P CLASS="Body">
 <A NAME="pgfId=177158">
@@ -6987,7 +6987,7 @@ scope = parse(source [, scope])</CODE>
  </A>Parses source in a new variable scope, or, if scope (a struct) is supplied, in that scope.  Source may either be a file or a string, and in either case it is the source of text for the parse.  If the parse is successful, the variables scope structure of the sub-module is returned.  If an explicit scope was supplied this will be that structure.</P>
 <P CLASS="Body">
 <A NAME="pgfId=175872">
- </A>If scope is not supplied a new struct is created for the auto variables.  This structure in turn is given a new structure as its super struct for the static variables.  Finally, this structure's super is set to the current static variables.  Thus the static variables of the current module form the externs of the sub-module.</P>
+ </A>If scope is not supplied a new struct is created for the auto variables.  This structure in turn is given a new structure as its super struct for the local variables.  Finally, this structure's super is set to the current local variables.  Thus the local variables of the current module form the externs of the sub-module.</P>
 <P CLASS="Body">
 <A NAME="pgfId=175874">
  </A>If scope is supplied it is used directly as the scope for the sub-module.  Thus the base structure will be the struct for autos, its super will be the struct for statics etc.</P>
@@ -6997,8 +6997,8 @@ scope = parse(source [, scope])</CODE>
 <P CLASS="Untitled">
 <A NAME="pgfId=175879">
  </A>&nbsp;</P>
-<PRE CLASS="CodeIn1cm"><A NAME="pgfId=175880"></A>static x = 123;
-parse(&quot;static x = 456;&quot;, scope());
+<PRE CLASS="CodeIn1cm"><A NAME="pgfId=175880"></A>local x = 123;
+parse(&quot;local x = 456;&quot;, scope());
 printf(&quot;x = %d\n&quot;, x);</PRE>
 <P CLASS="Body">
 <A NAME="pgfId=175881">
@@ -7007,8 +7007,8 @@ printf(&quot;x = %d\n&quot;, x);</PRE>
 <P CLASS="Body">
 <A NAME="pgfId=175885">
  </A>Whereas:</P>
-<PRE CLASS="CodeIn1cm"><A NAME="pgfId=175887"></A>static x = 123;
-parse(&quot;static x = 456;&quot;);
+<PRE CLASS="CodeIn1cm"><A NAME="pgfId=175887"></A>local x = 123;
+parse(&quot;local x = 456;&quot;);
 printf(&quot;x = %d\n&quot;, x);</PRE>
 <P CLASS="Body">
 <A NAME="pgfId=175891">
@@ -7286,7 +7286,7 @@ b</I>
 <P CLASS="Body">
 <A NAME="pgfId=177132">
  </A>For example,</P>
-<PRE CLASS="CodeIn1cm"><A NAME="pgfId=177133"></A>static cmp(a, b)</PRE>
+<PRE CLASS="CodeIn1cm"><A NAME="pgfId=177133"></A>local cmp(a, b)</PRE>
 <PRE CLASS="CodeIn1cm"><A NAME="pgfId=177135"></A>{</PRE>
 <PRE CLASS="CodeIn1cm"><A NAME="pgfId=177136"></A>    if (a == b)</PRE>
 <PRE CLASS="CodeIn1cm"><A NAME="pgfId=177137"></A>		return 0;</PRE>
@@ -7295,7 +7295,7 @@ b</I>
 <PRE CLASS="CodeIn1cm"><A NAME="pgfId=177140"></A>    return 1;</PRE>
 <PRE CLASS="CodeIn1cm"><A NAME="pgfId=177141"></A>}</PRE>
 <PRE CLASS="CodeIn1cm"><A NAME="pgfId=177142"></A>&nbsp;</PRE>
-<PRE CLASS="CodeIn1cm"><A NAME="pgfId=177143"></A>static a = array(1, 3, 2);</PRE>
+<PRE CLASS="CodeIn1cm"><A NAME="pgfId=177143"></A>local a = array(1, 3, 2);</PRE>
 <PRE CLASS="CodeIn1cm"><A NAME="pgfId=177144"></A>&nbsp;</PRE>
 <PRE CLASS="CodeIn1cm"><A NAME="pgfId=177145"></A>sort(a, cmp);</PRE>
 <P CLASS="Body">
@@ -7562,7 +7562,7 @@ event = waitfor(event...)</CODE>
  </A>argc</H4>
 <P CLASS="Body">
 <A NAME="pgfId=180039">
- </A>The count of the number of elements in argv. Initially equal to nels(argv).</P>
+ </A>The count of the number of elements in argv. Initially equal to len(argv).</P>
 </DIV>
 <DIV>
 <H4 CLASS="Heading2">
@@ -9698,25 +9698,25 @@ fopen</I>
 <PRE CLASS="CodeIn1cm"><A NAME="pgfId=180415"></A>icivar.ici</PRE>
 <P CLASS="Body">
 <A NAME="pgfId=180431">
- </A>is considered, where var is the as yet undefined variable name. This file is searched for on the current host specific search path. If found, a new extern, static and auto scope is established and the new extern scope struct is assigned to var in the outermost writable scope available. That outermost writable scope also forms the super of the new extern scope. The module is then parsed with the given scope, after which the variable lookup is repeated. In normal practice this will mean that the loaded module has an outer scope holding all the normal ICI primitives and a new empty extern scope. The intent of this mechanism is that the loaded module should define all its published functions in its extern scope. References by an invoking program to functions and other objects of the loaded module would always be made explicitly through the var which references the module. For example, a program might contain the fragment:</P>
+ </A>is considered, where var is the as yet undefined variable name. This file is searched for on the current host specific search path. If found, a new export, local and auto scope is established and the new export scope struct is assigned to var in the outermost writable scope available. That outermost writable scope also forms the super of the new export scope. The module is then parsed with the given scope, after which the variable lookup is repeated. In normal practice this will mean that the loaded module has an outer scope holding all the normal ICI primitives and a new empty export scope. The intent of this mechanism is that the loaded module should define all its published functions in its export scope. References by an invoking program to functions and other objects of the loaded module would always be made explicitly through the var which references the module. For example, a program might contain the fragment:</P>
 <PRE CLASS="CodeIn1cm"><A NAME="pgfId=180444"></A>query = cgi.decode_query();
 cgi.start_page(&quot;Query results&quot;);</PRE>
 <P CLASS="Body">
 <A NAME="pgfId=180454">
  </A>where &quot;cgi&quot; is undefined, but the file icicgi.ici exists on the search path and includes function definitions such as:</P>
-<PRE CLASS="CodeIn1cm"><A NAME="pgfId=180466"></A>extern
+<PRE CLASS="CodeIn1cm"><A NAME="pgfId=180466"></A>export
 decode_query()
 {
 	...
 }</PRE>
-<PRE CLASS="CodeIn1cm"><A NAME="pgfId=180476"></A>extern
+<PRE CLASS="CodeIn1cm"><A NAME="pgfId=180476"></A>export
 start_page(title)
 {
 	...
 }</PRE>
 <P CLASS="Body">
 <A NAME="pgfId=180477">
- </A>Upon first encountering the variable cgi in the code fragment the module icicgi.ici will be parsed and its extern scope assigned to the new variable cgi in the outermost scope of the program (that is, the most global scope). The lookup of the variable cgi is then repeated, this time finding the structure which contains the function decode_query. The second, and all subsequent, use of the variable cgi will be satisfied immediately from the already loaded module.</P>
+ </A>Upon first encountering the variable cgi in the code fragment the module icicgi.ici will be parsed and its export scope assigned to the new variable cgi in the outermost scope of the program (that is, the most global scope). The lookup of the variable cgi is then repeated, this time finding the structure which contains the function decode_query. The second, and all subsequent, use of the variable cgi will be satisfied immediately from the already loaded module.</P>
 <P CLASS="Body">
 <A NAME="pgfId=180490">
  </A>In attempting to load a host specific dynamically loaded native machine code library, a file name of the form:</P>
