@@ -40,17 +40,18 @@ times and larger, and slower, executables.
 Various C-isms have been replaced by C++-isms:
 
 - parameterised macros are replaced by inline functions
-- nullptr is replaced with nullptr.
-- C++'s constexpr is used to define constants
+- NULL is replaced with nullptr.
+- C++'s constexpr is used to define constant values
 - cstddef and cstdint types are used - size_t, intXX_t, etc...
 - C++ standard threads are assumed
 
 ### But no RAII
 
 There are a  number of things in the interpreter  that may be better
-expresed using small RAII classes. This has not been done and is
+expressed using small RAII classes. This has not been done and is
 related to changing the way errors are reported. C++ exceptions
-aren't really viable without far more C++ to cope with them.
+are not used and aren't really viable without using a lot more C++
+to cope with them.
 
 ## ICI namespace
 
@@ -86,13 +87,14 @@ but `local` and `export` do signifying things a little more clearly.
 
 ## ICI objects
 
-The ICI object header is now used as base-class however C++ `virtual`
-is **not** used.
+The ICI object header is now used as base-class, or struct, to inherit
+the standard object header fields. It is not, however, a C++ polymorphic
+base class, i.e. it has no virtual functions.
 
-ICI object types  use inheritence to embed a standard  header and _be_
-an  object.  The  struct  `ici::object` provides  the standard  object
-header fields replacing the C  code's `o_head` convention. E.g.  a new
-object type is defined via code that looks like,
+ICI object types  inherit from ici::object to embed a standard  header
+and _be an  object_.  The  struct  `ici::object` provides  the standard
+object header fields replacing the C  code's `o_head` convention.
+E.g.  a new object type is defined via code that looks like,
 
     struct new_object_type : ici::object
     {
@@ -102,10 +104,12 @@ object type is defined via code that looks like,
 `ici::object` supplies member functions to do object-related things.
 Inline functions are used in place of the C code's macros and
 direct manipulation of the header replaced by member functions.
+Modern compilers are smart enough to collapse the chain of such
+functions allowing for descriptive code.
 
-C++ rules mean that all ICI objects types _is-a_ `ici::object`.  This
-removes the need for many type casts and the `ici_objof` macro is no
-longer required.
+C++ rules mean that all ICI objects types _is-a_ `ici::object` (sic).
+This removes the need for many casts and the `ici_objof` macro is no
+longer required and has been removed.
 
 All of the previous macros defined to work on ICI objects are now
 inline functions. Extra functions are defined to avoid direct object
@@ -151,6 +155,10 @@ _forall_, _save_ and _restore_ operations. _forall_ is used to
 implement the _forall_ statement, _save_ and _restore_ defining
 object serialization. This allows forall'ing over user-defined
 types and makes serialization more efficient.
+
+The change to a per-type forall allowed channels to be used
+in forall statements with only the implementation of a single
+function.
 
 ## Threads
 
