@@ -1,0 +1,69 @@
+local words = set();
+local dict = map();
+local digrams = map();
+local trigrams = map();
+
+local incr(dict, key) {
+    if (dict[key] == NULL)
+	dict[key] = 0;
+    ++dict[key];
+}
+
+local read_words() {
+    data := getfile("/usr/share/dict/words");
+    file := sopen(data);
+    while (word := getline(file))
+	words += word;
+    close(file);
+}
+
+local form_dict(idx) {
+    var idx = 0;
+
+    forall (word in words) {
+	if (idx < len(word)) {
+	    ch := word[idx];
+	    if (!dict[ch])
+		dict[ch] = set();
+	    dict[ch] += word;
+	}
+    }
+}
+
+local calc_hist(dict) {
+    hist := array();
+    N := 0.0;
+    forall (v, k in dict) {
+	N += float(v);
+    }
+    forall (v, k in dict) {
+	push(hist, map("p", 100.0*float(v)/N, "k", k, "n", v));
+    }
+    return sort(hist, [func (a, b) { return cmp(b.n, a.n); }]);
+}
+
+local determine_grams() {
+    forall (word in words) {
+	n := len(word);
+	if (n < 2)
+	    continue;
+	for (i := 0; i < n - 1; ++i) {
+	    digram := interval(word, i, 2);
+	    incr(digrams, digram);
+	}
+	if (n < 3)
+	    continue;
+	for (i := 0; i < n - 2; ++i) {
+	    trigram := interval(word, i, 3);
+	    incr(trigrams, trigram);
+	}
+    }
+}
+
+
+read_words();
+determine_grams();
+hist := calc_hist(digrams);
+save(hist);
+hist := calc_hist(trigrams);
+save(hist);

@@ -120,6 +120,10 @@ endif
 # Cleaning
 
 clean:
+	@case "$(MAKEFLAGS)" in \
+	*s*);; \
+	*) echo rm $(prog) $(lib) $(dll) '*.o';\
+	esac;\
 	rm -rf etc/main.o etc/.dcc.d *.o .dcc.d $(prog) ici.h $(dll) $(lib)
 	@$(MAKE) -Ctest clean
 	@$(MAKE) -Ctest/serialization clean
