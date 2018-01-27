@@ -1,5 +1,20 @@
 Major Changes in Version 5
 
+*     serialization works
+
+      It was broken by the half-baked integration and conversion
+      from module to core type opertion. Now it isn't broken and
+      save and restore work.
+
+*     better channel type support
+
+      channels may now be closed. The semantics are similar to
+      go. Sending on a closed channel does nothing, receiving
+      receives NULL and channels may only be closed once.
+
+      forall now works with channels and terminates when the
+      channel is closed if not exited previously.
+
 *    'ici_int' has been renamed 'integer'
 
      The "ici_" prefix is to avoid the keyword but is a
