@@ -1,4 +1,4 @@
-# ici - a heavily modified version of Tim Long's ICI interpreter
+# ici - a modified version of Tim Long's ICI interpreter
 
 This is a heavily modified version of the ICI programming language
 interpreter, originally written by Tim Long and worked on by myself
