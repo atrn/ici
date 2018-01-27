@@ -41,11 +41,6 @@ of the interpreter as a C++ program is a major change and its a good
 time to make such changes (ignoring the argument about if they should
 be made at all :))
 
-The file [README.OLD](README.OLD) is the original _readme_ file from the C
-distribution and some of may still apply. I haven't checked. In
-general, other than in these _readme_ files, the ICI documentation has
-**not** been updated to reflect changes and additions.
-
 ## Building
 
 See [doc/BUILDING.md](doc/BUILDING.md) for details on how to build.
@@ -56,8 +51,9 @@ See [doc/BUILDING.md](doc/BUILDING.md) for details on how to build.
 
 The majority of the documentation under `doc` directory is for older
 versions of ICI. While the fundamentals of the language have not
-changed some details have (e.g. `struct` is now called `map`) and
-new functions and types are not documented.
+changed some details have (e.g. `struct` is now called `map`) and new
+functions and types are not documented. Careful reading of the
+[CHANGES](CHANGES) file is the suggested work-around.
 
 The fundamental issue is extracting the documentation from the
 FrameMaker `.fm` files and turning it into something that can be
