@@ -1,0 +1,27 @@
+// The closure() function returns a callable object that "binds" some
+// number of arguments to a function. Calling the returned object then
+// calls the "bound" function with those arguments. Arguments passed in
+// the call of the callable object are passed as extra arguments following
+// the "bound" arguments.
+//
+export
+closure(f)
+{
+    var binding = [class
+        new(f) {
+            var vargs = @[array];
+            this = this:^new();
+            this.f := f;
+            this.args := vargs;
+            return this;
+        }
+
+        invocation() {
+            var vargs = @[array];
+            return call(this.f, this.args + vargs);
+        }
+    ];
+    var vargs = @[array];
+    bound := call(binding:new, f, vargs);
+    return bound:invocation;
+}
