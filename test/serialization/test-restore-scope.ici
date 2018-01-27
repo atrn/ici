@@ -6,6 +6,24 @@ if (typeof(o) != "map") {
     fail("restored scope not a map");
 }
 
-if (o.cos == NULL) {
-	fail("No cos in restored scope");
+if (o.sprintf == NULL) {
+    fail("No sprintf in restored scope");
+}
+
+if (typeof(o.sprintf) != "func") {
+    fail("restored sprintf is not a function");
+}
+
+try {
+    val := o.sprintf("%d", 1023);
+} onerror {
+    fail("failed to call restored sprintf: " + error);
+}
+
+if (typeof(val) != "string") {
+    fail("restored sprintf did not return a string");
+}
+
+if (val != "1023") {
+    fail("restored sprintf did not return expected strings but: " + val);
 }
