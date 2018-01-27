@@ -13,6 +13,12 @@
 namespace ici
 {
 
+#ifdef __APPLE__
+static int f_eventloop() {
+    return null_ret();
+}
+#endif
+
 #ifdef  _WIN32
 /*
  * Win32 specific event processing.

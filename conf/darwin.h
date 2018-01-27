@@ -6,15 +6,13 @@
 #include <math.h>
 #include <sys/param.h>
 
-#define NOEVENTS        /* Event loop and associated processing. */
-
 // #define NOPROFILE       /* Profiler, see profile.c. */
 // #define NODEBUGGING     /* Debugger interface. */
 
 #define CONFIG_STR      "MacOS"
 
 #ifndef PREFIX
-#define PREFIX          "/opt/ici/"
+#define PREFIX          "/usr/local/"
 #endif
 
 #define ICI_DLL_EXT     ".dylib"

@@ -30,7 +30,6 @@ add_executable(ici
   ftype.cc
   func.cc
   handle.cc
-  hash.cc
   icimain.cc
   idb.cc
   idb2.cc

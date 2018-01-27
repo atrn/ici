@@ -81,7 +81,7 @@ all: $(prog) ici.h
 # depends on all files that may contribute to the output.
 #
 ici.h: $(prog) mk-ici-h.ici $(hdrs)
-	@echo $(prog) mk-ici-h.ici; LD_LIBRARY_PATH=`pwd` DYLD_LIBRARY_PATH=`pwd` ./$(prog) mk-ici-h.ici $(conf)
+	@LD_LIBRARY_PATH=`pwd` DYLD_LIBRARY_PATH=`pwd` ./$(prog) mk-ici-h.ici $(conf)
 
 
 ifeq ($(build),dll)
@@ -101,8 +101,8 @@ else ifeq ($(build),exe)
 $(prog):
 	@CXXFLAGSFILE=$(cxxflags) dcc $(dccflags) etc/main.cc $(srcs) -o $@
 
-else ifeq ($(build),lib)
 
+else ifeq ($(build),lib)
 # The 'lib' build creates a static library and an executable that is
 # linked against that library.
 #
@@ -113,13 +113,16 @@ lib:
 	@CXXFLAGSFILE=$(cxxflags) dcc $(dccflags) --lib $(lib) $(srcs)
 
 else
-$(error "Bad build - nothing matched!")
+$(error "$(build) is not a supported build")
 endif
 
-clean:;	@echo rm $(prog) $(lib) $(dll) '*.o';\
-	rm -rf etc/main.o etc/.dcc.d *.o .dcc.d $(prog) ici.h $(dll) $(lib);\
-	$(MAKE) -Ctest clean;\
-	$(MAKE) -Ctest/serialization clean
+
+# Cleaning
+
+clean:
+	rm -rf etc/main.o etc/.dcc.d *.o .dcc.d $(prog) ici.h $(dll) $(lib)
+	@$(MAKE) -Ctest clean
+	@$(MAKE) -Ctest/serialization clean
 
 # Installation
 
@@ -149,13 +152,13 @@ install-ici-corefiles:
 
 .PHONY: full-install
 full-install:
-	@echo make clean; $(MAKE) clean
-	@echo make build=dll; $(MAKE) build=dll conf=$(conf) dccflags=--quiet
-	@echo $(sudo) make install; $(sudo) $(MAKE) build=dll install dest=$(dest)
-	@echo make clean; $(MAKE) clean
-	@echo make build=lib; $(MAKE) build=lib conf=$(conf) dccflags=--quiet
-	@echo $(sudo) make install; $(sudo) $(MAKE) build=lib install-libici install-ici-exe dest=$(dest)
-	@echo make clean; $(MAKE) clean
+	@echo '1. make clean'; $(MAKE) -s clean
+	@echo '2. build dll'; $(MAKE) -s lib build=dll conf=$(conf) dccflags=--quiet
+	@echo '3. install dll'; $(sudo) $(MAKE) -s build=dll install-libici dest=$(dest)
+	@echo '4. make clean'; $(MAKE) -s clean
+	@echo '5. make build=lib'; $(MAKE) -s build=lib conf=$(conf) dccflags=--quiet
+	@echo '6. make install'; $(sudo) $(MAKE) -s build=lib install-libici install-ici-exe dest=$(dest)
+	@echo '7. make clean'; $(MAKE) -s clean
 
 .PHONY: debug lto
 debug:
