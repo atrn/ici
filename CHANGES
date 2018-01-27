@@ -2,14 +2,16 @@ Major Changes in Version 5
 
 *     new core function "closure"
 
-      The closure() function binds a function with some
-      number of arguments to be called at a later time.
+      The closure() function binds a function along with
+      a number of arguments and returns an object that
+      can be be called at a later time to call the bound
+      function with those arguments.
 
       The function is implemented by creating an instance
-      of a, private, class that holds references to the
-      function and its bound arguments. A method of this
-      class is returned from closure which may be called
-      at some later time, by applying the '()' operator.
+      of a class that holds references to the function and
+      its bound arguments. The closure() function returns a
+      method of this class which may be called to "invoke"
+      the bound function. 
 
       Partial closure is supported by the fact that any
       arguments passed to the "closed" object when it is
