@@ -49,10 +49,10 @@ See [doc/BUILDING.md](doc/BUILDING.md) for details on how to build.
 
 **Most documentation has not updated.**
 
-The majority of the documentation under `doc` directory is for older
-versions of ICI. While the fundamentals of the language have not
-changed some details have (e.g. `struct` is now called `map`) and new
-functions and types are not documented. Careful reading of the
+The majority of the documentation under the `doc` directory is for the
+older version of ICI. While the fundamentals of the language have not
+changed some detail has, e.g. `struct` is now called `map`, and the
+newer functions and types are not documented. Careful reading of the
 [CHANGES](CHANGES) file is the suggested work-around.
 
 The fundamental issue is extracting the documentation from the
