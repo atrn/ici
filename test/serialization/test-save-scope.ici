@@ -1,35 +1,31 @@
-local
-xdeepcopy(o, ss, depth)
-{
-    var depth = 0;
-
-    v := k := NULL;
+local deepcopy_of(o, copied, depth) {
+    var v, k, r;
     switch (typeof(o)) {
     case "map":
-        if (ss[o]) {
+        if (copied[o]) {
             return NULL;
 	}
-        ss[o] := 1;
+	assign(copied, o);
         r := map();
 	if (super(o)) {
-	    super(r, xdeepcopy(super(o), ss, depth + 1));
+	    super(r, deepcopy_of(super(o), copied, depth + 1));
 	}
         forall (v, k in o) {
-            r[xdeepcopy(k, ss, depth + 1)] := xdeepcopy(v, ss, depth + 1);
+            r[deepcopy_of(k, copied, depth + 1)] := deepcopy_of(v, copied, depth + 1);
 	}
         return r;
 
     case "set":
         r := set();
         forall (v, k in o) {
-            r[xdeepcopy(k, ss, depth + 1)] := 1;
+            r[deepcopy_of(k, copied, depth + 1)] := 1;
 	}
         return r;
 
     case "array":
         r := array();
         forall (v in o) {
-            push(r, xdeepcopy(v, ss, depth + 1));
+            push(r, deepcopy_of(v, copied, depth + 1));
 	}
         return r;
 
@@ -38,22 +34,20 @@ xdeepcopy(o, ss, depth)
     }
 }
 
-s := xdeepcopy(scope(), set());
-
-local remove_files(s)
-{
+local remove_files_from(s) {
     if (s) {
-        remove_files(super(s));
+        remove_files_from(super(s));
 	forall (v, k in s) {
 	    if (typeof(v) == "file") {
 		del(s, k);
 	    }
 	}
     }
+    return s;
 }
 
-remove_files(s);
-
+externs := super(super(scope()));
+s := remove_files_from(deepcopy_of(externs, set(), 0));
 file = fopen(test.data_file(), "w");
 save(file, s);
 close(file);

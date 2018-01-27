@@ -27,3 +27,7 @@ if (typeof(val) != "string") {
 if (val != "1023") {
     fail("restored sprintf did not return expected strings but: " + val);
 }
+
+// forall (name in sort(keys(o))) {
+//     printf("%s => %s\n", name, string(o[name]));
+// }
