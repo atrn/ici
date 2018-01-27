@@ -1,56 +1,29 @@
-N := 100*1000;
-
-// The bind() function returns a callable object that "binds" some
-// arguments to a function. Calling the returned object calls the
-// "bound" function with those arguments. Arguments passed to the
-// callable object are passed as extra arguments to the "bound"
-// function.
+// The test...
 //
-local bind(f) {
-    var binding = [class
-        new(f) {
-            var vargs = @[array];
-            this = this:^new();
-            this.f := f;
-            this.args := vargs;
-            return this;
-        }
-
-        invocation() {
-            var vargs = @[array];
-            return call(this.f, this.args + vargs);
-        }
-    ];
-    var vargs = @[array];
-    bound := call(binding:new, f, vargs);
-    return bound:invocation;
-}
-
-// runner receives callable objects from a a channel, testing forall
-// with a channel, and calls them. It stops when the channel is
-// closed.
+// - create a work channel
+// - start a thread to "run" the channel
+// - post functions to the thread as work
+// - tell the thread to stop
+// - wait for the thread to stop
 //
-local runner(input) {
-    forall (fn in input) {
+// Success is determined visually.
+
+Ntimes := int(argv[1]) || (100*1000);
+
+local run(ch) {
+    forall (fn in ch) {
         fn();
     }
 }
 
-// The test...
-//
-// - create a work channel
-// - start a runner to process the channel
-// - post bound functions to the runner
-// - tell the runner to stop
-// - wait for it to stop
-//
+chan := channel(100);
 
-ch := channel(100);
-e := go(runner, ch);
+processor := go(run, chan);
 
-for (x := 1; x <= N; ++x) {
-    put(ch, bind(printf, "%d\n", x));
+for (x := 1; x <= Ntimes; ++x) {
+    put(chan, closure(printf, "%d\n", x));
 }
-close(ch);
 
-waitfor(e.status == "finished"; e);
+close(chan);
+
+waitfor(processor.status == "finished"; processor);
