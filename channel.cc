@@ -223,6 +223,7 @@ static int f_channel() {
  * 
  * Return the next object from the channel.  If there are no objects
  * in the channel the caller is blocked until an object is available.
+ * If the channel is closed NULL is returned.
  */
 static int f_get() {
     object *c;
@@ -232,7 +233,10 @@ static int f_get() {
     if (!ischannel(c)) {
         return argerror(0);
     }
-    return ret_no_decref(get(channelof(c)));
+    if (auto chan = get(channelof(c))) {
+        return ret_no_decref(chan);
+    }
+    return null_ret();
 }
 
 /*
