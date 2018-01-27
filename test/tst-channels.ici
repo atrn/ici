@@ -18,32 +18,34 @@ verbose := getenv("verbose");
 rand(Njobs * Nworkers);
 
 local Ndone = array();
-local lastjob = array();
+local Lastjob = array();
 
 for (i := 0; i < Nworkers; ++i) {
     Ndone[i] = 0;
-    lastjob[i] = 0;
+    Lastjob[i] = 0;
 }
 
-local work(job, id) {
-    lastjob[id] = job;
+local work(job, workerid) {
+    Lastjob[workerid] = job;
     limit := rand() % 1000;
     for (i := 0; i < limit; ++i) {
-	job += cos(float(id * i / limit));
+	job += cos(float(workerid * i / limit));
     }
-    ++Ndone[id];
+    ++Ndone[workerid];
 }
 
-local run(id, ch) {
+local runq(ch, workerid) {
     forall (fn in ch) {
-        fn(id);
+        fn(workerid);
     }
 }
 
 workq := channel(Nqueue);
+
 workers := array();
 for (id := 0; id < Nworkers; ++id) {
-    push(workers, go(run, id, workq));
+    worker := go(runq, workq, id);
+    push(workers, worker);
 }
 
 for (x := 1; x <= Njobs; ++x) {
@@ -56,13 +58,14 @@ forall (worker in workers) {
     waitfor(worker.status == "finished"; worker);
 }
 
-maxjob := call(max, lastjob);
+// Check things
 
-local failed = false;
+local failures = 0;
 
+maxjob := call(max, Lastjob);
 if (maxjob != Njobs) {
-    printf(stderr, "expected max last value of 'Njobs': last=%s Njobs=%d", string(maxjob), Njobs);
-    failed = true;
+    printf(stderr, "expected last job == 'Njobs': last=%s Njobs=%d", string(maxjob), Njobs);
+    ++failures;
 }
 
 totaljobs := 0;
@@ -72,7 +75,7 @@ forall (v, k in Ndone) {
 }
 if (totaljobs != Njobs) {
     printf(stderr, "total # jobs %d != %d, the number sent\n", totaljobs, Njobs);
-    failed = true;
+    ++failures;
 }
 
 for (id := 0; id < Nworkers; ++id) {
@@ -82,7 +85,4 @@ for (id := 0; id < Nworkers; ++id) {
     }
 }
 
-if (failed) {
-    exit(1);
-}
-
+exit(failures > 0);
