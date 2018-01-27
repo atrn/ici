@@ -1,0 +1,89 @@
+//  Runs Nworkers workers, each reading from a workq channel.
+//  Each worker reads a "job" from workq, does some simulated
+//  work and records stats - the last job it did and increments
+//  its count of the number of jobs.
+//
+//  We send Njobs jobs "down" the work queue, close it and
+//  wait for the workers to finish. One of them should have
+//  processed the last job. The sum of the number of jobs
+//  each did should be the same as the total number of jobs
+//  and they should have done some work.
+//
+
+Njobs := int(argv[1]) || (5*1000);
+Nworkers := int(argv[2]) || 4;
+Nqueue := int(argv[3]) || 2;
+
+verbose := getenv("verbose");
+
+rand(Njobs * Nworkers * time());
+
+local Ndone = build(Nworkers, "i");
+local lastjob = build(Nworkers, "i");
+for (i := 0; i < Nworkers; ++i) {
+    Ndone[i] = 0;
+    lastjob[i] = 0;
+}
+
+local work(job, id) {
+    lastjob[id] = job;
+    // simulate some work
+    limit := rand() % 1000;
+    for (i := 0; i < limit; ++i) {
+	job += cos(float(id * i / limit));
+    }
+    ++Ndone[id];
+}
+
+local run(id, ch) {
+    forall (fn in ch) {
+        fn(id);
+    }
+}
+
+workq := channel(Nqueue);
+workers := array();
+for (id := 0; id < Nworkers; ++id) {
+    push(workers, go(run, id, workq));
+}
+
+for (x := 1; x <= Njobs; ++x) {
+    put(workq, closure(work, x));
+}
+
+close(workq);
+
+forall (worker in workers) {
+    waitfor(worker.status == "finished"; worker);
+}
+
+maxjob := call(max, lastjob);
+
+local failed = false;
+
+if (maxjob != Njobs) {
+    printf(stderr, "expected max last value of 'Njobs': last=%s Njobs=%d", string(maxjob), Njobs);
+    failed = true;
+}
+
+totaljobs := 0;
+forall (v, k in Ndone) {
+    verbose && printf("worker:%d did %d jobs\n", k+1, v);
+    totaljobs += v;
+}
+if (totaljobs != Njobs) {
+    printf(stderr, "total # jobs %d != %d, the number sent\n", totaljobs, Njobs);
+    failed = true;
+}
+
+for (id := 0; id < Nworkers; ++id) {
+    if (Ndone[id] == 0) {
+	printf("worker %d completely starved\n", id+1);
+	failed = true;
+    }
+}
+
+if (failed) {
+    exit(1);
+}
+
