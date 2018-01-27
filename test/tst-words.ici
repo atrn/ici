@@ -12,8 +12,7 @@ local incr(dict, key) {
 local read_words() {
     data := getfile("/usr/share/dict/words");
     file := sopen(data);
-    while (word := getline(file))
-	words += word;
+    words = gettokens(file, "\n", "");
     close(file);
 }
 
