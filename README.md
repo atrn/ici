@@ -4,16 +4,28 @@ This is a heavily modified version of the ICI programming language
 interpreter, originally written by Tim Long and worked on by myself
 and others over the years.
 
-This version of ICI has been converted to be a C++ program and
-modifies and extends the language in a number of ways. Some language
-keywords have been changed and a number of extension modules
-incorporated directly into the base interpreter. This provides more
-features in the basic environment, specifically, it includes
-networking and object serialization modules as standard features to
-support experiments with mobile agent programming.
+ICI is a general purpose interpretive programming language that has
+dynamic typing and flexible data types with the flow control
+constructs and operators of C.
 
-The file [CPLUSPLUS.md](CPLUSPLUS.md) documents the C++ conversion and
-language keyword changes.
+It is designed for use in many environments, including embedded
+systems, as an adjunct to other programs, as a text-based interface to
+compiled libraries, and as a cross-platform scripting language with
+good string-handling capabilities.
+
+The original ICI implementation was in C and distributed under a
+public domain license. This version of ICI has been converted to be a
+C++ program, modifies and extends the language in a number of ways and
+is distributed uing the MIT license.
+
+This version changes some language keywords, and standard function
+names, and includes a number of extension modules in the base
+interpreter. This provides more features in the basic environment and
+specifically includes networking and object serialization as standard
+features to support experiments in mobile agent programming.
+
+The file [doc/CPLUSPLUS.md](doc/CPLUSPLUS.md) documents the C++
+conversion and language keyword changes.
 
 The keyword changes technically makes this version of ICI a different
 language - ICI programs that worked with the previous C-implemented
@@ -29,22 +41,24 @@ of the interpreter as a C++ program is a major change and its a good
 time to make such changes (ignoring the argument about if they should
 be made at all :))
 
-The file [README](README) is the original _readme_ file from the C
+The file [README.OLD](README.OLD) is the original _readme_ file from the C
 distribution and some of may still apply. I haven't checked. In
 general, other than in these _readme_ files, the ICI documentation has
 **not** been updated to reflect changes and additions.
 
 ## Building
 
-See [BUILDING.md](BUILDING.md) for details on how to build.
+See [doc/BUILDING.md](doc/BUILDING.md) for details on how to build.
 
-## License
+## Documentation
 
-ICI was previously distributed under a public domain license and the
-incorporated extension modules were either in the public domain or my
-work and copyright.
+**Most documentation has not updated.**
 
-This version of ICI is copyright "me" and licensed under an MIT style
-license to permit free use. The C++ conversion creates a derived work
-from the original public domain code but that work has signficant
-differences.
+The majority of the documentation under `doc` directory is for older
+versions of ICI. While the fundamentals of the language have not
+changed some details have (e.g. `struct` is now called `map`) and
+new functions and types are not documented.
+
+The fundamental issue is extracting the documentation from the
+FrameMaker `.fm` files and turning it into something that can be
+maintained.
