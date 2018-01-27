@@ -297,18 +297,17 @@ object *evaluate(object *code, int n_operands)
                 yield();
                 ex->x_yield_count = 0;
             }
-        }
 
-	/*
-	 * Check for, and handle, pending signals.
-	 */
-        {
+            /*
+             * Check for, and handle, pending signals.
+             */
             sigset_t *p = (sigset_t *)(void *)&signals_pending;
             if (UNLIKELY(!isempty(p)))
 	    {
                 invoke_signal_handlers();
 	    }
         }
+
         /*
          * Places which would be inclined to continue in this loop, that
          * know that they have not increased any stack depths, can just
