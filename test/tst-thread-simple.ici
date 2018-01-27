@@ -8,12 +8,12 @@ local ack(x, y)
         : y + 1;
 }
 
-puts("Calling ack() asynchronously\n");
+puts("Calling ack() asynchronously");
 x := go(ack, 2, 3);
-puts("Waiting for ack() result\n");
+puts("Waiting for ack() result");
 waitfor (x.result != NULL; x) {
-    puts("Woken up waiting for ack() result\n");
+    puts("Woken up waiting for ack() result");
 }
 if (x.result != 9)
-    fail("incorrect result from func in other thread\n");
-puts("Got correct result from other thread\n");
+    fail("incorrect result from func in other thread");
+puts("Got correct result from other thread");

@@ -1136,8 +1136,8 @@ if (error == NULL)
 
 a := tmpname();
 stdout := fopen(a, "w");
-puts("Hello\n");
-puts("world.\n");
+puts("Hello");
+puts("world.");
 flush();
 close(stdout);
 stdin := fopen(a, "r");
@@ -1150,8 +1150,8 @@ remove(a);
 
 a := tmpname();
 b := fopen(a, "wb");
-puts("Hello\n", b);
-puts("world.\n", b);
+puts("Hello", b);
+puts("world.", b);
 flush(b);
 close(b);
 b := fopen(a, "r");
@@ -1198,8 +1198,8 @@ tstdir(0, "2 arg match", #(?i)tst#, "d");
 
 a := tmpname();
 b := fopen(a, "wb");
-puts("Hello\n", b);
-puts("world.\n", b);
+puts("Hello", b);
+puts("world.", b);
 close(b);
 c := tmpname();
 rename(a, c);
