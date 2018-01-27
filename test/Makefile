@@ -2,7 +2,7 @@
 
 ici?=ici
 
-test:;	@$(ici) tst-all.ici
+test:;	-@$(ici) tst-all.ici
 
 clean:
 	@:

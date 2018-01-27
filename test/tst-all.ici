@@ -31,6 +31,7 @@ tests := [array
     "thread",
     "misc",
     "prof",
+    "channels",
     "oner",
 //  "exit",
 ];

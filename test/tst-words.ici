@@ -2,7 +2,6 @@ local words = set();
 local dict = map();
 local digrams = map();
 local trigrams = map();
-local quadgrams = map();
 
 local incr(dict, key) {
     if (dict[key] == NULL)
@@ -63,12 +62,6 @@ local determine_grams() {
 	    trigram := interval(word, i, 3);
 	    incr(trigrams, trigram);
 	}
-	if (n < 4)
-	    continue;
-	for (i := 0; i < n - 3; ++i) {
-	    quad := interval(word, i, 4);
-	    incr(quadgrams, quad);
-	}
     }
 }
 
@@ -99,8 +92,4 @@ printf("\n");
 hist := calc_hist(trigrams);
 dump_hist(hist);
 
-printf("\n");
-hist := calc_hist(quadgrams);
-dump_hist(hist);
-
-printf("%d collects\n", ncollects());
+// printf("%d collects\n", ncollects());

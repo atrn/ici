@@ -21,13 +21,13 @@ var x, i, did_crit = 0;
 go([func(){for (count = 0; count < LIM; ++count);}]);
 while ((x = count) == NULL)
     ;
-printf("count != NULL @ %s\n", string(x));
+// printf("count != NULL @ %s\n", string(x));
 while (count < LIM)
 {
     critsect
     {
         x = count;
-	printf("got in @ %s\n", string(x));
+	// printf("got in @ %s\n", string(x));
         for (i = 0; i < LIM/10; ++i)
             ;
         if (x != count)
