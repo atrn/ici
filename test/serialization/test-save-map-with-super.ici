@@ -3,5 +3,5 @@ value := map("x", 0, "y", 0.1, "z", "1.3");
 super(value, parent);
 
 file := fopen(test.data_file(), "w");
-save(file, value);
+save(value, file);
 close(file);

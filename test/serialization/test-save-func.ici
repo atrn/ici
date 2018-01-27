@@ -6,5 +6,5 @@ local ack(x, y)
 }
 
 file = fopen(test.data_file(), "w");
-save(file, ack);
+save(ack, file);
 close(file);

@@ -1,5 +1,5 @@
 file = fopen(test.data_file(), "w");
 aggr := array(0, 1, 2, 3, 4, 5, 6, 7);
 p := &aggr[1];
-save(file, p);
+save(p, file);
 close(file);

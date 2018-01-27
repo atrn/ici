@@ -8,5 +8,5 @@ for (i := 0; i < N; ++i) {
 }
 
 file = fopen(test.data_file(), "w");
-save(file, a);
+save(a, file);
 close(file);

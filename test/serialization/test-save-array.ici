@@ -4,5 +4,5 @@ o := @array(1, "two", 3.1415, "four", "FIVE", 6.0);
 a := array();
 for (i := 0; i < N; ++i)
     push(a, o);
-save(file, a);
+save(a, file);
 close(file);

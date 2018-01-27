@@ -1,5 +1,5 @@
 file = fopen(test.data_file(), "w");
 m := alloc(1, 1);
 m[0] = 37;
-save(file, m);
+save(m, file);
 close(file);

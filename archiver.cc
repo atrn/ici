@@ -367,12 +367,15 @@ object *archiver::restore() {
 }
 
 /*
- * save([file, ] any)
+ * save(any, [file [, map]])
  *
  * Save an object to a file by writing a serialized object graph
  * using the given object as the root of the graph.
  *
  * If file is not given the object is written to the standard output.
+ *
+ * If map is supplied it is used as the 'scope' during the
+ * save operation.
  *
  * This --topic-- forms part of the --ici-serialisation-- documentation.
  */
@@ -384,12 +387,12 @@ int f_archive_save(...) {
 
     switch (NARGS()) {
     case 3:
-        if (typecheck("uod", &file, &obj, &scp))
+        if (typecheck("oud", &obj, &file, &scp))
             return 1;
         break;
 
     case 2:
-        if (typecheck("uo", &file, &obj))
+        if (typecheck("ou", &obj, &file))
             return 1;
         break;
 

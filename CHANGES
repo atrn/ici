@@ -1,5 +1,13 @@
 Major Changes in Version 5
 
+*     The arguments to the save() function are now
+      swapped. The object to be saved (serialized)
+      is now always first. A file, if specified,
+      must be second and any scope a third argument.
+      This makes the usage far clearer. It is always
+      "save(object, file)" or just "save(object)" for
+      some uses.
+
 *     new core function "closure"
 
       The closure() function binds a function along with

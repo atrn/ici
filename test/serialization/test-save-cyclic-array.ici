@@ -1,5 +1,5 @@
 file = fopen(test.data_file(), "w");
 a := array();
 a[0] := a;
-save(file, a);
+save(a, file);
 close(file);

@@ -1,4 +1,4 @@
 value := [map x=1, y=2, z=3];
 file := fopen(test.data_file(), "w");
-save(file, value);
+save(value, file);
 close(file);
