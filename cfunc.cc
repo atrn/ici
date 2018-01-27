@@ -3428,37 +3428,48 @@ f_tmpname()
     return str_ret(nametemplate);
 }
 
-static int
-f_puts()
-{
+static int f_puts() {
     str  *s;
     file *f;
     exec *x = nullptr;
 
-    if (NARGS() > 1)
-    {
-        if (typecheck("ou", &s, &f))
+    auto put = [&](const char *chars, int nchars) {
+	if (f->write(chars, nchars) != nchars) {
+	    if (f->flagged(ftype::nomutex)) {
+		enter(x);
+	    }
+	    return set_error("write failed");
+	}
+	return 0;
+    };
+
+    if (NARGS() > 1) {
+        if (typecheck("ou", &s, &f)) {
             return 1;
+	}
+    } else {
+        if (typecheck("o", &s)) {
+            return 1;
+	}
+        if ((f = need_stdout()) == nullptr) {
+            return 1;
+	}
     }
-    else
-    {
-        if (typecheck("o", &s))
-            return 1;
-        if ((f = need_stdout()) == nullptr)
-            return 1;
-    }
-    if (!isstring(s))
+    if (!isstring(s)) {
         return argerror(0);
-    if (f->flagged(ftype::nomutex))
-        x = leave();
-    if (f->write(s->s_chars, s->s_nchars) != int(s->s_nchars))
-    {
-        if (f->flagged(ftype::nomutex))
-            enter(x);
-        return set_error("write failed");
     }
-    if (f->flagged(ftype::nomutex))
+    if (f->flagged(ftype::nomutex)) {
+        x = leave();
+    }
+    if (put(s->s_chars, s->s_nchars)) {
+	return 1;
+    }
+    if (put("\n", 1)) {
+	return 1;
+    }
+    if (f->flagged(ftype::nomutex)) {
         enter(x);
+    }
     return null_ret();
 }
 
