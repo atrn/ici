@@ -130,34 +130,34 @@ clean:
 install: install-ici-dot-h install-libici install-ici-exe install-ici-corefiles
 
 install-ici-dot-h:
-	mkdir -p $(dest)/include
-	install -c -m 444 ici.h $(dest)/include
-	install -c -m 444 icistr-setup.h $(dest)/include
+	$(sudo) mkdir -p $(dest)/include
+	$(sudo) install -c -m 444 ici.h $(dest)/include
+	$(sudo) install -c -m 444 icistr-setup.h $(dest)/include
 
 install-libici:
-	mkdir -p $(dest)/lib
+	$(sudo) mkdir -p $(dest)/lib
 ifeq ($(build),lib)
-	install -c -m 444 $(lib) $(dest)/lib
+	$(sudo) install -c -m 444 $(lib) $(dest)/lib
 else ifeq ($(build),dll)
-	install -c -m 444 $(dll) $(dest)/lib
+	$(sudo) install -c -m 444 $(dll) $(dest)/lib
 endif
 
 install-ici-exe:
-	mkdir -p $(dest)/bin
-	install -c -m 555 $(prog) $(dest)/bin
+	$(sudo) mkdir -p $(dest)/bin
+	$(sudo) install -c -m 555 $(prog) $(dest)/bin
 
 install-ici-corefiles:
-	mkdir -p $(dest)/lib/ici
-	install -c -m 444 ici-core*.ici $(dest)/lib/ici
+	$(sudo) mkdir -p $(dest)/lib/ici
+	$(sudo) install -c -m 444 ici-core*.ici $(dest)/lib/ici
 
 .PHONY: full-install
 full-install:
 	@echo '1. make clean'; $(MAKE) -s clean
 	@echo '2. build dll'; $(MAKE) -s lib build=dll conf=$(conf) dccflags=--quiet
-	@echo '3. install dll'; $(sudo) $(MAKE) -s build=dll install-libici dest=$(dest)
+	@echo '3. install dll'; $(MAKE) -s build=dll install-libici dest=$(dest)
 	@echo '4. make clean'; $(MAKE) -s clean
 	@echo '5. make build=lib'; $(MAKE) -s build=lib conf=$(conf) dccflags=--quiet
-	@echo '6. make install'; $(sudo) $(MAKE) -s build=lib install-libici install-ici-exe dest=$(dest)
+	@echo '6. make install'; $(MAKE) -s build=lib install-libici install-ici-exe dest=$(dest)
 	@echo '7. make clean'; $(MAKE) -s clean
 
 .PHONY: debug lto
