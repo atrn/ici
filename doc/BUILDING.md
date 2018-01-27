@@ -92,9 +92,19 @@ With `dcc` installed building ICI is done via `make`,
 `make` _directs_ the build process and invokes `dcc` for compilation,
 linking and library creation.
 
-To configure the build process the `Makefile` can be edited to set
-installation locations and other variables. The makefile is quite
-simple (since `dcc` does the real work) and commented.
+To configure the build process a number of make macros can be set,
+either via the command or by editing the `Makefile`. The makefile is
+simple (since `dcc` does the real work) and reasonably well commented.
+
+#### Compiler options
+
+Compiler and linker options and libraries are defined in files read by
+`dcc` which are stored in the `.dcc` directory. The _CXXFLAGS_ file
+define compiler options, the _LIBS_ files has library names and
+_LDFLAGS_ the linker options.
+
+There are a number of _CXXFLAGS_ files under `.dcc` which can be
+selected via the make `cxxflags` macro. An example is given next.
 
 ### Targets and macros
 
@@ -123,6 +133,12 @@ Build using debug options.
 
     $ make debug
 
+Build an LTO version of the standalone executable and see the
+compiler commands,
+
+    $ make cxxflags=CXXFLAGS.lto build=exe dccflags=--verbose
+    ... lots of output
+
 
 ## Platform configuration
 
@@ -144,6 +160,25 @@ _core_ `.ici` files to a _lib_ directory.
 - `ici` -> _$(dest)/bin/ici_
 - `ici-core*.ici` -> _$(dest)/lib/ici_
 
-If an ici library was built, static or dynamic, that is copied to a
-_lib_ directory and the `ici.h` header file to the `include` directory
-along with another header, `icistr-setup.h`.
+If an ici library was built, static or dynamic, that file is copied to
+a _lib_ directory.
+
+The, generated, `ici.h` header file to the `include` directory along
+with another header, `icistr-setup.h`.
+
+The installed files are,
+
+- _dest_`/bin/ici`
+- _dest_`/include/ici.h`
+- _dest_`/include/icistr-setup.h`
+- _dest_`/lib/libici.a`
+- _dest_`/lib/libici.so`
+- _dest_`/lib/ici/ici-core.ici`
+- _dest_`/lib/ici/ici-core1.ici`
+- _dest_`/lib/ici/ici-core2.ici`
+- _dest_`/lib/ici/ici-core3.ici`
+- _dest_`/lib/ici/ici-core4.ici`
+- _dest_`/lib/ici/ici-core5.ici`
+- _dest_`/lib/ici/ici-core6.ici`
+- _dest_`/lib/ici/ici-core7.ici`
+- _dest_`/lib/ici/ici-core8.ici`
