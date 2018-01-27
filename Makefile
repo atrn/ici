@@ -65,7 +65,12 @@ default: all
 # 'core' test.
 #
 test: all
-	./$(prog) test-core.ici
+	@echo; echo '* CORE ================'; echo;\
+	LD_LIBRARY_PATH=`pwd` DYLD_LIBRARY_PATH=`pwd` ./$(prog) test-core.ici
+	-@echo; echo ' * TESTS ================'; echo;\
+	LD_LIBRARY_PATH=`pwd` DYLD_LIBRARY_PATH=`pwd` $(MAKE) -C test ici=`pwd`/$(prog) test
+	-@echo;echo '* SERIALIZATION ================'; echo;\
+	LD_LIBRARY_PATH=`pwd` DYLD_LIBRARY_PATH=`pwd` $(MAKE) -C test/serialization ici=`pwd`/$(prog) test
 
 # The 'all' target builds an ici interpreter executable and library,
 # if that is enabled.
@@ -83,7 +88,7 @@ ifeq ($(build),dll)
 # This build variant has the interpreter code in a dynamic library.
 #
 $(prog): lib
-	@CXXFLASGFILE=$(cxxflags) dcc $(dccflags) etc/main.cc -o $@ -L. -lici
+	@CXXFLAGSFILE=$(cxxflags) dcc $(dccflags) etc/main.cc -o $@ -L. -lici
 
 lib:
 	@CXXFLAGSFILE=$(cxxflags) dcc $(dccflags) --dll $(dll) -fPIC $(srcs) -lc++ $(libs) $(ldflags)
@@ -111,8 +116,10 @@ else
 $(error "Bad build - nothing matched!")
 endif
 
-clean:;	@echo rm $(prog) $(lib) $(dll) '*.o'; rm -rf etc/main.o etc/.dcc.d *.o .dcc.d $(prog) ici.h $(dll) $(lib)
-
+clean:;	@echo rm $(prog) $(lib) $(dll) '*.o';\
+	rm -rf etc/main.o etc/.dcc.d *.o .dcc.d $(prog) ici.h $(dll) $(lib);\
+	$(MAKE) -Ctest clean;\
+	$(MAKE) -Ctest/serialization clean
 
 # Installation
 
@@ -150,6 +157,9 @@ full-install:
 	@echo $(sudo) make install; $(sudo) $(MAKE) build=lib install-libici install-ici-exe dest=$(dest)
 	@echo make clean; $(MAKE) clean
 
-.PHONY: debug
+.PHONY: debug lto
 debug:
-	@CXXFLAGSFILE=CXXFLAGS.debug $(MAKE) all dccflags=$(dccflags) build=$(build)
+	@$(MAKE) all cxxflags=CXXFLAGS.debug dccflags=$(dccflags) build=$(build)
+
+lto:
+	@$(MAKE) all cxxflags=CXXFLAGS.lto dccflags=$(dccflags) build=exe

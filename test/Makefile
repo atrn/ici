@@ -1,5 +1,9 @@
 .PHONY: test clean
 
-test:;	@ici tst-all.ici
+ici?=ici
 
-clean:;
+test:;	@$(ici) tst-all.ici
+
+clean:
+	@:
+
