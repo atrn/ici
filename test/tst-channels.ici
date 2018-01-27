@@ -13,13 +13,13 @@
 Njobs := int(argv[1]) || (5*1000);
 Nworkers := int(argv[2]) || 4;
 Nqueue := int(argv[3]) || 2;
-
 verbose := getenv("verbose");
 
-rand(Njobs * Nworkers * time());
+rand(Njobs * Nworkers);
 
-local Ndone = build(Nworkers, "i");
-local lastjob = build(Nworkers, "i");
+local Ndone = array();
+local lastjob = array();
+
 for (i := 0; i < Nworkers; ++i) {
     Ndone[i] = 0;
     lastjob[i] = 0;
@@ -27,7 +27,6 @@ for (i := 0; i < Nworkers; ++i) {
 
 local work(job, id) {
     lastjob[id] = job;
-    // simulate some work
     limit := rand() % 1000;
     for (i := 0; i < limit; ++i) {
 	job += cos(float(id * i / limit));
