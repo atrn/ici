@@ -19,7 +19,7 @@ namespace ici
  *
  * Implementations of new types typically declare one of these classes
  * and implement the member functions that determine the nature of the
- * new type and use the single_instance_of() template function (fwd.h)
+ * new type and use the singleton() template function (fwd.h)
  * to create a single instance of the type class.
  *
  * This --class-- forms part of the --ici-api--.

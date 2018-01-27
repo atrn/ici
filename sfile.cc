@@ -114,7 +114,7 @@ public:
  * This type replaces string_ftype (which was a misnomer since it could be
  * used for memory objects but not mutable string objects).
  */
-ftype *charbuf_ftype = single_instance_of<class charbuf_ftype>();
+ftype *charbuf_ftype = singleton<class charbuf_ftype>();
 
 static void
 reattach_string_buffer(charbuf *sb)
@@ -190,7 +190,7 @@ public:
  * moved.  This makes it less efficient than charbuf_ftype for buffers
  * that are known to be immovable.
  */
-ftype *strbuf_ftype = single_instance_of<class stringbuf_ftype>();
+ftype *strbuf_ftype = singleton<class stringbuf_ftype>();
 
 /*
  * Create an ICI file object that treats the character buffer referenced by
