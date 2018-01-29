@@ -28,8 +28,8 @@ namespace ici
  */
 int callv(object *subject, object *callable, const char *types, va_list va)
 {
-    size_t     nargs;
-    size_t     arg;
+    ssize_t    nargs;
+    ssize_t    arg;
     object    *member_obj;
     object    *ret_obj;
     char       ret_type;

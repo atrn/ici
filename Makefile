@@ -91,7 +91,7 @@ $(prog): lib
 	@CXXFLAGSFILE=$(cxxflags) dcc $(dccflags) etc/main.cc -o $@ -L. -lici
 
 lib:
-	@CXXFLAGSFILE=$(cxxflags) dcc $(dccflags) --dll $(dll) -fPIC $(srcs) -lc++ $(libs) $(ldflags)
+	@CXXFLAGSFILE=$(cxxflags) dcc $(dccflags) --dll $(dll) -fPIC $(srcs) $(libs) $(ldflags)
 
 
 else ifeq ($(build),exe)

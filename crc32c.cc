@@ -33,6 +33,8 @@
    1.1   1 Aug 2013  Correct comments on why three crc instructions in parallel
  */
 
+#include "fwd.h"
+
 #ifndef ICI_SW_CRC
 
 #include <stdio.h>
