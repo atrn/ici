@@ -23,7 +23,7 @@ ici_float *new_float(double v)
 
     proto.f_value = v;
     if ((f = floatof(atom_probe2(&proto, &po))) != nullptr) {
-        f->incref();
+        incref(f);
         return f;
     }
     ++supress_collect;

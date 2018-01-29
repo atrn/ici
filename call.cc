@@ -85,7 +85,7 @@ int callv(object *subject, object *callable, const char *types, va_list va)
             {
                 goto fail;
             }
-            os.a_top[arg]->decref();
+            decref(os.a_top[arg]);
             break;
 
         case 'q':
@@ -98,7 +98,7 @@ int callv(object *subject, object *callable, const char *types, va_list va)
             {
                 goto fail;
             }
-            os.a_top[arg]->decref();
+            decref(os.a_top[arg]);
             break;
 
         case 'f':
@@ -106,7 +106,7 @@ int callv(object *subject, object *callable, const char *types, va_list va)
             {
                 goto fail;
             }
-            os.a_top[arg]->decref();
+            decref(os.a_top[arg]);
             break;
 
         default:
@@ -144,7 +144,7 @@ int callv(object *subject, object *callable, const char *types, va_list va)
     switch (ret_type)
     {
     case '\0':
-        ret_obj->decref();
+        decref(ret_obj);
         break;
 
     case 'o':
@@ -157,7 +157,7 @@ int callv(object *subject, object *callable, const char *types, va_list va)
             goto typeclash;
         }
         *(long *)ret_ptr = intof(ret_obj)->i_value;
-        ret_obj->decref();
+        decref(ret_obj);
         break;
 
     case 'f':
@@ -166,7 +166,7 @@ int callv(object *subject, object *callable, const char *types, va_list va)
             goto typeclash;
         }
         *(double *)ret_ptr = floatof(ret_obj)->f_value;
-        ret_obj->decref();
+        decref(ret_obj);
         break;
 
     case 's':
@@ -175,12 +175,12 @@ int callv(object *subject, object *callable, const char *types, va_list va)
             goto typeclash;
         }
         *(char **)ret_ptr = stringof(ret_obj)->s_chars;
-        ret_obj->decref();
+        decref(ret_obj);
         break;
 
     default:
     typeclash:
-        ret_obj->decref();
+        decref(ret_obj);
         set_error("incorrect return type");
         goto fail;
     }

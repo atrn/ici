@@ -81,10 +81,10 @@ int assign_cfuncs(objwsup *s, cfunc *cf)
         }
         if (ici_assign_base(s, cf->cf_name, cf))
         {
-            cf->cf_name->decref();
+            decref(cf->cf_name);
             return 1;
         }
-        cf->cf_name->decref();
+        decref(cf->cf_name);
         ++cf;
     }
     return 0;
@@ -122,7 +122,7 @@ objwsup *new_class(cfunc *cf, objwsup *super)
         return nullptr;
     if (assign_cfuncs(s, cf))
     {
-        s->decref();
+        decref(s);
         return nullptr;
     }
     if (super == nullptr && (super = outermost_writeable()) == nullptr)
@@ -283,7 +283,7 @@ object *cfunc_type::restore(archiver *ar) {
     }
     auto scope = mapof(vs.a_top[-1]);
     auto cf = ici_fetch(scope, s);
-    s->decref();
+    decref(s);
     if (cf == nullptr || cf == null) {
         set_error("attempt to restore unknown C function \"%s\"", buf);
         return nullptr;

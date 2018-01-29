@@ -421,7 +421,7 @@ object *map_type::copy(object *o)
     return ns;
 
  fail:
-    ns->decref();
+    decref(ns);
     return nullptr;
 }
 
@@ -762,7 +762,7 @@ object *map_type::restore(archiver *ar) {
     if (super != null) {
         s->o_super = objwsupof(super);
     }
-    super->decref();
+    decref(super);
     if (ar->read(&n)) {
         goto fail1;
     }
@@ -775,12 +775,12 @@ object *map_type::restore(archiver *ar) {
             goto fail1;
         }
         if ((value = ar->restore()) == nullptr) {
-            key->decref();
+            decref(key);
             goto fail1;
         }
         failed = ici_assign(s, key, value);
-        key->decref();
-        value->decref();
+        decref(key);
+        decref(value);
         if (failed) {
             goto fail1;
         }
@@ -791,7 +791,7 @@ fail1:
     ar->remove(name);
 
 fail:
-    s->decref();
+    decref(s);
     return nullptr;
 }
 

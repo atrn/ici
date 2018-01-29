@@ -277,7 +277,7 @@ int func_type::call(object *o, object *subject)
                 va->push(*ap--);
             }
             sl->sl_value = va;
-            va->decref();
+            decref(va);
         }
     }
 
@@ -298,7 +298,7 @@ int func_type::call(object *o, object *subject)
  fail:
     if (d != nullptr)
     {
-        d->decref();
+        decref(d);
     }
     return 1;
 }
@@ -321,10 +321,10 @@ int func_type::save(archiver *ar, object *o) {
     autos->o_super = nullptr;
     unassign(autos, SS(_func_));
     if (ar->save(autos)) {
-        autos->decref();
+        decref(autos);
         return 1;
     }
-    autos->decref();
+    decref(autos);
     if (ar->save(f->f_name)) {
         return 1;
     }
@@ -376,32 +376,32 @@ object *func_type::restore(archiver *ar) {
     fn->f_name = stringof(name);
     fn->f_nautos = nautos;
 
-    code->decref();
-    args->decref();
-    autos->decref();
+    decref(code);
+    decref(args);
+    decref(autos);
 
     if (ici_assign(ar->scope(), name, fn)) {
-        name->decref();
-        fn->decref();
+        decref(name);
+        decref(fn);
         return nullptr;
     }
 
-    name->decref();
+    decref(name);
 
     return fn;
 
 fail:
     if (code) {
-        code->decref();
+        decref(code);
     }
     if (args) {
-        args->decref();
+        decref(args);
     }
     if (autos) {
-        autos->decref();
+        decref(autos);
     }
     if (name) {
-        name->decref();
+        decref(name);
     }
     return nullptr;
 }

@@ -506,7 +506,7 @@ int op_mklvalue()
     a->push(os.a_top[-1]);
     os.a_top[-1] = a;
     os.push(o_zero);
-    a->decref();
+    decref(a);
     --xs.a_top;
     return 0;
 }
@@ -682,7 +682,7 @@ int array_type::forall(object *o)
             return 1;
         if (ici_assign(fa->fa_kaggr, fa->fa_kkey, i))
             return 1;
-        i->decref();
+        decref(i);
     }
     return 0;
 }
@@ -728,10 +728,10 @@ object *array_type::restore(archiver *ar) {
             goto fail1;
         }
         if (a->push_back(o)) {
-            o->decref();
+            decref(o);
             goto fail1;
         }
-        o->decref();
+        decref(o);
     }
     return a;
 
@@ -739,7 +739,7 @@ fail1:
     ar->remove(name);
 
 fail:
-    a->decref();
+    decref(a);
     return nullptr;
 }
 

@@ -84,7 +84,7 @@ handle *new_handle(void *ptr, str *name, objwsup *super)
     ici_handle_proto.o_super = super;
     if ((h = handleof(atom_probe2(&ici_handle_proto, &po))) != nullptr)
     {
-        h->incref();
+        incref(h);
         return h;
     }
     ++supress_collect;
@@ -124,7 +124,7 @@ handle *handle_probe(void *ptr, str *name)
     ici_handle_proto.h_ptr = ptr;
     ici_handle_proto.h_name = name;
     if ((h = handleof(atom_probe(&ici_handle_proto))) != nullptr)
-        h->incref();
+        incref(h);
     return h;
 }
 
@@ -277,17 +277,17 @@ object *make_handle_member_map(name_id *ni)
         }
         if (ici_assign(m, n, id))
             goto fail;
-        n->decref();
-        id->decref();
+        decref(n);
+        decref(id);
     }
     return m;
 
  fail:
     if (n != nullptr)
-        n->decref();
+        decref(n);
     if (id != nullptr)
-        id->decref();
-    m->decref();
+        decref(id);
+    decref(m);
     return nullptr;
 }
 

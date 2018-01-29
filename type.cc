@@ -22,7 +22,7 @@ int type::cmp(object *o1, object *o2) {
 }
 
 object *type::copy(object *o) {
-    o->incref();
+    incref(o);
     return o;
 }
 

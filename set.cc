@@ -229,7 +229,7 @@ object * set_type::copy(object *o)
     return ns;
 
 fail:
-    ns->decref();
+    decref(ns);
     return nullptr;
 }
 
@@ -362,10 +362,10 @@ object *set_type::restore(archiver *ar) {
             goto fail1;
         }
         if (ici_assign(s, o, o_one)) {
-            o->decref();
+            decref(o);
             goto fail1;
         }
-        o->decref();
+        decref(o);
     }
     return s;
 
@@ -373,7 +373,7 @@ fail1:
     ar->remove(name);
 
 fail:
-    s->decref();
+    decref(s);
     return nullptr;
 }
 

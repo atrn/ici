@@ -112,13 +112,13 @@ int compile_expr(array *a, expr *e, int why)
             }
             if (compile_expr(a1, e->e_arg[1]->e_arg[0], why) || a1->push_check())
             {
-                a1->decref();
+                decref(a1);
                 return 1;
             }
             a1->push(&o_end);
             if ((a2 = new_array()) == nullptr)
             {
-                a1->decref();
+                decref(a1);
                 return 1;
             }
             if
@@ -130,8 +130,8 @@ int compile_expr(array *a, expr *e, int why)
                 a->push_check(3)
             )
             {
-                a1->decref();
-                a2->decref();
+                decref(a1);
+                decref(a2);
                 return 1;
             }
             a2->push(&o_end);
@@ -273,7 +273,7 @@ int compile_expr(array *a, expr *e, int why)
                 a->push_check(3)
             )
             {
-                a1->decref();
+                decref(a1);
                 return 1;
             }
             a1->push(&o_end);
@@ -357,16 +357,16 @@ int compile_expr(array *a, expr *e, int why)
                     a1->push_check()
                 )
                 {
-                    a1->decref();
+                    decref(a1);
                     return 1;
                 }
                 a1->push(&o_end);
                 if ((e->e_obj = evaluate(a1, 0)) == nullptr)
                 {
-                    a1->decref();
+                    decref(a1);
                     return 1;
                 }
-                a1->decref();
+                decref(a1);
             }
             /* Fall through. */
         case T_INT:
@@ -725,7 +725,7 @@ int compile_expr(array *a, expr *e, int why)
                 {
                     return 1;
                 }
-                (*a->a_top)->decref();
+                decref((*a->a_top));
                 ++a->a_top;
                 if
                 (
@@ -812,12 +812,12 @@ void uninit_compile()
     {
         if (binops[i] != nullptr)
         {
-            binops[i]->decref();
+            decref(binops[i]);
             binops[i] = nullptr;
         }
         if (binops_temps[i] != nullptr)
         {
-            binops_temps[i]->decref();
+            decref(binops_temps[i]);
             binops_temps[i] = nullptr;
         }
     }

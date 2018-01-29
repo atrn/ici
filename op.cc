@@ -18,7 +18,7 @@ op *new_op(int (*func)(), int16_t ecode, int16_t code) {
     proto.op_ecode = ecode;
     if ((o = opof(atom_probe2(&proto, &po))) != nullptr)
     {
-        o->incref();
+        incref(o);
         return o;
     }
     ++supress_collect;

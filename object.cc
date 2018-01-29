@@ -207,7 +207,7 @@ object *atom(object *o, int lone)
     if (++natoms > atomsz / 2)
         grow_atoms(atomsz * 2);
     if (!lone)
-        o->decref();
+        decref(o);
     return o;
 }
 

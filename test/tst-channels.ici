@@ -6,8 +6,7 @@
 //  We send Njobs jobs "down" the work queue, close it and
 //  wait for the workers to finish. One of them should have
 //  processed the last job. The sum of the number of jobs
-//  each did should be the same as the total number of jobs
-//  and they should have done some work.
+//  each did should be the same as the total number of jobs.
 //
 
 Njobs := int(argv[1]) || (5*1000);
@@ -27,7 +26,7 @@ for (i := 0; i < Nworkers; ++i) {
 
 local work(job, workerid) {
     Lastjob[workerid] = job;
-    limit := rand() % 1000;
+    limit := 1 + rand() % 1000;
     for (i := 0; i < limit; ++i) {
 	job += cos(float(workerid * i / limit));
     }

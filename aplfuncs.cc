@@ -87,13 +87,13 @@ buildxx(object **r, object **dnext, struct context *c)
                     objname(n1, *c->c_cnext));
             }
             *r = arrayof(*c->c_cnext)->get(c->c_ccount);
-            (*r)->incref();
+            incref(*r);
             c->c_cnext += c->c_cstep;
             break;
 
         default:
             *r = *c->c_cnext;
-            (*r)->incref();
+            incref(*r);
             c->c_cnext += c->c_cstep;
         }
         switch (c->c_option)
@@ -139,11 +139,11 @@ buildxx(object **r, object **dnext, struct context *c)
         {
             if (buildxx(a->a_top, dnext + c->c_dstep, c))
             {
-                a->decref();
+                decref(a);
                 return 1;
             }
             ++a->a_top;
-            a->a_top[-1]->decref();
+            decref(a->a_top[-1]);
         }
         *r = a;
     }
@@ -166,15 +166,15 @@ buildxx(object **r, object **dnext, struct context *c)
         {
             if (buildxx(&o, dnext + c->c_dstep, c))
             {
-                s->decref();
+                decref(s);
                 return 1;
             }
             if (ici_assign(s, *e, o))
             {
-                s->decref();
+                decref(s);
                 return 1;
             }
-            o->decref();
+            decref(o);
         }
         *r = s;
     }

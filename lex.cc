@@ -124,7 +124,7 @@ int lex(parse *p, array *a)
          * parser is always well behaved and consumes tokens completely before
          * getting the next one.
          */
-        (p->p_got.t_obj)->decref();
+        decref((p->p_got.t_obj));
         p->p_got.t_what = T_NONE;
     }
 

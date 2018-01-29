@@ -168,17 +168,17 @@ archiver::archiver(file *f, objwsup *scope)
 
 archiver::~archiver() {
     if (a_sent) {
-        a_sent->decref();
+        decref(a_sent);
     }
 }
 
 int archiver::record(object *obj, object *ref) {
     if (auto k = make_key(obj)) {
         if (a_sent->assign(k, ref)) {
-            k->decref();
+            decref(k);
             return 1;
         }
-        k->decref();
+        decref(k);
         return 0;
     }
     return 1;
@@ -187,7 +187,7 @@ int archiver::record(object *obj, object *ref) {
 void archiver::remove(object *obj) {
     if (auto k = make_key(obj)) {
         unassign(a_sent, k);
-        k->decref();
+        decref(k);
     }
 }
 
@@ -229,7 +229,7 @@ object *archiver::restore_ref() {
         return nullptr;
     }
     if (auto o = lookup(name)) {
-        o->incref();
+        incref(o);
         return o;
     }
     return nullptr;
@@ -239,7 +239,7 @@ object *archiver::lookup(object *obj) {
     object *v = null;
     if (auto k = make_key(obj)) {
         v = a_sent->fetch(k);
-        k->decref();
+        decref(k);
     }
     return v == null ? nullptr : v;
 }

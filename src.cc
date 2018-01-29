@@ -51,14 +51,14 @@ object *src_type::restore(archiver *ar) {
     }
     if (!isstring(filename)) {
         set_error("unexpected filename type (%s)", filename->type_name());
-        filename->decref();
+        decref(filename);
         return nullptr;
     }
     if ((result = new_src(line, stringof(filename))) == nullptr) {
-        filename->decref();
+        decref(filename);
         return nullptr;
     }
-    filename->decref();
+    decref(filename);
     return result;
 }
 

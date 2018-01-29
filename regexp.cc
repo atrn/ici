@@ -168,7 +168,7 @@ object *regexp_type::fetch(object *o, object *k)
         pcre_info(regexpof(o)->r_re, &options, nullptr);
         if ((io = new_int(options)) == nullptr)
             return nullptr;
-        io->decref();
+        decref(io);
         return io;
     }
     return fetch_fail(o, k);
@@ -201,12 +201,12 @@ object *regexp_type::restore(archiver *ar) {
     }
     r = new_regexp(s, options);
     if (r == nullptr) {
-        s->decref();
+        decref(s);
         return nullptr;
     }
-    s->decref();
+    decref(s);
     if (ar->record(name, r)) {
-        r->decref();
+        decref(r);
         return nullptr;
     }
     return r;

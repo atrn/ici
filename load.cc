@@ -200,7 +200,7 @@ f_load(...)
             goto fail;
         }
         file = new_file((char *)stream, stdio_ftype, fn, nullptr);
-        fn->decref();
+        decref(fn);
         if (file == nullptr)
         {
             fclose(stream);
@@ -215,7 +215,7 @@ f_load(...)
             goto fail;
         }
         autos->o_super = objwsupof(statics);
-        statics->decref();
+        decref(statics);
         if (externs == nullptr)
         {
             if ((externs = new_map()) == nullptr)
@@ -235,8 +235,8 @@ f_load(...)
             goto fail;
         }
         close_file(file);
-        autos->decref();
-        file->decref();
+        decref(autos);
+        decref(file);
     }
     if (result == nullptr)
     {
@@ -253,11 +253,11 @@ f_load(...)
 
 fail:
     if (file != nullptr)
-        file->decref();
+        decref(file);
     if (autos != nullptr)
-        autos->decref();
+        decref(autos);
     if (result != nullptr)
-        result->decref();
+        decref(result);
     return 1;
 }
 
@@ -392,12 +392,12 @@ static int push_path_elements(array *a, const char *path)
         }
         if (a->push_check())
         {
-            s->decref();
+            decref(s);
             return 1;
         }
         a->push(s);
     skip:
-        s->decref();
+        decref(s);
     }
     return 0;
 }
@@ -417,7 +417,7 @@ int init_path(objwsup *externs)
         return 1;
     }
     r = ici_assign_base(externs, SS(path), a);
-    a->decref();
+    decref(a);
     if (r)
     {
         return 1;

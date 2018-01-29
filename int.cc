@@ -25,7 +25,7 @@ integer *new_int(int64_t i)
     object **po;
 
     if ((i & ~small_int_mask) == 0 && (o = small_ints[i]) != nullptr) {
-        o->incref();
+        incref(o);
         return intof(o);
     }
     for
@@ -36,7 +36,7 @@ integer *new_int(int64_t i)
     )
     {
         if (isint(o) && intof(o)->i_value == i) {
-            o->incref();
+            incref(o);
             return intof(o);
         }
     }

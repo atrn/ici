@@ -219,7 +219,7 @@ static array *do_smash
 
 fail:
     if (a != nullptr)
-        a->decref();
+        decref(a);
     return nullptr;
 }
 
@@ -420,14 +420,14 @@ f_sub(...)
     else if (rc == (str *)-1)
     {
         if (regexpof(o) != re)
-            re->decref();
+            decref(re);
         return 1;
     }
     else
-        rc->decref();
+        decref(rc);
 
     if (regexpof(o) != re)
-        re->decref();
+        decref(re);
 
     return ret_no_decref(rc);
 }
@@ -483,16 +483,16 @@ f_gsub(...)
     }
     if ((ns = stringof(atom(ns, 1))) == nullptr)
         goto fail;
-    a->decref();
+    decref(a);
     if (!isregexp(ARG(1)))
-        re->decref();
+        decref(re);
     return ret_with_decref(ns);
 
 fail:
     if (a != nullptr)
-        a->decref();
+        decref(a);
     if (!isregexp(ARG(1)))
-        re->decref();
+        decref(re);
     return 1;
 }
 
@@ -547,7 +547,7 @@ f_old_smash()
 
 fail:
     if (sa != nullptr)
-        sa->decref();
+        decref(sa);
     ici_free((char *)strs);
     return 1;
 }

@@ -198,7 +198,7 @@ int main(int argc, char *argv[]) {
             set_val(objwsupof(vs.a_top[-1])->o_super, SS(argc), 'i', &l)
         )
             goto fail;
-        av->decref();
+        decref(av);
         av = nullptr;
     }
 
@@ -262,7 +262,7 @@ int main(int argc, char *argv[]) {
                     f->f_name = SS(empty_string);
                     if (parse_file(f, objwsupof(vs.a_top[-1])) < 0)
                         goto fail;
-                    f->decref();
+                    decref(f);
                     break;
 
                 case 'l':
@@ -358,7 +358,7 @@ usage:
         fprintf(stderr, "See 'The ICI Programming Language' (ici.pdf from ici.sf.net).\n");
     }
     if (av != nullptr)
-        av->decref();
+        decref(av);
     uninit();
     set_error("invalid command line arguments");
     return !help;

@@ -74,13 +74,13 @@ void uninit()
      */
     for (i = 0; i < (int)nels(small_ints); ++i)
     {
-        small_ints[i]->decref();
+        decref(small_ints[i]);
         small_ints[i] = nullptr;
     }
     if (ver_cache != nullptr)
-        ver_cache->decref();
+        decref(ver_cache);
     if (smash_default_re != nullptr)
-        smash_default_re->decref();
+        decref(smash_default_re);
 
     /* Call uninitialisation functions for compulsory bits of ICI. */
     uninit_compile();

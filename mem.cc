@@ -134,7 +134,7 @@ object * mem_type::fetch(object *o, object *k)
         break;
     }
     o = new_int(i);
-    o->decref();
+    decref(o);
     return o;
 }
 
@@ -174,7 +174,7 @@ object *mem_type::restore(archiver *ar) {
             ici_free(p);
         }
         else if (ar->read(p, sz) || ar->record(name, m)) {
-            m->decref();
+            decref(m);
             m = nullptr;
         }
     }

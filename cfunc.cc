@@ -354,7 +354,7 @@ int retcheck(const char *types, ...)
                 goto ret1;
             if (ici_assign(o, o_zero, s))
                 goto ret1;
-            s->decref();
+            decref(s);
             break;
 
         case 's':
@@ -362,7 +362,7 @@ int retcheck(const char *types, ...)
                 goto ret1;
             if (ici_assign(o, o_zero, s))
                 goto ret1;
-            s->decref();
+            decref(s);
             break;
 
         case 'f':
@@ -370,7 +370,7 @@ int retcheck(const char *types, ...)
                 goto ret1;
             if (ici_assign(o, o_zero, s))
                 goto ret1;
-            s->decref();
+            decref(s);
             break;
 
         case 'd':
@@ -539,7 +539,7 @@ int ret_with_decref(object *o)
         return 1;
     os.a_top -= NARGS() + 1;
     os.a_top[-1] = o;
-    o->decref();
+    decref(o);
     --xs.a_top;
     return 0;
 }
@@ -723,7 +723,7 @@ int f_coreici(object *s)
      * Fetch the real function from that module and verify it is callable.
      */
     f = ici_fetch_base(c, (object *)ICI_CF_ARG1());
-    c->decref();
+    decref(c);
     if (f == nullptr)
         return 1;
     if (!f->can_call())
@@ -787,7 +787,7 @@ static int f_map()
     {
         if (ici_assign(s, o[0], o[-1]))
         {
-            s->decref();
+            decref(s);
             return 1;
         }
     }
@@ -807,7 +807,7 @@ static int f_set()
     {
         if (ici_assign(s, *o, o_one))
         {
-            s->decref();
+            decref(s);
             return 1;
         }
     }
@@ -1099,17 +1099,17 @@ static int f_parse()
             return 1;
         if ((a->o_super = objwsupof(s = new_map())) == nullptr)
         {
-            a->decref();
+            decref(a);
             return 1;
         }
-        s->decref();
+        decref(s);
         s->o_super = objwsupof(vs.a_top[-1])->o_super;
         break;
 
     default:
         if (typecheck("od", &o, &a))
             return 1;
-        a->incref();
+        incref(a);
         break;
     }
 
@@ -1117,7 +1117,7 @@ static int f_parse()
     {
         if ((f = sopen(stringof(o)->s_chars, stringof(o)->s_nchars, o)) == nullptr)
         {
-            a->decref();
+            decref(a);
             return 1;
         }
         f->f_name = SS(empty_string);
@@ -1126,7 +1126,7 @@ static int f_parse()
         f = fileof(o);
     else
     {
-        a->decref();
+        decref(a);
         return argerror(0);
     }
 
@@ -1134,13 +1134,13 @@ static int f_parse()
         goto fail;
 
     if (isstring(o))
-        f->decref();
+        decref(f);
     return ret_with_decref(a);
 
 fail:
     if (isstring(o))
-        f->decref();
-    a->decref();
+        decref(f);
+    decref(a);
     return 1;
 }
 
@@ -1189,7 +1189,7 @@ static int f_include()
     debug_respect_errors();
     rc = parse_file(f, objwsupof(a));
     call(SS(close), "o", f);
-    f->decref();
+    decref(f);
     return rc < 0 ? 1 : ret_no_decref(a);
 }
 
@@ -1221,7 +1221,7 @@ f_call()
         naargs = aa->len();
     nargs = naargs + NARGS() - 2;
     func = ARG(0);
-    func->incref();
+    incref(func);
     /*
      * On the operand stack, we have...
      *    [aa] [argn]...[arg2] [arg1] [func] [nargs] [us] [    ]
@@ -1262,9 +1262,9 @@ f_call()
      * Push the count of actual args and the target function.
      */
     os.a_top[-2] = nargso;
-    nargso->decref();
+    decref(nargso);
     os.a_top[-1] = func;
-    func->decref();
+    decref(func);
     xs.a_top[-1] = &o_call;
     /*
      * Very special return. Drops back into the execution loop with
@@ -1273,9 +1273,9 @@ f_call()
     return 0;
 
 fail:
-    func->decref();
+    decref(func);
     if (nargso != nullptr)
-        nargso->decref();
+        decref(nargso);
     return 1;
 }
 
@@ -1480,10 +1480,10 @@ f_explode()
     {
         if ((*x->a_top = new_int(*s++ & 0xFFL)) == nullptr)
         {
-            x->decref();
+            decref(x);
             return 1;
         }
-        (*x->a_top)->decref();
+        decref((*x->a_top));
         ++x->a_top;
     }
     return ret_with_decref(x);
@@ -2311,7 +2311,7 @@ f_gettoken()
         {
             if ((f = sopen(stringof(fo)->s_chars, stringof(fo)->s_nchars, fo)) == nullptr)
                 return 1;
-            f->decref();
+            decref(f);
         }
         else if (!isfile(fo))
             return argerror(0);
@@ -2326,7 +2326,7 @@ f_gettoken()
         {
             if ((f = sopen(stringof(fo)->s_chars, stringof(fo)->s_nchars, fo)) == nullptr)
                 return 1;
-            f->decref();
+            decref(f);
         }
         else if (!isfile(fo))
             return argerror(0);
@@ -2400,10 +2400,10 @@ fast_gettokens(const char *str, const char *delims)
                 (*a->a_top = new_str(cp, k)) == nullptr
             )
             {
-                a->decref();
+                decref(a);
                 return 1;
             }
-            (*a->a_top)->decref();
+            decref((*a->a_top));
             ++a->a_top;
             if (*(cp += k))
                 cp++;
@@ -2412,7 +2412,7 @@ fast_gettokens(const char *str, const char *delims)
     }
     if (a->a_top == a->a_base)
     {
-        a->decref();
+        decref(a);
         return null_ret();
     }
     return ret_with_decref(a);
@@ -2501,7 +2501,7 @@ f_gettokens()
         else
         {
             if (loose_it)
-                f->decref();
+                decref(f);
             return argerror(1);
         }
         if (NARGS() > 2)
@@ -2509,7 +2509,7 @@ f_gettokens()
             if (!isstring(ARG(2)))
             {
                 if (loose_it)
-                    f->decref();
+                    decref(f);
                 return argerror(2);
             }
             terms = (unsigned char *)stringof(ARG(2))->s_chars;
@@ -2519,7 +2519,7 @@ f_gettokens()
                 if (!isstring(ARG(3)))
                 {
                     if (loose_it)
-                        f->decref();
+                        decref(f);
                     return argerror(3);
                 }
                 delims = (unsigned char *)stringof(ARG(3))->s_chars;
@@ -2588,10 +2588,10 @@ f_gettokens()
         {
         case (S_IDLE << 8) + W_EOF:
             if (loose_it)
-                f->decref();
+                decref(f);
             if (a->a_top == a->a_base)
             {
-                a->decref();
+                decref(a);
                 return null_ret();
             }
             return ret_with_decref(a);
@@ -2600,7 +2600,7 @@ f_gettokens()
             if (!hardsep)
             {
                 if (loose_it)
-                    f->decref();
+                    decref(f);
                 return ret_with_decref(a);
             }
             j = 0;
@@ -2612,7 +2612,7 @@ f_gettokens()
                 goto fail;
             a->push(s, with_decref);
             if (loose_it)
-                f->decref();
+                decref(f);
             return ret_with_decref(a);
 
         case (S_IDLE << 8) + W_SEP:
@@ -2663,9 +2663,9 @@ f_gettokens()
 
 fail:
     if (loose_it)
-        f->decref();
+        decref(f);
     if (a != nullptr)
-        a->decref();
+        decref(a);
     return 1;
 }
 
@@ -2938,7 +2938,7 @@ f_calendar()
 #endif
         )
         {
-            s->decref();
+            decref(s);
             return 1;
         }
         return ret_with_decref(s);
@@ -3411,7 +3411,7 @@ finish:
     if (must_close)
     {
         call(SS(close), "o", f);
-        f->decref();
+        decref(f);
     }
     return ret_with_decref(str);
 }
@@ -3914,7 +3914,7 @@ f_dir()
             )
             {
                 if (s != nullptr)
-                    s->decref();
+                    decref(s);
                 closedir(dir);
                 goto fail;
             }
@@ -3929,7 +3929,7 @@ f_dir()
 #undef  OTHERS
 
 fail:
-    a->decref();
+    decref(a);
     return 1;
 }
 

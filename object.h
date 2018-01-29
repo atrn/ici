@@ -368,6 +368,14 @@ inline void set_tfnz(object *o, uint8_t tcode, uint8_t flags, uint8_t nrefs, uin
     o->set_tfnz(tcode, flags, nrefs, leafz);
 }
 
+inline void incref(object *o) {
+    o->incref();
+}
+
+inline void decref(object *o) {
+    o->decref();
+}
+
 /*
  * The recursive traversal of all objects performed by marking is particularly
  * expensive. So we take pains to cut short function calls wherever possible.

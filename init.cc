@@ -110,7 +110,7 @@ int init()
     {
         return 1;
     }
-    externs->decref();
+    decref(externs);
     if ((x = new_exec()) == nullptr)
     {
         return 1;

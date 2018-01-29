@@ -129,7 +129,7 @@ new_str(const char *p, size_t nchars)
         proto.s.s_hash = 0;
 #       endif
         if ((s = stringof(atom_probe2(&proto.s, &po))) != nullptr) {
-            s->incref();
+            incref(s);
             return s;
         }
         ++supress_collect;
@@ -204,7 +204,7 @@ str *str_get_nul_term(const char *p)
     if ((s = new_str(p, strlen(p))) == nullptr) {
         return nullptr;
     }
-    s->decref();
+    decref(s);
     return s;
 }
 
@@ -371,7 +371,7 @@ object *string_type::fetch(object *o, object *k)
         k = new_str(&stringof(o)->s_chars[i], 1);
     }
     if (k != nullptr) {
-        k->decref();
+        decref(k);
     }
     return k;
 }
@@ -430,7 +430,7 @@ int string_type::forall(object *o) {
         if (ici_assign(fa->fa_vaggr, fa->fa_vkey, s)) {
             return 1;
 	}
-        s->decref();
+        decref(s);
     }
     if (fa->fa_kaggr != null) {
         if ((i = new_int((int64_t)fa->fa_index)) == nullptr) {
@@ -439,7 +439,7 @@ int string_type::forall(object *o) {
         if (ici_assign(fa->fa_kaggr, fa->fa_kkey, i)) {
             return 1;
 	}
-        i->decref();
+        decref(i);
     }
     return 0;
 }
@@ -482,13 +482,13 @@ object *string_type::restore(archiver *ar) {
         goto fail;
     }
     if (ar->record(name, obj)) {
-        obj->decref();
+        decref(obj);
         goto fail;
     }
     return obj;
 
 fail:
-    s->decref();
+    decref(s);
     return nullptr;
 }
 

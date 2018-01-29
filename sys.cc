@@ -865,11 +865,11 @@ static int sys_stat()
         goto fail;                                      \
     else if (ici_assign(s, SS(x), o))                  \
     {                                                   \
-        o->decref();                                    \
+        decref(o);                                      \
         goto fail;                                      \
     }                                                   \
     else                                                \
-        o->decref()
+        decref(o)
 
     SETFIELD(dev);
     SETFIELD(ino);
@@ -892,7 +892,7 @@ static int sys_stat()
     return ret_with_decref(s);
 
  fail:
-    s->decref();
+    decref(s);
     return 1;
 }
 
@@ -929,11 +929,11 @@ static int sys_lstat()
         goto fail;                                      \
     else if (ici_assign(s, SS(x), o))                  \
     {                                                   \
-        o->decref();                                    \
+        decref(o);                                      \
         goto fail;                                      \
     }                                                   \
     else                                                \
-        o->decref()
+        decref(o)
 
     SETFIELD(dev);
     SETFIELD(ino);
@@ -954,7 +954,7 @@ static int sys_lstat()
     return ret_with_decref(s);
 
  fail:
-    s->decref();
+    decref(s);
     return 1;
 }
 #endif
@@ -1012,25 +1012,25 @@ assign_timeval(map *s, str *k, struct timeval *tv)
         goto fail;
     if (ici_assign(ss, SS(usec), i))
     {
-        i->decref();
+        decref(i);
         goto fail;
     }
-    i->decref();
+    decref(i);
     if ((i = new_int(tv->tv_sec)) == nullptr)
         goto fail;
     if (ici_assign(ss, SS(sec), i))
     {
-        i->decref();
+        decref(i);
         goto fail;
     }
-    i->decref();
+    decref(i);
     if (k != nullptr && ici_assign(s, k, ss))
         goto fail;
     return 0;
 
  fail:
     if (k != nullptr)
-        ss->decref();
+        decref(ss);
     return 1;
 }
 
@@ -1087,7 +1087,7 @@ static int sys_getitimer()
         assign_timeval(s, SS(value), &value.it_value)
     )
     {
-        s->decref();
+        decref(s);
         return 1;
     }
     return ret_with_decref(s);
@@ -1172,7 +1172,7 @@ static int sys_setitimer()
         assign_timeval(s, SS(value), &ovalue.it_value)
     )
     {
-        s->decref();
+        decref(s);
         return 1;
     }
     return ret_with_decref(s);
@@ -1203,7 +1203,7 @@ static int sys_gettimeofday()
         return 1;
     if (assign_timeval(s, nullptr, &tv))
     {
-        s->decref();
+        decref(s);
         return 1;
     }
     return ret_with_decref(s);
@@ -1267,7 +1267,7 @@ static int sys_pipe()
         return 1;
     if (pipe(pfd) == -1)
     {
-        a->decref();
+        decref(a);
         return sys_ret(-1);
     }
     if ((fd = new_int(pfd[0])) == nullptr)
@@ -1279,7 +1279,7 @@ static int sys_pipe()
     return ret_with_decref(a);
 
  fail:
-    a->decref();
+    decref(a);
     close(pfd[0]);
     close(pfd[1]);
     return 1;
@@ -1608,22 +1608,22 @@ static int sys_wait()
         goto fail;
     if (ici_assign(s, SS(pid), i))
     {
-        i->decref();
+        decref(i);
         goto fail;
     }
-    i->decref();
+    decref(i);
     if ((i = new_int(status)) == nullptr)
         goto fail;
     if (ici_assign(s, SS(status), i))
     {
-        i->decref();
+        decref(i);
         goto fail;
     }
-    i->decref();
+    decref(i);
     return ret_with_decref(s);
 
  fail:
-    s->decref();
+    decref(s);
     return 1;
 #endif /* _WIN32 */
 }
@@ -1697,7 +1697,7 @@ static int sys_passwd()
 
         if (a->push_check() || (s = password_map(pwent)) == nullptr)
         {
-            a->decref();
+            decref(a);
             return 1;
         }
         a->push(s, with_decref);
@@ -1722,22 +1722,22 @@ password_map(struct passwd *pwent)
             goto fail;                                  \
         else if (ici_assign(d, SS(x), o))              \
         {                                               \
-            o->decref();                                \
+            decref(o);                                  \
             goto fail;                                  \
         }                                               \
         else                                            \
-            o->decref()
+            decref(o)
 
 #define SET_STR_FIELD(x)                                        \
         if ((o = new_str_nul_term(pwent->pw_ ##x)) == nullptr) \
             goto fail;                                          \
         else if (ici_assign(d, SS(x), o))                       \
         {                                                       \
-            o->decref();                                        \
+            decref(o);                                          \
             goto fail;                                          \
         }                                                       \
         else                                                    \
-            o->decref()
+            decref(o)
 
         SET_STR_FIELD(name);
         SET_STR_FIELD(passwd);
@@ -1754,7 +1754,7 @@ password_map(struct passwd *pwent)
     return d;
 
  fail:
-    d->decref();
+    decref(d);
     return nullptr;
 }
 
@@ -2005,22 +2005,22 @@ static int sys_getrlimit()
         goto fail;
     if (ici_assign(limit, SS(cur), iv))
     {
-        iv->decref();
+        decref(iv);
         goto fail;
     }
-    iv->decref();
+    decref(iv);
     if ((iv = new_int(rlimit.rlim_max)) == nullptr)
         goto fail;
     if (ici_assign(limit, SS(max), iv))
     {
-        iv->decref();
+        decref(iv);
         goto fail;
     }
-    iv->decref();
+    decref(iv);
     return ret_with_decref(limit);
 
  fail:
-    limit->decref();
+    decref(limit);
     return 1;
 }
 

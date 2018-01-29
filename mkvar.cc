@@ -58,7 +58,7 @@ int set_val(objwsup *s, str *name, int type, void *vp)
 
     case 'o':
         o = (object *)vp;
-        o->incref(); /* so can decref below */
+        incref(o); /* so can decref below */
         break;
 
     default:
@@ -68,7 +68,7 @@ int set_val(objwsup *s, str *name, int type, void *vp)
     if (o == nullptr)
         return 1;
     i = ici_assign_base(s, name, o);
-    o->decref();
+    decref(o);
     return i;
 }
 
@@ -165,7 +165,7 @@ int cmkvar(objwsup *scope, const char *name, int type, void *vp)
     if ((s = new_str_nul_term(name)) == nullptr)
         return 1;
     i = set_val(scope, s, type, vp);
-    s->decref();
+    decref(s);
     return i;
 }
 

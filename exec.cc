@@ -109,27 +109,27 @@ exec *new_exec() {
     {
         goto fail;
     }
-    x->x_xs->decref();
+    decref(x->x_xs);
     if ((x->x_os = new_array(80)) == nullptr)
     {
         goto fail;
     }
-    x->x_os->decref();
+    decref(x->x_os);
     if ((x->x_vs = new_array(80)) == nullptr)
     {
         goto fail;
     }
-    x->x_vs->decref();
+    decref(x->x_vs);
     if ((x->x_pc_closet = new_array(80)) == nullptr)
     {
         goto fail;
     }
-    x->x_pc_closet->decref();
+    decref(x->x_pc_closet);
     if ((x->x_os_temp_cache = new_array(80)) == nullptr)
     {
         goto fail;
     }
-    x->x_os_temp_cache->decref();
+    decref(x->x_os_temp_cache);
     x->x_semaphore = new std::condition_variable;
     x->x_state = XS_ACTIVE;
     x->x_count = 100;
@@ -443,14 +443,14 @@ object *evaluate(object *code, int n_operands)
                     xs.push(o); /* Temp restore formal state. */
                     {
                         src *srco = ex->x_src;
-                        srco->incref();
+                        incref(srco);
                         if (call(f, "o", o))
                         {
-                            srco->decref();
+                            decref(srco);
                             goto fail;
                         }
                         ex->x_src = srco;
-                        srco->decref();
+                        decref(srco);
                     }
                     --xs.a_top;
                     switch
@@ -502,7 +502,7 @@ object *evaluate(object *code, int n_operands)
                 {
                     o = null;
                 }
-                o->incref();
+                incref(o);
                 unwind();
                 --ex->x_n_engine_recurse;
                 return o;
@@ -615,7 +615,7 @@ object *evaluate(object *code, int n_operands)
                                 {
                                     goto fail;
                                 }
-                                os.a_top[-3]->decref();
+                                decref(os.a_top[-3]);
                                 os.a_top[-4] = nam;
                             }
                         }
@@ -630,7 +630,7 @@ object *evaluate(object *code, int n_operands)
                         }
                         --os.a_top;
                         os.a_top[-1] = m;
-                        m->decref();
+                        decref(m);
                         goto stable_stacks_continue;
                     }
                     /*
@@ -641,7 +641,7 @@ object *evaluate(object *code, int n_operands)
                     --os.a_top;
                     os.a_top[-1] = o;  /* The callable object. */
                     o = o1;
-                    o->incref();
+                    incref(o);
                     goto do_call;
                 }
 
@@ -656,7 +656,7 @@ object *evaluate(object *code, int n_operands)
                     set_error("attempt to call %s", objname(n1, os.a_top[-1]));
                     if (o != nullptr)
                     {
-                        o->decref();
+                        decref(o);
                     }
                     goto fail;
                 }
@@ -668,13 +668,13 @@ object *evaluate(object *code, int n_operands)
                 {
                     if (o != nullptr)
                     {
-                        o->decref();
+                        decref(o);
                     }
                     goto fail;
                 }
                 if (o != nullptr)
                 {
-                    o->decref();
+                    decref(o);
                 }
                 continue;
 
@@ -860,23 +860,23 @@ object *evaluate(object *code, int n_operands)
                     {
                         goto fail;
                     }
-                    v1->incref();
+                    incref(v1);
                     if ((v2 = ici_fetch(os.a_top[-2], os.a_top[-1])) == nullptr)
                     {
-                        v1->decref();
+                        decref(v1);
                         goto fail;
                     }
-                    v2->incref();
+                    incref(v2);
                     if (ici_assign(os.a_top[-2], os.a_top[-1], v1))
                     {
-                        v1->decref();
-                        v2->decref();
+                        decref(v1);
+                        decref(v2);
                         goto fail;
                     }
                     if (ici_assign(os.a_top[-4], os.a_top[-3], v2))
                     {
-                        v1->decref();
-                        v2->decref();
+                        decref(v1);
+                        decref(v2);
                         goto fail;
                     }
                     switch (opof(o)->op_code)
@@ -894,8 +894,8 @@ object *evaluate(object *code, int n_operands)
                         os.a_top -= 2;
                         break;
                     }
-                    v1->decref();
-                    v2->decref();
+                    decref(v1);
+                    decref(v2);
                 }
                 continue;
 
@@ -1228,7 +1228,7 @@ object *evaluate(object *code, int n_operands)
                 }
                 break;
             }
-            c->incref();
+            incref(c);
             if
             (
                 set_val(objwsupof(vs.a_top[-1]), SS(error), 's', error)
@@ -1238,12 +1238,12 @@ object *evaluate(object *code, int n_operands)
                 set_val(objwsupof(vs.a_top[-1]), SS(errorfile), 'o', ex->x_src->s_filename)
             )
             {
-                c->decref();
+                decref(c);
                 goto badfail;
             }
             get_pc(arrayof(c->c_catcher), xs.a_top);
             ++xs.a_top;
-            c->decref();
+            decref(c);
             continue;
 
         badfail:
@@ -1338,7 +1338,7 @@ object *exec_type::fetch(object *o, object *k)
         str *s = new_str_nul_term(x->x_error);
         if (s != nullptr)
         {
-            s->decref();
+            decref(s);
         }
         return s;
     }

@@ -643,11 +643,11 @@ static int select_add_result
     }
     if (ici_assign(result, key, rset))
         goto fail;
-    rset->decref();
+    decref(rset);
     return 0;
 
 fail:
-    rset->decref();
+    decref(rset);
     return 1;
 }
 
@@ -801,10 +801,10 @@ static int net_select()
             goto fail;
         if (ici_assign(result, SS(n), nobj))
         {
-            nobj->decref();
+            decref(nobj);
             goto fail;
         }
-        nobj->decref();
+        decref(nobj);
     }
     if (select_add_result(result, SS(read), rset, rfds, &n))
         goto fail;
@@ -814,8 +814,8 @@ static int net_select()
         object        *o;
 
         o = ici_fetch(result, SS(read));
-        o->incref();
-        result->decref();
+        incref(o);
+        decref(result);
         return ret_with_decref(o);
     }
     if (select_add_result(result, SS(write), wset, wfds, &n))
@@ -825,7 +825,7 @@ static int net_select()
     return ret_with_decref(result);
 
 fail:
-    result->decref();
+    decref(result);
     return 1;
 }
 
@@ -947,26 +947,26 @@ static int net_recvfrom()
     msg = nullptr;
     if (ici_assign(result, SS(msg), s))
     {
-        s->decref();
+        decref(s);
         goto fail;
     }
-    s->decref();
+    decref(s);
     if ((s = new_str_nul_term(unparse_addr(&addr))) == nullptr)
     {
         goto fail;
     }
     if (ici_assign(result, SS(addr), s))
     {
-        s->decref();
+        decref(s);
         goto fail;
     }
-    s->decref();
+    decref(s);
     return ret_with_decref(result);
 
 fail:
     if (msg != nullptr)
         ici_nfree(msg, len + 1);
-    result->decref();
+    decref(result);
     return 1;
 }
 
@@ -1322,7 +1322,7 @@ static int net_hostname()
             return get_last_errno("net.gethostname", nullptr);
         if ((hostname = new_str_nul_term(name_buf)) == nullptr)
             return 1;
-        hostname->incref();
+        incref(hostname);
     }
     return ret_no_decref(hostname);
 }
@@ -1616,7 +1616,7 @@ public:
 
         if (sf->sf_flags & SF_WRITE)
             rc = flush(u);
-        sf->sf_socket->decref();
+        decref(sf->sf_socket);
         ici_tfree(sf, skt_file);
         return rc;
     }
@@ -1675,7 +1675,7 @@ static skt_file * skt_open(handle *s, const char *mode)
     if ((sf = ici_talloc(skt_file)) != nullptr)
     {
         sf->sf_socket = s;
-        sf->sf_socket->incref();
+        incref(sf->sf_socket);
         sf->sf_pbchar = EOF;
         sf->sf_bufp = sf->sf_buf;
         sf->sf_nbuf = 0;
@@ -1761,14 +1761,14 @@ static int net_socketpair()
         goto fail1;
     if ((s = new_netsocket(sv[0])) == nullptr)
     {
-        a->decref();
+        decref(a);
         goto fail1;
     }
     a->push(s, with_decref);
     if ((s = new_netsocket(sv[1])) == nullptr)
     {
         close(sv[1]);
-        a->decref();
+        decref(a);
         goto fail;
     }
     a->push(s, with_decref);

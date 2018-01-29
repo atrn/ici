@@ -58,11 +58,11 @@ object * ptr_type::fetch(object *o, object *k)
     if (!isint(k) || !isint(ptrof(o)->p_key))
         return fetch_fail(o, k);
     if (ptrof(o)->p_key == o_zero)
-        k->incref();
+        incref(k);
     else if ((k = new_int(intof(k)->i_value + intof(ptrof(o)->p_key)->i_value)) == nullptr)
         return nullptr;
     o = ici_fetch(ptrof(o)->p_aggr, k);
-    k->decref();
+    decref(k);
     return o;
 }
 
@@ -79,15 +79,15 @@ int ptr_type::assign(object *o, object *k, object *v)
     if (!isint(k) || !isint(ptrof(o)->p_key))
         return assign_fail(o, k, v);
     if (ptrof(o)->p_key == o_zero)
-        k->incref();
+        incref(k);
     else if ((k = new_int(intof(k)->i_value + intof(ptrof(o)->p_key)->i_value)) == nullptr)
         return 1;
     if (ici_assign(ptrof(o)->p_aggr, k, v))
     {
-        k->decref();
+        decref(k);
         return 1;
     }
-    k->decref();
+    decref(k);
     return 0;
 }
 
@@ -108,7 +108,7 @@ int ptr_type::call(object *o, object *)
      */
     if ((os.a_top[-1] = new_int(NARGS() + 1)) == nullptr)
         return 1;
-    (os.a_top[-1])->decref();
+    decref((os.a_top[-1]));
     os.a_top[-2] = ptrof(o)->p_aggr;
     if (os.push_check())
         return 1;
@@ -153,7 +153,7 @@ int op_mkptr()
     if ((o = new_ptr(os.a_top[-2], os.a_top[-1])) == nullptr)
         return 1;
     os.a_top[-2] = o;
-    o->decref();
+    decref(o);
     --os.a_top;
     --xs.a_top;
     return 0;
@@ -210,12 +210,12 @@ object *ptr_type::restore(archiver *ar) {
         return nullptr;
     }
     if ((key = ar->restore()) == nullptr) {
-        aggr->decref();
+        decref(aggr);
         return nullptr;
     }
     ptr = new_ptr(aggr, key);
-    aggr->decref();
-    key->decref();
+    decref(aggr);
+    decref(key);
     return ptr ? ptr : nullptr;
 }
 

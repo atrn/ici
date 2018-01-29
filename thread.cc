@@ -262,11 +262,11 @@ static void ici_thread_base(void *arg)
     }
     else
     {
-        x->x_result->decref();
+        decref(x->x_result);
         x->x_state = XS_RETURNED;
     }
     wakeup(x);
-    x->decref();
+    decref(x);
     (void)leave();
 }
 
@@ -303,14 +303,14 @@ f_go(...)
      */
     if ((*x->x_os->a_top = new_int(NARGS() - 1)) == nullptr)
         goto fail;
-    (*x->x_os->a_top)->decref();
+    decref((*x->x_os->a_top));
     ++x->x_os->a_top;
     x->x_os->push(ARG(0));
     /*
      * Create the native machine thread. We ici_incref x to give the new thread
      * it's own reference.
      */
-    x->incref();
+    incref(x);
     {
         // TODO: try/catch
         std::thread t([x]() { ici_thread_base(x); });
@@ -319,7 +319,7 @@ f_go(...)
     return ret_with_decref(x);
 
 fail:
-    x->decref();
+    decref(x);
     return 1;
 }
 

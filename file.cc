@@ -123,7 +123,7 @@ object * file_type::fetch(object *o, object *k)
         integer *l;
 
         if ((l = new_int(parseof(fileof(o)->f_file)->p_lineno)) != nullptr) {
-            l->decref();
+            decref(l);
 	}
         return l;
     }

@@ -45,7 +45,7 @@
 #define LOOSEo()				\
     do						\
     {						\
-	o->decref();				\
+	decref(o);				\
 	os.a_top[-2] = o;			\
 	--os.a_top;				\
 	goto continue_with_same_pc;		\
@@ -462,7 +462,7 @@
             {
                 FAIL();
             }
-            (*arrayof(o)->a_top)->decref();
+            decref(*arrayof(o)->a_top);
             ++arrayof(o)->a_top;
         }
         LOOSEo();
@@ -487,7 +487,7 @@
             {
                 FAIL();
             }
-            i->decref();
+            decref(i);
         }
         LOOSEo();
         
@@ -515,7 +515,7 @@
             {
                 FAIL();
             }
-            i->decref();
+            decref(i);
         }
         LOOSEo();
 
@@ -571,7 +571,7 @@
                 }
                 if (ici_assign(s, sl->sl_key, sl->sl_value))
                 {
-                    s->decref();
+                    decref(s);
                     FAIL();
                 }
             }
@@ -599,7 +599,7 @@
                 }
                 if (ici_assign(s, *sl, o_one))
                 {
-                    s->decref();
+                    decref(s);
                     FAIL();
                 }
             }
@@ -627,7 +627,7 @@
                 }
                 if (ici_assign(s, *sl, null))
                 {
-                    s->decref();
+                    decref(s);
                     FAIL();
                 }
             }
@@ -664,7 +664,7 @@
                     ici_assign(s, *sl, o_one)
                 )
                 {
-                    s->decref();
+                    decref(s);
                     FAIL();
                 }
             }
@@ -997,12 +997,12 @@ usei:
 
 #ifdef BINOPFUNC
 looseo:
-    o->decref();
+    decref(o);
 useo:
     os.a_top[-2] = o;
 done:
 #else // non-binop func version does not 'goto' the labels above
-    o->decref();
+    decref(o);
     os.a_top[-2] = o;
 #endif
     --os.a_top;

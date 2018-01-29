@@ -121,7 +121,7 @@ ici_profilecall_new(profilecall *called_by)
      *
      *    if ((g = atom_gob(gob)) != nullptr)
      *    {
-     *        g->incref();
+     *        incref(g);
      *        return g;
      *    }
      */
@@ -141,7 +141,7 @@ ici_profilecall_new(profilecall *called_by)
         ici_tfree(pc, profilecall);
         return nullptr;
     }
-    pc->pc_calls->decref();
+    decref(pc->pc_calls);
     pc->pc_total = 0;
     pc->pc_laststart = 0;
     pc->pc_call_count = 0;
@@ -218,7 +218,7 @@ void ici_profile_call(func *f)
         /* No, create a new record. */
         pc = ici_profilecall_new(ici_prof_cur_call);
         assert(pc != nullptr);
-        pc->decref();
+        decref(pc);
 
         /* Add it to the calling function. */
         ici_assign(ici_prof_cur_call->pc_calls, f, pc);
@@ -328,7 +328,7 @@ ici_profile_return()
             }
 
             /* No more profiling. */
-            ici_prof_cur_call->decref();
+            decref(ici_prof_cur_call);
             ici_prof_cur_call = nullptr;
             ici_profile_active = 0;
         }

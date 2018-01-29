@@ -199,7 +199,7 @@ static array *ident_list(parse *p) {
     }
 
 fail:
-    a->decref();
+    decref(a);
     return nullptr;
 }
 
@@ -237,7 +237,7 @@ static int function(parse *p, str *name) {
     if ((f->f_autos = new_map()) == nullptr) {
         goto fail;
     }
-    f->f_autos->decref();
+    decref(f->f_autos);
     if (ici_assign(f->f_autos, SS(_func_), f)) {
         goto fail;
     }
@@ -249,7 +249,7 @@ static int function(parse *p, str *name) {
     f->f_autos->o_super = objwsupof(vs.a_top[-1])->o_super;
     p->p_func = f;
     f->f_args = a;
-    a->decref();
+    decref(a);
     a = nullptr;
     f->f_name = name;
     switch (compound_statement(p, nullptr)) {
@@ -257,7 +257,7 @@ static int function(parse *p, str *name) {
     case -1: goto fail;
     }
     f->f_code = arrayof(p->p_got.t_obj);
-    f->f_code->decref();
+    decref(f->f_code);
     if (f->f_code->a_top[-1] == &o_end) {
         --f->f_code->a_top;
     }
@@ -278,10 +278,10 @@ static int function(parse *p, str *name) {
 
 fail:
     if (a != nullptr) {
-        a->decref();
+        decref(a);
     }
     if (f != nullptr) {
-        f->decref();
+        decref(f);
     }
     p->p_func = saved_func;
     return -1;
@@ -335,7 +335,7 @@ static int data_def(parse *p, objwsup *ows) {
 
         default:
             o = null;
-            o->incref();
+            incref(o);
             reject(p);
         }
 
@@ -348,9 +348,9 @@ static int data_def(parse *p, objwsup *ows) {
                 goto fail;
             }
         }
-        n->decref();
+        decref(n);
         n = nullptr;
-        o->decref();
+        decref(o);
         o = nullptr;
 
         if (wasfunc) {
@@ -368,10 +368,10 @@ static int data_def(parse *p, objwsup *ows) {
 
  fail:
     if (n != nullptr) {
-        n->decref();
+        decref(n);
     }
     if (o != nullptr) {
-        o->decref();
+        decref(o);
     }
     return -1;
 }
@@ -416,7 +416,7 @@ static int compound_statement(parse *p, map *sw)
 
  fail:
     if (a != nullptr) {
-        a->decref();
+        decref(a);
     }
     return -1;
 }
@@ -432,7 +432,7 @@ static void free_expr(expr *e) {
             free_expr(e->e_arg[1]);
         }
         if (e->e_obj != nullptr) {
-            e->e_obj->decref();
+            decref(e->e_obj);
         }
         e1 = e;
         e = e->e_arg[0];
@@ -517,9 +517,9 @@ static int primary(parse *p, expr **ep, int exclude) {
             memcpy(buf, stringof(o)->s_chars,   stringof(o)->s_nchars);
             memcpy(buf + stringof(o)->s_nchars, stringof(p->p_got.t_obj)->s_chars, i);
             i += stringof(o)->s_nchars;
-            o->decref();
+            decref(o);
             curtok = T_NONE; /* Take ownership of obj. */
-            p->p_got.t_obj->decref();
+            decref(p->p_got.t_obj);
             if ((o = new_str(buf, i)) == nullptr) {
                 goto fail;
             }
@@ -528,7 +528,7 @@ static int primary(parse *p, expr **ep, int exclude) {
         reject(p);
         if (token == T_REGEXP) {
             e->e_obj = new_regexp(stringof(o), 0);
-            o->decref();
+            decref(o);
             if (e->e_obj == nullptr) {
                 goto fail;
             }
@@ -542,21 +542,21 @@ static int primary(parse *p, expr **ep, int exclude) {
         curtok = T_NONE; /* Take ownership of name. */
         if (p->p_got.t_obj == SS(_NULL_)) {
             e->e_what = T_NULL;
-            p->p_got.t_obj->decref();
+            decref(p->p_got.t_obj);
             break;
         }
         if (p->p_got.t_obj == SS(_false_)) {
             e->e_what = T_INT;
-            p->p_got.t_obj->decref();
+            decref(p->p_got.t_obj);
             e->e_obj = o_zero;
-            e->e_obj->incref();
+            incref(e->e_obj);
             break;
         }
         if (p->p_got.t_obj == SS(_true_)) {
             e->e_what = T_INT;
-            p->p_got.t_obj->decref();
+            decref(p->p_got.t_obj);
             e->e_obj = o_one;
-            e->e_obj->incref();
+            incref(e->e_obj);
             break;
         }
         e->e_what = T_NAME;
@@ -579,19 +579,19 @@ static int primary(parse *p, expr **ep, int exclude) {
         }
         curtok = T_NONE; /* Take ownership of name. */
         if (p->p_got.t_obj == SS(array)) {
-            p->p_got.t_obj->decref();
+            decref(p->p_got.t_obj);
             if ((a = new_array()) == nullptr) {
                 goto fail;
             }
             for (;;) {
                 switch (const_expression(p, &o, T_COMMA)) {
                 case -1:
-                    a->decref();
+                    decref(a);
                     goto fail;
 
                 case 1:
                     if (a->push_check()) {
-                        a->decref();
+                        decref(a);
                         goto fail;
                     }
                     a->push(o, with_decref);
@@ -605,7 +605,7 @@ static int primary(parse *p, expr **ep, int exclude) {
             }
             if (next(p, nullptr) != T_OFFSQUARE) {
                 reject(p);
-                a->decref();
+                decref(a);
                 not_followed_by("[array expr, expr ...", "\",\" or \"]\"");
                 goto fail;
             }
@@ -623,7 +623,7 @@ static int primary(parse *p, expr **ep, int exclude) {
         {
             map    *super;
 
-            p->p_got.t_obj->decref();
+            decref(p->p_got.t_obj);
             d = nullptr;
             super = nullptr;
             if (next(p, nullptr) == T_COLON || curtok == T_EQ) {
@@ -643,7 +643,7 @@ static int primary(parse *p, expr **ep, int exclude) {
                                   stringof(name)->s_chars,
                                   is_eq ? '=' : ':',
                                   objname(n, o));
-                    o->decref();
+                    decref(o);
                     goto fail;
                 }
                 if (is_eq) {
@@ -660,10 +660,10 @@ static int primary(parse *p, expr **ep, int exclude) {
                 default:
                     reject(p);
                     if (super != nullptr) {
-                        super->decref();
+                        decref(super);
                     }
                     if (d != nullptr) {
-                        o->decref();
+                        decref(o);
                     }
                     sprintf(n, "[%s %c expr", stringof(name)->s_chars, is_eq ? '=' : ':');
                     not_followed_by(n, "\",\" or \"]\"");
@@ -683,7 +683,7 @@ static int primary(parse *p, expr **ep, int exclude) {
                     }
                 } else {
                     d->o_super = objwsupof(super);
-                    super->decref();
+                    decref(super);
                 }
             }
 
@@ -691,7 +691,7 @@ static int primary(parse *p, expr **ep, int exclude) {
                 map    *autos;
 
                 if ((autos = new_map()) == nullptr) {
-                    d->decref();
+                    decref(d);
                     goto fail;
                 }
                 autos->o_super = objwsupof(d);
@@ -701,10 +701,10 @@ static int primary(parse *p, expr **ep, int exclude) {
                 --p->p_module_depth;
                 --vs.a_top;
                 if (o == nullptr) {
-                    d->decref();
+                    decref(d);
                     goto fail;
                 }
-                o->decref();
+                decref(o);
                 e->e_what = T_CONST;
                 e->e_obj = d;
                 break;
@@ -717,12 +717,12 @@ static int primary(parse *p, expr **ep, int exclude) {
                  * the class. Create autos with the new struct as the super.
                  */
                 if ((autos = new_map()) == nullptr) {
-                    d->decref();
+                    decref(d);
                     goto fail;
                 }
                 autos->o_super = objwsupof(d);
                 if (vs.push_check(80)) { /* ### Formalise */
-                    d->decref();
+                    decref(d);
                     goto fail;
                 }
                 vs.push(autos, with_decref);
@@ -735,12 +735,12 @@ static int primary(parse *p, expr **ep, int exclude) {
                 case T_ONROUND:
                     switch (const_expression(p, &o, T_NONE)) {
                     case 0: not_followed_by("[map ... (", an_expression);
-                    case -1: d->decref(); goto fail;
+                    case -1: decref(d); goto fail;
                     }
                     if (next(p, nullptr) != T_OFFROUND) {
                         reject(p);
                         not_followed_by("[map ... (expr", "\")\"");
-                        d->decref();
+                        decref(d);
                         goto fail;
                     }
                     n = o;
@@ -754,7 +754,7 @@ static int primary(parse *p, expr **ep, int exclude) {
                     if (next(p, nullptr) == T_ONROUND) {
                         reject(p);
                         if (function(p, stringof(n)) < 0) {
-                            d->decref();
+                            decref(d);
                             goto fail;
                         }
                         o = p->p_got.t_obj;
@@ -763,25 +763,25 @@ static int primary(parse *p, expr **ep, int exclude) {
                     else if (curtok == T_EQ) {
                         switch (const_expression(p, &o, T_COMMA)) {
                         case 0: not_followed_by("[map ... ident =", an_expression);
-                        case -1: d->decref(); goto fail;
+                        case -1: decref(d); goto fail;
                         }
                     }
                     else if (curtok == T_COMMA || curtok == T_OFFSQUARE) {
                         reject(p);
                         o = null;
-                        o->incref();
+                        incref(o);
                     } else {
                         reject(p);
                         not_followed_by("[map ... key", "\"=\", \"(\", \",\" or \"]\"");
-                        d->decref();
-                        n->decref();
+                        decref(d);
+                        decref(n);
                         goto fail;
                     }
                     if (ici_assign_base(d, n, o)) {
                         goto fail;
                     }
-                    n->decref();
-                    o->decref();
+                    decref(n);
+                    decref(o);
                     switch (next(p, nullptr)) {
                     case T_OFFSQUARE:
                         reject(p);
@@ -796,13 +796,13 @@ static int primary(parse *p, expr **ep, int exclude) {
                     }
                     reject(p);
                     not_followed_by("[map ... key = expr", "\",\" or \"]\"");
-                    d->decref();
+                    decref(d);
                     goto fail;
 
                 default:
                     reject(p);
                     not_followed_by("[map ...", "an initialiser");
-                    d->decref();
+                    decref(d);
                     goto fail;
                 }
                 break;
@@ -817,22 +817,22 @@ static int primary(parse *p, expr **ep, int exclude) {
             e->e_obj = d;
         }
         else if (p->p_got.t_obj == SS(set)) {
-            p->p_got.t_obj->decref();
+            decref(p->p_got.t_obj);
             if ((s = new_set()) == nullptr) {
                 goto fail;
             }
             for (;;) {
                 switch (const_expression(p, &o, T_COMMA)) {
                 case -1:
-                    s->decref();
+                    decref(s);
                     goto fail;
 
                 case 1:
                     if (ici_assign(s, o, o_one)) {
-                        s->decref();
+                        decref(s);
                         goto fail;
                     }
-                    o->decref();
+                    decref(o);
                     if (next(p, nullptr) == T_COMMA) {
                         continue;
                     }
@@ -843,7 +843,7 @@ static int primary(parse *p, expr **ep, int exclude) {
             }
             if (next(p, nullptr) != T_OFFSQUARE) {
                 reject(p);
-                s->decref();
+                decref(s);
                 not_followed_by("[set expr, expr ...", "\"]\"");
                 goto fail;
             }
@@ -851,7 +851,7 @@ static int primary(parse *p, expr **ep, int exclude) {
             e->e_obj = s;
         }
         else if (p->p_got.t_obj == SS(func)) {
-            p->p_got.t_obj->decref();
+            decref(p->p_got.t_obj);
             switch (function(p, SS(empty_string))) {
             case 0: not_followed_by("[func", "function body");
             case -1:
@@ -888,18 +888,18 @@ static int primary(parse *p, expr **ep, int exclude) {
             if (f == nullptr) {
                 goto fail_user_parse;
             }
-            c->incref();
+            incref(c);
             if (call(c, "o=o", &n, f)) {
                 goto fail_user_parse;
             }
             e->e_what = T_CONST;
             e->e_obj = n;
-            s->decref();
+            decref(s);
             if (o != nullptr) {
-                o->decref();
+                decref(o);
             }
-            f->decref();
-            c->decref();
+            decref(f);
+            decref(c);
             if (next(p, nullptr) != T_OFFSQUARE) {
                 reject(p);
                 not_followed_by("[name ... ", "\"]\"");
@@ -908,15 +908,15 @@ static int primary(parse *p, expr **ep, int exclude) {
             break;
 
         fail_user_parse:
-            s->decref();
+            decref(s);
             if (o != nullptr) {
-                o->decref();
+                decref(o);
             }
             if (f != nullptr) {
-                f->decref();
+                decref(f);
             }
             if (c != nullptr) {
-                c->decref();
+                decref(c);
             }
             goto fail;
         }
@@ -1075,7 +1075,7 @@ static int primary(parse *p, expr **ep, int exclude) {
  fail:
     if (e != nullptr) {
         if (e->e_obj != nullptr) {
-            e->e_obj->decref();
+            decref(e->e_obj);
         }
         ici_tfree(e, expr);
     }
@@ -1294,7 +1294,7 @@ static int const_expression(parse *p, object **po, int exclude) {
     case T_CONST:
         *po = e->e_obj;
     simple:
-        (*po)->incref();
+        incref(*po);
         free_expr(e);
         return 1;
     }
@@ -1313,12 +1313,12 @@ static int const_expression(parse *p, object **po, int exclude) {
     if ((*po = evaluate(a, 0)) == nullptr) {
         goto fail;
     }
-    a->decref();
+    decref(a);
     return 1;
 
  fail:
     if (a != nullptr) {
-        a->decref();
+        decref(a);
     }
     free_expr(e);
     return -1;
@@ -1395,7 +1395,7 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
     case T_NAME:
         curtok = T_NONE; /* Assume we own the name. */
         if (p->p_got.t_obj == SS(export)) {
-            p->p_got.t_obj->decref();
+            decref(p->p_got.t_obj);
             if ((ows = objwsupof(vs.a_top[-1])->o_super) == nullptr || (ows = ows->o_super) == nullptr) {
                 set_error("global declaration, but no global variable scope");
                 return -1;
@@ -1403,7 +1403,7 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
             goto decl;
         }
         if (p->p_got.t_obj == SS(local)) {
-            p->p_got.t_obj->decref();
+            decref(p->p_got.t_obj);
             if ((ows = objwsupof(vs.a_top[-1])->o_super) == nullptr) {
                 set_error("local declaration, but no local variable scope");
                 return -1;
@@ -1411,7 +1411,7 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
             goto decl;
         }
         if (p->p_got.t_obj == SS(var)) {
-            p->p_got.t_obj->decref();
+            decref(p->p_got.t_obj);
             if (p->p_func == nullptr) {
                 ows = objwsupof(vs.a_top[-1]);
             } else {
@@ -1424,7 +1424,7 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
             break;
         }
         if (p->p_got.t_obj == SS(case)) {
-            p->p_got.t_obj->decref();
+            decref(p->p_got.t_obj);
             if (sw == nullptr) {
                 set_error("\"case\" not at top level of switch body");
                 return -1;
@@ -1446,16 +1446,16 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
                 --stepz;
             }
             if ((i = new_int((long)stepz)) == nullptr) {
-                o->decref();
+                decref(o);
                 return -1;
             }
             if (ici_assign(sw, o, i)) {
-                i->decref();
-                o->decref();
+                decref(i);
+                decref(o);
                 return -1;
             }
-            i->decref();
-            o->decref();
+            decref(i);
+            decref(o);
             if (next(p, a) != T_COLON) {
                 reject(p);
                 return not_followed_by("case expr", "\":\"");
@@ -1463,7 +1463,7 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
             break;
         }
         if (p->p_got.t_obj == SS(default)) {
-            p->p_got.t_obj->decref();
+            decref(p->p_got.t_obj);
             if (sw == nullptr) {
                 set_error("\"default\" not at top level of switch body");
                 return -1;
@@ -1488,14 +1488,14 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
                 return -1;
             }
             if (ici_assign(sw, &o_mark, i)) {
-                i->decref();
+                decref(i);
                 return -1;
             }
-            i->decref();
+            decref(i);
             break;
         }
         if (p->p_got.t_obj == SS(if)) {
-            p->p_got.t_obj->decref();
+            decref(p->p_got.t_obj);
             if (xx_brac_expr_brac(p, a, "if") != 1) {
                 return -1;
             }
@@ -1503,7 +1503,7 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
                 return -1;
             }
             if (statement(p, a1, nullptr, "if (expr)", 1) == -1) {
-                a1->decref();
+                decref(a1);
                 return -1;
             }
             a2 = nullptr;
@@ -1513,23 +1513,23 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
              */
             if (next(p, nullptr) == T_NAME && p->p_got.t_obj == SS(else)) {
                 curtok = T_NONE; /* Take ownership of name. */
-                p->p_got.t_obj->decref();
+                decref(p->p_got.t_obj);
                 if ((a2 = new_array()) == nullptr) {
-                    a1->decref();
+                    decref(a1);
                     return -1;
                 }
                 if (statement(p, a2, nullptr, "if (expr) stmt else", 1) == -1) {
-                    a1->decref();
-                    a2->decref();
+                    decref(a1);
+                    decref(a2);
                     return -1;
                 }
             } else {
                 reject(p);
             }
             if (a->push_check(3)) {
-                a1->decref();
+                decref(a1);
                 if (a2 != nullptr) {
-                    a2->decref();
+                    decref(a2);
                 }
                 return -1;
             }
@@ -1541,20 +1541,20 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
                 a->push(&o_if);
                 a->push(a1);
             }
-            a1->decref();
+            decref(a1);
             break;
         }
         if (p->p_got.t_obj == SS(while)) {
-            p->p_got.t_obj->decref();
+            decref(p->p_got.t_obj);
             if ((a1 = new_array()) == nullptr) {
                 return -1;
             }
             if (xx_brac_expr_brac(p, a1, "while") != 1) {
-                a1->decref();
+                decref(a1);
                 return -1;
             }
             if (a1->push_check()) {
-                a1->decref();
+                decref(a1);
                 return -1;
             }
             a1->push(&o_ifnotbreak);
@@ -1564,17 +1564,17 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
                 rc = statement(p, a1, nullptr, "while (expr)", 0);
                 decrement_break_continue_depth(p);
                 if (rc == -1) {
-                    a1->decref();
+                    decref(a1);
                     return -1;
                 }
             }
             if (a1->push_check()) {
-                a1->decref();
+                decref(a1);
                 return -1;
             }
             a1->push(&o_rewind);
             if (a->push_check(2)) {
-                a1->decref();
+                decref(a1);
                 return -1;
             }
             a->push(&o_loop);
@@ -1582,7 +1582,7 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
             break;
         }
         if (p->p_got.t_obj == SS(do)) {
-            p->p_got.t_obj->decref();
+            decref(p->p_got.t_obj);
             if ((a1 = new_array()) == nullptr) {
                 return -1;
             }
@@ -1592,39 +1592,39 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
                 rc = statement(p, a1, nullptr, "do", 0);
                 decrement_break_continue_depth(p);
                 if (rc == -1) {
-                    a1->decref();
+                    decref(a1);
                     return -1;
                 }
             }
             if (next(p, a1) != T_NAME || p->p_got.t_obj != SS(while)) {
                 reject(p);
-                a1->decref();
+                decref(a1);
                 return not_followed_by("do statement", "\"while\"");
             }
             curtok = T_NONE; /* Take ownership of name. */
-            p->p_got.t_obj->decref();
+            decref(p->p_got.t_obj);
             if (next(p, nullptr) != T_ONROUND) {
                 reject(p);
-                a1->decref();
+                decref(a1);
                 return not_followed_by("do statement while", "\"(\"");
             }
             switch (expression(p, a1, FOR_VALUE, T_NONE)) {
             case 0: set_error("syntax error");
-            case -1: a1->decref(); return -1;
+            case -1: decref(a1); return -1;
             }
             if (next(p, a1) != T_OFFROUND || next(p, nullptr) != T_SEMICOLON) {
                 reject(p);
-                a1->decref();
+                decref(a1);
                 return not_followed_by("do statement while (expr", "\");\"");
             }
             if (a1->push_check(2)) {
-                a1->decref();
+                decref(a1);
                 return -1;
             }
             a1->push(&o_ifnotbreak);
             a1->push(&o_rewind);
             if (a->push_check(2)) {
-                a1->decref();
+                decref(a1);
                 return -1;
             }
             a->push(&o_loop);
@@ -1634,7 +1634,7 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
         if (p->p_got.t_obj == SS(forall)) {
             int         rc;
 
-            p->p_got.t_obj->decref();
+            decref(p->p_got.t_obj);
             if (next(p, a) != T_ONROUND) {
                 reject(p);
                 return not_followed_by("forall", "\"(\"");
@@ -1658,7 +1658,7 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
                     return not_followed_by("forall (expr, expr", "\"in\"");
                 }
                 curtok = T_NONE; /* Take ownership of name. */
-                p->p_got.t_obj->decref();
+                decref(p->p_got.t_obj);
             }
             else
             {
@@ -1667,7 +1667,7 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
                     return not_followed_by("forall (expr", "\",\" or \"in\"");
                 }
                 curtok = T_NONE; /* Take ownership of name. */
-                p->p_got.t_obj->decref();
+                decref(p->p_got.t_obj);
                 if (a->push_check(2)) {
                     return -1;
                 }
@@ -1690,12 +1690,12 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
                 rc = statement(p, a1, nullptr, "forall (expr [, expr] in expr)", 1);
                 decrement_break_continue_depth(p);
                 if (rc == -1) {
-                    a1->decref();
+                    decref(a1);
                     return -1;
                 }
             }
             if (a->push_check(2)) {
-                a1->decref();
+                decref(a1);
                 return -1;
             }
             a->push(a1, with_decref);
@@ -1708,7 +1708,7 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
 
         }
         if (p->p_got.t_obj == SS(for)) {
-            p->p_got.t_obj->decref();
+            decref(p->p_got.t_obj);
             if (next(p, a) != T_ONROUND) {
                 reject(p);
                 return not_followed_by("for", "\"(\"");
@@ -1740,7 +1740,7 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
                 return -1;
             }
             if (expression(p, a1, FOR_EFFECT, T_NONE) == -1) {
-                a1->decref();
+                decref(a1);
                 return -1;
             }
             stepz = a1->a_top - a1->a_base;
@@ -1751,19 +1751,19 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
                  */
                 if (compile_expr(a1, e, FOR_VALUE)) {
                     free_expr(e);
-                    a1->decref();
+                    decref(a1);
                     return -1;
                 }
                 free_expr(e);
                 if (a1->push_check()) {
-                    a1->decref();
+                    decref(a1);
                     return -1;
                 }
                 a1->push(&o_ifnotbreak);
             }
             if (next(p, a1) != T_OFFROUND) {
                 reject(p);
-                a1->decref();
+                decref(a1);
                 return not_followed_by("for (expr; expr; expr", "\")\"");
             }
             {
@@ -1772,17 +1772,17 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
                 rc = statement(p, a1, nullptr, "for (expr; expr; expr)", 0);
                 decrement_break_continue_depth(p);
                 if (rc == -1) {
-                    a1->decref();
+                    decref(a1);
                     return -1;
                 }
             }
             if (a1->push_check()) {
-                a1->decref();
+                decref(a1);
                 return -1;
             }
             a1->push(&o_rewind);
             if (a->push_check(2)) {
-                a1->decref();
+                decref(a1);
                 return -1;
             }
             a->push(a1, with_decref);
@@ -1794,7 +1794,7 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
             break;
         }
         if (p->p_got.t_obj == SS(switch)) {
-            p->p_got.t_obj->decref();
+            decref(p->p_got.t_obj);
             if (xx_brac_expr_brac(p, a, "switch") != 1) {
                 return -1;
             }
@@ -1810,13 +1810,13 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
                 case 0:
                     not_followed_by("switch (expr)", "a compound statement");
                 case -1:
-                    d->decref();
+                    decref(d);
                     return -1;
                 }
             }
             if (a->push_check(3)) {
-                d->decref();
-                p->p_got.t_obj->decref();
+                decref(d);
+                decref(p->p_got.t_obj);
                 return -1;
             }
             a->push(p->p_got.t_obj, with_decref);
@@ -1825,7 +1825,7 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
             break;
         }
         if (p->p_got.t_obj == SS(break)) {
-            p->p_got.t_obj->decref();
+            decref(p->p_got.t_obj);
             if (p->p_break_depth == 0) {
                 return not_allowed("break");
             }
@@ -1841,7 +1841,7 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
 
         }
         if (p->p_got.t_obj == SS(continue)) {
-            p->p_got.t_obj->decref();
+            decref(p->p_got.t_obj);
             if (p->p_continue_depth == 0) {
                 return not_allowed("continue");
             }
@@ -1856,7 +1856,7 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
             break;
         }
         if (p->p_got.t_obj == SS(return)) {
-            p->p_got.t_obj->decref();
+            decref(p->p_got.t_obj);
             switch (expression(p, a, FOR_VALUE, T_NONE)) {
             case -1: return -1;
             case 0:
@@ -1874,32 +1874,32 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
             break;
         }
         if (p->p_got.t_obj == SS(try)) {
-            p->p_got.t_obj->decref();
+            decref(p->p_got.t_obj);
             if ((a1 = new_array()) == nullptr) {
                 return -1;
             }
             if (statement(p, a1, nullptr, "try", 1) == -1) {
-                a1->decref();
+                decref(a1);
                 return -1;
             }
             if (next(p, nullptr) != T_NAME || p->p_got.t_obj != SS(onerror)) {
                 reject(p);
-                a1->decref();
+                decref(a1);
                 return not_followed_by("try statement", "\"onerror\"");
             }
             curtok = T_NONE; /* Take ownership of name. */
-            p->p_got.t_obj->decref();
+            decref(p->p_got.t_obj);
             if ((a2 = new_array()) == nullptr) {
                 return -1;
             }
             if (statement(p, a2, nullptr, "try statement onerror", 1) == -1) {
-                a1->decref();
-                a2->decref();
+                decref(a1);
+                decref(a2);
                 return -1;
             }
             if (a->push_check(3)) {
-                a1->decref();
-                a2->decref();
+                decref(a1);
+                decref(a2);
                 return -1;
             }
             a->push(a1, with_decref);
@@ -1908,7 +1908,7 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
             break;
         }
         if (p->p_got.t_obj == SS(critsect)) {
-            p->p_got.t_obj->decref();
+            decref(p->p_got.t_obj);
             /*
              * Start a critical section with a new code array (a1) as
              * its subject. Into this code array we place the statement.
@@ -1927,7 +1927,7 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
             break;
         }
         if (p->p_got.t_obj == SS(waitfor)) {
-            p->p_got.t_obj->decref();
+            decref(p->p_got.t_obj);
             /*
              * Start a critical section with a new code array (a1) as
              * its subject. Into this code array we place a loop followed
@@ -2066,12 +2066,12 @@ int parse_file(file *f, objwsup *s) {
     vs.push(s);
     if ((o = evaluate(p, 0)) == nullptr) {
         --vs.a_top;
-        p->decref();
+        decref(p);
         return -1;
     }
     --vs.a_top;
-    o->decref();
-    p->decref();
+    decref(o);
+    decref(p);
     return 0;
 }
 
@@ -2113,23 +2113,23 @@ int parse_file(const char *mname, char *fileo, ftype *ftype) {
     if ((a->o_super = s = objwsupof(new_map())) == nullptr) {
         goto fail;
     }
-    s->decref();
+    decref(s);
     s->o_super = objwsupof(vs.a_top[-1])->o_super;
 
     if (parse_file(f, a) < 0) {
         goto fail;
     }
     close_file(f);
-    a->decref();
-    f->decref();
+    decref(a);
+    decref(f);
     return 0;
 
  fail:
     if (f != nullptr) {
-        f->decref();
+        decref(f);
     }
     if (a != nullptr) {
-        a->decref();
+        decref(a);
     }
     return -1;
 }
@@ -2178,7 +2178,7 @@ int parse_exec() {
 #           endif
             get_pc(a, xs.a_top);
             ++xs.a_top;
-            a->decref();
+            decref(a);
             return 0;
 
         case 0:
@@ -2196,12 +2196,12 @@ int parse_exec() {
                 goto fail;
             }
             --xs.a_top;
-            a->decref();
+            decref(a);
             return 0;
 
         default:
         fail:
-            a->decref();
+            decref(a);
             expand_error(p->p_lineno, p->p_file->f_name);
             return 1;
         }
@@ -2236,10 +2236,10 @@ size_t parse_type::mark(object *o) {
  */
 void parse_type::free(object *o) {
     if (parseof(o)->p_got.t_what & TM_HASOBJ) {
-        parseof(o)->p_got.t_obj->decref();
+        decref(parseof(o)->p_got.t_obj);
     }
     if (parseof(o)->p_ungot.t_what & TM_HASOBJ) {
-        parseof(o)->p_ungot.t_obj->decref();
+        decref(parseof(o)->p_ungot.t_obj);
     }
     parseof(o)->p_ungot.t_what = T_NONE;
     ici_tfree(o, parse);
@@ -2305,10 +2305,10 @@ static int f_parseopen() {
 	return 1;
     }
     if ((pf = new_file((char *)p, parse_ftype, f->f_name, nullptr)) == nullptr) {
-        p->decref();
+        decref(p);
 	return 1;
     }
-    p->decref();
+    decref(p);
     return ret_with_decref(pf);
 }
 

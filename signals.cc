@@ -108,7 +108,7 @@ call_signal_handler(object *func, int signo)
     os.push(func);
     if ((ret_obj = evaluate(&o_call, 3)) == nullptr)
         goto fail;
-    ret_obj->decref();
+    decref(ret_obj);
     return 0;
 
 fail:
@@ -407,7 +407,7 @@ f_signal(...)
     else if (isfunc(handlero) || ismethod(handlero))
     {
         signal_handler[signo_to_index(signo)] = handlero;
-        handlero->incref();
+        incref(handlero);
         handler = ici_signal_handler;
     }
     else

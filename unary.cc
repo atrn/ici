@@ -36,7 +36,7 @@ int op_unary()
         if ((i = new_int(~intof(os.a_top[-1])->i_value)) == nullptr)
             return 1;
         os.a_top[-1] = i;
-        i->decref();
+        decref(i);
         --xs.a_top;
         return 0;
 
