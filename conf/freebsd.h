@@ -13,4 +13,7 @@
 
 #define BSD 1
 
+#define ntohll(x) (((uint64_t)(ntohl((uint32_t)(((x) << 32ull) >> 32ull) )) << 32ull) | ntohl(((uint32_t)((x) >> 32ull))))                                        
+#define htonll(x) ntohll(x)
+
 #endif /*ICI_CONF_H*/
