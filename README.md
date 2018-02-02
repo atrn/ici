@@ -16,7 +16,7 @@ good string-handling capabilities.
 The original ICI implementation was in C and distributed under a
 public domain license. This version of ICI has been converted to be a
 C++ program, modifies and extends the language in a number of ways and
-is distributed uing the MIT license.
+is distributed under an MIT license.
 
 This version changes some language keywords, and standard function
 names, and includes a number of extension modules in the base
