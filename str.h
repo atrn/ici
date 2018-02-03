@@ -154,7 +154,7 @@ struct sstring : object
         : object(TC_STRING)
         , s_map(nullptr)
         , s_slot(nullptr)
-#if ICI_KEEP_STRING_HAS
+#if ICI_KEEP_STRING_HASH
         , s_hash(0)
 #endif
         , s_nchars(strlen(cs))
@@ -163,8 +163,8 @@ struct sstring : object
         memcpy(s_inline_chars, cs, s_nchars);
     }
 
-    map *s_map;     /* Where we were last found on the vs. */
-    slot *s_slot;        /* And our slot. */
+    map 	*s_map;     /* Where we were last found on the vs. */
+    slot 	*s_slot;        /* And our slot. */
     uint32_t    s_vsver;        /* The vs version at that time. */
 #   if ICI_KEEP_STRING_HASH
     unsigned long s_hash;       /* String hash code or 0 if not yet computed */
