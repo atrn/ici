@@ -4183,6 +4183,7 @@ ICI_DEFINE_CFUNCS(std)
     ICI_DEFINE_CFUNC2(memoize,     f_coreici, SS(memoize),   SS(core6)),
     ICI_DEFINE_CFUNC2(memoized,    f_coreici, SS(memoized),  SS(core6)),
     ICI_DEFINE_CFUNC2(print,       f_coreici, SS(print),     SS(core7)),
+    ICI_DEFINE_CFUNC2(println,     f_coreici, SS(println),   SS(core7)),
     ICI_DEFINE_CFUNC2(closure,     f_coreici, SS(closure),   SS(core8)),
     ICI_DEFINE_CFUNC1(printf,      ici_f_sprintf, 1),
     ICI_DEFINE_CFUNC(getchar,   f_getchar),

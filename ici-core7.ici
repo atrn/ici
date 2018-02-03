@@ -7,7 +7,7 @@
 export
 print()
 {
-    var vargs, stream, o, v, k, term = "\n", sdelim = "", raw = 0, supers = [set];
+    var vargs, stream, o, v, k, term = "", sdelim = "", raw = 0, supers = [set];
 
     if (vargs == NULL)
     {
@@ -128,4 +128,14 @@ print()
 	printf(stream, "%s%s", string(o), term);
 	break;
     }
+}
+
+export println() {
+    var vargs = [array];
+    stream := stdout;
+    if (len(vargs) > 0 && typeof(vargs[0]) == "file") {
+	stream = vargs[0];
+    }
+    call(print, vargs);
+    printf(stream, "\n");
 }
