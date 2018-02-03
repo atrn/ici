@@ -84,6 +84,7 @@ SSTRING(waitfor, "waitfor")
 SSTRING(result, "result")
 SSTRING(critsect, "critsect")
 SSTRING(raw, "raw")
+SSTRING(icipath, "icipath")
 SSTRING(path, "path")
 SSTRING(ignore, "ignore")
 #ifndef NOCLASSPROTO

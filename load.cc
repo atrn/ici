@@ -416,7 +416,7 @@ int init_path(objwsup *externs)
     {
         return 1;
     }
-    r = ici_assign_base(externs, SS(path), a);
+    r = ici_assign_base(externs, SS(icipath), a);
     decref(a);
     if (r)
     {

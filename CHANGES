@@ -1,5 +1,9 @@
 Major Changes in Version 5
 
+*     Rename 'path' -> 'icipath' which (a) avoids a
+      all to common name and maps directly to the
+      environment variable used to initialize it.
+
 *     The arguments to the save() function are now
       swapped. The object to be saved (serialized)
       is now always first. A file, if specified,

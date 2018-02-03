@@ -619,7 +619,7 @@ array * need_path()
 {
     object           *o;
 
-    o = ici_fetch(vs.a_top[-1], SS(path));
+    o = ici_fetch(vs.a_top[-1], SS(icipath));
     if (!isarray(o))
     {
         return arrayof(not_a("path", "array"));

@@ -6,14 +6,14 @@ if (typeof(stdout) != "file")
     fail("stdout is not a file");
 if (typeof(stderr) != "file")
     fail("stderr is not a file");
-if (typeof(path) != "array")
-    fail("path is not an array");
-if (len(path) == 0)
-    fail("path is empty");
-forall (x in path)
+if (typeof(icipath) != "array")
+    fail("icipath is not an array");
+if (len(icipath) == 0)
+    fail("icipath is empty");
+forall (x in icipath)
 {
     if (typeof(x) != "string")
-        fail("path is not an array of strings");
+        fail("icipath is not an array of strings");
 }
 if (typeof(argv) != "array")
     fail("argv is not an array");

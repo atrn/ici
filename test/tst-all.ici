@@ -2,9 +2,9 @@ printf("%s\n", version());
 
 var n;
 
-rpush(path, ".");
+rpush(icipath, ".");
 
-rpush(path, "..");
+rpush(icipath, "..");
 
 base := dirname(argv[0]);
 
@@ -12,7 +12,7 @@ base := dirname(argv[0]);
  * Use core extensions functions from this directory, even after we
  * change to the test directory.
  */
-rpush(path, base);
+rpush(icipath, base);
 
 chdir(base);
 
