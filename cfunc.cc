@@ -2421,9 +2421,9 @@ fast_gettokens(const char *str, const char *delims)
 static int
 f_gettokens()
 {
-    object           *fo;
-    file          *f;
-    str           *s;
+    object           	*fo;
+    file          	*f;
+    str           	*s;
     unsigned char       *terms;
     int                 nterms;
     unsigned char       *seps;
@@ -2432,7 +2432,7 @@ f_gettokens()
     int                 ndelims;
     int                 hardsep;
     unsigned char       sep;
-    array         *a;
+    array         	*a;
     int                 c;
     int                 i;
     int                 j = 0; /* init to shut up compiler */
@@ -3347,14 +3347,14 @@ nomem:
 static int
 f_getfile()
 {
-    int                 i;
-    int                 c;
+    int           i;
+    int           c;
     file          *f;
     exec          *x = nullptr;
-    char                *b;
-    int                 buf_size;
+    char          *b;
+    int           buf_size;
     str           *str;
-    int                 must_close;
+    int           must_close;
     
     must_close = 0;
     str = nullptr; /* Pessimistic. */
