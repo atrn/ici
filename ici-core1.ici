@@ -5,7 +5,6 @@
  * greater than b. This is coded in ICI because it is a real pain to
  * organise access to the code that implements < and > from C.
  */
-export cmp(a, b)
-{
+export cmp(a, b) {
     return a < b ? -1 : a > b;
 }

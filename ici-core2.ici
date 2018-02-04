@@ -10,47 +10,43 @@
  *
  * Join two or more file system pathname elements and return the resultant path.
  */
-export
-pathjoin(head)
-{
-    var        vargs = [array];
-    var        el;
+export pathjoin(head) {
+    var vargs = [array];
+    var el;
 
-    forall (el in vargs)
+    forall (el in vargs) {
         head = sprintf("%s/%s", head, el);
+    }
     return head;
 }
 
 /*
  * dirname - return the directory portion of a pathname
  */
-export
-dirname(path)
-{
+export dirname(path) {
     var        s;
 
-    if (path !~ #/|\\# || !(s = path ~~ #(.*)(/|\\)([^/\\]*)$#))
+    if (path !~ #/|\\# || !(s = path ~~ #(.*)(/|\\)([^/\\]*)$#)) {
         s = ".";
+    }
     return s;
 }
 
 /*
  * basename - return the base portion of a pathname, minus an optional extension
  */
-export
-basename(path, ext)
-{
+export basename(path, ext) {
     var        s;
     var        ext = NULL;
 
-    if (!(s := path ~~ #([^/\\]*)$#))
+    if (!(s := path ~~ #([^/\\]*)$#)) {
         s = path;
-    if (ext)
-    {
-        var    n;
-        n = len(ext);
-        if (n <= len(s) && interval(s, len(s) - n) == ext)
+    }
+    if (ext) {
+        n := len(ext);
+        if (n <= len(s) && interval(s, len(s) - n) == ext) {
             s = interval(s, 0, len(s) - n);
+        }
     }
     return s;
 }
@@ -78,47 +74,43 @@ basename(path, ext)
  *      filepattern     An option regular expression that filters the names
  *                      of files.
  */
-export
-walk(directory, w)
-{
+export walk(directory, w) {
     var vargs = [array];
 
-    if (!(dirpattern := w.dirpattern))
-	    dirpattern = #.*#;
-    if (!(filepattern := w.filepattern))
-	    filepattern = #.*#;
-
-    names := name := NULL;
-    try
-    	names := dir(directory, dirpattern, "d");
-    onerror
-    {
-	    if (w.error)
-	        w.error(directory, error, dirpattern, "d");
-	    return;
+    if (!(dirpattern := w.dirpattern)) {
+        dirpattern = #.*#;
     }
-    forall (name in names)
-    {
-        if (![set ".", ".."][name])
-        {
+    if (!(filepattern := w.filepattern)) {
+        filepattern = #.*#;
+    }
+    names := name := NULL;
+    try {
+    	names := dir(directory, dirpattern, "d");
+    } onerror {
+	if (w.error) {
+	    w.error(directory, error, dirpattern, "d");
+        }
+        return;
+    }
+    forall (name in names) {
+        if (![set ".", ".."][name]) {
             fullname := pathjoin(directory, name);
-            if (w.directory)
-            call(w.directory, array(fullname) + vargs);
+            if (w.directory) {
+                call(w.directory, array(fullname) + vargs);
+            }
             call(walk, array(fullname, w) + vargs);
         }
     }
-    if (w.file)
-    {
-	try
+    if (w.file) {
+	try {
 	    names := dir(directory, filepattern, "f");
-	onerror
-	{
-	    if (w.error)
-            w.error(directory, error, filepattern, "f");
+	} onerror {
+	    if (w.error) {
+                w.error(directory, error, filepattern, "f");
+            }
 	    return;
 	}
-        forall (name in names)
-        {
+        forall (name in names) {
             fullname := pathjoin(directory, name);
             call(w.file, array(fullname) + vargs);
         }
@@ -129,19 +121,18 @@ walk(directory, w)
  * Open a file by searching along a path. Path may be an array of
  * directory names or a string in usual path notation.
  */
-export
-pfopen(path, name, mode)
-{
+export pfopen(path, name, mode) {
     var mode = "r", p;
 
-    if (typeof(path) == "string")
+    if (typeof(path) == "string") {
         path = gettokens(path, ":");
-    forall (p in path)
-    {
-        try
+    }
+    forall (p in path) {
+        try {
             return fopen(sprintf("%s/%s", p, name), mode);
-        onerror
+        } onerror {
             /* printf(stderr, "%s\n", error) */ ;
+        }        
     }
     fail("could not open " + name);
 }
@@ -149,28 +140,22 @@ pfopen(path, name, mode)
 /*
  * Load a non-var-loaded ICI module
  */
-export
-use()
-{
+export use() {
     var        vargs = [array];
     var        f, s;
     var        path;
     var        err = NULL;
 
     scp = super(top(vstack(), -1));
-    forall (fn in vargs)
-    {
-        try
-        {
+    forall (fn in vargs) {
+        try {
             f = pfopen(icipath, fn + ".ici");
             try
                 parse(f, scp);
             onerror
                 err = error;
             close(f);
-        }
-        onerror
-        {
+        } onerror {
             f = fopen(fn + ".ici");
             try
                 parse(f, scp);

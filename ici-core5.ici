@@ -1,13 +1,10 @@
 /*
  * any = deepatom(any)
  */
-export
-deepatom(o)
-{
+export deepatom(o) {
     t := typeof(o);
     r := v := k := NULL;
-    switch (t)
-    {
+    switch (t) {
     case "array":
 	r := array();
 	forall (v in o)
@@ -34,14 +31,11 @@ deepatom(o)
 /*
  * any = deepcopy(any)
  */
-export
-deepcopy(o)
-{
+export deepcopy(o) {
     t := typeof(o);
     r := o;
     v := k := NULL;
-    switch (t)
-    {
+    switch (t) {
     case "array":
         r = array();
         forall (v in o)
