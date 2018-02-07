@@ -16,8 +16,6 @@
 namespace ici
 {
 
-struct tag_with_decref with_decref;
-
 /*
  * Function to do the hard work for the inline function push_check().
  * See array.h. This reallocates the array buffer.
@@ -678,11 +676,11 @@ int array_type::forall(object *o)
             return 1;
     }
     if (fa->fa_kaggr != null) {
-        if ((i = new_int((long)fa->fa_index)) == nullptr)
+        if ((i = ref(new_int((long)fa->fa_index))) == nullptr)
             return 1;
         if (ici_assign(fa->fa_kaggr, fa->fa_kkey, i))
             return 1;
-        decref(i);
+        // decref(i);
     }
     return 0;
 }
@@ -706,7 +704,7 @@ int array_type::save(archiver *ar, object *o) {
 
 object *array_type::restore(archiver *ar) {
     int64_t len;
-    array *a;
+    object::ref<array> a;
     object *name;
 
     if (ar->restore_name(&name)) {
@@ -715,7 +713,7 @@ object *array_type::restore(archiver *ar) {
     if (ar->read(&len)) {
         return nullptr;
     }
-    if ((a = new_array(len)) == nullptr) {
+    if ((a = ref(new_array(len))) == nullptr) {
         return nullptr;
     }
     if (ar->record(name, a)) {
@@ -724,22 +722,22 @@ object *array_type::restore(archiver *ar) {
     for (; len > 0; --len) {
         object *o;
 
-        if ((o = ar->restore()) == nullptr) {
+        if ((o = ref(ar->restore())) == nullptr) {
             goto fail1;
         }
         if (a->push_back(o)) {
-            decref(o);
+            // decref(o);
             goto fail1;
         }
-        decref(o);
+        // decref(o);
     }
-    return a;
+    return a.release();
 
 fail1:
     ar->remove(name);
 
 fail:
-    decref(a);
+    // decref(a);
     return nullptr;
 }
 

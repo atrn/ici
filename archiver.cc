@@ -155,8 +155,8 @@ int archive_init() {
 void archive_uninit() {
 }
 
-inline object *make_key(object *obj) {
-    return new_int((int64_t)obj);
+inline auto make_key(object *obj) {
+    return ref(new_int((int64_t)obj));
 }
 
 archiver::archiver(file *f, objwsup *scope)
@@ -174,12 +174,7 @@ archiver::~archiver() {
 
 int archiver::record(object *obj, object *ref) {
     if (auto k = make_key(obj)) {
-        if (a_sent->assign(k, ref)) {
-            decref(k);
-            return 1;
-        }
-        decref(k);
-        return 0;
+        return a_sent->assign(k, ref);
     }
     return 1;
 }
@@ -187,27 +182,26 @@ int archiver::record(object *obj, object *ref) {
 void archiver::remove(object *obj) {
     if (auto k = make_key(obj)) {
         unassign(a_sent, k);
-        decref(k);
     }
 }
 
 int archiver::save_name(object *o) {
-    const int64_t ref = (int64_t)o;
+    const int64_t value = (int64_t)o;
     if (record(o, o)) {
         return 1;
     }
-    if (write(ref)) {
+    if (write(value)) {
         return 1;
     }
     return 0;
 }
 
 int archiver::restore_name(object **name) {
-    int64_t ref;
-    if (read(&ref)) {
+    int64_t value;
+    if (read(&value)) {
         return 1;
     }
-    *name = (object *)ref;
+    *name = (object *)value;
     return 0;
 }
 
@@ -236,10 +230,9 @@ object *archiver::restore_ref() {
 }
 
 object *archiver::lookup(object *obj) {
-    object *v = null;
+    object *v = nullptr;
     if (auto k = make_key(obj)) {
         v = a_sent->fetch(k);
-        decref(k);
     }
     return v == null ? nullptr : v;
 }

@@ -73,8 +73,6 @@ namespace ici
  * Note that one must never take the atomic form of a stack, and
  * assume the result is still a stack.
  */
-extern struct tag_with_decref {} with_decref;
-
 struct array : object
 {
     object   **a_top;    /* The next free slot. */

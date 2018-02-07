@@ -14,6 +14,9 @@ namespace ici
  * The following portion of this file exports to ici.h. --ici.h-start--
  */
 
+extern struct tag_with_incref {} with_incref;
+extern struct tag_with_decref {} with_decref;
+
 /*
  * This is the universal 'header' of all objects.  Each object type
  * inherits from object giving it the common 'header' fields, then
@@ -322,7 +325,105 @@ struct object
     inline int save(archiver *a) {
         return icitype()->save(a, this);
     }
+
+    // object::ref is an RAII class that manages object
+    // references, i.e. it decrefs the object when the
+    // ref is destroyed and increfs when refs are copied
+    // or assigned. Moving refs is also supported.
+    //
+    template <typename T>
+    class ref
+    {
+    public:
+	ref(T *obj = nullptr) : _obj(obj)
+	{
+	}
+
+	ref(T *obj, struct tag_with_incref) : _obj(obj)
+	{
+	    if (_obj) {
+		_obj->incref();
+	    }
+	}
+
+	ref(const ref &that) : _obj(that._obj)
+	{
+	    if (_obj) {
+		_obj->incref();
+	    }
+	}
+
+	ref(ref &&that) : _obj(that._obj)
+	{
+	    that._obj = nullptr;
+	}
+
+	ref &operator=(const ref &that)
+	{
+	    _obj = that._obj;
+	    if (_obj) {
+		_obj->incref();
+	    }
+	    return *this;
+	}
+
+	ref &operator=(ref &&that)
+	{
+	    _obj = that._obj;
+	    that._obj = nullptr;
+	    return *this;
+	}
+
+	~ref() {
+	    if (_obj) {
+		_obj->decref();
+	    }
+	}
+
+	operator T *() {
+	    return _obj;
+	}
+
+	T *operator->() {
+	    return _obj;
+	}
+
+	T &operator*() {
+	    assert(_obj != nullptr);
+	    return *_obj;
+	}
+
+	operator const T *() const {
+	    return _obj;
+	}
+
+	const T *operator->() const {
+	    return _obj;
+	}
+
+	const T &operator*() const {
+	    assert(_obj != nullptr);
+	    return *_obj;
+	}
+
+	T * release() {
+	    auto obj = _obj;
+	    _obj = nullptr;
+	    return obj;
+	}
+
+    private:
+	T *_obj;
+    };
 };
+
+// Templated function using argument type deduction to
+// turn a T * into an object::ref<T>.
+//
+template <typename T>
+object::ref<T> ref(T *obj) {
+    return object::ref<T>(obj);
+}
 
 /*
  * "Object with super." This is a specialised header for all objects that

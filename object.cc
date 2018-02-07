@@ -11,6 +11,9 @@
 namespace ici
 {
 
+struct tag_with_incref with_incref;
+struct tag_with_decref with_decref;
+
 /*
  * The following define is useful during debug and testing. It will
  * cause every call to an allocation function to garbage collect.
