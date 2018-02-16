@@ -635,13 +635,11 @@ array * need_path()
  *
  * This --func-- forms part of the --ici-api--.
  */
-file * need_stdin()
-{
+file *need_stdin() {
     file          *f;
 
     f = fileof(ici_fetch(vs.a_top[-1], SS(_stdin)));
-    if (!isfile(f))
-    {
+    if (!isfile(f)) {
         return fileof(not_a("stdin", "file"));
     }
     return f;
@@ -655,13 +653,11 @@ file * need_stdin()
  *
  * This --func-- forms part of the --ici-api--.
  */
-file * need_stdout()
-{
+file * need_stdout() {
     file          *f;
 
     f = fileof(ici_fetch(vs.a_top[-1], SS(_stdout)));
-    if (!isfile(f))
-    {
+    if (!isfile(f)) {
         return fileof(not_a("stdout", "file"));
     }
     return f;
@@ -764,8 +760,8 @@ static int f_array()
 static int f_map()
 {
     object     **o;
-    int          nargs;
-    map  *s;
+    int         nargs;
+    map         *s;
     objwsup     *super;
 
     nargs = NARGS();
