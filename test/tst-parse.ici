@@ -321,7 +321,7 @@ bad("[func");
 bad("[func(a");
 bad("[func(a,b)");
 bad("local a;");
-bad("export a;");
+bad("extern a;");
 bad("var ##");
 bad("var a =;");
 bad("var f(){");

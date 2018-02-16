@@ -1,7 +1,7 @@
 /*
  * any = deepatom(any)
  */
-export deepatom(o) {
+extern deepatom(o) {
     t := typeof(o);
     r := v := k := NULL;
     switch (t) {
@@ -31,7 +31,7 @@ export deepatom(o) {
 /*
  * any = deepcopy(any)
  */
-export deepcopy(o) {
+extern deepcopy(o) {
     t := typeof(o);
     r := o;
     v := k := NULL;

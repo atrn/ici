@@ -5,7 +5,7 @@
 //  Arguments passed in the call of the callable object are passed as
 //  additional arguments to the bound function.
 //
-export closure(f) {
+extern closure(f) {
     var binding = [class
         new(f) {
             var vargs = @[array];

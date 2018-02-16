@@ -69,7 +69,9 @@
 #include <cerrno>
 #include <cmath>
 
-#undef isset
+#ifdef isset
+# undef isset
+#endif
 
 namespace ici
 {

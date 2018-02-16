@@ -1,4 +1,4 @@
-export report(where)
+extern report(where)
 {
     s := top(vstack(), -1); // caller's scope
     printf("In %s, variable is %s\n", where, s.variable);
@@ -12,7 +12,7 @@ local fn()
     report("a function");
 }
 
-export an_export = "a export";
+extern an_extern = "an extern";
 local a_local = "a local";
 
 local klass = [class

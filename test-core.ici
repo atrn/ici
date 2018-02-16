@@ -799,11 +799,11 @@ printf("func...\n");
 
     local l1       = 1;
     local l2       = 1;
-    parse("parse(\"export l2 = 3; l1=10;\"); if (l2 != 3) fail(\"bad export\");");
+    parse("parse(\"extern l2 = 3; l1=10;\"); if (l2 != 3) fail(\"bad extern\");");
     if (l1 != 10)
         fail("bad scope skip");
     if (l2 != 1)
-        fail("excessive export effect");
+        fail("excessive extern effect");
 
     x = 123;
     if (super(scope()).x != 123)

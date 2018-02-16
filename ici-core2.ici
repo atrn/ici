@@ -10,7 +10,7 @@
  *
  * Join two or more file system pathname elements and return the resultant path.
  */
-export pathjoin(head) {
+extern pathjoin(head) {
     var vargs = [array];
     var el;
 
@@ -23,7 +23,7 @@ export pathjoin(head) {
 /*
  * dirname - return the directory portion of a pathname
  */
-export dirname(path) {
+extern dirname(path) {
     var        s;
 
     if (path !~ #/|\\# || !(s = path ~~ #(.*)(/|\\)([^/\\]*)$#)) {
@@ -35,7 +35,7 @@ export dirname(path) {
 /*
  * basename - return the base portion of a pathname, minus an optional extension
  */
-export basename(path, ext) {
+extern basename(path, ext) {
     var        s;
     var        ext = NULL;
 
@@ -74,7 +74,7 @@ export basename(path, ext) {
  *      filepattern     An option regular expression that filters the names
  *                      of files.
  */
-export walk(directory, w) {
+extern walk(directory, w) {
     var vargs = [array];
 
     if (!(dirpattern := w.dirpattern)) {
@@ -121,7 +121,7 @@ export walk(directory, w) {
  * Open a file by searching along a path. Path may be an array of
  * directory names or a string in usual path notation.
  */
-export pfopen(path, name, mode) {
+extern pfopen(path, name, mode) {
     var mode = "r", p;
 
     if (typeof(path) == "string") {
@@ -140,7 +140,7 @@ export pfopen(path, name, mode) {
 /*
  * Load a non-var-loaded ICI module
  */
-export use() {
+extern use() {
     var        vargs = [array];
     var        f, s;
     var        path;

@@ -99,12 +99,12 @@ if (error == NULL)
 local
 load(name)
 {
-	return super(scope()).var_defined_export = 123;
+	return super(scope()).var_defined_extern = 123;
 }
 
-x := var_defined_export;
+x := var_defined_extern;
 if (x != 123)
-	fail("failed to var-load export");
+	fail("failed to var-load extern");
 
 
 local
@@ -114,7 +114,7 @@ load(name)
 
 error = NULL;
 try
-	x := not_var_defined_export;
+	x := not_var_defined_extern;
 onerror
 	;
 if (error == NULL)
@@ -191,7 +191,7 @@ onerror
 if (error == NULL)
 	fail("failed to fail on undefined with no load()");
 
-export load = saved_load;
+extern load = saved_load;
 
 var a;
 forall (a in [array 1, 2, 3])

@@ -4,7 +4,7 @@
  * Output a textual representation of an object to a file.
  *
  */
-export print() {
+extern print() {
     var vargs, stream, o, v, k, term = "", sdelim = "", raw = false, supers = [set];
 
     if (vargs == NULL) {
@@ -114,7 +114,7 @@ export print() {
     }
 }
 
-export println() {
+extern println() {
     var vargs = [array];
     stream := stdout;
     if (len(vargs) > 0 && typeof(vargs[0]) == "file") {

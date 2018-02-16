@@ -66,11 +66,11 @@ default: all
 #
 test: all
 	@echo; echo '* CORE ================'; echo;\
-	LD_LIBRARY_PATH=`pwd` DYLD_LIBRARY_PATH=`pwd` ./$(prog) test-core.ici
+	LD_LIBRARY_PATH=`pwd` ICIPATH=`pwd` DYLD_LIBRARY_PATH=`pwd` ./$(prog) test-core.ici
 	-@echo; echo ' * TESTS ================'; echo;\
-	LD_LIBRARY_PATH=`pwd` DYLD_LIBRARY_PATH=`pwd` $(MAKE) -C test ici=`pwd`/$(prog) test
+	LD_LIBRARY_PATH=`pwd` ICIPATH=`pwd` DYLD_LIBRARY_PATH=`pwd` $(MAKE) -C test ici=`pwd`/$(prog) test
 	-@echo;echo '* SERIALIZATION ================'; echo;\
-	LD_LIBRARY_PATH=`pwd` DYLD_LIBRARY_PATH=`pwd` $(MAKE) -C test/serialization ici=`pwd`/$(prog) test
+	LD_LIBRARY_PATH=`pwd` ICIPATH=`pwd` DYLD_LIBRARY_PATH=`pwd` $(MAKE) -C test/serialization ici=`pwd`/$(prog) test
 
 # The 'all' target builds an ici interpreter executable and library,
 # if that is enabled.
@@ -81,7 +81,7 @@ all: $(prog) ici.h
 # depends on all files that may contribute to the output.
 #
 ici.h: $(prog) mk-ici-h.ici $(hdrs)
-	@LD_LIBRARY_PATH=`pwd` DYLD_LIBRARY_PATH=`pwd` ./$(prog) mk-ici-h.ici $(conf)
+	@LD_LIBRARY_PATH=`pwd` ICIPATH=`pwd` DYLD_LIBRARY_PATH=`pwd` ./$(prog) mk-ici-h.ici $(conf)
 
 
 ifeq ($(build),dll)

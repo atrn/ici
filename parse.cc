@@ -1394,7 +1394,7 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
 
     case T_NAME:
         curtok = T_NONE; /* Assume we own the name. */
-        if (p->p_got.t_obj == SS(export)) {
+        if (p->p_got.t_obj == SS(extern)) {
             decref(p->p_got.t_obj);
             if ((ows = objwsupof(vs.a_top[-1])->o_super) == nullptr || (ows = ows->o_super) == nullptr) {
                 set_error("global declaration, but no global variable scope");

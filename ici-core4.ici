@@ -15,7 +15,7 @@
  * Map traversal is shallow but does visit any
  * super map.
  */
-export apply(fn, aggr) {
+extern apply(fn, aggr) {
     var vargs = [array];
     k := v := NULL;
     switch (t := typeof(aggr))
@@ -50,7 +50,7 @@ export apply(fn, aggr) {
  *
  * Return m' by transforming the elements of m through f().
  */
-export mapf(aggr, fn) {
+extern mapf(aggr, fn) {
     var vargs = [array];
     v := k := r := NULL;
     switch (t := typeof(aggr))

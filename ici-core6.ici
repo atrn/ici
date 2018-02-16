@@ -1,4 +1,4 @@
-export memoize(fn, args) {
+extern memoize(fn, args) {
     local cache = map();
     key := array(deepatom(fn), deepatom(args));
     if ((result := cache[key]) == NULL) {
@@ -7,7 +7,7 @@ export memoize(fn, args) {
     return result;
 }
 
-export memoized(f) {
+extern memoized(f) {
     return [func () {
 	var vargs = [array];
 	return memoize(f, vargs);

@@ -1,10 +1,10 @@
 // Utilities for the tests.
 
-export count() {
+extern count() {
        return int(argv[1]) || 100;
 }
 
-export data_file() {
+extern data_file() {
        parts := basename(argv[0]) ~~~ #^test-([a-z]+)-(.+)\.ici#;
        if (len(parts) != 2) {
            fail("failed to split argv[0]: " + typeof(parts) + " : " + string(len(parts)));
@@ -14,11 +14,11 @@ export data_file() {
        return filename;
 }
 
-export floateq(a, b) {
+extern floateq(a, b) {
     return abs(b - a) < 1e-16;
 }
 
-export failure() {
+extern failure() {
     var vargs = [array];
     fail(call(sprintf, vargs));
 }
