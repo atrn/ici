@@ -117,6 +117,16 @@ $(error "$(build) is not a supported build")
 endif
 
 
+# Other targets for developer types.
+#
+.PHONY: debug lto
+debug:
+	@$(MAKE) all cxxflags=CXXFLAGS.debug dccflags=$(dccflags) build=$(build)
+
+lto:
+	@$(MAKE) all cxxflags=CXXFLAGS.lto dccflags="$(dccflags) --quiet" build=exe
+
+
 # Cleaning
 
 clean:
@@ -154,17 +164,13 @@ install-ici-exe:
 
 .PHONY: full-install
 full-install:
-	@echo '1. make clean'; $(MAKE) -s clean
-	@echo '2. build dll'; $(MAKE) -s lib build=dll conf=$(conf) dccflags=--quiet
-	@echo '3. install dll'; $(MAKE) -s build=dll install-libici dest=$(dest)
-	@echo '4. make clean'; $(MAKE) -s clean
-	@echo '5. make build=lib'; $(MAKE) -s build=lib conf=$(conf) dccflags=--quiet
-	@echo '6. make install'; $(MAKE) -s build=lib install-libici install-ici-exe dest=$(dest)
-	@echo '7. make clean'; $(MAKE) -s clean
-
-.PHONY: debug lto
-debug:
-	@$(MAKE) all cxxflags=CXXFLAGS.debug dccflags=$(dccflags) build=$(build)
-
-lto:
-	@$(MAKE) all cxxflags=CXXFLAGS.lto dccflags=$(dccflags) build=exe
+	@echo '1  - make clean'; $(MAKE) -s clean
+	@echo '2  - build dll'; $(MAKE) -s lib build=dll conf=$(conf) dccflags=--quiet
+	@echo '3  - install dll'; $(MAKE) -s build=dll install-libici dest=$(dest)
+	@echo '4  - make clean'; $(MAKE) -s clean
+	@echo '5  - make build=lib'; $(MAKE) -s build=lib conf=$(conf) dccflags=--quiet
+	@echo '6  - make install'; $(MAKE) -s build=lib install-libici install-ici-exe dest=$(dest)
+	@echo '7  - make clean'; $(MAKE) -s clean
+	@echo '8  - make lto'; $(MAKE) -s lto
+	@echo '9  - install lto'; $(MAKE) -s install-ici-exe
+	@echo '10 - make clean'; $(MAKE) -s clean
