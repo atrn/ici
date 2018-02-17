@@ -715,25 +715,22 @@ object *array_type::restore(archiver *ar) {
         return nullptr;
     }
     if (ar->record(name, a)) {
-        goto fail;
+        return nullptr;
     }
     for (; len > 0; --len) {
         ref<> o;
 
         if ((o = make_ref(ar->restore())) == nullptr) {
-            goto fail1;
+            goto fail;
         }
         if (a->push_back(o)) {
-            goto fail1;
+            goto fail;
         }
     }
     return a.release();
 
-fail1:
-    ar->remove(name);
-
 fail:
-    // decref(a);
+    ar->remove(name);
     return nullptr;
 }
 

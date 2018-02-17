@@ -533,8 +533,7 @@ int argcount2(int m, int n)
  *
  * This function forms part of ICI's exernal API --ici-api-- --func--
  */
-int ret_with_decref(object *o)
-{
+int ret_with_decref(object *o) {
     if (o == nullptr)
         return 1;
     os.a_top -= NARGS() + 1;
@@ -559,8 +558,7 @@ int ret_with_decref(object *o)
  *
  * This function forms part of ICI's exernal API --ici-api-- --func--
  */
-int ret_no_decref(object *o)
-{
+int ret_no_decref(object *o) {
     if (o == nullptr)
         return 1;
     os.a_top -= NARGS() + 1;
@@ -575,8 +573,7 @@ int ret_no_decref(object *o)
  *
  * This function forms part of ICI's exernal API --ici-api-- --func--
  */
-int int_ret(int64_t ret)
-{
+int int_ret(int64_t ret) {
     return ret_with_decref(new_int(ret));
 }
 
@@ -588,8 +585,7 @@ int int_ret(int64_t ret)
  *
  * This function forms part of ICI's exernal API --ici-api-- --func--
  */
-int float_ret(double ret)
-{
+int float_ret(double ret) {
     return ret_with_decref(new_float(ret));
 }
 
@@ -599,13 +595,11 @@ int float_ret(double ret)
  *
  * This function forms part of ICI's exernal API --ici-api-- --func--
  */
-int str_ret(const char *str)
-{
+int str_ret(const char *str) {
     return ret_with_decref(new_str_nul_term(str));
 }
 
-static object * not_a(const char *what, const char *typ)
-{
+static object * not_a(const char *what, const char *typ) {
     set_error("%s is not a %s", what, typ);
     return nullptr;
 }
@@ -615,13 +609,11 @@ static object * not_a(const char *what, const char *typ)
  * current scope. The array is not increfed - it is assumed to be still
  * referenced from the scope until the caller has finished with it.
  */
-array * need_path()
-{
-    object           *o;
+array * need_path() {
+    object *o;
 
     o = ici_fetch(vs.a_top[-1], SS(icipath));
-    if (!isarray(o))
-    {
+    if (!isarray(o)) {
         return arrayof(not_a("path", "array"));
     }
     return arrayof(o);
@@ -636,7 +628,7 @@ array * need_path()
  * This --func-- forms part of the --ici-api--.
  */
 file *need_stdin() {
-    file          *f;
+    file *f;
 
     f = fileof(ici_fetch(vs.a_top[-1], SS(_stdin)));
     if (!isfile(f)) {
@@ -654,7 +646,7 @@ file *need_stdin() {
  * This --func-- forms part of the --ici-api--.
  */
 file * need_stdout() {
-    file          *f;
+    file *f;
 
     f = fileof(ici_fetch(vs.a_top[-1], SS(_stdout)));
     if (!isfile(f)) {
@@ -667,8 +659,7 @@ file * need_stdout() {
  * For any C functions that return a double and take 0, 1, or 2 doubles as
  * arguments.
  */
-static int f_math()
-{
+static int f_math() {
     double      av[2];
     double      r;
     char        n1[objnamez];
@@ -680,12 +671,12 @@ static int f_math()
         return 1;
     errno = 0;
     r = (*(double (*)(double, double))ICI_CF_ARG1())(av[0], av[1]);
-    if (errno != 0)
-    {
+    if (errno != 0) {
         sprintf(n2, "%g", av[0]);
-        if (NARGS() == 2)
+        if (NARGS() == 2) {
             sprintf(n2 + strlen(n2), ", %g", av[1]);
-         return get_last_errno(objname(n1, os.a_top[-1]), n2);
+        }
+        return get_last_errno(objname(n1, os.a_top[-1]), n2);
     }
     return float_ret(r);
 }
@@ -704,35 +695,36 @@ static int f_math()
  *                      "ici-core.ici" is always parsed.  Others are
  *                      on-demand.)
  */
-int f_coreici(object *s)
-{
-    object           *c;
-    object           *f;
+int f_coreici(object *s) {
+    object *c;
+    object *f;
 
     /*
      * Use the execution engine to evaluate the name of the core module
      * this function is in. It will auto-load if necessary.
      */
-    if ((c = evaluate((object *)ICI_CF_ARG2(), 0)) == nullptr)
+    if ((c = evaluate((object *)ICI_CF_ARG2(), 0)) == nullptr) {
         return 1;
+    }
     /*
      * Fetch the real function from that module and verify it is callable.
      */
     f = ici_fetch_base(c, (object *)ICI_CF_ARG1());
     decref(c);
-    if (f == nullptr)
+    if (f == nullptr) {
         return 1;
-    if (!f->can_call())
-    {
-        char    n1[objnamez];
+    }
+    if (!f->can_call()) {
+        char n1[objnamez];
         return set_error("attempt to call %s", objname(n1, f));
     }
     /*
      * Over-write the definition of the function (which was us) with the
      * real function.
      */
-    if (ici_assign(vs.a_top[-1], (object *)ICI_CF_ARG1(), f))
+    if (ici_assign(vs.a_top[-1], (object *)ICI_CF_ARG1(), f)) {
         return 1;
+    }
     /*
      * Replace us with the new callable object on the operand stack
      * and transfer to it.
@@ -743,22 +735,20 @@ int f_coreici(object *s)
 
 /*--------------------------------------------------------------------------------*/
 
-static int f_array()
-{
-    size_t   nargs;
-    array    *a;
-    object  **o;
+static int f_array() {
+    auto nargs = NARGS();
+    array *a;
 
-    nargs = NARGS();
-    if ((a = new_array(nargs)) == nullptr)
+    if ((a = new_array(nargs)) == nullptr) {
         return 1;
-    for (o = ARGS(); nargs > 0; --nargs)
+    }
+    for (auto o = ARGS(); nargs > 0; --nargs) {
         a->push(*o--);
+    }
     return ret_with_decref(a);
 }
 
-static int f_map()
-{
+static int f_map() {
     object     **o;
     int         nargs;
     map         *s;
@@ -767,22 +757,22 @@ static int f_map()
     nargs = NARGS();
     o = ARGS();
     super = nullptr;
-    if (nargs & 1)
-    {
+    if (nargs & 1) {
         super = objwsupof(*o);
-        if (!hassuper(super) && !isnull(super))
+        if (!hassuper(super) && !isnull(super)) {
             return argerror(0);
-        if (isnull(super))
+        }
+        if (isnull(super)) {
             super = nullptr;
+        }
         --nargs;
         --o;
     }
-    if ((s = new_map()) == nullptr)
+    if ((s = new_map()) == nullptr) {
         return 1;
-    for (; nargs >= 2; nargs -= 2, o -= 2)
-    {
-        if (ici_assign(s, o[0], o[-1]))
-        {
+    }
+    for (; nargs >= 2; nargs -= 2, o -= 2) {
+        if (ici_assign(s, o[0], o[-1])) {
             decref(s);
             return 1;
         }
@@ -791,18 +781,16 @@ static int f_map()
     return ret_with_decref(s);
 }
 
-static int f_set()
-{
+static int f_set() {
     int      nargs;
     set     *s;
     object **o;
 
-    if ((s = new_set()) == nullptr)
+    if ((s = new_set()) == nullptr) {
         return 1;
-    for (nargs = NARGS(), o = ARGS(); nargs > 0; --nargs, --o)
-    {
-        if (ici_assign(s, *o, o_one))
-        {
+    }
+    for (nargs = NARGS(), o = ARGS(); nargs > 0; --nargs, --o) {
+        if (ici_assign(s, *o, o_one)) {
             decref(s);
             return 1;
         }
@@ -810,87 +798,90 @@ static int f_set()
     return ret_with_decref(s);
 }
 
-static int f_keys()
-{
+static int f_keys() {
     array    *k;
 
-    if (NARGS() != 1)
+    if (NARGS() != 1) {
         return argcount(1);
-    if (ismap(ARG(0)))
-    {
+    }
+    if (ismap(ARG(0))) {
         map *s = mapof(ARG(0));
         slot *sl;
 
-        if ((k = new_array(s->s_nels)) == nullptr)
+        if ((k = new_array(s->s_nels)) == nullptr) {
             return 1;
-        for (sl = s->s_slots; sl < s->s_slots + s->s_nslots; ++sl)
-        {
-            if (sl->sl_key != nullptr)
+        }
+        for (sl = s->s_slots; sl < s->s_slots + s->s_nslots; ++sl) {
+            if (sl->sl_key != nullptr) {
                 k->push(sl->sl_key);
+            }
         }
     }
-    else if (isset(ARG(0)))
-    {
+    else if (isset(ARG(0))) {
         set *s = setof(ARG(0));
         size_t i;
 
-        if ((k = new_array(s->s_nels)) == nullptr)
+        if ((k = new_array(s->s_nels)) == nullptr) {
             return 1;
-        for (i = 0; i < s->s_nslots; ++i)
-        {
+        }
+        for (i = 0; i < s->s_nslots; ++i) {
             object *o;
-            if ((o = s->s_slots[i]) != nullptr)
+            if ((o = s->s_slots[i]) != nullptr) {
                 k->push(o);
+            }
         }
     }
-    else
-    {
+    else {
         return argerror(0);
     }
 
     return ret_with_decref(k);
 }
 
-static int f_copy(object *o)
-{
-    if (o != nullptr)
+static int f_copy(object *o) {
+    if (o != nullptr) {
         return ret_with_decref(copyof(o));
-    if (NARGS() != 1)
+    }
+    if (NARGS() != 1) {
         return argcount(1);
+    }
     return ret_with_decref(copyof(ARG(0)));
 }
 
-static int f_typeof()
-{
-    if (NARGS() != 1)
+static int f_typeof() {
+    if (NARGS() != 1) {
         return argcount(1);
-    if (ishandle(ARG(0)))
+    }
+    if (ishandle(ARG(0))) {
         return ret_no_decref(handleof(ARG(0))->h_name);
+    }
     return ret_no_decref(ARG(0)->icitype()->ici_name());
 }
 
-static int f_nels()
-{
+static int f_len() {
     object  *o;
     size_t  size;
 
-    if (NARGS() != 1)
+    if (NARGS() != 1) {
         return argcount(1);
+    }
     o = ARG(0);
-    if (isstring(o))
+    // fixme: len() should be a per-type op
+    if (isstring(o)) {
         size = stringof(o)->s_nchars;
-    else if (isarray(o))
+    } else if (isarray(o)) {
         size = arrayof(o)->len();
-    else if (ismap(o))
+    } else if (ismap(o)) {
         size = mapof(o)->s_nels;
-    else if (isset(o))
+    } else if (isset(o)) {
         size = setof(o)->s_nels;
-    else if (ismem(o))
+    } else if (ismem(o)) {
         size = memof(o)->m_length;
-    else if (ischannel(o))
+    } else if (ischannel(o)) {
         size = channelof(o)->c_capacity;
-    else
+    } else {
         size = 1;
+    }
     return int_ret(size);
 }
 
@@ -4121,7 +4112,7 @@ ICI_DEFINE_CFUNCS(std)
     ICI_DEFINE_CFUNC(del,          f_del),
     ICI_DEFINE_CFUNC(alloc,        f_alloc),
     ICI_DEFINE_CFUNC(mem,          f_mem),
-    ICI_DEFINE_CFUNC(len,          f_nels),
+    ICI_DEFINE_CFUNC(len,          f_len),
     ICI_DEFINE_CFUNC(super,        f_super),
     ICI_DEFINE_CFUNC(scope,        f_scope),
     ICI_DEFINE_CFUNC(isatom,       f_isatom),
