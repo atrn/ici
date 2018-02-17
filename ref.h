@@ -42,9 +42,7 @@ public:
         }
     }
 
-    ref(ref &&that) : _obj(that._obj) {
-        that._obj = nullptr;
-    }
+    ref(ref &&that) : _obj(that.release()) {}
 
     ref &operator=(const ref &that) {
         _obj = that._obj;
@@ -55,8 +53,7 @@ public:
     }
 
     ref &operator=(ref &&that) {
-        _obj = that._obj;
-        that._obj = nullptr;
+        _obj = that.release();
         return *this;
     }
 
