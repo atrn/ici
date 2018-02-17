@@ -33,6 +33,7 @@ incs := [array
     "profile.h",
     "ptr.h",
     "re.h",
+    "ref.h",
     "set.h",
     "src.h",
     "str.h",

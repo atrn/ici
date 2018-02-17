@@ -123,9 +123,8 @@ buildxx(object **r, object **dnext, struct context *c)
         }
         return 0;
     }
-    if (isint(*dnext))
-    {
-        array     *a;
+    if (isint(*dnext)) {
+        ref<array> a;
         int64_t   n;
 
         /*
@@ -133,26 +132,23 @@ buildxx(object **r, object **dnext, struct context *c)
          * recursively fill it based on the next dimension or content.
          */
         n = intof(*dnext)->i_value;
-        if ((a = new_array(n)) == nullptr)
+        if ((a = new_array(n)) == nullptr) {
             return 1;
-        for (i = 0; i < n; ++i)
-        {
-            if (buildxx(a->a_top, dnext + c->c_dstep, c))
-            {
-                decref(a);
+        }
+        for (i = 0; i < n; ++i) {
+            if (buildxx(a->a_top, dnext + c->c_dstep, c)) {
                 return 1;
             }
             ++a->a_top;
             decref(a->a_top[-1]);
         }
-        *r = a;
+        *r = a.release();
     }
-    else if (isarray(*dnext))
-    {
-        array      *a;
-        map *s;
-        object     **e;
-        object     *o;
+    else if (isarray(*dnext)) {
+        ref<map> s;
+        array   *a;
+        object  **e;
+        object  *o;
 
         /*
          * We have an array dimension. This means a struct with the elements
@@ -160,31 +156,27 @@ buildxx(object **r, object **dnext, struct context *c)
          * with the next dimension or content.
          */
         a = arrayof(*dnext);
-        if ((s = new_map()) == nullptr)
+        if ((s = new_map()) == nullptr) {
             return 1;
-        for (e = a->astart(); e != a->alimit(); e = a->anext(e))
-        {
-            if (buildxx(&o, dnext + c->c_dstep, c))
-            {
-                decref(s);
+        }
+        for (e = a->astart(); e != a->alimit(); e = a->anext(e)) {
+            if (buildxx(&o, dnext + c->c_dstep, c)) {
                 return 1;
             }
-            if (ici_assign(s, *e, o))
-            {
-                decref(s);
+            if (ici_assign(s, *e, o)) {
                 return 1;
             }
             decref(o);
         }
-        *r = s;
+        *r = s.release();
     }
-    else
-    {
+    else {
         return set_error("%s supplied as a dimension to %s",
             objname(n1, *dnext), objname(n2, os.a_top[-1]));
     }
-    if (c->c_option == 'r')
+    if (c->c_option == 'r') {
         c->c_cnext = c->c_cstart;
+    }
     return 0;
 }
 

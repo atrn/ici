@@ -156,7 +156,7 @@ void archive_uninit() {
 }
 
 inline auto make_key(object *obj) {
-    return ref(new_int((int64_t)obj));
+    return make_ref(new_int((int64_t)obj));
 }
 
 archiver::archiver(file *f, objwsup *scope)

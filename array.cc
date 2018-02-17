@@ -497,8 +497,7 @@ int op_mklvalue()
 {
     array *a;
 
-    if ((a = new_array(1)) == nullptr)
-    {
+    if ((a = new_array(1)) == nullptr) {
         return 1;
     }
     a->push(os.a_top[-1]);
@@ -676,11 +675,10 @@ int array_type::forall(object *o)
             return 1;
     }
     if (fa->fa_kaggr != null) {
-        if ((i = ref(new_int((long)fa->fa_index))) == nullptr)
+        if ((i = make_ref(new_int((long)fa->fa_index))) == nullptr)
             return 1;
         if (ici_assign(fa->fa_kaggr, fa->fa_kkey, i))
             return 1;
-        // decref(i);
     }
     return 0;
 }
@@ -704,7 +702,7 @@ int array_type::save(archiver *ar, object *o) {
 
 object *array_type::restore(archiver *ar) {
     int64_t len;
-    object::ref<array> a;
+    ref<array> a;
     object *name;
 
     if (ar->restore_name(&name)) {
@@ -713,23 +711,21 @@ object *array_type::restore(archiver *ar) {
     if (ar->read(&len)) {
         return nullptr;
     }
-    if ((a = ref(new_array(len))) == nullptr) {
+    if ((a = make_ref(new_array(len))) == nullptr) {
         return nullptr;
     }
     if (ar->record(name, a)) {
         goto fail;
     }
     for (; len > 0; --len) {
-        object *o;
+        ref<> o;
 
-        if ((o = ref(ar->restore())) == nullptr) {
+        if ((o = make_ref(ar->restore())) == nullptr) {
             goto fail1;
         }
         if (a->push_back(o)) {
-            // decref(o);
             goto fail1;
         }
-        // decref(o);
     }
     return a.release();
 
