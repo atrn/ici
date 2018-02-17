@@ -1382,12 +1382,15 @@ static int net_getpeername()
     socklen_t           len = sizeof addr;
     handle        *skt;
 
-    if (typecheck("h", SS(socket), &skt))
+    if (typecheck("h", SS(socket), &skt)) {
         return 1;
-    if (isclosed(skt))
+    }
+    if (isclosed(skt)) {
         return 1;
-    if (getpeername(socket_fd(skt), (struct sockaddr *)&addr, &len) == SOCKET_ERROR)
+    }
+    if (getpeername(socket_fd(skt), (struct sockaddr *)&addr, &len) == SOCKET_ERROR) {
         return get_last_errno("net.getpeername", nullptr);
+    }
     return str_ret(unparse_addr(&addr));
 }
 
