@@ -377,6 +377,10 @@ fail:
     return nullptr;
 }
 
+int64_t set_type::len(object *o) {
+    return setof(o)->s_nels;
+}
+
 /*
  * Return 1 if a is a subset of b, else 0.
  */

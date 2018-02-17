@@ -492,4 +492,8 @@ fail:
     return nullptr;
 }
 
+int64_t string_type::len(object *o) {
+    return stringof(o)->s_nchars;
+}
+
 } // namespace ici

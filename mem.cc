@@ -181,4 +181,8 @@ object *mem_type::restore(archiver *ar) {
     return m;
 }
 
+int64_t mem_type::len(object *o) {
+    return memof(o)->m_length;
+}
+
 } // namespace ici

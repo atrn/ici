@@ -122,16 +122,17 @@ class string_type : public type
 public:
     string_type() : type("string", sizeof (struct str)) {}
 
-    size_t mark(object *o) override;
-    void free(object *o) override;
-    int cmp(object *o1, object *o2) override;
-    object *copy(object *o) override;
-    unsigned long hash(object *o) override;
-    object *fetch(object *o, object *k) override;
-    int assign(object *o, object *k, object *v) override;
-    int forall(object *o) override;
+    size_t mark(object *) override;
+    void free(object *) override;
+    int cmp(object *, object *) override;
+    object *copy(object *) override;
+    unsigned long hash(object *) override;
+    object *fetch(object *, object *) override;
+    int assign(object *, object *, object *) override;
+    int forall(object *) override;
     int save(archiver *, object *) override;
     object *restore(archiver *) override;
+    int64_t len(object *) override;
 };
 
 #ifdef  ICI_CORE

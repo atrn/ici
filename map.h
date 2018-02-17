@@ -51,6 +51,7 @@ public:
     int fetch_super(object *o, object *k, object **pv, map *b) override;
     int save(archiver *, object *) override;
     object *restore(archiver *) override;
+    int64_t len(object *) override;
 };
 
 } // namespace ici

@@ -859,30 +859,10 @@ static int f_typeof() {
 }
 
 static int f_len() {
-    object  *o;
-    size_t  size;
-
     if (NARGS() != 1) {
         return argcount(1);
     }
-    o = ARG(0);
-    // fixme: len() should be a per-type op
-    if (isstring(o)) {
-        size = stringof(o)->s_nchars;
-    } else if (isarray(o)) {
-        size = arrayof(o)->len();
-    } else if (ismap(o)) {
-        size = mapof(o)->s_nels;
-    } else if (isset(o)) {
-        size = setof(o)->s_nels;
-    } else if (ismem(o)) {
-        size = memof(o)->m_length;
-    } else if (ischannel(o)) {
-        size = channelof(o)->c_capacity;
-    } else {
-        size = 1;
-    }
-    return int_ret(size);
+    return int_ret(objlen(ARG(0)));
 }
 
 static int f_int()

@@ -87,13 +87,25 @@ int type::assign_fail(object *o, object *k, object *v)
                      ici::objname(n3, v));
 }
 
-int type::save(archiver *, object *o) {
+int type::save_fail(archiver *, object *o) {
     return set_error("attempt to save a %s", o->icitype()->name);
 }
 
-object *type::restore(archiver *) {
+object *type::restore_fail(const char *name) {
     set_error("attempt to restore a %s", name);
     return nullptr;
+}
+
+int type::save(archiver *ar, object *o) {
+    return save_fail(ar, o);
+}
+
+object *type::restore(archiver *) {
+    return restore_fail(name);
+}
+
+int64_t type::len(object *) {
+    return 1;
 }
 
 }

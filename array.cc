@@ -87,8 +87,7 @@ int array::fault_stack(ptrdiff_t i)
  */
 size_t array::len()
 {
-    if (a_top >= a_bot)
-    {
+    if (a_top >= a_bot) {
         return size_t(a_top - a_bot);
     }
     return size_t((a_top - a_base) + (a_limit - a_bot));
@@ -734,6 +733,9 @@ fail:
     return nullptr;
 }
 
+int64_t array_type::len(object *o) {
+    return arrayof(o)->len();
+}
 
 op o_mklvalue{op_mklvalue};
 

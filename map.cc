@@ -795,6 +795,10 @@ fail:
     return nullptr;
 }
 
+int64_t map_type::len(object *o) {
+    return mapof(o)->s_nels;
+}
+
 op    o_namelvalue{OP_NAMELVALUE};
 op    o_colon{OP_COLON};
 op    o_coloncaret{OP_COLONCARET};

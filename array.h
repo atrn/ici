@@ -171,16 +171,17 @@ class array_type : public type
  public:
     array_type() : type("array", sizeof (struct array)) {}
 
-    size_t mark(object *o) override;
-    void free(object *o) override;
-    unsigned long hash(object *o) override;
-    int cmp(object *o1, object *o2) override;
-    object *copy(object *o) override;
-    int assign(object *o, object *k, object *v) override;
-    object *fetch(object *o, object *k) override;
-    int forall(object *o) override;
+    size_t mark(object *) override;
+    void free(object *) override;
+    unsigned long hash(object *) override;
+    int cmp(object *, object *) override;
+    object *copy(object *) override;
+    int assign(object *, object *, object *) override;
+    object *fetch(object *, object *) override;
+    int forall(object *) override;
     int save(archiver *, object *) override;
     object *restore(archiver *) override;
+    int64_t len(object *) override;
 };
 
 } // namespace ici

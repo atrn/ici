@@ -186,6 +186,10 @@ object *channel_type::restore(archiver *ar) {
     return type::restore(ar);
 }
 
+int64_t channel_type::len(object *o) {
+    return channelof(o)->c_capacity;
+}
+
 /*
  * channel = channel([capacity])
  *

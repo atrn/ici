@@ -325,6 +325,9 @@ struct object
         return icitype()->save(a, this);
     }
 
+    inline int64_t objlen() {
+        return icitype()->len(this);
+    }
 };
 
 /*
@@ -588,6 +591,10 @@ inline void store_atom_and_count(object **po, object *s) {
 
 inline long atom_hash_index(long h)  {
     return h & (atomsz - 1);
+}
+
+inline int64_t objlen(object *o) {
+    return o->objlen();
 }
 
 } // namespace ici

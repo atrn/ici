@@ -24,16 +24,15 @@ namespace ici
  *
  * This --class-- forms part of the --ici-api--.
  */
-class type
-{
+class type {
 public:
     /*
-     * The name of this type. Use for the implementation of 'typeof()'
-     * and in error messages.  Note that type names have no
-     * fundamental importance in the langauge and need not even be
-     * unique.
+     * The 'name' member defines the name of this type and is used to
+     * implement the 'typeof()' function and in error messages.  Note,
+     * type names have no fundamental importance in the langauge and
+     * need not even be unique.
      */
-    const char * const  name;
+    const char * const name;
 
 private:
     const size_t _size;  // the size of this type's associated object structure
@@ -301,12 +300,24 @@ public:
     virtual void            objname(object *, char [objnamez]);
 
     /*
+     * save(ar, o)          Writes an encoded representation of the object using
+     *                      the supplied archiver object. Returns 0 on success,
+     *                      non-zero on error, usual semantics.
      */
     virtual int             save(archiver *, object *);
 
     /*
+     * restore(ar)          Reads an encoded representation of an object of this
+     *                      type using the supplied archiver object. Returns a
+     *                      object on success, nullptr on error.
      */
     virtual object *        restore(archiver *);
+
+    /*
+     * len(o)               Returns the "length" of an object of this type.
+     *                      The default implementation returns 1.
+     */
+    virtual int64_t         len(object *);
 
     /*
      * The ici_name function returns the type's name as an ICI string object,
@@ -346,6 +357,9 @@ public:
      * This --func-- forms part of the --ici-api--.
      */
     static int assign_fail(object *, object *, object *);
+
+    static int save_fail(archiver *, object *);
+    static object *restore_fail(const char *);
 };
 
 /*

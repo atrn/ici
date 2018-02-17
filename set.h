@@ -42,6 +42,7 @@ public:
     int forall(object *o) override;
     int save(archiver *, object *) override;
     object *restore(archiver *) override;
+    int64_t len(object *) override;
 };
 
 } // namespace ici

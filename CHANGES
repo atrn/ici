@@ -1,6 +1,13 @@
 Major Changes in Version 5
 
-*     Undo the rename of 'extern', 'extern' works well.
+*     len() is now implemented via a per-type len()
+      function. This lets new types work with len()
+      (in addition to forall).
+
+*     Undo the rename of 'extern' to 'export',
+      'extern' works well and the arguments against
+      it vs those for 'static' and 'auto' are
+      weaker.
 
 *     Added println "core" function (ici-core7.ici)
       and changed existing print function to not

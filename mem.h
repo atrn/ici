@@ -37,6 +37,7 @@ public:
     object *fetch(object *o, object *k) override;
     int save(archiver *, object *) override;
     object *restore(archiver *) override;
+    int64_t len(object *) override;
 };
 
 } // namespace ici
