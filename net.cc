@@ -47,7 +47,7 @@
 #include "file.h"
 #include "ftype.h"
 
-#ifdef  _WIN32
+#ifdef _WIN32
 #define USE_WINSOCK /* Else use BSD sockets. */
 #endif
 
@@ -1817,20 +1817,7 @@ static int net_shutdown()
     return ret_no_decref(skt);
 }
 
-int net_init()
-{
-#ifdef  USE_WINSOCK
-    WSADATA             wsadata;
-    if (WSAStartup(MAKEWORD(1, 1), &wsadata))
-    {
-        return set_error("failed to initialise Windows socket");
-    }
-#endif
-    return 0;
-}
-
-ICI_DEFINE_CFUNCS(net)
-{
+ICI_DEFINE_CFUNCS(net) {
     ICI_DEFINE_CFUNC(socket, net_socket),
     ICI_DEFINE_CFUNC(closesocket, net_close),
     ICI_DEFINE_CFUNC(listen, net_listen),
@@ -1858,5 +1845,19 @@ ICI_DEFINE_CFUNCS(net)
 #endif
     ICI_CFUNCS_END()
 };
+
+int net_init(ici::objwsup *scp) {
+#ifdef  USE_WINSOCK
+    WSADATA wsadata;
+    if (WSAStartup(MAKEWORD(1, 1), &wsadata)) {
+        return set_error("failed to initialise winsock: error %d", GetLastError());
+    }
+#endif
+    auto mod = new_module(ici_net_cfuncs);
+    if (!mod) {
+        return 1;
+    }
+    return ici_assign(scp, SS(net), mod);
+}
 
 } // namespace ici

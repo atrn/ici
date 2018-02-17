@@ -98,8 +98,7 @@ int assign_cfuncs(objwsup *s, cfunc *cf)
  *
  * This --func-- forms part of the --ici-api--.
  */
-int define_cfuncs(cfunc *cf)
-{
+int define_cfuncs(cfunc *cf) {
     return assign_cfuncs(objwsupof(vs.a_top[-1])->o_super, cf);
 }
 
@@ -114,19 +113,19 @@ int define_cfuncs(cfunc *cf)
  *
  * This --func-- forms part of the --ici-api--.
  */
-objwsup *new_class(cfunc *cf, objwsup *super)
-{
+objwsup *new_class(cfunc *cf, objwsup *super) {
     objwsup       *s;
 
-    if ((s = objwsupof(new_map())) == nullptr)
+    if ((s = objwsupof(new_map())) == nullptr) {
         return nullptr;
-    if (assign_cfuncs(s, cf))
-    {
+    }
+    if (assign_cfuncs(s, cf)) {
         decref(s);
         return nullptr;
     }
-    if (super == nullptr && (super = outermost_writeable()) == nullptr)
+    if (super == nullptr && (super = outermost_writeable()) == nullptr) {
         return nullptr;
+    }
     s->o_super = super;
     return s;
 }
@@ -138,15 +137,12 @@ objwsup *new_class(cfunc *cf, objwsup *super)
  *
  * This --func-- forms part of the --ici-api--.
  */
-objwsup *new_module(cfunc *cf)
-{
+objwsup *new_module(cfunc *cf) {
     return new_class(cf, nullptr);
 }
 
 #ifdef NOTDEF
-static int
-call_cfunc_nodebug(object *o, object *subject)
-{
+static int call_cfunc_nodebug(object *o, object *subject) {
     return cfuncof(o)->cf_cfunc(subject);
 }
 #endif

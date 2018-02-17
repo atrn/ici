@@ -172,90 +172,6 @@ namespace ici
 {
 
 /*
- * Create pre-defined variables to replace C's #define's.
- */
-int sys_init(ici::objwsup *scp)
-{
-    size_t      i;
-
-#define VALOF(x) { #x , x }
-    static struct { const char *name; long val; } var[] =
-    {
-        VALOF(O_RDONLY),
-        VALOF(O_WRONLY),
-        VALOF(O_RDWR),
-        VALOF(O_APPEND),
-        VALOF(O_CREAT),
-        VALOF(O_TRUNC),
-        VALOF(O_EXCL),
-#ifdef O_BINARY         /* WINDOWS has binary mode for open() */
-        VALOF(O_BINARY),
-#endif
-#ifdef O_SYNC           /* WINDOWS doesn't have O_SYNC */
-        VALOF(O_SYNC),
-#endif
-#ifdef O_NDELAY         /* WINDOWS doesn't have O_NDELAY */
-        VALOF(O_NDELAY),
-#endif
-        VALOF(O_NONBLOCK),
-        VALOF(R_OK),
-        VALOF(W_OK),
-#ifdef X_OK             /* WINDOWS doesn't have X_OK */
-        VALOF(X_OK),
-#endif
-        VALOF(F_OK),
-        VALOF(SEEK_SET),
-        VALOF(SEEK_CUR),
-        VALOF(SEEK_END),
-
-#if !defined(ICI_SYS_NOFLOCK) && defined(LOCK_SH)
-        VALOF(LOCK_SH),
-        VALOF(LOCK_EX),
-        VALOF(LOCK_NB),
-        VALOF(LOCK_UN),
-#endif
-
-#ifdef _WIN32
-        VALOF(_P_WAIT),
-        VALOF(_P_NOWAIT),
-#endif
-
-        VALOF(S_IFMT),
-        VALOF(S_IFCHR),
-        VALOF(S_IFDIR),
-        VALOF(S_IFREG),
-        VALOF(S_IREAD),
-        VALOF(S_IWRITE),
-        VALOF(S_IEXEC),
-
-#ifndef _WIN32
-        VALOF(S_IFIFO),
-        VALOF(S_IFBLK),
-        VALOF(S_IFLNK),
-        VALOF(S_IFSOCK),
-        VALOF(S_ISUID),
-        VALOF(S_ISGID),
-        VALOF(S_ISVTX),
-        VALOF(S_IRUSR),
-        VALOF(S_IWUSR),
-        VALOF(S_IXUSR),
-        VALOF(S_IRGRP),
-        VALOF(S_IWGRP),
-        VALOF(S_IXGRP),
-        VALOF(S_IROTH),
-        VALOF(S_IWOTH),
-        VALOF(S_IXOTH)
-#endif
-    };
-#undef VALOF
-
-    for (i = 0; i < sizeof var/sizeof var[0]; ++i)
-        if (cmkvar(scp, var[i].name, 'i', &var[i].val))
-            return 1;
-    return 0;
-}
-
-/*
  * Used as a common error return for system calls that fail. Sets the
  * global error string if the call fails otherwise returns the integer
  * result of the system call.
@@ -2112,8 +2028,7 @@ static int sys_usleep()
 
 #endif /* #ifndef _WIN32 */
 
-ICI_DEFINE_CFUNCS(sys)
-{
+ICI_DEFINE_CFUNCS(sys) {
     /* utime */
     ICI_DEFINE_CFUNC(access,  sys_access),
     ICI_DEFINE_CFUNC(_close,   sys_close),
@@ -2429,5 +2344,91 @@ ICI_DEFINE_CFUNCS(sys)
 #endif
     ICI_CFUNCS_END()
 };
+
+/*
+ * Create pre-defined variables to replace C's #define's.
+ */
+int sys_init(ici::objwsup *scp) {
+#define VALOF(x) { #x , x }
+    static struct { const char *name; long val; } var[] = {
+        VALOF(O_RDONLY),
+        VALOF(O_WRONLY),
+        VALOF(O_RDWR),
+        VALOF(O_APPEND),
+        VALOF(O_CREAT),
+        VALOF(O_TRUNC),
+        VALOF(O_EXCL),
+#ifdef O_BINARY         /* WINDOWS has binary mode for open() */
+        VALOF(O_BINARY),
+#endif
+#ifdef O_SYNC           /* WINDOWS doesn't have O_SYNC */
+        VALOF(O_SYNC),
+#endif
+#ifdef O_NDELAY         /* WINDOWS doesn't have O_NDELAY */
+        VALOF(O_NDELAY),
+#endif
+        VALOF(O_NONBLOCK),
+        VALOF(R_OK),
+        VALOF(W_OK),
+#ifdef X_OK             /* WINDOWS doesn't have X_OK */
+        VALOF(X_OK),
+#endif
+        VALOF(F_OK),
+        VALOF(SEEK_SET),
+        VALOF(SEEK_CUR),
+        VALOF(SEEK_END),
+
+#if !defined(ICI_SYS_NOFLOCK) && defined(LOCK_SH)
+        VALOF(LOCK_SH),
+        VALOF(LOCK_EX),
+        VALOF(LOCK_NB),
+        VALOF(LOCK_UN),
+#endif
+
+#ifdef _WIN32
+        VALOF(_P_WAIT),
+        VALOF(_P_NOWAIT),
+#endif
+
+        VALOF(S_IFMT),
+        VALOF(S_IFCHR),
+        VALOF(S_IFDIR),
+        VALOF(S_IFREG),
+        VALOF(S_IREAD),
+        VALOF(S_IWRITE),
+        VALOF(S_IEXEC),
+
+#ifndef _WIN32
+        VALOF(S_IFIFO),
+        VALOF(S_IFBLK),
+        VALOF(S_IFLNK),
+        VALOF(S_IFSOCK),
+        VALOF(S_ISUID),
+        VALOF(S_ISGID),
+        VALOF(S_ISVTX),
+        VALOF(S_IRUSR),
+        VALOF(S_IWUSR),
+        VALOF(S_IXUSR),
+        VALOF(S_IRGRP),
+        VALOF(S_IWGRP),
+        VALOF(S_IXGRP),
+        VALOF(S_IROTH),
+        VALOF(S_IWOTH),
+        VALOF(S_IXOTH)
+#endif
+    };
+#undef VALOF
+
+    auto mod = new_module(ici_sys_cfuncs);
+    if (!mod) {
+        return 1;
+    }
+    for (size_t i = 0u; i < sizeof var/sizeof var[0]; ++i) {
+        if (cmkvar(mod, var[i].name, 'i', &var[i].val)) {
+            return 1;
+        }
+    }
+    return ici_assign(scp, SS(sys), mod);
+}
 
 } // namespace ici

@@ -12,11 +12,9 @@ extern cfunc  ici_oo_cfuncs[];
 extern cfunc  ici_apl_cfuncs[];
 extern cfunc  ici_load_cfuncs[];
 extern cfunc  ici_parse_cfuncs[];
-extern cfunc  ici_sys_cfuncs[];
 extern cfunc  ici_signals_cfuncs[];
 extern cfunc  ici_thread_cfuncs[];
 extern cfunc  ici_channel_cfuncs[];
-extern cfunc  ici_net_cfuncs[];
 #ifndef NOEVENTS
 extern cfunc  ici_event_cfuncs[];
 #endif
@@ -38,8 +36,6 @@ cfunc *ici_funcs[] =
     ici_parse_cfuncs,
     ici_signals_cfuncs,
     ici_thread_cfuncs,
-    ici_sys_cfuncs,
-    ici_net_cfuncs,
     ici_channel_cfuncs,
 #ifndef NODEBUGGING
     ici_debug_cfuncs,

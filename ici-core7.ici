@@ -5,7 +5,15 @@
  *
  */
 extern print() {
-    var vargs, stream, o, v, k, term = "", sdelim = "", raw = false, supers = [set];
+    var vargs;
+    var stream;
+    var o;
+    var v;
+    var k;
+    var term = "";
+    var sdelim = "";
+    var raw = false;
+    var supers = [set];
 
     if (vargs == NULL) {
 	stream = stdout;

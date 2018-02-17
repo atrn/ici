@@ -149,8 +149,6 @@ endif
 install-ici-exe:
 	$(sudo) mkdir -p $(dest)/bin
 	$(sudo) install -c -m 555 $(prog) $(dest)/bin
-
-install-ici-corefiles:
 	$(sudo) mkdir -p $(dest)/lib/ici
 	$(sudo) install -c -m 444 ici-core*.ici $(dest)/lib/ici
 

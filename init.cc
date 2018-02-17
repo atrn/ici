@@ -34,7 +34,7 @@ extern cfunc *ici_funcs[];
 int init()
 {
     extern int sys_init(objwsup *);
-    extern int net_init();
+    extern int net_init(objwsup *);
 
     cfunc       **cfp;
     map         *scope;
@@ -80,71 +80,57 @@ int init()
     }
     atomsz = INITIAL_ATOMSZ;
     memset((char *)atoms, 0, atomsz * sizeof (object *));
-    if ((objs = (object **)ici_nalloc(INITIAL_OBJS * sizeof (object *))) == nullptr)
-    {
+    if ((objs = (object **)ici_nalloc(INITIAL_OBJS * sizeof (object *))) == nullptr) {
         return 1;
     }
     memset((char *)objs, 0, INITIAL_OBJS * sizeof (object *));
     objs_limit = objs + INITIAL_OBJS;
     objs_top = objs;
-    for (i = 0; i < (int)nels(small_ints); ++i)
-    {
-        if ((small_ints[i] = new_int(i)) == nullptr)
-        {
+    for (i = 0; i < (int)nels(small_ints); ++i) {
+        if ((small_ints[i] = new_int(i)) == nullptr) {
             return -1;
         }
     }
     o_zero = small_ints[0];
     o_one = small_ints[1];
-    if (init_sstrings())
-    {
+    if (init_sstrings()) {
         return 1;
     }
     pcre_free = ici_free;
     pcre_malloc = (void *(*)(size_t))ici_alloc;
-    if ((scope = new_map()) == nullptr)
-    {
+    if ((scope = new_map()) == nullptr) {
         return 1;
     }
-    if ((scope->o_super = externs = objwsupof(new_map())) == nullptr)
-    {
+    if ((scope->o_super = externs = objwsupof(new_map())) == nullptr) {
         return 1;
     }
     decref(externs);
-    if ((x = new_exec()) == nullptr)
-    {
+    if ((x = new_exec()) == nullptr) {
         return 1;
     }
     enter(x);
     rego(&os);
     rego(&xs);
     rego(&vs);
-    if (engine_stack_check())
-    {
+    if (engine_stack_check()) {
         return 1;
     }
     vs.push(scope, with_decref);
-    if (init_path(externs))
-    {
+    if (init_path(externs)) {
         return 1;
     }
-    for (cfp = ici_funcs; *cfp != nullptr; ++cfp)
-    {
-        if (assign_cfuncs(scope->o_super, *cfp))
-        {
+    for (cfp = ici_funcs; *cfp != nullptr; ++cfp) {
+        if (assign_cfuncs(scope->o_super, *cfp)) {
             return 1;
         }
     }
-    if (sys_init(scope->o_super))
-    {
+    if (sys_init(scope->o_super)) {
         return 1;
     }
-    if (net_init())
-    {
+    if (net_init(scope->o_super)) {
         return 1;
     }
-    if (archive_init())
-    {
+    if (archive_init()) {
         return 1;
     };
     init_signals();
