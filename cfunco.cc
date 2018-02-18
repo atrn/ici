@@ -215,17 +215,29 @@ int cfunc_type::save(archiver *ar, object *o) {
     if (ar->save_name(o)) {
         return 1;
     }
+
+    auto prefix = ar->name_qualifier();
+
     auto func = reinterpret_cast<int (*)(object*)>(cf->cf_cfunc);
     const int16_t namelen = cf->cf_name->s_nchars;
     int16_t len = namelen;
     if (func == f_coreici) {
         len += icicore_prefix_len;
+    } else if (prefix->s_nchars) {
+        len += 1 + prefix->s_nchars;
     }
     if (ar->write(len)) {
         return 1;
     }
     if (func == f_coreici) {
         if (ar->write(icicore_prefix, icicore_prefix_len)) {
+            return 1;
+        }
+    } else if (prefix->s_nchars) {
+        if (ar->write(prefix->s_chars, prefix->s_nchars)) {
+            return 1;
+        }
+        if (ar->write(".", 1)) {
             return 1;
         }
     }
@@ -261,7 +273,7 @@ object *cfunc_type::restore(archiver *ar) {
     if (ar->read(&len)) {
         return nullptr;
     }
-    char buf[1024];
+    char buf[1024]; // fixme: make configurable somehow
     if (size_t(len) >= sizeof buf) {
         set_error("attempt to restore a cfunc with a %d byte name", len);
         return nullptr;
@@ -273,11 +285,32 @@ object *cfunc_type::restore(archiver *ar) {
     if (strncmp(buf, icicore_prefix, icicore_prefix_len) == 0) {
         return restore_core(buf+icicore_prefix_len);
     }
-    auto s = new_str(buf, len);
+    auto parts = smash(buf, '.');
+    if (!parts || !parts[0]) {
+        abort();
+    }
+    auto current_scope = mapof(vs.a_top[-1]);
+    auto scope = current_scope;
+    auto last_part = parts[0];
+    for (auto i = 0; parts[i]; ++i) {
+        last_part = parts[i];
+        if (!parts[i+1]) {
+            break;
+        }
+        auto k = ref<str>(new_str_nul_term(parts[i]));
+        auto c = ici_fetch(scope, k);
+        if (!ismap(c)) {
+            set_error("attempt to restore function qualified by \"%s\"", k->s_chars);
+        }
+        scope = mapof(c);
+    }
+    ici_free(parts);
+
+    auto s = new_str(last_part, strlen(last_part));
     if (!s) {
         return nullptr;
     }
-    auto scope = mapof(vs.a_top[-1]);
+
     auto cf = ici_fetch(scope, s);
     decref(s);
     if (cf == nullptr || cf == null) {

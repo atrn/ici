@@ -163,13 +163,30 @@ archiver::archiver(file *f, objwsup *scope)
     : a_file(f)
     , a_sent(new_map())
     , a_scope(scope)
+    , a_names(new_array())
 {
+}
+
+archiver::operator bool() const {
+    return a_sent != nullptr && a_names != nullptr;
 }
 
 archiver::~archiver() {
     if (a_sent) {
         decref(a_sent);
     }
+    if (a_names) {
+        decref(a_names);
+    }
+}
+
+int archiver::push_name(str *name) {
+    return a_names->push_back(name);
+}
+
+int archiver::pop_name() {
+    a_names->pop_back();
+    return 0;
 }
 
 int archiver::record(object *obj, object *ref) {
@@ -454,5 +471,30 @@ ICI_DEFINE_CFUNCS(save_restore)
     ICI_DEFINE_CFUNC(restore, f_archive_restore),
     ICI_CFUNCS_END()
 };
+
+str *archiver::name_qualifier() {
+    if (a_names->len() == 0) {
+        return stringof(copyof(SS(empty_string)));
+    }
+
+    auto e = a_names->astart();
+    int len = stringof(*e)->s_nchars;
+
+    for (e = a_names->anext(e); e != a_names->alimit(); e = a_names->anext(e)) {
+        len = len + 1 /* '.' (dot) */ + stringof(*e)->s_nchars;
+    }
+    auto s = str_alloc(len);
+    if (!s) {
+        return nullptr;
+    }
+    auto p = s->s_chars;
+    for (e = a_names->astart(); e != a_names->alimit(); e = a_names->anext(e)) {
+        auto s = stringof(*e);
+        memcpy(p, s->s_chars, s->s_nchars);
+        p += s->s_nchars;
+        *p++ = '.';
+    }
+    return str_intern(s);
+}
 
 } // namespace ici

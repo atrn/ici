@@ -730,11 +730,19 @@ int map_type::save(archiver *ar, object *o) {
     }
     for (slot *sl = s->s_slots; size_t(sl - s->s_slots) < s->s_nslots; ++sl) {
         if (sl->sl_key && sl->sl_value) {
+            auto do_pop_name = false;
+            if (ismap(sl->sl_value) && isstring(sl->sl_key)) {
+                ar->push_name(stringof(sl->sl_key));
+                do_pop_name = true;
+            }
             if (ar->save(sl->sl_key)) {
                 return 1;
             }
             if (ar->save(sl->sl_value)) {
                 return 1;
+            }
+            if (do_pop_name) {
+                ar->pop_name();
             }
         }
     }

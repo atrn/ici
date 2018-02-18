@@ -44,7 +44,7 @@ public:
     static int (*op_func(int))();
 
     archiver(file *, objwsup *);
-    operator bool() const { return a_sent != nullptr; } // check construction sucess
+    operator bool() const; // check construction sucess
     ~archiver();
 
     archiver(const archiver &) = delete;
@@ -85,10 +85,16 @@ public:
     int write(int64_t dword);
     int write(double adbl);
 
+    int push_name(str *);
+    int pop_name();
+
+    str *name_qualifier();
+
 private:
     file *  a_file;
     map *   a_sent;
     objwsup *a_scope;
+    array *a_names;
 
 // public:
 //     static void byteswap(void *ptr, int sz);
