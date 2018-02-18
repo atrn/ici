@@ -11,49 +11,62 @@ namespace ici {
  * The following portion of this file exports to ici.h. --ici.h-start--
  */
 
-// A ref<T> is an RAII class that manages an object's reference count.
-// To summarise: a ref<T> owns an object, via its address, and decrefs
-// its object's reference count when the ref is destroyed. The ref<T>
-// implements other operations - copy, move, assign - to maintain a
-// correct reference count.
-//
-// A ref<T> is typically used to hold object references in code that
-// can fail and return errors. Using ref's to hold object references
-// removes the most common form of resource leak.
-//
-// The ref<T> type provides a release() function, much like other
-// _smart pointer_ types, to transfer ownership of the underlying
-// object.
-//
+/**
+ *  A ref<T> is an RAII class to manage an object's reference count.
+ *  A ref<T> owns an object and acts as that object but will decref
+ *  the object's reference count when destroyed unless the object is
+ *  released from the ref's control (like other smart-pointers).  The
+ *  ref<T> implements other operations - copy, move, assign - to allow
+ *  it to maintain a correct reference count.
+ * 
+ *  A ref<T> is typically used to hold object references in code that
+ *  can fail and return errors. Using ref's to hold object references
+ *  removes the most common form of resource leak.
+ */
 template <typename T = object>
 class ref {
 public:
-    ref(T *obj = nullptr) : _obj(obj) {}
+    ref(T *obj = nullptr)
+        : _obj(obj)
+    {
+    }
 
-    ref(T *obj, struct tag_with_incref) : _obj(obj) {
+    ref(T *obj, struct tag_with_incref)
+        : _obj(obj)
+    {
         if (_obj) {
             _obj->incref();
         }
     }
 
-    ref(const ref &that) : _obj(that._obj) {
+    ref(const ref &that)
+        : _obj(that._obj)
+    {
         if (_obj) {
             _obj->incref();
         }
     }
 
-    ref(ref &&that) : _obj(that.release()) {}
+    T * release() {
+        auto obj = _obj;
+        _obj = nullptr;
+        return obj;
+    }
 
-    ref &operator=(const ref &that) {
-        _obj = that._obj;
-        if (_obj) {
+    ref(ref &&that)
+        : _obj(that.release())
+    {
+    }
+
+    ref &operator=(const ref &rhs) {
+        if ((_obj = rhs._obj)) {
             _obj->incref();
         }
         return *this;
     }
 
-    ref &operator=(ref &&that) {
-        _obj = that.release();
+    ref &operator=(ref &&rhs) {
+        _obj = rhs.release();
         return *this;
     }
 
@@ -72,7 +85,7 @@ public:
     }
 
     T &operator*() {
-        assert(_obj != nullptr);
+        assert(_obj);
         return *_obj;
     }
 
@@ -85,26 +98,29 @@ public:
     }
 
     const T &operator*() const {
-        assert(_obj != nullptr);
+        assert(_obj);
         return *_obj;
-    }
-
-    T * release() {
-        auto obj = _obj;
-        _obj = nullptr;
-        return obj;
     }
 
 private:
     T *_obj;
 };
 
-// make_ref applies argument type deduction to turn a T * into an
-// ref<T>.
-//
+/**
+ *  make_ref<> uses argument type deduction to return the ref<T> for
+ *  the given T *.
+ */
 template <typename T>
 ref<T> make_ref(T *obj) {
     return ref<T>(obj);
+}
+
+/**
+ *  make_ref<> with a implied ICI incref.
+ */
+template <typename T>
+ref<T> make_ref(T *obj, struct tag_with_incref &) {
+    return ref<T>(obj, with_incref);
 }
 
 /*
