@@ -161,8 +161,8 @@ inline auto make_key(object *obj) {
 
 archiver::archiver(file *f, objwsup *scope)
     : a_file(f)
-    , a_sent(new_map())
     , a_scope(scope)
+    , a_sent(new_map())
     , a_names(new_array())
 {
 }
@@ -172,12 +172,6 @@ archiver::operator bool() const {
 }
 
 archiver::~archiver() {
-    if (a_sent) {
-        decref(a_sent);
-    }
-    if (a_names) {
-        decref(a_names);
-    }
 }
 
 int archiver::push_name(str *name) {

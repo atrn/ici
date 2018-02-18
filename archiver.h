@@ -92,12 +92,9 @@ public:
 
 private:
     file *  a_file;
-    map *   a_sent;
     objwsup *a_scope;
-    array *a_names;
-
-// public:
-//     static void byteswap(void *ptr, int sz);
+    ref<map> a_sent;
+    ref<array> a_names;
 };
 
 /*
