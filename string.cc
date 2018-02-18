@@ -90,6 +90,17 @@ str *str_alloc(size_t nchars)
 }
 
 /*
+ * str_intern finalizes the string created by str_alloc, making it a usable
+ * string object. The strings hash is updated, if required, and an stomic
+ * version of the string returned. The suggested usage being to assign the
+ * result of str_intern to the variable holding the result of str_alloc.
+ */
+str *str_intern(str *s) {
+    hash_string(s);
+    return stringof(atom(s, 1));
+}
+
+/*
  * Make a new atomic immutable string from the given characters.
  *
  * Note that the memory allocated to a string is always at least one byte

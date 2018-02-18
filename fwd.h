@@ -301,7 +301,7 @@ extern uint32_t     crc(unsigned long, unsigned char const *, ptrdiff_t);
 extern str           *str_get_nul_term(const char *);
 extern int            str_need_size(str *, size_t);
 extern str           *str_alloc(size_t);
-
+extern str           *str_intern(str *);
 extern array         *new_array(ptrdiff_t = 0);
 extern exec          *new_exec();
 extern str           *new_str_nul_term(const char *);
