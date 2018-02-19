@@ -16,7 +16,7 @@ else
 dll=	libici.so
 endif
 conf?= conf/$(os).h
-dest?= /usr/local
+prefix?= /usr/local
 dccflags?=
 cxxflags?=CXXFLAGS
 
@@ -44,9 +44,18 @@ cxxflags?=CXXFLAGS
 #build?=exe
 #build?=lib
 
+# Default to building the exe if otherwise unset.
+#
 ifndef build
 build=exe
 endif
+
+# On darwin (MacOS) we can build an "lto" executable
+# (whole program optimization) that may be faster.
+# It isn't really any faster so we don't build it
+# by default.
+#
+install_lto_exe=no
 
 srcs= $(shell ls *.cc | fgrep -v win32)
 hdrs= $(shell ls *.h|fgrep -v ici.h)
@@ -150,23 +159,23 @@ install: install-ici-exe install-libici
 endif
 
 install-libici: install-ici-dot-h
-	$(sudo) mkdir -p $(dest)/lib
+	$(sudo) mkdir -p $(prefix)/lib
 ifeq ($(build),lib)
-	$(sudo) install -c -m 444 $(lib) $(dest)/lib
+	$(sudo) install -c -m 444 $(lib) $(prefix)/lib
 else ifeq ($(build),dll)
-	$(sudo) install -c -m 444 $(dll) $(dest)/lib
+	$(sudo) install -c -m 444 $(dll) $(prefix)/lib
 endif
 
 install-ici-dot-h: ici.h
-	$(sudo) mkdir -p $(dest)/include
-	$(sudo) install -c -m 444 ici.h $(dest)/include
-	$(sudo) install -c -m 444 icistr-setup.h $(dest)/include
+	$(sudo) mkdir -p $(prefix)/include
+	$(sudo) install -c -m 444 ici.h $(prefix)/include
+	$(sudo) install -c -m 444 icistr-setup.h $(prefix)/include
 
 install-ici-exe:
-	$(sudo) mkdir -p $(dest)/bin
-	$(sudo) install -c -m 555 $(prog) $(dest)/bin
-	$(sudo) mkdir -p $(dest)/lib/ici
-	$(sudo) install -c -m 444 ici-core*.ici $(dest)/lib/ici
+	$(sudo) mkdir -p $(prefix)/bin
+	$(sudo) install -c -m 555 $(prog) $(prefix)/bin
+	$(sudo) mkdir -p $(prefix)/lib/ici
+	$(sudo) install -c -m 444 ici-core*.ici $(prefix)/lib/ici
 
 # Install everything - static and dynamic libs, exe. And on drawin
 # build an LTO exe for actual use.
@@ -175,12 +184,12 @@ install-ici-exe:
 full-install:
 	@echo '1  - make clean'; $(MAKE) -s clean
 	@echo '2  - build dll'; $(MAKE) -s lib build=dll conf=$(conf) dccflags=--quiet
-	@echo '3  - install dll'; $(MAKE) -s build=dll install-libici dest=$(dest) dccflags=--quiet
+	@echo '3  - install dll'; $(MAKE) -s build=dll install-libici prefix=$(prefix) dccflags=--quiet
 	@echo '4  - make clean'; $(MAKE) -s clean
 	@echo '5  - build lib/exe'; $(MAKE) -s build=lib conf=$(conf) dccflags=--quiet
-	@echo '6  - install lib/exe'; $(MAKE) -s build=lib install-libici install-ici-exe dest=$(dest) dccflags=--quiet
+	@echo '6  - install lib/exe'; $(MAKE) -s build=lib install-libici install-ici-exe prefix=$(prefix) dccflags=--quiet
 	@echo '7  - make clean'; $(MAKE) -s clean
-ifeq ($(os),darwin)
+ifeq ($(install_lto_exe),yes)
 	@echo '8  - make lto'; $(MAKE) -s lto
 	@echo '9  - install lto'; $(MAKE) -s install-ici-exe
 	@echo '10 - make clean'; $(MAKE) -s clean
