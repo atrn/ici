@@ -82,8 +82,7 @@ int ptr_type::assign(object *o, object *k, object *v)
         incref(k);
     else if ((k = new_int(intof(k)->i_value + intof(ptrof(o)->p_key)->i_value)) == nullptr)
         return 1;
-    if (ici_assign(ptrof(o)->p_aggr, k, v))
-    {
+    if (ici_assign(ptrof(o)->p_aggr, k, v)) {
         decref(k);
         return 1;
     }
@@ -97,8 +96,7 @@ int ptr_type::call(object *o, object *)
 
     if ((f = ici_fetch(ptrof(o)->p_aggr, ptrof(o)->p_key)) == nullptr)
         return 1;
-    if (!f->can_call())
-    {
+    if (!f->can_call()) {
         char    n1[objnamez];
         return set_error("attempt to call a ptr pointing to %s", ici::objname(n1, o));
     }
