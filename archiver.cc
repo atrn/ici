@@ -155,7 +155,7 @@ int archive_init() {
 void archive_uninit() {
 }
 
-inline auto make_key(object *obj) {
+inline ref<integer> make_key(object *obj) {
     return make_ref(new_int((int64_t)obj));
 }
 
