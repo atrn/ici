@@ -62,9 +62,6 @@ public:
     T * release() {
         auto obj = _obj;
         _obj = nullptr;
-        if (obj) {
-            obj->decref();
-        }
         return obj;
     }
 
