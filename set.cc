@@ -21,17 +21,15 @@ inline size_t hashindex(object *k, set *s)
 /*
  * Find the set slot which does, or should, contain the key k.
  */
-object **ici_find_set_slot(set *s, object *k)
-{
-    object  **e;
-
-    e = &s->s_slots[hashindex(k, s)];
-    while (*e != nullptr)
-    {
-        if (*e == k)
+object **ici_find_set_slot(set *s, object *k) {
+    auto e = &s->s_slots[hashindex(k, s)];
+    while (*e != nullptr) {
+        if (*e == k) {
             return e;
-        if (--e < s->s_slots)
+        }
+        if (--e < s->s_slots) {
             e = s->s_slots + s->s_nslots - 1;
+        }
     }
     return e;
 }
@@ -209,28 +207,24 @@ unsigned long set_type::hash(object *o)
  * Return a copy of the given object, or nullptr on error.
  * See the comment on t_copy() in object.h.
  */
-object * set_type::copy(object *o)
-{
-    set   *s;
-    set   *ns;
+object * set_type::copy(object *o) {
+    auto s = setof(o);
+    ref<set> ns;
 
-    s = setof(o);
-    if ((ns = ici_talloc(set)) == nullptr)
+    if ((ns = ici_talloc(set)) == nullptr) {
         return nullptr;
+    }
     set_tfnz(ns, TC_SET, 0, 1, 0);
     ns->s_nels = 0;
     ns->s_nslots = 0;
-    rego(ns);
-    if ((ns->s_slots = (object **)ici_nalloc(s->s_nslots * sizeof (object *))) == nullptr)
-        goto fail;
+    if ((ns->s_slots = (object **)ici_nalloc(s->s_nslots * sizeof (object *))) == nullptr) {
+        return nullptr;
+    }
     memcpy(ns->s_slots, s->s_slots, s->s_nslots * sizeof (object *));
     ns->s_nels = s->s_nels;
     ns->s_nslots = s->s_nslots;
-    return ns;
-
-fail:
-    decref(ns);
-    return nullptr;
+    rego(ns);
+    return ns.release();
 }
 
 
@@ -340,7 +334,7 @@ int set_type::save(archiver *ar, object *o) {
 }
 
 object *set_type::restore(archiver *ar) {
-    set *s;
+    ref<set> s;
     int64_t n;
     object *name;
 
@@ -351,29 +345,24 @@ object *set_type::restore(archiver *ar) {
         return nullptr;
     }
     if (ar->record(name, s)) {
-        goto fail;
+        return nullptr;
     }
     if (ar->read(&n)) {
-        goto fail1;
+        goto fail;
     }
     for (int64_t i = 0; i < n; ++i) {
-        object *o;
-        if ((o = ar->restore()) == nullptr) {
-            goto fail1;
+        ref<> o = ar->restore();
+        if (!o) {
+            goto fail;
         }
         if (ici_assign(s, o, o_one)) {
-            decref(o);
-            goto fail1;
+            goto fail;
         }
-        decref(o);
     }
-    return s;
-
-fail1:
-    ar->remove(name);
+    return s.release();
 
 fail:
-    decref(s);
+    ar->remove(name);
     return nullptr;
 }
 
@@ -389,12 +378,13 @@ int set_issubset(set *a, set *b) /* a is a subset of b */
     object  **sl;
     size_t  i;
 
-    for (sl = a->s_slots, i = 0; i < a->s_nslots; ++i, ++sl)
-    {
-        if (*sl == nullptr)
+    for (sl = a->s_slots, i = 0; i < a->s_nslots; ++i, ++sl) {
+        if (*sl == nullptr) {
             continue;
-        if (*ici_find_set_slot(b, *sl) == nullptr)
+        }
+        if (*ici_find_set_slot(b, *sl) == nullptr) {
             return 0;
+        }
     }
     return 1;
 }

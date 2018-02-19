@@ -32,34 +32,23 @@ int src_type::save(archiver *ar, object *o) {
     if (ar->write(lineno)) {
         return 1;
     }
-    if (ar->save(srcof(o)->s_filename)) {
-        return 1;
-    }
-    return 0;
+    return ar->save(srcof(o)->s_filename);
 }
 
 object *src_type::restore(archiver *ar) {
     int32_t line;
-    object *result;
-    object *filename;
-
     if (ar->read(&line)) {
         return nullptr;
     }
-    if ((filename = ar->restore()) == nullptr) {
+    ref<> filename = ar->restore();
+    if (!filename) {
         return nullptr;
     }
     if (!isstring(filename)) {
-        set_error("unexpected filename type (%s)", filename->type_name());
-        decref(filename);
+        set_error("unexpected 'filename' type (%s)", filename->type_name());
         return nullptr;
     }
-    if ((result = new_src(line, stringof(filename))) == nullptr) {
-        decref(filename);
-        return nullptr;
-    }
-    decref(filename);
-    return result;
+    return new_src(line, stringof(filename));
 }
 
 } // namespace ici
