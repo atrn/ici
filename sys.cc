@@ -2419,7 +2419,7 @@ int sys_init(ici::objwsup *scp) {
     };
 #undef VALOF
 
-    auto mod = new_module(ici_sys_cfuncs);
+    ref<objwsup> mod = new_module(ici_sys_cfuncs);
     if (!mod) {
         return 1;
     }

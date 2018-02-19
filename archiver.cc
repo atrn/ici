@@ -467,8 +467,9 @@ ICI_DEFINE_CFUNCS(save_restore)
 };
 
 str *archiver::name_qualifier() {
+
     if (a_names->len() == 0) {
-        return stringof(copyof(SS(empty_string)));
+        return stringof(SS(empty_string));
     }
 
     auto e = a_names->astart();

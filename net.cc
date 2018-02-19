@@ -1856,7 +1856,7 @@ int net_init(ici::objwsup *scp) {
         return set_error("failed to initialise winsock: error %d", GetLastError());
     }
 #endif
-    auto mod = new_module(ici_net_cfuncs);
+    ref<objwsup> mod = new_module(ici_net_cfuncs);
     if (!mod) {
         return 1;
     }
