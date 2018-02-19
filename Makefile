@@ -75,7 +75,7 @@ test: all
 # The 'all' target builds an ici interpreter executable and library,
 # if that is enabled.
 #
-all: $(prog) ici.h
+all: $(prog)
 
 # The ici.h file is built using the current interpreter executable and
 # depends on all files that may contribute to the output.
@@ -138,17 +138,18 @@ clean:
 	@$(MAKE) -Ctest clean
 	@$(MAKE) -Ctest/serialization clean
 
+
 # Installation
 
-.PHONY:  install-ici-dot-h install-libici install-ici-exe install-ici-corefiles
-install: install-ici-dot-h install-libici install-ici-exe install-ici-corefiles
+.PHONY: install-ici-exe install-libici install-ici-dot-h
 
-install-ici-dot-h:
-	$(sudo) mkdir -p $(dest)/include
-	$(sudo) install -c -m 444 ici.h $(dest)/include
-	$(sudo) install -c -m 444 icistr-setup.h $(dest)/include
+ifeq ($(build),exe)
+install: install-ici-exe
+else
+install: install-ici-exe install-libici
+endif
 
-install-libici:
+install-libici: install-ici-dot-h
 	$(sudo) mkdir -p $(dest)/lib
 ifeq ($(build),lib)
 	$(sudo) install -c -m 444 $(lib) $(dest)/lib
@@ -156,12 +157,20 @@ else ifeq ($(build),dll)
 	$(sudo) install -c -m 444 $(dll) $(dest)/lib
 endif
 
+install-ici-dot-h: ici.h
+	$(sudo) mkdir -p $(dest)/include
+	$(sudo) install -c -m 444 ici.h $(dest)/include
+	$(sudo) install -c -m 444 icistr-setup.h $(dest)/include
+
 install-ici-exe:
 	$(sudo) mkdir -p $(dest)/bin
 	$(sudo) install -c -m 555 $(prog) $(dest)/bin
 	$(sudo) mkdir -p $(dest)/lib/ici
 	$(sudo) install -c -m 444 ici-core*.ici $(dest)/lib/ici
 
+# Install everything - static and dynamic libs, exe. And on drawin
+# build an LTO exe for actual use.
+#
 .PHONY: full-install
 full-install:
 	@echo '1  - make clean'; $(MAKE) -s clean
