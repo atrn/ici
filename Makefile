@@ -175,10 +175,10 @@ install-ici-exe:
 full-install:
 	@echo '1  - make clean'; $(MAKE) -s clean
 	@echo '2  - build dll'; $(MAKE) -s lib build=dll conf=$(conf) dccflags=--quiet
-	@echo '3  - install dll'; $(MAKE) -s build=dll install-libici dest=$(dest)
+	@echo '3  - install dll'; $(MAKE) -s build=dll install-libici dest=$(dest) dccflags=--quiet
 	@echo '4  - make clean'; $(MAKE) -s clean
-	@echo '5  - make build=lib'; $(MAKE) -s build=lib conf=$(conf) dccflags=--quiet
-	@echo '6  - make install'; $(MAKE) -s build=lib install-libici install-ici-exe dest=$(dest)
+	@echo '5  - build lib/exe'; $(MAKE) -s build=lib conf=$(conf) dccflags=--quiet
+	@echo '6  - install lib/exe'; $(MAKE) -s build=lib install-libici install-ici-exe dest=$(dest) dccflags=--quiet
 	@echo '7  - make clean'; $(MAKE) -s clean
 ifeq ($(os),darwin)
 	@echo '8  - make lto'; $(MAKE) -s lto
