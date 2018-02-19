@@ -47,9 +47,33 @@ public:
         }
     }
 
+    void reset(T *obj) {
+        release();
+        _obj = obj;
+    }
+
+    void reset(T *obj, struct tag_with_incref &) {
+        release();
+        if ((_obj = obj)) {
+            _obj->incref();
+        }
+    }
+
     T * release() {
         auto obj = _obj;
         _obj = nullptr;
+        if (obj) {
+            obj->decref();
+        }
+        return obj;
+    }
+
+    T * release(struct tag_with_decref &) {
+        auto obj = _obj;
+        _obj = nullptr;
+        if (obj) {
+            obj->decref();
+        }
         return obj;
     }
 
