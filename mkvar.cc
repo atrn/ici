@@ -88,18 +88,6 @@ int ici_fetch_mismatch(object *o, object *k, object *v, const char *expected)
         expected);
 }
 
-int ici_assign_float(object *o, object *k, double v)
-{
-    ici_float  *f;
-
-    if ((f = new_float(v)) == nullptr)
-        return 1;
-    if (ici_assign(o, k, f))
-        return 1;
-    decref(f);
-    return 0;
-}
-
 /*
  * Fetch a float or int from the given object keyed by the given key.
  * The result is stored as a double through the given pointer. Returns
