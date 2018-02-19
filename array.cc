@@ -440,7 +440,7 @@ array *new_array(ptrdiff_t n) {
  * obj => array 0 (the array contains the obj)
  */
 int op_mklvalue() {
-    array *a;
+    ref<array> a;
 
     if ((a = new_array(1)) == nullptr) {
         return 1;
@@ -448,7 +448,6 @@ int op_mklvalue() {
     a->push(os.a_top[-1]);
     os.a_top[-1] = a;
     os.push(o_zero);
-    decref(a);
     --xs.a_top;
     return 0;
 }
