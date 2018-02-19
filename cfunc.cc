@@ -696,21 +696,18 @@ static int f_math() {
  *                      on-demand.)
  */
 int f_coreici(object *s) {
-    object *c;
-    object *f;
-
     /*
      * Use the execution engine to evaluate the name of the core module
      * this function is in. It will auto-load if necessary.
      */
+    ref<> c;
     if ((c = evaluate((object *)ICI_CF_ARG2(), 0)) == nullptr) {
         return 1;
     }
     /*
      * Fetch the real function from that module and verify it is callable.
      */
-    f = ici_fetch_base(c, (object *)ICI_CF_ARG1());
-    decref(c);
+    object *f = ici_fetch_base(c, (object *)ICI_CF_ARG1());
     if (f == nullptr) {
         return 1;
     }

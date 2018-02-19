@@ -83,16 +83,16 @@ objwsup *outermost_writeable()
 static int
 f_load(...)
 {
-    str        *name;
-    object     *result;
+    str         *name;
+    object      *result;
     char        fname[FILENAME_MAX];
     char        entry_symbol[64];
-    map *statics;
-    map *autos;
-    map *externs;
-    objwsup    *outer;
-    file       *file;
-    FILE       *stream;
+    map         *statics;
+    map         *autos;
+    map         *externs;
+    objwsup     *outer;
+    file        *file;
+    FILE        *stream;
 
     externs = nullptr;
     statics = nullptr;

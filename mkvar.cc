@@ -32,13 +32,10 @@ namespace ici
  *
  * Returns 0 on succcess, else non-zerro, usual conventions.
  */
-int set_val(objwsup *s, str *name, int type, void *vp)
-{
+int set_val(objwsup *s, str *name, int type, void *vp) {
     object   *o;
-    int       i;
 
-    switch (type)
-    {
+    switch (type) {
     case 'i':
         o = new_int(*(long *)vp);
         break;
@@ -65,11 +62,12 @@ int set_val(objwsup *s, str *name, int type, void *vp)
         return set_error("illegal type key-letter given to set_val");
     }
 
-    if (o == nullptr)
+    if (o == nullptr) {
         return 1;
-    i = ici_assign_base(s, name, o);
+    }
+    auto rc = ici_assign_base(s, name, o);
     decref(o);
-    return i;
+    return rc;
 }
 
 /*
@@ -98,6 +96,7 @@ int ici_assign_float(object *o, object *k, double v)
         return 1;
     if (ici_assign(o, k, f))
         return 1;
+    decref(f);
     return 0;
 }
 
