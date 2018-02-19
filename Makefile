@@ -171,6 +171,8 @@ full-install:
 	@echo '5  - make build=lib'; $(MAKE) -s build=lib conf=$(conf) dccflags=--quiet
 	@echo '6  - make install'; $(MAKE) -s build=lib install-libici install-ici-exe dest=$(dest)
 	@echo '7  - make clean'; $(MAKE) -s clean
+ifeq ($(os),darwin)
 	@echo '8  - make lto'; $(MAKE) -s lto
 	@echo '9  - install lto'; $(MAKE) -s install-ici-exe
 	@echo '10 - make clean'; $(MAKE) -s clean
+endif
