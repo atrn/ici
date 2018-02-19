@@ -3,8 +3,7 @@
 #include "buf.h"
 #include <errno.h>
 
-namespace ici
-{
+namespace ici {
 
 /*
  * Convert the current errno (that is, the standard C global error code) into
@@ -22,18 +21,21 @@ namespace ici
  *
  * This --func-- forms part of the --ici-api--.
  */
-int get_last_errno(const char *dothis, const char *tothis)
-{
-    const char          *e;
+int get_last_errno(const char *dothis, const char *tothis) {
+    const char *e;
 
-    if ((e = strerror(errno)) == nullptr)
+    if ((e = strerror(errno)) == nullptr) {
         e = "system call failure";
-    if (dothis == nullptr && tothis == nullptr)
+    }
+    if (dothis == nullptr && tothis == nullptr) {
         return set_error("%s", e);
-    if (dothis != nullptr && tothis == nullptr)
+    }
+    if (dothis != nullptr && tothis == nullptr) {
         return set_error("failed to %s: %s", dothis, e);
-    if (dothis != nullptr && tothis != nullptr)
+    }
+    if (dothis != nullptr && tothis != nullptr) {
         return set_error("failed to %s %s: %s", dothis, tothis, e);
+    }
     return set_error("%s: %s", tothis, e);
 }
 
