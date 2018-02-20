@@ -656,6 +656,24 @@ file * need_stdout() {
 }
 
 /*
+ * Return the file object that is the current value of the 'stderr'
+ * name in the current scope. Else nullptr, usual conventions.  The file
+ * has not increfed (it is referenced from the current scope, until
+ * that assumption is broken, it is known to be uncollectable).
+ *
+ * This --func-- forms part of the --ici-api--.
+ */
+file * need_stderr() {
+    file *f;
+
+    f = fileof(ici_fetch(vs.a_top[-1], SS(_stderr)));
+    if (!isfile(f)) {
+        return fileof(not_a("stderr", "file"));
+    }
+    return f;
+}
+
+/*
  * For any C functions that return a double and take 0, 1, or 2 doubles as
  * arguments.
  */

@@ -2170,7 +2170,7 @@ int parse_exec() {
         // The REPL needs to know when to issue a prompt so if
         // we are parsing on behalf of the REPL tell it we're
         // starting to parse a new statement.
-        if (p->p_file->f_type == repl_ftype) {
+        if (is_repl_file(p->p_file)) {
             repl_file_new_statement(p->p_file->f_file);
         }
         switch (statement(p, a, nullptr, nullptr, 1)) {

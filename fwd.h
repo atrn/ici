@@ -347,6 +347,7 @@ extern int        call(str *, const char *, ...);
 extern int        call(object *, const char *, ...);
 extern int        assign_cfuncs(objwsup *, cfunc *);
 extern handle    *handle_probe(void *, str *);
+extern file      *need_stderr();
 extern file      *need_stdout();
 extern file      *need_stdin();
 extern array     *need_path();

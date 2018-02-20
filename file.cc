@@ -8,6 +8,7 @@
 #include "buf.h"
 #include "int.h"
 #include "null.h"
+#include "archiver.h"
 
 namespace ici
 {
@@ -127,6 +128,39 @@ object * file_type::fetch(object *o, object *k)
         return l;
     }
     return fetch_fail(o, k);
+}
+
+int file_type::save(archiver *ar, object *o) {
+    if (fileof(o)->f_type == stdio_ftype) {
+        FILE *f = (FILE *)fileof(o)->f_file;
+        if (f == stdin) {
+            return ar->write(uint8_t('i'));
+        }
+        if (f == stdout) {
+            return ar->write(uint8_t('o'));
+        }
+        if (f == stderr) {
+            return ar->write(uint8_t('e'));
+        }
+    }
+    return type::save(ar, o);
+}
+
+object *file_type::restore(archiver *ar) {
+    uint8_t code;
+    if (ar->read(&code)) {
+        return nullptr;
+    }
+    if (code == 'i') {
+        return need_stdin();
+    }
+    if (code == 'o') {
+        return need_stdout();
+    }
+    if (code == 'e') {
+        return need_stderr();
+    }
+    return type::restore(ar);
 }
 
 } // namespace ici
