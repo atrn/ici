@@ -8,6 +8,8 @@
 namespace ici {
 
 extern ftype *repl_ftype;
+
+/* Inform the REPL a new statement is being parsed. */
 void repl_file_new_statement(void *);
 
 }

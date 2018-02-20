@@ -2167,8 +2167,9 @@ int parse_exec() {
     p = parseof(xs.a_top[-1]);
 
     for (;;) {
-        // The REPL needs to know when to issue a prompt. This
-        // is a good time to do that.
+        // The REPL needs to know when to issue a prompt so if
+        // we are parsing on behalf of the REPL tell it we're
+        // starting to parse a new statement.
         if (p->p_file->f_type == repl_ftype) {
             repl_file_new_statement(p->p_file->f_file);
         }
