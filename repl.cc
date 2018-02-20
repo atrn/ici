@@ -147,7 +147,9 @@ struct repl_file {
 
 void repl_file_new_statement(void *fp) {
     auto rf = static_cast<repl_file *>(fp);
-    rf->needprompt();
+    if (rf->sol_) {
+        rf->needprompt();
+    }
 }
 
 // file pointer is a repl_file *
@@ -157,17 +159,15 @@ public:
     }
 
     void emitprompt(repl_file *rf) {
-        if (rf->interactive_) {
+        if (rf->emitprompt_ && rf->interactive_) {
             rf->write(rf->prompt_->s_chars, rf->prompt_->s_nchars);
-            rf->emitprompt_ = false;
         }
+        rf->emitprompt_ = false;
     }
 
     int getch(void *fp) override {
         auto rf = static_cast<repl_file *>(fp);
-        if (rf->emitprompt_) {
-            emitprompt(rf);
-        }
+        emitprompt(rf);
         for (;;) {
             auto ch = rf->in_->getch();
             if (ch == EOF) {
@@ -176,6 +176,7 @@ public:
             }
             if (rf->sol_ && ch == '.') {
                 rf->command();
+                rf->needprompt();
                 emitprompt(rf);
             } else {
                 rf->sol_ = ch == '\n';
@@ -205,9 +206,7 @@ public:
 
     int read(void *buf, long n, void *fp) override {
         auto rf = static_cast<repl_file *>(fp);
-        if (rf->emitprompt_) {
-            emitprompt(rf);
-        }
+        emitprompt(rf);
         return rf->in_->read(buf, n);
     }
 
