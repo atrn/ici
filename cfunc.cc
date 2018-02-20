@@ -1427,7 +1427,7 @@ static int f_implode() {
             p += stringof(*o)->s_nchars;
         }
     }
-    if ((s = stringof(atom(s, 1))) == nullptr) {
+    if ((s = str_intern(s)) == nullptr) {
         return 1;
     }
     return ret_with_decref(s);
