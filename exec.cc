@@ -198,6 +198,25 @@ inline object *fetch(object *s, object *k) {
 }
 
 /*
+ * Unwind the execution stack until a catcher is found.  Then unwind
+ * the scope and operand stacks to the matching depth (but only if it is).
+ * Returns the catcher, or nullptr if there wasn't one.
+ */
+static catcher *unwind() {
+    for (auto p = xs.a_top - 1; p >= xs.a_base; --p) {
+        if (iscatcher(*p)) {
+            auto c = catcherof(*p);
+            xs.a_top = p;
+            os.a_top = &os.a_base[c->c_odepth];
+            vs.a_top = &vs.a_base[c->c_vdepth];
+            return c;
+        }
+    }
+    assert(0);
+    return nullptr;
+}
+
+/*
  * Execute 'code' (any object, normally an array of code or a
  * parse).  The execution procedes on top of the current stacks
  * (execution, operand and variable).  This call to evaluate will return when
@@ -262,12 +281,9 @@ object *evaluate(object *code, int n_operands)
     frame.c_vdepth = vs.a_top - vs.a_base;
     xs.push(&frame);
 
-    if (isarray(code))
-    {
-        get_pc(arrayof(code), xs.a_top);
-    }
-    else
-    {
+    if (isarray(code)) {
+        set_pc(arrayof(code), xs.a_top);
+    } else {
         *xs.a_top = code;
     }
     ++xs.a_top;
@@ -277,10 +293,8 @@ object *evaluate(object *code, int n_operands)
      */
     for (;;)
     {
-        if (UNLIKELY(--exec_count == 0))
-        {
-            if (UNLIKELY(aborted))
-            {
+        if (UNLIKELY(--exec_count == 0)) {
+            if (UNLIKELY(aborted)) {
                 set_error("aborted");
                 goto fail;
             }
@@ -288,13 +302,11 @@ object *evaluate(object *code, int n_operands)
              * Ensure that there is enough room on all stacks for at
              * least 20 more worst case operations.  See also f_call().
              */
-            if (UNLIKELY(engine_stack_check()))
-            {
+            if (UNLIKELY(engine_stack_check())) {
                 goto fail;
             }
             exec_count = 100;
-            if (UNLIKELY(++ex->x_yield_count > 10))
-            {
+            if (UNLIKELY(++ex->x_yield_count > 10)) {
                 yield();
                 ex->x_yield_count = 0;
             }
@@ -303,8 +315,7 @@ object *evaluate(object *code, int n_operands)
              * Check for, and handle, pending signals.
              */
             sigset_t *p = (sigset_t *)(void *)&signals_pending;
-            if (UNLIKELY(!isempty(p)))
-	    {
+            if (UNLIKELY(!isempty(p))) {
                 invoke_signal_handlers();
 	    }
         }
@@ -338,13 +349,10 @@ object *evaluate(object *code, int n_operands)
         {
     continue_with_same_pc:
             o = *pcof(pc)->pc_next++;
-            if (isop(o))
-            {
+            if (isop(o)) {
                 goto an_op;
             }
-        }
-        else
-        {
+        } else {
             o = pc;
             --xs.a_top;
         }
@@ -535,12 +543,10 @@ object *evaluate(object *code, int n_operands)
 
         case TC_OP:
         an_op:
-            switch (opof(o)->op_ecode)
-            {
+            switch (opof(o)->op_ecode) {
             case OP_OTHER:
                 xs.push(o); /* Restore to formal state. */
-                if ((*opof(o)->op_func)())
-                {
+                if ((*opof(o)->op_func)()) {
                     goto fail;
                 }
                 continue;
@@ -565,54 +571,40 @@ object *evaluate(object *code, int n_operands)
                 do_colon:
                     o1 = o;
                     t = os.a_top[-2];
-                    if (flags & OPC_COLON_CARET)
-                    {
-                        if ((o = fetch(vs.a_top[-1], SS(class))) == nullptr)
-                        {
+                    if (flags & OPC_COLON_CARET) {
+                        if ((o = fetch(vs.a_top[-1], SS(class))) == nullptr) {
                             goto fail;
                         }
-                        if (!hassuper(o))
-                        {
+                        if (!hassuper(o)) {
                             char        n1[objnamez];
-
                             set_error("\"class\" evaluated to %s in :^ operation", objname(n1, o));
                             goto fail;
                         }
-                        if ((t = objwsupof(o)->o_super) == nullptr)
-                        {
+                        if ((t = objwsupof(o)->o_super) == nullptr) {
                             set_error("class has no super class in :^ operation");
                             goto fail;
                         }
                     }
-                    if (t->icitype()->can_fetch_method())
-                    {
-                        if ((o = t->icitype()->fetch_method(t, os.a_top[-1])) == nullptr)
-                        {
+                    if (t->icitype()->can_fetch_method()) {
+                        if ((o = t->icitype()->fetch_method(t, os.a_top[-1])) == nullptr) {
                             goto fail;
                         }
-                    }
-                    else
-                    {
-                        if ((o = fetch(t, os.a_top[-1])) == nullptr)
-                        {
+                    } else {
+                        if ((o = fetch(t, os.a_top[-1])) == nullptr) {
                             goto fail;
                         }
-                        if (isnull(o))
-                        {
-                            if ((o = fetch(t, SS(unknown_method))) == nullptr)
-                            {
+                        if (isnull(o)) {
+                            if ((o = fetch(t, SS(unknown_method))) == nullptr) {
                                 goto fail;
                             }
-                            if (!isnull(o))
-                            {
+                            if (!isnull(o)) {
                                 object *nam = os.a_top[-1];
                                 long nargs = intof(os.a_top[-3])->i_value;
                                 
                                 ++os.a_top;
                                 os.a_top[-1] = SS(unknown_method);
                                 os.a_top[-2] = os.a_top[-3];
-                                if ((os.a_top[-3] = new_int(nargs + 1)) == nullptr)
-                                {
+                                if ((os.a_top[-3] = new_int(nargs + 1)) == nullptr) {
                                     goto fail;
                                 }
                                 decref(os.a_top[-3]);
@@ -620,12 +612,10 @@ object *evaluate(object *code, int n_operands)
                             }
                         }
                     }
-                    if ((flags & OPC_COLON_CALL) == 0)
-                    {
+                    if ((flags & OPC_COLON_CALL) == 0) {
                         method *m;
 
-                        if ((m = new_method(os.a_top[-2], o)) == nullptr)
-                        {
+                        if ((m = new_method(os.a_top[-2], o)) == nullptr) {
                             goto fail;
                         }
                         --os.a_top;
@@ -649,31 +639,25 @@ object *evaluate(object *code, int n_operands)
                 xs.push(o);  /* Restore to formal state. */
                 o = nullptr;                   /* No subject object. */
             do_call:
-                if (UNLIKELY(!os.a_top[-1]->can_call()))
-                {
+                if (UNLIKELY(!os.a_top[-1]->can_call())) {
                     char    n1[objnamez];
 
                     set_error("attempt to call %s", objname(n1, os.a_top[-1]));
-                    if (o != nullptr)
-                    {
+                    if (o != nullptr) {
                         decref(o);
                     }
                     goto fail;
                 }
-                if (UNLIKELY(debug_active))
-		{
+                if (UNLIKELY(debug_active)) {
                     o_debug->fncall(os.a_top[-1], ARGS(), NARGS());
 		}
-                if (os.a_top[-1]->call(o))
-                {
-                    if (o != nullptr)
-                    {
+                if (os.a_top[-1]->call(o)) {
+                    if (o != nullptr) {
                         decref(o);
                     }
                     goto fail;
                 }
-                if (o != nullptr)
-                {
+                if (o != nullptr) {
                     decref(o);
                 }
                 continue;
@@ -709,8 +693,7 @@ object *evaluate(object *code, int n_operands)
                 /*
                  * aggr key => value (os)
                  */
-                if ((o = fetch(os.a_top[-2], os.a_top[-1])) == nullptr)
-                {
+                if ((o = fetch(os.a_top[-2], os.a_top[-1])) == nullptr) {
                     goto fail;
                 }
                 --os.a_top;
@@ -721,8 +704,7 @@ object *evaluate(object *code, int n_operands)
                 /*
                  * aggr key => aggr key value (os)
                  */
-                if ((o = fetch(os.a_top[-2], os.a_top[-1])) == nullptr)
-                {
+                if ((o = fetch(os.a_top[-2], os.a_top[-1])) == nullptr) {
                     goto fail;
                 }
                 os.push(o);
@@ -734,8 +716,7 @@ object *evaluate(object *code, int n_operands)
                  *
                  * Used in postfix ++/-- for value.
                  */
-                if ((o = fetch(os.a_top[-2], os.a_top[-1])) == nullptr)
-                {
+                if ((o = fetch(os.a_top[-2], os.a_top[-1])) == nullptr) {
                     goto fail;
                 }
                 os.a_top += 2;
@@ -751,12 +732,10 @@ object *evaluate(object *code, int n_operands)
                  *                => value (os, for value)
                  *                => aggr key (os, for lvalue)
                  */
-                if (ici_assign_base(vs.a_top[-1], os.a_top[-2],os.a_top[-1]))
-                {
+                if (ici_assign_base(vs.a_top[-1], os.a_top[-2],os.a_top[-1])) {
                     goto fail;
                 }
-                switch (opof(o)->op_code)
-                {
+                switch (opof(o)->op_code) {
                 case FOR_EFFECT:
                     os.a_top -= 2;
                     break;
@@ -797,13 +776,11 @@ object *evaluate(object *code, int n_operands)
                     isstring(os.a_top[-2])
                     &&
                     !os.a_top[-2]->flagged(ICI_S_LOOKASIDE_IS_ATOM)
-                )
-                {
+                ) {
                     stringof(os.a_top[-2])->s_slot->sl_value = os.a_top[-1];
                     goto assign_finish;
                 }
-                if (ici_assign(os.a_top[-3], os.a_top[-2], os.a_top[-1]))
-		{
+                if (ici_assign(os.a_top[-3], os.a_top[-2], os.a_top[-1])) {
                     goto fail;
 		}
                 goto assign_finish;
@@ -814,23 +791,17 @@ object *evaluate(object *code, int n_operands)
                  *                => value (os, for value)
                  *                => aggr key (os, for lvalue)
                  */
-                if (hassuper(os.a_top[-3]))
-                {
-                    if (ici_assign_base(os.a_top[-3], os.a_top[-2], os.a_top[-1]))
-                    {
+                if (hassuper(os.a_top[-3])) {
+                    if (ici_assign_base(os.a_top[-3], os.a_top[-2], os.a_top[-1])) {
                         goto fail;
                     }
-                }
-                else
-                {
-                    if (ici_assign(os.a_top[-3], os.a_top[-2], os.a_top[-1]))
-                    {
+                } else {
+                    if (ici_assign(os.a_top[-3], os.a_top[-2], os.a_top[-1])) {
                         goto fail;
                     }
                 }
             assign_finish:
-                switch (opof(o)->op_code)
-                {
+                switch (opof(o)->op_code) {
                 case FOR_EFFECT:
                     os.a_top -= 3;
                     break;
@@ -856,31 +827,26 @@ object *evaluate(object *code, int n_operands)
                     object  *v1;
                     object  *v2;
 
-                    if ((v1 = ici_fetch(os.a_top[-4], os.a_top[-3])) == nullptr)
-                    {
+                    if ((v1 = ici_fetch(os.a_top[-4], os.a_top[-3])) == nullptr) {
                         goto fail;
                     }
                     incref(v1);
-                    if ((v2 = ici_fetch(os.a_top[-2], os.a_top[-1])) == nullptr)
-                    {
+                    if ((v2 = ici_fetch(os.a_top[-2], os.a_top[-1])) == nullptr) {
                         decref(v1);
                         goto fail;
                     }
                     incref(v2);
-                    if (ici_assign(os.a_top[-2], os.a_top[-1], v1))
-                    {
+                    if (ici_assign(os.a_top[-2], os.a_top[-1], v1)) {
                         decref(v1);
                         decref(v2);
                         goto fail;
                     }
-                    if (ici_assign(os.a_top[-4], os.a_top[-3], v2))
-                    {
+                    if (ici_assign(os.a_top[-4], os.a_top[-3], v2)) {
                         decref(v1);
                         decref(v2);
                         goto fail;
                     }
-                    switch (opof(o)->op_code)
-                    {
+                    switch (opof(o)->op_code) {
                     case FOR_EFFECT:
                         os.a_top -= 4;
                         break;
@@ -904,14 +870,13 @@ object *evaluate(object *code, int n_operands)
                  * bool => - (os)
                  *
                  */
-                if (isfalse(os.a_top[-1]))
-                {
+                if (isfalse(os.a_top[-1])) {
                     --os.a_top;
                     ++pcof(xs.a_top[-1])->pc_next;
                     goto stable_stacks_continue;
                 }
                 o = *pcof(xs.a_top[-1])->pc_next++;
-                get_pc(arrayof(o), xs.a_top);
+                set_pc(arrayof(o), xs.a_top);
                 --os.a_top;
                 ++xs.a_top;
                 continue;
@@ -920,17 +885,14 @@ object *evaluate(object *code, int n_operands)
                 /*
                  * bool => -
                  */
-                if (isfalse(os.a_top[-1]))
-                {
+                if (isfalse(os.a_top[-1])) {
                     ++pcof(xs.a_top[-1])->pc_next;
                     o = *pcof(xs.a_top[-1])->pc_next++;
-                }
-                else
-                {
+                } else {
                     o = *pcof(xs.a_top[-1])->pc_next++;
                     ++pcof(xs.a_top[-1])->pc_next;
                 }
-                get_pc(arrayof(o), xs.a_top);
+                set_pc(arrayof(o), xs.a_top);
                 --os.a_top;
                 ++xs.a_top;
                 goto stable_stacks_continue;
@@ -1017,7 +979,7 @@ object *evaluate(object *code, int n_operands)
                         /*
                          * Have to test next part of the condition.
                          */
-                        get_pc(arrayof(os.a_top[-1]), xs.a_top);
+                        set_pc(arrayof(os.a_top[-1]), xs.a_top);
                         ++xs.a_top;
                         os.a_top -= 2;
                         goto stable_stacks_continue;
@@ -1084,7 +1046,7 @@ object *evaluate(object *code, int n_operands)
                  * end of a code array that should loop.
                  */
                 xs.push(o);
-                get_pc(arrayof(xs.a_top[-2]), xs.a_top);
+                set_pc(arrayof(xs.a_top[-2]), xs.a_top);
                 ++xs.a_top;
                 goto stable_stacks_continue;
 
@@ -1099,7 +1061,7 @@ object *evaluate(object *code, int n_operands)
                 o = *pcof(xs.a_top[-1])->pc_next++;
                 xs.push(o);
                 xs.push(&o_looper);
-                get_pc(arrayof(o), xs.a_top);
+                set_pc(arrayof(o), xs.a_top);
                 ++xs.a_top;
                 break;
 
@@ -1108,7 +1070,7 @@ object *evaluate(object *code, int n_operands)
                  * array => - (os)
                  *       => pc (xs)
                  */
-                get_pc(arrayof(os.a_top[-1]), xs.a_top);
+                set_pc(arrayof(os.a_top[-1]), xs.a_top);
                 ++xs.a_top;
                 --os.a_top;
                 continue;
@@ -1145,7 +1107,7 @@ object *evaluate(object *code, int n_operands)
                     }
                     xs.push(null);
                     xs.push(&o_switcher);
-                    get_pc(arrayof(os.a_top[-2]), xs.a_top);
+                    set_pc(arrayof(os.a_top[-2]), xs.a_top);
                     pcof(*xs.a_top)->pc_next += intof(sl->sl_value)->i_value;
                     ++xs.a_top;
                     os.a_top -= 3;
@@ -1166,7 +1128,7 @@ object *evaluate(object *code, int n_operands)
                         goto fail;
                     }
                     ++xs.a_top;
-                    get_pc(arrayof(os.a_top[-1]), xs.a_top);
+                    set_pc(arrayof(os.a_top[-1]), xs.a_top);
                     ++xs.a_top;
                     --os.a_top;
                     ++ex->x_critsect;
@@ -1214,6 +1176,10 @@ object *evaluate(object *code, int n_operands)
             {
                 set_error("error");
             }
+            if (UNLIKELY(debug_active && !debug_ignore_err))
+	    {
+                o_debug->errorset(error, ex->x_src);
+	    }
             for (;;)
             {
                 if ((c = unwind()) == nullptr || c->flagged(CF_EVAL_BASE))
@@ -1241,13 +1207,12 @@ object *evaluate(object *code, int n_operands)
                 decref(c);
                 goto badfail;
             }
-            get_pc(arrayof(c->c_catcher), xs.a_top);
+            set_pc(arrayof(c->c_catcher), xs.a_top);
             ++xs.a_top;
             decref(c);
             continue;
 
         badfail:
-#ifndef NODEBUGGING
             /*
              * This is not such a useful place to hop into the debugger on
              * error, because we have already unwound the stack. So the user's
@@ -1258,7 +1223,6 @@ object *evaluate(object *code, int n_operands)
 	    {
                 o_debug->error(error, ex->x_src);
 	    }
-#endif
             expand_error(ex->x_src->s_lineno, ex->x_src->s_filename);
             --ex->x_n_engine_recurse;
             return nullptr;

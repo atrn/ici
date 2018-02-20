@@ -16,8 +16,7 @@ namespace ici
 
 #include "object.h"
 
-struct catcher : object
-{
+struct catcher : object {
     object  *c_catcher;
     uint32_t c_odepth;       /* Operand stack depth. */
     uint32_t c_vdepth;       /* Variable stack depth. */
@@ -41,8 +40,7 @@ constexpr int CF_CRIT_SECT = 0x40;    /* Critical section guard. */
  * End of ici.h export. --ici.h-end--
  */
 
-class catcher_type : public type
-{
+class catcher_type : public type {
 public:
     catcher_type() : type("catcher", sizeof (struct catcher)) {}
     size_t mark(object *o) override;

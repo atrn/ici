@@ -156,7 +156,7 @@ public:
     object *fetch(object *o, object *k) override;
 };
 
-inline void get_pc(array *code, object **x) {
+inline void set_pc(array *code, object **x) {
     *x = ex->x_pc_closet->a_base[x - xs.a_base];
     auto p = pcof(*x);
     p->pc_code = code;

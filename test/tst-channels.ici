@@ -1,29 +1,42 @@
-//  Runs Nworkers workers, each reading from a workq channel.
-//  Each worker reads a "job" from workq, does some simulated
-//  work and records stats - the last job it did and increments
-//  its count of the number of jobs.
+//  Runs Nworkers workers, each reading from a workq channel.  Each
+//  worker reads a "job" from workq, does some simulated work and
+//  records stats - the last job it did and increments its count of
+//  the number of jobs.
 //
-//  We send Njobs jobs "down" the work queue, close it and
-//  wait for the workers to finish. One of them should have
-//  processed the last job. The sum of the number of jobs
-//  each did should be the same as the total number of jobs.
+//  We send Njobs jobs "down" the work queue, close it and wait for
+//  the workers to finish. One of them should have processed the last
+//  job. The sum of the number of jobs each did should be the same as
+//  the total number of jobs.
 //
 
 Njobs := int(argv[1]) || (5*1000);
 Nworkers := int(argv[2]) || 4;
 Nqueue := int(argv[3]) || 2;
-verbose := getenv("verbose");
 
 rand(Njobs * Nworkers);
 
-local Ndone = array();
-local Lastjob = array();
+//  Per-worker information.  Each worker records:
+//  - the number of jobs it did
+//  - the job value of the last job it did
+//
+//  We use simple monotonically increasing values for
+//  our jobs so we know each job should have a numericaly
+//  larger value than any prior job.
+//
+local Ndone = array(); // per-worker job counts
+local Lastjob = array(); // per-worer, last job id
 
 for (i := 0; i < Nworkers; ++i) {
     Ndone[i] = 0;
     Lastjob[i] = 0;
 }
 
+//  This is our work function called by the worker to process a
+//  job. The function isn't used directly but instead a, partial,
+//  closure is posted to the "run queue" that binds the function to
+//  its input, the "job". When the worker receives the closure it
+//  calls it supplying the value for the workerid argument.
+//
 local work(job, workerid) {
     Lastjob[workerid] = job;
     limit := 1 + rand() % 1000;
@@ -33,31 +46,49 @@ local work(job, workerid) {
     ++Ndone[workerid];
 }
 
-local runq(ch, workerid) {
+//  This function "runs" the "work queue". I.e. it reads "callable
+//  objects" (which in our case are closures) from the supplied
+//  channel and calls them, passing its workerid as argument.
+//
+local run(ch, workerid) {
     forall (fn in ch) {
         fn(workerid);
     }
 }
 
+//  Create the work queue.
+//
 workq := channel(Nqueue);
 
+//  Create Nworkers workers to "run" the queue.
+//
 workers := array();
 for (id := 0; id < Nworkers; ++id) {
-    worker := go(runq, workq, id);
-    push(workers, worker);
+    push(workers, go(run, workq, id));
 }
 
+//  Create the jobs.  Each job "closes" over the work function and its
+//  input, binding the job's data to the function then posting the
+//  result to be "worked" on - called within a worker context.
+//
 for (x := 1; x <= Njobs; ++x) {
     put(workq, closure(work, x));
 }
 
+//  Closing the work queue indicates there is no more work
+//  to do.  The run function's forall over the channel will
+//  now complete.
+//
 close(workq);
 
+//  And we wait for all the workers to finish.
+//
 forall (worker in workers) {
     waitfor(worker.status == "finished"; worker);
 }
 
-// Check things
+// Now we check what the workers did.
+//
 
 local failures = 0;
 
@@ -69,7 +100,6 @@ if (maxjob != Njobs) {
 
 totaljobs := 0;
 forall (v, k in Ndone) {
-    verbose && printf("worker:%d did %d jobs\n", k+1, v);
     totaljobs += v;
 }
 if (totaljobs != Njobs) {

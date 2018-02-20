@@ -289,7 +289,7 @@ int func_type::call(object *o, object *subject)
     xs.a_top[-1] = ex->x_src;
 
     xs.push(&o_mark);
-    get_pc(f->f_code, xs.a_top);
+    set_pc(f->f_code, xs.a_top);
     ++xs.a_top;
     vs.push(d, with_decref);
     os.a_top -= NARGS() + 2;

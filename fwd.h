@@ -431,7 +431,6 @@ objwsup *               current_scope();
  */
 
 extern object         *evaluate(object *, int);
-extern catcher        *unwind();
 
 extern char          **smash(char *, int);
 extern char          **ssmash(char *, char *);

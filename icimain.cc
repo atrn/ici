@@ -43,16 +43,20 @@ int main(int argc, char *argv[]) {
     file       *f;
     int         help = 0;
 
-#if 0
-#   ifndef NDEBUG
-        /*
-         * There is an alarming tendancy to forget the NDEBUG define for
-         * release builds of ICI.  This printf is an attempt to stop it.
-         * Debug builds are *VERY* inefficient due to some very expensive
-         * asserts in the main interpreter loop.
-         */
-        fprintf(stderr, "%s: Warning - this is a debug build.\n", argv[0]);
-#   endif
+#ifndef NDEBUG
+    /*
+     * There is an alarming tendancy to forget the NDEBUG define for
+     * release builds of ICI.  This printf is an attempt to stop it.
+     * Debug builds are *VERY* inefficient due to some very expensive
+     * asserts in the main interpreter loop.
+     *
+     * But this warning gets annoying when developing so we only
+     * issue it if our argv[0] indicates we're running from some
+     * sort of /bin.
+     */
+    if (strstr(argv[0], "/bin/")) {
+        fprintf(stderr, "%s: THIS IS A DEBUG BUILD: %s\n", argv[0], version_string);
+    }
 #endif
 
     if (init())

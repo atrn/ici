@@ -193,14 +193,11 @@ static int f_build()
     dstart = &ARG(0);
     c.c_dlimit = &ARG(NARGS()); /* Assume for the moment. */
     c.c_dstep = -1;
-    for (i = 0; i < NARGS(); ++i)
-    {
-        if (isstring(ARG(i)))
-        {
+    for (i = 0; i < NARGS(); ++i) {
+        if (isstring(ARG(i))) {
             c.c_dlimit = &ARG(i); /* Revise. */
             c.c_option = str_char_at(stringof(ARG(i)), 0);
-            if (++i < NARGS())
-            {
+            if (++i < NARGS()) {
                 c.c_cstart = &ARG(i);
                 c.c_climit = &ARG(NARGS());
                 c.c_cstep = -1;
@@ -208,10 +205,10 @@ static int f_build()
             break;
         }
     }
-    if (dstart == c.c_dlimit)
+    if (dstart == c.c_dlimit) {
         return null_ret();
-    if (c.c_cstart == nullptr)
-    {
+    }
+    if (c.c_cstart == nullptr) {
         default_content = null;
         c.c_cstart = &default_content;
         c.c_climit = c.c_cstart + 1;
@@ -219,35 +216,31 @@ static int f_build()
     }
     c.c_cnext = c.c_cstart;
 
-    if (c.c_option == 'i')
-    {
-        if (c.c_cnext != c.c_climit && c.c_cnext != &default_content)
-        {
-            if (!isint(*c.c_cnext))
-            {
+    if (c.c_option == 'i') {
+        if (c.c_cnext != c.c_climit && c.c_cnext != &default_content) {
+            if (!isint(*c.c_cnext)) {
                 return set_error("%s given as auto-increment start is not an int",
                     objname(n1, *c.c_cnext));
             }
             c.c_ccount = intof(*c.c_cnext)->i_value;
             c.c_cnext += c.c_cstep;
-            if (c.c_cnext != c.c_climit)
-            {
-                if (!isint(*c.c_cnext))
-                {
+            if (c.c_cnext != c.c_climit) {
+                if (!isint(*c.c_cnext)) {
                     return set_error("%s given as auto-increment step is not an int",
                         objname(n1, *c.c_cnext));
                 }
                 c.c_cstep = intof(*c.c_cnext)->i_value;
-            }
-            else
+            } else {
                 c.c_cstep = 1;
-        }
-        else
+            }
+        } else {
             c.c_cstep = 1;
+        }
     }
 
-    if (buildxx(&r, dstart, &c))
+    if (buildxx(&r, dstart, &c)) {
         return 1;
+    }
     return ret_with_decref(r);
 }
 

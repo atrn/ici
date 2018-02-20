@@ -6,6 +6,7 @@ namespace ici
 {
 
 debugger::~debugger() {}
+void debugger::errorset(char *, struct src *) {}
 void debugger::error(char *, struct src *) {}
 void debugger::fncall(object *, object **, int) {}
 void debugger::fnresult(object *) {}

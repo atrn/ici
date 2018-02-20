@@ -27,11 +27,14 @@ namespace ici
  * The ici::debugger base-class provides default implementations of
  * the debugging functions. The default implementations do nothing.
  *
+ * errorset()           Called with the value of error that IS TO BE
+ *                      set. This is called immediately prior to setting
+ *                      the error value visible to ICI code.
  *
  * error()              Called with the current value of error (redundant,
  *                      but retained for historical reasons) and a source line
  *                      marker object ('ici::src') on an uncaught error.
- *                      This is is called after the stack has been unwound
+ *                      This is is called AFTER the stack has been unwound
  *                      so is of limited use.
  *
  * fncall()             Called with the object being called, the pointer to
@@ -59,6 +62,7 @@ namespace ici
 class debugger {
 public:
     virtual ~debugger();
+    virtual void errorset(char *, struct src *);
     virtual void error(char *, struct src *);
     virtual void fncall(object *, object **, int);
     virtual void fnresult(object *);

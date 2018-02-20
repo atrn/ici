@@ -16,8 +16,9 @@ namespace ici
 {
 
 /*
- * Flag indicating if the user wants debugging enabled. Could be used
- * as a bit set to control which things get debugged.
+ * Flag indicating if debugging is enabled.  If this is non-zero and
+ * there is a current debugger instance it's functions are called.
+ * This value is the result of the ICI debug() function.
  */
 int debug_enabled = 0;
 
@@ -30,16 +31,14 @@ int debug_ignore_err = 0;
  * Ignore errors within exec loop. Used by internal calls to
  * exec that handle errors themselves, e.g., f_include().
  */
-void debug_ignore_errors()
-{
+void debug_ignore_errors() {
     ++debug_ignore_err;
 }
 
 /*
  * Restore error processing.
  */
-void debug_respect_errors()
-{
+void debug_respect_errors() {
     --debug_ignore_err;
 }
 
@@ -57,19 +56,16 @@ void debug_respect_errors()
  * don't want to be debugged or need to avoid the performance impact of
  * debugging.
  */
-static int
-f_debug(...)
-{
-    int64_t v, t;
-
-    t = debug_enabled;
-    if (NARGS() != 0)
-    {
-        if (typecheck("i", &v))
+static int f_debug(...) {
+    auto result = debug_enabled;
+    if (NARGS() != 0) {
+        int64_t v;
+        if (typecheck("i", &v)) {
             return 1;
+        }
         debug_enabled = v;
     }
-    return int_ret(t);
+    return int_ret(result);
 }
 
 ICI_DEFINE_CFUNCS(debug)

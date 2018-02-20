@@ -38,11 +38,9 @@ static int      statement(parse *, array *, map *, const char *, int);
 #define DISASSEMBLE   0
 
 #if defined(DISASSEMBLE) && DISASSEMBLE != 0
-static char *
-opname(op *op)
+static char *opname(op *op)
 {
-    switch (op->op_ecode)
-    {
+    switch (op->op_ecode) {
     case OP_OTHER: return "OP_OTHER";
     case OP_CALL: return "OP_CALL";
     case OP_NAMELVALUE: return "OP_NAMELVALUE";
@@ -2176,7 +2174,7 @@ int parse_exec() {
 #           if DISASSEMBLE
             disassemble(4, a);
 #           endif
-            get_pc(a, xs.a_top);
+            set_pc(a, xs.a_top);
             ++xs.a_top;
             decref(a);
             return 0;
