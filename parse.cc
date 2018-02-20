@@ -16,6 +16,7 @@
 #include "mark.h"
 #include "pc.h"
 #include "src.h"
+#include "repl.h"
 #include <errno.h>
 
 namespace ici
@@ -2166,6 +2167,11 @@ int parse_exec() {
     p = parseof(xs.a_top[-1]);
 
     for (;;) {
+        // The REPL needs to know when to issue a prompt. This
+        // is a good time to do that.
+        if (p->p_file->f_type == repl_ftype) {
+            repl_file_new_statement(p->p_file->f_file);
+        }
         switch (statement(p, a, nullptr, nullptr, 1)) {
         case 1:
             if (a->a_top == a->a_base) {

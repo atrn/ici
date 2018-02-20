@@ -271,113 +271,91 @@ extern DLI null                 *null;
  * This --macro-- forms part of the --ici-api--.
  */
 
-extern void           enter(exec *);
-extern exec          *leave();
-extern int            wakeup(object *);
-extern int            waitfor(object *);
-extern void           yield();
-
-extern int            main(int, char **);
-extern int            init();
-extern void           uninit();
-extern void           atexit(void (*)(), wrap *);
-extern void           uninit_compile();
-extern void           uninit_cfunc();
-
-extern object        *atom_probe(object *o);
-extern object        *atom(object *, int);
-extern void           reclaim();
-extern int            unassign(set *, object *);
-extern int            unassign(map *, object *);
-extern void           invalidate_lookaside(map *);
-
-extern int           parse_file(file *, objwsup *);
-extern int           parse_file(const char *, char *, ftype *);
-extern int           parse_file(const char *);
-extern object        *eval(str *);
-
-extern uint32_t     crc(unsigned long, unsigned char const *, ptrdiff_t);
-
-extern str           *str_get_nul_term(const char *);
-extern int            str_need_size(str *, size_t);
-extern str           *str_alloc(size_t);
-extern str           *str_intern(str *);
-extern array         *new_array(ptrdiff_t = 0);
-extern exec          *new_exec();
-extern str           *new_str_nul_term(const char *);
-extern str           *new_str_buf(size_t);
-extern str           *new_str(const char *, size_t);
-extern src           *new_src(int, str *);
-extern set           *new_set();
-extern regexp        *new_regexp(str *, int);
-extern ptr           *new_ptr(object *, object *);
-extern objwsup       *new_module(cfunc *cf);
-extern objwsup       *new_class(cfunc *cf, objwsup *super);
-extern map           *new_map();
-extern integer       *new_int(int64_t);
-extern ici_float     *new_float(double);
-extern handle        *new_handle(void *, str *, objwsup *);
-extern method        *new_method(object *, object *);
-extern mem           *new_mem(void *, size_t, int, void (*)(void *));
-
-extern object        *make_handle_member_map(name_id *);
-
-extern int            argerror(int);
-extern int            argcount2(int, int);
-extern int            argcount(int);
-extern int            typecheck(const char *, ...);
-extern int            str_ret(const char *);
-extern int            set_val(objwsup *, str *, int, void *);
-extern int            retcheck(const char *, ...);
-extern int            ret_with_decref(object *);
-extern int            ret_no_decref(object *);
-extern int            int_ret(int64_t);
-extern int            float_ret(double);
-
-extern int            register_type(type *);
-
-extern file          *open_charbuf(char *, int, object *, bool);
-extern file          *new_file(void *, ftype *, str *, object *);
-extern int            close_file(file *);
-
-extern int            close_channel(channel *);
-
-extern int            method_check(object *o, int tcode);
-
-extern int            handle_method_check(object *, str *, handle **, void **);
-
-extern int            get_last_errno(const char *, const char *);
-extern int            fetch_num(object *, object *, double *);
-extern int            fetch_int(object *, object *, long *);
-
-extern int            engine_stack_check();
-
-extern int            define_cfuncs(cfunc *);
-extern int            cmkvar(objwsup *, const char *, int, void *);
-
-extern int            check_interface(unsigned long, unsigned long, char const *);
-
-extern int            call_method(object *, str *, const char *, ...);
-extern int            callv(str *, const char *, va_list);
-extern int            callv(object *, object *, const char *, va_list);
-extern int            call(str *, const char *, ...);
-extern int            call(object *, const char *, ...);
-
-extern int            assign_cfuncs(objwsup *, cfunc *);
-extern handle        *handle_probe(void *, str *);
-
-extern file          *need_stdout();
-extern file          *need_stdin();
-extern array         *need_path();
-
-extern char          *objname(char [objnamez], object *);
+extern void       enter(exec *);
+extern exec      *leave();
+extern int        wakeup(object *);
+extern int        waitfor(object *);
+extern void       yield();
+extern int        main(int, char **);
+extern int        init();
+extern void       uninit();
+extern void       atexit(void (*)(), wrap *);
+extern void       uninit_compile();
+extern void       uninit_cfunc();
+extern object    *atom_probe(object *o);
+extern object    *atom(object *, int);
+extern void       reclaim();
+extern int        unassign(set *, object *);
+extern int        unassign(map *, object *);
+extern void       invalidate_lookaside(map *);
+extern int        parse_file(file *, objwsup *);
+extern int        parse_file(const char *, char *, ftype *);
+extern int        parse_file(const char *);
+extern object    *eval(str *);
+extern uint32_t   crc(unsigned long, unsigned char const *, ptrdiff_t);
+extern str       *str_get_nul_term(const char *);
+extern int        str_need_size(str *, size_t);
+extern str       *str_alloc(size_t);
+extern str       *str_intern(str *);
+extern array     *new_array(ptrdiff_t = 0);
+extern exec      *new_exec();
+extern str       *new_str_nul_term(const char *);
+extern str       *new_str_buf(size_t);
+extern str       *new_str(const char *, size_t);
+extern src       *new_src(int, str *);
+extern set       *new_set();
+extern regexp    *new_regexp(str *, int);
+extern ptr       *new_ptr(object *, object *);
+extern objwsup   *new_module(cfunc *cf);
+extern objwsup   *new_class(cfunc *cf, objwsup *super);
+extern map       *new_map();
+extern integer   *new_int(int64_t);
+extern ici_float *new_float(double);
+extern handle    *new_handle(void *, str *, objwsup *);
+extern method    *new_method(object *, object *);
+extern mem       *new_mem(void *, size_t, int, void (*)(void *));
+extern object    *make_handle_member_map(name_id *);
+extern int        argerror(int);
+extern int        argcount2(int, int);
+extern int        argcount(int);
+extern int        typecheck(const char *, ...);
+extern int        str_ret(const char *);
+extern int        set_val(objwsup *, str *, int, void *);
+extern int        retcheck(const char *, ...);
+extern int        ret_with_decref(object *);
+extern int        ret_no_decref(object *);
+extern int        int_ret(int64_t);
+extern int        float_ret(double);
+extern int        register_type(type *);
+extern file      *open_charbuf(char *, int, object *, bool);
+extern file      *new_file(void *, ftype *, str *, object *);
+extern int        close_file(file *);
+extern int        close_channel(channel *);
+extern int        method_check(object *o, int tcode);
+extern int        handle_method_check(object *, str *, handle **, void **);
+extern int        get_last_errno(const char *, const char *);
+extern int        fetch_num(object *, object *, double *);
+extern int        fetch_int(object *, object *, long *);
+extern int        engine_stack_check();
+extern int        define_cfuncs(cfunc *);
+extern int        cmkvar(objwsup *, const char *, int, void *);
+extern int        check_interface(unsigned long, unsigned long, char const *);
+extern int        call_method(object *, str *, const char *, ...);
+extern int        callv(str *, const char *, va_list);
+extern int        callv(object *, object *, const char *, va_list);
+extern int        call(str *, const char *, ...);
+extern int        call(object *, const char *, ...);
+extern int        assign_cfuncs(objwsup *, cfunc *);
+extern handle    *handle_probe(void *, str *);
+extern file      *need_stdout();
+extern file      *need_stdin();
+extern array     *need_path();
+extern char      *objname(char [objnamez], object *);
+extern int        find_on_path(char [FILENAME_MAX], const char *);
+extern DLI int    debug_enabled;
+extern int        debug_ignore_err;
 
 #define null_ret()    ret_no_decref(null)
-
-extern int            find_on_path(char [FILENAME_MAX], const char *);
-
-extern DLI int        debug_enabled;
-extern int            debug_ignore_err;
 
 #ifndef NODEBUGGING
 extern DLI void       debug_ignore_errors();
@@ -389,8 +367,7 @@ extern DLI void       debug_respect_errors();
  * read-only file.  It is included only for backward compatibility;
  * use open_charbuf() instead.
  */
-inline file *sopen(char *data, int size, object *ref)
-{
+inline file *sopen(char *data, int size, object *ref) {
     return open_charbuf(data, size, ref, true);
 }
 
@@ -411,19 +388,17 @@ inline file *sopen(char *data, int size, object *ref)
 #   define debug_active     debug_enabled
 #endif
 
+extern object        **objs;
+extern object        **objs_top;
+extern object        **objs_limit;
+
 extern void                     init_signals();
 extern volatile sigset_t        signals_pending;
 extern volatile long            signal_count[];
 extern int                      invoke_signal_handlers();
 extern int                      blocking_syscall(int);
-
-extern object        **objs;
-extern object        **objs_top;
-extern object        **objs_limit;
-
 extern void            grow_objs(object *);
 extern void            collect();
-
 objwsup *               current_scope();
 
 /*
@@ -431,32 +406,23 @@ objwsup *               current_scope();
  */
 
 extern object         *evaluate(object *, int);
-
 extern char          **smash(char *, int);
 extern char          **ssmash(char *, char *);
-
 extern void            grow_atoms(ptrdiff_t newz);
-
 extern const char     *binop_name(int);
-
 extern slot           *find_raw_slot(map *, object *);
 extern object         *atom_probe2(object *, object ***);
-
 extern int             parse_exec();
 extern int             exec_forall();
-
 extern catcher        *new_catcher(object *, int, int, int);
 extern cfunc          *new_cfunc(str *, int (*)(...), void *, void *);
 extern func           *new_func();
 extern op             *new_op(int (*)(), int16_t, int16_t);
 extern parse          *new_parse(file *);
 extern pc             *new_pc();
-
 extern unsigned long   hash_float(double);
 extern unsigned long   hash_string(object *);
-
 int                     f_coreici(object *);
-
 extern int             op_binop();
 extern int             op_onerror();
 extern int             op_for();
@@ -466,27 +432,20 @@ extern int             op_mkptr();
 extern int             op_openptr();
 extern int             op_fetch();
 extern int             op_unary();
-
 extern int             set_error(const char *, ...);
 extern void            expand_error(int, str *);
-
 extern int             lex(parse *, array *);
 extern int             compile_expr(array *, expr *, int);
-
 extern int             set_issubset(set *, set *);
 extern int             set_ispropersubset(set *, set *);
-
 extern int64_t         xstrtol(char const *, char **, int);
-
 extern void            init_exec();
 extern int             init_path(objwsup *externs);
-
 extern int             init_sstrings();
 extern void            drop_all_small_allocations();
 extern objwsup        *outermost_writeable();
-
 extern int             str_char_at(str *, size_t);
-
+extern void             repl();
 extern int             supress_collect;
 extern int             ncollects;
 
@@ -498,9 +457,6 @@ extern size_t        atomsz;
 extern int set_timezone_vals(map *);
 #endif
 
-// Defines a static instance of some type T and returns its address.
-// Aka a "Myer Singleton" but we only ever call it once for each T.
-//
 template <typename T> inline T *singleton() {
     static T value;
     return &value;

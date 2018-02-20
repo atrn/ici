@@ -79,9 +79,8 @@ int close_file(file *f)
      * modifying error between calls to leave()/enter() is not
      * allowed.
      */
-    if (r != 0 && f->f_type == popen_ftype)
-    {
-        set_error("popen command exit status %d", r);
+    if (r != 0 && f->f_type == popen_ftype) {
+        set_error("exit status %d", r);
     }
     return r;
 }

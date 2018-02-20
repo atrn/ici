@@ -155,14 +155,12 @@ grow_map(map *s)
  *
  * This --func-- forms part of the --ici-api--.
  */
-int unassign(map *s, object *k)
-{
+int unassign(map *s, object *k) {
     slot *sl;
     slot *ss;
     slot *ws;    /* Wanted position. */
 
-    if ((ss = find_raw_slot(s, k))->sl_key == nullptr)
-    {
+    if ((ss = find_raw_slot(s, k))->sl_key == nullptr) {
         return 0;
     }
     --s->s_nels;
@@ -171,14 +169,11 @@ int unassign(map *s, object *k)
      * Scan "forward" bubbling up entries which would rather be at our
      * current empty slot.
      */
-    for (;;)
-    {
-        if (--sl < s->s_slots)
-        {
+    for (;;) {
+        if (--sl < s->s_slots) {
             sl = s->s_slots + s->s_nslots - 1;
         }
-        if (sl->sl_key == nullptr)
-        {
+        if (sl->sl_key == nullptr) {
             break;
         }
         ws = &s->s_slots[hashindex(sl->sl_key, s)];
@@ -187,8 +182,7 @@ int unassign(map *s, object *k)
             (sl < ss && (ws >= ss || ws < sl))
             ||
             (sl > ss && (ws >= ss && ws < sl))
-        )
-        {
+        ) {
             /*
              * The value at sl, which really wants to be at ws, should go
              * into the current empty slot (ss).  Copy it to there and update
@@ -200,14 +194,12 @@ int unassign(map *s, object *k)
              * If we've moved a slot keyed by a string, that string's
              * look-aside value may be wrong. Trash it.
              */
-            if (isstring(ss->sl_key))
-	    {
+            if (isstring(ss->sl_key)) {
                 stringof(ss->sl_key)->s_vsver = 0;
 	    }
         }
     }
-    if (isstring(k))
-    {
+    if (isstring(k)) {
         stringof(k)->s_vsver = 0;
     }
     ss->sl_key = nullptr;

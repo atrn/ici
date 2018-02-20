@@ -1826,11 +1826,9 @@ static int f_del() {
     }
     if (ismap(s)) {
         unassign(mapof(s), o);
-    }
-    else if (isset(s)) {
+    } else if (isset(s)) {
         unassign(setof(s), o);
-    }
-    else if (isarray(s)) {
+    } else if (isarray(s)) {
         array      *a;
         object    **e;
         long        i;
@@ -1840,13 +1838,13 @@ static int f_del() {
             return null_ret();
         }
         a = arrayof(s);
+        if (a->isatom()) {
+            return set_error("attempt to modify to an atomic array");
+        }
         i = intof(o)->i_value;
         n = a->len();
         if (i < 0 || i >= n) {
             return null_ret();
-        }
-        if (s->isatom()) {
-            return set_error("attempt to modify to an atomic array");
         }
         if (i >= n / 2) {
             object       **prev_e;

@@ -71,8 +71,10 @@ int main(int argc, char *argv[]) {
         goto fail;
     av->push(null); /* Leave room for argv[0]. */
     arg0 = nullptr;
-    if (argc <= 1)
-        goto usage;
+    if (argc <= 1) {
+        repl();
+        return 0;
+    }
     if
     (
         argc > 1

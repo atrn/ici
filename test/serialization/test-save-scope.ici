@@ -34,7 +34,7 @@ local deepcopy_of(o, copied, depth) {
     }
 }
 
-local remove_files_from(s) {
+local sans_files(s) {
     if (s) {
         remove_files_from(super(s));
 	forall (v, k in s) {
@@ -47,7 +47,7 @@ local remove_files_from(s) {
 }
 
 externs := super(super(scope()));
-s := remove_files_from(deepcopy_of(externs, set(), 0));
+s := deepcopy_of(sans_files(externs), set(), 0);
 file = fopen(test.data_file(), "w");
 save(s, file);
 close(file);
