@@ -1,5 +1,3 @@
-#define NOCLASSPROTO
-
 #define ICI_CORE
 #include "exec.h"
 #include "func.h"

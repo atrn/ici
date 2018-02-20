@@ -1119,54 +1119,6 @@ fail:
     return 1;
 }
 
-static int f_include()
-{
-    str  *filename;
-    map  *a;
-    int  rc;
-    file *f;
-
-    switch (NARGS()) {
-    case 1:
-        if (typecheck("o", &filename)) {
-            return 1;
-        }
-        a = mapof(vs.a_top[-1]);
-        break;
-
-    case 2:
-        if (typecheck("od", &filename, &a)) {
-            return 1;
-        }
-        break;
-
-    default:
-        return argcount(2);
-    }
-    if (!isstring(filename)) {
-        return argerror(0);
-    }
-    debug_ignore_errors();
-    if (call(SS(fopen), "o=o", &f, filename)) {
-        char fname[1024];
-
-        strncpy(fname, filename->s_chars, 1023);
-        if (!find_on_path(fname, nullptr)) {
-            debug_respect_errors();
-            return set_error("could not find \"%s\" on path", fname);
-        }
-        if (call(SS(fopen), "o=s", &f, fname)) {
-            debug_respect_errors();
-            return 1;
-        }
-    }
-    debug_respect_errors();
-    rc = parse_file(f, objwsupof(a));
-    call(SS(close), "o", f);
-    decref(f);
-    return rc < 0 ? 1 : ret_no_decref(a);
-}
-
 static int f_call() {
     array    *aa;               /* The array with extra arguments, or nullptr. */
     int       nargs;            /* Number of args to target function. */
@@ -3969,6 +3921,7 @@ ICI_DEFINE_CFUNCS(std)
     ICI_DEFINE_CFUNC(toint,        f_toint),
     ICI_DEFINE_CFUNC(rand,         f_rand),
     ICI_DEFINE_CFUNC(interval,     f_interval),
+    ICI_DEFINE_CFUNC(slice,        f_interval),
     ICI_DEFINE_CFUNC(explode,      f_explode),
     ICI_DEFINE_CFUNC(implode,      f_implode),
     ICI_DEFINE_CFUNC(sopen,        f_sopen),
@@ -4005,7 +3958,6 @@ ICI_DEFINE_CFUNCS(std)
     ICI_DEFINE_CFUNC2(fmod,        f_math, xfmod,   "f=nn"),
     ICI_DEFINE_CFUNC(waitfor,      f_waitfor),
     ICI_DEFINE_CFUNC(top,          f_top),
-    ICI_DEFINE_CFUNC(include,      f_include),
     ICI_DEFINE_CFUNC(sort,         f_sort),
     ICI_DEFINE_CFUNC(reclaim,      f_reclaim),
     ICI_DEFINE_CFUNC(now,          f_now),
