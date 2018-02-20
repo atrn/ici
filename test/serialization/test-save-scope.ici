@@ -36,7 +36,7 @@ local deepcopy_of(o, copied, depth) {
 
 local sans_files(s) {
     if (s) {
-        remove_files_from(super(s));
+        sans_files(super(s));
 	forall (v, k in s) {
 	    if (typeof(v) == "file") {
 		del(s, k);

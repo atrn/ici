@@ -12,7 +12,7 @@ namespace ici {
  *
  * This --variable-- forms part of the --ici-api--.
  */
-char            *error;
+char *error = nullptr;
 
 static char msg[max_error_msg]; /* FIXME: should be per-thread if error also per-thread. */
 
@@ -24,6 +24,10 @@ int set_error(const char *fmt, ...) {
     va_end(va);
     error = msg;
     return 1;
+}
+
+void clear_error() {
+    error = nullptr;
 }
 
 } // namespace ici

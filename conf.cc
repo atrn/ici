@@ -70,7 +70,7 @@ char version_string[] =
     __DATE__ " " __TIME__ ", "
     CONFIG_STR
 #ifndef NDEBUG
-    " DEBUG-BUILD"
+    " *** DEBUG BUILD ***"
 #endif
     "";
 

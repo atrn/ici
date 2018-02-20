@@ -8,12 +8,15 @@
 #include "map.h"
 #include "array.h"
 
+#include <ctype.h>
+#include <unistd.h>
+
 namespace ici {
 
 struct repl_file {
-    file *in_;
-    file *out_;
-    ref<str> prompt_;
+    ref<file> in_;
+    ref<file> out_;
+    str *prompt_;
     bool emitprompt_ = true;
     bool eof_ = false;
     bool sol_ = true;
@@ -25,11 +28,20 @@ struct repl_file {
     void reset() {
         needprompt();
     }
+
+    int write(const void *s, int n) {
+        return out_->write(s, n);
+    }
+
+    void puts(const char *s) {
+        write(s, strlen(s));
+    }
 };
 
 void repl_command(repl_file *rf) {
     char line[1024];
     char *p = line;
+
     for (;;) {
         auto ch = rf->in_->getch();
         if (ch == '\n' || ch == EOF) {
@@ -42,7 +54,57 @@ void repl_command(repl_file *rf) {
             break;
         }
     }
-    fprintf(stderr, "REPL: command \"%s\"\n", line);
+
+    if (p - line < 1) {
+        return;
+    }
+
+    if (line[0] == 'q' && !line[1]) {
+        exit(0);
+    }
+
+    if (line[0] == '?' && !line[1]) {
+        rf->puts
+        (
+            "Commands:\n"
+            "    .?         get help (this message)\n"
+            "    .r <path>  parse file\n"
+            "    .p <expr>  print an expression\n"
+            "    .q         quit, exit the interpreter\n"
+        );
+        return;
+    }
+
+    if (line[0] == 'r') {
+        for (p = line+1; *p && isspace(*p); ++p) {
+            ;
+        }
+        if (!*p) {
+            rf->puts(".r requires a <pathname> parameter\n");
+            return;
+        }
+        if (parse_file(p)) {
+            rf->puts(".r ");
+            rf->puts(error);
+            rf->puts("\n");
+            clear_error();
+        }
+        return;
+    }
+
+    if (line[0] == 'p') {
+        if (!line[1]) {
+            rf->puts(".p requires an expression parameter\n");
+            return;
+        }
+        if (isspace(line[1])) {
+            return;
+        }
+    }
+
+    rf->puts(".");
+    rf->puts(line);
+    rf->puts(": common not recognized\n");
 }
 
 void repl_file_new_statement(void *fp) {
@@ -51,30 +113,40 @@ void repl_file_new_statement(void *fp) {
 }
 
 // file pointer is a repl_file *
-class repl_ftype : public stdio_ftype {
-    void emitprompt(repl_file *rf) {
-        rf->out_->write(rf->prompt_->s_chars, rf->prompt_->s_nchars);
-        rf->emitprompt_ = false;
+class repl_filetype : public stdio_ftype {
+public:
+    repl_filetype() {
+        interactive = isatty(0);
     }
 
-public:
+    void emitprompt(repl_file *rf) {
+        if (interactive) {
+            rf->write(rf->prompt_->s_chars, rf->prompt_->s_nchars);
+            rf->emitprompt_ = false;
+        }
+    }
+
+    bool interactive;
+
     int getch(void *fp) override {
         auto rf = static_cast<repl_file *>(fp);
         if (rf->emitprompt_) {
             emitprompt(rf);
         }
-    again:
-        auto ch = rf->in_->getch();
-        if (ch == EOF) {
-            rf->eof_ = true;
+        for (;;) {
+            auto ch = rf->in_->getch();
+            if (ch == EOF) {
+                rf->eof_ = true;
+                return ch;
+            }
+            if (rf->sol_ && ch == '.') {
+                repl_command(rf);
+                emitprompt(rf);
+            } else {
+                rf->sol_ = ch == '\n';
+                return ch;
+            }
         }
-        if (rf->sol_ && ch == '.') {
-            repl_command(rf);
-            emitprompt(rf);
-            goto again;
-        }
-        rf->sol_ = ch == '\n';
-        return ch;
     }
 
     int ungetch(int ch, void *fp) override {
@@ -106,7 +178,7 @@ public:
 
     int write(const void *buf, long n, void *fp) override {
         auto rf = static_cast<repl_file *>(fp);
-        auto result = rf->out_->write(buf, n);
+        auto result = rf->write(buf, n);
         rf->needprompt();
         return result;
     }
@@ -122,20 +194,21 @@ public:
     }
 };
 
-ftype *repl_ftype = singleton<class repl_ftype>();
+ftype *repl_ftype = singleton<repl_filetype>();
 
 void repl() {
+    ref<array> av = new_array(1);
+    av->push_back(SS(repl));
+    int64_t l = 1;
+    set_val(objwsupof(vs.a_top[-1])->o_super, SS(argv), 'o', av);
+    set_val(objwsupof(vs.a_top[-1])->o_super, SS(argc), 'i', &l);
+
     auto failed = [](const char *why) -> void {
-        fprintf(stderr, "\nERROR: %s\n", why);
+        fprintf(stderr, "\nerror: %s\n", why);
     };
 
-    auto fp = repl_file{
-        need_stdin(),
-        need_stdout(),
-        str_get_nul_term("ici> "),
-    };
-
-    ref<file> f = new_file(&fp, repl_ftype, SS(empty_string), nullptr);
+    repl_file rf{need_stdin(), need_stdout(), SS(replprompt)};
+    ref<file> f = new_file(&rf, repl_ftype, SS(repl), nullptr);
     if (!f) {
         return failed(error);
     }
@@ -154,19 +227,22 @@ void repl() {
     }
     decref(s);
     s->o_super = objwsupof(vs.a_top[-1])->o_super;
+    need_stdout()->incref(); // to account for our ref in rf
     if (ici_assign(vs.a_top[-1], SS(_stdout), f)) {
         return failed(error);
     }
-    while (!fp.eof_) {
-        fp.reset();
+    while (!rf.eof_) {
+        rf.reset();
         parse_file(f, a);
         if (error != nullptr) {
-            fp.out_->write("error: ", 7);
-            fp.out_->write(error, strlen(error));
-            fp.out_->write("\n", 1);
+            rf.puts("error: ");
+            rf.write(error, strlen(error));
+            rf.puts("\n");
         }
     }
-    fp.out_->write("\n", 1);
+    if (((repl_filetype *)repl_ftype)->interactive) {
+        rf.puts("\n");
+    }
 }
 
 } // namespace ici

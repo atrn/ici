@@ -2149,7 +2149,7 @@ int parse_file(const char *fname) {
     int                 r;
 
     if ((stream = fopen(fname, "r")) == nullptr) {
-        return get_last_errno("fopen", fname);
+        return get_last_errno("open", fname);
     }
     r = parse_file(fname, (char *)stream, stdio_ftype);
     fclose(stream);

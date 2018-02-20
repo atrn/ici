@@ -433,6 +433,7 @@ extern int             op_openptr();
 extern int             op_fetch();
 extern int             op_unary();
 extern int             set_error(const char *, ...);
+extern void            clear_error();
 extern void            expand_error(int, str *);
 extern int             lex(parse *, array *);
 extern int             compile_expr(array *, expr *, int);
