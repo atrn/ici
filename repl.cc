@@ -188,22 +188,15 @@ void repl_file_new_statement(void *fp, bool top) {
 // file pointer is a repl_file *
 class repl_ftype : public stdio_ftype {
 public:
-    repl_ftype() {
-    }
-
     void emitprompt(repl_file *rf) {
-        if (!rf->interactive_) {
+        const char * const promptchars = ">> ";
+        if (!rf->interactive_ || rf->p_) {
             return;
         }
-        if (rf->p_) {
-            return;
-        }
-        const char *promptchars = ">> ";
         if (rf->emitprompt_ || rf->sol_) {
             if (repl_log) { fprintf(repl_log, "emitprompt rf->p_=%d rf->emitprompt=%d rf->sol_=%d\n", rf->p_, rf->emitprompt_, rf->sol_); }
             rf->puts(rf->prompt_);
-            const char *x = rf->extra_ ? promptchars : promptchars + 1;
-            rf->puts(x);
+            rf->puts(rf->extra_ ? promptchars : promptchars + 1);
             rf->p_ = true;
         }
         rf->emitprompt_ = false;
