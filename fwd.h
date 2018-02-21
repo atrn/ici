@@ -309,6 +309,7 @@ extern ptr       *new_ptr(object *, object *);
 extern objwsup   *new_module(cfunc *cf);
 extern objwsup   *new_class(cfunc *cf, objwsup *super);
 extern map       *new_map();
+extern map       *new_map(objwsup *);
 extern integer   *new_int(int64_t);
 extern ici_float *new_float(double);
 extern handle    *new_handle(void *, str *, objwsup *);
@@ -393,14 +394,13 @@ extern object        **objs;
 extern object        **objs_top;
 extern object        **objs_limit;
 
-extern void                     init_signals();
-extern volatile sigset_t        signals_pending;
-extern volatile long            signal_count[];
-extern int                      invoke_signal_handlers();
-extern int                      blocking_syscall(int);
-extern void            grow_objs(object *);
-extern void            collect();
-objwsup *               current_scope();
+extern void              init_signals();
+extern volatile sigset_t signals_pending;
+extern volatile long     signal_count[];
+extern int               invoke_signal_handlers();
+extern int               blocking_syscall(int);
+extern void              grow_objs(object *);
+extern void              collect();
 
 /*
  * End of ici.h export. --ici.h-end--

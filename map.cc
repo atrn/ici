@@ -87,6 +87,14 @@ map *new_map()
     return s;
 }
 
+map *new_map(objwsup *super) {
+    auto m = new_map();
+    if (m) {
+        m->o_super = super;
+    }
+    return m;
+}
+
 /*
  * Return a hash sensitive to the value of the object.
  * See the comment on t_hash() in object.h
