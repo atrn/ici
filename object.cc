@@ -614,8 +614,4 @@ void rego(object *o)
 
 #endif
 
-objwsup *current_scope() {
-    return ((ici::objwsup *)vs.a_top[-1])->o_super;
-}
-
 } // namespace ici
