@@ -16,7 +16,7 @@ void expand_error(int lineno, str *fname)
     char        *s;
     int         z;
 
-    s = strchr(error + 2, ':');
+    s = strchr(error + 1, ':');
     if (s != nullptr && s > error && s[-1] >= '0' && s[-1] <= '9')
         return;
 

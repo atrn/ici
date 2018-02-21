@@ -7,10 +7,6 @@
 
 namespace ici {
 
-class repl_ftype;
-
-extern class repl_ftype *repl_ftype;
-
 bool is_repl_file(file *);
 
 /* Inform the REPL a new statement is being parsed. */
