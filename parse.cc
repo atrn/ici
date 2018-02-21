@@ -379,6 +379,10 @@ static int compound_statement(parse *p, map *sw)
 {
     array *a;
 
+    if (is_repl_file(p->p_file)) {
+        repl_file_new_statement(p->p_file->f_file, false);
+    }
+
     a = nullptr;
     if (next(p, nullptr) != T_ONCURLY) {
         reject(p);
@@ -2171,7 +2175,7 @@ int parse_exec() {
         // we are parsing on behalf of the REPL tell it we're
         // starting to parse a new statement.
         if (is_repl_file(p->p_file)) {
-            repl_file_new_statement(p->p_file->f_file, p->p_sol);
+            repl_file_new_statement(p->p_file->f_file, true);
         }
         switch (statement(p, a, nullptr, nullptr, 1)) {
         case 1:

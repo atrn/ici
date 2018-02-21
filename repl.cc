@@ -15,7 +15,7 @@ namespace ici {
 
 namespace {
 
-// FILE *repl_log = nullptr;
+FILE *repl_log = nullptr;
 
 object *current_scope() {
     return vs.a_top[-1];
@@ -32,8 +32,10 @@ struct repl_file {
     ref<file> stdout_;
     ref<str> prompt_ = make_ref(SS(replprompt), with_incref);
     bool emitprompt_ = true;
+    bool extra_ = false;
     bool eof_ = false;
     bool sol_ = true;
+    bool p_ = false;
     bool interactive_ = false;
 
     repl_file()
@@ -44,14 +46,16 @@ struct repl_file {
     }
 
     void needprompt() {
-        // if (repl_log) { fprintf(repl_log, "needprompt\n"); }
+        if (repl_log) { fprintf(repl_log, "needprompt\n"); }
         emitprompt_ = true;
+        p_ = false;
     }
 
     void reset() {
-        // if (repl_log) { fprintf(repl_log, "reset\n"); }
+        if (repl_log) { fprintf(repl_log, "reset\n"); }
         emitprompt_ = true;
         sol_ = true;
+        p_ = false;
     }
 
     int write(const void *s, int n) {
@@ -67,6 +71,7 @@ struct repl_file {
     }
 
     void command() {
+        if (repl_log) {fprintf(repl_log, "command\n");}
         char buf[1024+1];
         char *line = buf + 1;
         char *p = line;
@@ -169,11 +174,14 @@ struct repl_file {
 
 }; // class repl_file
 
-void repl_file_new_statement(void *fp, bool sol) {
+void repl_file_new_statement(void *fp, bool top) {
     auto rf = static_cast<repl_file *>(fp);
-    // if (repl_log) { fprintf(repl_log, "repl_file_new_statement: sol=%s rf->sol_=%s\n", (sol ? "true":"false"), (rf->sol_ ? "true":"false")); }
-    if (sol) {
+    if (repl_log) { fprintf(repl_log, "repl_file_new_statement: top=%s rf->sol_=%s\n", (top ? "true":"false"), (rf->sol_ ? "true":"false")); }
+    if (top) {
+        rf->extra_ = false;
         rf->needprompt();
+    } else {
+        rf->extra_ = true;
     }
 }
 
@@ -187,16 +195,23 @@ public:
         if (!rf->interactive_) {
             return;
         }
+        if (rf->p_) {
+            return;
+        }
+        const char *promptchars = ">> ";
         if (rf->emitprompt_ || rf->sol_) {
-            // if (repl_log) { fprintf(repl_log, "emitprompt rf->sol_=%d\n", rf->sol_); }
+            if (repl_log) { fprintf(repl_log, "emitprompt rf->p_=%d rf->emitprompt=%d rf->sol_=%d\n", rf->p_, rf->emitprompt_, rf->sol_); }
             rf->puts(rf->prompt_);
+            const char *x = rf->extra_ ? promptchars : promptchars + 1;
+            rf->puts(x);
+            rf->p_ = true;
         }
         rf->emitprompt_ = false;
     }
 
     int getch(void *fp) override {
         auto rf = static_cast<repl_file *>(fp);
-        // if (repl_log) {fprintf(repl_log, "getch: rf->sol_=%s\n", (rf->sol_ ? "true":"false")); }
+        if (repl_log) {fprintf(repl_log, "getch: p_=%d sol_%d extra_%d\n", rf->p_, rf->sol_, rf->extra_); }
         emitprompt(rf);
         for (;;) {
             auto ch = rf->stdin_->getch();
@@ -210,14 +225,20 @@ public:
                 emitprompt(rf);
                 continue;
             }
-            rf->sol_ = ch == '\n';
+            if (ch == '\n') {
+                rf->p_ = !rf->sol_ && !rf->extra_;
+                rf->sol_ = true;
+            } else {
+                rf->sol_ = false;
+                rf->p_ = false;
+            }
             return ch;
         }
     }
 
     int ungetch(int ch, void *fp) override {
         auto rf = static_cast<repl_file *>(fp);
-        // if (repl_log) {fprintf(repl_log, "ungetch: rf->sol_=%s\n", (rf->sol_ ? "true":"false")); }
+        if (repl_log) {fprintf(repl_log, "ungetch\n"); }
         return rf->stdin_->ungetch(ch);
     }
     
@@ -243,7 +264,7 @@ public:
 
     int write(const void *buf, long n, void *fp) override {
         auto rf = static_cast<repl_file *>(fp);
-        // if (repl_log) { fprintf(repl_log, "file write: rf->sol=%s\n", (rf->sol_ ? "true":"false")); }
+        if (repl_log) { fprintf(repl_log, "write: rf->sol_=%s\n", (rf->sol_ ? "true":"false")); }
         auto result = rf->write(buf, n);
         if (rf->sol_) {
             rf->needprompt();
@@ -348,7 +369,7 @@ void repl() {
     if (repl.interactive_) {
         repl.puts("\n");
     }
-    // if (repl_log) fclose(repl_log);
+    if (repl_log) fclose(repl_log);
 }
 
 } // namespace ici

@@ -988,7 +988,7 @@ static int f_string() {
     } else if (isregexp(o)) {
         return ret_no_decref(regexpof(o)->r_pat);
     } else {
-        sprintf(buf, "<%s>", o->type_name());
+        sprintf(buf, "[%s]", o->type_name());
     }
     return str_ret(buf);
 }

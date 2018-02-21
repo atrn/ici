@@ -842,8 +842,8 @@ printf("func...\n");
         fail("string() failed to convert 12.30 to \"12.3\"");
     if (!eq(string(456), "456"))
         fail("string() failed to convert 456 to \"456\"");
-    if (!eq(string([array]), "<array>"))
-        fail("string() failed to convert an array to \"<array>\"");
+    if (!eq(string([array]), "[array]"))
+        fail("string() failed to convert an array to \"[array]\"");
 
     if (map("a", 1, "b", 2) != [map a=1, b=2])
         fail("map() failed to produce the expected result");

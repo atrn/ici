@@ -151,8 +151,8 @@ if (!eq(string(12.30), "12.3"))
     fail("string() failed to convert 12.30 to \"12.3\"");
 if (!eq(string(456), "456"))
     fail("string() failed to convert 456 to \"456\"");
-if (!eq(string([array]), "<array>"))
-    fail("string() failed to convert an array to \"<array>\"");
+if (!eq(string([array]), "[array]"))
+    fail("string() failed to convert an array to \"[array]\"");
 if (!eq(string(#^xx$#), "^xx$"))
     fail("string() failed convert from regexp");
 
