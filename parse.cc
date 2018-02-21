@@ -2171,7 +2171,7 @@ int parse_exec() {
         // we are parsing on behalf of the REPL tell it we're
         // starting to parse a new statement.
         if (is_repl_file(p->p_file)) {
-            repl_file_new_statement(p->p_file->f_file);
+            repl_file_new_statement(p->p_file->f_file, p->p_sol);
         }
         switch (statement(p, a, nullptr, nullptr, 1)) {
         case 1:

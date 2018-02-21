@@ -14,7 +14,7 @@ extern class repl_ftype *repl_ftype;
 bool is_repl_file(file *);
 
 /* Inform the REPL a new statement is being parsed. */
-void repl_file_new_statement(void *);
+void repl_file_new_statement(void *, bool sol);
 
 }
 

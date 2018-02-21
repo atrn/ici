@@ -13,37 +13,57 @@
 
 namespace ici {
 
+namespace {
+
+// FILE *repl_log = nullptr;
+
+object *current_scope() {
+    return vs.a_top[-1];
+}
+
+objwsup *current_locals() {
+    return objwsupof(current_scope())->o_super;
+}
+
+}
+
 struct repl_file {
-    ref<file> in_;
-    ref<file> out_;
-    ref<str> prompt_;
+    ref<file> stdin_;
+    ref<file> stdout_;
+    ref<str> prompt_ = make_ref(SS(replprompt), with_incref);
     bool emitprompt_ = true;
     bool eof_ = false;
     bool sol_ = true;
-    bool interactive_ = true;
+    bool interactive_ = false;
 
     repl_file()
-        : in_(make_ref(need_stdin(), with_incref))
-        , out_(make_ref(need_stdout(), with_incref))
-        , prompt_(make_ref(SS(replprompt), with_incref))
-        , interactive_(isatty(0))
+        : stdin_(make_ref(need_stdin(), with_incref))
+        , stdout_(make_ref(need_stdout(), with_incref))
+        , interactive_(isatty(fileno((FILE *)stdin_->f_file)))
     {
     }
 
     void needprompt() {
+        // if (repl_log) { fprintf(repl_log, "needprompt\n"); }
         emitprompt_ = true;
     }
 
     void reset() {
-        needprompt();
+        // if (repl_log) { fprintf(repl_log, "reset\n"); }
+        emitprompt_ = true;
+        sol_ = true;
     }
 
     int write(const void *s, int n) {
-        return out_->write(s, n);
+        return stdout_->write(s, n);
     }
 
     void puts(const char *s) {
         write(s, strlen(s));
+    }
+
+    void puts(const str *s) {
+        write(s->s_chars, s->s_nchars);
     }
 
     void command() {
@@ -52,14 +72,14 @@ struct repl_file {
         char *p = line;
 
         for (;;) {
-            auto ch = in_->getch();
+            auto ch = stdin_->getch();
             if (ch == '\n' || ch == EOF) {
                 *p = '\0';
                 break;
             }
             *p++ = ch;
             if ((p - line) == (sizeof buf - 2)) {
-                p[-1] = '\0';
+                *--p = '\0';
                 break;
             }
         }
@@ -68,10 +88,12 @@ struct repl_file {
             return;
         }
 
+        // .q
         if (line[0] == 'q' && !line[1]) {
             exit(0);
         }
 
+        // .h
         if (line[0] == 'h' && !line[1]) {
             puts
             (
@@ -84,6 +106,7 @@ struct repl_file {
             return;
         }
 
+        // .r ...
         if (line[0] == 'r') {
             for (p = line+1; *p && isspace(*p); ++p) {
                 ;
@@ -101,6 +124,7 @@ struct repl_file {
             return;
         }
 
+        // .p ...
         if (line[0] == 'p' && isspace(line[1])) {
             for (p = line+1; *p && isspace(*p); ++p) {
                 ;
@@ -121,23 +145,23 @@ struct repl_file {
                 p[0] = ';';
                 p[1] = '\0';
             } else {
-                // should fail
+                // should abort
             }
             ref<file> f = sopen(buf, p-buf, nullptr);
             if (!f) {
                 return;
             }
-            auto scope = vs.a_top[-1];
-            if (parse_file(f, objwsupof(scope))) {
+            if (parse_file(f, objwsupof(current_scope()))) {
                 puts(error);
                 puts("\n");
             }
-            if (auto result = ici_fetch(scope, SS(_))) {
+            if (auto result = ici_fetch(current_scope(), SS(_))) {
                 call(SS(println), "o", result);
             }
             return;
         }
 
+        // unrecognized
         puts(".");
         puts(line);
         puts(" not recognized\n");
@@ -145,9 +169,10 @@ struct repl_file {
 
 }; // class repl_file
 
-void repl_file_new_statement(void *fp) {
+void repl_file_new_statement(void *fp, bool sol) {
     auto rf = static_cast<repl_file *>(fp);
-    if (rf->sol_) {
+    // if (repl_log) { fprintf(repl_log, "repl_file_new_statement: sol=%s rf->sol_=%s\n", (sol ? "true":"false"), (rf->sol_ ? "true":"false")); }
+    if (sol) {
         rf->needprompt();
     }
 }
@@ -159,17 +184,22 @@ public:
     }
 
     void emitprompt(repl_file *rf) {
-        if (rf->emitprompt_ && rf->interactive_) {
-            rf->write(rf->prompt_->s_chars, rf->prompt_->s_nchars);
+        if (!rf->interactive_) {
+            return;
+        }
+        if (rf->emitprompt_ || rf->sol_) {
+            // if (repl_log) { fprintf(repl_log, "emitprompt rf->sol_=%d\n", rf->sol_); }
+            rf->puts(rf->prompt_);
         }
         rf->emitprompt_ = false;
     }
 
     int getch(void *fp) override {
         auto rf = static_cast<repl_file *>(fp);
+        // if (repl_log) {fprintf(repl_log, "getch: rf->sol_=%s\n", (rf->sol_ ? "true":"false")); }
         emitprompt(rf);
         for (;;) {
-            auto ch = rf->in_->getch();
+            auto ch = rf->stdin_->getch();
             if (ch == EOF) {
                 rf->eof_ = true;
                 return ch;
@@ -178,16 +208,17 @@ public:
                 rf->command();
                 rf->needprompt();
                 emitprompt(rf);
-            } else {
-                rf->sol_ = ch == '\n';
-                return ch;
+                continue;
             }
+            rf->sol_ = ch == '\n';
+            return ch;
         }
     }
 
     int ungetch(int ch, void *fp) override {
         auto rf = static_cast<repl_file *>(fp);
-        return rf->in_->ungetch(ch);
+        // if (repl_log) {fprintf(repl_log, "ungetch: rf->sol_=%s\n", (rf->sol_ ? "true":"false")); }
+        return rf->stdin_->ungetch(ch);
     }
     
     int close(void *) override {
@@ -207,24 +238,27 @@ public:
     int read(void *buf, long n, void *fp) override {
         auto rf = static_cast<repl_file *>(fp);
         emitprompt(rf);
-        return rf->in_->read(buf, n);
+        return rf->stdin_->read(buf, n);
     }
 
     int write(const void *buf, long n, void *fp) override {
         auto rf = static_cast<repl_file *>(fp);
+        // if (repl_log) { fprintf(repl_log, "file write: rf->sol=%s\n", (rf->sol_ ? "true":"false")); }
         auto result = rf->write(buf, n);
-        rf->needprompt();
+        if (rf->sol_) {
+            rf->needprompt();
+        }
         return result;
     }
 
     int fileno(void *fp) override {
         auto rf = static_cast<repl_file *>(fp);
-        return rf->in_->fileno();
+        return rf->stdin_->fileno();
     }
 
     int setvbuf(void *fp, char *p, int f, size_t z) override {
         auto rf = static_cast<repl_file *>(fp);
-        return rf->out_->setvbuf(p, f, z);
+        return rf->stdout_->setvbuf(p, f, z);
     }
 };
 
@@ -234,67 +268,87 @@ bool is_repl_file(file *file) {
     return file->f_type == repl_ftype;
 }
 
+namespace {
+
+struct set_std_file {
+    ref<str> name_;
+    file *orig_;
+    bool undo_;
+
+    set_std_file(str *name, file *orig, file *newf)
+        : name_(make_ref(name, with_incref))
+        , orig_(orig)
+        , undo_(ici_assign(current_scope(), name_, newf) == 0)
+    {
+    }
+
+    ~set_std_file() {
+        if (undo_) {
+            ici_assign(current_scope(), name_, orig_);
+        }
+    }
+
+    set_std_file(const set_std_file &) = delete;
+    set_std_file& operator=(const set_std_file &) = delete;
+};
+
+} // anon
+
 void repl() {
+    // repl_log = fopen("repl.log", "w");
+
     auto failed = [](const char *why = error) -> void {
         fprintf(stderr, "\nerror: %s\n", why);
     };
 
     //  We get called before ici::main creates argc/argv so we create
-    //  a fake pair for code that may want them.
+    //  them in case code wants to look at them.
     //
-    ref<array> av = new_array(1);
-    av->push_back(SS(repl));
-    int64_t l = 1;
-    if (set_val(objwsupof(vs.a_top[-1])->o_super, SS(argv), 'o', av)) {
+    ref<array> argv = new_array(1);
+    argv->push_back(SS(repl));
+    int64_t argc = 1;
+    if (set_val(current_locals(), SS(argv), 'o', argv)) {
         return failed();
     }
-    if (set_val(objwsupof(vs.a_top[-1])->o_super, SS(argc), 'i', &l)) {
+    if (set_val(current_locals(), SS(argc), 'i', &argc)) {
         return failed();
     }
 
-    //  The repl_file takes over stdin and stdout so it can track
-    //  input and output and know when to output prompts.
+    //  Make a scope for our parsing.
+    //
+    auto locals = make_ref<objwsup>(new_map(current_locals()));
+    if (!locals) {
+        return failed();
+    }
+    auto scope = make_ref<objwsup>(new_map(locals.release(with_decref)));
+    if (!scope) {
+        return failed();
+    }
+
+    //  The repl_file instance takes over stdin and stdout so it can
+    //  track input and output and know when to output prompts.
     //
     repl_file repl;
-
     ref<file> file = new_file(&repl, repl_ftype, SS(repl), nullptr);
     if (!file) {
         return failed();
     }
 
-    ref<objwsup> a;
-    ref<objwsup> s;
-
-    //  Create the repl's scope.
-    //
-    if ((a = objwsupof(new_map())) == nullptr) {
-        return failed();
-    }
-    if ((s = objwsupof(new_map())) == nullptr) {
-        return failed();
-    }
-    s->o_super = objwsupof(vs.a_top[-1])->o_super;
-    a->o_super = s.release(with_decref);
-
-    //  Replace stdout with our file so it can track output.
-    //
-    if (ici_assign(vs.a_top[-1], SS(_stdout), file)) {
-        return failed();
-    }
+    set_std_file set_stdin(SS(_stdin), repl.stdin_, file);
+    set_std_file set_stdout(SS(_stdout), repl.stdout_, file);
 
     while (!repl.eof_) {
         repl.reset();
-        parse_file(file, a);
-        if (error != nullptr) {
+        if (parse_file(file, scope)) {
             repl.puts("error: ");
-            repl.write(error, strlen(error));
+            repl.puts(error);
             repl.puts("\n");
         }
     }
-
     if (repl.interactive_) {
         repl.puts("\n");
     }
+    // if (repl_log) fclose(repl_log);
 }
 
 } // namespace ici
