@@ -29,7 +29,7 @@ struct repl_file {
     ref<file> stdin_;
     ref<file> stdout_;
     ref<str> prompt_ = make_ref(SS(replprompt), with_incref);
-    bool needp_ = true;
+    bool wantp_ = true;
     bool extra_ = false;
     bool eof_ = false;
     bool sol_ = true;
@@ -38,8 +38,16 @@ struct repl_file {
 
     void trace(const char *what) {
         if (repl_log) {
-            fprintf(repl_log, "%-12s: needp_=%d havep_=%d sol_=%d extra_=%d\n", what, needp_, havep_, sol_, extra_);
+            fprintf(repl_log, "%-12s: wantp_=%d havep_=%d sol_=%d extra_=%d\n", what, wantp_, havep_, sol_, extra_);
         }
+    }
+
+    template <typename T>
+    void trace(const char *fmt, const T &arg) {
+        char buf[32];
+        snprintf(buf, sizeof buf, fmt, arg);
+        buf[sizeof buf - 1] = '\0';
+        trace(buf);
     }
 
     repl_file()
@@ -51,13 +59,17 @@ struct repl_file {
 
     void needprompt(bool force = false) {
         trace("needprompt");
-        needp_ = true;
+        wantp_ = true;
         if (force) {
             havep_ = false;
         }
     }
 
     int write(const void *s, int n) {
+	if (n > 1 && ((const char *)s)[n-1] == '\n') {
+	    sol_ = true;
+            wantp_ = true;
+	}
         return stdout_->write(s, n);
     }
 
@@ -69,19 +81,19 @@ struct repl_file {
         write(s->s_chars, s->s_nchars);
     }
 
-    void emitprompt() {
-        if (!interactive_ || havep_) {
+    void emitp() {
+        if (!interactive_) {
             return;
         }
         const char * const promptchars = ">> ";
-        if (needp_ || sol_) {
-            trace("emitprompt");
+        if (wantp_ || sol_) {
+            trace("emitp");
             puts(prompt_);
             puts(extra_ ? promptchars : promptchars + 1);
             havep_ = true;
             sol_ = true;
         }
-        needp_ = false;
+        wantp_ = false;
     }
 
     void command() {
@@ -186,6 +198,46 @@ struct repl_file {
         puts(" not recognized\n");
     }
 
+    int getch() {
+        trace("getch");
+        if (!havep_ && wantp_) {
+            emitp();
+        }
+        for (;;) {
+            auto ch = stdin_->getch();
+            if (ch == EOF) {
+                eof_ = true;
+                return ch;
+            }
+            if (sol_ && ch == '.') {
+                command();
+                needprompt(true);
+                emitp();
+                continue;
+            }
+            if (ch == '\n') {
+                sol_ = true;
+                wantp_ = true;
+                havep_ = false;
+            } else {
+                sol_ = false;
+                havep_ = false;
+            }
+            trace("getch -> '%c'", ch);
+            return ch;
+        }
+    }
+
+    int ungetch(int ch) {
+        trace("ungetch");
+        if (ch == '\n') {
+            sol_ = false;
+            wantp_ = false;
+            havep_ = false;
+        }
+        return stdin_->ungetch(ch);
+    }
+    
 }; // class repl_file
 
 // file pointer is a repl_file *
@@ -193,35 +245,12 @@ class repl_ftype : public stdio_ftype {
 public:
     int getch(void *fp) override {
         auto rf = static_cast<repl_file *>(fp);
-        rf->trace("getch");
-        rf->emitprompt();
-        for (;;) {
-            auto ch = rf->stdin_->getch();
-            if (ch == EOF) {
-                rf->eof_ = true;
-                return ch;
-            }
-            if (rf->sol_ && ch == '.') {
-                rf->command();
-                rf->needprompt(true);
-                rf->emitprompt();
-                continue;
-            }
-            if (ch == '\n') {
-                rf->havep_ = !rf->sol_ && !rf->extra_;
-                rf->sol_ = true;
-            } else {
-                rf->sol_ = false;
-                rf->havep_ = false;
-            }
-            return ch;
-        }
+        return rf->getch();
     }
 
     int ungetch(int ch, void *fp) override {
         auto rf = static_cast<repl_file *>(fp);
-        rf->trace("ungetch");
-        return rf->stdin_->ungetch(ch);
+        return rf->ungetch(ch);
     }
     
     int close(void *) override {
@@ -240,17 +269,13 @@ public:
 
     int read(void *buf, long n, void *fp) override {
         auto rf = static_cast<repl_file *>(fp);
-        rf->emitprompt();
+        rf->emitp();
         return rf->stdin_->read(buf, n);
     }
 
     int write(const void *buf, long n, void *fp) override {
         auto rf = static_cast<repl_file *>(fp);
-        rf->trace("write");
         auto result = rf->write(buf, n);
-        if (rf->sol_) {
-            rf->needprompt();
-        }
         return result;
     }
 
@@ -298,12 +323,7 @@ bool is_repl_file(file *file) {
 void repl_file_new_statement(void *fp, bool top) {
     auto rf = static_cast<repl_file *>(fp);
     rf->trace(top ? "top stmt" : "cont stmt");
-    if (top) {
-        rf->extra_ = false;
-        rf->needprompt();
-    } else {
-        rf->extra_ = true;
-    }
+    rf->extra_ = !top;
 }
 
 void repl() {
@@ -354,6 +374,7 @@ void repl() {
         }
         repl.sol_ = true;
         repl.extra_ = false;
+        repl.wantp_ = false;
         repl.havep_ = true;
         fflush((FILE *)repl.stdin_->f_file);
         fflush((FILE *)repl.stdout_->f_file);
