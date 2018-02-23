@@ -248,7 +248,7 @@ struct repl_file {
 }; // class repl_file
 
 // file pointer is a repl_file *
-class repl_ftype : public stdio_ftype {
+class repl_ftype : public ftype {
 public:
     int getch(void *fp) override {
         auto rf = static_cast<repl_file *>(fp);
