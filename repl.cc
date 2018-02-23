@@ -68,7 +68,6 @@ struct repl_file {
     int write(const void *s, int n) {
 	if (n > 1 && ((const char *)s)[n-1] == '\n') {
 	    sol_ = true;
-            wantp_ = true;
 	}
         return stdout_->write(s, n);
     }
@@ -379,6 +378,7 @@ void repl() {
             if (err) err += 2; else err = error;
             repl.puts(err);
             repl.puts("\n");
+	    clear_error();
         }
         repl.sol_ = true;
         repl.extra_ = false;
