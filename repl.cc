@@ -119,6 +119,13 @@ struct repl_file {
             return;
         }
 
+	// .v
+	if (line[0] == 'v' && !line[1]) {
+	    puts(version_string);
+	    puts("\n");
+	    return;
+	}
+
         // .q
         if (line[0] == 'q' && !line[1]) {
             exit(0);
@@ -130,9 +137,10 @@ struct repl_file {
             (
                 "Commands:\n"
                 "    .h         get help (this message)\n"
-                "    .r <path>  parse file\n"
                 "    .p <expr>  print an expression\n"
                 "    .q         quit, exit the interpreter\n"
+                "    .r <path>  parse file\n"
+                "    .v         output the interpreter version\n"
             );
             return;
         }
