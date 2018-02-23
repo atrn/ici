@@ -67,7 +67,7 @@ extern print() {
 	printf(stream, "[map");
 	if (ss := super(o)) {
             if (supers[ss]) {
-		printf(stream, ": <super...>");
+		printf(stream, ": [map]");
 	    } else {
                 assign(supers, ss);
                 printf(stream, ": ");
@@ -83,7 +83,16 @@ extern print() {
 		printf(stream, ")");
 	    }
 	    printf(stream, " = ");
-	    print(stream, v, "");
+	    if (typeof(v) == "map") {
+		if (supers[v]) {
+		    printf(stream, "[map]");
+		} else {
+		    assign(supers, v);
+		    print(stream, v, "");
+		}
+	    } else {
+		print(stream, v, "");
+	    }
 	    printf(stream, ",");
 	}
 	printf(stream, "]%s", term);
