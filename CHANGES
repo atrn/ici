@@ -1,5 +1,8 @@
 Major Changes in Version 5
 
+*     Added join() to turn arrays into strings, a la
+      implode, but takes a separator.
+
 *     ICI now has a reasonable start to an interactive
       "REPL" like interface.  Now when started without
       arguments instead of issuing an error message

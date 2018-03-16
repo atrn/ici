@@ -1415,6 +1415,54 @@ static int f_explode() {
     return ret_with_decref(x);
 }
 
+static int f_join() {
+    array   *a;
+    int      i;
+    object **o;
+    str     *s;
+    str	    *sep;
+    char    *p;
+
+    if (typecheck("ao", &a, &sep)) {
+        return 1;
+    }
+    if (!isstring(sep)) {
+	return argerror(1);
+    }
+    i = 0;
+    for (o = a->astart(); o != a->alimit(); o = a->anext(o)) {
+        if (isint(*o)) {
+            ++i;
+        } else if (isstring(*o)) {
+            i += stringof(*o)->s_nchars;
+        }
+	i += sep->s_nchars;
+    }
+    if (i > 0) {
+	i -= sep->s_nchars;
+    }
+    if ((s = str_alloc(i)) == nullptr) {
+        return 1;
+    }
+    p = s->s_chars;
+    for (o = a->astart(); o != a->alimit(); o = a->anext(o)) {
+        if (isint(*o)) {
+            *p++ = (char)intof(*o)->i_value;
+        } else if (isstring(*o)) {
+            memcpy(p, stringof(*o)->s_chars, stringof(*o)->s_nchars);
+            p += stringof(*o)->s_nchars;
+        }
+	if (o != a->alimit()) {
+	    memcpy(p, sep->s_chars, sep->s_nchars);
+	    p += sep->s_nchars;
+	}
+    }
+    if ((s = str_intern(s)) == nullptr) {
+        return 1;
+    }
+    return ret_with_decref(s);
+}
+
 static int f_implode() {
     array   *a;
     int      i;
@@ -3940,6 +3988,7 @@ ICI_DEFINE_CFUNCS(std)
     ICI_DEFINE_CFUNC(slice,        f_interval),
     ICI_DEFINE_CFUNC(explode,      f_explode),
     ICI_DEFINE_CFUNC(implode,      f_implode),
+    ICI_DEFINE_CFUNC(join,         f_join),
     ICI_DEFINE_CFUNC(sopen,        f_sopen),
     ICI_DEFINE_CFUNC(mopen,        f_mopen),
     ICI_DEFINE_CFUNC(sprintf,      ici_f_sprintf),
