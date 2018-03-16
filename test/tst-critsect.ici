@@ -1,0 +1,24 @@
+local count, N = 1000000, M = 1000;
+var x, i, did_crit = 0;
+go([func(){for (count = 0; count < N; ++count);}]);
+while (count == NULL) {
+    ;
+}
+while (count < N) {
+    critsect {
+	x = count;
+	for (i = 0; i < M; ++i) {
+	    ;
+	}
+	if (x != count) {
+	    fail("critsect was divisible");
+	}
+	did_crit = 1;
+    }
+}
+if (count != N) {
+    printf("count of %d unexpected\n", count);
+}
+if (!did_crit) {
+    fail("didn't execute critsect");
+}

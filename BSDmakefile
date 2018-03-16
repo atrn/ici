@@ -22,4 +22,4 @@ targets=default \
 	install-ici-exe \
 	full-install
 
-$(targets) :; @gmake --no-print-directory $@ build=$(build) dest=$(dest) sudo=$(sudo)
+$(targets) !; @gmake --no-print-directory $@ build=$(build) dest=$(dest) sudo=$(sudo)
