@@ -54,6 +54,7 @@ add_executable(ici
   ptr.cc
   refuncs.cc
   regexp.cc
+  repl.cc
   set.cc
   sfile.cc
   signals.cc
@@ -109,6 +110,7 @@ add_executable(ici
   profile.h
   ptr.h
   re.h
+  repl.h
   set.h
   src.h
   sstring.h
