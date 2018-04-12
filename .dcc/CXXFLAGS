@@ -6,11 +6,11 @@
 
 # Uncomment for a release build (ICI uses NDEBUG).
 #
-# On MacOS -Ofast -Oz has produced the smallest and
+# On MacOS -Oz has produced the smallest and
 # best performing code across a number of tests.
 #
 -DNDEBUG
--Ofast -Oz
+-Oz
 
 # LTO enables whole program optimization helps reduce code size, and
 # hopefully improves locality when building a static exe.
