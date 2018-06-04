@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.0)
 project(ici LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 11)
 add_executable(ici
@@ -118,3 +118,7 @@ add_executable(ici
   type.h
   types.h
   wrap.h)
+
+if("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Linux")
+target_link_libraries(ici PUBLIC -ldl -lpthread)
+endif()

@@ -8,20 +8,25 @@
                         "command": "make",
                         "type": "shell",
                         "problemMatcher":"$gcc",
-                        "group": {
-                                "kind": "build",
-                                "isDefault": true
+                        "group": "build",
+                        "presentation": {
+                                "echo": true,
+                                "reveal": "always",
+                                "focus": false,
+                                "panel": "shared"
                         }
                 },
                 {
                         "taskName": "clean",
                         "command": "make clean",
                         "type": "shell",
-                        "group": {
-                                "kind": "build",
-                                "isDefault": true
-                        }
+                        "group": "build",
+                                "presentation": {
+                                        "echo": false,
+                                        "reveal": "silent",
+                                        "focus": false,
+                                        "panel": "shared"
+                                }
                 }
-
         ]
 }

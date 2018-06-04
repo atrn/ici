@@ -179,7 +179,7 @@ struct sstring : object
 #include "sstring.h"
 #undef SSTRING
 
-#define SS(name)         ((ici::str *)&ici_ss_##name)
+#define SS(name)         (reinterpret_cast<ici::str *>(&ici_ss_##name))
 
 #define str_char_at(s,i) ((s)->s_chars[i])
 

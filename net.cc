@@ -78,6 +78,9 @@
 #include <pwd.h>
 #include <unistd.h>
 
+namespace ici
+{
+
 /*
  * For compatibility with WINSOCK we use its definitions and emulate
  * them on Unix via trivial emulation.
@@ -97,8 +100,6 @@ constexpr int SOCKET_ERROR = -1;
 
 #undef isset
 
-namespace ici
-{
 
 /*
  * Set the error string using a static message or a formatted message.

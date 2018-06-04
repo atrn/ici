@@ -3,6 +3,8 @@
 #ifndef ICI_CATCHER_H
 #define ICI_CATCHER_H
 
+#include "object.h"
+
 namespace ici
 {
 
