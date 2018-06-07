@@ -1,0 +1,16 @@
+{
+        "version": "0.2.0",
+        "configurations": [
+                {
+                        "type": "lldb",
+                        "request": "launch",
+                        "name": "Launch",
+                        "program": "${workspaceFolder}/ici",
+                        "args": ["-e", "println(1+1)"],
+                        "cwd": "${workspaceFolder}",
+                        "env": {
+                                "ICIPATH": "${workspaceFolder}",
+                        }
+                }
+        ]
+}
