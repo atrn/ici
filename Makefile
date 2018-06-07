@@ -46,7 +46,7 @@ cxxflags?=CXXFLAGS
 # build=dll
 #
 #   ICI is built as a dynamic library, libici.dylib, and the ici
-#   executable is linked against that library.
+#   executable, a single line main, is linked against that library.
 #
 # build=exe
 #
@@ -56,7 +56,7 @@ cxxflags?=CXXFLAGS
 # build=lib
 #
 #   ICI is built as a static library, libici.a, and the ici executable
-#   linked against that library. Similar to build=exe but the library
+#   linked against that library. Similar to build=exe but a library
 #   is installed and made available to users.
 #
 
@@ -78,7 +78,7 @@ endif
 install_lto_exe=no
 
 srcs= $(shell ls *.cc | fgrep -v win32)
-hdrs= $(shell ls *.h|fgrep -v ici.h)
+hdrs= $(shell ls *.h | fgrep -v ici.h)
 
 ldflags=
 ifeq ($(os),darwin)
