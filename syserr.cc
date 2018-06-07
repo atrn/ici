@@ -34,7 +34,7 @@ int get_last_errno(const char *dothis, const char *tothis) {
         return set_error("failed to %s: %s", dothis, e);
     }
     if (dothis != nullptr && tothis != nullptr) {
-        return set_error("failed to %s %s: %s", dothis, tothis, e);
+        return set_error("failed to %s '%s': %s", dothis, tothis, e);
     }
     return set_error("%s: %s", tothis, e);
 }
