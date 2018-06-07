@@ -290,12 +290,6 @@ int compile_expr(array *a, expr *e, int why) {
             return 0;
         }
         return 1;
-        // if ((*a->a_top = new_binop(e->e_what, why)) == nullptr)
-        // {
-        //     return 1;
-        // }
-        // ++a->a_top;
-        // return 0;
     }
     else
     {
@@ -468,11 +462,6 @@ int compile_expr(array *a, expr *e, int why) {
             op1 = new_binop(e->e_what, why);
             if (!op1) break;
             a->push(op1);
-            // if ((*a->a_top = new_binop(e->e_what, why)) == nullptr)
-            // {
-            //     break;
-            // }
-            // ++a->a_top;
             break;
 
         case T_TILDE:
@@ -498,12 +487,6 @@ int compile_expr(array *a, expr *e, int why) {
             op1 = new_op(op_unary, 0, t_subtype(e->e_what));
             if (!op1) return 1;
             a->push(op1, with_decref);
-            // if ((*a->a_top = new_op(op_unary, 0, t_subtype(e->e_what))) == nullptr)
-            // {
-            //     return 1;
-            // }
-            // (*a->a_top)->decref();
-            // ++a->a_top;
             break;
 
         case T_AT:
