@@ -1,10 +1,28 @@
 # -*- mode:makefile -*-
 #
 # This (GNU) Makefile uses the dcc compiler driver
-# to build ici on MacOS or FreeBSD.
+# to build ici on MacOS, FreeBSD and Linux.
 #
-
-.PHONY: all default lib clean ici test install
+# Targets
+#
+#	all
+#
+#	ici
+#	ici.h
+#	lib
+#
+#	clean
+#
+#	install
+#	install-ici-exe
+#	install-libici
+#	install-ici-dot-h
+#
+#	full-install
+#
+#	debug
+#	lto
+#	test
 
 os=    $(shell uname|tr A-Z a-z)
 sudo?=
@@ -19,6 +37,8 @@ conf?= conf/$(os).h
 prefix?= /usr/local
 dccflags?=
 cxxflags?=CXXFLAGS
+
+.PHONY: all lib clean $(prog) install
 
 # The 'build' macro controls the type of build.  Uncomment one of the
 # following lines to select the desired type of build.
@@ -65,33 +85,10 @@ ifeq ($(os),darwin)
 ldflags=-macosx_version_min 10.12 -framework System
 endif
 
-# The 'default' make target tests the interpreter which
-# is built if required.
-#
-default: all
-
-# The 'test' target tests the interpreter by running the standard
-# 'core' test.
-#
-test: all
-	@echo; echo '* CORE ================'; echo;\
-	LD_LIBRARY_PATH=`pwd` ICIPATH=`pwd` DYLD_LIBRARY_PATH=`pwd` ./$(prog) test-core.ici
-	-@echo; echo ' * TESTS ================'; echo;\
-	LD_LIBRARY_PATH=`pwd` ICIPATH=`pwd` DYLD_LIBRARY_PATH=`pwd` $(MAKE) -C test ici=`pwd`/$(prog) test
-	-@echo;echo '* SERIALIZATION ================'; echo;\
-	LD_LIBRARY_PATH=`pwd` ICIPATH=`pwd` DYLD_LIBRARY_PATH=`pwd` $(MAKE) -C test/serialization ici=`pwd`/$(prog) test
-
 # The 'all' target builds an ici interpreter executable and library,
 # if that is enabled.
 #
 all: $(prog)
-
-# The ici.h file is built using the current interpreter executable and
-# depends on all files that may contribute to the output.
-#
-ici.h: $(prog) mk-ici-h.ici $(hdrs)
-	@LD_LIBRARY_PATH=`pwd` ICIPATH=`pwd` DYLD_LIBRARY_PATH=`pwd` ./$(prog) mk-ici-h.ici $(conf)
-
 
 ifeq ($(build),dll)
 # This build variant has the interpreter code in a dynamic library.
@@ -122,19 +119,41 @@ lib:
 	@CXXFLAGSFILE=$(cxxflags) dcc $(dccflags) --lib $(lib) $(srcs)
 
 else
-$(error "$(build) is not a supported build")
+$(error "$(build) is not a supported build type")
 endif
+
+# The ici.h file is built using the current interpreter executable and
+# depends on all files that may contribute to the output.
+#
+ici.h: $(prog) mk-ici-h.ici $(hdrs)
+	@LD_LIBRARY_PATH=`pwd` ICIPATH=`pwd` DYLD_LIBRARY_PATH=`pwd` ./$(prog) mk-ici-h.ici $(conf)
 
 
 # Other targets for developer types.
 #
-.PHONY: debug lto
+.PHONY: debug lto test
+
+# The 'debug' target builds using the .debug CXXFLAGS options file.
+#
 debug:
 	@$(MAKE) all cxxflags=CXXFLAGS.debug dccflags=$(dccflags) build=$(build)
 
+# The 'lto' target builds using the .lto CXXFLAGS options file.
+#
 lto:
 	@$(MAKE) all cxxflags=CXXFLAGS.lto dccflags="$(dccflags) --quiet" build=exe
 
+
+# The 'test' target tests the interpreter by running the standard
+# 'core' test.
+#
+test: all
+	@echo; echo '* CORE ================'; echo;\
+	LD_LIBRARY_PATH=`pwd` ICIPATH=`pwd` DYLD_LIBRARY_PATH=`pwd` ./$(prog) test-core.ici
+	-@echo; echo ' * TESTS ================'; echo;\
+	LD_LIBRARY_PATH=`pwd` ICIPATH=`pwd` DYLD_LIBRARY_PATH=`pwd` $(MAKE) -C test ici=`pwd`/$(prog) test
+	-@echo;echo '* SERIALIZATION ================'; echo;\
+	LD_LIBRARY_PATH=`pwd` ICIPATH=`pwd` DYLD_LIBRARY_PATH=`pwd` $(MAKE) -C test/serialization ici=`pwd`/$(prog) test
 
 # Cleaning
 

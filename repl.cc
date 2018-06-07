@@ -130,12 +130,12 @@ struct repl_file {
             exit(0);
         }
 
-        // .h
-        if (line[0] == 'h' && !line[1]) {
+        // .h/.?
+        if ((line[0] == 'h' || line[0] == '?') && !line[1]) {
             puts
             (
                 "Commands:\n"
-                "    .h         get help (this message)\n"
+                "    .h/.?      get help (this message)\n"
                 "    .p <expr>  print an expression\n"
                 "    .q         quit, exit the interpreter\n"
                 "    .r <path>  parse file\n"
