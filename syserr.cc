@@ -16,8 +16,8 @@ namespace ici {
  *
  *  strerror
  *  failed to dothis: strerror
- *  failed to dothis tothis: strerror
- *  tothis: strerror
+ *  failed to dothis 'tothis': strerror
+ *  'tothis': strerror
  *
  * This --func-- forms part of the --ici-api--.
  */
@@ -36,7 +36,7 @@ int get_last_errno(const char *dothis, const char *tothis) {
     if (dothis != nullptr && tothis != nullptr) {
         return set_error("failed to %s '%s': %s", dothis, tothis, e);
     }
-    return set_error("%s: %s", tothis, e);
+    return set_error("'%s': %s", tothis, e);
 }
 
 } // namespace ici
