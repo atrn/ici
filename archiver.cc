@@ -3,41 +3,57 @@
 /*
  * Object Serialization
  *
- * The ICI 'archive' module seriialzes ICI object graphs, reading and
- * writing an encoded object representation - the ICI serialization
- * protocol.
+ * The ICI 'archiver' serializes ICI object graphs, reading and
+ * writing a binary encoded representation of the ICI objects using a
+ * format known as the ICI object serialization protocol.
+ *
+ * All builtin object types, apart from files, may be saved and
+ * subsequently restored, this includes function objects.
  *
  * The two functions save and restore write and read objects. Both
  * functions may be passed an ICI file object used as the source or
  * destination of object data. The functions default to using the
  * standard input and output files as per other ICI I/O functions.
  *
- * All builtin object types apart from files may be serialized and
- * later restored, including functions. Functions are serialized as
- * their ICI VM byte code.  Native code functions, i.e. functions that
- * are implemented in C, aka "cfuncs", are saved by name.  During a
- * restore the function with that name is looked up in current scope.
- *
- * Object Serialization Protocol
+ * Serialization Protocol
  *
  * The ICI object serialization protocol is a tagged binary protocol.
  * The protocol is platform independent in that it defines the size
- * and format of all exchanged data.
+ * and format of all exchanged data and conforming implementations
+ * must adhere to those sizes and formats.
  *
- * E.g. all integer types are represented in network byte order,
- * floating pointed is defined to be IEEE-754 doubles, sizes are sent
- * as 32-bit unsigned values, etc...  The exact protocol follows.
+ * All integral types are represented in network byte order, floating
+ * pointed is defined to be 64-bit IEEE-754 double precision values,
+ * byte swapped in the same manner as 64-bit integers. Object sizes
+ * and lengths are sent as 32-bit unsigned values.
+ *
+ * The exact protocol follows.
  *
  * tcode        byte, top-bit set if object is an ICI atom
  *
- * object ::- tcode object-specific-data ;
+ *      A tcode encodes two values. A type code in the range
+ *      [0, 127] and a flag indicating the value is an ICI
+ *      atom, an atomic, read-only value.
  *
- * null ::- tcode ;
  *
- * int ::- tcode 64-bit integer
+ * object ::- tcode <tcode-specific-data> ;
  *
- * ... fixme ...
+ *      An object is sent as a _tcode_ (type code) followed by zero
+ *      or more bytes of data specific to that type.
  *
+ * null ::- tcode
+ * int ::- tcode <int64>
+ * float ::- tcode <float64>
+ * string ::- tcode <length> [<byte>...]
+ * regexp ::- tcode <options> <length> [<byte>...]
+ * array ::- tcode <length> [<object>...]
+ * set ::- tcode <length> [<object>...]
+ * map ::- tcode <length> [ <key> <value> ]...
+ * mem ::- tcode <accessz> <length> <byte>...
+ *
+ * op ::- tcode
+ * func ::- tcode
+ * cfunc ::- tcode
  *
  * This --intro-- and --synopsis-- are part of --ici-serialisation-- documentation.
  */
@@ -326,10 +342,10 @@ int archiver::write(double v) {
 }
 
 int archiver::save(object *o) {
-    if (auto p = lookup(o)) { // already sent in this session
-        return save_ref(p);
+    if (auto p = lookup(o)) { // if already sent in this session
+        return save_ref(p);   // save a reference to the object
     }
-    uint8_t tcode = o->o_tcode & 0x1F; // mask out user-bits
+    uint8_t tcode = o->o_tcode & object::O_ICIBITS; // mask out user-bits
     if (o->isatom()) {
         tcode |= O_ARCHIVE_ATOMIC;
     }

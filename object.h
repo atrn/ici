@@ -81,6 +81,9 @@ struct object
     static constexpr int O_TEMP  = 0x04;    /* Is a re-usable temp (flag for asserts). */
     static constexpr int O_SUPER = 0x08;    /* Has super (is objwsup derived). */
 
+    static constexpr int O_ICIBITS =  0x1F; /* 0b 0001 1111 */
+    static constexpr int O_USERBITS = 0xE0; /* 0b 1110 0000 */
+
     object()
         : o_tcode(0)
         , o_flags(0)
