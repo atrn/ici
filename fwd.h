@@ -198,7 +198,6 @@ struct array;
 struct catcher;
 struct cfunc;
 struct channel;
-// struct debug;
 struct exec;
 struct expr;
 struct file;
@@ -249,7 +248,7 @@ extern DLI int                  record_line_nums;               /* See lex.c */
 extern DLI char                 *buf;                           /* See buf.h */
 extern DLI size_t               bufz;                           /* See buf.h */
 extern DLI mark                 o_mark;
-extern DLI debugger             *o_debug;
+extern DLI class debugger       *debugger;
 extern char                     version_string[];
 extern unsigned long const      crc_table[256];
 extern int                      exec_count;
@@ -258,7 +257,7 @@ extern DLI ftype                *popen_ftype;
 extern DLI ftype                *parse_ftype;
 
 /*
- * This ICI nullptr object.
+ * This ICI NULL object.
  *
  * This --macro-- forms part of the --ici-api--.
  */

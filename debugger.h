@@ -20,9 +20,9 @@ namespace ici
  * to a debugger.
  *
  * The interpreter has a global flag 'ici::debug_enabled' and a global
- * pointer to the debugger instance, 'ici::o_debug'. If the flag is
+ * pointer to the debugger instance, 'ici::debugger'. If the flag is
  * set, the interpreter calls the debugger's member functions.  See
- * 'ici::o_debug' and 'ici::debug_enabled'.
+ * 'ici::debugger' and 'ici::debug_enabled'.
  *
  * The ici::debugger base-class provides default implementations of
  * the debugging functions. The default implementations do nothing.

@@ -19,6 +19,8 @@ add_executable(ici
   control.cc
   crc.cc
   crc32c.cc
+  debug.cc
+  debugger.cc
   error.cc
   events.cc
   exec.cc
@@ -31,8 +33,6 @@ add_executable(ici
   func.cc
   handle.cc
   icimain.cc
-  idb.cc
-  idb2.cc
   init.cc
   int.cc
   lex.cc

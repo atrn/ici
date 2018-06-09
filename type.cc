@@ -61,7 +61,7 @@ int type::forall(object *o) {
 }
 
 void type::objname(object *, char n[objnamez]) {
-    snprintf(n, objnamez, "%s %p", name, (void *)this);
+    snprintf(n, objnamez, "[%s %p]", name, (void *)this);
 }
 
 int type::call(object *o, object *) {

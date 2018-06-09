@@ -1,5 +1,8 @@
 Major Changes in Version 5
 
+*     o_debug is now called 'debugger', a pointer to
+      an instance of an ici::debugger
+
 *     Added join() to turn arrays into strings, a la
       implode, but takes a separator.
 

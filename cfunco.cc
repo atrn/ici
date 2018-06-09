@@ -200,7 +200,7 @@ int cfunc_type::call(object *o, object *subject)
         }
 #endif
         if (UNLIKELY(debug_active)) {
-            o_debug->function_result(os.a_top[-1]);
+            debugger->function_result(os.a_top[-1]);
         }
         return result;
     }

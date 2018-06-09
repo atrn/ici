@@ -359,6 +359,7 @@ public:
     static int assign_fail(object *, object *, object *);
 
     static int save_fail(archiver *, object *);
+
     static object *restore_fail(const char *);
 };
 

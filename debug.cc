@@ -23,7 +23,7 @@ namespace ici
 int debug_enabled = 0;
 
 /*
- * Flag indicating if error trapping should be ignored.
+ * Flag indicating if error catching should be ignored.
  */
 int debug_ignore_err = 0;
 

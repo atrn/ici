@@ -355,7 +355,7 @@ object *evaluate(object *code, int n_operands) {
             ex->x_src = srcof(o);
             if (UNLIKELY(debug_active)) {
                 xs.push(o); /* Restore formal state. */
-                o_debug->source_line(srcof(o));
+                debugger->source_line(srcof(o));
                 --xs.a_top;
                 continue;
             }
@@ -617,7 +617,7 @@ object *evaluate(object *code, int n_operands) {
                     goto fail;
                 }
                 if (UNLIKELY(debug_active)) {
-                    o_debug->function_call(os.a_top[-1], ARGS(), NARGS());
+                    debugger->function_call(os.a_top[-1], ARGS(), NARGS());
 		}
                 if (os.a_top[-1]->call(o)) {
                     if (o != nullptr) {
@@ -1061,8 +1061,7 @@ object *evaluate(object *code, int n_operands) {
 
             case OP_CRITSECT:
                 {
-                    *xs.a_top = new_catcher
-                    (
+                    *xs.a_top = new_catcher(
                         nullptr,
                         (os.a_top - os.a_base) - 1,
                         vs.a_top - vs.a_base,
@@ -1119,7 +1118,7 @@ object *evaluate(object *code, int n_operands) {
                 set_error("error");
             }
             if (UNLIKELY(debug_active && !debug_ignore_err)) {
-                o_debug->error_set(error, ex->x_src);
+                debugger->error_set(error, ex->x_src);
 	    }
             for (;;) {
                 if ((c = unwind()) == nullptr || c->flagged(CF_EVAL_BASE)) {
@@ -1158,7 +1157,7 @@ object *evaluate(object *code, int n_operands) {
              * would be breaking on every type of error, even caught ones.
              */
             if (UNLIKELY(debug_active && !debug_ignore_err)) {
-                o_debug->error_uncaught(error, ex->x_src);
+                debugger->error_uncaught(error, ex->x_src);
 	    }
             expand_error(ex->x_src->s_lineno, ex->x_src->s_filename);
             --ex->x_n_engine_recurse;
