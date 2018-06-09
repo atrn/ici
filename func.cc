@@ -43,9 +43,8 @@ int op_return()
     object     **x;
     object      *f;
 
-    if (UNLIKELY(debug_active))
-    {
-        o_debug->fnresult(os.a_top[-1]);
+    if (UNLIKELY(debug_active)) {
+        o_debug->function_result(os.a_top[-1]);
     }
 
     x = xs.a_top - 1;

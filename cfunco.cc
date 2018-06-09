@@ -179,7 +179,7 @@ int cfunc_type::call(object *o, object *subject)
     )
     {
         object       **xt;
-        int             result;
+        int          result;
 
         /*
          * Not all function calls that go stright to C code are complete
@@ -191,15 +191,16 @@ int cfunc_type::call(object *o, object *subject)
          */
         xt = xs.a_top - 1;
         result = (*cfuncof(o)->cf_cfunc)(subject);
-        if (xt != xs.a_top)
+        if (xt != xs.a_top) {
             return result;
+        }
 #ifndef NOPROFILE
-        if (ici_profile_active)
+        if (ici_profile_active) {
             ici_profile_return();
+        }
 #endif
-        if (UNLIKELY(debug_active))
-        {
-            o_debug->fnresult(os.a_top[-1]);
+        if (UNLIKELY(debug_active)) {
+            o_debug->function_result(os.a_top[-1]);
         }
         return result;
     }
