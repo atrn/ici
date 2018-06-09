@@ -192,9 +192,10 @@ struct repl_file {
             if (parse_file(f, objwsupof(current_scope()))) {
                 puts(error);
                 puts("\n");
-            }
-            if (auto result = ici_fetch(current_scope(), SS(_))) {
+            } else if (auto result = ici_fetch(current_scope(), SS(_))) {
                 call(SS(println), "o", result);
+            } else {
+                puts("No result.\n");
             }
             return;
         }
