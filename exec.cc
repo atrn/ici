@@ -97,36 +97,30 @@ exec *new_exec() {
     exec          *x;
     static src    default_src;
 
-    if ((x = ici_talloc(exec)) ==  nullptr)
-    {
+    if ((x = ici_talloc(exec)) ==  nullptr) {
         return nullptr;
     }
     memset(x, 0, sizeof *x);
     set_tfnz(x, TC_EXEC, 0, 1, 0);
     rego(x);
     x->x_src = &default_src;
-    if ((x->x_xs = new_array(80)) == nullptr)
-    {
+    if ((x->x_xs = new_array(80)) == nullptr) {
         goto fail;
     }
     decref(x->x_xs);
-    if ((x->x_os = new_array(80)) == nullptr)
-    {
+    if ((x->x_os = new_array(80)) == nullptr) {
         goto fail;
     }
     decref(x->x_os);
-    if ((x->x_vs = new_array(80)) == nullptr)
-    {
+    if ((x->x_vs = new_array(80)) == nullptr) {
         goto fail;
     }
     decref(x->x_vs);
-    if ((x->x_pc_closet = new_array(80)) == nullptr)
-    {
+    if ((x->x_pc_closet = new_array(80)) == nullptr) {
         goto fail;
     }
     decref(x->x_pc_closet);
-    if ((x->x_os_temp_cache = new_array(80)) == nullptr)
-    {
+    if ((x->x_os_temp_cache = new_array(80)) == nullptr) {
         goto fail;
     }
     decref(x->x_os_temp_cache);
@@ -155,30 +149,23 @@ int engine_stack_check()
     array *pcs;
     int   depth;
 
-    if (xs.push_check(60))
-    {
+    if (xs.push_check(60)) {
         return 1;
     }
-    if (os.push_check(60))
-    {
+    if (os.push_check(60)) {
         return 1;
     }
-    if (vs.push_check(60))
-    {
+    if (vs.push_check(60)) {
         return 1;
     }
     pcs = ex->x_pc_closet;
     depth = (xs.a_top - xs.a_base) + 60;
-    if ((depth -= (pcs->a_top - pcs->a_base)) > 0)
-    {
-        if (pcs->push_check(depth))
-        {
+    if ((depth -= (pcs->a_top - pcs->a_base)) > 0) {
+        if (pcs->push_check(depth)) {
             return 1;
         }
-        while (pcs->a_top < pcs->a_limit)
-        {
-            if ((*pcs->a_top = new_pc()) == nullptr)
-            {
+        while (pcs->a_top < pcs->a_limit) {
+            if ((*pcs->a_top = new_pc()) == nullptr) {
                 return 1;
             }
             ++pcs->a_top;
@@ -245,21 +232,18 @@ static catcher *unwind() {
  *
  * Note that binop.h is included half way down this function.
  */
-object *evaluate(object *code, int n_operands)
-{
+object *evaluate(object *code, int n_operands) {
     object      *o;
     object      *pc;
     int         flags;
     catcher     frame;
 
-    if (++ex->x_n_engine_recurse > evaluate_recursion_limit)
-    {
+    if (++ex->x_n_engine_recurse > evaluate_recursion_limit) {
         set_error("excessive recursive invocations of main interpreter");
         goto badfail;
     }
 
-    if (engine_stack_check())
-    {
+    if (engine_stack_check()) {
         goto badfail;
     }
 
@@ -291,8 +275,7 @@ object *evaluate(object *code, int n_operands)
     /*
      * The execution loop.
      */
-    for (;;)
-    {
+    for (;;) {
         if (UNLIKELY(--exec_count == 0)) {
             if (UNLIKELY(aborted)) {
                 set_error("aborted");
@@ -345,8 +328,8 @@ object *evaluate(object *code, int n_operands)
          * in the switch.
          */
         assert(os.a_top >= os.a_base);
-        if (ispc(pc = xs.a_top[-1]))
-        {
+        pc = xs.a_top[-1];
+        if (ispc(pc)) {
     continue_with_same_pc:
             o = *pcof(pc)->pc_next++;
             if (isop(o)) {
@@ -367,12 +350,10 @@ object *evaluate(object *code, int n_operands)
          * the formal model. The code just above here assumes this, but
          * has to explicitly pop the stack in the non-pc case.
          */
-        switch (o->o_tcode)
-        {
+        switch (o->o_tcode) {
         case TC_SRC:
             ex->x_src = srcof(o);
-            if (UNLIKELY(debug_active))
-            {
+            if (UNLIKELY(debug_active)) {
                 xs.push(o); /* Restore formal state. */
                 o_debug->src(srcof(o));
                 --xs.a_top;
@@ -382,8 +363,7 @@ object *evaluate(object *code, int n_operands)
 
         case TC_PARSE:
             xs.push(o); /* Restore formal state. */
-            if (parse_exec())
-	    {
+            if (parse_exec()) {
                 goto fail;
 	    }
             continue;
@@ -402,8 +382,7 @@ object *evaluate(object *code, int n_operands)
                 stringof(o)->s_map == mapof(vs.a_top[-1])
                 &&
                 stringof(o)->s_vsver == vsver
-            )
-            {
+            ) {
                 /*
                  * We know directly where the value is because we have
                  * looked up this name since the last change to the scope
@@ -412,9 +391,7 @@ object *evaluate(object *code, int n_operands)
                 assert(ici_fetch_super(vs.a_top[-1], o, os.a_top, nullptr) == 1);
                 assert(*os.a_top == stringof(o)->s_slot->sl_value);
                 os.push(stringof(o)->s_slot->sl_value);
-            }
-            else
-            {
+            } else {
                 object   *f;
 
                 /*
@@ -432,8 +409,7 @@ object *evaluate(object *code, int n_operands)
                         os.a_top,
                         mapof(vs.a_top[-1])
                     )
-                )
-                {
+                ) {
                 case -1:
                     goto fail;
 
@@ -443,8 +419,7 @@ object *evaluate(object *code, int n_operands)
                      * Try to load a library of that name and repeat
                      * the lookup before deciding it is undefined.
                      */
-                    if ((f = ici_fetch(vs.a_top[-1], SS(load))) == null)
-                    {
+                    if ((f = ici_fetch(vs.a_top[-1], SS(load))) == null) {
                         set_error("\"%s\" undefined", stringof(o)->s_chars);
                         goto fail;
                     }
@@ -452,8 +427,7 @@ object *evaluate(object *code, int n_operands)
                     {
                         src *srco = ex->x_src;
                         incref(srco);
-                        if (call(f, "o", o))
-                        {
+                        if (call(f, "o", o)) {
                             decref(srco);
                             goto fail;
                         }
@@ -496,18 +470,14 @@ object *evaluate(object *code, int n_operands)
              * The caller knows if there is really a value to return.
              */
             xs.push(o);  /* Restore formal state. */
-            if (o->flagged(CF_EVAL_BASE))
-            {
+            if (o->flagged(CF_EVAL_BASE)) {
                 /*
                  * This is the base of a call to evaluate().  It is now
                  * time to return.
                  */
-                if (catcherof(o)->c_odepth < uint32_t(os.a_top - os.a_base))
-                {
+                if (catcherof(o)->c_odepth < uint32_t(os.a_top - os.a_base)) {
                     o = os.a_top[-1];
-                }
-                else
-                {
+                } else {
                     o = null;
                 }
                 incref(o);
@@ -515,8 +485,7 @@ object *evaluate(object *code, int n_operands)
                 --ex->x_n_engine_recurse;
                 return o;
             }
-            if (o->flagged(CF_CRIT_SECT))
-            {
+            if (o->flagged(CF_CRIT_SECT)) {
                 --ex->x_critsect;
                 /*
                  * Force a check for a yield (see top of loop). If we
@@ -531,8 +500,7 @@ object *evaluate(object *code, int n_operands)
 
         case TC_FORALL:
             xs.push(o);  /* Restore formal state. */
-            if (exec_forall())
-            {
+            if (exec_forall()) {
                 goto fail;
             }
             continue;
@@ -902,8 +870,7 @@ object *evaluate(object *code, int n_operands)
                  * bool => - (os)
                  *      => [o_break] (xs)
                  */
-                if (isfalse(os.a_top[-1]))
-                {
+                if (isfalse(os.a_top[-1])) {
                     --os.a_top;
                     continue;
                 }
@@ -915,8 +882,7 @@ object *evaluate(object *code, int n_operands)
                  * bool => - (os)
                  *      => [o_break] (xs)
                  */
-                if (!isfalse(os.a_top[-1]))
-                {
+                if (!isfalse(os.a_top[-1])) {
                     --os.a_top;
                     continue;
                 }
@@ -933,32 +899,19 @@ object *evaluate(object *code, int n_operands)
                 {
                     object  **s;
 
-                    for (s = xs.a_top; s > xs.a_base + 1; --s)
-                    {
-                        if (iscatcher(s[-1]))
-                        {
-                            if (s[-1]->flagged(CF_CRIT_SECT))
-                            {
+                    for (s = xs.a_top; s > xs.a_base + 1; --s) {
+                        if (iscatcher(s[-1])) {
+                            if (s[-1]->flagged(CF_CRIT_SECT)) {
                                 --ex->x_critsect;
                                 exec_count = 1;
                             }
-                            else if (s[-1]->flagged(CF_EVAL_BASE))
-                            {
+                            else if (s[-1]->flagged(CF_EVAL_BASE)) {
                                 break;
                             }
-                        }
-                        else if
-                        (
-                            s[-1] == &o_looper
-                            ||
-                            s[-1] == &o_switcher
-                        )
-                        {
+                        } else if (s[-1] == &o_looper || s[-1] == &o_switcher) {
                             xs.a_top = s - 2;
                             goto stable_stacks_continue;
-                        }
-                        else if (isforall(s[-1]))
-                        {
+                        } else if (isforall(s[-1])) {
                             xs.a_top = s - 1;
                             goto stable_stacks_continue;
                         }
@@ -974,8 +927,7 @@ object *evaluate(object *code, int n_operands)
                 {
                     int         c;
 
-                    if ((c = !isfalse(os.a_top[-2])) == opof(o)->op_code)
-                    {
+                    if ((c = !isfalse(os.a_top[-2])) == opof(o)->op_code) {
                         /*
                          * Have to test next part of the condition.
                          */
@@ -1001,22 +953,17 @@ object *evaluate(object *code, int n_operands)
                 {
                     object   **s;
 
-                    for (s = xs.a_top; s > xs.a_base + 1; --s)
-                    {
-                        if (iscatcher(s[-1]))
-                        {
-                            if (s[-1]->flagged(CF_EVAL_BASE))
-                            {
+                    for (s = xs.a_top; s > xs.a_base + 1; --s) {
+                        if (iscatcher(s[-1])) {
+                            if (s[-1]->flagged(CF_EVAL_BASE)) {
                                 break;
                             }
-                            if (s[-1]->flagged(CF_CRIT_SECT))
-                            {
+                            if (s[-1]->flagged(CF_CRIT_SECT)) {
                                 --ex->x_critsect;
                                 exec_count = 1;
                             }
                         }
-                        if (s[-1] == &o_looper || isforall(s[-1]))
-                        {
+                        if (s[-1] == &o_looper || isforall(s[-1])) {
                             xs.a_top = s;
                             goto stable_stacks_continue;
                         }
@@ -1093,10 +1040,8 @@ object *evaluate(object *code, int n_operands)
                 {
                     slot *sl;
 
-                    if ((sl = find_raw_slot(mapof(os.a_top[-1]), os.a_top[-3]))->sl_key == nullptr)
-                    {
-                        if ((sl = find_raw_slot(mapof(os.a_top[-1]), &o_mark))->sl_key == nullptr)
-                        {
+                    if ((sl = find_raw_slot(mapof(os.a_top[-1]), os.a_top[-3]))->sl_key == nullptr) {
+                        if ((sl = find_raw_slot(mapof(os.a_top[-1]), &o_mark))->sl_key == nullptr) {
                             /*
                              * No matching case, no default. Pop everything off and
                              * continue;
@@ -1123,8 +1068,7 @@ object *evaluate(object *code, int n_operands)
                         vs.a_top - vs.a_base,
                         CF_CRIT_SECT
                     );
-                    if (*xs.a_top == nullptr)
-                    {
+                    if (*xs.a_top == nullptr) {
                         goto fail;
                     }
                     ++xs.a_top;
@@ -1155,8 +1099,7 @@ object *evaluate(object *code, int n_operands)
 #ifndef BINOPFUNC
 #include        "binop.h"
 #else
-                if (op_binop(o))
-                {
+                if (op_binop(o)) {
                     goto fail;
                 }
 #endif
@@ -1172,22 +1115,17 @@ object *evaluate(object *code, int n_operands)
         {
             catcher *c;
 
-            if (error == nullptr)
-            {
+            if (error == nullptr) {
                 set_error("error");
             }
-            if (UNLIKELY(debug_active && !debug_ignore_err))
-	    {
+            if (UNLIKELY(debug_active && !debug_ignore_err)) {
                 o_debug->errorset(error, ex->x_src);
 	    }
-            for (;;)
-            {
-                if ((c = unwind()) == nullptr || c->flagged(CF_EVAL_BASE))
-                {
+            for (;;) {
+                if ((c = unwind()) == nullptr || c->flagged(CF_EVAL_BASE)) {
                     goto badfail;
                 }
-                if (c->flagged(CF_CRIT_SECT))
-                {
+                if (c->flagged(CF_CRIT_SECT)) {
                     --ex->x_critsect;
                     exec_count = 1;
                     continue;
@@ -1219,8 +1157,7 @@ object *evaluate(object *code, int n_operands)
              * scope for debugging is very limited. But if it was earlier, we
              * would be breaking on every type of error, even caught ones.
              */
-            if (UNLIKELY(debug_active && !debug_ignore_err))
-	    {
+            if (UNLIKELY(debug_active && !debug_ignore_err)) {
                 o_debug->error(error, ex->x_src);
 	    }
             expand_error(ex->x_src->s_lineno, ex->x_src->s_filename);
@@ -1293,23 +1230,18 @@ object *exec_type::fetch(object *o, object *k)
     exec *x;
 
     x = execof(o);
-    if (k == SS(error))
-    {
-        if (x->x_error == nullptr)
-        {
+    if (k == SS(error)) {
+        if (x->x_error == nullptr) {
             return null;
         }
         str *s = new_str_nul_term(x->x_error);
-        if (s != nullptr)
-        {
+        if (s != nullptr) {
             decref(s);
         }
         return s;
     }
-    if (k == SS(result))
-    {
-        switch (x->x_state)
-        {
+    if (k == SS(result)) {
+        switch (x->x_state) {
         case XS_ACTIVE:
             return null;
 
@@ -1323,15 +1255,12 @@ object *exec_type::fetch(object *o, object *k)
         default:
             assert(0);
         }
-    }
-    else if (k == SS(status))
-    {
-        switch (x->x_state)
-        {
+    } else if (k == SS(status)) {
+        switch (x->x_state) {
         case XS_ACTIVE:     return SS(active);
         case XS_RETURNED:   return SS(finished);
         case XS_FAILED:     return SS(failed);
-        default:                assert(0);
+        default:            assert(0);
         }
     }
     return null;
