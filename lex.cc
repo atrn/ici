@@ -67,20 +67,15 @@ static int get(parse *p, array *a)
         p->p_sol = 0;
     }
 
-    if (a != nullptr && record_line_nums)
-    {
+    if (a != nullptr && record_line_nums) {
         /*
          * There is a code array being built. Update any trailing
-         * source marker, and if there isn't one, add one.
+         * source marker, or if there isn't one, add one.
          */
-        if (a->a_top > a->a_base && issrc(a->a_top[-1]))
-        {
+        if (a->a_top > a->a_base && issrc(a->a_top[-1])) {
             srcof(a->a_top[-1])->s_lineno = p->p_lineno;
-        }
-        else if (a->push_check() == 0)
-        {
-            if (auto s = new_src(p->p_lineno, p->p_file->f_name))
-                a->push(s, with_decref);
+        } else {
+            a->push_checked(new_src(p->p_lineno, p->p_file->f_name), with_decref);
         }
     }
 

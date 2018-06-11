@@ -363,39 +363,31 @@ static int push_path_elements(array *a, const char *path)
     str         *s;
     object     **e;
 
-    for (p = path; *p != '\0'; p = *q == '\0' ? q : q + 1)
-    {
-        if ((q = strchr(p, ICI_PATH_SEP)) == nullptr)
-        {
+    for (p = path; *p != '\0'; p = *q == '\0' ? q : q + 1) {
+        if ((q = strchr(p, ICI_PATH_SEP)) == nullptr) {
             q = p + strlen(p);
         }
-        if ((s = new_str(p, q - p)) == nullptr)
-        {
+        if ((s = new_str(p, q - p)) == nullptr) {
             return 1;
         }
         /*
          * Don't add duplicates...
          */
-        for (e = a->a_base; e < a->a_top; ++e)
-        {
-            if (*e == s)
-            {
+        for (e = a->a_base; e < a->a_top; ++e) {
+            if (*e == s) {
                 goto skip;
             }
         }
         /*
          * Don't add inaccessable dirs...
          */
-        if (access(s->s_chars, 0) != 0)
-        {
+        if (access(s->s_chars, 0) != 0) {
             goto skip;
         }
-        if (a->push_check())
-        {
+        if (a->push_checked(s)) {
             decref(s);
             return 1;
         }
-        a->push(s);
     skip:
         decref(s);
     }

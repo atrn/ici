@@ -89,13 +89,10 @@ int main(int argc, char *argv[]) {
          * Usage1: ici file [args...]
          */
         arg0 = argv[1];
-        for (i = 2; i < argc; ++i)
-        {
-            if (av->push_check())
+        for (i = 2; i < argc; ++i) {
+            if (av->push_checked(str_get_nul_term(argv[i]), with_decref)) {
                 goto fail;
-            if ((*av->a_top = str_get_nul_term(argv[i])) == nullptr)
-                goto fail;
-            ++av->a_top;
+            }
         }
     }
     else
@@ -133,13 +130,10 @@ int main(int argc, char *argv[]) {
                         break;
 
                     case '-':
-                        while (++i < argc)
-                        {
-                            if (av->push_check())
+                        while (++i < argc) {
+                            if (av->push_checked(str_get_nul_term(argv[i]), with_decref)) {
                                 goto fail;
-                            if ((*av->a_top = str_get_nul_term(argv[i])) == nullptr)
-                                goto fail;
-                            ++av->a_top;
+                            }
                         }
                         break;
 
@@ -169,11 +163,9 @@ int main(int argc, char *argv[]) {
             }
             else
             {
-                if (av->push_check())
+                if (av->push_checked(str_get_nul_term(argv[i]), with_decref)) {
                     goto fail;
-                if ((*av->a_top = str_get_nul_term(argv[i])) == nullptr)
-                    goto fail;
-                ++av->a_top;
+                }
             }
         }
     }

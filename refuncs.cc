@@ -190,36 +190,33 @@ static array *do_smash
         /*
          * Generate the new strings and push them onto the array.
          */
-        for (i = 0; i < n_repls; ++i)
-        {
-            if (a->push_check())
-               goto fail;
+        for (i = 0; i < n_repls; ++i) {
             size = do_repl(s, repls[-i]->s_chars, repls[-i]->s_nchars, nullptr);
             if ((ns = str_alloc(size)) == nullptr)
                 goto fail;
             do_repl(s, repls[-i]->s_chars, repls[-i]->s_nchars, ns->s_chars);
             if ((ns = stringof(atom(ns, 1))) == nullptr)
                 goto fail;
-            a->push(ns, with_decref);
+            if (a->push_checked(ns, with_decref)) {
+                goto fail;
+            }
         }
     }
-    if (include_remainder && s != se)
-    {
+    if (include_remainder && s != se) {
         /*
          * There is left-over un-matched string. Push it, as a string onto
          * the array too.
          */
-        if (a->push_check())
+        if (a->push_checked(new_str(s, se - s), with_decref)) {
             goto fail;
-        if ((ns = new_str(s, se - s)) == nullptr)
-            goto fail;
-        a->push(ns, with_decref);
+        }
     }
     return a;
 
 fail:
-    if (a != nullptr)
+    if (a != nullptr) {
         decref(a);
+    }
     return nullptr;
 }
 

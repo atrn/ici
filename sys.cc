@@ -1607,16 +1607,16 @@ static int sys_passwd()
     if ((a = new_array()) == nullptr)
         return 1;
     setpwent();
-    while ((pwent = getpwent()) != nullptr)
-    {
-        map *s;
-
-        if (a->push_check() || (s = password_map(pwent)) == nullptr)
-        {
+    while ((pwent = getpwent()) != nullptr) {
+        map *m;
+        if ((m = password_map(pwent)) == nullptr) {
             decref(a);
             return 1;
         }
-        a->push(s, with_decref);
+        if (a->push_checked(m, with_decref)) {
+            decref(a);
+            return 1;
+        }
     }
     endpwent();
     return ret_with_decref(a);

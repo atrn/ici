@@ -671,31 +671,21 @@ int compile_expr(array *a, expr *e, int why) {
                  * left order. Also code the number of actuals.
                  */
                 nargs = 0;
-                for (e1 = e->e_arg[1]; e1 != nullptr; e1 = e1->e_arg[1])
-                {
-                    if (compile_expr(a, e1->e_arg[0], FOR_VALUE))
-                    {
+                for (e1 = e->e_arg[1]; e1 != nullptr; e1 = e1->e_arg[1]) {
+                    if (compile_expr(a, e1->e_arg[0], FOR_VALUE)) {
                         return 1;
                     }
                     ++nargs;
                 }
-                if (a->push_check())
-                {
+                if (a->push_check()) {
                     return 1;
                 }
-                if ((*a->a_top = new_int(nargs)) == nullptr)
-                {
+                if ((*a->a_top = new_int(nargs)) == nullptr) {
                     return 1;
                 }
                 decref((*a->a_top));
                 ++a->a_top;
-                if
-                (
-                    e->e_arg[0]->e_what == T_PRIMARYCOLON
-                    ||
-                    e->e_arg[0]->e_what == T_COLONCARET
-                )
-                {
+                if (e->e_arg[0]->e_what == T_PRIMARYCOLON || e->e_arg[0]->e_what == T_COLONCARET) {
                     /*
                      * Special optimisation. The call is of the form
                      *
@@ -704,55 +694,42 @@ int compile_expr(array *a, expr *e, int why) {
                      * Use the direct method call to avoid ever forming
                      * the method object.
                      */
-                    if (compile_expr(a, e->e_arg[0]->e_arg[0], FOR_VALUE))
-                    {
+                    if (compile_expr(a, e->e_arg[0]->e_arg[0], FOR_VALUE)) {
                         return 1;
                     }
-                    if (compile_expr(a, e->e_arg[0]->e_arg[1], FOR_VALUE))
-                    {
+                    if (compile_expr(a, e->e_arg[0]->e_arg[1], FOR_VALUE)) {
                         return 1;
                     }
-                    if (a->push_check(2))
-                    {
+                    if (a->push_check(2)) {
                         return 1;
                     }
-                    if (e->e_arg[0]->e_what == T_COLONCARET)
-                    {
+                    if (e->e_arg[0]->e_what == T_COLONCARET) {
                         a->push(&o_super_call);
-                    }
-                    else
-                    {
+                    } else {
                         a->push(&o_method_call);
                     }
-                }
-                else
-                {
+                } else {
                     /*
                      * Normal case. Code the thing being called and a call
                      * operation.
                      */
-                    if (compile_expr(a, e->e_arg[0], FOR_VALUE))
-                    {
+                    if (compile_expr(a, e->e_arg[0], FOR_VALUE)) {
                         return 1;
                     }
-                    if (a->push_check(2))
-                    {
+                    if (a->push_check(2)) {
                         return 1;
                     }
                     a->push(&o_call);
                 }
-                if (why == FOR_EFFECT)
-                {
+                if (why == FOR_EFFECT) {
                     a->push(&o_pop);
                 }
             }
             break;
         }
     }
-    if (why == FOR_LVALUE)
-    {
-        if (a->push_check())
-        {
+    if (why == FOR_LVALUE) {
+        if (a->push_check()) {
             return 1;
         }
         a->push(&o_mklvalue);

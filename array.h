@@ -157,6 +157,37 @@ struct array : object
         *a_top++ = o;
         o->decref();
     }
+
+    /**
+     *  Check there is room for and push an object in a single operation.
+     *  Returns true if the push FAILED due to lack of space.
+     */
+    inline bool push_checked(object *o) {
+        if (o == nullptr) {
+            return true;
+        }
+        if (push_check()) {
+            return true;
+        }
+        push(o);
+        return false;
+    }
+
+    /**
+     *  Check there is room for and push an object in a single operation.
+     *  Returns true if the push FAILED due to lack of space.
+     */
+    inline bool push_checked(object *o, struct tag_with_decref tag) {
+        if (o == nullptr) {
+            return true;
+        }
+        if (push_check()) {
+            return true;
+        }
+        push(o, tag);
+        return false;
+    }
+
 };
 
 inline array *arrayof(object *o) { return o->as<array>(); }

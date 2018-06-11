@@ -108,9 +108,8 @@ int ptr_type::call(object *o, object *)
         return 1;
     decref((os.a_top[-1]));
     os.a_top[-2] = ptrof(o)->p_aggr;
-    if (os.push_check())
+    if (os.push_checked(f))
         return 1;
-    os.push(f);
     xs.a_top[-1] = &o_call;
     /*
      * Then behave as if the target had been called. Should this do the

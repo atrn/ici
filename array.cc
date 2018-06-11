@@ -69,12 +69,10 @@ int array::fault_stack(ptrdiff_t i)
     assert(!isatom());
     ++i;
     i -= a_top - a_bot;
-    if (push_check(i))
-    {
+    if (push_check(i)) {
         return 1;
     }
-    while (--i >= 0)
-    {
+    while (--i >= 0) {
         push(null);
     }
     return 0;
@@ -404,7 +402,7 @@ object *array::get(ptrdiff_t i) {
 
 /*
  * Return a new array.  It will have room for at least 'n' elements to be
- * pushed contigously (that is, there is no need to use ici_push_check() for
+ * pushed contigously (that is, there is no need to use push_check() for
  * objects pushed immediately, up to that limit).  If 'n' is 0 an internal
  * default will be used.  The returned array has ref count 1.  Returns nullptr on
  * failure, usual conventions.
@@ -454,8 +452,7 @@ int op_mklvalue() {
 
 // array_type
 
-size_t array_type::mark(object *o)
-{
+size_t array_type::mark(object *o) {
     auto a = arrayof(o);
     auto mem = type::mark(a);
     if (a->a_base == nullptr) {
@@ -485,8 +482,7 @@ void array_type::free(object *o) {
     ici_tfree(o, array);
 }
 
-unsigned long array_type::hash(object *o)
-{
+unsigned long array_type::hash(object *o) {
     unsigned long   h;
     object        **e;
     ptrdiff_t       n;
@@ -508,8 +504,7 @@ unsigned long array_type::hash(object *o)
     return h;
 }
 
-int array_type::cmp(object *o1, object *o2)
-{
+int array_type::cmp(object *o1, object *o2) {
     ptrdiff_t   i;
     ptrdiff_t   n1;
     ptrdiff_t   n2;
@@ -535,8 +530,7 @@ int array_type::cmp(object *o1, object *o2)
     return 0;
 }
 
-object * array_type::copy(object *o)
-{
+object * array_type::copy(object *o) {
     array     *na;
     ptrdiff_t  n;
 
@@ -549,8 +543,7 @@ object * array_type::copy(object *o)
     return na;
 }
 
-int array_type::assign(object *o, object *k, object *v)
-{
+int array_type::assign(object *o, object *k, object *v) {
     int64_t   i;
     object  **e;
 

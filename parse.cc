@@ -186,10 +186,9 @@ static array *ident_list(parse *p) {
             reject(p);
             return a;
         }
-        if (a->push_check()) {
+        if (a->push_checked(p->p_got.t_obj, with_decref)) {
             goto fail;
         }
-        a->push(p->p_got.t_obj, with_decref);
         curtok = T_NONE; /* Take ownership of name. */
         if (next(p, nullptr) != T_COMMA) {
             reject(p);
@@ -410,10 +409,9 @@ static int compound_statement(parse *p, map *sw)
         --a->a_top;
     }
 
-    if (a->push_check()) {
+    if (a->push_checked(&o_end)) {
         goto fail;
     }
-    a->push(&o_end);
     p->p_got.t_obj = a;
     return 1;
 
@@ -593,11 +591,10 @@ static int primary(parse *p, expr **ep, int exclude) {
                     goto fail;
 
                 case 1:
-                    if (a->push_check()) {
+                    if (a->push_checked(o, with_decref)) {
                         decref(a);
                         goto fail;
                     }
-                    a->push(o, with_decref);
                     if (next(p, nullptr) == T_COMMA) {
                         continue;
                     }
@@ -1307,10 +1304,9 @@ static int const_expression(parse *p, object **po, int exclude) {
     if (compile_expr(a, e, FOR_VALUE)) {
         goto fail;
     }
-    if (a->push_check()) {
+    if (a->push_checked(&o_end)) {
         goto fail;
     }
-    a->push(&o_end);
     free_expr(e);
     e = nullptr;
     if ((*po = evaluate(a, 0)) == nullptr) {
@@ -1556,11 +1552,10 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
                 decref(a1);
                 return -1;
             }
-            if (a1->push_check()) {
+            if (a1->push_checked(&o_ifnotbreak)) {
                 decref(a1);
                 return -1;
             }
-            a1->push(&o_ifnotbreak);
             {
                 int rc;
                 increment_break_continue_depth(p);
@@ -1571,11 +1566,10 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
                     return -1;
                 }
             }
-            if (a1->push_check()) {
+            if (a1->push_checked(&o_rewind)) {
                 decref(a1);
                 return -1;
             }
-            a1->push(&o_rewind);
             if (a->push_check(2)) {
                 decref(a1);
                 return -1;
@@ -1758,11 +1752,10 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
                     return -1;
                 }
                 free_expr(e);
-                if (a1->push_check()) {
+                if (a1->push_checked(&o_ifnotbreak)) {
                     decref(a1);
                     return -1;
                 }
-                a1->push(&o_ifnotbreak);
             }
             if (next(p, a1) != T_OFFROUND) {
                 reject(p);
@@ -1779,11 +1772,10 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
                     return -1;
                 }
             }
-            if (a1->push_check()) {
+            if (a1->push_checked(&o_rewind)) {
                 decref(a1);
                 return -1;
             }
-            a1->push(&o_rewind);
             if (a->push_check(2)) {
                 decref(a1);
                 return -1;
@@ -1836,10 +1828,9 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
                 reject(p);
                 return not_followed_by("break", "\";\"");
             }
-            if (a->push_check()) {
+            if (a->push_checked(&o_break)) {
                 return -1;
             }
-            a->push(&o_break);
             break;
 
         }
@@ -1852,10 +1843,9 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
                 reject(p);
                 return not_followed_by("continue", "\";\"");
             }
-            if (a->push_check()) {
+            if (a->push_checked(&o_continue)) {
                 return -1;
             }
-            a->push(&o_continue);
             break;
         }
         if (p->p_got.t_obj == SS(return)) {
@@ -1863,17 +1853,17 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
             switch (expression(p, a, FOR_VALUE, T_NONE)) {
             case -1: return -1;
             case 0:
-                if (a->push_check()) return -1;
-                a->push(null);
+                if (a->push_checked(null)) {
+                    return -1;
+                }
             }
             if (next(p, a) != T_SEMICOLON) {
                 reject(p);
                 return not_followed_by("return [expr]", "\";\"");
             }
-            if (a->push_check()) {
+            if (a->push_checked(&o_return)) {
                 return -1;
 	    }
-            a->push(&o_return);
             break;
         }
         if (p->p_got.t_obj == SS(try)) {
@@ -1974,10 +1964,9 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
             case 0: not_followed_by("waitfor (", an_expression);
             case -1: return -1;
             }
-            if (a2->push_check()) {
+            if (a2->push_checked(&o_ifbreak)) {
                 return -1;
             }
-            a2->push(&o_ifbreak);
             if (next(p, a2) != T_SEMICOLON) {
                 reject(p);
                 return not_followed_by("waitfor (expr", "\";\"");
@@ -2035,10 +2024,9 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
         if (a->a_top > a->a_bot && issrc(a->a_top[-1])) {
             --a->a_top;
         }
-        if (a->push_check()) {
+        if (a->push_checked(&o_end)) {
             return -1;
         }
-        a->push(&o_end);
     }
     return 1;
 
