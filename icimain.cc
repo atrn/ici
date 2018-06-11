@@ -63,6 +63,14 @@ int main(int argc, char *argv[]) {
         goto fail;
 
     /*
+     * If there are no actual arguments enter the repl.
+     */
+    if (argc <= 1) {
+        repl();
+        return 0;
+    }
+
+    /*
      * Process arguments.  Two pass, first gather "unused" arguments,
      * ie, arguments which are passed into the ICI code.  Stash these in
      * the array av.  NB: must be in sync with the second pass below.
@@ -71,10 +79,7 @@ int main(int argc, char *argv[]) {
         goto fail;
     av->push(null); /* Leave room for argv[0]. */
     arg0 = nullptr;
-    if (argc <= 1) {
-        repl();
-        return 0;
-    }
+
     if
     (
         argc > 1

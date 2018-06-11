@@ -446,7 +446,7 @@ extern int             init_sstrings();
 extern void            drop_all_small_allocations();
 extern objwsup        *outermost_writeable();
 extern int             str_char_at(str *, size_t);
-extern void             repl();
+extern void            repl();
 extern int             supress_collect;
 extern int             ncollects;
 
