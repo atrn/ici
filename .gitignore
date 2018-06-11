@@ -14,3 +14,5 @@
 /ici.h
 *.a
 *.d
+/build/
+/CMakeLists.txt.user
