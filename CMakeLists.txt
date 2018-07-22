@@ -119,6 +119,9 @@ add_executable(ici
   types.h
   wrap.h)
 
+if("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "FreeBSD")
+target_link_libraries(ici PUBLIC -lpthread)
+endif()
 if("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Linux")
 target_link_libraries(ici PUBLIC -ldl -lpthread)
 endif()

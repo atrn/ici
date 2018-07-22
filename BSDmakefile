@@ -7,9 +7,8 @@ build?=exe
 dest?=/usr/local
 sudo?=
 
-targets=default \
+targets=all \
 	test \
-	all \
 	ici.h \
 	ici \
 	lib \
