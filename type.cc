@@ -4,6 +4,9 @@
 namespace ici
 {
 
+type::~type() {
+}
+
 size_t type::mark(object *o) {
     o->setmark();
     return objectsize();

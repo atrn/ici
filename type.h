@@ -74,6 +74,8 @@ protected:
     inline size_t objectsize() const { return _size; }
 
 public:
+    virtual ~type();
+
     /*
      * Feature predicates.
      */
