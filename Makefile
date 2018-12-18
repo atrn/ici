@@ -21,7 +21,6 @@
 #	full-install
 #
 #	debug
-#	lto
 #	test
 
 os=    $(shell uname|tr A-Z a-z)
@@ -69,13 +68,6 @@ cxxflags?=CXXFLAGS
 ifndef build
 build=exe
 endif
-
-# On darwin (MacOS) we can build an "lto" executable
-# (whole program optimization) that may be faster.
-# It isn't really any faster so we don't build it
-# by default.
-#
-install_lto_exe=no
 
 srcs= $(shell ls *.cc | fgrep -v win32)
 hdrs= $(shell ls *.h | fgrep -v ici.h)
@@ -131,18 +123,12 @@ ici.h: $(prog) mk-ici-h.ici $(hdrs)
 
 # Other targets for developer types.
 #
-.PHONY: debug lto test
+.PHONY: debug test
 
 # The 'debug' target builds using the .debug CXXFLAGS options file.
 #
 debug:
 	@$(MAKE) all cxxflags=CXXFLAGS.debug dccflags=$(dccflags) build=$(build)
-
-# The 'lto' target builds using the .lto CXXFLAGS options file.
-#
-lto:
-	@$(MAKE) all cxxflags=CXXFLAGS.lto dccflags="$(dccflags) --quiet" build=exe
-
 
 # The 'test' target tests the interpreter by running the standard
 # 'core' test.
@@ -196,20 +182,14 @@ install-ici-exe:
 	$(sudo) mkdir -p $(prefix)/lib/ici
 	$(sudo) install -c -m 444 ici-core*.ici $(prefix)/lib/ici
 
-# Install everything - static and dynamic libs, exe. And on drawin
-# build an LTO exe for actual use.
+# Install everything - static and dynamic libs, exe.
 #
 .PHONY: full-install
 full-install:
 	@echo '1  - make clean'; $(MAKE) -s clean
-	@echo '2  - build dll'; $(MAKE) -s lib build=dll conf=$(conf) dccflags=--quiet
-	@echo '3  - install dll'; $(MAKE) -s build=dll install-libici prefix=$(prefix) dccflags=--quiet
+	@echo '2  - build lib'; $(MAKE) -s lib build=lib conf=$(conf) dccflags=--quiet
+	@echo '3  - install lib'; $(MAKE) -s build=lib install-libici prefix=$(prefix) dccflags=--quiet
 	@echo '4  - make clean'; $(MAKE) -s clean
-	@echo '5  - build lib/exe'; $(MAKE) -s build=lib conf=$(conf) dccflags=--quiet
-	@echo '6  - install lib/exe'; $(MAKE) -s build=lib install-libici install-ici-exe prefix=$(prefix) dccflags=--quiet
+	@echo '5  - build dll/exe'; $(MAKE) -s build=dll conf=$(conf) dccflags=--quiet
+	@echo '6  - install dll/exe'; $(MAKE) -s build=dll install-libici install-ici-exe prefix=$(prefix) dccflags=--quiet
 	@echo '7  - make clean'; $(MAKE) -s clean
-ifeq ($(install_lto_exe),yes)
-	@echo '8  - make lto'; $(MAKE) -s lto
-	@echo '9  - install lto'; $(MAKE) -s install-ici-exe
-	@echo '10 - make clean'; $(MAKE) -s clean
-endif
