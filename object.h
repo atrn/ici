@@ -355,7 +355,7 @@ struct object
  * support a super pointer.  All such objects must have the O_SUPER flag set
  * in o_flags and provide the 't_fetch_super()' and 't_assign_super()'
  * functions in their type structure.  The actual 'o_super' pointer will be
- * null if there is no actual super, which is different from O_SUPER being
+ * NULL if there is no actual super, which is different from O_SUPER being
  * clear (which would mean there could not be a super, ever).
  *
  * This --struct-- forms part of the --ici-api--.
@@ -413,7 +413,7 @@ inline size_t ici_mark(object *o) {
 }
 
 /*
- * Mark the given object iff it is not null. Otherwise return 0.
+ * Mark the given object iff it is not NULL. Otherwise return 0.
  */
 inline size_t mark_optional(object *o) {
     return o == nullptr ? 0 : ici_mark(o);
