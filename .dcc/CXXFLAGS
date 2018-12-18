@@ -2,9 +2,5 @@
 
 -std=c++14
 -Wall -Wextra
--g
 -DNDEBUG
-
-# On MacOS -Oz has produced the smallest and best performing code
-# across a number of tests.
--Oz
+-g -Os
