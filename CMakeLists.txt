@@ -1,8 +1,10 @@
-cmake_minimum_required(VERSION 3.0)
 project(ici LANGUAGES CXX)
-set(CMAKE_CXX_STANDARD 11)
-add_executable(ici
-  etc/main.cc
+cmake_minimum_required(VERSION 3.0)
+set(CMAKE_CXX_STANDARD 14)
+
+option(ICI_BUILD_AS_DLL "build a DLL" ON)
+
+set(ICI_SRCS
   alloc.cc
   aplfuncs.cc
   archiver.cc
@@ -120,6 +122,15 @@ add_executable(ici
   type.h
   types.h
   wrap.h)
+
+if (ICI_BUILD_AS_DLL)
+add_library(ici SHARED ${ICI_SRCS})
+add_executable(ici_exe etc/main.cc)
+set_target_properties(ici_exe PROPERTIES OUTPUT_NAME ici)
+target_link_libraries(ici_exe PUBLIC ici)
+else()
+add_executable(ici etc/main.cc ${ICI_SRCS})
+endif()
 
 if("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "FreeBSD")
 target_link_libraries(ici PUBLIC -lpthread)
