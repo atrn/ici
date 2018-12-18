@@ -137,6 +137,11 @@ inline const void *ICI_CF_ARG2() { return cfuncof(os.a_top[-1])->cf_arg2; }
 #define ICI_CFUNCS_END() {}
 
 /*
+ *  Expand to the name of the given "cfuncs" table.
+ */
+#define ICI_CFUNCS(NAME) ici_ ## NAME ## _cfuncs
+
+/*
  * Macros to define cfuncs. Use the one appropriate for the number of
  * arguments to the cfunc.
  *

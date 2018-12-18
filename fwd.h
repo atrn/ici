@@ -356,7 +356,7 @@ extern int        find_on_path(char [FILENAME_MAX], const char *);
 extern DLI int    debug_enabled;
 extern int        debug_ignore_err;
 
-#define null_ret()    ici::ret_no_decref(null)
+#define null_ret()    ici::ret_no_decref(ici::null)
 
 #ifndef NODEBUGGING
 extern DLI void       debug_ignore_errors();
