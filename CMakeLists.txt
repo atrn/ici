@@ -35,6 +35,7 @@ add_executable(ici
   icimain.cc
   init.cc
   int.cc
+  intf.cc
   lex.cc
   load.cc
   map.cc
@@ -94,6 +95,7 @@ add_executable(ici
   handle.h
   icistr-setup.h
   int.h
+  intf.h
   internal.h
   load-w32.h
   map.h
