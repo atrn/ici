@@ -43,17 +43,17 @@ cxxflags?=CXXFLAGS
 # The 'build' macro controls the type of build.  Uncomment one of the
 # following lines to select the desired type of build.
 #
-# build=dll
+# $ make build=dll
 #
 #   ICI is built as a dynamic library, libici.dylib, and the ici
 #   executable, a single line main, is linked against that library.
 #
-# build=exe
+# $ make build=exe
 #
 #   ICI is built as single, statically linked, executable with no
 #   library component.
 #
-# build=lib
+# $ make build=lib
 #
 #   ICI is built as a static library, libici.a, and the ici executable
 #   linked against that library. Similar to build=exe but a library
@@ -101,7 +101,7 @@ lib:
 
 
 else ifeq ($(build),exe)
-# The 'exe' build builds an executable containing the complete
+# The ici target builds an executable containing the complete
 # interpreter and does not create any library.
 #
 $(prog):
