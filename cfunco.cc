@@ -77,7 +77,7 @@ int assign_cfuncs(objwsup *s, cfunc *cf)
         assert(ici_fetch_base(s, cf->cf_name) == null);
         if (ici_fetch_base(s, cf->cf_name) != null)
         {
-            fprintf(stderr, "WARNING: duplicate builtin function '%s'\n", cf->cf_name->s_chars);
+            fprintf(stderr, "WARNING: duplicate function '%s'\n", cf->cf_name->s_chars);
         }
         if (ici_assign_base(s, cf->cf_name, cf))
         {
