@@ -3,13 +3,9 @@ apply
     [func (f) {
 	printf("%-8d %s\n", f.size, f.filename);
     }],
-
-    sort
-    (
-	mapf
-	(
-	    mapf
-	    (
+    sort(
+	mapf(
+	    mapf(
 		dir(argv[1] || ".", "f"),
 		[func (filename, dir) {
 		    return pathjoin(dir, filename);
@@ -17,7 +13,7 @@ apply
 		argv[1] || "."
 	    ),
 	    [func (filename) {
-		return map("filename", filename, "size", stat(filename).size);
+		return map("filename", filename, "size", sys.stat(filename).size);
 	    }]
 	),
 	[func (a, b) {
