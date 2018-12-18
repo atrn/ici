@@ -26,7 +26,7 @@ struct charbuf
     int     cb_size;
     int     cb_eof;
     object *cb_ref;
-    bool    cb_readonly;
+    int     cb_readonly;
 };
 
 class charbuf_ftype : public ftype

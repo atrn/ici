@@ -14,13 +14,14 @@ namespace ici
 
 /*
  * Every object has a header. In the header the o_tcode (type code) field
- * can be used to index the global ici::types[] array to discover the obejct's
+ * can be used to index the global ici::types[] array to discover the object's
  * type class. This is the type class.
  *
  * Implementations of new types typically declare one of these classes
  * and implement the member functions that determine the nature of the
- * new type and use the singleton() template function (fwd.h)
- * to create a single instance of the type class.
+ * new type. The singleton() template function (fwd.h) can be used
+ * to create a single instance of the type class which is registered
+ * with the interpreter and allocated a type code.
  *
  * This --class-- forms part of the --ici-api--.
  */
@@ -28,8 +29,8 @@ class type {
 public:
     /*
      * The 'name' member defines the name of this type and is used to
-     * implement the 'typeof()' function and in error messages.  Note,
-     * type names have no fundamental importance in the langauge and
+     * implement the 'typeof()' function and also in error messages.
+     * Type names have no fundamental importance in the langauge and
      * need not even be unique.
      */
     const char * const name;
@@ -41,13 +42,12 @@ private:
 
 protected:
     /*
-     * Flags are used to indicate that a type class overrides the
-     * similarly named member functions. These are used to detetermine
-     * behaviour in a number of places that do not want the default
-     * implementation. The C code essentially used nullptr function
-     * pointers as flags and didn't use inheritence to obtain default
-     * behaviour and avoided the issue. We should look to see how to
-     * not use these.
+     * Flags are used to indicate that a type class overrides a
+     * similarly named member function. Type flags are used to
+     * detetermine behaviour in a number of places that do not
+     * want the default implementation. The original C code used
+     * NULL function pointers as flags, and didn't use inheritence,
+     * implementing an optional<func *>.
      */
     static constexpr int has_fetch_method = 1<<0;
     static constexpr int has_objname      = 1<<1;
@@ -103,7 +103,7 @@ public:
      *                      the O_MARK flag of the object they are being invoked
      *                      on is clear.
      */
-    virtual size_t          mark(object *o);
+    virtual size_t          mark(object *);
 
     /*
      * free(o)              Must free the object o and all associated data, but not
@@ -113,7 +113,7 @@ public:
      *                      creation and that the free function might be asked to
      *                      free a partially allocated object.
      */
-    virtual void             free(object *o);
+    virtual void             free(object *);
 
 
     /*
@@ -143,7 +143,7 @@ public:
      *                      they all regard the same data fields as significant in
      *                      performing their operation.
      */
-    virtual int             cmp(object *a, object *b);
+    virtual int             cmp(object *, object *);
 
     /* copy(o)              Must return a copy of the given object.  This is the
      *                      basis for the implementation of the copy() function.
@@ -157,7 +157,7 @@ public:
      *
      *                      Return nullptr on failure, usual conventions.
      */
-    virtual object *         copy(object *o);
+    virtual object *         copy(object *);
     /*
      * hash(o)              Must return an unsigned long hash which is sensitive
      *                      to the value of the object.  Two objects which cmp()
@@ -176,7 +176,7 @@ public:
      *                      function should be used.
      *
      */
-    virtual unsigned long   hash(object *o);
+    virtual unsigned long   hash(object *);
     /*
      * assign(o, k, v)      Must assign to key 'k' of the object 'o' the value
      *                      'v'.  Return 1 on error, else 0.
@@ -197,7 +197,7 @@ public:
      *                      Return non-zero on failure, usual conventions.
      *
      */
-    virtual int                 assign(object *o, object *k, object *v);
+    virtual int                 assign(object *, object *, object *);
 
     /*
      * fetch(o, k)          Fetch the value of key 'k' of the object 'o'.  Return
@@ -220,7 +220,7 @@ public:
      *                      Return nullptr on failure, usual conventions.
      *
      */
-    virtual object *        fetch(object *o, object *k);
+    virtual object *        fetch(object *, object *);
 
     /* call(o, s)           Must call the object 'o'.  If the object does not
      *                      support being called, this should be nullptr.  If 's' is
@@ -239,22 +239,22 @@ public:
     /*
      * Assign into the super of an objwsup.
      */
-    virtual int              assign_super(object *o, object *k, object *v, map *b);
+    virtual int              assign_super(object *, object *, object *, map *);
 
     /*
      * Fetch from  the super of an objwsup.
      */
-    virtual int              fetch_super(object *o, object *k, object **pv, map *b);
+    virtual int              fetch_super(object *, object *, object **, map *);
 
     /*
      * Assign into the base of an objwsup.
      */
-    virtual int             assign_base(object *o, object *k, object *v);
+    virtual int             assign_base(object *, object *, object *);
 
     /*
      * Fetch from the base of an objwsup.
      */
-    virtual object   *      fetch_base(object *o, object *k) ;
+    virtual object   *      fetch_base(object *, object *);
 
     /* fetch_method         An optional alternative to the basic 't_fetch()' that
      *                      will be called (if supplied) when doing a fetch for
@@ -270,7 +270,7 @@ public:
      *
      *                      Return nullptr on failure, usual conventions.
      */
-    virtual object   *      fetch_method(object *o, object *n);
+    virtual object   *      fetch_method(object *, object *);
 
     /* forall               An optional alternative to the predefined type
      *                      support in the 'forall' statement
@@ -287,7 +287,7 @@ public:
      *                      iteration, -1 to indicate that iteration
      *                      should end and any other value upon error.
      */
-    virtual int             forall(object *o);
+    virtual int             forall(object *);
 
     /* objname(o, p)        Must place a short (less than 30 chars) human readable
      *                      representation of the object in the given buffer.

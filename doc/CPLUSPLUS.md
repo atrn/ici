@@ -26,90 +26,95 @@ the the need to use C++ container types and the C++ standard library
 way of doing things is generally avoided.
 
 C++ features are used in many places but are mostly used to reduce the
-amount of code, improve its reliability via stricter type checking and
-avoid repetition and boilerplate. It works well.
+amount of code, improve its reliability via stricter type checking,
+simpler reference count management and the avoidance of repetition and
+boilerplate. It works well.
 
-A small number of template functions are used to help define values of
-different types  or to work  with C++'s stricter type  checking. These
-are well contained and there is no proliferation of templates which is
-a hallmark of the modern C++ style but which often leads to slow build
-times and larger, and slower, executables.
+A number of template functions are used to help define values of
+different types, track object references, and to easily work with
+C++'s stricter type checking. These are well contained and there is no
+proliferation of templates which is a hallmark of the modern C++ style
+but which often brings slow build times, and larger, slower, programs.
 
 ## C-style mostly removed
 
 Various C-isms have been replaced by C++-isms:
 
-- parameterised macros are replaced by inline functions
-- NULL is replaced with nullptr.
-- C++'s constexpr is used to define constant values
+- inlines functions replace parameterised macros
+- NULL becomes nullptr.
+- C++'s constexpr is used to define constants
 - cstddef and cstdint types are used - size_t, intXX_t, etc...
 - C++ standard threads are assumed
 
-### But no RAII
+### RAII
 
-There are a  number of things in the interpreter  that may be better
-expressed using small RAII classes. This has not been done and is
-related to changing the way errors are reported. C++ exceptions
-are not used and aren't really viable without using a lot more C++
-to cope with them.
+The ref<> template wraps a pointer to an ICI object and manages the
+reference count. A ref<T> otherwise acts as the T. ref<> is used to
+protect against object-related memory leaks.
 
-## ICI namespace
+## Namespaces
 
-All ICI  code now resides within  a `namespace ici` and  many, but not
-all, of the `ICI_` and `ici_` prefixes on identifiers removed. This is
-really a reversion  to the naming used in the  original ICI code, what
-was termed _old names_. Prefixes were  added so ICI worked more nicely
-as a C  library embedded within applications but  C++ namespaces allow
-us to revert this. The code is easier to read as a result.
+All ICI code now resides within a `namespace ici` and many, but not
+yet all, of the `ICI_` and `ici_` prefixes used on identifiers have
+been removed. This is actually a reversion to the naming used in the
+first ICI code, what was termed _old names_ in later version. The
+prefixes being added when ICI was a C library to be embedded within
+applications C++ namespaces allow us to revert this change and the
+code is easier to read as a result.
 
 ## ICI language changes
 
-Athough  not directly  related  to the  change  in the  implementation
-language  the C++  version of  ICI changes  some keywords  and builtin
-functions names:
+Athough not directly related to the change in implementation language
+this version of ICI changes some keywords and builtin functions names:
 
 - `struct` -> `map`
 - `auto`   -> `var`
 - `static` -> `local`
-- `extern` -> `export`
 - `thread` -> `go`
 
-Why? The old names mimic C and  while that was sort of nice ICI really
-isn't C  and the semantics  are quite  different. But really.  The new
-names are shorter. The renaming of  `thread` to `go` obviously shows a
-recent  influence and  the  renaming  of `struct`  to  `map` some  C++
-bias. However that particular change does  have some advantages. As
-`map` is **not** a C++ keyword we can use it in code without disguise.
-No more `ici_struct`. Adopting `var` is for the Javascript people and
-the implicit `var` using `:=` largely replaces it anyway. `static` and
-`extern` are C-specific notions really, I'm not too fussed about it
-but `local` and `export` do signifying things a little more clearly.
+Why? The old names mimic C's names with semantics that somewhat
+resemble C's if you don't look at things too closely.  While that was
+kind of nice, or at least cute, ICI really isn't C and the actual
+semantics of each statement are quite different. But really...the new
+names are shorter.
+
+The renaming of `thread` to `go` obviously shows a recent influence as
+does the renaming of `struct` to `map`. That particular change does
+have one major advantages - `map` is **not** a C++ keyword we can use
+it in C++ code without disguise unlike `struct`.  No more
+`ici_struct`! 
+
+Adopting `var` is for the Javascript people. The implicit `var` using
+the `:=` assignment operator largely replaces much of its use
+anyway.
 
 ## ICI objects
 
-The ICI object header is now used as base-class, or struct, to inherit
-the standard object header fields. It is not, however, a C++ polymorphic
-base class, i.e. it has no virtual functions.
+The ICI object header is now used as base-class `ici::object`, and is
+used to provide the standard ICI object header fields. `ici::object`
+is **not** a C++ _polymorphic base_ and has no virtual functions.
 
-ICI object types  inherit from ici::object to embed a standard  header
-and _be an  object_.  The  struct  `ici::object` provides  the standard
-object header fields replacing the C  code's `o_head` convention.
-E.g.  a new object type is defined via code that looks like,
+All ICI object types inherit from `ici::object` struct to embed the
+standard object header and allow them to _be an object_.  Inheriting
+the header struct replaces the C code's convention of having all
+object types start with an `o_head` object header value. The C++
+representation is easier to write and read, e.g.
 
     struct new_object_type : ici::object
     {
         ...  type-specific data
     };
 
-`ici::object` supplies member functions to do object-related things.
-Inline functions are used in place of the C code's macros and
-direct manipulation of the header replaced by member functions.
-Modern compilers are smart enough to collapse the chain of such
-functions allowing for descriptive code.
+`ici::object` supplies numberous member functions to do object-related
+things.  Inline functions are used in place of the C code's use of
+macros and much of the direct manipulation of header fields has been
+replaced by inline member functions with descriptive names.  Modern
+compilers are smart enough to collapse it all.
 
-C++ rules mean that all ICI objects types _is-a_ `ici::object` (sic).
-This removes the need for many casts and the `ici_objof` macro is no
-longer required and has been removed.
+The C++ type rules mean that all types of ICI objects are _is-a_
+`ici::object` (sic).  This removes the need for many casts means
+the downcasting `ici_objof` macro is no longer required. It has
+been removed.
 
 All of the previous macros defined to work on ICI objects are now
 inline functions. Extra functions are defined to avoid direct object

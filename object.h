@@ -13,13 +13,31 @@ namespace ici {
  * The following portion of this file exports to ici.h. --ici.h-start--
  */
 
+/*
+ *  The tag_with_incref/decref types and corresponding values are used
+ *  to select particular function overloads that increment, or decrement,
+ *  an object's reference count.
+ */
 extern struct tag_with_incref {} with_incref;
 extern struct tag_with_decref {} with_decref;
 
 /*
- * This is the universal 'header' of all objects.  Each object type
- * inherits from object giving it the common 'header' fields, then
- * adds any type specific stuff.
+ * This is the universal 'header' of all objects.  Each object is
+ * represented as an _object header_ is followed by object type-
+ * specific data.
+ * 
+ * In the code this is acheived by defining per-type struct types that
+ * inherit object. This provides the object header and behaviour.
+ *
+ * The object header is 32-bits, split into four 8-bit fields:
+ *
+ *      - object type code
+ *      - object flags
+ *      - reference count
+ *      - memory size
+ *
+ * The object's type defines various operations upon the value.
+ * See ici::type in type.h
  *
  * This --struct-- forms part of the --ici-api--.
  */
