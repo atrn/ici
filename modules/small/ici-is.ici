@@ -1,157 +1,50 @@
 /*
- * The is module exports various sets that help in testing
- * characters against particular classes.  The sets have
- * names that mimic C's ctype.h definitions when used with
- * autoloading, e.g, is.alpha, is.digit, etc...
+ * The is module externs various set objects that are used
+ * to test characters against particular character classes.
+ * The externed sets have names that mimic C's character
+ * classification functions and macros defined in ctype.h
+ * but are qualified via ICI's automatic loading.
  *
- * The sets contain both string and integer versions of
- * the characters allowing use with both strings and
- * character codes.  When testing strings it must be
- * remembered the sets are being accessed directly and
- * only the specific character wanted to be tested be
- * used to index the set.
+ * The following sets are defined:
  *
- * The exported sets should be treated as read-only.  Modifying
- * their values will result in undefined behaviour.  The module
- * makes use of ICI's initialiser semantics and literal functions
- * to call a function at parse time to initialise the sets.
+ *      is.upper
+ *      is.lower
+ *      is.digit
+ *      is.alnum
+ *      is.alpha
+ *      is.space
+ *      is.cntrl
+ *      is.print
+ *      is.punct
+ *
+ * The sets contain both string and integer values for
+ * characters allowing them to be used to classify both
+ * string and character code values.
+ *
+ * When classifying strings it should be remembered to
+ * select the character to be classified and not the
+ * whole string.
+ *
+ * The externed sets are read-only atomic sets.
  *
  * This --intro-- forms part of the --ici-is-- documentation.
  */
 
-/*
- * is.alpha[int|string]  -  set containing all upper and lower
- * case characters as strings and character codes.
- *
- * This --set-- forms part of the --ici-is-- documentation.
- */
-extern
-alpha = [func () {
+make_set := [func(start, end) {
     s := set();
-    for (c := 'a'; c <= 'z'; ++c)
-    {
-	s[c] = true;
-	s[tochar(c)] = true;
-	upper := c + 'A' - 'a';
-	s[upper] = true;
-	s[tochar(upper)] = true;
-    }
-    return s;
-}
-]();
-
-/*
- * is.alnum[int|string]  -  set containg all upper and lower
- * case characters and decimal digits as both character codes
- * and strings.
- *
- * This --set-- forms part of the --ici-is-- documentation.
- */
-extern
-alnum = [func () {
-     s := copy(alpha);
-     auto c;
-     for (c = '0'; c <= '9'; ++c)
-     {
-	 s[c] = true;
-	 s[tochar(c)] = true;
-     }
-     return s;
-}]();
-
-/*
- * is.cntrl
- *
- * This --set-- forms part of the --ici-is-- documentation.
- */
-extern
-cntrl = [func () {
-    s := set();
-    for (c := 0; c < ' '; ++c)
-    {
+    for (c := start; c <= end; ++c) {
 	s[c] = true;
 	s[tochar(c)] = true;
     }
     return s;
-}]();
+}];
 
-
-/*
- * is.digit
- *
- * This --set-- forms part of the --ici-is-- documentation.
- */
-extern
-digit = [func () {
-    s := set();
-    for (c := '0'; c <= '9'; ++c)
-    {
-	s[c] = true;
-	s[tochar(c)] = true;
-    }
-    return s;
-}]();
-
-/*
- * is.lower
- *
- * This --set-- forms part of the --ici-is-- documentation.
- */
-extern
-lower = [func () {
-    s := set();
-    for (c := 'a'; c <= 'z'; ++c)
-    {
-	s[c] = true;
-	s[tochar(c)] = true;
-    }
-    return s;
-}]();
-
-/*
- * is.print
- *
- * This --set-- forms part of the --ici-is-- documentation.
- */
-extern
-print = [func () {
-    s := set();
-    for (c := ' '; c <= '~'; ++c)
-    {
-	s[c] = true;
-	s[tochar(c)] = true;
-    }
-    return s;
-}]();
-
-/*
- * is.space
- *
- * This --set-- forms part of the --ici-is-- documentation.
- */
-extern
-space = [set ' ', " ", '\t', "\t", '\n', "\n", '\r', "\r", '\f', "\f"];
-
-/*
- * is.punct
- *
- * This --set-- forms part of the --ici-is-- documentation.
- */
-extern
-punct =  print - (alnum + space);
-
-/*
- * is.upper
- *
- * This --set-- forms part of the --ici-is-- documentation.
- */
-extern
-upper = [func () {
-    s := set();
-    for (c := 'A'; c <= 'Z'; ++c)
-    {
-	s[c] = true;
-	s[tochar(c)] = true;
-    }
-    return s;
-}]();
+extern space = @[set ' ', " ", '\t', "\t", '\n', "\n", '\r', "\r", '\f', "\f"];
+extern cntrl = @make_set(0, 31);
+extern print = @make_set(' ', '~');
+extern digit = @make_set('0', '9');
+extern lower = @make_set('a', 'z');
+extern upper = @make_set('A', 'Z');
+extern alpha = @(upper + lower);
+extern alnum = @(alpha + digit);
+extern punct = @(print - (alnum + space));

@@ -1,0 +1,12 @@
+#!/usr/bin/env ici
+
+if (!is.space['\n']) exit("newline is not a space");
+
+for (digit := '0'; digit <= '9'; ++digit) {
+    if (!is.digit[digit]) exit(sprintf("%c is not a digit", digit));
+}
+if (is.digit['x']) exit("'x' is a digit");
+
+for (ch := 'a'; ch <= 'z'; ++ch) {
+    if (!is.lower[tochar(ch)]) exit("bad tochar lower");
+}
