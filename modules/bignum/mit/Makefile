@@ -25,7 +25,6 @@ default:
 	@sh -c 'exit 1'
 
 all: testKerN bztest 
-	echo All is done !
 
 tidy:
 	rm -f ,* .,* *~ #*# .emacs_[0-9]* *.BAK *.CKP core a.out
@@ -42,10 +41,10 @@ $(LIB): $(OBJECT)
 	ranlib $(LIB)
 
 # How to choose the machine dependante version. All produce KerN.o
+#	echo "The Default is KerN written in C with digits on 32 bits"
+#	echo "-DDIGITon32BITS" >.Version
 o/KerN.o: c/KerN.c Makefile
-	echo "The Default is KerN written in C with digits on 32 bits"
-	echo "-DDIGITon32BITS" >.Version
-	$(MAKE) C32 CC=$(CC) CFLAGS="$(CFLAGS)"
+	@$(MAKE) C32 CC=$(CC) CFLAGS="$(CFLAGS)"
 
 C16: scratch
 	echo "-DDIGITon16BITS" >.Version

@@ -44,13 +44,6 @@ std::atomic<int>        ici_n_active_threads;
  * This --func-- forms part of the --ici-api--.
  */
 
-static exec *leave2(bool unlock);
-
-exec *leave()
-{
-    return leave2(true);
-}
-
 static exec *leave2(bool unlock)
 {
     exec *x;
@@ -76,6 +69,11 @@ static exec *leave2(bool unlock)
         }
     }
     return x;
+}
+
+exec *leave()
+{
+    return leave2(true);
 }
 
 /*
