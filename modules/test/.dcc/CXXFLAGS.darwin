@@ -1,0 +1,7 @@
+-std=c++14
+-Wall -Wextra
+-DNDEBUG
+-g -O0
+-I.
+-I../..
+-I/usr/local/include
