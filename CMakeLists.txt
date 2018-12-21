@@ -1,10 +1,20 @@
 project(ici LANGUAGES CXX)
 cmake_minimum_required(VERSION 3.0)
+
+#  ICI uses a few C++11 things but we'll use C++14 since
+#  its a more complete C++ iteration.
+#
 set(CMAKE_CXX_STANDARD 14)
 
-option(ICI_BUILD_AS_DLL "build a DLL" ON)
+#  The interpreter can be built as a shared library
+#  and executable that uses that library or as a
+#  simple executable.
+#
+option(BUILD_ICI_DLL "build a DLL" ON)
 
-set(ICI_SRCS
+#  Names of the base ici source and header files.
+#
+set(SRCFILES
   alloc.cc
   aplfuncs.cc
   archiver.cc
@@ -123,18 +133,43 @@ set(ICI_SRCS
   types.h
   wrap.h)
 
-if (ICI_BUILD_AS_DLL)
-add_library(ici SHARED ${ICI_SRCS})
-add_executable(ici_exe etc/main.cc)
-set_target_properties(ici_exe PROPERTIES OUTPUT_NAME ici)
-target_link_libraries(ici_exe PUBLIC ici)
+
+# When building the DLL we create a shared library and an executable
+# linked against that library.  Otherwise we just create the ici
+# executable.
+#
+if (BUILD_ICI_DLL)
+
+  add_library(ici SHARED ${SRCFILES})
+
+  # The executable target can't be called 'ici' since that's the
+  # library's target name.  Instead we call it 'ici_exe' and set
+  # the 'OUTPUT_NAME' property to get the correct file name.
+  #
+  add_executable(ici_exe etc/main.cc)
+  target_link_libraries(ici_exe PUBLIC ici)
+
+  if(WIN32)
+    set_target_properties(ici_exe PROPERTIES OUTPUT_NAME ici.exe)
+  else()
+    set_target_properties(ici_exe PROPERTIES OUTPUT_NAME ici)
+  endif()
+
 else()
-add_executable(ici etc/main.cc ${ICI_SRCS})
+
+  # Build ici executable directly from all sources.
+  #
+  add_executable(ici etc/main.cc ${SRCFILES})
+
 endif()
 
+# Required external libraries
+#
+
 if("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "FreeBSD")
-target_link_libraries(ici PUBLIC -lpthread)
+  target_link_libraries(ici PUBLIC -lpthread)
 endif()
+
 if("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Linux")
-target_link_libraries(ici PUBLIC -ldl -lpthread)
+  target_link_libraries(ici PUBLIC -ldl -lpthread)
 endif()
