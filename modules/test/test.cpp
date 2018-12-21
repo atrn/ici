@@ -14,20 +14,22 @@ int f_func1(void)
         return 1;
     }
     printf("%s\n", s);
-    return null_ret();
+    return ici::null_ret();
 }
 
 extern "C" ici::object *ici_test_init()
 {
-    if (ici::check_interface(ici::version_number, ici::back_compat_version, "test"))
+    if
+    (
+        ici::check_interface(ici::version_number, ici::back_compat_version, "test")
+        ||
+        init_ici_str()
+    )
     {
         return nullptr;
     }
-    if (init_ici_str())
+    ICI_DEFINE_CFUNCS(test)
     {
-        return nullptr;
-    }
-    ICI_DEFINE_CFUNCS(test) {
         ICI_DEFINE_CFUNC(func1, f_func1),
         ICI_CFUNCS_END()
     };
