@@ -543,6 +543,10 @@ int ret_with_decref(object *o) {
     return 0;
 }
 
+int null_ret() {
+    return ret_no_decref(null);
+}
+
 /*
  * General way out of an intrinsic function returning the object o where
  * the given object has no extra refernce count. Returns 0 indicating no

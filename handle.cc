@@ -82,8 +82,8 @@ handle *new_handle(void *ptr, str *name, objwsup *super)
     ici_handle_proto.h_ptr = ptr;
     ici_handle_proto.h_name = name;
     ici_handle_proto.o_super = super;
-    if ((h = handleof(atom_probe2(&ici_handle_proto, &po))) != nullptr)
-    {
+    if (auto x = atom_probe2(&ici_handle_proto, &po)) {
+        h = handleof(x);
         incref(h);
         return h;
     }

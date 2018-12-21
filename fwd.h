@@ -324,6 +324,7 @@ extern int        set_val(objwsup *, str *, int, void *);
 extern int        retcheck(const char *, ...);
 extern int        ret_with_decref(object *);
 extern int        ret_no_decref(object *);
+extern int        null_ret();
 extern int        int_ret(int64_t);
 extern int        float_ret(double);
 extern int        register_type(type *);
@@ -355,8 +356,6 @@ extern char      *objname(char [objnamez], object *);
 extern int        find_on_path(char [FILENAME_MAX], const char *);
 extern DLI int    debug_enabled;
 extern int        debug_ignore_err;
-
-#define null_ret()    ici::ret_no_decref(ici::null)
 
 #ifndef NODEBUGGING
 extern DLI void       debug_ignore_errors();

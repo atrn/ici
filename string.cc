@@ -139,7 +139,8 @@ new_str(const char *p, size_t nchars)
 #       if ICI_KEEP_STRING_HASH
         proto.s.s_hash = 0;
 #       endif
-        if ((s = stringof(atom_probe2(&proto.s, &po))) != nullptr) {
+        if (auto x = atom_probe2(&proto.s, &po)) {
+            s = stringof(x);
             incref(s);
             return s;
         }

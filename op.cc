@@ -16,8 +16,8 @@ op *new_op(int (*func)(), int16_t ecode, int16_t code) {
     proto.op_func = func;
     proto.op_code = code;
     proto.op_ecode = ecode;
-    if ((o = opof(atom_probe2(&proto, &po))) != nullptr)
-    {
+    if (auto x = atom_probe2(&proto, &po)) {
+        o = opof(x);
         incref(o);
         return o;
     }

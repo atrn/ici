@@ -22,7 +22,8 @@ ici_float *new_float(double v)
     static ici_float   proto;
 
     proto.f_value = v;
-    if ((f = floatof(atom_probe2(&proto, &po))) != nullptr) {
+    if (auto x = atom_probe2(&proto, &po)) {
+        f = floatof(x);
         incref(f);
         return f;
     }
@@ -69,10 +70,10 @@ unsigned long hash_float(double v)
          * aliasing rules of ISO C.
          */
         void            *vp;
-        int32_t         *p;
+        uint32_t        *p;
 
         vp = &v;
-        p = (int32_t *)vp;
+        p = (uint32_t *)vp;
         h += p[0] + p[1] * 31;
         h ^= (h >> 12) ^ (h >> 24);
     } else {

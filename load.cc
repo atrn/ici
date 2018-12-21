@@ -184,6 +184,7 @@ f_load(...)
 
     strcpy(fname, ici_prefix);
     strcat(fname, name->s_chars);
+
     if (find_on_path(fname, ".ici"))
     {
         str       *fn;
@@ -238,6 +239,7 @@ f_load(...)
         decref(autos);
         decref(file);
     }
+
     if (result == nullptr)
     {
         set_error("\"%s\" undefined and could not find %s%s%s or %s%s.ici ",
@@ -249,6 +251,7 @@ f_load(...)
             name->s_chars);
         goto fail;
     }
+
     return ret_with_decref(result);
 
 fail:
