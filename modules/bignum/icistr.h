@@ -1,0 +1,12 @@
+ICI_STR(bignum, "bignum")
+ICI_STR(create, "create")
+ICI_STR(tostring, "tostring")
+ICI_STR(div, "div")
+ICI_STR(compare, "compare")
+ICI_STR(negate, "negate")
+ICI_STR(abs, "abs")
+ICI_STR(add, "add")
+ICI_STR(sub, "sub")
+ICI_STR(mult, "mult")
+ICI_STR(mod, "mod")
+    

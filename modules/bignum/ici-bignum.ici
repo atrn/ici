@@ -1,0 +1,12 @@
+extern  zero = bignum(0);
+extern  one  = bignum(1);
+
+extern
+parser(f)
+{
+    s := strbuf();
+    while ((c := getchar(f)) ~ #[ +\-0-9]#)
+        strcat(s, c);
+    rejectchar(f, c);
+    return bignum(s);
+}

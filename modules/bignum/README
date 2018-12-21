@@ -1,0 +1,57 @@
+bignum - interface to the DEC/Inria BigNum library
+
+The bignum module provides (minimal) access to the DEC/Inria BigNum library
+for high precision integer arithmetic.  A copy of the DEC/Inria code may be
+found in the "mit" directory.  This code was taken from ai.mit.edu on
+December 11, 2000.  The DEC/Inria code requires we say,
+
+This work uses the BigNum package developed jointly by INRIA and Digital PRL.
+
+
+The module exports the following functions:
+
+	bignum = bignum.bignum(int|string)
+
+	    Convert a string (containing a decimal integer) or int object
+	    into a bignum.
+
+	bignum = bignum.create(int)
+
+	    Create a bignum capable of storing N digits.  The bignum is
+	    initialised to zero.  This function is useful when it is known
+	    that very large numbers are in use and you wish to avoid extra
+	    allocation overheads during arithmetic operations.
+
+	string = bignum.tostring(bignum)
+
+	    Convert a bignum to a string of decimal digits, the bignum
+	    equivilent of "string(int)" or "sprintf("%d", xxx)".
+
+	bignum = bignum.add(bignum, bignum)
+	bignum = bignum.sub(bignum, bignum)
+	bignum = bignum.mult(bignum, bignum)
+	bignum = bignum.div(bignum, bignum)
+	bignum = bignum.mod(bignum, bignum)
+
+	    Basic arithmetic operators using bignums.
+
+	bignum = bignum.negate(bignum)
+
+	    Return a bignum storing the negative of the actual argument.
+
+	bignum = bignum.abs(bignum)
+
+	    Return a bignum storing the absolute value of the argument.
+
+	int    = bignum.compare(a, b)
+
+	    Compare the two numbers and return integer,
+
+		-1 iff a < b
+		 0 iff a = b
+		 1 iff a > b
+
+
+The module is implemented as a wrapper around the "Bz" functions
+provided by the DEC/Inria library and all routines call directly
+to the corresponding functions in the library.
