@@ -44,11 +44,9 @@ std::atomic<int>        ici_n_active_threads;
  * This --func-- forms part of the --ici-api--.
  */
 
-static exec *leave2(bool unlock)
+static exec *leave_locked()
 {
-    exec *x;
-
-    x = ex;
+    exec *x = ex;
     if (!x->x_critsect)
     {
         /*
@@ -63,17 +61,15 @@ static exec *leave2(bool unlock)
         *x->x_vs = vs;
         x->x_count = exec_count;
         --ici_n_active_threads;
-        if (unlock)
-        {
-            ici_mutex.unlock();
-        }
     }
     return x;
 }
 
 exec *leave()
 {
-    return leave2(true);
+    auto x = leave_locked();
+    ici_mutex.unlock();
+    return x;
 }
 
 /*
@@ -201,15 +197,15 @@ int waitfor(object *o)
 
     e = nullptr;
     ex->x_waitfor = o;
-    x = leave2(false); // leave ici_mutex locked
+    x = leave_locked();
     {
+        // we need a lock<> to invoke cv's wait(), adopt ici_mutex
         std::unique_lock<std::mutex> lock(ici_mutex, std::adopt_lock);
         assert(lock.owns_lock());
         x->x_semaphore->wait(lock);
-        // lock's dtor unlocks ici_mutex
     }
     enter(x);
-    if (e != nullptr)
+    if ((e = x->x_error) != nullptr)
     {
         return set_error("%s", e);
     }
