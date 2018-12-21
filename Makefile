@@ -63,10 +63,8 @@ cxxflags?=CXXFLAGS
 #build?=exe
 #build?=lib
 
-# Default to building the exe if otherwise unset.
-#
 ifndef build
-build=exe
+build=dll
 endif
 
 srcs= $(shell ls *.cc | fgrep -v win32)
