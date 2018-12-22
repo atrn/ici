@@ -1,7 +1,7 @@
+-DICI_MODULE_NAME=example
 -std=c++14
 -Wall -Wextra
 -DNDEBUG
--g -O0
+-g -O2
 -I.
--I../..
 -I/usr/local/include
