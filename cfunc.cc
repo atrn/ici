@@ -127,14 +127,18 @@ namespace ici
  *          Once control has reurned to ICI, they could be collected at any
  *          time.
  *
+ * S        An ICI string object is required in the actuals, the corresponding
+ *          pointer must be a (str **).  A pointer to the ICI string object is
+ *          stored through this this.
+ *
  * -        The acutal parameter at this position is skipped, but it must be
  *          present.
  *
  * *        All remaining actual parametes are ignored (even if there aren't
  *          any).
  *
- * The capitalisation of any of the alphabetic key letters above changes
- * their meaning.  The acutal must be an ICI ptr type.  The value this
+ * The capitalisation of any of the alphabetic key letters above, other than 'S',
+ * changes their meaning.  The acutal must be an ICI ptr type.  The value this
  * pointer points to is taken to be the value which the above descriptions
  * concern themselves with (i.e. in place of the raw actual parameter).
  *
@@ -176,7 +180,7 @@ int typecheck(const char *types, ...)
             continue;
 
         aptr = va_arg(va, char *);
-        if (tcode >= 'A' && tcode <= 'Z')
+        if (tcode != 'S' && tcode >= 'A' && tcode <= 'Z')
         {
             if (!isptr(*ap))
                 goto fail;
@@ -212,6 +216,12 @@ int typecheck(const char *types, ...)
             if (!isint(o))
                 goto fail;
             *(long *)aptr = intof(o)->i_value;
+            break;
+
+        case 'S': /* A string -> str */
+            if (!isstring(o))
+                goto fail;
+            *(str **)aptr = stringof(o);
             break;
 
         case 's': /* A string -> (char *). */
