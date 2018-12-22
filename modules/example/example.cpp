@@ -7,14 +7,14 @@
  *  modules located in a number of known locations without
  *  any prior declaration.
  *
- *  This module, called "example", defines a single function,
- *  called "function". The function takes a single string
- *  argument and returns its length as an integer.
+ *  This module, called "example", defines two functions, "function"
+ *  and "other_function". Both take a single string argument and
+ *  returns its length as an integer.
  *
- *  with no prior declaration, e.g. this example can be used
- *  via a statement such as,
+ *  Using ICI's automatic loading this module is used like so,
  *
- *      var result = example.function("213");
+ *      var len = example.function("213");
+ *      if (len != example.other_function("213")) ...
  *
  */
 
@@ -60,26 +60,19 @@ int f_function()
 int f_other_function()
 {
     /*
-     *  We can avoid calling strlen() (and work with strings that
-     *  contain embedded NULs) since we know our argument must be
-     *  an ICI string object which already records the length.
+     *  ICI string objects already know their length so we can use
+     *  that knowledge to avoid calling strlen() and also work with
+     *  strings that contain embedded NULs.
      *
-     *  We use typecheck's 'o' format to obtain the sole ici::object
-     *  passed as argument and then check that it is a string. If not
-     *  we use ici::argerror() to report the argument type check
-     *  failure (just as ici::typecheck() does for some formats).
-     *
-     *  As we know the argument is a string we cast it accordingly
-     *  and use its 'nchars' field as our result.
+     *  To get the string object typecheck's 'q' format. This expects
+     *  the actual argument be a string and returns the corresponding
+     *  ici::str object which we use directly.
      *
      */
-    ici::object *argument;
-    if (ici::typecheck("o", &argument))
+    ici::str *arg;
+    if (ici::typecheck("q", &arg))
         return 1;
-    if (!ici::isstring(argument))
-        return ici::argerror(0);
-    auto s = ici::stringof(argument);
-    return ici::int_ret(s->s_nchars);
+    return ici::int_ret(arg->s_nchars);
 }
 
 } // anon

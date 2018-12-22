@@ -13,7 +13,9 @@ MODULE=ici-example.so
 endif
 
 all dll:; @dmake -o $(MODULE) dll
+
 clean:; @dmake -o $(MODULE) dll clean
 
 test-load: dll
-	@ici -e 'load("example"); println(example.function(argv[0]));'
+	@ici -e 'printf("len(\"$(OS)\") -> %d (function)\n", example.function("$(OS)"));'
+	@ici -e 'printf("len(\"$(OS)\") -> %d (other_function)\n", example.other_function("$(OS)"));'
