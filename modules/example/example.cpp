@@ -25,10 +25,10 @@
 #include <string.h> /* strlen */
 
 /*
- *   Modules only need to export a single function, their 'init'
- *  function (see below) and to isolate themselves from other modules
- *  and speed their loading should enclose their code in an anonymous
- *  namespace.
+ *  Modules only need to export a single name, their 'init' function
+ *  (see below), so to isolate themselves from other modules and speed
+ *  loading they should enclose their code in an anonymous namespace.
+ *
  */
 namespace
 {
@@ -37,42 +37,56 @@ int f_function()
 {
     /*
      *  The ici::typecheck() function is used to check the types of
-     *  the actual parameters and obtain their values. It works in
-     *  a similar manner to C's scanf() using a format-string to
-     *  define the types and some number of pointers to locations
-     *  where the corresponding values are stored.
+     *  the actual parameters and obtain their values. It works in a
+     *  similar manner to C's scanf() using a format-string to define
+     *  the argument types and of pointers to locations where the
+     *  corresponding values are stored.
      *
-     *  As per ICI convention ici::typecheck() returns non-zero
-     *  if it fails and has set the ICI error to indicate why.
+     *  As per ICI convention ici::typecheck() returns non-zero if it
+     *  fails and has set the ICI error to indicate why.
      *
-     *  We use the 's' format to get a string argument. The 's'
-     *  format expects an ICI string object as the actual parameter
-     *  and returns its value by setting a 'const char *' to point
-     *  to the string's value (held within the ICI string object).
+     *  We use the 's' format to get a string argument. The 's' format
+     *  expects an ICI string object as the actual parameter and
+     *  returns its value by setting a 'const char *' to point into
+     *  the string's value held within the ICI string object.  This is
+     *  safe for the duration of the call to the function as the
+     *  argument is referenced via the stack frame and will not be
+     *  collected if garbage collection occurs.
      */
     const char *s;
     if (ici::typecheck("s", &s))
         return 1;
 
-    return ici::int_ret(strlen(s));
+    /*
+     *  Call strlen() to get the length, our result.
+     */
+    int len = strlen(s);
+
+    /*
+     *  And finally call ici::int_ret to return an int value to our
+     *  caller.  There are various other "ret" functions for different
+     *  types, see ici.h.
+     */
+    return ici::int_ret(len);
 }
 
 int f_other_function()
 {
     /*
      *  ICI string objects already know their length so we can use
-     *  that knowledge to avoid calling strlen() and also work with
-     *  strings that contain embedded NULs.
+     *  that knowledge to avoid calling strlen(). This is not only
+     *  faster (O(1) vs O(n)) but also means our function now works
+     *  with strings that contain embedded NULs.
      *
-     *  To get the string object typecheck's 'q' format. This expects
-     *  the actual argument be a string and returns the corresponding
-     *  ici::str object which we use directly.
-     *
+     *  This time, to get the actual string argument, we use
+     *  typecheck's 'q' format. This expects the actual argument to be
+     *  a string and returns the corresponding ici::str * which we
+     *  then use to obtain the string length.
      */
-    ici::str *arg;
-    if (ici::typecheck("q", &arg))
+    ici::str *s;
+    if (ici::typecheck("q", &s))
         return 1;
-    return ici::int_ret(arg->s_nchars);
+    return ici::int_ret(s->s_nchars);
 }
 
 } // anon
@@ -81,13 +95,18 @@ int f_other_function()
 /*
  *  Each module has a single entry point, its 'init' function.
  *
- *  Module init functions must be declared 'extern "C"' to
- *  disable name mangling.
+ *  A module's init function takes no arguments and returns a
+ *  pointer to an ici object which represents the module.
  *
- *  The name of the module's init function is well defined and
- *  is formed from the module name by prefixing it with "ici_"
- *  and appending an "_init" suffix. E.g., this "example" module
- *  has an init function called "ici_example_init".
+ *  Module init functions must be declared 'extern "C"' to
+ *  disable name mangling so the function's symbol is easily
+ *  located in the loaded code.
+ *
+ *  The name of the module's init function has a well defined format.
+ *  It consists of the module name prefxied with "ici_" and suffixed
+ *  with "_init". E.g., this "example" module has an init function
+ *  called "ici_example_init".
+ *
  */
 extern "C" ici::object *ici_example_init()
 {
@@ -115,10 +134,10 @@ extern "C" ici::object *ici_example_init()
 
     /*
      *  Finally we can create our module using the 'new_module'
-     *  function passing a table with our entry points.
+     *  function. It is passed a table that defines the module's
+     *  functions.
      *
      */
-
     ICI_DEFINE_CFUNCS(test)
     {
         ICI_DEFINE_CFUNC(function, f_function),
