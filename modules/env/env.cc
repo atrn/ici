@@ -85,17 +85,14 @@ int env_type::assign(ici::object *o, ici::object *k, ici::object *v) {
 	return 1;
     }
 
-    auto prev = o->fetch(k);
-
-    if (envof(o)->map->assign(k, v))
-	return 1;
-
     if (setenv(ici::stringof(k)->s_chars, ici::stringof(v)->s_chars, 1)) {
-	if (ici::isnull(prev)) {
-            ici::unassign(ici::mapof(o), k);
-	    ++ici::vsver;
-	}
+        ici::set_error("setenv: %s", strerror(errno));
         return 1;
+    }
+
+    if (envof(o)->map->assign(k, v)) {
+        unsetenv(ici::stringof(k)->s_chars);
+	return 1;
     }
 
     return 0;
