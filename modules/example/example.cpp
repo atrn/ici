@@ -19,9 +19,6 @@
  */
 
 #include <ici.h>
-#include "icistr.h"
-#include <icistr-setup.h>
-
 #include <string.h> /* strlen */
 
 /*
@@ -32,6 +29,16 @@
  */
 namespace
 {
+
+/*
+ *  The icistr.h/icistr-setup.h "dance" can be done inside the
+ *  anonymous namespace and stops our strings polluting the global
+ *  namespace.  Larger modules may wish to define their own namespace
+ *  and put their definitions inside that.
+ */
+
+#include "icistr.h"
+#include <icistr-setup.h>
 
 int f_function()
 {
