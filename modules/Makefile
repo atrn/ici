@@ -5,14 +5,9 @@ prefix?=/usr/local
 
 MODULES=\
 	bignum\
+	env\
 	example\
 	small
 
-all:
-	@for d in $(MODULES); do make -C $$d sudo=$(sudo) prefix=$(prefix) $@; done
-
-clean:
-	@for d in $(MODULES); do make -C $$d sudo=$(sudo) prefix=$(prefix) $@; done
-
-install:
-	@for d in $(MODULES); do make -C $$d sudo=$(sudo) prefix=$(prefix) $@; done
+all clean install:
+	@for d in $(MODULES); do make -$(MAKEFLAGS) -C $$d sudo=$(sudo) prefix=$(prefix) $@; done
