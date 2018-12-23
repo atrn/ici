@@ -292,7 +292,7 @@ int str_need_size(str *s, size_t n)
  */
 size_t string_type::mark(object *o)
 {
-    if (o->flagged(ICI_S_SEP_ALLOC)) {
+    if (o->hasflag(ICI_S_SEP_ALLOC)) {
         return type::mark(o) + stringof(o)->s_u.su_nalloc;
     }
     else {
@@ -347,7 +347,7 @@ object *string_type::copy(object *o)
  */
 void string_type::free(object *o)
 {
-    if (o->flagged(ICI_S_SEP_ALLOC)) {
+    if (o->hasflag(ICI_S_SEP_ALLOC)) {
         ici_nfree(stringof(o)->s_chars, stringof(o)->s_u.su_nalloc);
         ici_tfree(o, str);
     }

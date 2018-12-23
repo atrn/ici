@@ -789,6 +789,6 @@ class parse_ftype : public ftype
 
 };
 
-ftype *parse_ftype = singleton<class parse_ftype>();
+ftype *parse_ftype = instanceof<class parse_ftype>();
 
 } // namespace ici

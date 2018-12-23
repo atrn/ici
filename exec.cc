@@ -470,7 +470,7 @@ object *evaluate(object *code, int n_operands) {
              * The caller knows if there is really a value to return.
              */
             xs.push(o);  /* Restore formal state. */
-            if (o->flagged(CF_EVAL_BASE)) {
+            if (o->hasflag(CF_EVAL_BASE)) {
                 /*
                  * This is the base of a call to evaluate().  It is now
                  * time to return.
@@ -485,7 +485,7 @@ object *evaluate(object *code, int n_operands) {
                 --ex->x_n_engine_recurse;
                 return o;
             }
-            if (o->flagged(CF_CRIT_SECT)) {
+            if (o->hasflag(CF_CRIT_SECT)) {
                 --ex->x_critsect;
                 /*
                  * Force a check for a yield (see top of loop). If we
@@ -743,7 +743,7 @@ object *evaluate(object *code, int n_operands) {
                     &&
                     isstring(os.a_top[-2])
                     &&
-                    !os.a_top[-2]->flagged(ICI_S_LOOKASIDE_IS_ATOM)
+                    !os.a_top[-2]->hasflag(ICI_S_LOOKASIDE_IS_ATOM)
                 ) {
                     stringof(os.a_top[-2])->s_slot->sl_value = os.a_top[-1];
                     goto assign_finish;
@@ -901,11 +901,11 @@ object *evaluate(object *code, int n_operands) {
 
                     for (s = xs.a_top; s > xs.a_base + 1; --s) {
                         if (iscatcher(s[-1])) {
-                            if (s[-1]->flagged(CF_CRIT_SECT)) {
+                            if (s[-1]->hasflag(CF_CRIT_SECT)) {
                                 --ex->x_critsect;
                                 exec_count = 1;
                             }
-                            else if (s[-1]->flagged(CF_EVAL_BASE)) {
+                            else if (s[-1]->hasflag(CF_EVAL_BASE)) {
                                 break;
                             }
                         } else if (s[-1] == &o_looper || s[-1] == &o_switcher) {
@@ -955,10 +955,10 @@ object *evaluate(object *code, int n_operands) {
 
                     for (s = xs.a_top; s > xs.a_base + 1; --s) {
                         if (iscatcher(s[-1])) {
-                            if (s[-1]->flagged(CF_EVAL_BASE)) {
+                            if (s[-1]->hasflag(CF_EVAL_BASE)) {
                                 break;
                             }
-                            if (s[-1]->flagged(CF_CRIT_SECT)) {
+                            if (s[-1]->hasflag(CF_CRIT_SECT)) {
                                 --ex->x_critsect;
                                 exec_count = 1;
                             }
@@ -1121,10 +1121,10 @@ object *evaluate(object *code, int n_operands) {
                 debugger->error_set(error, ex->x_src);
 	    }
             for (;;) {
-                if ((c = unwind()) == nullptr || c->flagged(CF_EVAL_BASE)) {
+                if ((c = unwind()) == nullptr || c->hasflag(CF_EVAL_BASE)) {
                     goto badfail;
                 }
-                if (c->flagged(CF_CRIT_SECT)) {
+                if (c->hasflag(CF_CRIT_SECT)) {
                     --ex->x_critsect;
                     exec_count = 1;
                     continue;

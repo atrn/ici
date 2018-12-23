@@ -109,7 +109,7 @@ int popen_ftype::close(void *file) {
 
 //================================================================
 
-ftype *stdio_ftype = singleton<class stdio_ftype>();
-ftype *popen_ftype = singleton<class popen_ftype>();
+ftype *stdio_ftype = instanceof<class stdio_ftype>();
+ftype *popen_ftype = instanceof<class popen_ftype>();
 
 } // namespace ici

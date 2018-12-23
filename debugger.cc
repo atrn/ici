@@ -13,6 +13,6 @@ void debugger::function_result(object *) {}
 void debugger::source_line(struct src *) {}
 void debugger::watch(object *, object *, object *) {}
 
-class debugger *debugger = singleton<class debugger>();
+class debugger *debugger = instanceof<class debugger>();
 
 } // namespace ici

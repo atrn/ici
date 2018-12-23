@@ -495,7 +495,7 @@ int map_type::assign(object *o, object *k, object *v)
         &&
         stringof(k)->s_vsver == vsver
         &&
-        !k->flagged(ICI_S_LOOKASIDE_IS_ATOM)
+        !k->hasflag(ICI_S_LOOKASIDE_IS_ATOM)
     )
     {
 #ifndef NDEBUG

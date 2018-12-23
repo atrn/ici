@@ -55,7 +55,7 @@ size_t catcher_type::mark(object *o) {
 }
 
 void catcher_type::free(object *o) {
-    assert(!o->flagged(CF_EVAL_BASE));
+    assert(!o->hasflag(CF_EVAL_BASE));
     ici_tfree(o, catcher);
 }
 

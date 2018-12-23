@@ -191,7 +191,7 @@ ici_handle_method(object *inst)
 
     if (method_check(inst, TC_HANDLE))
         return 1;
-    if (inst->flagged(ICI_H_CLOSED))
+    if (inst->hasflag(ICI_H_CLOSED))
     {
         return set_error("attempt to apply method %s to %s which is dead",
                              objname(n1, os.a_top[-1]),
@@ -332,7 +332,7 @@ object * handle_type::fetch(object *o, object *k)
     object *r;
 
     h = handleof(o);
-    if (h->h_member_map != nullptr && !o->flagged(ICI_H_CLOSED))
+    if (h->h_member_map != nullptr && !o->hasflag(ICI_H_CLOSED))
     {
         object       *id;
 
@@ -389,7 +389,7 @@ object * handle_type::fetch_base(object *o, object *k)
     object *r;
 
     h = handleof(o);
-    if (h->h_member_map != nullptr && !o->flagged(ICI_H_CLOSED))
+    if (h->h_member_map != nullptr && !o->hasflag(ICI_H_CLOSED))
     {
         object       *id;
 
@@ -416,7 +416,7 @@ object * handle_type::fetch_base(object *o, object *k)
     }
     if (!hassuper(o))
         return fetch_fail(o, k);
-    if (!o->flagged(ICI_H_HAS_PRIV_MAP))
+    if (!o->hasflag(ICI_H_HAS_PRIV_MAP))
         return null;
     return ici_fetch_base(h->o_super, k);
 }
@@ -431,7 +431,7 @@ int handle_type::assign_base(object *o, object *k, object *v)
     object *r;
 
     h = handleof(o);
-    if (h->h_member_map != nullptr && !o->flagged(ICI_H_CLOSED))
+    if (h->h_member_map != nullptr && !o->hasflag(ICI_H_CLOSED))
     {
         object       *id;
 
@@ -456,7 +456,7 @@ int handle_type::assign_base(object *o, object *k, object *v)
     }
     if (!hassuper(o))
         return assign_fail(o, k, v);
-    if (!o->flagged(ICI_H_HAS_PRIV_MAP))
+    if (!o->hasflag(ICI_H_HAS_PRIV_MAP))
     {
         objwsup  *s;
 
@@ -488,7 +488,7 @@ int handle_type::assign(object *o, object *k, object *v)
 
     h = handleof(o);
     r = nullptr;
-    if (h->h_member_map != nullptr && !o->flagged(ICI_H_CLOSED))
+    if (h->h_member_map != nullptr && !o->hasflag(ICI_H_CLOSED))
     {
         object       *id;
 
@@ -512,7 +512,7 @@ int handle_type::assign(object *o, object *k, object *v)
     }
     if (!hassuper(o))
         return assign_fail(o, k, v);
-    if (o->flagged(ICI_H_HAS_PRIV_MAP))
+    if (o->hasflag(ICI_H_HAS_PRIV_MAP))
         return ici_assign(h->o_super, k, v);
     /*
      * We don't have a base struct of our own yet. Try the super.

@@ -348,8 +348,10 @@ static int data_def(parse *p, objwsup *ows) {
         }
         decref(n);
         n = nullptr;
-        decref(o);
-        o = nullptr;
+        if (o) {
+            decref(o);
+            o = nullptr;
+        }
 
         if (wasfunc) {
             return 1;

@@ -298,7 +298,7 @@ public:
     }
 };
 
-class repl_ftype *repl_ftype = singleton<class repl_ftype>();
+class repl_ftype *repl_ftype = instanceof<class repl_ftype>();
 
 struct install_file {
     ref<str> name_;

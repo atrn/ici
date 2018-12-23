@@ -457,7 +457,7 @@ extern size_t        atomsz;
 extern int set_timezone_vals(map *);
 #endif
 
-template <typename T> inline T *singleton() {
+template <typename T> inline T *instanceof() {
     static T value;
     return &value;
 }

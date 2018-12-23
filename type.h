@@ -177,6 +177,7 @@ public:
      *
      */
     virtual unsigned long   hash(object *);
+
     /*
      * assign(o, k, v)      Must assign to key 'k' of the object 'o' the value
      *                      'v'.  Return 1 on error, else 0.

@@ -134,7 +134,7 @@ static int socket_fd(handle *h) {
  * socket if it isn't already.
  */
 static void socket_prefree(handle *h) {
-    if (!h->flagged(ICI_H_CLOSED)) {
+    if (!h->hasflag(ICI_H_CLOSED)) {
         closesocket(socket_fd(h));
     }
 }
@@ -162,7 +162,7 @@ static handle *new_netsocket(SOCKET fd) {
  * Is a socket closed? Set error if so.
  */
 static int isclosed(handle *skt) {
-    if (skt->flagged(ICI_H_CLOSED)) {
+    if (skt->hasflag(ICI_H_CLOSED)) {
         set_error("attempt to use closed socket");
         return 1;
     }
@@ -1628,7 +1628,7 @@ public:
 
 };
 
-static ftype *skt_ftype = singleton<class skt_ftype>();
+static ftype *skt_ftype = instanceof<class skt_ftype>();
 
 static skt_file * skt_open(handle *s, const char *mode) {
     skt_file  *sf;

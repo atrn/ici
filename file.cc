@@ -63,15 +63,15 @@ int close_file(file *f)
     exec *x = nullptr;
     int   r;
 
-    if (f->flagged(file::closed))
+    if (f->hasflag(file::closed))
     {
         return set_error("file already closed");
     }
     f->set(file::closed);
-    if (f->flagged(ftype::nomutex))
+    if (f->hasflag(ftype::nomutex))
         x = leave();
     r = f->close();
-    if (f->flagged(ftype::nomutex))
+    if (f->hasflag(ftype::nomutex))
         enter(x);
     /*
      * If this is a pipe opened with popen(), 'r' is actually the exit status
@@ -94,8 +94,8 @@ size_t file_type::mark(object *o)
 
 void file_type::free(object *o)
 {
-    if (!o->flagged(file::closed)) {
-        if (o->flagged(file::noclose)) {
+    if (!o->hasflag(file::closed)) {
+        if (o->hasflag(file::noclose)) {
             fileof(o)->flush();
 	} else {
             close_file(fileof(o));

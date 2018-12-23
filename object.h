@@ -94,13 +94,16 @@ struct object
      *
      * --ici-api-- continued.
      */
-    static constexpr int O_MARK     = 0x01; /* Garbage collection mark. */
-    static constexpr int O_ATOM     = 0x02; /* Is a member of the atom pool. */
-    static constexpr int O_TEMP     = 0x04; /* Is a re-usable temp (flag for asserts). */
-    static constexpr int O_SUPER    = 0x08; /* Has super (is objwsup derived). */
+    static constexpr int O_MARK     = (1<<0); /* 0x01 Garbage collection mark. */
+    static constexpr int O_ATOM     = (1<<1); /* 0x02 Is a member of the atom pool. */
+    static constexpr int O_TEMP     = (1<<2); /* 0x04 Is a re-usable temp (flag for asserts). */
+    static constexpr int O_SUPER    = (1<<3); /* 0x08 Has super (is objwsup derived). */
     static constexpr int O_ICIBITS  = 0x1F; /* 0b 0001 1111 */
     static constexpr int O_USERBITS = 0xE0; /* 0b 1110 0000 */
 
+    /*
+     * Default constructed objects have all header fields as zero.
+     */
     object()
         : o_tcode(0)
         , o_flags(0)
@@ -110,7 +113,8 @@ struct object
 
     /*
      * Construct an object with the given type code and, optionally, initial flags,
-     * (external) reference count and object size.
+     * (external) reference count and object size.  If not given the object is
+     * created with a reference count of one.
      */
     explicit object(uint8_t tcode, uint8_t flags = 0, uint8_t nrefs = 1, uint8_t leafz = 0)
         : o_tcode(tcode)
@@ -125,13 +129,6 @@ struct object
         o_nrefs = nrefs;
         o_leafz = leafz;
     }
-    /*
-     * I'm really hoping that most compilers would reduce the above to a
-     * single word write. Especially as they are all constants most of the
-     * time. Maybe in future we can have some endian specific code to to
-     * it manually.
-     (*(unsigned long *)(o) = (tcode) | ((flags) << 8) | ((nrefs) << 16) | ((leafz) << 24))
-    */
 
     /*
      * Return a pointer to this object cast to a pointer to some compatbile T.
@@ -184,7 +181,7 @@ struct object
     /*
      * Return true if this object has the given set of flags.
      */
-    inline bool flagged(uint8_t mask) const {
+    inline bool hasflag(uint8_t mask) const {
         return flags(mask) == mask;
     }
 
@@ -206,7 +203,7 @@ struct object
      * Return true if this object is an atom.
      */
     inline bool isatom() const {
-        return flagged(O_ATOM);
+        return hasflag(O_ATOM);
     }
 
     /*
@@ -227,7 +224,7 @@ struct object
      * Return true if this object is marked.
      */
     inline bool marked() const {
-        return flagged(O_MARK);
+        return hasflag(O_MARK);
     }
 
     /*
@@ -378,7 +375,7 @@ inline objwsup *objwsupof(object *o) { return o->as<objwsup>(); }
  *
  * This --func-- forms part of the --ici-api--.
  */
-inline bool hassuper(const object *o) { return o->flagged(object::O_SUPER); }
+inline bool hassuper(const object *o) { return o->hasflag(object::O_SUPER); }
 
 /*
  * Set the basic fields of the object header of 'o'.  'o' can be any struct

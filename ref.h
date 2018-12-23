@@ -137,7 +137,7 @@ ref<T> make_ref(T *obj) {
 }
 
 /**
- *  make_ref<> with a implied ICI incref.
+ *  make_ref<> with an incref.
  */
 template <typename T>
 ref<T> make_ref(T *obj, struct tag_with_incref &) {

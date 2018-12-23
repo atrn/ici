@@ -27,7 +27,6 @@ int64_t xstrtol(char const *s, char **ptr, int base)
     int            minus;
 
     start = s;
-    minus = 0;
     while (isspace((int)*s))
         s++;
     if ((minus = (*s == '-')) || (*s == '+'))

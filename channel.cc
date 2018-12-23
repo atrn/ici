@@ -87,7 +87,7 @@ channel *new_channel(size_t capacity) {
 object *get(channel *c) {
     auto q = channelof(c)->c_q;
     while (q->len() < 1) {
-        if (c->flagged(ICI_CHANNEL_CLOSED)) {
+        if (c->hasflag(ICI_CHANNEL_CLOSED)) {
             return nullptr;
         }
         if (waitfor(q)) {
@@ -103,7 +103,7 @@ object *get(channel *c) {
 }
 
 int put(channel *c, object *o) {
-    if (c->flagged(ICI_CHANNEL_CLOSED)) {
+    if (c->hasflag(ICI_CHANNEL_CLOSED)) {
         return null_ret();
     }
 
@@ -132,7 +132,7 @@ int put(channel *c, object *o) {
 }
 
 int close_channel(channel *c) {
-    if (c->flagged(ICI_CHANNEL_CLOSED)) {
+    if (c->hasflag(ICI_CHANNEL_CLOSED)) {
         set_error("attempt to close a channel that is already closed");
         return 1;
     }
