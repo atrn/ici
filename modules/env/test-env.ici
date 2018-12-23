@@ -1,29 +1,33 @@
 local print_env(caption, key, op, val) {
-    pval := string(val);
-    if (val == NULL)
-        pval = "null";
+    pval := val == NULL ? "null" : sprintf("\"%s\"", val);
     printf("\n%s\n%s %s %s\n", caption, key, op, pval);
 }
 
 print_env("Current environment", "FOO", "==", env.FOO);
-
-env.FOO = "Bar";
-
+env.FOO = "Bar1";
 print_env("Post-assignment environment", "FOO", "==", env.FOO);
 
-# printf("\nAfter assigning env.FOO = \"Bar\"\nFOO == %s\n", string(env.FOO));
+env["FOO"] = "Bar2";
+print_env("Post-indexed assignment", "FOO", "==", env["FOO"]);
 
 printf("\n$FOO in a sub-shell?\n");
 flush();
 
 system("echo FOO=$FOO");
+printf("\n");
 
 file := popen("echo $FOO");
 value := getline(file);
 try close(file); onerror ; 
 
-
 if (value == "")
     printf("FOO is not set in popen\n");
 else
-    printf("FOO is \"%s\" in a popen'd shell\n", string(value));
+    printf("FOO is \"%s\" read from popen\n", string(value));
+
+n := len(env);
+printf("len(env) == %d\n", n);
+
+forall (v, k in env) {
+    printf("%s=%s\n", k, v);
+}

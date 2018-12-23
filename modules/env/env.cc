@@ -21,6 +21,7 @@
 
 #include <fwd.h>
 #include <alloc.h>
+#include <forall.h>
 #include <map.h>
 #include <null.h>
 #include <str.h>
@@ -99,8 +100,10 @@ int env_type::assign(ici::object *o, ici::object *k, ici::object *v) {
 }
 
 int env_type::forall(ici::object *o) {
-    auto e = envof(o);
-    return e->map->forall();
+    auto fa = forallof(o);
+    auto e = envof(fa->fa_aggr);
+    fa->fa_aggr = e->map;
+    return e->map->forall(o);
 }
 
 //
