@@ -333,8 +333,8 @@ struct object
         return icitype()->call(this, o);
     }
 
-    inline int forall() {
-        return icitype()->forall(this);
+    inline int forall(object *o) {
+        return icitype()->forall(o);
     }
 
     inline void objname(char n[objnamez]) {
