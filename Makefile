@@ -191,3 +191,20 @@ full-install:
 	@echo '5  - build dll/exe'; $(MAKE) -s build=dll conf=$(conf) dccflags=--quiet
 	@echo '6  - install dll/exe'; $(MAKE) -s build=dll install-libici install-ici-exe prefix=$(prefix) dccflags=--quiet
 	@echo '7  - make clean'; $(MAKE) -s clean
+
+
+# Cmake support.
+#
+.PHONY: cmake-builds with-cmake
+
+cmake-builds:
+	cmake -Bbuild -DCMAKE_BUILD_TYPE=Release -GNinja .
+ifeq ($(os),darwin)
+	cmake -Bbuild.xcode -GXcode .
+endif
+
+with-cmake:
+	cmake --build build
+ifeq ($(os),darwin)
+	cmake --build build.xcode
+endif
