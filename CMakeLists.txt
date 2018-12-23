@@ -99,9 +99,10 @@ if("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Linux")
   set(CONF, "conf/linux.h")
 endif()
 
+get_target_property(ici_cmd ici_exe OUTPUT_NAME)
 add_custom_command(TARGET ici_exe POST_BUILD
   COMMENT "[100%] Creating ici.h"
-  COMMAND ${CMAKE_CURRENT_BINARY_DIR}/ici
+  COMMAND ${ici_cmd}
               ${CMAKE_CURRENT_SOURCE_DIR}/mk-ici-h.ici
               ${CONF}
               ${CMAKE_CURRENT_SOURCE_DIR}
