@@ -152,11 +152,11 @@ extern "C" ici::object * ici_env_init() {
 	    return nullptr;
 	}
 
-        ici::ref<ici::str> k = ici::new_str(*p, eq - *p);
+        ici::ref<> k = ici::new_str(*p, eq - *p);
         if (!k)
 	    return nullptr;
 
-        ici::ref<ici::str> v = ici::new_str_nul_term(eq+1);
+        ici::ref<> v = ici::new_str_nul_term(eq+1);
         if (!v)
             return nullptr;
 

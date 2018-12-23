@@ -1,14 +1,14 @@
-local print_env(caption, key, op, val) {
-    pval := val == NULL ? "null" : sprintf("\"%s\"", val);
-    printf("\n%s\n%s %s %s\n", caption, key, op, pval);
+local print_env(caption, key, val) {
+    pval := val == NULL ? "<null>" : sprintf("\"%s\"", val);
+    printf("\n%s\n%s == %s\n", caption, key, pval);
 }
 
-print_env("Current environment", "FOO", "==", env.FOO);
+print_env("Current environment", "FOO", env.FOO);
 env.FOO = "Bar1";
-print_env("Post-assignment environment", "FOO", "==", env.FOO);
+print_env("Post-assignment environment", "FOO", env.FOO);
 
 env["FOO"] = "Bar2";
-print_env("Post-indexed assignment", "FOO", "==", env["FOO"]);
+print_env("Post-indexed assignment", "FOO", env["FOO"]);
 
 printf("\n$FOO in a sub-shell?\n");
 flush();
