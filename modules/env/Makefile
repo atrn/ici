@@ -22,5 +22,5 @@ test-loading: dll
 test: dll
 	ici test-env.ici
 
-install:
+install: dll
 	$(sudo) install -c -m 444 $(MODULE) $(prefix)/lib/ici
