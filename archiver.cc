@@ -287,7 +287,7 @@ int archiver::read(void *buf, int len) {
 
 int archiver::read(int16_t *hword) {
     if (read(hword, sizeof *hword)) {
-    	return 1;
+        return 1;
     }
     swapin(hword, sizeof *hword);
     return 0;
@@ -295,7 +295,7 @@ int archiver::read(int16_t *hword) {
 
 int archiver::read(int32_t *aword) {
     if (read(aword, sizeof *aword)) {
-    	return 1;
+        return 1;
     }
     swapin(aword, sizeof *aword);
     return 0;
@@ -303,7 +303,7 @@ int archiver::read(int32_t *aword) {
 
 int archiver::read(int64_t *dword) {
     if (read(dword, sizeof *dword)) {
-    	return 1;
+        return 1;
     }
     swapin(dword, sizeof *dword);
     return 0;
@@ -362,7 +362,7 @@ object *archiver::restore() {
     uint8_t tcode;
     uint8_t flags = 0;
     if (read(&tcode)) {
-    	return nullptr;
+        return nullptr;
     }
     if (tcode == TC_REF) {
         return restore_ref();
@@ -445,24 +445,24 @@ int f_archive_restore(...) {
         if ((file = need_stdin()) == nullptr) {
             return 1;
         }
-	break;
+        break;
 
     case 1:
         if (typecheck("u", &file)) {
             if (typecheck("d", &scp)) {
-		return 1;
+                return 1;
             }
-	    if ((file = need_stdin()) == nullptr) {
-		return 1;
+            if ((file = need_stdin()) == nullptr) {
+                return 1;
             }
-	}
-	break;
+        }
+        break;
 
     default:
-	if (typecheck("ud", &file, &scp)) {
-	    return 1;
+        if (typecheck("ud", &file, &scp)) {
+            return 1;
         }
-	break;
+        break;
     }
 
     {
