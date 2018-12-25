@@ -190,8 +190,6 @@ full-install:
 	@echo '4  - make clean'; $(MAKE) -s clean
 	@echo '5  - build dll/exe'; $(MAKE) -s build=dll conf=$(conf) dccflags=--quiet
 	@echo '6  - install dll/exe'; $(MAKE) -s build=dll install-libici install-ici-exe prefix=$(prefix) dccflags=--quiet
-	@echo '7  - make clean'; $(MAKE) -s clean
-
 
 # Cmake support.
 #
