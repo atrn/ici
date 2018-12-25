@@ -193,8 +193,6 @@ static void unblock(exec *x) {
  *
  *  [host:]service[/protocol]
  *
- * or
- *
  * where '[...]' are optional elements, and:
  *
  * portnum              Is an integer port number.
@@ -362,12 +360,12 @@ static int net_socket(void) {
     if (NARGS() == 0) {
         proto = SS(tcp);
     }
-    else if (typecheck("o", &proto)) {
-        long i;
-        if (typecheck("i", &i)) {
+    else if (typecheck("q", &proto)) {
+        long sktfd;
+        if (typecheck("i", &sktfd)) {
             return 1;
         }
-        return ret_with_decref(new_netsocket(i));
+        return ret_with_decref(new_netsocket(sktfd));
     }
     if (proto == SS(tcp)) {
         type = SOCK_STREAM;
@@ -1600,6 +1598,44 @@ public:
     int eof(void *u) override {
         skt_file *sf = (skt_file *)u;
         return sf->sf_flags & SF_EOF;
+    }
+
+    int read(void *p, long n, void *u) override {
+        char *      buf = (char *)p;
+        skt_file *  sf = (skt_file *)u;
+
+        if (n < 1) {
+            return 0;
+        }
+
+        if (sf->sf_pbchar != -1) {
+            *buf = sf->sf_pbchar;
+            sf->sf_pbchar = -1;
+            return 1;
+        }
+
+        int nb = 0;
+        while (n > 0) {
+            exec *x = potentially_block();
+            const int nr = recv(socket_fd(sf->sf_socket), buf, n, 0);
+            unblock(x);
+            if (nr < 0) {
+                ici::set_error("recv: %s", strerror(errno));
+                return -1;
+            }
+            if (nr == 0) {
+                break;
+            }
+            buf += nr;
+            nb += nr;
+            n -= nr;
+        }
+
+        if (!nb) {
+            ici::set_error("eof");
+        }
+
+        return nb;
     }
 
     int write(const void *p, long n, void *u) override {
