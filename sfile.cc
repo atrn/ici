@@ -1,4 +1,5 @@
 #define ICI_CORE
+
 #include "fwd.h"
 #include "file.h"
 #include "ftype.h"
@@ -127,9 +128,9 @@ reattach_string_buffer(charbuf *sb)
     sb->cb_ptr = sb->cb_data + index;
 #if ICI_KEEP_STRING_HASH
     {
-	str *s = stringof(sb->cb_ref);
-	s->s_hash = 0;
-	hash_string(s);
+        str *s = stringof(sb->cb_ref);
+        s->s_hash = 0;
+        hash_string(s);
     }
 #endif
 }

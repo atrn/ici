@@ -1640,7 +1640,7 @@ public:
 
     int write(const void *p, long n, void *u) override {
         const char *buf = (const char *)p;
-        skt_file	*sf = (skt_file *)u;
+        skt_file *  sf = (skt_file *)u;
         int         nb;
         int         rc;
 

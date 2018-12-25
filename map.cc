@@ -45,14 +45,14 @@ slot *find_raw_slot(map *s, object *k)
     while (LIKELY(sl->sl_key != nullptr))
     {
         if (LIKELY(sl->sl_key == k))
-	{
+        {
             return sl;
-	}
-	--sl;
+        }
+        --sl;
         if (UNLIKELY(sl < s->s_slots))
-	{
+        {
             sl = s->s_slots + s->s_nslots - 1;
-	}
+        }
     }
     return sl;
 }
@@ -149,9 +149,9 @@ grow_map(map *s)
     while (--i >= 0)
     {
         if (oldslots[i].sl_key != nullptr)
-	{
+        {
             *find_raw_slot(s, oldslots[i].sl_key) = oldslots[i];
-	}
+        }
     }
     ici_nfree((char *)oldslots, (s->s_nslots / 2) * sizeof (slot));
     ++vsver;
@@ -204,7 +204,7 @@ int unassign(map *s, object *k) {
              */
             if (isstring(ss->sl_key)) {
                 stringof(ss->sl_key)->s_vsver = 0;
-	    }
+            }
         }
     }
     if (isstring(k)) {

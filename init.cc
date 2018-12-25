@@ -11,7 +11,7 @@
 namespace ici
 {
 
-#define	INITIAL_ATOMSZ  (1024) /* Must be power of two. */
+#define INITIAL_ATOMSZ  (1024) /* Must be power of two. */
 #define INITIAL_OBJS    (4096)
 
 extern cfunc *ici_funcs[];

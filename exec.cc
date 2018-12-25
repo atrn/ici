@@ -300,7 +300,7 @@ object *evaluate(object *code, int n_operands) {
             sigset_t *p = (sigset_t *)(void *)&signals_pending;
             if (UNLIKELY(!isempty(p))) {
                 invoke_signal_handlers();
-	    }
+            }
         }
 
         /*
@@ -365,7 +365,7 @@ object *evaluate(object *code, int n_operands) {
             xs.push(o); /* Restore formal state. */
             if (parse_exec()) {
                 goto fail;
-	    }
+            }
             continue;
 
         case TC_STRING:
@@ -618,7 +618,7 @@ object *evaluate(object *code, int n_operands) {
                 }
                 if (UNLIKELY(debug_active)) {
                     debugger->function_call(os.a_top[-1], ARGS(), NARGS());
-		}
+                }
                 if (os.a_top[-1]->call(o)) {
                     if (o != nullptr) {
                         decref(o);
@@ -750,7 +750,7 @@ object *evaluate(object *code, int n_operands) {
                 }
                 if (ici_assign(os.a_top[-3], os.a_top[-2], os.a_top[-1])) {
                     goto fail;
-		}
+                }
                 goto assign_finish;
 
             case OP_ASSIGNLOCAL:
@@ -1119,7 +1119,7 @@ object *evaluate(object *code, int n_operands) {
             }
             if (UNLIKELY(debug_active && !debug_ignore_err)) {
                 debugger->error_set(error, ex->x_src);
-	    }
+            }
             for (;;) {
                 if ((c = unwind()) == nullptr || c->hasflag(CF_EVAL_BASE)) {
                     goto badfail;
@@ -1158,7 +1158,7 @@ object *evaluate(object *code, int n_operands) {
              */
             if (UNLIKELY(debug_active && !debug_ignore_err)) {
                 debugger->error_uncaught(error, ex->x_src);
-	    }
+            }
             expand_error(ex->x_src->s_lineno, ex->x_src->s_filename);
             --ex->x_n_engine_recurse;
             return nullptr;

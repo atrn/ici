@@ -97,7 +97,7 @@ object *get(channel *c) {
     auto o = q->pop_front();
     wakeup(q);
     if (c->c_altobj) {
-	wakeup(c->c_altobj);
+        wakeup(c->c_altobj);
     }
     return o;
 }
@@ -279,15 +279,15 @@ static int alt_setup(array *alts, object *obj)
     size_t i;
 
     for (i = 0; i < n; ++i) {
-	object *o = alts->get(i);
+        object *o = alts->get(i);
         channel *chan;
-	if (ischannel(o)) {
-	    chan = channelof(o);
-	    chan->c_altobj = obj;
-	} else if (!isnull(o)) {
-	    set_error("bad object in array passed to channel.alt");
-	    return 1;
-	}
+        if (ischannel(o)) {
+            chan = channelof(o);
+            chan->c_altobj = obj;
+        } else if (!isnull(o)) {
+            set_error("bad object in array passed to channel.alt");
+            return 1;
+        }
     }
     return 0;
 }
@@ -324,7 +324,7 @@ static int f_alt() {
         return 1;
     }
     if (alt_setup(alts, alts)) {
-	return 1;
+        return 1;
     }
     while ((idx = alt(alts)) == -1) {
         if (waitfor(alts)) {

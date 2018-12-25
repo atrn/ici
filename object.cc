@@ -36,7 +36,7 @@ size_t       atomsz;     /* Number of slots in hash table. */
 size_t       natoms;     /* Number of atomic objects. */
 
 int          supress_collect;
-int          ncollects;	/* Number of collect() calls */
+int          ncollects; /* Number of collect() calls */
 
 /*
  * Format a human readable version of the object 'o' into the buffer
@@ -407,7 +407,7 @@ void collect()
     for (a = objs; a < objs_top; ++a) {
         if ((*a)->o_nrefs != 0) {
             mem += ici_mark(*a);
-	}
+        }
     }
 
 #if 0

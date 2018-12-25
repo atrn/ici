@@ -118,12 +118,12 @@ struct repl_file {
             return;
         }
 
-	// .v
-	if (line[0] == 'v' && !line[1]) {
-	    puts(version_string);
-	    puts("\n");
-	    return;
-	}
+        // .v
+        if (line[0] == 'v' && !line[1]) {
+            puts(version_string);
+            puts("\n");
+            return;
+        }
 
         // .q
         if (line[0] == 'q' && !line[1]) {
@@ -379,7 +379,7 @@ void repl() {
             if (err) err += 2; else err = error;
             repl.puts(err);
             repl.puts("\n");
-	    clear_error();
+            clear_error();
         }
         repl.sol_ = true;
         repl.extra_ = false;

@@ -1435,14 +1435,14 @@ static int f_join() {
     int      i;
     object **o;
     str     *s;
-    str	    *sep;
+    str     *sep;
     char    *p;
 
     if (typecheck("ao", &a, &sep)) {
         return 1;
     }
     if (!isstring(sep)) {
-	return argerror(1);
+        return argerror(1);
     }
     i = 0;
     for (o = a->astart(); o != a->alimit(); o = a->anext(o)) {
@@ -1451,10 +1451,10 @@ static int f_join() {
         } else if (isstring(*o)) {
             i += stringof(*o)->s_nchars;
         }
-	i += sep->s_nchars;
+        i += sep->s_nchars;
     }
     if (i > 0) {
-	i -= sep->s_nchars;
+        i -= sep->s_nchars;
     }
     if ((s = str_alloc(i)) == nullptr) {
         return 1;
@@ -1467,10 +1467,10 @@ static int f_join() {
             memcpy(p, stringof(*o)->s_chars, stringof(*o)->s_nchars);
             p += stringof(*o)->s_nchars;
         }
-	if (o != a->alimit()) {
-	    memcpy(p, sep->s_chars, sep->s_nchars);
-	    p += sep->s_nchars;
-	}
+        if (o != a->alimit()) {
+            memcpy(p, sep->s_chars, sep->s_nchars);
+            p += sep->s_nchars;
+        }
     }
     if ((s = str_intern(s)) == nullptr) {
         return 1;
@@ -2384,9 +2384,9 @@ static int fast_gettokens(const char *str, const char *delims) {
 }
 
 static int f_gettokens() {
-    object           	*fo;
-    file          	*f;
-    str           	*s;
+    object              *fo;
+    file                *f;
+    str                 *s;
     unsigned char       *terms;
     int                 nterms;
     unsigned char       *seps;
@@ -2395,7 +2395,7 @@ static int f_gettokens() {
     int                 ndelims;
     int                 hardsep;
     unsigned char       sep;
-    array         	*a;
+    array               *a;
     int                 c;
     int                 i;
     int                 j = 0; /* init to shut up compiler */
@@ -2883,7 +2883,7 @@ static int f_calendar() {
             || set_val(s, SS(isdst), 'i', (l = tm->tm_isdst, &l))
 #ifdef ICI_HAS_BSD_STRUCT_TM
             || set_val(s, SS(zone), 's', (char *)tm->tm_zone)
-	    || set_val(s, SS(gmtoff), 'i', &tm->tm_gmtoff)
+            || set_val(s, SS(gmtoff), 'i', &tm->tm_gmtoff)
 #else
             || set_timezone_vals(mapof(s))
 #endif
@@ -3125,7 +3125,7 @@ static int f_which()
         if (ismap(s)) {
             if (find_raw_slot(mapof(s), k)->sl_key == k) {
                 return ret_no_decref(s);
-	    }
+            }
         } else {
             objwsup *t;
             object  *v;
@@ -3164,11 +3164,11 @@ static int f_getchar() {
     if (NARGS() != 0) {
         if (typecheck("u", &f)) {
             return 1;
-	}
+        }
     } else {
         if ((f = need_stdin()) == nullptr) {
             return 1;
-	}
+        }
     }
     blocking_syscall(1);
     if (f->hasflag(ftype::nomutex)) {
@@ -3182,7 +3182,7 @@ static int f_getchar() {
     if (c == EOF) {
         if ((FILE *)f->f_file == stdin) {
             clearerr(stdin);
-	}
+        }
         return null_ret();
     }
     buf[0] = c;
@@ -3200,10 +3200,10 @@ static int f_ungetchar() {
     } else {
         if ((f = need_stdin()) == nullptr) {
             return 1;
-	}
+        }
         if (typecheck("s", &ch)) {
             return 1;
-	}
+        }
     }
     if (f->ungetch(*ch) == EOF) {
         return set_error("unable to unget character");
@@ -3338,7 +3338,7 @@ static int f_tmpname() {
     char nametemplate[] = "/tmp/ici.XXXXXX";
     int fd = mkstemp(nametemplate);
     if (fd == -1) {
-	return get_last_errno("mkstemp", nullptr);
+        return get_last_errno("mkstemp", nullptr);
     }
     close(fd);
     return str_ret(nametemplate);
@@ -3350,26 +3350,26 @@ static int f_puts() {
     exec *x = nullptr;
 
     auto put = [&](const char *chars, int nchars) {
-	if (f->write(chars, nchars) != nchars) {
-	    if (f->hasflag(ftype::nomutex)) {
-		enter(x);
-	    }
-	    return set_error("write failed");
-	}
-	return 0;
+        if (f->write(chars, nchars) != nchars) {
+            if (f->hasflag(ftype::nomutex)) {
+                enter(x);
+            }
+            return set_error("write failed");
+        }
+        return 0;
     };
 
     if (NARGS() > 1) {
         if (typecheck("ou", &s, &f)) {
             return 1;
-	}
+        }
     } else {
         if (typecheck("o", &s)) {
             return 1;
-	}
+        }
         if ((f = need_stdout()) == nullptr) {
             return 1;
-	}
+        }
     }
     if (!isstring(s)) {
         return argerror(0);
@@ -3378,10 +3378,10 @@ static int f_puts() {
         x = leave();
     }
     if (put(s->s_chars, s->s_nchars)) {
-	return 1;
+        return 1;
     }
     if (put("\n", 1)) {
-	return 1;
+        return 1;
     }
     if (f->hasflag(ftype::nomutex)) {
         enter(x);
@@ -3453,10 +3453,10 @@ static int f_fseek() {
     long        whence;
 
     if (typecheck("uii", &f, &offset, &whence)) {
-	if (typecheck("ui", &f, &offset)) {
-	    return 1;
+        if (typecheck("ui", &f, &offset)) {
+            return 1;
         }
-	whence = 0;
+        whence = 0;
     }
     switch (whence) {
     case 0:

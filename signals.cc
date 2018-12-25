@@ -300,7 +300,7 @@ int invoke_signal_handlers()
 #if defined(__sun) || defined(__FreeBSD__) || defined(__linux__)
         if (sigismember((sigset_t *)&signals_pending, signo))
         {
-	    sigdelset((sigset_t *)&signals_pending, signo);
+            sigdelset((sigset_t *)&signals_pending, signo);
             if ((fn = signal_handler[signo_to_index(signo)]) != nullptr)
                 if (call_signal_handler(fn, signo))
                     return 1;

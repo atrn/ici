@@ -97,9 +97,9 @@ void file_type::free(object *o)
     if (!o->hasflag(file::closed)) {
         if (o->hasflag(file::noclose)) {
             fileof(o)->flush();
-	} else {
+        } else {
             close_file(fileof(o));
-	}
+        }
     }
     ici_tfree(o, file);
 }
@@ -107,7 +107,7 @@ void file_type::free(object *o)
 int file_type::cmp(object *o1, object *o2)
 {
     return fileof(o1)->f_file != fileof(o2)->f_file
-	   || fileof(o1)->f_type != fileof(o2)->f_type;
+           || fileof(o1)->f_type != fileof(o2)->f_type;
 }
 
 object * file_type::fetch(object *o, object *k)
@@ -115,7 +115,7 @@ object * file_type::fetch(object *o, object *k)
     if (k == SS(name)) {
         if (fileof(o)->f_name != nullptr) {
             return fileof(o)->f_name;
-	}
+        }
         return null;
     }
     if (fileof(o)->f_type == parse_ftype && k == SS(line))
@@ -124,7 +124,7 @@ object * file_type::fetch(object *o, object *k)
 
         if ((l = new_int(parseof(fileof(o)->f_file)->p_lineno)) != nullptr) {
             decref(l);
-	}
+        }
         return l;
     }
     return fetch_fail(o, k);

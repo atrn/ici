@@ -1,4 +1,5 @@
 #define ICI_CORE
+
 #include "fwd.h"
 #include "str.h"
 #include "map.h"
@@ -438,19 +439,19 @@ int string_type::forall(object *o) {
     if (fa->fa_vaggr != null) {
         if ((s = new_str(&s->s_chars[fa->fa_index], 1)) == nullptr) {
             return 1;
-	}
+        }
         if (ici_assign(fa->fa_vaggr, fa->fa_vkey, s)) {
             return 1;
-	}
+        }
         decref(s);
     }
     if (fa->fa_kaggr != null) {
         if ((i = new_int((int64_t)fa->fa_index)) == nullptr) {
             return 1;
-	}
+        }
         if (ici_assign(fa->fa_kaggr, fa->fa_kkey, i)) {
             return 1;
-	}
+        }
         decref(i);
     }
     return 0;

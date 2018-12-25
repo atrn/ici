@@ -99,14 +99,14 @@ int ici_pcre_exec_simple(regexp *r, str *s)
 {
     return pcre_exec
     (
-	r->r_re,
-	r->r_rex,
-	s->s_chars,
-	s->s_nchars,
-	0,
-	0,
-	re_bra,
-	nels(re_bra)
+        r->r_re,
+        r->r_rex,
+        s->s_chars,
+        s->s_nchars,
+        0,
+        0,
+        re_bra,
+        nels(re_bra)
     );
 }
 

@@ -30,7 +30,7 @@ convert(WCHAR *s)
 
 int set_timezone_vals(map *s)
 {
-    TIME_ZONE_INFORMATION		info;
+    TIME_ZONE_INFORMATION               info;
     char                                *zone;
     long                                gmtoff;
     DWORD                               result;

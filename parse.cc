@@ -1865,7 +1865,7 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
             }
             if (a->push_checked(&o_return)) {
                 return -1;
-	    }
+            }
             break;
         }
         if (p->p_got.t_obj == SS(try)) {
@@ -2298,14 +2298,14 @@ static int f_parseopen() {
     parse *p;
 
     if (typecheck("u", &f)) {
-	return 1;
+        return 1;
     }
     if ((p = new_parse(f)) == nullptr) {
-	return 1;
+        return 1;
     }
     if ((pf = new_file((char *)p, parse_ftype, f->f_name, nullptr)) == nullptr) {
         decref(p);
-	return 1;
+        return 1;
     }
     decref(p);
     return ret_with_decref(pf);

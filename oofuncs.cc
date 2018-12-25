@@ -104,7 +104,7 @@ static int
 m_unknown_method(object *o)
 {
     if (method_check(o, 0))
-	return 1;
+        return 1;
     if (NARGS() > 0 && isstring(ARG(0)))
     {
         auto name = stringof(ARG(0));
