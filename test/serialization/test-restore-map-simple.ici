@@ -1,12 +1,6 @@
+o := test.restore_of("map");
+
 expected := @[map x=1, y=2, z=3];
-
-file := fopen(test.data_file());
-o := restore(file);
-close(file);
-
-if (typeof(o) != "map") {
-    test.failure("restored a %s, expected a map", typeof(o));
-}
 
 k = call(set, keys(o));
 

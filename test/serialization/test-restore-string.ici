@@ -1,7 +1,3 @@
-file := fopen(test.data_file());
-o := restore(file);
-close(file);
-if (typeof(o) != "string")
-    fail("restore failed: restored a " + typeof(o));
+o := test.restore_of("string");
 if (o != "This")
     fail(sprintf("restore failed: restored string \"%s\"", string(o)));

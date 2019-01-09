@@ -1,7 +1,3 @@
-file := fopen(test.data_file());
-o := restore(file);
-close(file);
-if (typeof(o) != "ptr")
-    fail("restore failed: restored a " + typeof(o));
+o := test.restore_of("ptr");
 if (*o != 1)
     fail("restore failed: restored an int with value " + string(o));

@@ -1,8 +1,4 @@
-file := fopen(test.data_file());
-o := restore(file);
-close(file);
-if (typeof(o) != "mem")
-    fail("restore failed: restored a " + typeof(o));
+o := test.restore_of("mem");
 if (len(o) != 1)
     fail("restore failed: restored too few elements in mem object");
 if (o[0] != 37)

@@ -1,7 +1,3 @@
-file := fopen(test.data_file());
-o := restore(file);
-close(file);
-if (typeof(o) != "regexp")
-    fail("restore failed: restored a " + typeof(o));
+o := test.restore_of("regexp");
 if (o.pattern != #.*#.pattern)
     fail("restore failed: restored an regexp with value " + o.pattern);

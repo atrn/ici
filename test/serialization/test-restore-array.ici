@@ -1,3 +1,5 @@
+o := test.restore_of("array");
+
 local N = int(argv[1]) || 1000;
 
 local check(a, i, v)
@@ -14,11 +16,6 @@ local check(a, i, v)
 	fail(sprintf("restore failed: element %d == %s", i, string(a[i])));
 }
 
-file := fopen(test.data_file());
-o := restore(file);
-close(file);
-if (typeof(o) != "array")
-    fail("restore failed: restored a " + typeof(o));
 if (len(o) != N)
     fail(sprintf("restore failed: nels == %d", len(o)));
 

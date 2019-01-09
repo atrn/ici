@@ -1,8 +1,4 @@
-file := fopen(test.data_file());
-o := restore(file);
-close(file);
-if (typeof(o) != "set")
-    fail("restore failed: " + typeof(o));
+o := test.restore_of("set");
 if (len(o) != 2)
     fail("restore failed, wrong len");
 if (!o["."] || ! o[".."])

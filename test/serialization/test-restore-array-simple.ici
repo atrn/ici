@@ -1,13 +1,8 @@
+o := test.restore_of("array");
+
 local expected = "Hello, World!";
 local etype = "string";
 local N = int(argv[1]) || 3;
-
-file := fopen(test.data_file());
-o := restore(file);
-close(file);
-
-if (typeof(o) != "array")
-    fail("restore failed: restored a " + typeof(o));
 
 if (len(o) != N)
     fail(sprintf("restore failed: nels == %d", len(o)));

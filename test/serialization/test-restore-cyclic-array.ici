@@ -1,7 +1,4 @@
-file := fopen(test.data_file());
-a := restore(file);
-close(file);
-
+a := test.restore_of("array");
 if (len(a) != 1)
     fail("wrong number of elements");
 if (!eq(a, a[0]))

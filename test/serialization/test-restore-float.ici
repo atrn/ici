@@ -1,8 +1,5 @@
-file := fopen(test.data_file());
-o = restore(file);
-close(file);
-if (typeof(o) != "float")
-    fail("restore failed: restored a " + typeof(o));
+o := test.restore_of("float");
+
 if (o != 1.0) {
     fail(sprintf("%f: expected to restore 1.0 and we didn't", o));
 }
