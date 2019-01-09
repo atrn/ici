@@ -1455,7 +1455,7 @@ static int net_gethostbyname() {
  */
 static int net_gethostbyaddr(void) {
     uint32_t            addr;
-    char                *s;
+    char                *s = nullptr;
     struct hostent      *hostent;
 
     if (NARGS() != 1) {
@@ -1469,7 +1469,7 @@ static int net_gethostbyaddr(void) {
         return seterror("invalid IP address", "invalid IP address: %32s", s);
     }
     if ((hostent = gethostbyaddr((char *)&addr, sizeof addr, AF_INET)) == nullptr) {
-        return seterror("unknown host", s != nullptr ? "unknown host: %32s" : "unkown host", s);
+        return seterror("unknown host", s != nullptr ? "unknown host: %32s" : "unknown host", s);
     }
     return str_ret((char *)hostent->h_name);
 }
