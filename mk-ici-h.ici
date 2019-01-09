@@ -68,9 +68,23 @@ forall (i in incs)
     bits = smash(t, #(?s)--ici.h-start--.*?\*/(.*?)(/\*[^/]*--ici.h-end--[^/]*\*/)#, "\\1");
     if (len(bits) > 0)
     {
-        push(icih, sprintf("\n/* From %s */\n", i));
+        needhdr = true;
         forall (b in bits)
-            push(icih, b);
+        {
+            if (b ~ #^[ 	]*$#)
+            {
+                continue;
+            }
+            if (b !~ #^ \* This --#)
+            {
+                if (needhdr)
+                {
+                    push(icih, sprintf("\n/* From %s */\n", i));
+                    needhdr = false;
+                }
+                push(icih, b);
+            }
+        }
     }
 }
 

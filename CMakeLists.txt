@@ -1,9 +1,18 @@
 #  Cmake "lists" for ICI.
 #
+#  ICI can be built either as a dynamic library and small executable
+#  linked against that library (the default) or as a static executable
+#  with no library.  The BUILD_ICI_DLL option is used to select the
+#  different build types.
+#
 
-project(ici LANGUAGES CXX)
-
+#  This is just a guess.
+#
 cmake_minimum_required(VERSION 3.0)
+
+#  Our project...
+#
+project(ici LANGUAGES CXX)
 
 #  ICI only uses a few C++11 things but we'll say we need C++14.
 #
@@ -13,7 +22,7 @@ set(CMAKE_CXX_STANDARD 14)
 #  that library or as a plain executable.  The default is to build
 #  the DLL version.
 #
-option(BUILD_ICI_DLL "build a DLL" ON)
+option(BUILD_ICI_DLL "build the ICI DLL" ON)
 
 #  Names of the base ici source and header files.
 #
@@ -80,12 +89,17 @@ else()
 
 endif()
 
+# Set the ici_exe OUTPUT_NAME property so the executable
+# has the correct name "ici".
+#
 if(WIN32)
   set_target_properties(ici_exe PROPERTIES OUTPUT_NAME ici.exe)
 else()
   set_target_properties(ici_exe PROPERTIES OUTPUT_NAME ici)
 endif()
 
+# Pick an ICI config header file.
+#
 if(WIN32)
   set(CONF "conf/w32.h")
 endif()
@@ -99,9 +113,15 @@ if("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Linux")
   set(CONF, "conf/linux.h")
 endif()
 
+#  To create ici.h we run a custom command after ici_exe
+#  has built. The command uses the specific ici_exe executable
+#  to run mk-ici-h.ici which generates ici.h.  To run the
+#  specific executable we need to use the actual OUTPUT_NAME
+#  of ici_exe.
+#
 get_target_property(ici_cmd ici_exe OUTPUT_NAME)
 add_custom_command(TARGET ici_exe POST_BUILD
-  COMMENT "[100%] Creating ici.h"
+  COMMENT "[----] Creating ici.h"
   COMMAND ${ici_cmd}
               ${CMAKE_CURRENT_SOURCE_DIR}/mk-ici-h.ici
               ${CONF}
@@ -109,7 +129,8 @@ add_custom_command(TARGET ici_exe POST_BUILD
               ${CMAKE_CURRENT_BINARY_DIR}
 )
 
-# Required external libraries
+
+#  Required external libraries.
 #
 
 if("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "FreeBSD")
