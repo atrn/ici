@@ -2,9 +2,10 @@
 
 # This is used for debug builds.
 #
-# To do a debug build you have to set the CXXFLAGSFILE
-# environment variable to "CXXFLAGS.debug". This has
-# dcc read this file instead of the default "CXXFLAGS".
+# To do a debug build the environment variable CXXFLAGSFILE
+# is set, to "CXXFLAGS.debug", which has dcc read this file
+# instead of the default "CXXFLAGS".
+#
 
 -std=c++14 -Wall -Wextra -g
 -g -O0
