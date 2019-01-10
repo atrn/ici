@@ -37,6 +37,7 @@
 
 #include "fwd.h"
 #include "buf.h"
+#include "error.h"
 #include "exec.h"
 #include "int.h"
 #include "str.h"
@@ -83,7 +84,7 @@ namespace ici
 
 /*
  * For compatibility with WINSOCK we use its definitions and emulate
- * them on Unix via trivial emulation.
+ * them on Unix.
  */
 using SOCKET = int;
 inline int closesocket(SOCKET s) { return ::close(s); }
@@ -98,34 +99,8 @@ constexpr int SOCKET_ERROR = -1;
 #define INADDR_LOOPBACK         (uint32_t)0x7F000001
 #endif
 
-#undef isset
-
-
-/*
- * Set the error string using a static message or a formatted message.
- * If fmt is nullptr then the fallback string is used to set the ici error
- * string.  If fmt is non-nullptr it is used to format a message using
- * sprintf and any actual parameters.  The formatted message must fit
- * within 256 characters. If buf cannot size itself to contain the
- * formatted message the fallback message is used to set error.
- */
-static int seterror(const char *fallback, const char *fmt, ...) {
-    va_list va;
-
-    if (fmt == nullptr || chkbuf(256)) {
-        set_error(fallback);
-    } else {
-        va_start(va, fmt);
-        vsnprintf(buf, bufz, fmt, va);
-        va_end(va);
-        set_error(buf);
-    }
-    return 1;
-}
-
-static int socket_fd(handle *h) {
-    void *p = h->h_ptr;
-    long l = (long)p;
+inline int socket_fd(handle *h) {
+    const auto l = (long)h->h_ptr;
     return int(l);
 }
 
@@ -240,9 +215,8 @@ static struct sockaddr_in * parseaddr(const char *raddr, long defhost, struct so
     }
 
     if (strlen(raddr) > sizeof addr - 1) {
-        seterror
+        set_error
         (
-            "network address string too long",
             "network address string too long: \"%.32s\"",
             raddr
         );
@@ -273,7 +247,7 @@ static struct sockaddr_in * parseaddr(const char *raddr, long defhost, struct so
         } else if ((hostent = gethostbyname(host)) != nullptr) {
             memcpy(&hostaddr, hostent->h_addr, sizeof hostaddr);
         } else {
-            seterror("unknown host", "unknown host: \"%.32s\"", host);
+            set_error("unknown host: \"%.32s\"", host);
             return nullptr;
         }
         saddr->sin_addr.s_addr = hostaddr;
@@ -285,7 +259,7 @@ static struct sockaddr_in * parseaddr(const char *raddr, long defhost, struct so
             *proto++ = 0;
         }
         if ((servent = getservbyname(ports, proto)) == nullptr) {
-            seterror("unknown service", "unknown service: \"%s\"", ports);
+            set_error("unknown service: \"%s\"", ports);
             return nullptr;
         }
         port = ntohs(servent->s_port);
@@ -372,9 +346,8 @@ static int net_socket(void) {
     } else if (proto == SS(udp)) {
         type = SOCK_DGRAM;
     } else {
-        return seterror
+        return set_error
         (
-            "unsupported protocol or address family",
             "unsupported protocol or address family: %s", proto->s_chars
         );
     }
@@ -686,22 +659,22 @@ static int net_select() {
     exec           *x;
 
     if (NARGS() == 0) {
-        return seterror("incorrect number of arguments for net.select()", nullptr);
+        return set_error("incorrect number of arguments for net.select()");
     }
     for (i = 0; i < NARGS(); ++i) {
         if (isint(ARG(i))) {
             if (timeout != -1) {
-                return seterror("too many timeout parameters passed to net.select", nullptr);
+                return set_error("too many timeout parameters passed to net.select");
             }
             timeout = intof(ARG(i))->i_value;
             if (timeout < 0) {
-                return seterror("-ve timeout passed to net.select", nullptr);
+                return set_error("-ve timeout passed to net.select");
             }
         } else if (isset(ARG(i)) || isnull(ARG(i))) {
             size_t j;
 
             if (++whichset > 2) {
-                return seterror("too many set/nullptr params to select()", nullptr);
+                return set_error("too many set/nullptr params to select()");
             }
             if (isset(ARG(i))) {
                 fd_set *fs = 0;
@@ -732,7 +705,7 @@ static int net_select() {
                     }
                     if (isclosed(handleof(sl->sl_key))) {
                         // or just ignore closed sockets?
-                        return seterror("attempt to use a closed socket in net.select", nullptr);
+                        return set_error("attempt to use a closed socket in net.select");
                     }
                     k = socket_fd(handleof(sl->sl_key));
                     FD_SET(k, fs);
@@ -763,7 +736,7 @@ static int net_select() {
         }
     }
     if (rfds == nullptr && wfds == nullptr && efds == nullptr) {
-        return seterror("nothing to select, all socket sets are empty", nullptr);
+        return set_error("nothing to select, all socket sets are empty");
     }
     if (timeout == -1) {
         tv = nullptr;
@@ -911,7 +884,7 @@ static int net_recvfrom() {
         return 1;
     }
     if (len < 0) {
-        return seterror("negative transfer count", nullptr);
+        return set_error("negative transfer count");
     }
     if ((msg = (char *)ici_nalloc(len + 1)) == nullptr) {
         return 1;
@@ -1019,7 +992,7 @@ static int net_recv() {
         return 1;
     }
     if (len < 0) {
-        return seterror("negative transfer count", nullptr);
+        return set_error("negative transfer count");
     }
     if ((msg = (char *)ici_nalloc(len + 1)) == nullptr) {
         return 1;
@@ -1169,7 +1142,7 @@ static int net_getsockopt() {
 #ifndef NDEBUG
         abort();
 #endif
-        return seterror("internal ici error in net.c:sockopt()", nullptr);
+        return set_error("internal ici error in net.c:sockopt()");
     }
 
     if (isclosed(skt)) {
@@ -1194,7 +1167,7 @@ static int net_getsockopt() {
     return int_ret(intvar);
 
 bad:
-    return seterror("bad socket option", "bad socket option \"%s\"", opt);
+    return set_error("bad socket option \"%s\"", opt);
 }
 
 /*
@@ -1264,7 +1237,7 @@ static int net_setsockopt() {
 #ifndef NDEBUG
         abort();
 #endif
-        return seterror("internal ici error in net.c:sockopt()", nullptr);
+        return set_error("internal ici error in net.c:sockopt()");
     }
 
     if (isclosed(skt)) {
@@ -1276,7 +1249,7 @@ static int net_setsockopt() {
     return ret_no_decref(skt);
 
 bad:
-    return seterror("bad socket option", "bad socket option \"%s\"", opt);
+    return set_error("bad socket option \"%s\"", opt);
 }
 
 /*
@@ -1352,7 +1325,7 @@ static net_username() {
 static int net_getpeername() {
     struct sockaddr_in  addr;
     socklen_t           len = sizeof addr;
-    handle        *skt;
+    handle              *skt;
 
     if (typecheck("h", SS(socket), &skt)) {
         return 1;
@@ -1376,7 +1349,7 @@ static int net_getpeername() {
 static int net_getsockname() {
     struct sockaddr_in  addr;
     socklen_t           len = sizeof addr;
-    handle        *skt;
+    handle              *skt;
 
     if (typecheck("h", SS(socket), &skt)) {
         return 1;
@@ -1433,7 +1406,7 @@ static int net_gethostbyname() {
         return 1;
     }
     if ((hostent = gethostbyname(name)) == nullptr) {
-        return seterror("no such host", "no such host: \"%.32s\"", name);
+        return set_error("no such host: \"%.32s\"", name);
     }
     memcpy(&addr, *hostent->h_addr_list, sizeof addr);
     return str_ret(inet_ntoa(addr));
@@ -1466,10 +1439,10 @@ static int net_gethostbyaddr(void) {
     } else if (typecheck("s", &s)) {
         return 1;
     } else if ((addr = inet_addr(s)) == 0xFFFFFFFF) {
-        return seterror("invalid IP address", "invalid IP address: %32s", s);
+        return set_error("invalid IP address: %32s", s);
     }
     if ((hostent = gethostbyaddr((char *)&addr, sizeof addr, AF_INET)) == nullptr) {
-        return seterror("unknown host", s != nullptr ? "unknown host: %32s" : "unknown host", s);
+        return set_error(s != nullptr ? "unknown host: %32s" : "unknown host", s);
     }
     return str_ret((char *)hostent->h_name);
 }
@@ -1620,7 +1593,7 @@ public:
             const int nr = recv(socket_fd(sf->sf_socket), buf, n, 0);
             unblock(x);
             if (nr < 0) {
-                ici::set_error("recv: %s", strerror(errno));
+                set_error("recv: %s", strerror(errno));
                 return -1;
             }
             if (nr == 0) {
@@ -1632,7 +1605,7 @@ public:
         }
 
         if (!nb) {
-            ici::set_error("eof");
+            set_error("eof");
         }
 
         return nb;
@@ -1669,8 +1642,6 @@ static ftype *skt_ftype = instanceof<class skt_ftype>();
 static skt_file * skt_open(handle *s, const char *mode) {
     skt_file  *sf;
 
-    ici_talloc(skt_file);
-
     if ((sf = ici_talloc(skt_file)) != nullptr) {
         sf->sf_socket = s;
         incref(sf->sf_socket);
@@ -1685,7 +1656,7 @@ static skt_file * skt_open(handle *s, const char *mode) {
             sf->sf_flags = SF_WRITE;
             break;
         default:
-            seterror("bad open mode for socket", "bad open mode, \"%s\", for socket", mode);
+            set_error("bad open mode, \"%s\", for socket", mode);
             return nullptr;
         }
     }
@@ -1810,7 +1781,9 @@ static int net_shutdown() {
     default:
         return argcount(2);
     }
-    shutdown(socket_fd(skt), (int)flags);
+    if (shutdown(socket_fd(skt), (int)flags) == -1) {
+        return get_last_errno("net.shutdown", nullptr);
+    }
     return ret_no_decref(skt);
 }
 
@@ -1843,18 +1816,19 @@ ICI_DEFINE_CFUNCS(net) {
     ICI_CFUNCS_END()
 };
 
-int net_init(ici::objwsup *scp) {
+int net_init(objwsup *scp) {
 #ifdef  USE_WINSOCK
     WSADATA wsadata;
     if (WSAStartup(MAKEWORD(1, 1), &wsadata)) {
         return set_error("failed to initialise winsock: error %d", GetLastError());
     }
 #endif
-    ref<objwsup> mod = new_module(ici_net_cfuncs);
-    if (!mod) {
-        return 1;
+
+    if (ref<objwsup> mod = new_module(ici_net_cfuncs)) {
+        return ici_assign(scp, SS(net), mod);
     }
-    return ici_assign(scp, SS(net), mod);
+
+    return  -1;
 }
 
 } // namespace ici
