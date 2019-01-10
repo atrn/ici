@@ -16,14 +16,19 @@ char *error = nullptr;
 
 static char msg[max_error_msg]; /* FIXME: should be per-thread if error also per-thread. */
 
+int set_errorv(const char *fmt, va_list va) {
+    vsnprintf(msg, sizeof msg, fmt, va);
+    error = msg;
+    return 1;
+}
+
 int set_error(const char *fmt, ...) {
     va_list     va;
 
     va_start(va, fmt);
-    vsnprintf(msg, sizeof msg, fmt, va);
+    int result = set_errorv(fmt, va);
     va_end(va);
-    error = msg;
-    return 1;
+    return result;
 }
 
 void clear_error() {
