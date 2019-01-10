@@ -44,7 +44,7 @@ public:
     static int (*op_func(int))();
 
     archiver(file *, objwsup *);
-    operator bool() const; // check construction sucess
+    operator bool() const; // check construction success
     ~archiver();
 
     archiver(const archiver &) = delete;
