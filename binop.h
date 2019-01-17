@@ -347,6 +347,7 @@
      */
     case ICI_TRI(TC_STRING, TC_REGEXP, T_TILDE):
         SWAP();
+        /*FALLTHROUGH*/
     case ICI_TRI(TC_REGEXP, TC_STRING, T_TILDE):
         if (ici_pcre_exec_simple(regexpof(o0), stringof(o1)) >= 0) {
             USE1();
@@ -355,6 +356,7 @@
 
     case ICI_TRI(TC_STRING, TC_REGEXP, T_EXCLAMTILDE):
         SWAP();
+        /*FALLTHROUGH*/
     case ICI_TRI(TC_REGEXP, TC_STRING, T_EXCLAMTILDE):
         if (ici_pcre_exec_simple(regexpof(o0), stringof(o1)) < 0) {
             USE1();
@@ -364,6 +366,7 @@
     case ICI_TRI(TC_STRING, TC_REGEXP, T_2TILDE):
     case ICI_TRI(TC_STRING, TC_REGEXP, T_2TILDEEQ):
         SWAP();
+        /*FALLTHROUGH*/
     case ICI_TRI(TC_REGEXP, TC_STRING, T_2TILDE):
     case ICI_TRI(TC_REGEXP, TC_STRING, T_2TILDEEQ):
         memset(re_bra, 0, sizeof re_bra);
@@ -387,6 +390,7 @@
 
     case ICI_TRI(TC_STRING, TC_REGEXP, T_3TILDE):
         SWAP();
+        /*FALLTHROUGH*/
     case ICI_TRI(TC_REGEXP, TC_STRING, T_3TILDE):
         memset(re_bra, 0, sizeof re_bra);
         re_nbra = ici_pcre_exec_simple(regexpof(o0), stringof(o1));
@@ -451,6 +455,7 @@
             MISMATCH();
         }
         SWAP();
+        /*FALLTHROUGH*/
     case ICI_TRI(TC_PTR, TC_INT, T_PLUS):
     case ICI_TRI(TC_PTR, TC_INT, T_PLUSEQ):
         if (!isint(ptrof(o0)->p_key)) {

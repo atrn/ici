@@ -53,7 +53,7 @@ static char             *mem_limit[4];
  * The global list of all chunks of small dense objects we have allocated.
  * We just keep this so we can free them all on interpreter shutdown.
  */
-static chunk          *ici_chunks;
+static chunk            *ici_chunks;
 
 #endif /* ICI_ALLALLOC */
 

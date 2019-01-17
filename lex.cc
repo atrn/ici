@@ -698,12 +698,14 @@ int lex(parse *p, array *a)
                     fstate = FS_INFRAC;
                     continue;
                 }
+                /*FALLTHROUGH*/
             case FS_INFRAC:
                 if (c == 'e' || c == 'E')
                 {
                     fstate = FS_POSTE;
                     continue;
                 }
+                /*FALLTHROUGH*/
             case FS_INEXP:
                 if (c >= '0' && c <= '9')
                 {
@@ -711,6 +713,7 @@ int lex(parse *p, array *a)
                 }
             notf:
                 fstate = FS_NOTF;
+                /*FALLTHROUGH*/
             case FS_NOTF:
                 if
                 (

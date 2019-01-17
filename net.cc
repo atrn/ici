@@ -79,6 +79,10 @@
 #include <pwd.h>
 #include <unistd.h>
 
+#ifdef isset
+# undef isset
+#endif
+
 namespace ici
 {
 

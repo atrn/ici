@@ -2213,7 +2213,7 @@ parse *new_parse(file *f) {
     if ((p = (parse *)ici_talloc(parse)) == nullptr) {
         return nullptr;
     }
-    memset(p, 0, sizeof (parse));
+    memset((void *)p, 0, sizeof (parse));
     set_tfnz(p, TC_PARSE, 0, 1, 0);
     rego(p);
     p->p_file = f;

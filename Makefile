@@ -36,6 +36,13 @@ conf?= conf/$(os).h
 prefix?= /usr/local
 dccflags?=
 cxxflags?=CXXFLAGS
+libs=
+ifeq ($(os),linux)
+libs=-lpthread -ldl
+endif
+ifeq ($(os),freebsd)
+libs=-lpthread
+endif
 
 .PHONY: all lib clean $(prog) install
 

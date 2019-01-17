@@ -4,6 +4,9 @@
 #
 -std=c++11 -Wall -Wextra -g
 
+# Useful but annoying
+-Wno-implicit-fallthrough
+
 # Uncomment for a release build (ICI uses NDEBUG).
 #
 -DNDEBUG

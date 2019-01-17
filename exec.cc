@@ -100,7 +100,7 @@ exec *new_exec() {
     if ((x = ici_talloc(exec)) ==  nullptr) {
         return nullptr;
     }
-    memset(x, 0, sizeof *x);
+    memset((void *)x, 0, sizeof *x);
     set_tfnz(x, TC_EXEC, 0, 1, 0);
     rego(x);
     x->x_src = &default_src;
@@ -887,7 +887,7 @@ object *evaluate(object *code, int n_operands) {
                     continue;
                 }
                 --os.a_top;
-                /* Falling through. */
+                /*FALLTHROUGH*/
             case OP_BREAK:
             do_break:
                 /*
