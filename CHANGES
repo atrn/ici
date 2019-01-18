@@ -1,5 +1,7 @@
 Major Changes in Version 5
 
+*     add round() function
+
 *     o_debug is now called 'debugger', a pointer to
       an instance of an ici::debugger
 

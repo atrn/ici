@@ -3969,6 +3969,7 @@ namespace {
     double xlog(double a) { return log(a); }
     double xlog10(double a) { return log10(a); }
     double xpow(double a, double b) { return pow(a, b); }
+    double xround(double a) { return round(a); }
     double xsqrt(double a) { return sqrt(a); }
     double xfloor(double a) { return floor(a); }
     double xceil(double a) { return ceil(a); }
@@ -4032,6 +4033,7 @@ ICI_DEFINE_CFUNCS(std)
     ICI_DEFINE_CFUNC2(log,         f_math, xlog,    "f=n"),
     ICI_DEFINE_CFUNC2(log10,       f_math, xlog10,  "f=n"),
     ICI_DEFINE_CFUNC2(pow,         f_math, xpow,    "f=nn"),
+    ICI_DEFINE_CFUNC2(round,       f_math, xround,  "f=n"),
     ICI_DEFINE_CFUNC2(sqrt,        f_math, xsqrt,   "f=n"),
     ICI_DEFINE_CFUNC2(floor,       f_math, xfloor,  "f=n"),
     ICI_DEFINE_CFUNC2(ceil,        f_math, xceil,   "f=n"),
