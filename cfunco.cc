@@ -6,6 +6,7 @@
 #include "exec.h"
 #include "ptr.h"
 #include "map.h"
+#include "func.h"
 #include "op.h"
 #include "pc.h"
 #include "int.h"
@@ -318,9 +319,8 @@ object *cfunc_type::restore(archiver *ar) {
         set_error("attempt to restore unknown C function \"%s\"", buf);
         return nullptr;
     }
-    if (!iscfunc(cf)) {
-        set_error("attempt to restore %s object as C function \"%s\"", cf->icitype()->name, buf);
-        return nullptr;
+    if (!iscfunc(cf) && !isfunc(cf)) {
+        set_error("restoring C function \"%s\" as a %s object", buf, cf->icitype()->name);
     }
     return copyof(cf);
 }
