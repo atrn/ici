@@ -1456,7 +1456,7 @@ static int f_join() {
     if (i > 0) {
         i -= sep->s_nchars;
     }
-    if ((s = str_alloc(i)) == nullptr) {
+    if ((s = str_alloc(i+1)) == nullptr) {
         return 1;
     }
     p = s->s_chars;
@@ -1472,6 +1472,7 @@ static int f_join() {
             p += sep->s_nchars;
         }
     }
+    *p = '\0';
     if ((s = str_intern(s)) == nullptr) {
         return 1;
     }
