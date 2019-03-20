@@ -200,16 +200,21 @@ full-install:
 
 # Cmake support.
 #
-.PHONY: cmake-builds with-cmake
-
-cmake-builds:
-	cmake -Bbuild -DCMAKE_BUILD_TYPE=Release -GNinja .
-ifeq ($(os),darwin)
-	cmake -Bbuild.xcode -GXcode .
-endif
+.PHONY: with-cmake cmake-clean cmake-realclean
 
 with-cmake:
-	cmake --build build
-ifeq ($(os),darwin)
-	cmake --build build.xcode
-endif
+	@[ -d build ] || cmake -Bbuild -DCMAKE_BUILD_TYPE=Release -GNinja .
+#ifeq ($(os),darwin)
+#	[ -d build.xcode ] || cmake -Bbuild.xcode -GXcode .
+#endif
+	@cmake --build build
+#ifeq ($(os),darwin)
+#	cmake --build build.xcode
+#endif
+
+cmake-clean:
+	@[ -d build ] && ninja -Cbuild -t clean
+
+cmake-realclean:
+	rm -rf build
+#	@rm -rf build.xcode
