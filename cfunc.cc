@@ -1643,8 +1643,10 @@ ici_f_sprintf()
             subfmt[j++] = *p++;
         }
         if (strchr("diouxX", *p) != nullptr) {
-            subfmt[j++] = 'l';
-            subfmt[j++] = 'l';
+            if (gotl<1)
+                subfmt[j++] = 'l';
+            if (gotl<2)
+                subfmt[j++] = 'l';
         }
         subfmt[j++] = *p;
         subfmt[j++] = '\0';
