@@ -1433,17 +1433,18 @@ static int f_join() {
     if (i > 0) {
         i -= sep->s_nchars;
     }
-    if ((s = str_alloc(i+1)) == nullptr) {
+    if ((s = str_alloc(i)) == nullptr) {
         return 1;
     }
     p = s->s_chars;
-    for (o = a->astart(); o != a->alimit(); o = a->anext(o)) {
+    for (o = a->astart(); o != a->alimit(); ) {
         if (isint(*o)) {
             *p++ = (char)intof(*o)->i_value;
         } else if (isstring(*o)) {
             memcpy(p, stringof(*o)->s_chars, stringof(*o)->s_nchars);
             p += stringof(*o)->s_nchars;
         }
+        o = a->anext(o);
         if (o != a->alimit()) {
             memcpy(p, sep->s_chars, sep->s_nchars);
             p += sep->s_nchars;
