@@ -138,7 +138,6 @@ set(ICI_SOURCES
   types.h
   wrap.h)
 
-
 if (ICI_BUILD_LIB)
   add_library(ici SHARED ${ICI_SOURCES})
   add_executable(ici_exe ${ICI_MAIN})
