@@ -1,5 +1,10 @@
 Major Changes in Version 5
 
+*     Define split() as a synonym for gettokens().
+      The name is chosen as it complements join()
+      and even round-trips, i.e. given some array
+      of strings, split(join(a)) == a is true.
+
 *     Added new member functions to ici::type to allow
       the keys() builtin function to be type-generic
       and work with user-defined types.
@@ -15,7 +20,8 @@ Major Changes in Version 5
       an instance of an ici::debugger
 
 *     Added join() to turn arrays into strings, a la
-      implode, but takes a separator.
+      implode, but takes a separator which defaults
+      to a single space if not given.
 
 *     ICI now has a reasonable start to an interactive
       "REPL" like interface.  Now, when started without

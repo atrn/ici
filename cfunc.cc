@@ -1407,20 +1407,39 @@ static int f_explode() {
     return ret_with_decref(x);
 }
 
+/*
+ * string = join(array [, string])
+ *
+ * Default separator is a single space.
+ *
+ * Another option would be the empty string.
+ */
 static int f_join() {
     array   *a;
     int      i;
     object **o;
     str     *s;
-    str     *sep;
+    str     *sep = SS(_space_);
     char    *p;
 
-    if (typecheck("ao", &a, &sep)) {
-        return 1;
+    switch (NARGS()) {
+    case 1:
+        if (typecheck("a", &a)) {
+            return 1;
+        }
+        break;
+    case 2:
+        if (typecheck("ao", &a, &sep)) {
+            return 1;
+        }
+        if (!isstring(sep)) {
+            return argerror(1);
+        }
+        break;
+    default:
+        return argcount(2);
     }
-    if (!isstring(sep)) {
-        return argerror(1);
-    }
+
     i = 0;
     for (o = a->astart(); o != a->alimit(); o = a->anext(o)) {
         if (isint(*o)) {
@@ -2228,9 +2247,9 @@ static int f_waitfor() {
 static int
 f_gettoken()
 {
-    object           *fo;
-    file          *f;
-    str           *s;
+    object              *fo;
+    file                *f;
+    str                 *s;
     unsigned char       *seps;
     int                 nseps;
     int                 c;
@@ -3999,6 +4018,7 @@ ICI_DEFINE_CFUNCS(std)
     ICI_DEFINE_CFUNC(isatom,       f_isatom),
     ICI_DEFINE_CFUNC(gettoken,     f_gettoken),
     ICI_DEFINE_CFUNC(gettokens,    f_gettokens),
+    ICI_DEFINE_CFUNC(split,        f_gettokens),
     ICI_DEFINE_CFUNC(num,          f_num),
     ICI_DEFINE_CFUNC(assign,       f_assign),
     ICI_DEFINE_CFUNC(fetch,        f_fetch),

@@ -18,6 +18,7 @@
  * string in this file.
  */
 SSTRING(_, "_")
+SSTRING(_space_, " ")
 SSTRING(_NULL_, "NULL")
 SSTRING(_close, "_close")
 SSTRING(_exit, "_exit")
@@ -329,6 +330,7 @@ SSTRING(sopen, "sopen")
 SSTRING(sort, "sort")
 SSTRING(spawn, "spawn")
 SSTRING(spawnp, "spawnp")
+SSTRING(split, "split")
 SSTRING(sprintf, "sprintf")
 SSTRING(sqrt, "sqrt")
 SSTRING(src, "src")

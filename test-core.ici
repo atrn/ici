@@ -968,6 +968,15 @@ printf("func...\n");
     if (implode([array 0x41, "BC", 0x44]) != "ABCD")
         fail("implode() didn't produce the expected result");
 
+    if (join([array "a"]) != "a")
+	fail("join() didn't produce the expected result");
+    if (join([array "a", "b"]) != "a b")
+	fail("join() didn't produce the expected result");
+    if (join([array "a", "b"], "") != "ab")
+	fail("join() didn't produce the expected result");
+    if (join([array "a", "b"], "-") != "a-b")
+	fail("join() didn't produce the expected result");
+
     if (getfile(sopen("ABCD", "r")) != "ABCD")
         fail("sopen() failed to produce the expected result");
 
