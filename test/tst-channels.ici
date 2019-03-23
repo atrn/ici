@@ -50,8 +50,8 @@ local work(job, workerid) {
 //  objects" (which in our case are closures) from the supplied
 //  channel and calls them, passing its workerid as argument.
 //
-local run(ch, workerid) {
-    forall (fn in ch) {
+local run(workq, workerid) {
+    forall (fn in workq) {
         fn(workerid);
     }
 }
