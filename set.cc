@@ -370,6 +370,22 @@ int64_t set_type::len(object *o) {
     return setof(o)->s_nels;
 }
 
+int set_type::nkeys(object *o) {
+    return setof(o)->s_nels;
+}
+
+int set_type::keys(object *o, array *k) {
+    set *s = setof(o);
+    size_t i;
+    for (i = 0; i < s->s_nslots; ++i) {
+	object *o;
+	if ((o = s->s_slots[i]) != nullptr) {
+	    k->push(o);
+	}
+    }
+    return 0;
+}
+
 /*
  * Return 1 if a is a subset of b, else 0.
  */

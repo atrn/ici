@@ -807,6 +807,23 @@ int64_t map_type::len(object *o) {
     return mapof(o)->s_nels;
 }
 
+int map_type::nkeys(object *o) {
+    return mapof(o)->s_nels;
+}
+
+int map_type::keys(object *o, array *k) {
+    map *s = mapof(o);
+    slot *sl;
+    for (sl = s->s_slots; sl < s->s_slots + s->s_nslots; ++sl) {
+	if (sl->sl_key != nullptr) {
+	    if (k->push_back(sl->sl_key)) {
+		return 1;
+	    }
+	}
+    }
+    return 0;
+}
+
 op    o_namelvalue{OP_NAMELVALUE};
 op    o_colon{OP_COLON};
 op    o_coloncaret{OP_COLONCARET};

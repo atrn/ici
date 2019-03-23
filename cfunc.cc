@@ -834,37 +834,14 @@ static int f_keys() {
     if (NARGS() != 1) {
         return argcount(1);
     }
-    if (ismap(ARG(0))) {
-        map *s = mapof(ARG(0));
-        slot *sl;
-
-        if ((k = new_array(s->s_nels)) == nullptr) {
-            return 1;
-        }
-        for (sl = s->s_slots; sl < s->s_slots + s->s_nslots; ++sl) {
-            if (sl->sl_key != nullptr) {
-                k->push(sl->sl_key);
-            }
-        }
+    int n = ARG(0)->icitype()->nkeys(ARG(0));
+    if ((k = new_array(n)) == nullptr) {
+	return 1;
     }
-    else if (isset(ARG(0))) {
-        set *s = setof(ARG(0));
-        size_t i;
-
-        if ((k = new_array(s->s_nels)) == nullptr) {
-            return 1;
-        }
-        for (i = 0; i < s->s_nslots; ++i) {
-            object *o;
-            if ((o = s->s_slots[i]) != nullptr) {
-                k->push(o);
-            }
-        }
+    if (ARG(0)->icitype()->keys(ARG(0), k)) {
+	decref(k);
+	return 1;
     }
-    else {
-        return argerror(0);
-    }
-
     return ret_with_decref(k);
 }
 

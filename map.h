@@ -52,6 +52,8 @@ public:
     int save(archiver *, object *) override;
     object *restore(archiver *) override;
     int64_t len(object *) override;
+    int nkeys(object *) override;
+    int keys(object *, array *) override;
 };
 
 } // namespace ici

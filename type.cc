@@ -63,6 +63,15 @@ int type::forall(object *o) {
     return set_error("attempt to forall over %s", ici::objname(n, o));
 }
 
+int type::nkeys(object *) {
+    return 0;
+}
+
+int type::keys(object *o, array *) {
+    char n[objnamez];
+    return set_error("attempt to obtains keys from a %s", ici::objname(n, o));
+}
+
 void type::objname(object *, char n[objnamez]) {
     snprintf(n, objnamez, "[%s %p]", name, (void *)this);
 }

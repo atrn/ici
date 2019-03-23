@@ -290,6 +290,18 @@ public:
      */
     virtual int             forall(object *);
 
+    /*
+     * nkeys(o)		    Return the number of key objects this object
+     *			    has, the number of loops in a forall. Non-aggregate
+     *			    types have a nkeys() of 1.
+     */
+    virtual int		    nkeys(object *);
+
+    /* keys(o, a)	    Append the key values of this object to the
+     *			    given array.
+     */
+    virtual int		    keys(object *, array *);
+
     /* objname(o, p)        Must place a short (less than 30 chars) human readable
      *                      representation of the object in the given buffer.
      *                      This is not intended as a basis for re-parsing or
