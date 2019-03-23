@@ -12,6 +12,7 @@
 #	lib
 #
 #	clean
+#	realclean
 #
 #	install
 #	install-ici-exe
@@ -44,7 +45,7 @@ ifeq ($(os),freebsd)
 libs=-lpthread
 endif
 
-.PHONY: all lib clean $(prog) install
+.PHONY: all lib clean $(prog) install realclean
 
 # The 'build' macro controls the type of build.  Uncomment one of the
 # following lines to select the desired type of build.
@@ -157,6 +158,7 @@ clean:
 	@$(MAKE) -Ctest clean
 	@$(MAKE) -Ctest/serialization clean
 
+realclean: clean
 
 # Installation
 
@@ -198,22 +200,15 @@ full-install:
 	@echo '5  - build dll/exe'; $(MAKE) -s build=dll conf=$(conf) dccflags=--quiet
 	@echo '6  - install dll/exe'; $(MAKE) -s build=dll install-libici install-ici-exe prefix=$(prefix) dccflags=--quiet
 
-# Cmake support.
+# cmake support
 #
-.PHONY: with-cmake cmake-clean cmake-realclean
-ifeq ($(os),darwin)
-.PHONY: with-xcode xcode-clean
-endif
+.PHONY: with-cmake configure-cmake cmake-clean cmake-realclean
 
-with-cmake:
-	@[ -d build ] || cmake -Bbuild -DCMAKE_BUILD_TYPE=Release -GNinja -H.
+with-cmake: configure-cmake
 	@cmake --build build
 
-ifeq ($(os),darwin)
-with-xcode:
-	@[ -d build.xcode ] || cmake -Bbuild.xcode -GXcode -H.
-	@cmake --build build.xcode
-endif
+configure-cmake:
+	@cmake -Bbuild -H. -GNinja -DCMAKE_BUILD_TYPE=Release
 
 cmake-clean:
 	@[ -d build ] && ninja -Cbuild -t clean
@@ -221,5 +216,21 @@ cmake-clean:
 cmake-realclean:
 	rm -rf build
 
+# xcode via cmake
+ifeq ($(os),darwin)
+.PHONY: with-xcode configure-xcode xcode-clean xcode-realclean
+endif
+
+ifeq ($(os),darwin)
+configure-xcode:
+	@[ -d build.xcode ] || cmake -Bbuild.xcode -GXcode -H.
+
+with-xcode: configure-xcode
+	@cmake --build build.xcode
+endif
+
 xcode-clean:
+	@rm -rf build.xcode
+
+xcode-realclean:
 	@rm -rf build.xcode
