@@ -206,12 +206,12 @@ ifeq ($(os),darwin)
 endif
 
 with-cmake:
-	@[ -d build ] || cmake -Bbuild -DCMAKE_BUILD_TYPE=Release -GNinja .
+	@[ -d build ] || cmake -Bbuild -DCMAKE_BUILD_TYPE=Release -GNinja -H.
 	@cmake --build build
 
 ifeq ($(os),darwin)
 with-xcode:
-	@[ -d build.xcode ] || cmake -Bbuild.xcode -GXcode .
+	@[ -d build.xcode ] || cmake -Bbuild.xcode -GXcode -H.
 	@cmake --build build.xcode
 endif
 
