@@ -22,6 +22,7 @@
 #include <fwd.h>
 #include <alloc.h>
 #include <forall.h>
+#include <array.h>
 #include <map.h>
 #include <null.h>
 #include <str.h>
@@ -44,6 +45,8 @@ public:
     int assign(ici::object *o, ici::object *k, ici::object *v) override;
     int forall(ici::object *) override;
     int64_t len(ici::object *) override;
+    int nkeys(ici::object *) override;
+    int keys(ici::object *, ici::array *) override;
 };
 
 inline env * envof(ici::object *o) {
@@ -128,6 +131,22 @@ env * new_env()
 int64_t env_type::len(ici::object *o) {
     auto e = envof(o);
     return e->map->objlen();
+}
+
+int env_type::nkeys(ici::object *o) {
+    return len(o);
+}
+
+int env_type::keys(ici::object *o, ici::array *a) {
+    auto m = envof(o)->map;
+    for (auto sl = m->s_slots; sl < m->s_slots + m->s_nslots; ++sl) {
+	if (sl->sl_key != nullptr) {
+	    if (a->push_back(sl->sl_key)) {
+		return 1;
+	    }
+	}
+    }
+    return 0;
 }
 
 } // anon
