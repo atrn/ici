@@ -1319,7 +1319,7 @@ static int f_rand() {
 #ifdef ICI_RAND_IS_C_RAND
     return int_ret(rand());
 #else
-    seed = seed * 1103515245 + 12345;
+    seed = (long)((unsigned long)seed * 1103515245ULL + 12345ULL);
     return int_ret((seed >> 16) & 0x7FFF);
 #endif
 }

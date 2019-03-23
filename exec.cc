@@ -1132,17 +1132,20 @@ object *evaluate(object *code, int n_operands) {
                 break;
             }
             incref(c);
-            if
-            (
-                set_val(objwsupof(vs.a_top[-1]), SS(error), 's', error)
-                ||
-                set_val(objwsupof(vs.a_top[-1]), SS(errorline), 'i', &ex->x_src->s_lineno)
-                ||
-                set_val(objwsupof(vs.a_top[-1]), SS(errorfile), 'o', ex->x_src->s_filename)
-            )
             {
-                decref(c);
-                goto badfail;
+                long lineno = ex->x_src->s_lineno; // set_val below requires a long
+                if
+                (
+                    set_val(objwsupof(vs.a_top[-1]), SS(error), 's', error)
+                    ||
+                    set_val(objwsupof(vs.a_top[-1]), SS(errorline), 'i', &lineno)
+                    ||
+                    set_val(objwsupof(vs.a_top[-1]), SS(errorfile), 'o', ex->x_src->s_filename)
+                )
+                {
+                    decref(c);
+                    goto badfail;
+                }
             }
             set_pc(arrayof(c->c_catcher), xs.a_top);
             ++xs.a_top;
