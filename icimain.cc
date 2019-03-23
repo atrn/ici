@@ -95,7 +95,7 @@ int main(int argc, char *argv[]) {
          */
         arg0 = argv[1];
         for (i = 2; i < argc; ++i) {
-            if (av->push_checked(str_get_nul_term(argv[i]), with_decref)) {
+            if (av->push_checked(str_get_nul_term(argv[i]))) {
                 goto fail;
             }
         }
@@ -136,7 +136,7 @@ int main(int argc, char *argv[]) {
 
                     case '-':
                         while (++i < argc) {
-                            if (av->push_checked(str_get_nul_term(argv[i]), with_decref)) {
+                            if (av->push_checked(str_get_nul_term(argv[i]))) {
                                 goto fail;
                             }
                         }
