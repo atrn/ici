@@ -242,13 +242,7 @@ f_load(...)
 
     if (result == nullptr)
     {
-        set_error("\"%s\" undefined and could not find %s%s%s or %s%s.ici ",
-            name->s_chars,
-            ici_prefix,
-            name->s_chars,
-            ICI_DLL_EXT,
-            ici_prefix,
-            name->s_chars);
+        set_error("\"%s\" undefined ", name->s_chars);
         goto fail;
     }
 
