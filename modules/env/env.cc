@@ -53,10 +53,6 @@ inline env * envof(ici::object *o) {
     return static_cast<env *>(o);
 }
 
-// inline bool isenv(ici::object *o) {
-//     return o->isa(env_type::tcode);
-// }
-
 int env_type::tcode = 0;
 
 ici::type *env_type::instance() {
@@ -83,22 +79,18 @@ int env_type::assign(ici::object *o, ici::object *k, ici::object *v) {
         ici::set_error("attempt to use a %s key to index env", k->type_name());
 	return 1;
     }
-
     if (!ici::isstring(v)) {
         ici::set_error("attempt to use a %s value to set env", v->type_name());
 	return 1;
     }
-
     if (setenv(ici::stringof(k)->s_chars, ici::stringof(v)->s_chars, 1)) {
         ici::set_error("setenv: %s", strerror(errno));
         return 1;
     }
-
     if (envof(o)->map->assign(k, v)) {
         unsetenv(ici::stringof(k)->s_chars);
 	return 1;
     }
-
     return 0;
 }
 
@@ -109,14 +101,14 @@ int env_type::forall(ici::object *o) {
     return e->map->forall(o);
 }
 
-//
+// ----------------------------------------------------------------
 
 env * new_env()
 {
     auto o = ici::ici_talloc<env>();
-    if (!o)
+    if (!o) {
         return nullptr;
-
+    }
     o->map = ici::new_map();
     if (!o->map) {
         ici::ici_free(o);
@@ -127,10 +119,8 @@ env * new_env()
     return o;
 }
 
-
 int64_t env_type::len(ici::object *o) {
-    auto e = envof(o);
-    return e->map->objlen();
+    return envof(o)->map->objlen();
 }
 
 int env_type::nkeys(ici::object *o) {
@@ -152,17 +142,17 @@ int env_type::keys(ici::object *o, ici::array *a) {
 } // anon
 
 extern "C" ici::object * ici_env_init() {
-    if (ici::check_interface(ici::version_number, ici::back_compat_version, "env"))
+    if (ici::check_interface(ici::version_number, ici::back_compat_version, "env")) {
         return nullptr;
-
+    }
     env_type::tcode = ici::register_type(env_type::instance());
-    if (!env_type::tcode)
+    if (!env_type::tcode) {
 	return nullptr;
-
+    }
     env *e;
-    if ((e = new_env()) == nullptr)
+    if ((e = new_env()) == nullptr) {
 	return nullptr;
-
+    }
     extern char **environ;
     for (auto p = environ; *p; ++p) {
 	const auto eq = strchr(*p, '=');
@@ -170,18 +160,17 @@ extern "C" ici::object * ici_env_init() {
             ici::set_error("bad environ entry: \"%s\"", *p);
 	    return nullptr;
 	}
-
         ici::ref<> k = ici::new_str(*p, eq - *p);
-        if (!k)
+        if (!k) {
 	    return nullptr;
-
+	}
         ici::ref<> v = ici::new_str_nul_term(eq+1);
-        if (!v)
+        if (!v) {
             return nullptr;
-
-        if (e->assign(k, v))
+	}
+        if (e->assign(k, v)) {
             return nullptr;
+	}
     }
-
     return e;
 }
