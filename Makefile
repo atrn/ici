@@ -44,6 +44,7 @@ endif
 ifeq ($(os),freebsd)
 libs=-lpthread
 endif
+buildconf?=Release
 
 .PHONY: all lib clean $(prog) install realclean
 
@@ -208,7 +209,7 @@ with-cmake: configure-cmake
 	@cmake --build build
 
 configure-cmake:
-	@cmake -Bbuild -H. -GNinja -DCMAKE_BUILD_TYPE=Release
+	@cmake -Bbuild -H. -GNinja -DCMAKE_BUILD_TYPE=$(buildconf)
 
 cmake-clean:
 	@[ -d build ] && ninja -Cbuild -t clean
@@ -223,7 +224,7 @@ endif
 
 ifeq ($(os),darwin)
 configure-xcode:
-	@[ -d build.xcode ] || cmake -Bbuild.xcode -GXcode -H.
+	@cmake -Bbuild.xcode -H. -GXcode -DCMAKE_BUILD_TYPE=$(buildconf)
 
 with-xcode: configure-xcode
 	@cmake --build build.xcode
