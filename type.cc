@@ -69,7 +69,7 @@ int type::nkeys(object *) {
 
 int type::keys(object *o, array *) {
     char n[objnamez];
-    return set_error("attempt to obtains keys from a %s", ici::objname(n, o));
+    return set_error("attempt to obtains keys from a value of type %s", ici::objname(n, o));
 }
 
 void type::objname(object *, char n[objnamez]) {

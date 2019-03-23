@@ -1,5 +1,14 @@
 Major Changes in Version 5
 
+*     Added new member functions to ici::type to allow
+      the keys() builtin function to be type-generic
+      and work with user-defined types.
+
+      ici::type gets the member functions, nkeys() and keys().
+      nkeys() returns the number of keys in a value and
+      keys copies them to an array.  The types.h header's
+      comments provide further details.
+
 *     add round() function
 
 *     o_debug is now called 'debugger', a pointer to

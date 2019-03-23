@@ -292,13 +292,18 @@ public:
 
     /*
      * nkeys(o)		    Return the number of key objects this object
-     *			    has, the number of loops in a forall. Non-aggregate
-     *			    types have a nkeys() of 1.
+     *			    contains, i.e. the number of objects the keys()
+     *			    function will return when applied to the object.
+     *			    The default implementation returns 0.
      */
     virtual int		    nkeys(object *);
 
-    /* keys(o, a)	    Append the key values of this object to the
-     *			    given array.
+    /* keys(o, a)	    Append the key values of this object contains
+     *			    to the given array. Usual error conventions,
+     *			    returns non-zero upon failure.
+     *			    The default implementation returns the error
+     *		    	    "attempt to obtains keys from a value of type xxx"
+     *			    where "xxx" is replaced by the type's name.
      */
     virtual int		    keys(object *, array *);
 
