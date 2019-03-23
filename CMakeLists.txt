@@ -70,6 +70,7 @@ set(ICI_SOURCES
   pcre.cc
   profile.cc
   ptr.cc
+  ref.h
   refuncs.cc
   regexp.cc
   repl.cc

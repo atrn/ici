@@ -224,7 +224,7 @@ endif
 
 ifeq ($(os),darwin)
 configure-xcode:
-	@cmake -Bbuild.xcode -H. -GXcode -DCMAKE_BUILD_TYPE=$(buildconf)
+	@cmake -Bbuild.xcode -H. -GXcode
 
 with-xcode: configure-xcode
 	@cmake --build build.xcode
