@@ -328,6 +328,7 @@ extern int        null_ret();
 extern int        int_ret(int64_t);
 extern int        float_ret(double);
 extern int        register_type(type *);
+extern void       uninit_types();
 extern file      *open_charbuf(char *, int, object *, bool);
 extern file      *new_file(void *, ftype *, str *, object *);
 extern int        close_file(file *);

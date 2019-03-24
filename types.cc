@@ -95,4 +95,14 @@ int register_type(type *t)
     return ntypes++;
 }
 
+void uninit_types()
+{
+    for (type **t = types; t - types < ntypes; ++t)
+    {
+        if (*t != nullptr) {
+            (*t)->uninit();
+        }
+    }
+}
+
 } // namespace ici

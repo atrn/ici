@@ -125,6 +125,11 @@ void uninit()
     ici_nfree(os.a_base, (os.a_limit - os.a_base) * sizeof (object *));
     ici_nfree(xs.a_base, (xs.a_limit - xs.a_base) * sizeof (object *));
 
+    /*
+     * And have type instances undo things.
+     */
+    uninit_types();
+
 #if 1 && !defined(NDEBUG)
     vs.decref();
     os.decref();

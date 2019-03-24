@@ -351,6 +351,11 @@ public:
     }
 
     /*
+     * Frees resources associated with the type at uninit() time.
+     */
+    void uninit();
+
+    /*
      * This is a convenience function which can be used to implement
      * 'fetch' if the type doesn't support fetching.  It sets the
      * 'error' to a message of the form:

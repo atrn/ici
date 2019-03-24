@@ -1,5 +1,6 @@
 #define ICI_CORE
 #include "object.h"
+#include "str.h"
 
 namespace ici
 {
@@ -79,6 +80,13 @@ void type::objname(object *, char n[objnamez]) {
 int type::call(object *o, object *) {
     char n[objnamez];
     return set_error("attempt to call %s", ici::objname(n, o));
+}
+
+void type::uninit()
+{
+    if (_name != nullptr) {
+        _name->decref();
+    }
 }
 
 object *type::fetch_fail(object *o, object *k)
