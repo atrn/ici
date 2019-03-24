@@ -961,7 +961,9 @@ static int net_send() {
     if (isclosed(skt)) {
         return 1;
     }
+    exec *x = potentially_block();
     len = send(socket_fd(skt), msg->s_chars, msg->s_nchars, 0);
+    unblock(x);
     if (len < 0) {
         return get_last_errno("net.send", nullptr);
     }
