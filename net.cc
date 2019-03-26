@@ -249,7 +249,7 @@ static struct sockaddr_in * parseaddr(const char *raddr, long defhost, struct so
         } else if ((hostaddr = inet_addr(host)) != (in_addr_t)-1) {
             /* NOTHING */ ;
         } else if ((hostent = gethostbyname(host)) != nullptr) {
-            memcpy(&hostaddr, hostent->h_addr, sizeof hostaddr);
+            memcpy(&hostaddr, (void *)hostent->h_addr, sizeof hostaddr);
         } else {
             set_error("unknown host: \"%.32s\"", host);
             return nullptr;

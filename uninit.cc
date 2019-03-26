@@ -141,13 +141,7 @@ void uninit()
         ici_dump_refs();
     }
 #endif
-
-    if (buf != error)
-    {
-        /* Free the general purpose buffer. ### Hmm... If we do this we can't
-        return error from ici_main.*/
-        ici_nfree(buf, bufz + 1);
-    }
+    ici_nfree(buf, bufz + 1);
     buf = nullptr;
     bufz = 0;
 

@@ -1,4 +1,4 @@
-o := test.restore_of("func");
-r := o(2, 4);
+ack := test.restore_of("func");
+r := ack(2, 4);
 if (r != 11)
-    fail("restored function gave incorrect result: " + string(r));
+    fail("restored ack() function gave incorrect result: " + string(r));

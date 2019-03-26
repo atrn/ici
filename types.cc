@@ -71,7 +71,7 @@ type *types[max_types] =
     nullptr
 };
 
-static int ntypes = TC_MAX_CORE + 1;
+int num_types = TC_MAX_CORE + 1;
 
 /*
  * Register a new 'type' and return a new small int type code to use
@@ -86,18 +86,18 @@ static int ntypes = TC_MAX_CORE + 1;
  */
 int register_type(type *t)
 {
-    if (ntypes == max_types)
+    if (num_types == max_types)
     {
         set_error("too many types");
         return 0;
     }
-    types[ntypes] = t;
-    return ntypes++;
+    types[num_types] = t;
+    return num_types++;
 }
 
 void uninit_types()
 {
-    for (type **t = types; t - types < ntypes; ++t)
+    for (type **t = types; t - types < num_types; ++t)
     {
         if (*t != nullptr) {
             (*t)->uninit();

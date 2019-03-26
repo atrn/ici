@@ -306,12 +306,14 @@ object *cfunc_type::restore(archiver *ar) {
         }
         scope = mapof(c);
     }
-    ici_free(parts);
 
     auto s = new_str(last_part, strlen(last_part));
     if (!s) {
+        ici_free(parts);
         return nullptr;
     }
+
+    ici_free(parts);
 
     auto cf = ici_fetch(scope, s);
     decref(s);

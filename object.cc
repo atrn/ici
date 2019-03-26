@@ -508,7 +508,23 @@ printf("mem=%ld vs. %ld, nobjects=%d, ici_natoms=%d\n", mem, ici_mem, objs_top -
     --supress_collect;
 }
 
+/*
+ * Garbage collection triggered by other than our internal mechanmism.
+ * Don't do this unless you really must. It will free all memory it can
+ * but will reduce subsequent performance.
+ */
+void reclaim() {
+    collect();
+}
+
 #ifndef NDEBUG
+
+object   *traceobj;
+
+constexpr uint8_t max_nrefs = 255;
+constexpr uint8_t unusual_nrefs = 10;
+constexpr uint8_t worrying_nrefs = 50;
+
 void ici_dump_refs() {
     object  **a;
     char    n[objnamez];
@@ -519,51 +535,39 @@ void ici_dump_refs() {
         if ((*a)->o_nrefs == 0) {
             continue;
         }
-        if (!spoken) {
-            printf("The following ojects have spurious left-over reference counts...\n");
-            spoken = 1;
+        if ((*a)->o_nrefs > unusual_nrefs)
+        {
+            if (!spoken) {
+                printf("The following objects have spurious left-over reference counts...\n");
+                spoken = 1;
+            }
+            printf("%d 0x%08lX: %s\n", (*a)->o_nrefs, (unsigned long)*a, objname(n, *a));
         }
-        printf("%d 0x%08lX: %s\n", (*a)->o_nrefs, (unsigned long)*a, objname(n, *a));
     }
 }
-#endif
-
-/*
- * Garbage collection triggered by other than our internal mechanmism.
- * Don't do this unless you really must. It will free all memory it can
- * but will reduce subsequent performance.
- */
-void reclaim() {
-    collect();
-}
-
-
-#ifndef NDEBUG
-
-object   *traceobj;
-
 void object::incref() {
     if (this == traceobj) {
-        printf("incref traceobj(%d)\n", o_tcode);
+        printf("ici incref traceobj(%d)\n", o_tcode);
     }
-    if ((unsigned char)o_nrefs == (unsigned char)0x7F) {
-        printf("Oops: ref count overflow\n");
+    if (o_nrefs == max_nrefs) {
+        printf("ici oops: ref count overflow %p\n", (void*)this);
         abort();
     }
-    if (++o_nrefs > 50) {
-        printf("Warning: nrefs %d > 10\n", o_nrefs);
+    if (++o_nrefs > worrying_nrefs) {
+        fprintf(stderr, "ici warning: %p nrefs %d > %d\n", (void *)this, o_nrefs, worrying_nrefs);
         fflush(stdout);
     }
 }
 
 void object::decref() {
     if (this == traceobj) {
-        printf("decref traceobj(%d)\n", o_tcode);
+        printf("ici decref traceobj(%d)\n", o_tcode);
     }
-    if (--o_nrefs < 0) {
-        printf("Oops: ref count underflow\n");
+    if (o_nrefs == 0) {
+        printf("ici oops: ref count underflow %p\n", (void *)this);
         abort();
     }
+    --o_nrefs;
 }
 
 void rego(object *o) {

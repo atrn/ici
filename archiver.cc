@@ -371,6 +371,10 @@ object *archiver::restore() {
         flags |= object::O_ATOM;
         tcode &= ~O_ARCHIVE_ATOMIC;
     }
+    if (tcode >= num_types) {
+        set_error("restored type code %d exceeds number of registered types %d", (int)tcode, num_types);
+        return nullptr;
+    }
     auto t = types[tcode];
     if (!t) {
         set_error("no type with code %02X", tcode);
