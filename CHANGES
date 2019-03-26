@@ -1,5 +1,13 @@
 Major Changes in Version 5
 
+*     the map returned from calendar() now includes
+      a "nanos" field with the nanoseconds portion
+      of a floating point time (as returned from now()).
+
+*     now() is now implemented via C++11 <chrono>
+      and returns times with nanosecond precision
+      in double precision floats.
+
 *     Define split() as a synonym for gettokens().
       The name is chosen as it complements join()
       and even round-trips, i.e. given some array
@@ -77,7 +85,7 @@ Major Changes in Version 5
       of a class that holds references to the function and
       its bound arguments. The closure() function returns a
       method of this class which may be called to "invoke"
-      the bound function. 
+      the bound function.
 
       Partial closure is supported by the fact that any
       arguments passed to the "closed" object when it is
@@ -197,14 +205,14 @@ Major Changes in Version 5
 
      Keyword Changes
 
-     	extern	 ->	export
-     	static	 ->	local
-     	auto	 ->	var
+        extern	 ->	export
+        static	 ->	local
+        auto	 ->	var
 
      Standard Function Changes
 
-     	thread() ->	go()
-	nels()	 ->	len()
+        thread() ->	go()
+        nels()	 ->	len()
 
     Configuaration Changes
 
@@ -242,8 +250,8 @@ Changes in version 4.2
 
      This change permits the following code to work...
 
-	if (method := instance:respondsto(method_name))
-	    call(method, arguments);
+        if (method := instance:respondsto(method_name))
+            call(method, arguments);
 
 *    ici_new_src() renamed to ici_src_new() and exposed in the API.
 
@@ -361,21 +369,21 @@ Changes in version 4.2
 *   New core functions (implemented in ICI and automatically loaded
     via the icicore mechanism)
 
-	apply       Apply a function to the elements contained within
-		    an aggregate.
-	map         Transform an aggregate by calling a function upon
+        apply       Apply a function to the elements contained within
+                    an aggregate.
+        map         Transform an aggregate by calling a function upon
                     its elements, adding the result of that call to
-		    an aggreate of the same type which is then returned.
-	walk        Traverse a directory hierarchy calling functions for
-		    the files and/or directories within the hierarchy.
-	memoize	    A call() variant that remembers previous results
-		    and returns them when arguments are identical.
-	memoized    Takes a function and returns a new function that
-		    memoize's the result of that function.
-	deepatom    As per atom() but applied "deeply"
-	deepcopy    As per copy() but applied "deeply"
-	print	    Writes a textual representation of an arbitrary
-		    object to a file.
+                    an aggreate of the same type which is then returned.
+        walk        Traverse a directory hierarchy calling functions for
+                    the files and/or directories within the hierarchy.
+        memoize	    A call() variant that remembers previous results
+                    and returns them when arguments are identical.
+        memoized    Takes a function and returns a new function that
+                    memoize's the result of that function.
+        deepatom    As per atom() but applied "deeply"
+        deepcopy    As per copy() but applied "deeply"
+        print	    Writes a textual representation of an arbitrary
+                    object to a file.
 
 *   Added support for truncate() on Win32. (richard)
 
@@ -448,7 +456,7 @@ Changes in version 4.1.0 (a beta release)
     optional when followed by either } or EOF. This is mainly so
     short expressions that are evaluated in strings don't need
     a semicolon. Like:
-    
+
         ici -e dbg.cmd=1 ...
 
     (timl)
@@ -506,7 +514,7 @@ Changes in version 4.1.0 (a beta release)
     invocation. This has two interfaces, one cooked where the key
     is first converted to an integer ID, the other raw. One, or the
     other, or both may be used.
-    
+
     There is a new function, ici_make_handle_method_map, and
     in a handle there are three new pointers: h_member_map, and
     the function pointers h_member_intf and h_generic_intf.
@@ -526,12 +534,12 @@ Changes in version 4.1.0 (a beta release)
     expressions. For example, the bignum extension now allows:
 
         x = [bignum 1000000000000];
-    
+
     The mechanism works by getting a parser function by evaluating
     the ident (if it is callable, it is the function, else ident.parser
     is used). It then calls that function with the current parse stream
     file (as returned by currentfile()).
-    
+
     There are new functions: parsetoken() and parsevalue() to read ICI
     tokens or expressions, as well as tokenobj(), rejecttoken(),
     and rejectchar() to assist. See new documentation.

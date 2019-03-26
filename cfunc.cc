@@ -38,6 +38,8 @@
 #include <time.h>
 #include <stdlib.h>
 
+#include <chrono>
+
 #ifdef  _WIN32
 #include <windows.h>
 #endif
@@ -2834,10 +2836,11 @@ static void get_epoch_time() {
 }
 
 static int f_now() {
-    if (!got_epoch_time) {
-        get_epoch_time();
-    }
-    return float_ret(difftime(time(nullptr), epoch_time));
+    const auto t = std::chrono::system_clock::now();
+    const auto d = t.time_since_epoch();
+    using S = std::chrono::duration<double>; // seconds
+    const auto s = std::chrono::duration_cast<S>(d);
+    return float_ret(s.count());
 }
 
 static int f_calendar() {
@@ -2854,6 +2857,7 @@ static int f_calendar() {
     }
     if (isfloat(ARG(0))) {
         time_t          t;
+        double          ns;
         struct tm       *tm;
 
         /*
@@ -2866,13 +2870,14 @@ static int f_calendar() {
          * really in seconds. So I'll just assume that.
          */
         t = epoch_time + (time_t)floatof(ARG(0))->f_value;
+        ns = fmod(floatof(ARG(0))->f_value, 1);
         tm = localtime(&t);
         if ((s = objwsupof(new_map())) == nullptr) {
             return 1;
         }
         if
-        (
-               set_val(s, SS(second), 'f', (d = tm->tm_sec, &d))
+        (      set_val(s, SS(nanos), 'f', (d = ns, &d))
+            || set_val(s, SS(second), 'f', (d = tm->tm_sec, &d))
             || set_val(s, SS(minute), 'i', (l = tm->tm_min, &l))
             || set_val(s, SS(hour), 'i', (l = tm->tm_hour, &l))
             || set_val(s, SS(day), 'i', (l = tm->tm_mday, &l))
