@@ -234,9 +234,17 @@ constexpr int                   nsubexp = 10;
 extern DLI null                 o_null;
 extern DLI integer              *o_zero;
 extern DLI integer              *o_one;
-extern DLI char                 *error;
 extern DLI exec                 *execs;
 extern DLI exec                 *ex;
+/*
+ * The global error message pointer. The ICI error return convention
+ * dictacts that the originator of an error sets this to point to a
+ * short human readable string, in addition to returning the functions
+ * error condition. See 'The error return convention' for more details.
+ *
+ * This --macro-- forms part of the --ici-api--.
+ */
+#define error (ex->x_error) // per-thread
 extern DLI array                xs;
 extern DLI array                os;
 extern DLI array                vs;

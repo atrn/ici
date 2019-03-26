@@ -47,6 +47,7 @@ struct exec : object
  * End of ici.h export. --ici.h-end--
  */
     std::condition_variable *x_semaphore;
+    char		     x_buf[1024-16*sizeof(int)]; // space for x_error
 /*
  * The following portion of this file exports to ici.h. --ici.h-start--
  */

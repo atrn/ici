@@ -1136,7 +1136,7 @@ object *evaluate(object *code, int n_operands) {
                 long lineno = ex->x_src->s_lineno; // set_val below requires a long
                 if
                 (
-                    set_val(objwsupof(vs.a_top[-1]), SS(error), 's', error)
+                    set_val(objwsupof(vs.a_top[-1]), SS(_error), 's', error)
                     ||
                     set_val(objwsupof(vs.a_top[-1]), SS(errorline), 'i', &lineno)
                     ||
@@ -1220,7 +1220,7 @@ void exec_type::free(object *o)
     }
     assert(x != nullptr);
     delete x->x_semaphore;
-    if (x->x_error != nullptr)
+    if (x->x_error != nullptr && x->x_error != x->x_buf)
     {
         ::free(x->x_error); /* It came from strdup() so use free directly */
     }
@@ -1232,7 +1232,7 @@ object *exec_type::fetch(object *o, object *k)
     exec *x;
 
     x = execof(o);
-    if (k == SS(error)) {
+    if (k == SS(_error)) {
         if (x->x_error == nullptr) {
             return null;
         }

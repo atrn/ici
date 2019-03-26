@@ -1,4 +1,5 @@
 #define ICI_CORE
+#include "fwd.h"
 #include "buf.h"
 #include "exec.h"
 #include "str.h"

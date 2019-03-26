@@ -73,7 +73,7 @@ buildconf?=Release
 #build?=lib
 
 ifndef build
-build=dll
+build?=dll
 endif
 
 srcs= $(shell ls *.cc | fgrep -v win32)

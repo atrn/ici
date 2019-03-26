@@ -7,6 +7,7 @@
 #include "str.h"
 #include "map.h"
 #include "array.h"
+#include "exec.h"
 
 #include <ctype.h>
 #include <unistd.h>

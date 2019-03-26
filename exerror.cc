@@ -2,6 +2,7 @@
 #include "fwd.h"
 #include "str.h"
 #include "buf.h"
+#include "exec.h"
 
 namespace ici
 {
