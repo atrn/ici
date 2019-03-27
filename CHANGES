@@ -1,5 +1,10 @@
 Major Changes in Version 5
 
+*     unique() function which returns the unique
+      elements of an array
+
+*     error is now per-exec (thread)
+
 *     the map returned from calendar() now includes
       a "nanos" field with the nanoseconds portion
       of a floating point time (as returned from now()).

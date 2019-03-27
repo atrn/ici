@@ -2802,6 +2802,37 @@ fail:
 #undef  SWAP
 }
 
+static int f_unique() {
+    set *s;
+    array *a;
+    array *r;
+    object **o;
+
+    if (typecheck("a", &a)) {
+        return 1;
+    }
+    if ((s = new_set()) == nullptr) {
+        return 1;
+    }
+    for (o = a->astart(); o != a->alimit(); o = a->anext(o)) {
+        if (ici_assign(s, *o, o_one)) {
+            decref(s);
+            return 1;
+        }
+    }
+    if ((r = new_array(s->s_nels)) == nullptr) {
+        decref(s);
+	return 1;
+    }
+    for (auto sl = s->s_slots; size_t(sl - s->s_slots) < s->s_nslots; ++sl) {
+        if (*sl) {
+            r->push(*sl);
+        }
+    }
+    decref(s);
+    return ret_with_decref(r);
+}
+
 static int f_reclaim() {
     reclaim();
     return null_ret();
@@ -4027,6 +4058,7 @@ ICI_DEFINE_CFUNCS(std)
     ICI_DEFINE_CFUNC(num,          f_num),
     ICI_DEFINE_CFUNC(assign,       f_assign),
     ICI_DEFINE_CFUNC(fetch,        f_fetch),
+    ICI_DEFINE_CFUNC(unique,       f_unique),
     ICI_DEFINE_CFUNC(abs,          f_abs),
     ICI_DEFINE_CFUNC2(sin,         f_math, xsin,    "f=n"),
     ICI_DEFINE_CFUNC2(cos,         f_math, xcos,    "f=n"),
