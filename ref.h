@@ -97,30 +97,38 @@ public:
         }
     }
 
-    operator T *() {
+    T *get() {
         return _obj;
     }
 
-    T *operator->() {
+    const T *get() const {
         return _obj;
+    }
+
+    operator T *() {
+        return get();
+    }
+
+    T *operator->() {
+        return get();
     }
 
     T &operator*() {
         assert(_obj);
-        return *_obj;
+        return *get();
     }
 
     operator const T *() const {
-        return _obj;
+        return get();
     }
 
     const T *operator->() const {
-        return _obj;
+        return get();
     }
 
     const T &operator*() const {
         assert(_obj);
-        return *_obj;
+        return *get();
     }
 
 private:
