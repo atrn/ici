@@ -1201,8 +1201,7 @@ size_t exec_type::mark(object *o)
         + mark_optional(x->x_pc_closet)
         + mark_optional(x->x_os_temp_cache)
         + mark_optional(x->x_waitfor)
-        + mark_optional(x->x_result)
-        + (x->x_error != nullptr ? strlen(x->x_error) + 1: 0);
+        + mark_optional(x->x_result);
 }
 
 void exec_type::free(object *o)
