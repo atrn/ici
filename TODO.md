@@ -6,29 +6,25 @@ donate your changes.
 
 ## General
 
-### strings
-
-#### Remove reliance on C strings
+### Remove reliance on C strings and adopt UTF-8 everywhere
 
 So strings with NULs can be handled properly. There is a general
 problem all over the interpreter - we assume C strings. We pass
 ICI's string characters directly to C functions which can see a
 truncated string if the ICI string has an embedded NUL.
 
-#### UTF-8
+### Modules
 
-Should adopt UTF-8 everywhere. And all it entails.
-
-## Modules
-
-Native code modules need to be collectable and unused modules
-unloaded. This requires cfuncs and mem objects that reference
-the module have references to it which can be dropped and gc
-used to unload.
-
-## Other Fixes
+Native code modules should be collectable with unused modules being
+automatically unloaded. This requires the cfuncs and other objects
+that reference the contents of the module references some type of
+object which holds the module open. When the references are collected
+the module can be dlclose'd and unloaded.
 
 ### Add esc() function.
+
+What does it do? I forget. Perhaps outputs a "clean string" wit
+problematic characters escaped?
 
 ### Make waitfor be able to wait on a set.
 
@@ -43,9 +39,23 @@ used to unload.
 setof(array) ?  It can be done via "call(set, array)" but that's
 a little idiosyncratic.
 
-### Add optional seperator string to implode().
+### add a unique() function
 
-### top() and pop() should work on sets.
+It can be done in a single ICI expression,
+
+    keys(call(set, ary))
+    
+But we can do that a little more efficiently in native code.
+
+Form a set from the array to discard duplicates, get the contents of
+the set in a vector via keys().  And if sorted key are desired you
+just call sort on the result of keys().
+
+    sort(keys(call(set, v)))
+
+### Add optional separator string to implode().
+
+join() does this and replaces many uses of implode.
 
 ### copy() of a string results in a non-atomic string
 
