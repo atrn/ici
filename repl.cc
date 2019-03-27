@@ -26,6 +26,15 @@ inline objwsup *current_locals() {
     return objwsupof(current_scope())->o_super;
 }
 
+str *quoted(object *o) {
+    auto s = stringof(o);
+    auto r = str_alloc(2 + s->s_nchars);
+    r->s_chars[0] = '"';
+    r->s_chars[1 + s->s_nchars] = '"';
+    memcpy(r->s_chars+1, s->s_chars, s->s_nchars);
+    return r;
+}
+
 struct repl_file {
     ref<file> stdin_;
     ref<file> stdout_;
@@ -194,7 +203,12 @@ struct repl_file {
                 puts(error);
                 puts("\n");
             } else if (auto result = ici_fetch(current_scope(), SS(_))) {
-                call(SS(println), "o", result);
+                if (isstring(result)) {
+                    ref<str> q = quoted(result);
+                    call(SS(println), "o", q.get());
+                } else {
+                    call(SS(println), "o", result);
+                }
             } else {
                 puts("No result.\n");
             }
