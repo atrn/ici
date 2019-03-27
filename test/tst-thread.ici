@@ -16,7 +16,7 @@ if (x.result != 9)
     fail("incorrect result from func in other thread");
 
 local count;
-local LIM = 5000000;
+local LIM = 500000;
 
 var x, i, did_crit = 0;
 go([func(){for (count = 0; count < LIM; ++count);}]);

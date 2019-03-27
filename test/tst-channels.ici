@@ -9,9 +9,9 @@
 //  the total number of jobs.
 //
 
-Njobs := int(argv[1]) || (5*1000);
-Nworkers := int(argv[2]) || 4;
-Nqueue := int(argv[3]) || 2;
+Njobs := int(argv[1]) || 1000;
+Nworkers := int(argv[2]) || 8;
+Nqueue := int(argv[3]) || 10;
 
 rand(Njobs * Nworkers);
 

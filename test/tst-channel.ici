@@ -8,7 +8,7 @@
 //
 // Success is determined visually.
 
-Ntimes := int(argv[1]) || (100*1000);
+Ntimes := int(argv[1]) || (10*1000);
 
 local run(ch) {
     forall (fn in ch) {
