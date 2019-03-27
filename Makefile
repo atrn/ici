@@ -23,30 +23,46 @@
 #
 #	debug
 #	test
+#
+# cmake
+#
+#	with-cmake
+#	configure-cmake
+#	cmake-clean
+#	cmake-realclean
+#
+# xcode
+#
+#	with-xcode
+#	configure-xcode
+#	xcode-clean
+#	xcode-realclean
+#
 
-os=    $(shell uname|tr A-Z a-z)
+os=		$(shell uname|tr A-Z a-z)
 sudo?=
-prog=  ici
-lib=   libici.a
+prog=		ici
+lib=		libici.a
 ifeq ($(os),darwin)
-dll=   libici.dylib
+dll=		libici.dylib
 else
-dll=	libici.so
+dll=		libici.so
 endif
-conf?= conf/$(os).h
-prefix?= /usr/local
+conf?= 		conf/$(os).h
+prefix?= 	/usr/local
 dccflags?=
-cxxflags?=CXXFLAGS
+cxxflags?=	CXXFLAGS
 libs=
 ifeq ($(os),linux)
-libs=-lpthread -ldl
+libs=		-lpthread -ldl
 endif
 ifeq ($(os),freebsd)
-libs=-lpthread
+libs=		-lpthread
 endif
-buildconf?=Release
+objdir?=	.objs
+cmakebuild?=	Release
 
-.PHONY: all lib clean $(prog) install realclean
+.PHONY:		all lib clean $(prog) install realclean
 
 # The 'build' macro controls the type of build.  Uncomment one of the
 # following lines to select the desired type of build.
@@ -72,31 +88,36 @@ buildconf?=Release
 #build?=exe
 #build?=lib
 
-ifndef build
-build?=dll
-endif
+build?=		dll
 
-srcs= $(shell ls *.cc | fgrep -v win32)
-hdrs= $(shell ls *.h | fgrep -v ici.h)
+srcs=		$(shell ls *.cc | fgrep -v win32)
+hdrs=		$(shell ls *.h | fgrep -v ici.h)
 
 ldflags=
 ifeq ($(os),darwin)
-ldflags=-macosx_version_min 10.12 -framework System
+ldflags=	-macosx_version_min 10.12 -framework System
 endif
+
+# The common prefix for the dcc commands we run
+#
+dcc=		CXXFLAGSFILE=$(cxxflags) dcc $(dccflags) --objdir $(objdir)
 
 # The 'all' target builds an ici interpreter executable and library,
 # if that is enabled.
 #
-all: $(prog)
+all:		$(prog)
+
 
 ifeq ($(build),dll)
 # This build variant has the interpreter code in a dynamic library.
 #
-$(prog): lib
-	@CXXFLAGSFILE=$(cxxflags) dcc $(dccflags) etc/main.cc -o $@ -L. -lici
+$(prog):	lib
+	@[ -d $(objdir) ] || mkdir $(objdir)
+	@$(dcc) etc/main.cc -o $@ -L. -lici
 
 lib:
-	@CXXFLAGSFILE=$(cxxflags) dcc $(dccflags) --dll $(dll) -fPIC $(srcs) $(libs) $(ldflags)
+	@[ -d $(objdir) ] || mkdir $(objdir)
+	@$(dcc) --dll $(dll) -fPIC $(srcs) $(libs) $(ldflags)
 
 
 else ifeq ($(build),exe)
@@ -104,18 +125,21 @@ else ifeq ($(build),exe)
 # interpreter and does not create any library.
 #
 $(prog):
-	@CXXFLAGSFILE=$(cxxflags) dcc $(dccflags) etc/main.cc $(srcs) -o $@
+	@[ -d $(objdir) ] || mkdir $(objdir)
+	@$(dcc) etc/main.cc $(srcs) -o $@
 
 
 else ifeq ($(build),lib)
 # The 'lib' build creates a static library and an executable that is
 # linked against that library.
 #
-$(prog): lib
-	@CXXFLAGSFILE=$(cxxflags) dcc $(dccflags) etc/main.cc -o $@ -L. -lici  $(libs)
+$(prog):	lib
+	@[ -d $(objdir) ] || mkdir $(objdir)
+	@$(dcc) etc/main.cc -o $@ -L. -lici  $(libs)
 
 lib:
-	@CXXFLAGSFILE=$(cxxflags) dcc $(dccflags) --lib $(lib) $(srcs)
+	@[ -d $(objdir) ] || mkdir $(objdir)
+	@$(dcc) --lib $(lib) $(srcs)
 
 else
 $(error "$(build) is not a supported build type")
@@ -124,8 +148,8 @@ endif
 # The ici.h file is built using the current interpreter executable and
 # depends on all files that may contribute to the output.
 #
-ici.h: $(prog) mk-ici-h.ici $(hdrs)
-	@LD_LIBRARY_PATH=`pwd` ICIPATH=`pwd` DYLD_LIBRARY_PATH=`pwd` ./$(prog) mk-ici-h.ici $(conf)
+ici.h:		$(prog) mk-ici-h.ici $(hdrs)
+	@ICIPATH=`pwd` LD_LIBRARY_PATH=`pwd` DYLD_LIBRARY_PATH=`pwd` ./$(prog) mk-ici-h.ici $(conf)
 
 
 # Other targets for developer types.
@@ -137,38 +161,49 @@ ici.h: $(prog) mk-ici-h.ici $(hdrs)
 debug:
 	@$(MAKE) all cxxflags=CXXFLAGS.debug dccflags=$(dccflags) build=$(build)
 
+
 # The 'test' target tests the interpreter by running the standard
 # 'core' test.
 #
-test: all
+test:		all
 	@echo; echo '* CORE ================'; echo;\
-	LD_LIBRARY_PATH=`pwd` ICIPATH=`pwd` DYLD_LIBRARY_PATH=`pwd` ./$(prog) test-core.ici
+	ICIPATH=`pwd` LD_LIBRARY_PATH=`pwd` DYLD_LIBRARY_PATH=`pwd` ./$(prog) test-core.ici
 	-@echo; echo ' * TESTS ================'; echo;\
-	LD_LIBRARY_PATH=`pwd` ICIPATH=`pwd` DYLD_LIBRARY_PATH=`pwd` $(MAKE) -C test ici=`pwd`/$(prog) test
+	ICIPATH=`pwd` LD_LIBRARY_PATH=`pwd` DYLD_LIBRARY_PATH=`pwd` $(MAKE) -C test ici=`pwd`/$(prog) test
 	-@echo;echo '* SERIALIZATION ================'; echo;\
-	LD_LIBRARY_PATH=`pwd` ICIPATH=`pwd` DYLD_LIBRARY_PATH=`pwd` $(MAKE) -C test/serialization ici=`pwd`/$(prog) test
+	ICIPATH=`pwd` LD_LIBRARY_PATH=`pwd` DYLD_LIBRARY_PATH=`pwd` $(MAKE) -C test/serialization ici=`pwd`/$(prog) test
 
 # Cleaning
 
-clean:
-	@case "$(MAKEFLAGS)" in \
-	*s*);; \
-	*) echo rm $(prog) $(lib) $(dll) '*.o';\
+# The library file we rm depends on the build type...
+#
+ifeq ($(build),dll)
+rmlib=$(dll)
+endif
+ifeq ($(build),lib)
+rmlib=$(lib)
+endif
+ifeq ($(build),exe)
+rmlib=
+endif
+
+clean:	; @case "$(MAKEFLAGS)" in \
+	*s*);; *) echo rm $(prog) $(objdir) $(rmlib);\
 	esac;\
-	rm -rf etc/main.o etc/.dcc.d *.o .dcc.d $(prog) ici.h $(dll) $(lib)
+	rm -rf $(objdir) $(prog) $(rmlib) ici.h
 	@$(MAKE) -Ctest clean
 	@$(MAKE) -Ctest/serialization clean
 
-realclean: clean
+realclean:	clean
 
 # Installation
 
-.PHONY: install-ici-exe install-libici install-ici-dot-h
+.PHONY:		install-ici-exe install-libici install-ici-dot-h
 
 ifeq ($(build),exe)
-install: install-ici-exe
+install:	install-ici-exe
 else
-install: install-ici-exe install-libici
+install:	install-ici-exe install-libici
 endif
 
 install-libici: install-ici-dot-h
@@ -201,15 +236,15 @@ full-install:
 	@echo '5  - build dll/exe'; $(MAKE) -s build=dll conf=$(conf) dccflags=--quiet
 	@echo '6  - install dll/exe'; $(MAKE) -s build=dll install-libici install-ici-exe prefix=$(prefix) dccflags=--quiet
 
-# cmake support
+# cmake
 #
-.PHONY: with-cmake configure-cmake cmake-clean cmake-realclean
+.PHONY:		with-cmake configure-cmake cmake-clean cmake-realclean
 
-with-cmake: configure-cmake
+with-cmake:	configure-cmake
 	@cmake --build build
 
 configure-cmake:
-	@cmake -Bbuild -H. -GNinja -DCMAKE_BUILD_TYPE=$(buildconf)
+	@cmake -Bbuild -H. -GNinja -DCMAKE_BUILD_TYPE=$(cmakebuild)
 
 cmake-clean:
 	@[ -d build ] && ninja -Cbuild -t clean
@@ -217,16 +252,17 @@ cmake-clean:
 cmake-realclean:
 	rm -rf build
 
-# xcode via cmake
+# xcode (via cmake)
+#
 ifeq ($(os),darwin)
-.PHONY: with-xcode configure-xcode xcode-clean xcode-realclean
+.PHONY:		with-xcode configure-xcode xcode-clean xcode-realclean
 endif
 
 ifeq ($(os),darwin)
 configure-xcode:
 	@cmake -Bbuild.xcode -H. -GXcode
 
-with-xcode: configure-xcode
+with-xcode:	configure-xcode
 	@cmake --build build.xcode
 endif
 
