@@ -1,5 +1,9 @@
 Major Changes in Version 5
 
+*     mapf renamed to transform. A far better name.
+      Transforms an aggregate by passing its values
+      through a function.
+
 *     unique() function which returns the unique
       elements of an array
 

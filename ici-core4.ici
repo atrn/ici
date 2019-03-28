@@ -41,16 +41,17 @@ extern apply(fn, aggr) {
 
 
 /*
- * aggr = mapf(aggr, fn [, args...])
+ * aggr = transform(aggr, fn [, args...])
  *
- * Transforms an aggregate by passing each element through a function and return
- * a new aggregate, of the same type, containing the transformed elements.
+ * Transforms an aggregate by passing each element through a function and returning
+ * a new aggregate, of the same type as that being transformed, containing the
+ * transformed elements.
  *
- * i.e. m' = mapf(m, f)
+ * i.e. m' = transform(m, f)
  *
  * Return m' by transforming the elements of m through f().
  */
-extern mapf(aggr, fn) {
+extern transform(aggr, fn) {
     var vargs = [array];
     v := k := r := NULL;
     switch (t := typeof(aggr))

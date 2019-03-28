@@ -4102,7 +4102,7 @@ ICI_DEFINE_CFUNCS(std)
     ICI_DEFINE_CFUNC2(argcount,    f_coreici, SS(argcount),  SS(core3)),
     ICI_DEFINE_CFUNC2(typecheck,   f_coreici, SS(typecheck), SS(core3)),
     ICI_DEFINE_CFUNC2(apply,       f_coreici, SS(apply),     SS(core4)),
-    ICI_DEFINE_CFUNC2(mapf,        f_coreici, SS(mapf),      SS(core4)),
+    ICI_DEFINE_CFUNC2(transform,   f_coreici, SS(transform), SS(core4)),
     ICI_DEFINE_CFUNC2(deepatom,    f_coreici, SS(deepatom),  SS(core5)),
     ICI_DEFINE_CFUNC2(deepcopy,    f_coreici, SS(deepcopy),  SS(core5)),
     ICI_DEFINE_CFUNC2(memoize,     f_coreici, SS(memoize),   SS(core6)),

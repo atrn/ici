@@ -4,8 +4,8 @@ apply
 	printf("%-8d %s\n", f.size, f.filename);
     }],
     sort(
-	mapf(
-	    mapf(
+	transform(
+	    transform(
 		dir(argv[1] || ".", "f"),
 		[func (filename, dir) {
 		    return pathjoin(dir, filename);
