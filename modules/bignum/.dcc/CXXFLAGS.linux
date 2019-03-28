@@ -1,7 +1,8 @@
 -std=c++11
+-fPIC
 -Wall -Wextra
 -DNDEBUG
--g -O0
+-g -O3
 -Imit/h
 -I.
 -I../..

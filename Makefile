@@ -113,7 +113,7 @@ ifeq ($(build),dll)
 #
 $(prog):	lib
 	@[ -d $(objdir) ] || mkdir $(objdir)
-	@$(dcc) etc/main.cc -o $@ -L. -lici
+	@$(dcc) etc/main.cc -fPIC -o $@ -L. -lici
 
 lib:
 	@[ -d $(objdir) ] || mkdir $(objdir)

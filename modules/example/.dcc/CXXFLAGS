@@ -1,5 +1,6 @@
 -DICI_MODULE_NAME=example
--std=c++14
+-fPIC
+-std=c++11
 -Wall -Wextra
 -DNDEBUG
 -g -O2
