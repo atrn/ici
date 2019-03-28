@@ -64,7 +64,7 @@ local determine_grams() {
     }
 }
 
-// printf("%d collects\n", ncollects());
+printf("%d collects\n", ncollects());
 
 read_words();
 
@@ -72,7 +72,7 @@ read_words();
 // hist := calc_hist(dict);
 // dump_hist(hist);
 
-// printf("%d collects\n", ncollects());
+printf("%d collects\n", ncollects());
 
 // form_dict(1);
 // hist := calc_hist();

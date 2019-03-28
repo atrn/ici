@@ -1,1 +1,1 @@
-printf("%s", recv(connect(socket("tcp"), "localhost:daytime"), 128));
+printf("%s", net.recv(net.connect(net.socket("tcp"), "localhost:daytime"), 128));

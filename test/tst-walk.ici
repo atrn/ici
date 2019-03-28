@@ -6,7 +6,7 @@ walk
 	     printf("file: %s\n", pathname);
 	 }],
 	 directory = [func (pathname) {
-	     printf(" dir: %s\n", pathname);
+	     // printf(" dir: %s\n", pathname);
 	 }],
 	 error = [func (pathname, error) {
 	     printf(stderr, "ERROR: %s: %s\n", pathname, error);

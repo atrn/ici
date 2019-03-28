@@ -1,8 +1,5 @@
-var s, f;
-
-while (s = getline(f = fopen("tst-feof.ici", "r")))
+f := fopen("tst-feof.ici", "r");
+while (s := getline(f))
     ;
-if (!feof(f))
-    printf("It didn't work\n");
-else
-    printf("Working\n");
+if (!eof(f))
+    exit("eof() didn't work\n");
