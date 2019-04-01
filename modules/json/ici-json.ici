@@ -1,0 +1,53 @@
+extern encode(any, dest, indent) {
+    var dest = stdout;
+    var indent = 0;
+    switch (t := typeof(any)) {
+    case "NULL":
+        printf(dest, "%*snull", indent, "");
+        break;
+    case "int":
+         printf(dest, "%*s%d", indent, "", any);
+	 break;
+    case "float":
+        printf(dest, "%*s%.18g", indent, "", any);
+	break;
+    case "string":
+	printf(dest, "%*s\"%s\"", indent, "", any);
+	break;
+    case "array":
+	printf(dest, "%*s[\n", indent, "");
+	last := len(any) - 1;
+	forall (v, k in any) {
+	    encode(v, dest, indent+4);
+	    if (k == last) {
+		printf(dest, "\n");
+            } else {
+                printf(dest, ",\n");
+            }
+	}
+	printf(dest, "%*s]", indent, "");
+	break;
+    case "map":
+    case "set":
+        printf(dest, "%*s{\n", indent, "");
+	needsep := false;
+	kk := sort(keys(any));
+	forall (k in kk) {
+	    v = any[k];
+	    if (needsep) {
+	        printf(dest, ",\n");
+            }
+	    encode(k, dest, indent+4);
+	    printf(dest, ":");
+	    encode(v, dest, 1);
+	    needsep = true;
+	}
+	if (needsep) {
+	    printf(dest, "\n");
+	}
+	printf(dest, "%*s}", indent, "");
+	break;
+    default:
+        fail("attempt to encode a " + t);
+    }
+}
