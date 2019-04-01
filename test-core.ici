@@ -914,7 +914,10 @@ printf("func...\n");
 
     x = keys([map a=1, b=2]);
     if (x != [array "a", "b"] && x != [array "b", "a"])
-        fail("keys() didn't produce the expected result");
+        fail("keys() on a map didn't produce the expected result");
+    x = keys([set "a", "b", "a"]);
+    if (x != [array "a", "b"] && x != [array "b", "a"])
+        fail("keys() on a set didn't produce the expected result");
 
     if (smash("ab cd ef", " ") != [array "ab", "cd", "ef"])
         fail("smash() didn't produce the expected result");
