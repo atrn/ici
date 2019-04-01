@@ -17,3 +17,5 @@
 /build/
 /CMakeLists.txt.user
 build.xcode/
+/modules/bignum/mit/bztest
+/modules/bignum/mit/testKerN

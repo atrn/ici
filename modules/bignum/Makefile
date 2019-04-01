@@ -14,12 +14,12 @@ endif
 all : dll
 
 dll:
-	@make -s -C mit BigNum.a && \
+	@$(MAKE) -s -C mit BigNum.a && \
 	dmake -o $(MODULE) dll
 
 clean:
 	@dmake -o $(MODULE) dll clean
-	@make -s -C mit scratch
+	@$(MAKE) -s -C mit scratch
 
 install: dll
 	$(sudo) install -c -m 444 ici-bignum.ici $(prefix)/lib/ici
