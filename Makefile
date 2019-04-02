@@ -241,33 +241,31 @@ full-install:
 .PHONY:		with-cmake configure-cmake cmake-clean cmake-realclean
 
 with-cmake:	configure-cmake
-	@cmake --build build
+	@cmake --build .build
 
 configure-cmake:
-	@cmake -Bbuild -H. -GNinja -DCMAKE_BUILD_TYPE=$(cmakebuild)
+	@cmake -B.build -H. -GNinja -DCMAKE_BUILD_TYPE=$(cmakebuild)
 
 cmake-clean:
-	@[ -d build ] && ninja -Cbuild -t clean
+	@[ -d .build ] && ninja -C.build -t clean
 
 cmake-realclean:
-	rm -rf build
+	rm -rf .build
 
 # xcode (via cmake)
 #
 ifeq ($(os),darwin)
 .PHONY:		with-xcode configure-xcode xcode-clean xcode-realclean
-endif
 
-ifeq ($(os),darwin)
 configure-xcode:
-	@cmake -Bbuild.xcode -H. -GXcode
+	@cmake -B.build.xcode -H. -GXcode
 
 with-xcode:	configure-xcode
-	@cmake --build build.xcode
-endif
+	@cmake --build .build.xcode
 
 xcode-clean:
-	@rm -rf build.xcode
+	@rm -rf .build.xcode
 
 xcode-realclean:
-	@rm -rf build.xcode
+	@rm -rf .build.xcode
+endif

@@ -14,8 +14,8 @@
 /ici.h
 *.a
 *.d
-/build/
+/.build/
 /CMakeLists.txt.user
-build.xcode/
+/.build.xcode/
 /modules/bignum/mit/bztest
 /modules/bignum/mit/testKerN
