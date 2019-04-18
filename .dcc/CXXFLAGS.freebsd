@@ -13,11 +13,6 @@
 -DNDEBUG
 -Oz
 
-# LTO enables whole program optimization helps reduce code size, and
-# hopefully improves locality when building a static exe.
-#
-# -flto
-
 # Uncomment for a debug build (pcre uses DEBUG, ICI !NDEBUG)
 #
 #-g -O0

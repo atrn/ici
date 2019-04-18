@@ -3,7 +3,6 @@
 # Options used in all builds.
 #
 -std=c++14 -Wall -Wextra -g
--fPIC
 -pthread
 
 # Uncomment for a release build (ICI uses NDEBUG).
@@ -11,6 +10,7 @@
 -DNDEBUG
 -UDEBUG
 -O2
+-fPIC
 
 # Uncomment for a debug build (pcre uses DEBUG, ICI !NDEBUG)
 #
