@@ -1,4 +1,120 @@
 /*
+ * string = sprint(any)
+ */
+extern sprint() {
+    var varg = [array];
+    var result;
+    var o;
+    var v;
+    var k;
+    var term = "";
+    var sdelim = "";
+    var raw = false;
+    var supers = [set];
+
+    switch (len(vargs)) {
+    case 1:
+	o = vargs[0];
+	break;
+
+    case 2:
+	o = vargs[0];
+        term = vargs[1];
+	sdelim = "\"";
+	break;
+
+    case 3:
+	o = vargs[0];
+	term = vargs[1];
+	sdelim = "\"";
+        supers = vargs[2];
+	break;
+
+    default:
+	fail(sprintf("incorrect number of parameters to format(), expected 1, 2, or 3 args (got %d)", len(vargs)));
+    }
+
+    switch (t := typeof(o)) {
+    case "array":
+    case "set":
+	result += sprintf("[%s", t);
+	forall (v in o) {
+	    result += " ";
+	    result += format(v, "");
+	    result += ",";
+	}
+	result += sprintf("]%s", term);
+	break;
+
+    case "map":
+	result += "[map";
+	if (ss := super(o)) {
+            if (supers[ss]) {
+		result += ": [map]";
+	    } else {
+                assign(supers, ss);
+                result += ": ";
+                result += format(super(o), "", supers);
+            }
+	}
+	forall (v, k in o) {
+	    if (typeof(k) == "string" && k ~ #^[_a-zA-Z][_a-zA-Z0-9]*$#) {
+		result += sprintf(" %s", k);
+            } else {
+		result += " (";
+		result += format(k, "");
+		result += ")";
+	    }
+	    result += " = ";
+	    if (typeof(v) == "map") {
+		if (supers[v]) {
+		    result += "[map]";
+		} else {
+		    assign(supers, v);
+		    result += format(v, "");
+		}
+	    } else {
+		result += format(v, "");
+	    }
+	    result += ",";
+	}
+	result += sprintf("]%s", term);
+	break;
+
+    case "string":
+	cleanse := [func (s) {
+	    r := array();
+	    forall (c in s) {
+		if (c >= " " && c <= "~") {
+		    push(r, c);
+		} else {
+		    switch (c) {
+		    case "\a": push(r, "\\a"); break;
+		    case "\b": push(r, "\\b"); break;
+		    case "\f": push(r, "\\f"); break;
+		    case "\n": push(r, "\\n"); break;
+		    case "\r": push(r, "\\r"); break;
+		    case "\t": push(r, "\\t"); break;
+		    default: push(r, sprintf("\\%03o", toint(c)));
+		    }
+                }
+	    }
+	    return implode(r);
+	}];
+	if (raw) {
+	    result += sprintf("%s", o);
+        } else {
+	    result += sprintf("%s%s%s%s", sdelim, cleanse(o), sdelim, term);
+        }
+	break;
+
+    default:
+	result += sprintf("%s%s", string(o), term);
+	break;
+    }
+}
+
+/*
  * print([file,] [any])
  *
  * Output a textual representation of an object to a file.
