@@ -39,6 +39,7 @@
 #include <stdlib.h>
 
 #include <chrono>
+#include <thread>
 
 #ifdef  _WIN32
 #include <windows.h>
@@ -2976,41 +2977,15 @@ static int f_calendar() {
  * ICI: sleep(num)
  */
 static int f_sleep() {
-    double how_long;
-    exec   *x;
+    using S = std::chrono::duration<double>; // seconds
 
+    double how_long;
     if (typecheck("n", &how_long)) {
         return 1;
     }
-
-#ifdef _WIN32
-    {
-        long            t;
-
-        how_long *= 1000; /* Convert to milliseconds. */
-        if (how_long > LONG_MAX) {
-            t = LONG_MAX;
-        } else if ((t = (long)how_long) < 1) {
-            t = 1;
-        }
-        x = leave();
-        Sleep(t);
-        enter(x);
-    }
-#else
-    {
-        long            t;
-
-        if (how_long > LONG_MAX) {
-            t = LONG_MAX;
-        } else if ((t = how_long) < 1) {
-            t = 1;
-        }
-        x = leave();
-        sleep(t);
-        enter(x);
-    }
-#endif
+    auto x = leave();
+    std::this_thread::sleep_for(S(how_long));
+    enter(x);
     return null_ret();
 }
 

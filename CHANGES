@@ -1,5 +1,10 @@
 Major Changes in Version 5
 
+*     sleep() now accepts non-integral sleep times
+      and supports sleeps of less than one second.
+      The actual precision of course being system
+      and implementation dependent.
+
 *     mapf renamed to transform. A far better name.
       Transforms an aggregate by passing its values
       through a function.
