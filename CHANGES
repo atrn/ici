@@ -1,9 +1,9 @@
 Major Changes in Version 5
 
 *     sleep() now accepts non-integral sleep times
-      and supports sleeps of less than one second.
-      The actual precision of course being system
-      and implementation dependent.
+      expressed as floating point seconds. This allows
+      for sleeps of less than one second but of course
+      the actual precision is system dependent.
 
 *     mapf renamed to transform. A far better name.
       Transforms an aggregate by passing its values
@@ -22,10 +22,10 @@ Major Changes in Version 5
       and returns times with nanosecond precision
       in double precision floats.
 
-*     Define split() as a synonym for gettokens().
-      The name is chosen as it complements join()
-      and even round-trips, i.e. given some array
-      of strings, split(join(a)) == a is true.
+*     split() is now a synonym for gettokens().
+      The complementing join(). The two functions
+      round-trip, i.e. given some array of strings,
+          split(join(a)) == a.
 
 *     Added new member functions to ici::type to allow
       the keys() builtin function to be type-generic

@@ -15,18 +15,20 @@
 namespace ici
 {
 
-int archive_init();
+int  archive_init();
 void archive_uninit();
+int  f_archive_save(...);
+int  f_archive_restore(...);
 
-int f_archive_save(...);
-int f_archive_restore(...);
-
+// HACK - endianess support needs re-think
 #if defined (__i386__) || defined (__x86_64__)
 #define ICI_ARCHIVE_LITTLE_ENDIAN_HOST 1
 #endif
 
 /*
- * Bit of the tcode set when the object is atomic.
+ * The top bit of the tcode set when the object is atomic.  This of
+ * course limits us to 128 types. This supports the move to a 16-bit
+ * per-value header.
  */
 constexpr int O_ARCHIVE_ATOMIC = 0x80;
 
@@ -44,7 +46,7 @@ public:
     static int (*op_func(int))();
 
     archiver(file *, objwsup *);
-    operator bool() const; // check construction success
+    operator bool() const; // checks construction success
     ~archiver();
 
     archiver(const archiver &) = delete;
