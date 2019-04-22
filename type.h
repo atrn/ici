@@ -13,15 +13,22 @@ namespace ici
  */
 
 /*
- * Every object has a header. In the header the o_tcode (type code) field
- * can be used to index the global ici::types[] array to discover the object's
- * type class. This is the type class.
+ * Each type of object is defined by a, registered, instance of a
+ * type derived from ici::type and overriding the various virtual
+ * members to implement the type's behaviour.
  *
- * Implementations of new types typically declare one of these classes
- * and implement the member functions that determine the nature of the
- * new type. The singleton() template function (fwd.h) can be used
- * to create a single instance of the type class which is registered
- * with the interpreter and allocated a type code.
+ * Type are registered in a global table and then represented as
+ * a small integer index into that table. The index is embedded
+ * in the header of each object and used to lookup the object's
+ * corresponding type instance via the global types table.
+ *
+ * Implementations of new types define a class inheriting ici::type
+ * and overriding the member functions required as per the new type.
+ * (use the existing types as examples).  A single instance of the
+ * type class is created using the instanceof() function (fwd.h) and
+ * registered with the interpreter which allocates a type code for the
+ * type. The user can then create objects corresponding with the type
+ * using that type code.
  *
  * This --class-- forms part of the --ici-api--.
  */
@@ -33,21 +40,27 @@ public:
      * Type names have no fundamental importance in the langauge and
      * need not even be unique.
      */
-    const char * const name;
+    const char * const  name;
 
 private:
-    const size_t _size;  // the size of this type's associated object structure
-    const int    _flags; // type feature flags, see below.
-    mutable str *_name;  // str version of name, created on demand (hence mutable).
+    const size_t        _size;  // the size of this type's associated object structure
+    const int           _flags; // type feature flags, see below.
+    mutable str *       _name;  // str version of name, created on demand (hence mutable).
 
 protected:
     /*
      * Flags are used to indicate that a type class overrides a
      * similarly named member function. Type flags are used to
-     * detetermine behaviour in a number of places that do not
-     * want the default implementation. The original C code used
-     * NULL function pointers as flags, and didn't use inheritence,
-     * implementing an optional<func *>.
+     * detetermine behaviour in a number of places that do not want
+     * the default implementation but do not override the
+     * function. This mimics the original C code's use of NULL
+     * function pointers as flags but without inheritence, it was
+     * essentially implementing an optional<func *>.
+     *
+     * We do this explicitly using some flag bits and a few inline
+     * functions to test them.  With everything const and constexpr
+     * there should be ample opportunity for a smart-enough compiler
+     * to optimize well.
      */
     static constexpr int has_fetch_method = 1<<0;
     static constexpr int has_objname      = 1<<1;
@@ -71,7 +84,7 @@ protected:
     /*
      * objectsize() returns the size of the type's associated object structure.
      */
-    inline size_t objectsize() const { return _size; }
+    inline size_t objectsize() const    { return _size; }
 
 public:
     virtual ~type();
@@ -114,7 +127,6 @@ public:
      *                      free a partially allocated object.
      */
     virtual void             free(object *);
-
 
     /*
      * cmp(o1, o2)          Must compare o1 and o2 and return 0 if they are the
@@ -371,7 +383,7 @@ public:
 
     /*
      * This is a convenience function which can be used to implement
-     * 'assign' if the type doesn't support asignment.  It sets the
+     * 'assign' if the type doesn't support assignment.  It sets the
      * 'error' to a message of the form:
      *
      *  attempt to set %s keyed by %s to %s
@@ -383,8 +395,32 @@ public:
      */
     static int assign_fail(object *, object *, object *);
 
+    /*
+     * This is a convenience function which can be used to implement
+     * 'save' if the type doesn't support archiving.  It sets the
+     * 'error' to a message of the form:
+     *
+     *  attempt to save a %s
+     *
+     * and returns 1.  Also, it can be called from within a custom save
+     * functions where the particular operation is illegal.
+     *
+     * This --func-- forms part of the --ici-api--.
+     */
     static int save_fail(archiver *, object *);
 
+    /*
+     * This is a convenience function which can be used to implement
+     * 'restore' if the type doesn't support archiving.  It sets the
+     * 'error' to a message of the form:
+     *
+     *  attempt to restore a %s
+     *
+     * and returns 1.  Also, it can be called from within a custom
+     * restore functions where the particular operation is illegal.
+     *
+     * This --func-- forms part of the --ici-api--.
+     */
     static object *restore_fail(const char *);
 };
 
