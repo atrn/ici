@@ -18,8 +18,14 @@ namespace ici
 constexpr int max_error_msg = 1024;
 
 /*
- * Set the global ici::error value and return
- * non-zero as per the error returning convention.
+ * Retrieve the ici error value. If no error is in effect
+ * this returns nullptr.
+ */
+const char *get_error();
+
+/*
+ * Set the ici error value and return non-zero as per
+ * the error returning convention.
  *
  * This --func-- forms part of the --ici-api--.
  */

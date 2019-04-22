@@ -11,6 +11,10 @@ int set_errorv(const char *fmt, va_list va) {
     return 1;
 }
 
+const char * get_error() {
+    return ex->x_error;
+}
+
 int set_error(const char *fmt, ...) {
     va_list va;
     va_start(va, fmt);
