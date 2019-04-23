@@ -3315,7 +3315,7 @@ static int f_getfile() {
         if (size == -1) {
             goto read_unsized;
         }
-        if (f->seek(off, 1) != off) {
+        if (f->seek(off, 0) != off) {
             set_error("getfile() failed to restore file offset");
             goto finish;
         }
