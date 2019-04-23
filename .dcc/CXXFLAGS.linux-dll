@@ -9,9 +9,9 @@
 
 # Uncomment for a release build (ICI uses NDEBUG).
 #
+-fPIC
 -DNDEBUG
 -Os
--fPIC
 -funroll-loops
 -mtune=native
 

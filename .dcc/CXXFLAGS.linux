@@ -10,7 +10,7 @@
 # Uncomment for a release build (ICI uses NDEBUG).
 #
 -DNDEBUG
--O2
+-Os
 -funroll-loops
 -mtune=native
 
