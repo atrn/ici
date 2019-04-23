@@ -138,9 +138,9 @@ extern pfopen(path, name, mode) {
 }
 
 /*
- * Load a non-var-loaded ICI module
+ * Include an ICI file by parsing its contents.
  */
-extern use() {
+extern include() {
     var        vargs = [array];
     var        f, s;
     var        path;

@@ -4069,7 +4069,7 @@ ICI_DEFINE_CFUNCS(std)
     ICI_DEFINE_CFUNC2(basename,    f_coreici, SS(basename),  SS(core2)),
     ICI_DEFINE_CFUNC2(dirname,     f_coreici, SS(dirname),   SS(core2)),
     ICI_DEFINE_CFUNC2(pfopen,      f_coreici, SS(pfopen),    SS(core2)),
-    ICI_DEFINE_CFUNC2(use,         f_coreici, SS(use),       SS(core2)),
+    ICI_DEFINE_CFUNC2(include,     f_coreici, SS(include),   SS(core2)),
     ICI_DEFINE_CFUNC2(walk,        f_coreici, SS(walk),      SS(core2)),
     ICI_DEFINE_CFUNC2(min,         f_coreici, SS(min),       SS(core3)),
     ICI_DEFINE_CFUNC2(max,         f_coreici, SS(max),       SS(core3)),
