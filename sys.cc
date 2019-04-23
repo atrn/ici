@@ -2018,11 +2018,11 @@ static int sys_usleep()
 
     if (typecheck("i", &t))
         return 1;
-    blocking_syscall(1);
+    signals_invoke_immediately(1);
     x = leave();
     usleep(t);
     enter(x);
-    blocking_syscall(0);
+    signals_invoke_immediately(0);
     return null_ret();
 }
 

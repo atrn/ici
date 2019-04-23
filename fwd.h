@@ -405,7 +405,7 @@ extern void              init_signals();
 extern volatile sigset_t signals_pending;
 extern volatile long     signal_count[];
 extern int               invoke_signal_handlers();
-extern int               blocking_syscall(int);
+extern int               signals_invoke_immediately(int);
 extern void              grow_objs(object *);
 extern void              collect();
 

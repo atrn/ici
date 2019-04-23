@@ -153,12 +153,12 @@ static int isclosed(handle *skt) {
  * blocking system call.
  */
 static exec *potentially_block(void) {
-    blocking_syscall(1);
+    signals_invoke_immediately(1);
     return leave();
 }
 
 static void unblock(exec *x) {
-    blocking_syscall(0);
+    signals_invoke_immediately(0);
     enter(x);
 }
 

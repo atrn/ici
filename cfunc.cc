@@ -1846,7 +1846,7 @@ ici_f_sprintf()
         {
             char        small_buf[128];
             char        *out_buf;
-            exec  *x = nullptr;
+            exec        *x = nullptr;
 
             if (i <= (int)(sizeof small_buf)) {
                 out_buf = small_buf;
@@ -2222,17 +2222,17 @@ static int f_waitfor() {
         tv->tv_sec = to;
         tv->tv_usec = (to - tv->tv_sec) * 1000000.0;
     }
-    blocking_syscall(1);
+    signals_invoke_immediately(1);
     switch (select(nfds, &readfds, nullptr, nullptr, tv)) {
     case -1:
-        blocking_syscall(0);
+        signals_invoke_immediately(0);
         return set_error("could not select");
 
     case 0:
-        blocking_syscall(0);
+        signals_invoke_immediately(0);
         return ret_no_decref(o_zero);
     }
-    blocking_syscall(0);
+    signals_invoke_immediately(0);
     for (nargs = NARGS(), e = ARGS(); nargs > 0; --nargs, --e) {
         if (!isfile(*e)) {
             continue;
@@ -3181,7 +3181,7 @@ static int f_getchar() {
             return 1;
         }
     }
-    blocking_syscall(1);
+    signals_invoke_immediately(1);
     if (f->hasflag(ftype::nomutex)) {
         x = leave();
     }
@@ -3189,7 +3189,7 @@ static int f_getchar() {
     if (f->hasflag(ftype::nomutex)) {
         enter(x);
     }
-    blocking_syscall(0);
+    signals_invoke_immediately(0);
     if (c == EOF) {
         if ((FILE *)f->f_file == stdin) {
             clearerr(stdin);
@@ -3245,7 +3245,7 @@ static int f_getline() {
         goto nomem;
     }
     if (f->hasflag(ftype::nomutex)) {
-        blocking_syscall(1);
+        signals_invoke_immediately(1);
         x = leave();
     }
     for (i = 0; (c = f->getch()) != '\n' && c != EOF; ++i) {
@@ -3256,7 +3256,7 @@ static int f_getline() {
     }
     if (f->hasflag(ftype::nomutex)) {
         enter(x);
-        blocking_syscall(0);
+        signals_invoke_immediately(0);
     }
     if (b == nullptr) {
         goto nomem;
@@ -3305,31 +3305,68 @@ static int f_getfile() {
             set_error("getfile() given %s instead of a file", objname(n1, f));
             goto finish;
         }
+
+        auto off = f->seek(0, 1);
+        if (off == -1) {
+            set_error("getfile() failed to determine current file offset");
+            goto finish;
+        }
+        auto size = f->seek(0, 2);
+        if (size == -1) {
+            goto read_unsized;
+        }
+        if (f->seek(off, 1) != off) {
+            set_error("getfile() failed to restore file offset");
+            goto finish;
+        }
+        buf_size = size - off;
+        if ((b = (char *)malloc(buf_size)) == nullptr) {
+            goto nomem;
+        }
+        if (f->hasflag(ftype::nomutex)) {
+            x = leave();
+        }
+        if (f->read(b, buf_size) != buf_size) {
+            set_error("getfile() failed to read entire file");
+        }
+        if (f->hasflag(ftype::nomutex)) {
+            enter(x);
+        }
+        if (error) {
+            goto finish;
+        }
+        i = buf_size;
+        goto have_result;
+
     } else {
         if ((f = need_stdin()) == nullptr) {
             goto finish;
         }
     }
-    if ((b = (char *)malloc(buf_size = 128)) == nullptr) {
+read_unsized:
+    buf_size = 4096;
+    if ((b = (char *)malloc(buf_size)) == nullptr) {
         goto nomem;
     }
     if (f->hasflag(ftype::nomutex)) {
-        blocking_syscall(1);
+        signals_invoke_immediately(1);
         x = leave();
     }
     for (i = 0; (c = f->getch()) != EOF; ++i) {
-        if (i == buf_size && (b = (char *)realloc(b, buf_size *= 2)) == nullptr) {
-            break;
+        if (i == buf_size) {
+            auto q = (char *)realloc(b, buf_size *= 2);
+            if (q == nullptr) {
+                goto nomem;
+            }
+            b = q;
         }
         b[i] = c;
     }
     if (f->hasflag(ftype::nomutex)) {
         enter(x);
-        blocking_syscall(0);
+        signals_invoke_immediately(0);
     }
-    if (b == nullptr) {
-        goto nomem;
-    }
+have_result:
     str = new_str(b, i);
     free(b);
     goto finish;
@@ -3441,9 +3478,9 @@ static int f_fopen() {
         return 1;
     }
     x = leave();
-    blocking_syscall(1);
+    signals_invoke_immediately(1);
     stream = fopen(name, mode);
-    blocking_syscall(0);
+    signals_invoke_immediately(0);
     if (stream == nullptr) {
         i = errno;
         enter(x);

@@ -277,7 +277,7 @@ void init_signals()
  * we're probably blocked in a system call and the
  * execution loop isn't being processed.
  */
-int blocking_syscall(int state)
+int signals_invoke_immediately(int state)
 {
     int previous;
 
