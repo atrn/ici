@@ -58,7 +58,7 @@ public:
     virtual int  fileno(void *);
     virtual int  setvbuf(void *, char *, int, size_t);
 
-    int flags;
+    const int flags;
 };
 /*
  * flags             A combination of * flags, defined above.
