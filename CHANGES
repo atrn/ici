@@ -1,5 +1,8 @@
 Major Changes in Version 5
 
+*     fail() with no arguments now fails with the
+      error "failed".
+
 *     sleep() now accepts non-integral sleep times
       expressed as floating point seconds. This allows
       for sleeps of less than one second but of course

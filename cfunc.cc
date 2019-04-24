@@ -1224,10 +1224,12 @@ fail:
 }
 
 static int f_fail() {
-    char *s;
+    const char *s = "failed";
 
-    if (typecheck("s", &s)) {
-        return 1;
+    if (NARGS() > 0) {
+        if (typecheck("s", &s)) {
+            return 1;
+        }
     }
     return set_error("%s", s);
 }
