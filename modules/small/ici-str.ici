@@ -3,7 +3,7 @@
  */
 extern tolower(s) {
     delta_lower := 'a'-'A';
-    r := [array];
+    r := array();
     forall (ch in s) {
         if (ch >= "A" && ch <= "Z") {
             ch = toint(ch)+delta_lower;
@@ -18,7 +18,7 @@ extern tolower(s) {
  */
 extern toupper(s) {
     delta_upper := 'A'-'a';
-    r := [array];
+    r := array();
     forall (ch in s) {
         if (ch >= "a" && ch <= "z") {
             ch = toint(ch)+delta_upper;
