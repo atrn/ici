@@ -4123,7 +4123,7 @@ ICI_DEFINE_CFUNCS(std)
     ICI_DEFINE_CFUNC2(sprint,      f_coreici, SS(sprint),    SS(core7)),
     ICI_DEFINE_CFUNC2(println,     f_coreici, SS(println),   SS(core7)),
     ICI_DEFINE_CFUNC2(closure,     f_coreici, SS(closure),   SS(core8)),
-    ICI_DEFINE_CFUNC2(format,      f_coreici, SS(format),    SS(core9)),
+    ICI_DEFINE_CFUNC2(format_time, f_coreici, SS(format_time), SS(core9)),
     ICI_DEFINE_CFUNC1(printf,      ici_f_sprintf, 1),
     ICI_DEFINE_CFUNC(getchar,   f_getchar),
     ICI_DEFINE_CFUNC(ungetchar, f_ungetchar),

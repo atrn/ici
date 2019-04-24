@@ -545,7 +545,12 @@ void ici_dump_refs() {
         }
     }
 }
+#endif // ifndef NDEBUG
+
 void object::incref() {
+#ifdef NDEBUG
+    ++o_nrefs;
+#else
     if (this == traceobj) {
         printf("ici incref traceobj(%d)\n", o_tcode);
     }
@@ -557,9 +562,11 @@ void object::incref() {
         fprintf(stderr, "ici warning: %p nrefs %d > %d\n", (void *)this, o_nrefs, worrying_nrefs);
         fflush(stdout);
     }
+#endif
 }
 
 void object::decref() {
+#ifndef NDEBUG
     if (this == traceobj) {
         printf("ici decref traceobj(%d)\n", o_tcode);
     }
@@ -567,9 +574,11 @@ void object::decref() {
         printf("ici oops: ref count underflow %p\n", (void *)this);
         abort();
     }
+#endif
     --o_nrefs;
 }
 
+#ifndef NDEBUG
 void rego(object *o) {
     if (o == traceobj) {
         printf("rego traceobj(%d)\n", o->o_tcode);
@@ -581,7 +590,6 @@ void rego(object *o) {
         grow_objs(o);
     }
 }
-
-#endif
+#endif //ifndef NDEBUG
 
 } // namespace ici

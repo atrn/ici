@@ -249,7 +249,7 @@ struct object
         icitype()->free(this);
     }
 
-#ifdef NDEBUG
+#ifdef ICI_INLINE_INCREF_DECREF
     /*
      * Increment the object's reference count.
      */
@@ -264,10 +264,6 @@ struct object
         --o_nrefs;
     }
 #else
-    /*
-     * In debug builds incref() and decref() perform extra checks
-     * to help detect errors in reference counting.
-     */
     void incref();
     void decref();
 #endif

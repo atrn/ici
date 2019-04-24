@@ -59,7 +59,7 @@ endif
 ifeq ($(os),freebsd)
 libs=		-lpthread
 endif
-objdir?=	.objs
+objdir?=	.dcc.o
 cmakebuild?=	Release
 
 .PHONY:		all lib clean $(prog) install realclean

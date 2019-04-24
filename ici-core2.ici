@@ -146,7 +146,7 @@ extern include() {
     var        path;
     var        err = NULL;
 
-    scp = super(top(vstack(), -1));
+    scp = map(super(top(vstack(), -1)));
     forall (fn in vargs) {
         try {
             f = pfopen(icipath, fn + ".ici");
