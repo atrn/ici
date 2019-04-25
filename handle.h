@@ -108,26 +108,22 @@ struct handle : objwsup
     object   *h_member_map;
     int     (*h_member_intf)(void *ptr, int id, object *setv, object **retv);
     int     (*h_general_intf)(handle *h, object *k, object *setv, object **retv);
-};
-
-inline handle *handleof(object *o) { return o->as<handle>(); }
-inline bool ishandle(object *o) { return o->isa(TC_HANDLE); }
-inline bool ishandleof(object *o, str *n) { return ishandle(o) && handleof(o)->h_name == n; }
 
 /*
  * Flags set in the upper nibble of o_flags, which is
  * allowed for type specific use.
  */
-constexpr int ICI_H_CLOSED =  0x20;
-constexpr int ICI_H_HAS_PRIV_MAP = 0x40;
+static constexpr int CLOSED =  0x20;
+static constexpr int HAS_PRIV_MAP = 0x40;
+static constexpr int METHOD = 0x8000000;
 /*
- * ICI_H_CLOSED             If set, the thing h_ptr points to is no longer
+ * CLOSED               If set, the thing h_ptr points to is no longer
  *                      valid (it has probably been freed). This flag
  *                      exists for the convenience of users, as the
  *                      core handle code doesn't touch this much.
  *                      Use of this latent feature depends on needs.
  *
- * ICI_H_HAS_PRIV_MAP    This handle has had a private map allocated
+ * HAS_PRIV_MAP         This handle has had a private map allocated
  *                      to hold ICI values that have been assigned to
  *                      it. This does not happen until required, as
  *                      not all handles will ever need one. The super
@@ -135,12 +131,17 @@ constexpr int ICI_H_HAS_PRIV_MAP = 0x40;
  *                      super the creator originally supplied).
  */
 
+};
+
+inline handle *handleof(object *o) { return o->as<handle>(); }
+inline bool ishandle(object *o) { return o->isa(TC_HANDLE); }
+inline bool ishandleof(object *o, str *n) { return ishandle(o) && handleof(o)->h_name == n; }
+
 struct name_id
 {
     const char  *ni_name;
     long        ni_id;
 };
-constexpr int ICI_H_METHOD = 0x8000000;
 
 /*
  * End of ici.h export. --ici.h-end--

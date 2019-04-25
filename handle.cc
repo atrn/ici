@@ -43,11 +43,11 @@ static handle ici_handle_proto;
  * might be freed by some other aspect of your code, you must consider that
  * its handle object may still be referenced from ICI code.  You don't want to
  * have it passed back to you and inadvertently try to access your freed data.
- * To prevent this you can set the ICI_H_CLOSED flag in the handle's object header
+ * To prevent this you can set the handle::CLOSED flag in the handle's object header
  * when you free the C data (see 'handle_probe()').  Note that in
  * callbacks where you are passed the handle object directly, you are
- * reponsible to checking ICI_H_CLOSED.  Also, once you use this mechanism, you
- * must *clear* the ICI_H_CLOSED field after a real new handle allocation (because
+ * reponsible to checking handle::CLOSED.  Also, once you use this mechanism, you
+ * must *clear* the handle::CLOSED field after a real new handle allocation (because
  * you might be reusing the old memory, and this function might be returning
  * to you a zombie handle).
  *
@@ -113,7 +113,7 @@ handle *new_handle(void *ptr, str *name, objwsup *super)
  * associated with your C data structure in existence, but avoids allocating
  * it if does not exist already (as 'new_handle()' would do).  This can be
  * useful if you want to free your C data structure, and need to mark any ICI
- * reference to the data by setting ICI_H_CLOSED in the handle's object header.
+ * reference to the data by setting handle::CLOSED in the handle's object header.
  *
  * This --func-- forms part of the --ici-api--.
  */
@@ -191,7 +191,7 @@ ici_handle_method(object *inst)
 
     if (method_check(inst, TC_HANDLE))
         return 1;
-    if (inst->hasflag(ICI_H_CLOSED))
+    if (inst->hasflag(handle::CLOSED))
     {
         return set_error("attempt to apply method %s to %s which is dead",
                              objname(n1, os.a_top[-1]),
@@ -218,8 +218,8 @@ ici_handle_method(object *inst)
  * The argument 'ni' should be a pointer to the first element of an arrary
  * of 'name_id' structs that contain the names of members and the integer
  * IDs that your code would like to refere to them by. All members that are
- * to be invoked as methods calls must include the flag ICI_H_METHOD in the ID.
- * (This flag is removed from the ID when it is passed back to your code. ICI_H_METHOD
+ * to be invoked as methods calls must include the flag handle::METHOD in the ID.
+ * (This flag is removed from the ID when it is passed back to your code. handle::METHOD
  * is the most significant bit in the 32 bit ID.) The list is terminated by an
  * entry with a name of nullptr.
  *
@@ -258,13 +258,13 @@ object *make_handle_member_map(name_id *ni)
         id = nullptr;
         if ((n = new_str_nul_term(ni->ni_name)) == nullptr)
             goto fail;
-        if (ni->ni_id & ICI_H_METHOD)
+        if (ni->ni_id & handle::METHOD)
         {
             id = new_cfunc
             (
                 n,
                 (int (*)(...))(ici_handle_method),
-                (void *)(ni->ni_id & ~ICI_H_METHOD),
+                (void *)(ni->ni_id & ~handle::METHOD),
                 nullptr
             );
             if (id == nullptr)
@@ -332,7 +332,7 @@ object * handle_type::fetch(object *o, object *k)
     object *r;
 
     h = handleof(o);
-    if (h->h_member_map != nullptr && !o->hasflag(ICI_H_CLOSED))
+    if (h->h_member_map != nullptr && !o->hasflag(handle::CLOSED))
     {
         object       *id;
 
@@ -389,7 +389,7 @@ object * handle_type::fetch_base(object *o, object *k)
     object *r;
 
     h = handleof(o);
-    if (h->h_member_map != nullptr && !o->hasflag(ICI_H_CLOSED))
+    if (h->h_member_map != nullptr && !o->hasflag(handle::CLOSED))
     {
         object       *id;
 
@@ -416,7 +416,7 @@ object * handle_type::fetch_base(object *o, object *k)
     }
     if (!hassuper(o))
         return fetch_fail(o, k);
-    if (!o->hasflag(ICI_H_HAS_PRIV_MAP))
+    if (!o->hasflag(handle::HAS_PRIV_MAP))
         return null;
     return ici_fetch_base(h->o_super, k);
 }
@@ -431,7 +431,7 @@ int handle_type::assign_base(object *o, object *k, object *v)
     object *r;
 
     h = handleof(o);
-    if (h->h_member_map != nullptr && !o->hasflag(ICI_H_CLOSED))
+    if (h->h_member_map != nullptr && !o->hasflag(handle::CLOSED))
     {
         object       *id;
 
@@ -456,7 +456,7 @@ int handle_type::assign_base(object *o, object *k, object *v)
     }
     if (!hassuper(o))
         return assign_fail(o, k, v);
-    if (!o->hasflag(ICI_H_HAS_PRIV_MAP))
+    if (!o->hasflag(handle::HAS_PRIV_MAP))
     {
         objwsup  *s;
 
@@ -472,7 +472,7 @@ int handle_type::assign_base(object *o, object *k, object *v)
         s->o_super = objwsupof(o)->o_super;
         objwsupof(o)->o_super = s;
         ++vsver;
-        o->set(ICI_H_HAS_PRIV_MAP);
+        o->set(handle::HAS_PRIV_MAP);
     }
     return ici_assign_base(objwsupof(o)->o_super, k, v);
 }
@@ -488,7 +488,7 @@ int handle_type::assign(object *o, object *k, object *v)
 
     h = handleof(o);
     r = nullptr;
-    if (h->h_member_map != nullptr && !o->hasflag(ICI_H_CLOSED))
+    if (h->h_member_map != nullptr && !o->hasflag(handle::CLOSED))
     {
         object       *id;
 
@@ -512,7 +512,7 @@ int handle_type::assign(object *o, object *k, object *v)
     }
     if (!hassuper(o))
         return assign_fail(o, k, v);
-    if (o->hasflag(ICI_H_HAS_PRIV_MAP))
+    if (o->hasflag(handle::HAS_PRIV_MAP))
         return ici_assign(h->o_super, k, v);
     /*
      * We don't have a base struct of our own yet. Try the super.

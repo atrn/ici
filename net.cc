@@ -113,7 +113,7 @@ inline int socket_fd(handle *h) {
  * socket if it isn't already.
  */
 static void socket_prefree(handle *h) {
-    if (!h->hasflag(ICI_H_CLOSED)) {
+    if (!h->hasflag(handle::CLOSED)) {
         closesocket(socket_fd(h));
     }
 }
@@ -127,7 +127,7 @@ static handle *new_netsocket(SOCKET fd) {
     if ((h = new_handle((void *)lfd, SS(socket), nullptr)) == nullptr) {
         return nullptr;
     }
-    h->clr(ICI_H_CLOSED);
+    h->clr(handle::CLOSED);
     h->h_pre_free = socket_prefree;
     /*
      * Turn off super support. This means you can't assign or fetch
@@ -141,7 +141,7 @@ static handle *new_netsocket(SOCKET fd) {
  * Is a socket closed? Set error if so.
  */
 static int isclosed(handle *skt) {
-    if (skt->hasflag(ICI_H_CLOSED)) {
+    if (skt->hasflag(handle::CLOSED)) {
         set_error("attempt to use closed socket");
         return 1;
     }
@@ -382,7 +382,7 @@ static int net_close(void) {
         return 1;
     }
     closesocket(socket_fd(skt));
-    skt->set(ICI_H_CLOSED);
+    skt->set(handle::CLOSED);
     return null_ret();
 }
 
