@@ -3,6 +3,23 @@
 #include <icistr-setup.h>
 
 extern int f_util_getdata();
+extern int f_util_pick();
+
+namespace
+{
+
+ici::cfunc *cfuncs()
+{
+    static ICI_DEFINE_CFUNCS(util)
+    {
+        ICI_DEFINE_CFUNC(getdata, f_util_getdata),
+        ICI_DEFINE_CFUNC(pick, f_util_pick),
+        ICI_CFUNCS_END()
+    };
+    return ICI_CFUNCS(util);
+}
+
+} // anon
 
 extern "C" ici::object * ici_util_init()
 {
@@ -14,10 +31,5 @@ extern "C" ici::object * ici_util_init()
     {
         return nullptr;
     }
-    ICI_DEFINE_CFUNCS(util)
-    {
-        ICI_DEFINE_CFUNC(getdata, f_util_getdata),
-        ICI_CFUNCS_END()
-    };
-    return ici::new_module(ICI_CFUNCS(util));
+    return ici::new_module(cfuncs());
 }
