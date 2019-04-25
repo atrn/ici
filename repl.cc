@@ -242,6 +242,7 @@ struct repl_file {
                 sol_ = true;
                 wantp_ = true;
                 havep_ = false;
+                puts("\n");
             } else {
                 sol_ = false;
                 havep_ = false;
