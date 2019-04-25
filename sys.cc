@@ -2028,7 +2028,34 @@ static int sys_usleep()
 
 #endif /* #ifndef _WIN32 */
 
+/*
+ * string = error(int)
+ * int = error(string)
+ */
+static int sys_error()
+{
+    if (NARGS() != 1)
+    {
+        return argcount(1);
+    }
+    if (isint(ARG(0)))
+    {
+        const int code = intof(ARG(0))->i_value;
+        return str_ret(code ? strerror(code) : "");
+    }
+    if (isstring(ARG(0)))
+    {
+        for (int i = 0; i < sys_nerr; ++i)
+            if (strcasecmp(sys_errlist[i], stringof(ARG(0))->s_chars) == 0)
+                return int_ret(i);
+        return int_ret(0);
+    }
+    return argerror(0);
+}
+
 ICI_DEFINE_CFUNCS(sys) {
+    ICI_DEFINE_CFUNC(_error, sys_error),
+
     /* utime */
     ICI_DEFINE_CFUNC(access,  sys_access),
     ICI_DEFINE_CFUNC(_close,   sys_close),
