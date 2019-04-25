@@ -8,6 +8,7 @@ MODULES=\
 	env\
 	example\
 	small\
+	sqlite\
 	util
 
 all clean install:

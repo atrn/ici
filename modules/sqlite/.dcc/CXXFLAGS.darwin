@@ -1,0 +1,9 @@
+-DICI_MODULE_NAME=sqlite
+-fPIC
+-std=c++11
+-Wall -Wextra
+-DNDEBUG
+-g -O2
+-I.
+-I/usr/local/include
+-I/opt/local/include
