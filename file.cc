@@ -160,7 +160,8 @@ object *file_type::restore(archiver *ar) {
     if (code == 'e') {
         return need_stderr();
     }
-    return type::restore(ar);
+    set_error("unexpected stream code (%u) when restoring file", code);
+    return nullptr;
 }
 
 } // namespace ici

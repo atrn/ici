@@ -20,3 +20,4 @@
 /.build.xcode/
 /modules/bignum/mit/bztest
 /modules/bignum/mit/testKerN
+/cscope.*
