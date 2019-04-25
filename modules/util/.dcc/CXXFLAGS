@@ -1,0 +1,11 @@
+-DICI_MODULE_NAME=util
+-std=c++14
+-fPIC
+-Wall
+-Wextra
+-DNDEBUG
+-g
+-O2
+-I.
+-I../..
+-I/usr/local/include
