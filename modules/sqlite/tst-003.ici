@@ -9,7 +9,7 @@ for (i = 0; i < tstdb.V1; ++i)
 	for (k = 0; k < tstdb.V3; ++k)
 	{
 	    id := tstdb.id(i, j, k);
-	    rows := sqlite.exec(db, sprintf("select * from %s where id = %d", tstdb.TABLE, id));
+	    rows := db:exec(sprintf("select * from %s where id = %d", tstdb.TABLE, id));
 	}
     }
 }

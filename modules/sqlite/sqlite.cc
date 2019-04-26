@@ -84,6 +84,7 @@ int db_open()
     sqlite3 *           s;
     ici::handle *       h;
     bool                mkdb = false;
+    bool                rmdb = false;
 
     if (ici::typecheck("s", &filename))
     {
@@ -99,11 +100,19 @@ int db_open()
 	    case 'c':
 		mkdb = true;
 		break;
+            case 'x':
+                rmdb = true;
+                mkdb = true;
+                break;
 	    default:
                 ici::set_error("'%c': unknown database option in db:new()", *opts);
 		return 1;
 	    }
 	}
+    }
+    if (rmdb)
+    {
+        remove(filename);
     }
     if (!mkdb)
     {
