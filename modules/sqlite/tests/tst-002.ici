@@ -2,11 +2,7 @@
 try remove("tst-002.db"); onerror ;
 db = sqlite.open("tst-002.db", "c");
 
-try
-    db:exec("create table passwd(name, passwd, uid, gid, homedir, shell)");
-onerror
-    if (error !~ #table passwd already exists#)
-	fail(error);
+db:exec("create table if not exists passwd(name, passwd, uid, gid, homedir, shell)");
 
 bin_passwd = fopen("/etc/passwd");
 while (toks = gettokens(bin_passwd, ":", "\n"))

@@ -1,19 +1,24 @@
 #!/usr/local/bin/ici
 
-db := sqlite.open("accounting.db", "c");
+db := sqlite.open("accounting.db", "cx");
 
 db:exec
 (
     "drop table if exists customers;"
     "drop table if exists invoices;"
+    ""
     "create table customers"
     "("
     "    id integer primary key,"
     "    name text not null"
     ");"
+    ""
     "create table invoices"
     "("
     "    id integer primary key,"
     "    customer integer references customers(id)"
     ");"
 );
+
+names := sqlite.table_names(db);
+assert.equal(len(names), 2);

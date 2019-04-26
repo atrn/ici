@@ -32,20 +32,8 @@ for (rpop(argv); arg := rpop(argv); )
         exit("usage: tst-005.ici [-no-insert] [-check-words] [-patterns]");
 }
 
-if (insert_words)
-{
-    try remove(database_file); onerror ;
-}
-try
-{
-    sys.access(database_file);
-    database = sqlite.open(database_file);
-}
-onerror
-{
-    database = sqlite.open(database_file, "c");
-    database:exec("create table words(word varchar[32])");
-}
+database = sqlite.open(database_file, insert_words ? "cx" : "c");
+database:exec("create table if not exists words(word varchar[32])");
 
 if (insert_words)
 {

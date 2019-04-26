@@ -1,0 +1,13 @@
+#!/usr/local/bin/ici
+
+local db = sqlite.open("tst-002.db", "cx");
+
+local ntables = 10;
+
+for (id := 1; id <= ntables; ++id)
+{
+    db:exec(sprintf("create table table_%d (id integer primary key, field_%d text)", id, id));
+}
+
+names := sqlite.table_names(db);
+assert.equal(len(names), ntables);
