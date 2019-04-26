@@ -1,4 +1,4 @@
-.PHONY: all dll clean install
+.PHONY: all dll clean install test
 
 sudo?=
 prefix?=/usr/local
@@ -19,3 +19,6 @@ clean:; @dmake -o $(module).$(dll) dll clean; rm -f tst-*.db
 install: dll
 	$(sudo) install -c -m 444 $(module).ici $(prefix)/lib/ici
 	$(sudo) install -c -m 444 $(module).$(dll) $(prefix)/lib/ici
+
+test: all
+	ici tst-all.ici
