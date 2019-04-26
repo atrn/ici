@@ -1,0 +1,17 @@
+#!/usr/bin/env ici
+
+curses.initscr();
+curses.cbreak();
+curses.noecho();
+curses.nonl();
+
+x := getfile(argv[0]);
+curses.addstr(x);
+
+for (;;) {
+    ch := curses.getch();
+    if (ch == '\r')
+	curses.addstr("\n!");
+    else
+	curses.addstr(tochar(ch));
+}

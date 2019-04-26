@@ -23,5 +23,5 @@ clean:
 	@dmake -o $(_dll) dll clean
 
 install: dll
-	@$(sudo) install -c -m 444 $(_dll) $(_dest)
+	$(sudo) install -c -m 444 $(_dll) $(_dest)
 #	@$(sudo) install -c -m 444 $(_ici) $(_dest)
