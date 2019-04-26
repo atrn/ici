@@ -14,6 +14,7 @@ namespace
 /* ================================================================
  *
  * Basic 'db' object type - a handle with an sqlite3 * as its pointer.
+ *
  */
 
 ici::objwsup *db_class = nullptr;
@@ -106,6 +107,7 @@ int db_open()
 /* ================================================================
  *
  * sqlite.db implementation
+ *
  */
 
 sqlite3 * get_sqlite(ici::object *inst, ici::handle **h)
@@ -205,10 +207,11 @@ int db_changes(ici::object *inst)
 
 } // anon namespace
 
-// ================================================================
-//
-// Module init
-//
+/* ================================================================
+ *
+ * Module init
+ *
+ */
 
 extern "C" ici::object *ici_sqlite_init()
 {
