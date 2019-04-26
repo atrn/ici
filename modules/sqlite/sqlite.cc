@@ -1,7 +1,17 @@
 /*
- *  ICI sqlite module.
- *
+ *  sqlite module.
  *  Copyright (C) 2019 A.Newman.
+ *
+ *  This is a module that provides access to SQLite (v3).  The module
+ *  defines a handful of native code functions to access the core
+ *  SQLite features and uses ICI code to extend that basic access
+ *  in a number of ways.
+ *
+ *  The module's primary interface is the sqlite.open() function which
+ *  opens a SQLite database file and returns an instance of the
+ *  sqlite.db class to represent the open database. The db instance
+ *  can then be used to query and update the database.
+ *
  */
 
 #include <sqlite3.h>
@@ -19,7 +29,8 @@ namespace
 
 /* ================================================================
  *
- *  Basic 'db' object type - a handle with an 'sqlite3 *' in its pointer.
+ *  'db' object type - an ICI handle instance with the 'sqlite3 *'
+ *  database 'handle' as its pointer.
  *
  */
 
@@ -56,6 +67,8 @@ ici::handle *new_db(sqlite3 *s)
 
 /*
  * string = sqlite.version()
+ *
+ * Return a string containing the SQLite version.
  */
 int db_version()
 {
@@ -64,6 +77,8 @@ int db_version()
 
 /*
  * int = sqlite.version_number()
+ *
+ * Return an integer containing the SQLite version.
  */
 int db_version_number()
 {
@@ -75,6 +90,12 @@ int db_version_number()
  *
  * Opens the database file given by filename and returns a new
  * instance of the "sqlite.db" class representing the database.
+ *
+ * Options, if supplied, are single characters and may include
+ * any of the following,
+ *
+ * 'c'  - create the database file if it does not exist
+ * 'x'  - remove any database file and re-create, implies 'c'
  *
  * This --topic-- forms part of the --ici-sqlite-- documentation.
  */
@@ -139,6 +160,18 @@ int db_open()
  *
  * sqlite.db implementation
  *
+ * The 'db' class represents an open database and is the class of
+ * the object returned by sqlite.open().
+ *
+ * A 'db' instance provides the following methods:
+ *
+ * - array = db:exec(string)
+ *      Execute the SQL statement against the database and return an
+ *      array of the "rows" returned by the statement.
+ *
+ * - int = db:changes()
+ *      Return the count of changes made by the last database operation.
+ *
  */
 
 sqlite3 * get_sqlite(ici::object *inst, ici::handle **h)
@@ -196,7 +229,7 @@ int callback(void *u, int ncols, char **cols, char **names)
  * array = db:exec(string)
  *
  * Execute SQL statements against the database and return an array
- * with the resultant rows.
+ * with the rows resulting from those statements.
  *
  * This --topic-- forms part of the --ici-sqlite-- documentation.
  */
@@ -256,6 +289,7 @@ extern "C" ici::object *ici_sqlite_init()
     {
         return nullptr;
     }
+
     static ICI_DEFINE_CFUNCS(sqlite)
     {
         ICI_DEFINE_CFUNC(open, db_open),
