@@ -18,9 +18,9 @@ extern log_elapsed_time(fn)
         caption := fn;
         if (len(vargs) < 1)
             argcount("log_elapsed_time", 2, 1);
-        if (typeof(vargs[0]) != "func")
-            argerror("log_elapsed_time", 2, typeof(vargs[0]));
         fn = vargs[0];
+        if (typeof(fn) != "func")
+            argerror("log_elapsed_time", 2, typeof(vargs[0]));
         vargs = slice(vargs, 1);
         break;
 
@@ -29,7 +29,6 @@ extern log_elapsed_time(fn)
     }
 
     caption = caption + ": ";
-
     start := now();
     failed := NULL;
     try
@@ -42,7 +41,7 @@ extern log_elapsed_time(fn)
     }
     elapsed := now() - start;
     if (failed)
-        printf(stderr, "%sELAPSED %s (%s)\n", caption, format_time(elapsed), failed);
+        printf(stderr, "%s %s (%s)\n", caption, format_time(elapsed), failed);
     else
-        printf(stderr, "%sELAPSED %s\n", caption, format_time(elapsed));
+        printf(stderr, "%s %s\n", caption, format_time(elapsed));
 }
