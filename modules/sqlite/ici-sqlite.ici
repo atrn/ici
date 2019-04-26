@@ -1,18 +1,41 @@
 /*
- * any = sqlite.exec(database, string [, error_func])
+ * string = sqllite.type_for(any)
  *
- * Run the SQL statements in string on the given database calling
- * error_func if a database error is reported.
+ * Returns the SQL type used to represent _any_ or raises
+ * an error if _any_ has no corresponding SQL type.
+ */
+extern type_for(v)
+{
+    switch (t := typeof(v))
+    {
+    case "float":
+        return "real";
+    case "int":
+        return "integer";
+    case "mem":
+        return "blob";
+    case "string":
+        return "text";
+    default:
+        fail(sprintf("%s: no appropriate SQL type", t));
+    }
+}
+
+/*
+ * any = sqlite.perform(database, string [, error_func])
  *
- * The error_func() is called with three arguments, the database,
- * the SQL string and the ICI error string.  If the error function
- * returns NULL (or zero) the SQL statement is retried otherwise
- * the result of error_func() forms the result of the exec()
- * function.
+ * Execute the SQL statements in the given string using the supplied
+ * database and call the supplied error_func if any error is reported
+ * by the database.
+ *
+ * error_func() is called with three arguments - the database, the
+ * SQL string and the ICI error string.  If the error function returns
+ * NULL (or 0) the SQL statement is retried otherwise the call to exec
+ * returns the result of error_func().
  *
  * This --topic-- is part of --ici-sqlite-- documentation.
  */
-extern exec(db, sql, error_handler)
+extern perform(db, sql, error_handler)
 {
     var error_handler = [func (db, stmt, error) { fail(error); }];
 
@@ -34,4 +57,26 @@ extern exec(db, sql, error_handler)
             }
         }
     }
+}
+
+
+/*
+ *  string = sqlite.table_for_map(map)
+ *
+ *  Returns a string containg an SQL "create table" statement that will
+ *  create a table to hold the values held in the map with the map keys,
+ *  which must be strings, as column names. I.e. the map is a prototype
+ *  entity providing column names along with example column values (to
+ *  allows types to be determined).
+ */
+extern table_for_map(entity, name)
+{
+    sql := "create table " + name + " (";
+    sep := "";
+    forall (v, k in entity)
+    {
+       sql += sprintf("%s%s %s", sep, k, type_for(v));
+       sep = ", ";
+    }
+    return sql + ")";
 }

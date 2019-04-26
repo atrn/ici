@@ -1,0 +1,3 @@
+e := map("id", 0, "name", "", "price", 0.0, "sku", "");
+sql := sqlite.table_for_map(e, "items");
+printf("%s\n", sql);
