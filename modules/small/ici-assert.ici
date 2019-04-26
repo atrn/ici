@@ -1,18 +1,12 @@
 /*
- *  assert.is_true(predicate [, message])
+ *  assert.is_true(predicate, message)
  */
 extern is_true(predicate, message)
 {
-    var message = "general, non-specific assertion failure";
     if  (!predicate)
     {
-        exit("\n*** ERROR: " + message);
+        exit(message ? "\n*** ASSERTION FAILURE: " + message : "\n*** ASSERTION FAILURE");
     }
-}
-
-local as_string(any)
-{
-    return typeof(any) == "string" ? sprintf("\"%s\"", any) : string(any);
 }
 
 /*
@@ -22,6 +16,6 @@ local as_string(any)
  */
 extern equal(a, b, message)
 {
-    if (!message) message = sprintf("%s != %s", as_string(a), as_string(b));
-    is_true(a == b, message);
+    str := [func(any) { return typeof(any) == "string" ? sprintf("\"%s\"", any) : string(any); }];
+    is_true(a == b, message || sprintf("%s == %s", str(a), str(b)));
 }
