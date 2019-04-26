@@ -18,17 +18,20 @@ println(rows);
 x:X_insert(map("ID", 13, "TXT", "a_string"));
 
 rows = x:get_X_by_TXT("a_string");
-puts("ID = 13");
 println(rows);
 
+x:exec("delete from X");
 util.log_elapsed_time("insert 100 entities", [func ()
 {
-    for (id := 100; id < 200; ++id)
+    for (id := 1; id <= 200; ++id)
     {
         entity := map("ID", id, "TXT", sprintf("This is entity %d", id));
         x:X_insert(entity);
     }
 }]);
+
+rows := x:get_X_by_TXT_like("%entity 2%");
+println(rows);
 
 rows = x:exec("select count(*) as n from X");
 puts(rows[0].n);

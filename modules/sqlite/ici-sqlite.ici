@@ -118,7 +118,7 @@ extern Database = [class
     {
     }
 
-    insert(table, entity)
+    insert_entity_sql(table, entity)
     {
         cols := keys(entity);
         sql := "insert into " + table + " (";
@@ -128,7 +128,6 @@ extern Database = [class
             sql += sep + col;
             sep = ", ";
         }
-        sep := "";
         sql = sql + ") values (";
         sep := "";
         forall (col in cols)
@@ -142,15 +141,13 @@ extern Database = [class
     unknown_method(method)
     {
         var vargs = [array];
-
         parts := split(method, "_");
 
         // <table>_insert(entity)
         //
         if (len(vargs) == 1 && len(parts) == 2 && parts[1] == "insert")
         {
-            sql := this:insert(parts[0], vargs[0]);
-            return _db:exec(sql);
+            return _db:exec(this:insert_entity_sql(parts[0], vargs[0]));
         }
 
         // get_<table>_by_<column>(value)
@@ -158,6 +155,14 @@ extern Database = [class
         if (len(vargs) == 1 && len(parts) == 4 && parts[0] == "get" && parts[2] == "by")
         {
             sql := sprintf("select * from %s where %s = %s", parts[1], parts[3], as_string(vargs[0]));
+            return _db:exec(sql);
+        }
+
+        // get_<table>_by_<column>_like(value)
+        //
+        if (len(vargs) == 1 && len(parts) == 5 && parts[0] == "get" && parts[2] == "by" && parts[4] == "like")
+        {
+            sql := sprintf("select * from %s where %s like %s", parts[1], parts[3], as_string(vargs[0]));
             return _db:exec(sql);
         }
 
