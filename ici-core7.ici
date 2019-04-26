@@ -3,7 +3,7 @@
  */
 extern sprint() {
     var varg = [array];
-    var result;
+    var result = "";
     var o;
     var v;
     var k;
@@ -31,7 +31,7 @@ extern sprint() {
 	break;
 
     default:
-	fail(sprintf("incorrect number of parameters to format(), expected 1, 2, or 3 args (got %d)", len(vargs)));
+	fail(sprintf("incorrect number of parameters to sprint(), expected 1, 2, or 3 args (got %d)", len(vargs)));
     }
 
     switch (t := typeof(o)) {
@@ -40,7 +40,7 @@ extern sprint() {
 	result += sprintf("[%s", t);
 	forall (v in o) {
 	    result += " ";
-	    result += format(v, "");
+	    result += sprint(v, "");
 	    result += ",";
 	}
 	result += sprintf("]%s", term);
@@ -54,7 +54,7 @@ extern sprint() {
 	    } else {
                 assign(supers, ss);
                 result += ": ";
-                result += format(super(o), "", supers);
+                result += sprint(super(o), "", supers);
             }
 	}
 	forall (v, k in o) {
@@ -62,7 +62,7 @@ extern sprint() {
 		result += sprintf(" %s", k);
             } else {
 		result += " (";
-		result += format(k, "");
+		result += sprint(k, "");
 		result += ")";
 	    }
 	    result += " = ";
@@ -71,10 +71,10 @@ extern sprint() {
 		    result += "[map]";
 		} else {
 		    assign(supers, v);
-		    result += format(v, "");
+		    result += sprint(v, "");
 		}
 	    } else {
-		result += format(v, "");
+		result += sprint(v, "");
 	    }
 	    result += ",";
 	}
@@ -112,6 +112,7 @@ extern sprint() {
 	result += sprintf("%s%s", string(o), term);
 	break;
     }
+    return result;
 }
 
 /*

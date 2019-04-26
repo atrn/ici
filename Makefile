@@ -18,6 +18,7 @@
 #	install-ici-exe
 #	install-libici
 #	install-ici-dot-h
+#	install-core-ici
 #
 #	full-install
 #
@@ -198,7 +199,7 @@ realclean:	clean
 
 # Installation
 
-.PHONY:		install-ici-exe install-libici install-ici-dot-h
+.PHONY:		install-ici-exe install-libici install-ici-dot-h install-core-ici
 
 ifeq ($(build),exe)
 install:	install-ici-exe
@@ -207,11 +208,14 @@ install:	install-ici-exe install-libici
 endif
 
 install-libici: install-ici-dot-h
-	$(sudo) mkdir -p $(prefix)/lib
 ifeq ($(build),lib)
+	$(sudo) mkdir -p $(prefix)/lib
 	$(sudo) install -c -m 444 $(lib) $(prefix)/lib
+	$(MAKE) sudo=$(sudo) install-core-ici
 else ifeq ($(build),dll)
+	$(sudo) mkdir -p $(prefix)/lib
 	$(sudo) install -c -m 444 $(dll) $(prefix)/lib
+	$(MAKE) sudo=$(sudo) install-core-ici
 endif
 
 install-ici-dot-h: ici.h
@@ -222,6 +226,12 @@ install-ici-dot-h: ici.h
 install-ici-exe:
 	$(sudo) mkdir -p $(prefix)/bin
 	$(sudo) install -c -m 555 $(prog) $(prefix)/bin
+ifeq ($(build),exe)
+	$(MAKE) sudo=$(sudo) install-ici-dot-h
+	$(MAKE) sudo=$(sudo) install-core-ici
+endif
+
+install-core-ici:
 	$(sudo) mkdir -p $(prefix)/lib/ici
 	$(sudo) install -c -m 444 ici-core*.ici $(prefix)/lib/ici
 
