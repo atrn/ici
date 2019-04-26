@@ -1,88 +1,143 @@
 #!/usr/local/bin/path
 
-database_file := "tst-005.db";
+local words = gettokens(fopen("/usr/share/dict/words"), "\n");
 
-start_afresh := 0;
-insert_words := 0;
-check_words := 0;
-verbose := 0;
+local words_by_first_letter = map();
+for (first_letter := 'a'; first_letter <= 'z'; ++first_letter)
+{
+    words_by_first_letter[tochar(first_letter)] = array();
+}
+forall (word in words)
+{
+    first_letter := str.tolower(word[0]);
+    push(words_by_first_letter[first_letter], word);
+}
+
+local database_file = "tst-005.db";
+local database;
+
+local insert_words = true;
+local check_words = false;
+local match_patterns = false;
 
 for (rpop(argv); arg := rpop(argv); )
 {
-    if (arg == "-C")
-	start_afresh = 1;
-    else if (arg == "-c")
-	check_words = 1;
-    else if (arg == "-v")
-	verbose = 1;
+    if (arg == "-no-insert")
+        insert_words = false;
+    else if (arg == "-check-words")
+        check_words = true;
+    else if (arg == "-patterns")
+        match_patterns = true;
     else
-        exit("usage: tst-005.ici [-C] [-c] [-v]");
-}
-
-if (start_afresh)
-{
-    try remove(database_file); onerror ;
-}
-
-try
-{
-    sys.access(database_file);
-    db := sqlite.open(database_file);
-}
-onerror
-{
-    db := sqlite.open(database_file, "c");
-    db:exec("create table words(word varchar[64])");
+        exit("usage: tst-005.ici [-no-insert] [-check-words] [-patterns]");
 }
 
 if (insert_words)
 {
-printf("Reading words file"); flush();
-words := gettokens(fopen("/usr/share/dict/words"), "\n");
-printf("\rWriting words to db\n");
-nwords := 0;
-nadded := 0;
-start := now();
-db:exec("begin");
-forall (word in words)
+    try remove(database_file); onerror ;
+}
+try
 {
-    ++nwords;
-    if (verbose)
-    {
-	if (!(nwords % 10))
-	{
-	    printf("%d words\r", nwords);
-	    flush();
-	}
-    }
-    if (check_words)
-    {
-	sql = sprintf("select word from words where word = '%s'", word);
-	rows = db:exec(sql);
-	if (len(rows) == 1)
-	    continue;
-    }
-    sql = sprintf("insert into words values ('%s')", word);
-    db:exec(sql);
-    ++nadded;
+    sys.access(database_file);
+    database = sqlite.open(database_file);
 }
-db:exec("commit");
-end := now();
-duration := end - start;
-
-printf("\r%.2f seconds, %d words read, %d added to db\n", duration, nwords, nadded);
-if (duration == 0.0) duration = 1;
-printf("Reading %.2f words per second, adding %.2f per second\n",
-    nwords / duration, nadded / duration);
-}
-
-rows := db:exec("select count(*) from words");
-printf("%s words in db\n", rows[0]["count(*)"]);
-
-for (ch := 'a'; ch <= 'z'; ++ch)
+onerror
 {
-    pattern := sprintf("'%c%%'", ch);
-    rows := db:exec("select * from words where word like "+pattern);
-    if (len(rows) < 1) fail("no words start with 'a'?");
-    printf("%d words starting with '%c'\n", len(rows), ch);
+    database = sqlite.open(database_file, "c");
+    database:exec("create table words(word varchar[32])");
 }
+
+if (insert_words)
+{
+    util.log_elapsed_time
+    (
+        "tst-005",
+        [func ()
+        {
+            printf("Writing %d words to db\n", len(words));
+            nwords := 0;
+            nadded := 0;
+            database:exec("begin");
+            forall (word in words)
+            {
+                ++nwords;
+                database:exec(sprintf("insert into words values ('%s')", word));
+                ++nadded;
+            }
+            database:exec("commit");
+        }]
+    );
+}
+
+local filter(words)
+{
+    return words_by_first_letter["x"];
+}
+
+if (check_words)
+{
+    util.log_elapsed_time
+    (
+        "checking words",
+        [func ()
+        {
+            ch := "";
+            nwords := 0;
+            nout := 0;
+            database:exec("begin");
+            forall (word in filter(words))
+            {
+                if (str.tolower(word[0]) != ch)
+                {
+                    if (ch != "")
+                    {
+                        for (i := 0; i < nout; ++i) printf("\b");
+                        nout = 0;
+                        printf("%d words checked\n", nwords);
+                    }
+                    ch = str.tolower(word[0]);
+                    printf("Now checking words starting with '%s'..", ch);
+                    flush();
+                }
+                sql := sprintf("select word from words where word = '%s'", word);
+                rows := database:exec(sql);
+                ++nwords;
+                if ((nwords % 20) == 0) {
+                    for (i := 0; i < nout; ++i) printf("\b");
+                    nout = printf("%d", nwords);
+                    flush();
+                }
+                if (len(rows) != 1)
+                {
+                    printf("%s: missing\n", word);
+                }
+                else if (rows[0].word != word)
+                {
+                    printf("%s is not %s\n", rows[0].word, word);
+                }
+            }
+            database:exec("commit");
+            printf("%d words checked\n", nwords);
+        }]
+    );
+}
+
+local count(rows)
+{
+    return int(rows[0]["count(*)"]);
+}
+
+util.log_elapsed_time("count(*)", [func () {
+    rows := database:exec("select count(*) from words");
+    printf("%d words in db\n", count(rows));
+}]);
+
+if (match_patterns)
+util.log_elapsed_time("count(*) with pattern", [func () {
+    for (ch := 'a'; ch <= 'z'; ++ch)
+    {
+        pattern := sprintf("'%c%%'", ch);
+        rows := database:exec("select count(*) from words where word like "+pattern);
+        printf("%6d words matching %s\n", count(rows), pattern);
+}
+}]);
