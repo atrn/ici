@@ -1,3 +1,7 @@
+util.log_elapsed_time(
+
+[func () {
+
 input := [array "1", "2", "3", "4", 5, 6, 7];
 items := util.pick(input, array(0, 4));
 println(items);
@@ -5,3 +9,7 @@ items := util.pick(input, [set -1]);
 println(items);
 items := util.pick(input, [set 1, 3, 5, 7, 9, 2923, 1292]);
 println(items);
+for (i := 0; i < 100000; ++i)
+    util.pick(input, set(i));
+
+}]);

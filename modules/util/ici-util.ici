@@ -1,0 +1,48 @@
+/*
+ * util.log_elapsed_time(function, args...)
+ * util.log_elapsed_time(string, function, args...)
+ */
+extern log_elapsed_time(fn)
+{
+    var vargs = [array];
+
+    switch (t := typeof(fn))
+    {
+    case "func":
+        caption := fn.name;
+        if (caption == "")
+            caption = "[func]";
+        break;
+
+    case "string":
+        caption := fn;
+        if (len(vargs) < 1)
+            argcount("log_elapsed_time", 2, 1);
+        if (typeof(vargs[0]) != "func")
+            argerror("log_elapsed_time", 2, typeof(vargs[0]));
+        fn = vargs[0];
+        vargs = slice(vargs, 1);
+        break;
+
+    default:
+        argerror("log_elapsed_time", 1, t);
+    }
+
+    caption = caption + ": ";
+
+    start := now();
+    failed := NULL;
+    try
+    {
+        call(fn, vargs);
+    }
+    onerror
+    {
+        failed = error;
+    }
+    elapsed := now() - start;
+    if (failed)
+        printf(stderr, "%sELAPSED %s (%s)\n", caption, format_time(elapsed), failed);
+    else
+        printf(stderr, "%sELAPSED %s\n", caption, format_time(elapsed));
+}
