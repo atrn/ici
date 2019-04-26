@@ -1,0 +1,27 @@
+/*
+ *  assert.is_true(predicate [, message])
+ */
+extern is_true(predicate, message)
+{
+    var message = "general, non-specific assertion failure";
+    if  (!predicate)
+    {
+        exit("\n*** ERROR: " + message);
+    }
+}
+
+local as_string(any)
+{
+    return typeof(any) == "string" ? sprintf("\"%s\"", any) : string(any);
+}
+
+/*
+ *  assert.equal(a, b [, message])
+ *
+ *  Assert that two values are equal.
+ */
+extern equal(a, b, message)
+{
+    if (!message) message = sprintf("%s != %s", as_string(a), as_string(b));
+    is_true(a == b, message);
+}
