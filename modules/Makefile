@@ -5,6 +5,7 @@ prefix?=/usr/local
 
 MODULES=\
 	bignum\
+	curses\
 	env\
 	example\
 	small\

@@ -1,0 +1,8 @@
+ICI_STR(WINDOW, "WINDOW")
+ICI_STR(getch, "getch")
+ICI_STR(addstr, "addstr")
+ICI_STR(initscr, "initscr")
+ICI_STR(endwin, "endwin")    
+ICI_STR(cbreak, "cbreak")
+ICI_STR(noecho, "noecho")
+ICI_STR(nonl, "nonl")
