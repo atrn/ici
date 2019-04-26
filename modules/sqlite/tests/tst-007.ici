@@ -15,6 +15,9 @@ rows := x:get_X_by_ID(28);
 puts("ID = 28");
 println(rows);
 
+xx := x:get_X(28);
+println(xx);
+
 x:X_insert(map("ID", 13, "TXT", "a_string"));
 
 rows = x:get_X_by_TXT("a_string");

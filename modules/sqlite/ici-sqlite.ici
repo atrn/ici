@@ -1,4 +1,24 @@
 /*
+ * string = sqlite.primary_key(db, string)
+ *
+ * Returns the name of the primary key column in the named table.
+ * If the table has no defined primary key the name of the first
+ * column is returned.
+ */
+extern primary_key(db, table)
+{
+    rows := db:exec(sprintf("pragma table_info(%s)", table));
+    forall (col in rows)
+    {
+        if (col.pk)
+        {
+            return col.name;
+        }
+    }
+    return rows[0].name;
+}
+
+/*
  * string = sqllite.type_for(any)
  *
  * Returns the SQL type used to represent _any_ or raises
@@ -148,6 +168,29 @@ extern Database = [class
         if (len(vargs) == 1 && len(parts) == 2 && parts[1] == "insert")
         {
             return _db:exec(this:insert_entity_sql(parts[0], vargs[0]));
+        }
+
+        // get_<table>(id) -> map
+        //
+        if (len(vargs) == 1 && len(parts) == 2 && parts[0] == "get")
+        {
+            sql := sprintf
+            (
+                "select * from %s where %s = %s",
+                parts[1],
+                primary_key(_db, parts[1]),
+                as_string(vargs[0])
+            );
+            rows := _db:exec(sql);
+            switch (len(rows))
+            {
+            case 0:
+                return NULL;
+            case 1:
+                return rows[0];
+            default:
+                fail("too many results");
+            }
         }
 
         // get_<table>_by_<column>(value)

@@ -21,4 +21,4 @@
 /modules/bignum/mit/bztest
 /modules/bignum/mit/testKerN
 /cscope.*
-/modules/sqlite/*.db
+/modules/sqlite/tests/*.db

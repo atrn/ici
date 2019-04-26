@@ -24,14 +24,22 @@ local by_test_number(a, b)
 // Run all the tests we can find in the test directory.
 test_files := dir(test_files_dir, test_file_pattern);
 sort(test_files, by_test_number);
-printf("%d tests\n\n", len(test_files));
 
 nfailures := 0;
 npasses := 0;
 test := 0;
-forall (test in test_files)
+
+ostdin := stdin;
+ostdout := stdout;
+ostderr := stderr;
+
+stdin  = fopen("/dev/null");
+stdout = fopen("/dev/null", "w");
+stderr = fopen("/dev/null", "w");
+
+forall (test, index in test_files)
 {
-    printf("Running %s\n", test);
+    printf(ostderr, "%d/%d - %s\n", index+1, len(test_files), test);
     try
     {
 	environment := map(map(copy(super(super(scope())))));
@@ -42,9 +50,9 @@ forall (test in test_files)
     }
     onerror
     {
-	printf("Failure : %s\n%s\n\n", test, error);
+	printf(ostderr, "Failure : %s\n%s\n\n", test, error);
 	++nfailures;
     }
 }
 
-printf("\n\n%d passes\n%d failures\n", npasses, nfailures);
+printf(ostderr, "\n%d passed, %d failed\n", npasses, nfailures);
