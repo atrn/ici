@@ -8,14 +8,22 @@
 #include <unistd.h>
 #include <fcntl.h>
 
-static ici::objwsup *db_class = nullptr;
+namespace
+{
+
+/* ================================================================
+ *
+ * Basic 'db' object type - a handle with an sqlite3 * as its pointer.
+ */
+
+ici::objwsup *db_class = nullptr;
 
 inline bool closed(ici::handle *h)
 {
     return h->hasflag(ici::handle::CLOSED);
 }
 
-static void db_pre_free(ici::handle *h)
+void db_pre_free(ici::handle *h)
 {
     if (!closed(h))
     {
@@ -33,6 +41,12 @@ ici::handle *new_db(sqlite3 *s)
     return nullptr;
 }
 
+/* ================================================================
+ *
+ * Module functions.
+ *
+ */
+
 /*
  * sqlite.db = sqlite.open(filename [, options])
  *
@@ -41,7 +55,7 @@ ici::handle *new_db(sqlite3 *s)
  *
  * This --topic-- forms part of the --ici-sqlite-- documentation.
  */
-static int db_open()
+int db_open()
 {
     char *              filename;
     sqlite3 *           s;
@@ -89,12 +103,12 @@ static int db_open()
     return ici::ret_with_decref(h);
 }
 
-// ================================================================
-//
-// sqllite.db class implementation
-//
+/* ================================================================
+ *
+ * sqlite.db implementation
+ */
 
-static sqlite3 * get_sqlite(ici::object *inst, ici::handle **h)
+sqlite3 * get_sqlite(ici::object *inst, ici::handle **h)
 {
     ici::handle *handle;
     void *ptr;
@@ -115,7 +129,7 @@ static sqlite3 * get_sqlite(ici::object *inst, ici::handle **h)
     return static_cast<sqlite3 *>(ptr);
 }
 
-static int callback(void *u, int ncols, char **cols, char **names)
+int callback(void *u, int ncols, char **cols, char **names)
 {
     ici::array *        rows = ici::arrayof(static_cast<ici::object *>(u));
 
@@ -144,20 +158,20 @@ static int callback(void *u, int ncols, char **cols, char **names)
 }
 
 /*
- * array = database:exec(string)
+ * array = db:exec(string)
  *
  * Execute SQL statements against the database and return an array
- * storing the affected rows.
+ * with the resultant rows.
  *
  * This --topic-- forms part of the --ici-sqlite-- documentation.
  */
-static int db_exec(ici::object *inst)
+int db_exec(ici::object *inst)
 {
-    char *sql;
+    char *statement;
     char *err;
 
     auto s = get_sqlite(inst, nullptr);
-    if (!s || ici::typecheck("s", &sql))
+    if (!s || ici::typecheck("s", &statement))
     {
 	return 1;
     }
@@ -166,21 +180,21 @@ static int db_exec(ici::object *inst)
     {
 	return 1;
     }
-    if (sqlite3_exec(s, sql, callback, rows.get(), &err) != SQLITE_OK)
+    if (sqlite3_exec(s, statement, callback, rows.get(), &err) != SQLITE_OK)
     {
-	return ici::set_error("%s", err);
+	return ici::set_error("%s: %s", statement, err);
     }
     return ici::ret_no_decref(rows);
 }
 
 /*
- * int = database:changes()
+ * int = db:changes()
  *
  * Return the number of rows changed in the last database operation.
  *
  * This --topic-- forms part of the --ici-sqlite-- documentation.
  */
-static int db_changes(ici::object *inst)
+int db_changes(ici::object *inst)
 {
     if (auto s = get_sqlite(inst, nullptr))
     {
@@ -188,6 +202,13 @@ static int db_changes(ici::object *inst)
     }
     return 1;
 }
+
+} // anon namespace
+
+// ================================================================
+//
+// Module init
+//
 
 extern "C" ici::object *ici_sqlite_init()
 {
@@ -199,10 +220,9 @@ extern "C" ici::object *ici_sqlite_init()
     {
         return nullptr;
     }
-
     static ICI_DEFINE_CFUNCS(sqlite)
     {
-        ICI_DEFINE_CFUNC(open,    db_open),
+        ICI_DEFINE_CFUNC(open, db_open),
         ICI_CFUNCS_END()
     };
     auto module = ici::new_module(ICI_CFUNCS(sqlite));
@@ -210,25 +230,21 @@ extern "C" ici::object *ici_sqlite_init()
     {
         return nullptr;
     }
-
-    static ICI_DEFINE_CFUNCS(db)
+    static ICI_DEFINE_CFUNCS(db_methods)
     {
-        ICI_DEFINE_CFUNC(exec,    db_exec),
+        ICI_DEFINE_CFUNC(exec, db_exec),
         ICI_DEFINE_CFUNC(changes, db_changes),
         ICI_CFUNCS_END()
     };
-    db_class = ici::new_class(ICI_CFUNCS(db), module);
-    if (db_class)
+    db_class = ici::new_class(ICI_CFUNCS(db_methods), module);
+    if (!db_class)
     {
-        const int result = module->assign_base(ICIS(db), db_class);
-        db_class->decref();
-        if (result)
-        {
-            module->decref();
-            return nullptr;
-        }
+        module->decref();
+        return nullptr;
     }
-    else
+    const int result = module->assign_base(ICIS(db), db_class);
+    db_class->decref();
+    if (result)
     {
         module->decref();
         return nullptr;
