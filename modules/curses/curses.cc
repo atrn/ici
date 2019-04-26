@@ -17,9 +17,21 @@ int f_getch()
     return ici::int_ret(getch());
 }
 
+int f_clear()
+{
+    clear();
+    return ici::null_ret();
+}
+
 int f_cbreak()
 {
     cbreak();
+    return ici::null_ret();
+}
+
+int f_echo()
+{
+    echo();
     return ici::null_ret();
 }
 
@@ -32,6 +44,12 @@ int f_noecho()
 int f_nonl()
 {
     nonl();
+    return ici::null_ret();
+}
+
+int f_nl()
+{
+    nl();
     return ici::null_ret();
 }
 
@@ -64,10 +82,13 @@ extern "C" ici::object *ici_curses_init()
         return nullptr;
     static ICI_DEFINE_CFUNCS(curses)
     {
+        ICI_DEFINE_CFUNC(clear, f_clear),
         ICI_DEFINE_CFUNC(getch, f_getch),
         ICI_DEFINE_CFUNC(addstr, f_addstr),
         ICI_DEFINE_CFUNC(cbreak, f_cbreak),
+        ICI_DEFINE_CFUNC(echo, f_echo),
         ICI_DEFINE_CFUNC(noecho, f_noecho),
+        ICI_DEFINE_CFUNC(nl, f_nl),
         ICI_DEFINE_CFUNC(nonl, f_nonl),
         ICI_DEFINE_CFUNC(endwin, f_endwin),
         ICI_DEFINE_CFUNC(initscr, f_initscr),
