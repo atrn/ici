@@ -21,6 +21,19 @@ extern type_for(v)
     }
 }
 
+extern as_string(any)
+{
+    switch (typeof(any))
+    {
+    case "NULL":
+        return "NULL";
+    case "string":
+        return "'" + any + "'";
+    default:
+        return string(any);
+    }
+}
+
 /*
  * any = sqlite.perform(database, string [, error_func])
  *
@@ -80,3 +93,77 @@ extern table_for_map(entity, name)
     }
     return sql + ")";
 }
+
+/* ================================================================ */
+
+extern Database = [class
+
+    new(filename, options)
+    {
+        var options = "c";
+        this = this:^new();
+        this._filename := filename;
+        this._db := open(filename, options);
+        this:create_tables();
+        return this;
+    }
+
+    exec(sql)
+    {
+        var vargs = [array];
+        return call(_db:exec, array(sql) + vargs);
+    }
+
+    create_tables()
+    {
+    }
+
+    insert(table, entity)
+    {
+        cols := keys(entity);
+        sql := "insert into " + table + " (";
+        sep := "";
+        forall (col in cols)
+        {
+            sql += sep + col;
+            sep = ", ";
+        }
+        sep := "";
+        sql = sql + ") values (";
+        sep := "";
+        forall (col in cols)
+        {
+            sql += sep + as_string(entity[col]);
+            sep = ", ";
+        }
+        return sql + ")";
+    }
+
+    unknown_method(method)
+    {
+        var vargs = [array];
+
+        parts := split(method, "_");
+
+        // <table>_insert(entity)
+        //
+        if (len(vargs) == 1 && len(parts) == 2 && parts[1] == "insert")
+        {
+            sql := this:insert(parts[0], vargs[0]);
+            return _db:exec(sql);
+        }
+
+        // get_<table>_by_<column>(value)
+        //
+        if (len(vargs) == 1 && len(parts) == 4 && parts[0] == "get" && parts[2] == "by")
+        {
+            sql := sprintf("select * from %s where %s = %s", parts[1], parts[3], as_string(vargs[0]));
+            return _db:exec(sql);
+        }
+
+        printf("sqlite.Database.unknown_method %s", method);
+        print(vargs);
+        puts("");
+    }
+
+];

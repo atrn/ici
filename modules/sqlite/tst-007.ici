@@ -1,0 +1,34 @@
+local mydb = [class: sqlite.Database,
+
+    create_tables()
+    {
+        this:exec("create table if not exists X (ID integer primary key, TXT text)");
+    }
+];
+
+local x = mydb:new("x.db");
+
+x:exec("delete from X");
+x:X_insert(map("ID", 28, "TXT", "this is the text"));
+
+rows := x:get_X_by_ID(28);
+puts("ID = 28");
+println(rows);
+
+x:X_insert(map("ID", 13, "TXT", "a_string"));
+
+rows = x:get_X_by_TXT("a_string");
+puts("ID = 13");
+println(rows);
+
+util.log_elapsed_time("insert 100 entities", [func ()
+{
+    for (id := 100; id < 200; ++id)
+    {
+        entity := map("ID", id, "TXT", sprintf("This is entity %d", id));
+        x:X_insert(entity);
+    }
+}]);
+
+rows = x:exec("select count(*) as n from X");
+puts(rows[0].n);
