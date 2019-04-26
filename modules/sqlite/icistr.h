@@ -1,3 +1,8 @@
+/*
+ *  sqlite module.
+ *  Copyright (C) 2019 A.Newman.
+ */
+
 ICI_STR(changes, "changes")
 ICI_STR(db, "db")
 ICI_STR(exec, "exec")
