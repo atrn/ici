@@ -8,14 +8,17 @@
 #include <unistd.h>
 #include <fcntl.h>
 
-static ici::objwsup *db_class = nullptr;
+namespace
+{
+
+ici::objwsup *db_class = nullptr;
 
 inline bool closed(ici::handle *h)
 {
     return h->hasflag(ici::handle::CLOSED);
 }
 
-static void db_pre_free(ici::handle *h)
+void db_pre_free(ici::handle *h)
 {
     if (!closed(h))
     {
@@ -33,6 +36,8 @@ ici::handle *new_db(sqlite3 *s)
     return nullptr;
 }
 
+/* ================================================================ */
+
 /*
  * sqlite.db = sqlite.open(filename [, options])
  *
@@ -41,7 +46,7 @@ ici::handle *new_db(sqlite3 *s)
  *
  * This --topic-- forms part of the --ici-sqlite-- documentation.
  */
-static int db_open()
+int db_open()
 {
     char *              filename;
     sqlite3 *           s;
@@ -89,12 +94,9 @@ static int db_open()
     return ici::ret_with_decref(h);
 }
 
-// ================================================================
-//
-// sqllite.db class implementation
-//
+/* ================================================================ */
 
-static sqlite3 * get_sqlite(ici::object *inst, ici::handle **h)
+sqlite3 * get_sqlite(ici::object *inst, ici::handle **h)
 {
     ici::handle *handle;
     void *ptr;
@@ -115,7 +117,7 @@ static sqlite3 * get_sqlite(ici::object *inst, ici::handle **h)
     return static_cast<sqlite3 *>(ptr);
 }
 
-static int callback(void *u, int ncols, char **cols, char **names)
+int callback(void *u, int ncols, char **cols, char **names)
 {
     ici::array *        rows = ici::arrayof(static_cast<ici::object *>(u));
 
@@ -151,7 +153,7 @@ static int callback(void *u, int ncols, char **cols, char **names)
  *
  * This --topic-- forms part of the --ici-sqlite-- documentation.
  */
-static int db_exec(ici::object *inst)
+int db_exec(ici::object *inst)
 {
     char *sql;
     char *err;
@@ -180,7 +182,7 @@ static int db_exec(ici::object *inst)
  *
  * This --topic-- forms part of the --ici-sqlite-- documentation.
  */
-static int db_changes(ici::object *inst)
+int db_changes(ici::object *inst)
 {
     if (auto s = get_sqlite(inst, nullptr))
     {
@@ -188,6 +190,8 @@ static int db_changes(ici::object *inst)
     }
     return 1;
 }
+
+} // anon namespace
 
 extern "C" ici::object *ici_sqlite_init()
 {

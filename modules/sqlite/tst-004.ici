@@ -1,0 +1,14 @@
+#!/usr/local/bin/path
+db = sqlite.open(tstdb.NAME);
+
+for (i = 0; i < tstdb.V1; ++i)
+{
+    for (j = 0; j < tstdb.V2; ++j)
+    {
+	first_id := tstdb.id(i, j, 0);
+	last_id := first_id + tstdb.V3;
+	r := sqlite.exec(db, sprintf("select * from %s where id >= %d and id < %d ", tstdb.TABLE, first_id, last_id));
+	if (len(r) != tstdb.V3)
+	    fail(string(len(r)));
+    }
+}
