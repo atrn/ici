@@ -22,3 +22,6 @@ db:exec
 
 names := sqlite.table_names(db);
 assert.equal(len(names), 2);
+
+assert.equal("integer", sqlite.get_column_type(db, "invoices", "id"));
+

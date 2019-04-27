@@ -74,13 +74,8 @@ extern get_column_names(db, table)
  */
 extern get_column_type(db, table, column)
 {
-    meta := get_table_meta_data(db, table);
-    col := meta.column_index[column];
-    if (!col)
-    {
-        fail(sprintf("%s: no such column", column));
-    }
-    return col.type;
+    sql := sprintf("select type from pragma_table_info('%s') where name = '%s'", table, column);
+    return db:exec(sql)[0].type;
 }
 
 
