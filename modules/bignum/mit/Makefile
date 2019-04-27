@@ -8,7 +8,7 @@ CC = cc
 LIB = BigNum.a
 OBJECT = o/KerN.o o/bnInit.o o/bnMult.o o/bnDivide.o o/bnCmp.o o/bzf.o o/bz.o 
 KERNH = h/BigNum.h 
-CFLAGS = -c `cat .Version` -I./h -O2 # -g -pg
+CFLAGS = -c `cat .Version` -I./h -O2 -fPIC
 LKFLAGS = -O2 #-g
 
 SENDMAIL=/usr/lib/sendmail
@@ -31,10 +31,15 @@ tidy:
 	rm -f */,* */.,* */*~ */#*# */.emacs_[0-9]* */*.BAK */*.CKP
 
 scratch:tidy 
-	-[ -d o ] && rm -f o/*.o
+	-[ -d o ] && rm -rf o/
 	[ -d o ] || mkdir o
 
+clean:scratch
+	rm -f BigNum.a bztest testKerN
+
 # build the BigNum library
+lib : $(LIB)
+
 $(LIB): $(OBJECT)
 	-rm -f $(LIB)
 	ar cr $(LIB) $(OBJECT)
@@ -182,86 +187,3 @@ doc/bnprl.ps: doc/bnprl.dvi
 	cd doc;\
 	dvips -o bnprl.ps bnprl;\
 	cd ..
-
-# build shell archives
-shar: bignum01
-
-PACKET_SIZE=90
-
-# If you modify the list of files in the package kit, don't forget 
-# to update README.
-
-bignum01: README Makefile VMSmakefile\
-      doc/bn.tex doc/bnbody.tex doc/bnf.tex doc/intro\
-      c/KerN.c c/bn/bnInit.c c/bn/bnMult.c c/bn/bnDivide.c\
-      c/bn/bnCmp.c c/bz.c c/bzf.c \
-      c/bztest.c c/testKerN.c \
-      h/BigNum.h h/BigZ.h h/BntoBnn.h \
-      s/vaxKerN.s s/68KerN.s s/nsKerN.s s/68KerN_mot.s \
-      s/mipsKerN.s s/pyramidKerN.s s/vaxKerN.mar s/unix2vms.sed \
-      s/i960KerN.s \
-      o/EMPTY
-	makekit -s$(PACKET_SIZE)k -nbignum -t"Now do 'make'" \
-            README Makefile VMSmakefile\
-            doc doc/bn.tex doc/bnbody.tex doc/bnf.tex \
-                doc/intro doc/makeidx.sty \
-            c c/KerN.c c/bz.c c/bzf.c c/bztest.c c/testKerN.c \
-            c/bn c/bn/bnInit.c c/bn/bnMult.c c/bn/bnDivide.c c/bn/bnCmp.c \
-            h h/BigNum.h h/BigZ.h h/BntoBnn.h \
-            s s/vaxKerN.s s/68KerN.s s/nsKerN.s s/68KerN_mot.s \
-              s/mipsKerN.s s/pyramidKerN.s s/vaxKerN.mar s/unix2vms.sed \
-              s/i960KerN.s \
-            o o/EMPTY
-
-# send shell archives
-USER=nil
-FULLNAME=nil
-COPY=librarian@decprl.dec.com
-mail: bignum01
-	@sh -c "if [ x$(USER) = xnil -o 'x$(FULLNAME)' = xnil ]; \
-	    then echo must specify USER and FULLNAME; \
-	         echo EG make USER=herve@prl FULLNAME="'\"'"J-C Herve, Digital PRL"'\"'" mail; exit 1; \
-	         else :; fi"
-	@touch Recipients
-	@echo '' >> Recipients
-	@date >> Recipients
-	@echo "$(FULLNAME)" >> Recipients
-	@echo '<'"$(USER)"'>' >> Recipients
-	@echo "To: $(COPY)" >tosend
-	@echo "Subject: BIGNUM DAEMON" >>tosend
-	@echo "Michele, I have sent the package bignum to:" >>tosend
-	@echo >>tosend
-	@echo "    $(FULLNAME)" >>tosend
-	@echo "    $(USER)" >>tosend
-	@echo >>tosend
-	@echo "Thanks to register this address in your distribution list." >>tosend
-	@$(SENDMAIL) $(SENDMAILFLAGS) $(COPY) <tosend
-	echo To: $(USER) > sendmail_header
-	cp sendmail_header tosend
-	echo "Subject: BigNum package from Digital PRL" >>tosend
-	ls bignum[0-9][0-9] | sed -e "s/^bignum0*/    BigNum - Part /" > _flist1
-	ls bignum[0-9][0-9] | sed -e "s/^/    /" > _flist2
-	ls bignum[0-9][0-9] | sed -e "s/^/    \/bin\/sh /" > _flist3
-	ls bignum[0-9][0-9] | sed -e "s/^/    shar -u /" > _flist4
-	cc -E -Uvax -I. doc/intro >intro.tosend
-	sed \
-		-e "s/modified_on/modified_on/g" \
-		-e "/doc\/intro/d" \
-		-e "/.\/README/d" \
-		-e "s/NN/"`ls bignum?? | wc -l | sed -e "s/ //g"`"/g" \
-		-e "/^INCLUDE1/r _flist1" \
-		-e "/^INCLUDE2/r _flist2" \
-		-e "/^INCLUDE3/r _flist3" \
-		-e "/^INCLUDE4/r _flist4" \
-		-e "/^INCLUDE./d" \
-		<intro.tosend >>tosend
-	$(SENDMAIL) $(SENDMAILFLAGS) $(USER) <tosend
-	for i in `ls bignum[0-9][0-9]`; \
-	    do cp sendmail_header tosend; \
-	    echo $$i | sed -e "s/^bignum0*/Subject: BigNum - Part /" >>tosend; \
-	    echo "# Remove all text above and including this line." >>tosend; \
-	    sed -e "s/modified_on/modified_on/g" <$$i >>tosend; \
-	    $(SENDMAIL) $(SENDMAILFLAGS) $(USER) <tosend; \
-	    done
-	rm -f sendmail_header tosend _flist[1-9] bignum[0-9][0-9] intro.tosend
-

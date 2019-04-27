@@ -19,7 +19,7 @@ dll:
 
 clean:
 	@dmake -o $(MODULE) dll clean
-	@$(MAKE) -s -C mit scratch
+	@$(MAKE) -s -C mit clean
 
 install: dll
 	$(sudo) install -c -m 444 ici-bignum.ici $(prefix)/lib/ici
