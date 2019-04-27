@@ -5,35 +5,34 @@
 extern log_elapsed_time(fn)
 {
     var vargs = [array];
+    var caption;
 
     switch (t := typeof(fn))
     {
     case "func":
-        caption := fn.name;
-        if (caption == "")
+        if ((caption = fn.name) == "")
             caption = "[func]";
         break;
 
     case "string":
-        caption := fn;
         if (len(vargs) < 1)
             argcount("log_elapsed_time", 2, 1);
+        caption = fn;
         fn = vargs[0];
-        if (typeof(fn) != "func")
-            argerror("log_elapsed_time", 2, typeof(vargs[0]));
         vargs = slice(vargs, 1);
+        if (typeof(fn) != "func")
+            argerror("log_elapsed_time", 2, typeof(fn));
         break;
 
     default:
         argerror("log_elapsed_time", 1, t);
     }
 
-    caption = caption + ": ";
-    start := now();
     failed := NULL;
+    start := now();
     try
     {
-        call(fn, vargs);
+        result := call(fn, vargs);
     }
     onerror
     {
@@ -41,7 +40,12 @@ extern log_elapsed_time(fn)
     }
     elapsed := now() - start;
     if (failed)
-        printf(stderr, "%s %s (%s)\n", caption, format_time(elapsed), failed);
-    else
-        printf(stderr, "%s %s\n", caption, format_time(elapsed));
+    {
+        printf(stderr, "%s failed -> %s (%s)\n", caption, failed, format_time(elapsed));
+	flush(stderr);
+	fail(failed);
+    }
+    printf(stderr, "%s %s\n", caption, format_time(elapsed));
+    flush(stderr);
+    return result;
 }
