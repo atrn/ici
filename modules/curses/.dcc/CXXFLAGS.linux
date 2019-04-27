@@ -1,0 +1,8 @@
+-DICI_MODULE_NAME=curses
+-fPIC
+-std=c++11
+-Wall -Wextra
+-DNDEBUG
+-g -O2
+-I/usr/local/include
+-I.
