@@ -1,3 +1,5 @@
 e := map("id", 0, "name", "", "price", 0.0, "sku", "");
-sql := sqlite.table_for_map(e, "items");
+println(e);
+
+sql := sqlite.generate_table_definition_from_prototype(e, "items");
 printf("%s\n", sql);

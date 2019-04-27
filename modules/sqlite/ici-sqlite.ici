@@ -4,19 +4,98 @@
  */
 
 /*
+ *  Cache of per-table meta-data maps.
+ */
+local table_meta_data_cache = map();
+
+/*
+ *  sqlite.invalidate_cached_table_meta_data(string)
+ *
+ *  Remove any cached meta-data for the table with the given name.
+ *
+ */
+extern invalidate_cached_table_meta_data(table)
+{
+    del(table_meta_data_cache, table);
+}
+
+/*
+ *  map = sqlite.get_table_meta_data(db, string)
+ *
+ *  Return a map containing information, meta-data, about
+ *  the table with the given name, in the given database.
+ *
+ *  The returned meta-data includes the following keys:
+ *
+ *  - columns           An array of column definitions, a map
+ *                      describing a column in the table.
+ *  - column_names      An array of the names of the columns,
+ *                      in definition order.
+ *  - column_index      A map from column name to column
+ *                      definition (map) to permit efficient
+ *                      access by column name.
+ */
+extern get_table_meta_data(db, table)
+{
+    meta := table_meta_data_cache[table];
+    if (!meta)
+    {
+        rows := db:exec(sprintf("pragma table_info(%s)", table));
+        if (len(rows) < 1)
+        {
+            fail(sprintf("%s: no such table", table));
+        }
+        names := transform(rows, [func (row) { return row.name; }]);
+        meta = map("columns", rows, "column_names", names, "column_index", map());
+        forall (col in meta.columns)
+        {
+            meta.column_index[col.name] = col;
+        }
+        table_meta_data_cache[table] = meta;
+    }
+    return meta;
+}
+
+/*
+ * array = sqlite.get_column_names(db, string)
+ *
+ *  Return an array containing the names of the columns
+ *  in the table with the given name, in the given database.
+ */
+extern get_column_names(db, table)
+{
+    meta := get_table_meta_data(db, table);
+    return meta.column_names;
+}
+
+/*
+ *  Return the SQLite type name of the given column from
+ *  the table with the given name in the given database.
+ */
+extern get_column_type(db, table, column)
+{
+    meta := get_table_meta_data(db, table);
+    col := meta.column_index[column];
+    if (!col)
+    {
+        fail(sprintf("%s: no such column", column));
+    }
+    return col.type;
+}
+
+
+/*
  * array = sqlite.table_names(db)
  *
  * Return an array containing the names of the (user) tables in the database.
  */
 extern table_names(db)
 {
-    rows := db:exec("select tbl_name from sqlite_master where type = 'table' order by tbl_name asc");
-    names := array();
-    forall (row in rows)
-    {
-        push(names, row.tbl_name);
-    }
-    return names;
+    return transform
+    (
+        db:exec("select tbl_name from sqlite_master where type = 'table' order by tbl_name asc"),
+        [func (row) { return row.tbl_name; }]
+    );
 }
 
 /*
@@ -29,6 +108,10 @@ extern table_names(db)
 extern primary_key(db, table)
 {
     rows := db:exec(sprintf("pragma table_info(%s)", table));
+    if (len(rows) < 1)
+    {
+        return "";
+    }
     forall (col in rows)
     {
         if (col.pk)
@@ -126,28 +209,60 @@ extern run(sql, db, error_handler)
 
 
 /*
- *  string = sqlite.table_for_map(map)
+ *  string = sqlite.generate_table_definition_from_prototype(map)
  *
- *  Returns a string containg an SQL "create table" statement that will
- *  create a table to hold the values held in the map with the map keys,
- *  which must be strings, as column names. I.e. the map is a prototype
- *  entity providing column names along with example column values (to
- *  allows types to be determined).
+ *  Returns a string containg an SQL "CREATE TABLE" statement that can
+ *  be used to create a table that will store entities with a schema
+ *  that represents the key/values held the map.
+ *
+ *  Note that this is only useful for tables storing complete
+ *  entities, there is no guarantee as to the ordering of the
+ *  columns in the generate table definition.
  */
-extern table_for_map(entity, name)
+extern generate_table_definition_from_prototype(entity, name)
 {
     sql := "create table " + name + " (";
     sep := "";
     forall (v, k in entity)
     {
-       sql += sprintf("%s%s %s", sep, k, type_for(v));
-       sep = ", ";
+       if (typeof(k) == "string")
+       {
+           sql += sprintf("%s%s %s", sep, k, type_for(v));
+           sep = ", ";
+       }
     }
-    return sql + ")";
+    sql += ")";
+    return sql;
 }
 
 /* ================================================================ */
 
+extern generate_insert_entity_sql(table, entity)
+{
+    cols := keys(entity);
+    if (len(cols) < 1)
+    {
+        fail(sprintf("%s: entity has no keys", typeof(entity)));
+    }
+    sql := "insert into " + table + " (" + cols[0];
+    forall (col in slice(cols, 1))
+    {
+        sql += ", " + col;
+    }
+    sql = sql + ") values (" + as_string(entity[cols[0]]);
+    forall (col in slice(cols, 1))
+    {
+        sql += ", " + as_string(entity[col]);
+    }
+    sql += ")";
+    return sql;
+}
+
+
+/* ================================================================ */
+
+/*
+ */
 extern Database = [class
 
     new(filename, options)
@@ -166,40 +281,27 @@ extern Database = [class
         return call(_db:exec, array(sql) + vargs);
     }
 
-    create_tables()
+    changes()
     {
+        return _db:changes();
     }
 
-    insert_entity_sql(table, entity)
+    create_tables()
     {
-        cols := keys(entity);
-        sql := "insert into " + table + " (";
-        sep := "";
-        forall (col in cols)
-        {
-            sql += sep + col;
-            sep = ", ";
-        }
-        sql = sql + ") values (";
-        sep := "";
-        forall (col in cols)
-        {
-            sql += sep + as_string(entity[col]);
-            sep = ", ";
-        }
-        return sql + ")";
+        // empty default for databases no with no tables
     }
 
     unknown_method(method)
     {
         var vargs = [array];
+
         parts := split(method, "_");
 
         // <table>_insert(entity)
         //
         if (len(vargs) == 1 && len(parts) == 2 && parts[1] == "insert")
         {
-            return _db:exec(this:insert_entity_sql(parts[0], vargs[0]));
+            return _db:exec(generate_insert_entity_sql(parts[0], vargs[0]));
         }
 
         // get_<table>(id) -> map
@@ -241,9 +343,7 @@ extern Database = [class
             return _db:exec(sql);
         }
 
-        printf("sqlite.Database.unknown_method %s", method);
-        print(vargs);
-        puts("");
+        printf(stderr, "warning: sqlite.Database.unknown_method %s(%s)\n", method, sprint(vargs));
     }
 
 ];

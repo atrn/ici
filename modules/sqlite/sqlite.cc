@@ -27,7 +27,7 @@
 namespace
 {
 
-/* ================================================================
+/* ----------------------------------------------------------------
  *
  *  'db' object type - an ICI handle instance with the 'sqlite3 *'
  *  database 'handle' as its pointer.
@@ -59,7 +59,7 @@ ici::handle *new_db(sqlite3 *s)
     return nullptr;
 }
 
-/* ================================================================
+/* ----------------------------------------------------------------
  *
  * Module functions.
  *
@@ -70,7 +70,7 @@ ici::handle *new_db(sqlite3 *s)
  *
  * Return a string containing the SQLite version.
  */
-int db_version()
+int f_version()
 {
     return ici::str_ret(SQLITE_VERSION);
 }
@@ -80,7 +80,7 @@ int db_version()
  *
  * Return an integer containing the SQLite version.
  */
-int db_version_number()
+int f_version_number()
 {
     return ici::int_ret(SQLITE_VERSION_NUMBER);
 }
@@ -99,7 +99,7 @@ int db_version_number()
  *
  * This --topic-- forms part of the --ici-sqlite-- documentation.
  */
-int db_open()
+int f_open()
 {
     char *              filename;
     sqlite3 *           s;
@@ -137,9 +137,9 @@ int db_open()
     }
     if (!mkdb)
     {
-	if (access(filename, R_OK|W_OK) == -1)
+	if (access(filename, F_OK) == -1)
 	{
-            ici::set_error("%s: attempt to open non-existing database", filename);
+            ici::set_error("%s: no such database", filename);
             return 1;
 	}
     }
@@ -156,7 +156,7 @@ int db_open()
     return ici::ret_with_decref(h);
 }
 
-/* ================================================================
+/* ----------------------------------------------------------------
  *
  * sqlite.db implementation
  *
@@ -174,34 +174,33 @@ int db_open()
  *
  */
 
-sqlite3 * get_sqlite(ici::object *inst, ici::handle **h)
+sqlite3 *get_sqlite(ici::object *inst, ici::handle **h)
 {
-    ici::handle *handle;
-    if (h == nullptr)
-    {
-	h = &handle;
-    }
-
     void *ptr;
+
     if (ici::handle_method_check(inst, ICIS(db), h, &ptr))
     {
 	return nullptr;
     }
-
     if (isclosed(*h))
     {
-        ici::set_error("attempt to use closed db instance");
-	return nullptr;
+        ici::set_error("attempt to use closed db");
+	ptr = nullptr;
     }
-
     return static_cast<sqlite3 *>(ptr);
+}
+
+sqlite3 *get_sqlite(ici::object *inst)
+{
+    ici::handle *_;
+    return get_sqlite(inst, &_);
 }
 
 int callback(void *u, int ncols, char **cols, char **names)
 {
     ici::array * rows = ici::arrayof(static_cast<ici::object *>(u));
 
-    auto row = ici::make_ref<ici::map>(ici::new_map());
+    auto row = ici::make_ref(ici::new_map());
     if (!row)
     {
 	return 1;
@@ -210,12 +209,13 @@ int callback(void *u, int ncols, char **cols, char **names)
     {
 	if (cols[i] != nullptr)
 	{
-            auto col = ici::make_ref<ici::str>(ici::new_str_nul_term(names[i]));
+            auto col = ici::make_ref(ici::new_str_nul_term(names[i]));
             if (!col)
             {
                 return 1;
             }
-            auto val = ici::make_ref<ici::str>(ici::new_str_nul_term(cols[i]));
+            // TOOD: use column type to create appropriate ICI type
+            auto val = ici::make_ref(ici::new_str_nul_term(cols[i]));
             if (!val || row->assign(col, val))
             {
 		return 1;
@@ -233,17 +233,17 @@ int callback(void *u, int ncols, char **cols, char **names)
  *
  * This --topic-- forms part of the --ici-sqlite-- documentation.
  */
-int db_exec(ici::object *inst)
+int f_db_exec(ici::object *inst)
 {
     char *statement;
     char *err;
+    sqlite3 *s;
 
-    auto s = get_sqlite(inst, nullptr);
-    if (!s || ici::typecheck("s", &statement))
+    if (!(s = get_sqlite(inst)) || ici::typecheck("s", &statement))
     {
 	return 1;
     }
-    auto rows = ici::make_ref<ici::array>(ici::new_array());
+    auto rows = ici::make_ref(ici::new_array());
     if (!rows)
     {
 	return 1;
@@ -262,9 +262,9 @@ int db_exec(ici::object *inst)
  *
  * This --topic-- forms part of the --ici-sqlite-- documentation.
  */
-int db_changes(ici::object *inst)
+int f_db_changes(ici::object *inst)
 {
-    if (auto s = get_sqlite(inst, nullptr))
+    if (auto s = get_sqlite(inst))
     {
         return ici::int_ret(sqlite3_changes(s));
     }
@@ -273,9 +273,9 @@ int db_changes(ici::object *inst)
 
 } // anon namespace
 
-/* ================================================================
+/* ----------------------------------------------------------------
  *
- * Module init
+ * Module entry point and initialization.
  *
  */
 
@@ -292,11 +292,12 @@ extern "C" ici::object *ici_sqlite_init()
 
     static ICI_DEFINE_CFUNCS(sqlite)
     {
-        ICI_DEFINE_CFUNC(open, db_open),
-        ICI_DEFINE_CFUNC(version, db_version),
-        ICI_DEFINE_CFUNC(version_number, db_version_number),
+        ICI_DEFINE_CFUNC(open, f_open),
+        ICI_DEFINE_CFUNC(version, f_version),
+        ICI_DEFINE_CFUNC(version_number, f_version_number),
         ICI_CFUNCS_END()
     };
+
     auto module = ici::new_module(ICI_CFUNCS(sqlite));
     if (!module)
     {
@@ -305,10 +306,11 @@ extern "C" ici::object *ici_sqlite_init()
 
     static ICI_DEFINE_CFUNCS(db_methods)
     {
-        ICI_DEFINE_CFUNC(changes, db_changes),
-        ICI_DEFINE_CFUNC(exec, db_exec),
+        ICI_DEFINE_CFUNC(changes, f_db_changes),
+        ICI_DEFINE_CFUNC(exec, f_db_exec),
         ICI_CFUNCS_END()
     };
+
     db_class = ici::new_class(ICI_CFUNCS(db_methods), module);
     if (!db_class)
     {
