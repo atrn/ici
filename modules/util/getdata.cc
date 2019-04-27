@@ -4,6 +4,8 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 
+#include "util.h"
+
 /*
  * mem = getdata(string)
  *

@@ -1,5 +1,7 @@
 #include <ici.h>
 
+#include "util.h"
+
 /*
  * array = pick(array, array|set)
  *
