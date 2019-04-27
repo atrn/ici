@@ -1,5 +1,3 @@
-#!/usr/local/bin/ici
-
 db := sqlite.open("accounting.db", "cx");
 
 db:exec

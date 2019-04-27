@@ -1,4 +1,3 @@
-#!/usr/local/bin/path
 db = sqlite.open(tstdb.NAME);
 
 for (i = 0; i < tstdb.V1; ++i)

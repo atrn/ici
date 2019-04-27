@@ -1,5 +1,3 @@
-#!/usr/local/bin/ici
-
 local db = sqlite.open("tst-002.db", "cx");
 
 local ntables = 10;

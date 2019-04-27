@@ -1,4 +1,3 @@
-#!/usr/local/bin/path
 sys.access(tstdb.NAME);
 db = sqlite.open(tstdb.NAME);
 

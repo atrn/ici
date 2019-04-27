@@ -1,5 +1,3 @@
-#!/usr/local/bin/path
-
 local words = gettokens(fopen("/usr/share/dict/words"), "\n");
 
 local words_by_first_letter = map();

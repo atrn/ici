@@ -1,4 +1,3 @@
-#!/usr/local/bin/path
 try remove("tst-002.db"); onerror ;
 db = sqlite.open("tst-002.db", "c");
 
