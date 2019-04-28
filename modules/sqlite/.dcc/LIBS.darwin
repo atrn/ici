@@ -1,6 +1,5 @@
--L/opt/local/lib
+/opt/local/lib/libsqlite3.a
 -L/usr/local/lib
--lsqlite3
 -lici
 -lc++
 -lSystem
