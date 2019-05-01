@@ -64,8 +64,7 @@ extern get_table_meta_data(db, table)
  */
 extern get_column_names(db, table)
 {
-    meta := get_table_meta_data(db, table);
-    return meta.column_names;
+    return get_table_meta_data(db, table).column_names;
 }
 
 /*
@@ -230,8 +229,14 @@ extern generate_table_definition_from_prototype(entity, name)
     return sql;
 }
 
-/* ================================================================ */
-
+/*
+ *  string = sqlite.generate_insert_entity_sql
+ *
+ *  Given an "entity", a map with at least one
+ *  key/value, this function returns a string
+ *  containing the SQL statement to insert that
+ *  entity into the table with the given name.
+ */
 extern generate_insert_entity_sql(table, entity)
 {
     cols := keys(entity);
@@ -252,93 +257,3 @@ extern generate_insert_entity_sql(table, entity)
     sql += ")";
     return sql;
 }
-
-
-/* ================================================================ */
-
-/*
- */
-extern Database = [class
-
-    new(filename, options)
-    {
-        var options = "c";
-        this = this:^new();
-        this._filename := filename;
-        this._db := open(filename, options);
-        this:create_tables();
-        return this;
-    }
-
-    exec(sql)
-    {
-        var vargs = [array];
-        return call(_db:exec, array(sql) + vargs);
-    }
-
-    changes()
-    {
-        return _db:changes();
-    }
-
-    create_tables()
-    {
-        // empty default for databases no with no tables
-    }
-
-    unknown_method(method)
-    {
-        var vargs = [array];
-
-        parts := split(method, "_");
-
-        // <table>_insert(entity)
-        //
-        if (len(vargs) == 1 && len(parts) == 2 && parts[1] == "insert")
-        {
-            return _db:exec(generate_insert_entity_sql(parts[0], vargs[0]));
-        }
-
-        // get_<table>(id) -> map
-        //
-        if (len(vargs) == 1 && len(parts) == 2 && parts[0] == "get")
-        {
-            sql := sprintf
-            (
-                "select * from %s where %s = %s",
-                parts[1],
-                primary_key(_db, parts[1]),
-                as_string(vargs[0])
-            );
-            rows := _db:exec(sql);
-            switch (len(rows))
-            {
-            case 0:
-                return NULL;
-            case 1:
-                return rows[0];
-            default:
-                fail("too many results");
-            }
-        }
-
-        // get_<table>_by_<column>(value)
-        //
-        if (len(vargs) == 1 && len(parts) == 4 && parts[0] == "get" && parts[2] == "by")
-        {
-            sql := sprintf("select * from %s where %s = %s", parts[1], parts[3], as_string(vargs[0]));
-            return _db:exec(sql);
-        }
-
-        // get_<table>_by_<column>_like(value)
-        //
-        if (len(vargs) == 1 && len(parts) == 5 && parts[0] == "get" && parts[2] == "by" && parts[4] == "like")
-        {
-            sql := sprintf("select * from %s where %s like %s", parts[1], parts[3], as_string(vargs[0]));
-            return _db:exec(sql);
-        }
-
-        printf(stderr, "warning: sqlite.Database.unknown_method %s(%s)\n", method, sprint(vargs));
-    }
-
-];

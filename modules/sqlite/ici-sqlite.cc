@@ -4,21 +4,20 @@
  *
  *  This is a module that provides access to SQLite (v3).  The module
  *  defines a handful of native code functions to access the core
- *  SQLite features and uses ICI code to extend that basic access
- *  in a number of ways.
+ *  SQLite features and uses ICI code to extend that access.
  *
- *  The module's primary interface is the sqlite.open() function which
- *  opens a SQLite database file and returns an instance of the
- *  sqlite.db class to represent the open database. The db instance
- *  can then be used to query and update the database.
+ *  The module's primary interface is the sqlite.open() function.
+ *  open() opens a SQLite database file and returns an instance
+ *  of the sqlite.db class which is used to access and manipulate
+ *  the database.
  *
+ *  The principle interface provided by the sqlite.db class is the
+ *  exec() method, used to execute SQL statements.
  */
 
 #include <sqlite3.h>
 
 #include <ici.h>
-#include "icistr.h"
-#include <icistr-setup.h>
 
 #include <sys/types.h>
 #include <unistd.h>
@@ -26,6 +25,9 @@
 
 namespace
 {
+
+#include "icistr.h"
+#include <icistr-setup.h>
 
 /* ----------------------------------------------------------------
  *

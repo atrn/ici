@@ -1,0 +1,177 @@
+/*
+ *  A data.Entity represents the structure of an SQL table, the
+ *  columns.  A data.Entity defines the names, types and order
+ *  of the columns in the table.
+ *
+ *  Entities are created from a _prototype_ object, an ICI map
+ *  containing key/value pairs that define the names and types
+ *  of the table's columns.  Actual values stored in the map
+ *  are NOT used when defining the table structure (but may be
+ *  used in other features).
+ *
+ *  By default columns appear in the table in arbitrary order. To
+ *  control ordering an _index_ may be supplied. The index is an array
+ *  of the column names, in the order they should appear in the
+ *  table. The index must be "complete" and contain an entry for each
+ *  key defined by the prototype.
+ */
+
+local check_entity_index(index, prototype) {
+    keyset := call(set, keys(prototype));
+    if (len(index) != len(keyset)) {
+        return "index and prototype sizes differ";
+    }
+    forall (col in index) {
+        if (!keyset[col]) {
+            return sprintf("index does not contain entry for column '%s'", col);
+        }
+    }
+}
+
+extern Entity = [class
+
+    new(name, prototype, index)
+    {
+	this = this:^new();
+	this._name := name;
+        this._prototype := prototype;
+	if (index) {
+            if (err := check_entity_index(index, prototype)) {
+                fail(err);
+            }
+	    this._index := index;
+	} else {
+	    this._index := array();
+	    forall (v, k in prototype) {
+		push(this._index, map("name", k, "type", typeof(v)));
+	    }
+	}
+	this._types := array();
+	forall (col in this._index) {
+	    push(this._types, typeof(prototype[col]));
+	}
+	return this;
+    }
+
+    num_columns()
+    {
+	return len(_index);
+    }
+
+    column(i)
+    {
+	return _index[i];
+    }
+
+    generate_table_definition()
+    {
+	return sqlite.generate_table_definition_from_prototype(_prototype);
+    }
+];
+
+
+/*
+ *  data.Store represents a SQLite database file and extends the
+ *  sqlite.db class with extra behaviour.
+ *
+ *  The Store class uses the 'unknown_method' function (called when
+ *  an unknown method is called on some object) to implement query
+ *  synthesis.  The name of the "unknown" method encodes an operation,
+ *  table and, if required, column.  The class converts these forms
+ *  into actual queries.
+ */
+extern Store = [class
+
+    new(filename, options)
+    {
+        var options = "c";
+        this = this:^new();
+        this._filename := filename;
+        this._db := sqlite.open(filename, options);
+        this:create_tables();
+        return this;
+    }
+
+    exec(sql)
+    {
+        var vargs = [array];
+        return call(_db:exec, array(sql) + vargs);
+    }
+
+    changes()
+    {
+        return _db:changes();
+    }
+
+    create_tables()
+    {
+        // empty default for databases no with no tables
+    }
+
+    unknown_method(method)
+    {
+        var vargs = [array];
+
+        parts := split(method, "_");
+
+        // <table>_insert(entity)
+        //
+        if (len(vargs) == 1 && len(parts) == 2 && parts[1] == "insert")
+        {
+            return this:_synthesize_insert(parts[0], vargs[0]);
+        }
+
+        // get_<table>(id) -> map
+        //
+        if (len(vargs) == 1 && len(parts) == 2 && parts[0] == "get")
+        {
+            return this:_synthesize_get_by_pk(parts[1], vargs[0]);
+        }
+
+        // get_<table>_by_<column>(value)
+        //
+        if (len(vargs) == 1 && len(parts) == 4 && parts[0] == "get" && parts[2] == "by")
+        {
+            return this:_synthesize_get_by_column(parts[1], parts[3], vargs[0]);
+        }
+
+        // get_<table>_by_<column>_like(value)
+        //
+        if (len(vargs) == 1 && len(parts) == 5 && parts[0] == "get" && parts[2] == "by" && parts[4] == "like")
+        {
+            return this:_synthesize_get_by_column_like(parts[1], parts[3], vargs[0]);
+        }
+
+        fail(sprintf("data.Store: unknown method - %s(%s)\n", method, sprint(vargs)));
+    }
+
+    _synthesize_insert(table, entity)
+    {
+        return _db:exec(sqlite.generate_insert_entity_sql(table, entity));
+    }
+
+    _synthesize_get_by_pk(table, val)
+    {
+        pk := sqlite.primary_key(_db, table);
+        rows := _db:exec(sprintf("select * from %s where %s = %s", table, pk, sqlite.as_string(val)));
+        switch (len(rows))
+        {
+        case 0:
+            return NULL;
+        case 1:
+            return rows[0];
+        default:
+            fail(sprintf("%d rows returned for select by primary-key", len(rows)));
+        }
+    }
+
+    _synthesize_get_by_column(table, col, val)
+    {
+        return _db:exec(sprintf("select * from %s where %s = %s", table, col, sqlite.as_string(val)));
+    }
+
+    _synthesize_get_by_column_like(table, col, val)
+    {
+        return _db:exec(sprintf("select * from %s where %s like %s", table, col, sqlite.as_string(val)));
+    }
+];

@@ -1,4 +1,4 @@
-local MyDatabase = [class: sqlite.Database,
+local MyDatabase = [class: data.Store,
 
     create_tables()
     {

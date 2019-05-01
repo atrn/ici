@@ -17,7 +17,7 @@ endif
 
 _dest	= $(prefix)/lib/ici
 _dll	= $(module).$(dll)
-_ici	= $(module).ici
+_ici	= $(module).ici ici-data.ici
 
 all : dll
 
