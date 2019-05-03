@@ -2046,7 +2046,7 @@ static int sys_error()
     if (isstring(ARG(0)))
     {
         for (int i = 0; i < sys_nerr; ++i)
-            if (strcasecmp(sys_errlist[i], stringof(ARG(0))->s_chars) == 0)
+            if (strcasecmp(strerror(i), stringof(ARG(0))->s_chars) == 0)
                 return int_ret(i);
         return int_ret(0);
     }
