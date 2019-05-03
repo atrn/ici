@@ -22,3 +22,4 @@
 /modules/bignum/mit/testKerN
 /cscope.*
 /modules/sqlite/tests/*.db
+/modules/sqlite/tests/*.data

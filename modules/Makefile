@@ -1,7 +1,7 @@
 .PHONY: all clean
 
-sudo?=
 prefix?=/usr/local
+sudo?=
 
 MODULES=\
 	bignum\

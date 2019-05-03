@@ -240,11 +240,11 @@ install-core-ici:
 .PHONY: full-install
 full-install:
 	@echo '1  - make clean'; $(MAKE) -s clean
-	@echo '2  - build lib'; $(MAKE) -s lib ici.h build=lib conf=$(conf) dccflags="$(dccflags) --quiet"
-	@echo '3  - install lib'; $(MAKE) -s build=lib install-libici prefix=$(prefix) dccflags="$(dccflags) --quiet"
+	@echo '2  - make (lib)'; $(MAKE) -s lib ici.h build=lib conf=$(conf) dccflags="$(dccflags) --quiet"
+	@echo '3  - make install (lib)'; $(MAKE) -s build=lib install-libici prefix=$(prefix) dccflags="$(dccflags) --quiet"
 	@echo '4  - make clean'; $(MAKE) -s clean
-	@echo '5  - build dll/exe'; $(MAKE) -s build=dll conf=$(conf) dccflags="$(dccflags) --quiet"
-	@echo '6  - install dll/exe'; $(MAKE) -s build=dll install-libici install-ici-exe prefix=$(prefix) dccflags="$(dccflag) --quiet"
+	@echo '5  - make (dll)'; $(MAKE) -s build=dll conf=$(conf) dccflags="$(dccflags) --quiet"
+	@echo '6  - make install (dll)'; $(MAKE) -s build=dll install-libici install-ici-exe prefix=$(prefix) dccflags="$(dccflag) --quiet"
 	@echo '7  - make clean'; $(MAKE) -s clean
 
 # cmake
