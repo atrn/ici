@@ -160,7 +160,7 @@ extern "C" ici::object *ici_bignum_init()
         return nullptr;
     BzInit();
     zero = BzFromInteger(0);
-    ICI_DEFINE_CFUNCS(bignum)
+    static ICI_DEFINE_CFUNCS(bignum)
     {
         ICI_DEFINE_CFUNC(bignum,   bignum_bignum),
         ICI_DEFINE_CFUNC(create,   bignum_create),

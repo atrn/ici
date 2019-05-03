@@ -145,7 +145,7 @@ extern "C" ici::object *ici_example_init()
      *  functions.
      *
      */
-    ICI_DEFINE_CFUNCS(test)
+    static ICI_DEFINE_CFUNCS(test)
     {
         ICI_DEFINE_CFUNC(function, f_function),
         ICI_DEFINE_CFUNC(other_function, f_other_function),
