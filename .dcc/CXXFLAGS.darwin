@@ -5,4 +5,4 @@
 -Wextra
 -DNDEBUG
 -g
--Oz
+-O2
