@@ -1,0 +1,13 @@
+v := [array
+    [map
+        field1 = "thwensk",
+        field2 = 13.2023,
+        field3 = [array "string1", "string2", "string3"],
+    ],
+    [map
+        field3 = "thwensk",
+        field4 = 13,
+    ],
+];
+
+json.encode(v, );

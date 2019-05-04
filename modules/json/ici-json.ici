@@ -1,31 +1,33 @@
-extern encode(any, dest, indent) {
+extern encode(any, dest, indent, first_indent) {
+    if (first_indent == NULL) first_indent = indent;
     var dest = stdout;
     var indent = 0;
     switch (t := typeof(any)) {
     case "NULL":
-        printf(dest, "%*snull", indent, "");
+        printf(dest, "%*snull", first_indent, "");
         break;
     case "int":
-         printf(dest, "%*s%d", indent, "", any);
+         printf(dest, "%*s%d", first_indent, "", any);
 	 break;
     case "float":
-        printf(dest, "%*s%.18g", indent, "", any);
+        printf(dest, "%*s%.18g", first_indent, "", any);
 	break;
     case "string":
-	printf(dest, "%*s\"%s\"", indent, "", any);
+	printf(dest, "%*s\"%s\"", first_indent, "", any);
 	break;
     case "array":
-	printf(dest, "%*s[\n", indent, "");
+	printf(dest, "%*s[", first_indent, "");
+	printf(dest, "\n");
 	last := len(any) - 1;
 	forall (v, k in any) {
-	    encode(v, dest, indent+4);
+	    encode(v, dest, first_indent+4, indent+8);
 	    if (k == last) {
 		printf(dest, "\n");
             } else {
                 printf(dest, ",\n");
             }
 	}
-	printf(dest, "%*s]", indent, "");
+	printf(dest, "%*s]", indent ? indent + 4 : 0, "");
 	break;
     case "map":
     case "set":
@@ -38,8 +40,8 @@ extern encode(any, dest, indent) {
 	        printf(dest, ",\n");
             }
 	    encode(k, dest, indent+4);
-	    printf(dest, ":");
-	    encode(v, dest, 1);
+	    printf(dest, ": ");
+	    encode(v, dest, indent, 1);
 	    needsep = true;
 	}
 	if (needsep) {
