@@ -8,6 +8,7 @@ local MyDatabase = [class: data.Store,
 ];
 
 local database = MyDatabase:new("tst-007.db", "cx");
+database:create_tables();
 
 database:exec("delete from table1");
 database:table1_insert(map("id", 28, "message", "this is the text"));

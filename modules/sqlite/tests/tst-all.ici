@@ -43,6 +43,8 @@ forall (test, index in test_files)
     try
     {
 	environment := map(map(copy(super(super(scope())))));
+        environment.argv := array(test);
+        environment.argc := 1;
 	file := fopen(test);
 	parse(file, environment);
 	close(file);

@@ -1,4 +1,68 @@
 /*
+ * ICI 'data' module - higher-level data storage
+ *
+ * The data module provides a number of data-storage concepts and
+ * builds upon the sqlite module, which it uses as its underlying
+ * storage mechanism.
+ *
+ * The data module builds upon a (basic) SQL DBMS and provides
+ *
+ * Classes
+ *
+ * - Store
+ *      A /store/ is a SQLite database, a single file storing zero
+ *      or more database /tables/. A program may use as many stores
+ *      as it likes however as a convenience the data module supports
+ *      a per-program (note /program/ and not /process/) data store.
+ *
+ * - Table
+ *      A /table/ is a SQLite SQL table. A collection of zero or
+ *      more /rows/ of some defined structure, the table's /entity/.
+ *
+ * - Entity
+ *      An /entity/ is a collection of /columns/, a table's /schema/.
+ *      Each column has a name and a defined data type.
+ */
+
+/*
+ *  This is a helper function for the Entity class (below) and is
+ *  used to verify that a column index array matches an Entity's
+ *  prototype map.  The index must contain a single entry for all
+ *  keys used in the prototype map.
+ */
+local check_entity_index(index, prototype) {
+    // call(set, array) idiom -> create a set from the contents of an array
+    prototype_keys := call(set, keys(prototype));
+    if (len(prototype_keys) == 0) {
+        return "entity prototype has no keys";
+    }
+    if (len(index) != len(prototype_keys)) {
+        return "entity index and prototype map sizes differ";
+    }
+    forall (col in index) {
+        if (!prototype_keys[col]) {
+            return sprintf("%s: key not found in prototype map", col)
+        }
+    }
+}
+
+extern QuerySynthesizer = [class
+
+    new(store)
+    {
+        this = this:^new();
+        this._store := store;
+        return this;
+    }
+
+    synthesize(method_name, parts, entity)
+    {
+        fail(sprintf("%s: %s - no corresponding SQL", store:name(), method_name));
+    }
+];
+
+
+/*
  *  A data.Entity represents the structure of an SQL table, the
  *  columns.  A data.Entity defines the names, types and order
  *  of the columns in the table.
@@ -15,25 +79,12 @@
  *  table. The index must be "complete" and contain an entry for each
  *  key defined by the prototype.
  */
-
-local check_entity_index(index, prototype) {
-    keyset := call(set, keys(prototype));
-    if (len(index) != len(keyset)) {
-        return "index and prototype sizes differ";
-    }
-    forall (col in index) {
-        if (!keyset[col]) {
-            return sprintf("index does not contain entry for column '%s'", col);
-        }
-    }
-}
-
 extern Entity = [class
 
     new(name, prototype, index)
     {
 	this = this:^new();
-	this._name := name;
+        this._name := name;
         this._prototype := prototype;
 	if (index) {
             if (err := check_entity_index(index, prototype)) {
@@ -42,15 +93,25 @@ extern Entity = [class
 	    this._index := index;
 	} else {
 	    this._index := array();
-	    forall (v, k in prototype) {
-		push(this._index, map("name", k, "type", typeof(v)));
+	    forall (_, col in prototype) {
+		push(this._index, col);
 	    }
 	}
 	this._types := array();
 	forall (col in this._index) {
-	    push(this._types, typeof(prototype[col]));
+	    push(this._types, sqlite.type_for(typeof(prototype[col])));
 	}
 	return this;
+    }
+
+    signature()
+    {
+        sig := sprintf("%s:%s", _index[0], _types[0]);
+        for (i := 1; i < len(_index); ++i)
+        {
+            sig = sprintf("%s|%s:%s", sig, _index[i], _types[i]);
+        }
+        return sig;
     }
 
     num_columns()
@@ -63,24 +124,77 @@ extern Entity = [class
 	return _index[i];
     }
 
-    generate_table_definition()
+    column_type(i)
     {
-	return sqlite.generate_table_definition_from_prototype(_prototype);
+	return _types[i];
+    }
+
+    columns()
+    {
+        return _index;
+    }
+
+    default_table_name()
+    {
+        return _name;
+    }
+
+    create_table_sql(name)
+    {
+        if (!name) {
+            name = _name;
+        }
+        sql := sprintf("create table if not exists %s (", name);
+        sql += _index[0];
+        sql += " ";
+        sql += _types[0];
+        for (i := 1, n := len(_index); i < n; ++i)
+        {
+            sql += sprintf(", %s %s", _index[i], _types[i]);
+        }
+        sql += ")";
+        return sql;
     }
 ];
 
 
 /*
- *  data.Store represents a SQLite database file and extends the
- *  sqlite.db class with extra behaviour.
+ *  A data.Store represents a database, stored in a SQLite file,
+ *  and extends the simpler sqlite.db class.
  *
- *  The Store class uses the 'unknown_method' function (called when
- *  an unknown method is called on some object) to implement query
- *  synthesis.  The name of the "unknown" method encodes an operation,
- *  table and, if required, column.  The class converts these forms
- *  into actual queries.
+ *  Query Synthesis
+ *
+ *  The Store class uses ICI's 'unknown_method' feature to implement,
+ *  what I call, "query synthesis". The 'unknown_method' feature calls
+ *  a known method, "unknown_method", to handle the error case of a
+ *  method being called that is not found.
+ *
+ *  Query synthesis uses the name of the unknown method to encode
+ *  database operations such as inserts, selects and updates.
+ *
+ *  E.g given a "users" data.Store (table) the method call,
+ *
+ *      users:get_user(32)
+ *
+ *  translates to the SQL,
+ *
+ *      SELECT * FROM users WHERE id = 32
+ *
+ *  The "users" table name comes from the users data.Store
+ *  instance and other parts of the SQL from the method
+ *  name and 
  */
 extern Store = [class
+
+    standard_extension = ".db",
+
+    filename_for_this_process(path_extension)
+    {
+        if (!path_extension) {
+            path_extension = standard_extension;
+        }
+        return sub(basename(argv[0]), #\.ici$#, "") + path_extension;
+    }
 
     new(filename, options)
     {
@@ -88,8 +202,17 @@ extern Store = [class
         this = this:^new();
         this._filename := filename;
         this._db := sqlite.open(filename, options);
-        this:create_tables();
         return this;
+    }
+
+    name()
+    {
+        return basename(_filename);
+    }
+
+    create_table_for_entity(ent, name)
+    {
+        _db:exec(ent:create_table_sql(name));
     }
 
     exec(sql)
@@ -103,46 +226,41 @@ extern Store = [class
         return _db:changes();
     }
 
-    create_tables()
-    {
-        // empty default for databases no with no tables
-    }
-
-    unknown_method(method)
+    unknown_method(method_name)
     {
         var vargs = [array];
 
-        parts := split(method, "_");
+        parts := split(method_name, "_");
 
-        // <table>_insert(entity)
+        // <table>_insert(<entity>)
         //
         if (len(vargs) == 1 && len(parts) == 2 && parts[1] == "insert")
         {
             return this:_synthesize_insert(parts[0], vargs[0]);
         }
 
-        // get_<table>(id) -> map
+        // get_<table>(<id>) -> <row>
         //
         if (len(vargs) == 1 && len(parts) == 2 && parts[0] == "get")
         {
             return this:_synthesize_get_by_pk(parts[1], vargs[0]);
         }
 
-        // get_<table>_by_<column>(value)
+        // get_<table>_by_<column>(<value>) -> <rows>
         //
         if (len(vargs) == 1 && len(parts) == 4 && parts[0] == "get" && parts[2] == "by")
         {
             return this:_synthesize_get_by_column(parts[1], parts[3], vargs[0]);
         }
 
-        // get_<table>_by_<column>_like(value)
+        // get_<table>_by_<column>_like(<value>) -> <rows>
         //
         if (len(vargs) == 1 && len(parts) == 5 && parts[0] == "get" && parts[2] == "by" && parts[4] == "like")
         {
             return this:_synthesize_get_by_column_like(parts[1], parts[3], vargs[0]);
         }
 
-        fail(sprintf("data.Store: unknown method - %s(%s)\n", method, sprint(vargs)));
+        fail(sprintf("%s: unknown method - '%s' %s\n", _filename, method_name, sprint(vargs)));
     }
 
     _synthesize_insert(table, entity)
@@ -174,4 +292,71 @@ extern Store = [class
     {
         return _db:exec(sprintf("select * from %s where %s like %s", table, col, sqlite.as_string(val)));
     }
+
+    define_entity(ent)
+    {
+        _db:exec(ent:create_table_sql());
+    }
+
+    store(name, value)
+    {
+        // ensure the table exists, it usually will
+        this:create_table_for_entity(Entity:new(name, value));
+        return this:_synthesize_insert(name, value);
+    }
+];
+
+/*
+ */
+extern Table = [class
+
+    new(db, name, entity)
+    {
+        this = this:^new();
+        this._db := db;
+        this._name := name;
+        this._entity := entity;
+        return this;
+    }
+
+    name()
+    {
+        return _name;
+    }
+
+    create_table()
+    {
+        _db:exec(_entity:create_table_sql());
+    }
+
+    signature()
+    {
+        return sprintf("%s,%s", this:name(), _entity:signature());
+    }
+
+    num_columns()
+    {
+        return _entity:num_columns();
+    }
+
+    column(i)
+    {
+        return _entity:column(i);
+    }
+
+    column_type(i)
+    {
+        return _entity:column_type(i);
+    }
+
+    columns()
+    {
+        return _entity:columns();
+    }
+
+    store(entity)
+    {
+        _db:store(this:name(), entity);
+    }
+
 ];
