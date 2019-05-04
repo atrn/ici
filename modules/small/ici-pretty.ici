@@ -1,0 +1,90 @@
+/*
+ * string = pretty.sprint(any)
+ */
+
+extern sprint(any, indent, indent2, unquoted)
+{
+    printable := [func (str) {
+        r := array();
+        forall (ch in str)
+        {
+            if (ch >= " " && ch <= "~")
+                push(r, ch);
+            else {
+                switch (ch)
+                {
+                case "\a":      push(r, "\\a"); break;
+                case "\b":      push(r, "\\b"); break;
+                case "\n":      push(r, "\\n"); break;
+                case "\r":      push(r, "\\r"); break;
+                case "\t":      push(r, "\\t"); break;
+                default:        push(r, sprintf("\\x%02x", toint(ch)));
+                }
+            }
+        }
+        return implode(r);
+    }];
+           
+    SPACING := 4;
+    if (!indent) indent = 0;
+    if (!indent2) indent2 = indent+1;
+    switch (t := typeof(any))
+    {
+    case "NULL":
+        return sprintf("%*sNULL", (indent*SPACING), "");
+    case "int":
+        return sprintf("%*s%d", (indent*SPACING), "", any);
+    case "float":
+        return sprintf("%*s%g", (indent*SPACING), "", any);
+    case "string":
+        return sprintf("%*s%s", (indent*SPACING), "", unquoted ? any : sprintf("\"%s\"", printable(any)));
+    case "regexp":
+        return sprintf("%*s#%s#", (indent*SPACING), "", string(any));
+    case "array":
+        s := sprintf("%*s[%s\n", (indent*SPACING), "", t);
+        forall (v, k in any)
+        {
+            s = sprintf("%s%s,\n", s, sprint(v, indent2));
+        }
+        s = sprintf("%s%*s]", s, ((indent2-1)*SPACING), "");
+        return s;
+    case "set":
+        s := sprintf("%*s[%s\n", (indent*SPACING), "", t);
+        forall (v in any)
+        {
+            s = sprintf("%s%s,\n", s, sprint(v, indent2));
+        }
+        s = sprintf("%s%*s]", s, ((indent2-1)*SPACING), "");
+        return s;
+    case "map":
+        s := sprintf("%*s[map\n", (indent*SPACING), "");
+        //if (super(any) != NULL)
+        //{
+        //    if (debug()) printf(stderr, "DEBUG: super %s\n", typeof(super(any)));
+        //    s = sprintf("%s// SUPER\n%s", s, sprint(super(any), indent2));
+        //}
+        forall (k in sort(keys(any)))
+        {
+            s = sprintf("%s%s = %s,\n", s, sprint(k, indent2, indent2+1, true), sprint(any[k], 0, indent2+1));
+        }
+        s = sprintf("%s%*s]", s, ((indent2-1)*SPACING), "");
+        return s;
+    case "mem":
+        // TODO: dump out memory
+        break;
+    case "file":
+    case "socket":
+    case "func":
+    default:
+        return sprintf("%*s[%s]", (indent*SPACING), "", t);
+    }
+}
+
+/*
+ *  pretty.print(any [, file])
+ */
+
+extern print(any, file)
+{
+    puts(sprint(any), file ? file : stdout);
+}
