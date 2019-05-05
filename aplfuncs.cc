@@ -148,7 +148,7 @@ buildxx(object **r, object **dnext, struct context *c)
         ref<map> s;
         array   *a;
         object  **e;
-        object  *o;
+        object  *o = nullptr;
 
         /*
          * We have an array dimension. This means a struct with the elements
@@ -163,6 +163,7 @@ buildxx(object **r, object **dnext, struct context *c)
             if (buildxx(&o, dnext + c->c_dstep, c)) {
                 return 1;
             }
+            assert(o);
             if (ici_assign(s, *e, o)) {
                 return 1;
             }
@@ -184,7 +185,7 @@ static int f_build()
 {
     object         **dstart;
     int              i;
-    object          *r;
+    object          *r = nullptr;
     object          *default_content;
     char             n1[objnamez];
     struct context   c;

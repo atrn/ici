@@ -97,6 +97,7 @@ do_repl
             normal = 1;
             if (c == '0')
             {
+                assert(s);
                 if (d != nullptr)
                     memcpy(&d[dz], s, START(0)- s);
                 dz += START(0) - s;
@@ -324,6 +325,7 @@ static str *do_sub(str *thestr, regexp *re, char *repl, int *ofs)
     /*
      * Copy across the part of the source as far as the start of the match.
      */
+    assert(thestr->s_chars);
     memcpy(dst, thestr->s_chars, START(0) - thestr->s_chars);
     d = &dst[START(0) - thestr->s_chars];
 

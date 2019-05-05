@@ -1430,6 +1430,7 @@ static int statement(parse *p, array *a, map *sw, const char *m, int endme) {
                 set_error("\"case\" not at top level of switch body");
                 return -1;
             }
+            o = nullptr;
             switch (const_expression(p, &o, T_COLON)) {
             case 0: not_followed_by("case", an_expression);
             case -1: return -1;
