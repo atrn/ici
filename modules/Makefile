@@ -3,7 +3,7 @@
 prefix?=/usr/local
 sudo?=
 
-MODULES=\
+_dirs=\
 	bignum\
 	curses\
 	env\
@@ -13,4 +13,4 @@ MODULES=\
 	util
 
 all clean install:
-	@for d in $(MODULES); do $(MAKE) -$(MAKEFLAGS) -C $$d sudo=$(sudo) prefix=$(prefix) $@; done
+	@for _d in $(_dirs); do $(MAKE) -$(MAKEFLAGS) -C $$_d sudo=$(sudo) prefix=$(prefix) $@; done

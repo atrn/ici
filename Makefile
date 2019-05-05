@@ -12,7 +12,8 @@
 #	lib
 #
 #	clean
-#	realclean
+#
+#	distclean
 #
 #	install
 #	install-ici-exe
@@ -25,19 +26,21 @@
 #	debug
 #	test
 #
+#	modules
+#	clean-modules
+#	install-modules
+#
 # cmake
 #
 #	with-cmake
 #	configure-cmake
-#	cmake-clean
-#	cmake-realclean
+#	clean-cmake
 #
 # xcode
 #
 #	with-xcode
 #	configure-xcode
-#	xcode-clean
-#	xcode-realclean
+#	clean-xcode
 #
 
 os=		$(shell uname|tr A-Z a-z)
@@ -63,33 +66,22 @@ endif
 objdir?=	.dcc.o
 cmakebuild?=	Release
 
-.PHONY:		all lib clean $(prog) install realclean
+.PHONY:		all lib clean $(prog) install distclean modules clean-modules install-modules
 
-# The 'build' macro controls the type of build.  Uncomment one of the
-# following lines to select the desired type of build.
+# The 'build' macro controls how ICI it built. It can be one of:
 #
-# $ make build=dll
+#   - exe	Build an ici executable, no ICI library is created.
+#   - lib	Build a static library, libici.a, and build the ici
+#		executable using that library.
+#   - dll	Build a dynamic library, libici.so (on ELF platforms),
+#		build the ici executable using that library.
 #
-#   ICI is built as a dynamic library, libici.dylib, and the ici
-#   executable, a single line main, is linked against that library.
-#
-# $ make build=exe
-#
-#   ICI is built as single, statically linked, executable with no
-#   library component.
-#
-# $ make build=lib
-#
-#   ICI is built as a static library, libici.a, and the ici executable
-#   linked against that library. Similar to build=exe but a library
-#   is installed and made available to users.
+# The default is 'exe'
 #
 
-#build?=dll
-#build?=exe
-#build?=lib
-
-build?=		dll
+build?=		exe
+#build?=	lib
+#build?=	dll
 
 srcs=		$(shell ls *.cc | fgrep -v win32)
 hdrs=		$(shell ls *.h | fgrep -v ici.h)
@@ -189,13 +181,16 @@ rmlib=
 endif
 
 clean:	; @case "$(MAKEFLAGS)" in \
-	*s*);; *) echo rm $(prog) $(objdir) $(rmlib);\
+	*s*);; *) echo rm -rf $(objdir) $(prog) $(rmlib) ici.h;\
 	esac;\
 	rm -rf $(objdir) $(prog) $(rmlib) ici.h
 	@$(MAKE) -Ctest clean
 	@$(MAKE) -Ctest/serialization clean
 
-realclean:	clean
+distclean:	clean
+	rm -f *.a *.so *.dylib
+	rm -rf .build
+	rm -rf .build.xcode
 
 # Installation
 
@@ -249,7 +244,7 @@ full-install:
 
 # cmake
 #
-.PHONY:		with-cmake configure-cmake cmake-clean cmake-realclean
+.PHONY:		with-cmake configure-cmake clean-cmake
 
 with-cmake:	configure-cmake
 	@cmake --build .build
@@ -257,16 +252,13 @@ with-cmake:	configure-cmake
 configure-cmake:
 	@cmake -B.build -H. -GNinja -DCMAKE_BUILD_TYPE=$(cmakebuild)
 
-cmake-clean:
+clean-cmake:
 	@[ -d .build ] && ninja -C.build -t clean
-
-cmake-realclean:
-	rm -rf .build
 
 # xcode (via cmake)
 #
 ifeq ($(os),darwin)
-.PHONY:		with-xcode configure-xcode xcode-clean xcode-realclean
+.PHONY:		with-xcode configure-xcode clean-xcode
 
 configure-xcode:
 	@cmake -B.build.xcode -H. -GXcode
@@ -274,9 +266,17 @@ configure-xcode:
 with-xcode:	configure-xcode
 	@cmake --build .build.xcode
 
-xcode-clean:
-	@rm -rf .build.xcode
-
-xcode-realclean:
+clean-xcode:
 	@rm -rf .build.xcode
 endif
+
+# modules
+#
+modules:
+	@$(MAKE) -C modules -$(MAKEFLAGS)
+
+clean-modules:
+	@$(MAKE) -C modules -$(MAKEFLAGS) clean
+
+install-modules:
+	@$(MAKE) -C modules -$(MAKEFLAGS) install
