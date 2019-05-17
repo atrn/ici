@@ -57,8 +57,7 @@ struct context
  * c is a pointer to a struct context containing parameters that are
  * independent of the recursion. See above.
  */
-static int
-buildxx(object **r, object **dnext, struct context *c)
+static int buildxx(object **r, object **dnext, struct context *c)
 {
     int         i;
     char        n1[objnamez];
