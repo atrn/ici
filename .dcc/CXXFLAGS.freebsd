@@ -11,8 +11,10 @@
 # best performing code across a number of tests.
 #
 -DNDEBUG
--Oz
+-O3
+-mtune=native
 
+-Wno-implicit-fallthrough
 # Uncomment for a debug build (pcre uses DEBUG, ICI !NDEBUG)
 #
 #-g -O0
