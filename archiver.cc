@@ -137,17 +137,14 @@ static void swapin(void *ptr, int sz) {
 #endif
 }
 
-typedef int int_func();
-
 #ifdef BINOPFUNC
-static const int nops = 13;
+constexpr auto num_op_funcs = 13;
 #else
-static const int nops = 12;
+constexpr auto num_op_funcs = 12;
 #endif
 
-static int_func *op_funcs[nops];
-
-constexpr auto num_op_funcs = nels(op_funcs);
+typedef int int_func();
+static int_func *op_funcs[num_op_funcs];
 
 int archive_init() {
     op_funcs[0] = nullptr;
@@ -281,10 +278,6 @@ int_func *archiver::op_func(int code) {
     return op_funcs[code];
 }
 
-int archiver::read(void *buf, int len) {
-    return a_file->read(buf, len) != len;
-}
-
 int archiver::read(int16_t *hword) {
     if (read(hword, sizeof *hword)) {
         return 1;
@@ -315,10 +308,6 @@ int archiver::read(double *dbl) {
     }
     swapin(dbl, sizeof *dbl);
     return 0;
-}
-
-int archiver::write(const void *p, int n) {
-    return a_file->write(p, n) != n;
 }
 
 int archiver::write(int16_t hword) {

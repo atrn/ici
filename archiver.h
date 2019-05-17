@@ -66,14 +66,19 @@ public:
     int save_ref(object *);
     object *restore_ref();
 
-    int read(void *buf, int len);
-    int write(const void *, int);
+    inline int read(void *buf, int len) {
+        return a_file->read(buf, len) != len;
+    }
+
+    inline int write(const void *buf, int len) {
+        return a_file->write(buf, len) != len;
+    }
 
     inline int read(uint8_t *abyte) {
         return read(abyte, 1);
     }
 
-    int write(uint8_t abyte) {
+    inline int write(uint8_t abyte) {
         return write(&abyte, 1);
     }
 
