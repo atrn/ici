@@ -41,7 +41,7 @@ local check_entity_index(index, prototype) {
     }
     forall (col in index) {
         if (!prototype_keys[col]) {
-            return sprintf("%s: key not found in prototype map", col)
+            return sprintf("%s: key not found in prototype map", col);
         }
     }
 }
@@ -92,10 +92,7 @@ extern Entity = [class
             }
 	    this._index := index;
 	} else {
-	    this._index := array();
-	    forall (_, col in prototype) {
-		push(this._index, col);
-	    }
+	    this._index := sort(keys(prototype));
 	}
 	this._types := array();
 	forall (col in this._index) {
@@ -298,22 +295,29 @@ extern Store = [class
         _db:exec(ent:create_table_sql());
     }
 
-    store(name, value)
+    store(name, value, mktable)
     {
-        // ensure the table exists, it usually will
-        this:create_table_for_entity(Entity:new(name, value));
+	var mktable = true;
+	if (mktable) {
+	    // ensure the table exists, it usually will
+	    this:create_table_for_entity(Entity:new(name, value));
+	}
         return this:_synthesize_insert(name, value);
     }
 ];
 
 /*
+ * A data.Table represents an individual table help in
+ * a data.Store's underlying SQLite database used to
+ * store instances of an _entity_ type, defined by a
+ * prototype map.
  */
 extern Table = [class
 
-    new(db, name, entity)
+    new(store, name, entity)
     {
         this = this:^new();
-        this._db := db;
+        this._store := store;
         this._name := name;
         this._entity := entity;
         return this;
@@ -326,7 +330,7 @@ extern Table = [class
 
     create_table()
     {
-        _db:exec(_entity:create_table_sql());
+        _store:exec(_entity:create_table_sql());
     }
 
     signature()
@@ -356,7 +360,22 @@ extern Table = [class
 
     store(entity)
     {
-        _db:store(this:name(), entity);
+        _store:store(this:name(), entity, false);
     }
 
+];
+
+/*
+ *  A Schema represents a collection of related Table instances
+ *  with an associated "version" number.
+ */
+extern Schema = [class
+
+    new()
+    {
+        this = this:^new();
+	this.tables := array();
+	this.version := 0;
+        return this;
+    }
 ];

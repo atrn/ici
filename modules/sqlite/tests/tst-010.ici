@@ -1,16 +1,19 @@
-store := data.Store:new(data.Store:filename_for_this_process());
-
 local prototype_record = [map
     recid = 0,
     name = "Mrs Fred Bloggs",
-    address_line1 = "24 East Noddy's Lane,",
-    address_line2 = "North Bollocks Central, South West,",
-    address_line3 = "CHAV 29238.12q",
-    address_line4 = "",
-    address_line5 = "",
+    address_1 = "24 East Noddy's Lane\n",
+    address_2 = "North Bollocks Central, South West\n",
+    address_3 = "CHAV 29238.12q\n",
+    address_4 = "",
+    address_5 = "",
     points = 100,
     grade = "red", // 'red', 'silver', 'gold', 'platinum', 'black'
 ];
 
-ent := data.Entity:new(prototype_record);
+ent := data.Entity:new("record", prototype_record);
+ee := copy(ent);
+super(ee, NULL);
+pretty.print(ee);
+
+store := data.Store:new(data.Store:filename_for_this_process());
 store:create_table_for_entity(ent, "records");
