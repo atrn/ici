@@ -2,32 +2,70 @@
  * string = pretty.sprint(any)
  */
 
-extern sprint(any, indent, indent2, unquoted)
+local SPACING = 4;
+
+local printable(str)
 {
-    printable := [func (str) {
-        r := array();
-        forall (ch in str)
+    r := array();
+    forall (ch in str)
+    {
+        if (ch >= " " && ch <= "~")
+            push(r, ch);
+        else
         {
-            if (ch >= " " && ch <= "~")
-                push(r, ch);
-            else {
-                switch (ch)
-                {
-                case "\a":      push(r, "\\a"); break;
-                case "\b":      push(r, "\\b"); break;
-                case "\n":      push(r, "\\n"); break;
-                case "\r":      push(r, "\\r"); break;
-                case "\t":      push(r, "\\t"); break;
-                default:        push(r, sprintf("\\x%02x", toint(ch)));
-                }
+            switch (ch)
+            {
+            case "\a":      push(r, "\\a"); break;
+            case "\b":      push(r, "\\b"); break;
+            case "\n":      push(r, "\\n"); break;
+            case "\r":      push(r, "\\r"); break;
+            case "\t":      push(r, "\\t"); break;
+            default:        push(r, sprintf("\\x%02x", toint(ch)));
             }
         }
-        return implode(r);
-    }];
+    }
+    return implode(r);
+}
            
-    SPACING := 4;
+local sprint_map(any, indent, indent2, unquoted)
+{
+    //
+    //THIS IS BROKEN - LOOPS FOREVER, super(x) IS NEVER NULL!
+    //if (super(any))
+    //{
+    //    if (debug()) printf(stderr, "DEBUG: super [%s]\n", typeof(super(any)));
+    //    s = sprintf("%s%s", s, sprint(super(any), indent2));
+    //}
+    //
+//    keys_types := array();
+//    forall (k in sort(keys(any)))
+//    {
+//        push(keys_types, map("key", k, "type", typeof(any[k])));
+//    }
+//printf(stderr, "DEBUG:got keys\n");
+//    order := sort
+//    (
+//        keys_types,
+//        [func (a, b) {
+//        // if (a.type != b.type) return cmp(a.type, b.type);
+//            return cmp(a.key, b.key);
+//        }]
+//    );
+
+    order := sort(keys(any));
+    s := sprintf("%*s[map\n", (indent*SPACING), "");
+    forall (k in order)
+    {
+        s = sprintf("%s%s = %s,\n", s, sprint(k, indent2, indent2+1, true), sprint(any[k], 0, indent2+1));
+    }
+    return sprintf("%s%*s]", s, ((indent2-1)*SPACING), "");
+}
+
+extern sprint(any, indent, indent2, unquoted)
+{
     if (!indent) indent = 0;
     if (!indent2) indent2 = indent+1;
+
     switch (t := typeof(any))
     {
     case "NULL":
@@ -41,6 +79,7 @@ extern sprint(any, indent, indent2, unquoted)
     case "regexp":
         return sprintf("%*s#%s#", (indent*SPACING), "", string(any));
     case "array":
+    case "set":
         s := sprintf("%*s[%s\n", (indent*SPACING), "", t);
         forall (v, k in any)
         {
@@ -48,33 +87,8 @@ extern sprint(any, indent, indent2, unquoted)
         }
         s = sprintf("%s%*s]", s, ((indent2-1)*SPACING), "");
         return s;
-    case "set":
-        s := sprintf("%*s[%s\n", (indent*SPACING), "", t);
-        forall (v in any)
-        {
-            s = sprintf("%s%s,\n", s, sprint(v, indent2));
-        }
-        s = sprintf("%s%*s]", s, ((indent2-1)*SPACING), "");
-        return s;
     case "map":
-        s := sprintf("%*s[map\n", (indent*SPACING), "");
-        //if (super(any) != NULL)
-        //{
-        //    if (debug()) printf(stderr, "DEBUG: super %s\n", typeof(super(any)));
-        //    s = sprintf("%s// SUPER\n%s", s, sprint(super(any), indent2));
-        //}
-        forall (k in sort(keys(any)))
-        {
-            s = sprintf("%s%s = %s,\n", s, sprint(k, indent2, indent2+1, true), sprint(any[k], 0, indent2+1));
-        }
-        s = sprintf("%s%*s]", s, ((indent2-1)*SPACING), "");
-        return s;
-    case "mem":
-        // TODO: dump out memory
-        break;
-    case "file":
-    case "socket":
-    case "func":
+        return sprint_map(any, indent, indent2, unquoted);
     default:
         return sprintf("%*s[%s]", (indent*SPACING), "", t);
     }
