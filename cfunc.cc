@@ -3809,7 +3809,7 @@ static int f_dir() {
     }
     while ((dirent = readdir(dir)) != nullptr) {
         struct stat     statbuf;
-        char            abspath[MAXPATHLEN+1];
+        char            abspath[MAXPATHLEN+2]; // '/' + NUL
 
         if
         (
@@ -3830,7 +3830,7 @@ static int f_dir() {
         ) {
             continue;
         }
-        sprintf(abspath, "%s/%s", path, dirent->d_name);
+        snprintf(abspath, sizeof abspath, "%s/%s", path, dirent->d_name);
 #ifndef _WIN32
         if (lstat(abspath, &statbuf) == -1) {
             get_last_errno("get stats on", abspath);
