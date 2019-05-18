@@ -36,7 +36,7 @@ public:
     int getch(void *file) override
     {
         charbuf *cb = (charbuf *)file;
-        if (cb->cb_ptr < cb->cb_data || cb->cb_ptr >= cb->cb_data + cb->cb_size)
+        if (cb->cb_ptr < cb->cb_data || cb->cb_ptr >= (cb->cb_data + cb->cb_size))
         {
             cb->cb_eof = 1;
             return EOF;
@@ -45,10 +45,19 @@ public:
         return *cb->cb_ptr++ & 0xFF;
     }
 
+    int read(void *buf, long n, void *file) override {
+        charbuf *cb = (charbuf *)file;
+        int r = cb->cb_ptr - cb->cb_data;
+        int a = cb->cb_size - r;
+        int m = a < n ? a : n;
+        memcpy(buf, cb->cb_ptr, m);
+        return int(m);
+    }
+
     int ungetch(int c, void *file) override
     {
         charbuf *cb = (charbuf *)file;
-        if (c == EOF || cb->cb_ptr <= cb->cb_data || cb->cb_ptr > cb->cb_data + cb->cb_size)
+        if (c == EOF || cb->cb_ptr <= cb->cb_data || cb->cb_ptr > (cb->cb_data + cb->cb_size))
             return EOF;
         *--cb->cb_ptr = c;
         cb->cb_eof = 0;
@@ -70,14 +79,31 @@ public:
         switch (whence)
         {
         case 0:
+	    if (offset < 0 || offset >= cb->cb_size) {
+		return -1;
+	    }
             cb->cb_ptr = cb->cb_data + offset;
             break;
 
         case 1:
+	    if (offset < 0) {
+		const auto lim = -(cb->cb_ptr - cb->cb_data);
+		if (offset < lim) {
+		    return -1;
+		}
+	    } else if (offset > 0) {
+		const auto lim = cb->cb_size - (cb->cb_ptr - cb->cb_data);
+		if (offset >= lim) {
+		    return -1;
+		}
+	    }
             cb->cb_ptr += offset;
             break;
 
         case 2:
+	    if (offset > 0) {
+		return -1;
+	    }
             cb->cb_ptr = cb->cb_data + cb->cb_size + offset;
             break;
         }
@@ -117,12 +143,9 @@ public:
  */
 ftype *charbuf_ftype = instanceof<class charbuf_ftype>();
 
-static void
-reattach_string_buffer(charbuf *sb)
+static void reattach_string_buffer(charbuf *sb)
 {
-    int     index;
-
-    index = sb->cb_ptr - sb->cb_data;
+    int index = sb->cb_ptr - sb->cb_data;
     sb->cb_data = stringof(sb->cb_ref)->s_chars;
     sb->cb_size = stringof(sb->cb_ref)->s_nchars;
     sb->cb_ptr = sb->cb_data + index;
@@ -218,7 +241,9 @@ file *open_charbuf(char *data, int size, object *ref, bool readonly)
     charbuf  *cb;
 
     if ((cb = ici_talloc(charbuf)) == nullptr)
+    {
         return nullptr;
+    }
     cb->cb_size = size;
     cb->cb_eof = 0;
     cb->cb_readonly = readonly;
@@ -240,11 +265,17 @@ file *open_charbuf(char *data, int size, object *ref, bool readonly)
         if (isstring(ref))
         {
             if (ref->flags(object::O_ATOM|ICI_S_SEP_ALLOC) == ICI_S_SEP_ALLOC)
+            {
                 f = new_file((char *)cb, strbuf_ftype, nullptr, ref);
+            }
             else if (readonly)
+            {
                 f = new_file((char *)cb, charbuf_ftype, nullptr, ref);
+            }
             else
+            {
                 set_error("attempt to open an atomic string for writing");
+            }
         }
         else if (ismem(ref))
         {
