@@ -1,0 +1,9 @@
+# test-core.ici has a similar test case, it failed because getfile()
+# called an unimplemented ftype read() function.  This tests the
+# sfile's read not from start function where test-core reads a whole
+# file (string) from the start.
+
+f := sopen("x ABCD\n", "r");
+if (getchar(f) != "x") fail("getchar");
+r := getfile(f);
+if (r != " ABCD\n") fail(r);
