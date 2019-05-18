@@ -3,6 +3,8 @@
 -std=c++14
 -Wall
 -Wextra
+-Wno-implicit-fallthrough
+-mtune=native
 -DNDEBUG
 -g
 -Os
