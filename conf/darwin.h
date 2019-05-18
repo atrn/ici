@@ -6,9 +6,6 @@
 #include <math.h>
 #include <sys/param.h>
 
-// #define NOPROFILE       /* Profiler, see profile.c. */
-// #define NODEBUGGING     /* Debugger interface. */
-
 #define CONFIG_STR      "MacOS"
 
 #ifndef PREFIX
