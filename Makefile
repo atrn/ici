@@ -1,159 +1,167 @@
 # -*- mode:makefile -*-
 #
-# This (GNU) Makefile is used to build and install ICI in a variety of
-# ways and using a variety of tools.
 #
-# By default the dcc compiler driver (http://github.com/atrn/dcc) is
-# used to take care of compilation and linking.  Alternatively cmake
-# or xcode, via cmake, may be used to build.
+# This (GNU) Makefile is used to build and install ICI.
 #
-# The following targets are defined:
+# The makefile supports building ICI in a variety of ways and even
+# allows for other tools to be used to build ICI.
 #
-#	all			Makes the ici program, library and
-#				associated ici.h file.
 #
-#	ici			Build the ici executable.
-#	lib			Build the ici library.
-#	ici.h			Generate the ici.h file.
+# ** Prequisites
 #
-#	clean			Clean build output.
+# The Makefile uses the dcc compiler driver for compilation, linking
+# and library creation. See http://github.com/atrn/dcc for details.
 #
-#	distclean		Remove all generated files - any dcc,
-#				cmake or xcode output, i.e. anything
-#				not under version control.
+# Alternatively cmake may be used to generate build files (using the
+# ninja build tool by default) and, on MacOS, for Xcode.
 #
-#	install			Install everything.
-#	install-ici-exe 	Install the executable.
-#	install-libici		Install the library.
-#	install-ici-dot-h 	Install the ici.h file.
-#	install-core-ici 	Install the core ici-core*.ici files.
+#
+# ** Targets
+#
+# The following targets are defined, the default is "all":
+#
+#	all			Makes the ici program and library
+#				(if required) and uses that ici to
+#				create the ici.h file.
+#
+#	ici			Builds the ici executable.
+#	lib			Builds the ici library.
+#	ici.h			Generates the ici.h file.
+#
+#	clean			Deletes build output.
+#
+#	distclean		Removes ALL generated files, all
+#				dcc, cmake and xcode output is
+#				deleted.
+#
+#	install			Installs everything.
+#	install-ici-exe 	Installs the executable.
+#	install-libici		Installs the library.
+#	install-ici-dot-h 	Installs the ici.h file.
+#	install-core-ici 	Installs the core ici-core*.ici files.
 #
 #	full-install		Builds and installs both static and dynamic
-#				library variants, ici.h and a dynamically
-#				linked executable.
+#				library variants, ici.h, a dynamically
+#				linked executable and the modules.
 #
 #	debug			Set debug options and then build via a
 #				recursive make. E.g. $ make debug lib
 #
 #	test			Run tests.
 #
-# Modules
-#
 #	modules			Build the modules.
 #	clean-modules		Clean them modules.
 #	install-modules		Install the modules.
 #
-# Cmake
-#
 #	with-cmake		Run cmake to build ici.
 #	configure-cmake		Run cmake to generate build files.
 #	clean-cmake		Clean up th cmake build directory.
-#
-# Xcode
 #
 #	with-xcode		Run xcodebuild to build ici.
 #	configure-xcode		Run cmake to generate an xcode project.
 #	clean-xcode		Clean up the xcode build directory.
 #
 #
-# Important Make Macros
+# ** Build Type
 #
-#	build			Selects the type of build to perform,
-#				simple executable, executable plus
-#				static library or executable with a
-#				dynamic library. See below for more
-#				information.
+# The 'build' macro controls how ICI it built and may be one of
+# the following:
 #
-#	prefix			The installation prefix, defaulting to
-#				/usr/local.
+#	dll			Builds ICI as a dynamic library, libici.so
+#				(libici.dylib on MacOS, ici.dll on Windows)
+#				and links an ici executable against that
+#				library. Installs the executable, dynamic
+#				library and associated ici.h file.
 #
-#	sudo			Used when installing to prefix the
-#				install command. Defaults to the empty
-#				string requiring the user doing the
-#				install have permission to write to
-#				the prefix directory.
+#   	lib			Builds ICI as a static library, libici.a,
+#				using itto create the ici executable.
+#				Installs the executable, static library
+#				and its associated ici.h file.
 #
-#	conf			The ici "conf" header file to use when
-#				creating ici.h.  The interpreter code
-#				selects the conf in fwd.h via platform
-#				detection.
-#
-# The above combine resulting in make invocations such as,
-#
-#	$ make sudo=sudo prefix=/local build=lib install
-#
-
-os=		$(shell uname|tr A-Z a-z)
-sudo?=
-prog=		ici
-lib=		libici.a
-ifeq ($(os),darwin)
-dll=		libici.dylib
-else
-dll=		libici.so
-endif
-conf?= 		conf/$(os).h
-prefix?= 	/usr/local
-dccflags?=
-cxxflags?=	CXXFLAGS
-
-libs=
-ifeq ($(os),linux)
-libs=		-lpthread -ldl
-endif
-ifeq ($(os),freebsd)
-libs=		-lpthread
-endif
-
-objdir?=	.dcc.o
-cmakebuild?=	Release
-
-.PHONY:		all lib clean $(prog) install distclean modules clean-modules install-modules
-
-#
-# The 'build' macro controls how ICI it built. It can be one of:
-#
-#   - dll	Builds ICI as a dynamic library, libici.so (ELF, other
-#		names as required by the platform, e.g. ici.dll) and
-#		builds an ici executable dynamically linked against
-#		that library. Installs an executable, dynamic library
-#		and assocated ici.h file.
-#
-#   - lib	Builds ICI as a static library, libici.a, and statically
-#		links main against that library. Installs an executable,
-#		static library and associated ici.h file.
-#
-#   - exe	Builds ICI as an executable with no library.
+#   	exe			Builds ICI as an executable directly from
+#				object files with no library. Installs the
+#				executable and an ici.h file but no library.
 #
 # The default build type is 'dll'.
 #
+#
+# ** Other Macros
+#
+#	prefix			Where ICI installs, defaults to "/usr/local".
+#
+#	sudo			Used when installing to prefix the install
+#				command. Defaults to the empty string which
+#				means the user doing the install must have
+#				sufficient permissions to write to the prefix
+#				directory.
+#
+#	conf			The ici "conf" header file to use when creating
+#				the ici.h file. Note, the interpreter code does
+#				NOT use this! It selects the conf file using
+#				platform detection at the top of fwd.h.
+#
+#	cmakebuild		Sets cmake's CMAKE_BUILD_TYPE. The default
+#				is "Release".
+#
+#	cmakegenerator		The so-called "generator" used by cmake to
+#				generate build files. The default is "Ninja"
+#				which generates files for the ninja build tool.
+#
+#	cmakedir		Directory where cmake write its files.
+#
+#	xcodedir		Directory where cmake writes the Xcode project.
+#
+#
+# The above combine allowing for commands such as,
+#
+#	$ make sudo=sudo prefix=/local build=dll install
+#
+#
 
-build?=		dll
-#build?=	exe
-#build?=	lib
 
-srcs=		$(shell ls *.cc | fgrep -v win32)
-hdrs=		$(shell ls *.h | fgrep -v ici.h)
-
-ldflags=
+os=			$(shell uname|tr A-Z a-z)
+prog=			ici
+lib=			libici.a
+dll=			libici.so
 ifeq ($(os),darwin)
-ldflags=	-macosx_version_min 10.12 -framework System
+dll=			libici.dylib
 endif
+conf?= 			conf/$(os).h
+prefix?= 		/usr/local
+sudo?=
+dccflags?=
+cxxflags?=		CXXFLAGS
+objdir?=		.dcc.o
+
+cmakebuild?=		Release
+cmakegenerator?=	Ninja
+cmakedir?=		.build
+xcodedir?=		.xcode
+
+.PHONY:			all $(prog) lib clean distclean install
+.PHONY:			modules clean-modules install-modules
+
+build?=			dll
+#build?=		exe
+#build?=		lib
+
+srcs=			$(shell ls *.cc | fgrep -v win32)
+hdrs=			$(shell ls *.h | fgrep -v ici.h)
 
 # The common prefix for the dcc commands we run
 #
-dcc=		CXXFLAGSFILE=$(cxxflags) dcc $(dccflags) --objdir $(objdir)
+dcc=			CXXFLAGSFILE=$(cxxflags) dcc $(dccflags) --objdir $(objdir)
 
 # The 'all' target builds an ici interpreter executable and library,
 # if that is enabled.
 #
-all:		$(prog) ici.h
+all:			$(prog) ici.h
 
 
 ifeq ($(build),dll)
 # This build variant has the interpreter code in a dynamic library.
 #
-$(prog):	lib
+$(prog):		lib
 	@[ -d $(objdir) ] || mkdir $(objdir)
 	@$(dcc) etc/main.cc -fPIC -o $@ -L. -lici
 
@@ -175,7 +183,7 @@ else ifeq ($(build),lib)
 # The 'lib' build creates a static library and an executable that is
 # linked against that library.
 #
-$(prog):	lib
+$(prog):		lib
 	@[ -d $(objdir) ] || mkdir $(objdir)
 	@$(dcc) etc/main.cc -o $@ -L. -lici  $(libs)
 
@@ -196,12 +204,12 @@ ici.h:		$(prog) mk-ici-h.ici $(hdrs)
 
 # Other targets for developer types.
 #
-.PHONY: debug test
+.PHONY:		debug test
 
 # GNU make can be very noisy. We use the --no-print-directory switch for
 # all sub-makes to quieten it down.
 #
-_MAKE=	$(MAKE) --no-print-directory
+_MAKE=		$(MAKE) --no-print-directory
 
 # The 'debug' target builds using the .debug CXXFLAGS options file.
 #
@@ -243,8 +251,7 @@ clean:	; @case "$(MAKEFLAGS)" in \
 
 distclean:	clean
 	rm -f *.a *.so *.dylib
-	rm -rf .build
-	rm -rf .build.xcode
+	rm -rf $(cmakedir) $(xcodedir)
 
 # Installation
 
@@ -294,20 +301,26 @@ full-install:
 	@echo '4  - make clean'; $(_MAKE) -s clean
 	@echo '5  - make (dll)'; $(_MAKE) -s build=dll conf=$(conf) dccflags="$(dccflags) --quiet"
 	@echo '6  - make install (dll)'; $(_MAKE) -s build=dll install-libici install-ici-exe prefix=$(prefix) dccflags="$(dccflag) --quiet"
-	@echo '7  - make clean'; $(_MAKE) -s clean
+	@echo '7  - make modules'; $(_MAKE) -s clean-modules; $(_MAKE) -s modules
+	@echo '8  - make install modules'; $(_MAKE) -s install-modules
+	@echo '9  - make clean'; $(_MAKE) -s clean; $(_MAKE) -s clean-modules
 
 # cmake
 #
 .PHONY:		with-cmake configure-cmake clean-cmake
 
 with-cmake:	configure-cmake
-	@cmake --build .build
+	@cmake --build $(cmakedir)
 
 configure-cmake:
-	@cmake -B.build -H. -GNinja -DCMAKE_BUILD_TYPE=$(cmakebuild)
+ifneq ($(cmakebuild),)
+	@cmake -B$(cmakedir) -H. -G'$(cmakegenerator)' -DCMAKE_BUILD_TYPE='$(cmakebuild)'
+else
+	@cmake -B$(cmakedir) -H. -G'$(cmakegenerator)'
+endif
 
 clean-cmake:
-	@[ -d .build ] && ninja -C.build -t clean
+	@[ -d $(cmakedir) ] && cmake --build $(cmakedir) --target clean
 
 # xcode (via cmake)
 #
@@ -315,13 +328,13 @@ ifeq ($(os),darwin)
 .PHONY:		with-xcode configure-xcode clean-xcode
 
 configure-xcode:
-	@cmake -B.build.xcode -H. -GXcode
+	@$(MAKE) configure-cmake cmakedir=$(xcodedir) cmakegenerator=Xcode cmakebuild=
 
-with-xcode:	configure-xcode
-	@cmake --build .build.xcode
+with-xcode:
+	@$(MAKE) with-cmake cmakedir=$(xcodedir) cmakegenerator=Xcode cmakebuild=
 
 clean-xcode:
-	@rm -rf .build.xcode
+	@$(MAKE) clean-cmake cmakedir=$(xcodedir)
 endif
 
 # modules
