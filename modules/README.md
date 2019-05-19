@@ -15,12 +15,18 @@ itself as any type which allows data-only modules and other oddities.
 
 - bignum  
 Arbitrary precision numbers.
+- curses  
+Basic interface to the ncurses library.
 - env  
 Simple process environment access.
 - example  
 An example C++ module.
 - small  
 A number of ICI-only _modules_.
+- sqlite  
+ICI sqlite binding.
+- util  
+Small native-code utilities.
 
 ## Example Module
 
