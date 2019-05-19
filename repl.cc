@@ -94,11 +94,14 @@ struct repl_file {
         if (!interactive_) {
             return;
         }
-        const char * const promptchars = ">> ";
+        const char * const extrachars = ">";
         if (wantp_ || sol_) {
             trace("emitp");
             puts(prompt_);
-            puts(extra_ ? promptchars : promptchars + 1);
+            if (extra_) {
+                puts(extrachars);
+            }
+            puts(" ");
             havep_ = true;
             sol_ = true;
         }
