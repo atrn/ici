@@ -4,7 +4,7 @@
 # This (GNU) Makefile is used to build and install ICI.
 #
 # The makefile supports building ICI in a variety of ways and even
-# allows for other tools to be used to build ICI.
+# allows other tools to be used to build ICI.
 #
 #
 # ** Prequisites
@@ -120,19 +120,25 @@
 
 
 os=			$(shell uname|tr A-Z a-z)
+
 prog=			ici
 lib=			libici.a
-dll=			libici.so
 ifeq ($(os),darwin)
 dll=			libici.dylib
+else
+dll=			libici.so
 endif
+
+build?=			dll
+#build?=		exe
+#build?=		lib
+
 conf?= 			conf/$(os).h
 prefix?= 		/usr/local
 sudo?=
 dccflags?=
 cxxflags?=		CXXFLAGS
 objdir?=		.dcc.o
-
 cmakebuild?=		Release
 cmakegenerator?=	Ninja
 cmakedir?=		.build
@@ -141,16 +147,12 @@ xcodedir?=		.xcode
 .PHONY:			all $(prog) lib clean distclean install
 .PHONY:			modules clean-modules install-modules
 
-build?=			dll
-#build?=		exe
-#build?=		lib
-
 srcs=			$(shell ls *.cc | fgrep -v win32)
 hdrs=			$(shell ls *.h | fgrep -v ici.h)
 
-# The common prefix for the dcc commands we run
+# The common prefix for the dcc command we use
 #
-dcc=			CXXFLAGSFILE=$(cxxflags) dcc $(dccflags) --objdir $(objdir)
+_dcc=			CXXFLAGSFILE=$(cxxflags) dcc $(dccflags) --objdir $(objdir)
 
 # The 'all' target builds an ici interpreter executable and library,
 # if that is enabled.
@@ -158,16 +160,18 @@ dcc=			CXXFLAGSFILE=$(cxxflags) dcc $(dccflags) --objdir $(objdir)
 all:			$(prog) ici.h
 
 
+# Build $(prog) and lib according to $(build)...
+#
 ifeq ($(build),dll)
 # This build variant has the interpreter code in a dynamic library.
 #
 $(prog):		lib
 	@[ -d $(objdir) ] || mkdir $(objdir)
-	@$(dcc) etc/main.cc -fPIC -o $@ -L. -lici
+	@$(_dcc) etc/main.cc -fPIC -o $@ -L. -lici
 
 lib:
 	@[ -d $(objdir) ] || mkdir $(objdir)
-	@$(dcc) --dll $(dll) -fPIC $(srcs) $(libs) $(ldflags)
+	@$(_dcc) --dll $(dll) -fPIC $(srcs) $(libs) $(ldflags)
 
 
 else ifeq ($(build),exe)
@@ -176,7 +180,7 @@ else ifeq ($(build),exe)
 #
 $(prog):
 	@[ -d $(objdir) ] || mkdir $(objdir)
-	@$(dcc) etc/main.cc $(srcs) -o $@
+	@$(_dcc) etc/main.cc $(srcs) -o $@
 
 
 else ifeq ($(build),lib)
@@ -185,11 +189,11 @@ else ifeq ($(build),lib)
 #
 $(prog):		lib
 	@[ -d $(objdir) ] || mkdir $(objdir)
-	@$(dcc) etc/main.cc -o $@ -L. -lici  $(libs)
+	@$(_dcc) etc/main.cc -o $@ -L. -lici  $(libs)
 
 lib:
 	@[ -d $(objdir) ] || mkdir $(objdir)
-	@$(dcc) --lib $(lib) $(srcs)
+	@$(_dcc) --lib $(lib) $(srcs)
 
 else
 $(error "$(build) is not a supported build type")
@@ -221,11 +225,11 @@ debug:
 # 'core' test.
 #
 test:		$(prog)
-	@echo; echo '* CORE ================'; echo;\
+	@echo; echo '* CORE ----------------------------------------------------------------'; echo;\
 	ICIPATH=`pwd` LD_LIBRARY_PATH=`pwd` DYLD_LIBRARY_PATH=`pwd` ./$(prog) test-core.ici
-	-@echo; echo ' * TESTS ================'; echo;\
+	-@echo; echo ' * TESTS ----------------------------------------------------------------'; echo;\
 	ICIPATH=`pwd` LD_LIBRARY_PATH=`pwd` DYLD_LIBRARY_PATH=`pwd` $(_MAKE) -C test ici=`pwd`/$(prog) test
-	-@echo;echo '* SERIALIZATION ================'; echo;\
+	-@echo;echo '* SERIALIZATION ----------------------------------------------------------------'; echo;\
 	ICIPATH=`pwd` LD_LIBRARY_PATH=`pwd` DYLD_LIBRARY_PATH=`pwd` $(_MAKE) -C test/serialization ici=`pwd`/$(prog) test
 
 # Cleaning
@@ -253,6 +257,8 @@ distclean:	clean
 	rm -f *.a *.so *.dylib
 	rm -rf $(cmakedir) $(xcodedir)
 
+
+#
 # Installation
 
 .PHONY:		install-ici-exe install-libici install-ici-dot-h install-core-ici
@@ -305,6 +311,7 @@ full-install:
 	@echo '8  - make install modules'; $(_MAKE) -s install-modules
 	@echo '9  - make clean'; $(_MAKE) -s clean; $(_MAKE) -s clean-modules
 
+
 # cmake
 #
 .PHONY:		with-cmake configure-cmake clean-cmake
@@ -322,6 +329,7 @@ endif
 clean-cmake:
 	@[ -d $(cmakedir) ] && cmake --build $(cmakedir) --target clean
 
+
 # xcode (via cmake)
 #
 ifeq ($(os),darwin)
@@ -334,7 +342,7 @@ with-xcode:
 	@$(MAKE) with-cmake cmakedir=$(xcodedir) cmakegenerator=Xcode cmakebuild=
 
 clean-xcode:
-	@$(MAKE) clean-cmake cmakedir=$(xcodedir)
+	@[ -d .build ] && cmake --build .build.xcode --target clean
 endif
 
 # modules
