@@ -16,6 +16,7 @@
 *.d
 /.build/
 /.build*/
+/.xcode/
 /CMakeLists.txt.user
 /.build.xcode/
 /modules/bignum/mit/bztest
