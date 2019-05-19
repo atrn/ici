@@ -4,6 +4,7 @@
 #include "buf.h"
 #include "map.h"
 #include "exec.h"
+#include "ref.h"
 #include "str.h"
 #include "pcre.h"
 #include "archiver.h"
@@ -11,10 +12,13 @@
 namespace ici
 {
 
-#define INITIAL_ATOMSZ  (1024) /* Must be power of two. */
-#define INITIAL_OBJS    (4096)
+constexpr size_t INITIAL_ATOMSZ = 1024; // Must be power of two
+constexpr size_t INITIAL_OBJS = 4096;
 
 extern cfunc *ici_funcs[];
+static int mapici_init(objwsup *);
+extern int sys_init(objwsup *);
+extern int net_init(objwsup *);
 
 /*
  * Perform basic interpreter setup. Return non-zero on failure, usual
@@ -33,9 +37,6 @@ extern cfunc *ici_funcs[];
  */
 int init()
 {
-    extern int sys_init(objwsup *);
-    extern int net_init(objwsup *);
-
     cfunc       **cfp;
     map         *scope;
     objwsup     *externs;
@@ -120,14 +121,17 @@ int init()
         return 1;
     }
     for (cfp = ici_funcs; *cfp != nullptr; ++cfp) {
-        if (assign_cfuncs(scope->o_super, *cfp)) {
+        if (assign_cfuncs(externs, *cfp)) {
             return 1;
         }
     }
-    if (sys_init(scope->o_super)) {
+    if (mapici_init(externs)) {
         return 1;
     }
-    if (net_init(scope->o_super)) {
+    if (sys_init(externs)) {
+        return 1;
+    }
+    if (net_init(externs)) {
         return 1;
     }
     if (archive_init()) {
@@ -209,6 +213,39 @@ int check_interface(unsigned long mver, unsigned long bver, char const *name)
         minor_version,
         release_number);
 
+}
+
+static int mapici_init(objwsup *externs)
+{
+    ref<map> mapici = new_map();
+    if (!mapici) {
+        return 1;
+    }
+
+    ref<str> ver = new_str_nul_term(version_string);
+    if (mapici->assign(SS(version), ver)) {
+        return 1;
+    }
+
+    auto icipath = externs->fetch(SS(icipath));
+    if (icipath == null) {
+        return set_error("'icipath' not defined");
+    }
+
+    if (mapici->assign(SS(path), icipath)) {
+        return 1;
+    }
+
+    ref<str> mapkey = new_str_nul_term("ici");
+    if (!mapkey) {
+        return 1;
+    }
+
+    if (externs->assign(mapkey, mapici)) {
+        return 1;
+    }
+
+    return 0;
 }
 
 } // namespace ici
