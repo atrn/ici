@@ -1,6 +1,5 @@
 # This file defines the compiler options. It is read by dcc.
 
--std=c++14
--Wall -Wextra
--DNDEBUG
--g -O2
+#include "CXXFLAGS.common"
+
+-O2
