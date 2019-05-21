@@ -657,7 +657,7 @@ int map_type::forall(object *o)
 }
 
 /*
- * Return the object at key k of the obejct o, or nullptr on error.
+ * Return the object at key k of the object o, or nullptr on error.
  * See the comment on t_fetch in object.h.
  */
 object *map_type::fetch(object *o, object *k)
