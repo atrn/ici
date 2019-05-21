@@ -179,25 +179,8 @@ endif()
 #  header file used so we figure that out too (fwd.h does
 #  something similar).
 #
-get_target_property(ici_cmd ici_exe OUTPUT_NAME)
-if(WIN32)
-  set(CONF "conf/w32.h")
-endif()
-if(APPLE)
-  set(CONF "conf/darwin.h")
-endif()
-if("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "FreeBSD")
-  set(CONF, "conf/freebsd.h")
-endif()
-if("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Linux")
-  set(CONF, "conf/linux.h")
-endif()
-
 add_custom_command(TARGET ici_exe POST_BUILD
   COMMENT "[----] Creating ici.h"
-  COMMAND ${ici_cmd}
-              ${CMAKE_CURRENT_SOURCE_DIR}/mk-ici-h.ici
-              ${CONF}
-              ${CMAKE_CURRENT_SOURCE_DIR}
-              ${CMAKE_CURRENT_BINARY_DIR}
+  COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/etc/mk-ici-dot-h.sh
+      ${ici_BINARY_DIR}/ici ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR}
 )
