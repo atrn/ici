@@ -8,17 +8,24 @@ dest?=/usr/local
 sudo?=
 
 targets=all \
-	test \
-	ici.h \
 	ici \
+	ici.h \
 	lib \
+	test \
 	debug \
-	lto \
 	clean \
+	distclean \
 	install \
 	install-ici-dot-h \
 	install-libici \
 	install-ici-exe \
-	full-install
+	full-install \
+	modules \
+	clean-modules \
+	install-modules \
+	with-cmake \
+	configure-cmake \
+	clean-cmake \
+
 
 $(targets) !; @gmake --no-print-directory $@ build=$(build) dest=$(dest) sudo=$(sudo)
