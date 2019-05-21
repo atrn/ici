@@ -307,9 +307,10 @@ full-install:
 	@echo '4  - make clean'; $(_MAKE) -s clean
 	@echo '5  - make (dll)'; $(_MAKE) -s build=dll conf=$(conf) dccflags="$(dccflags) --quiet"
 	@echo '6  - make install (dll)'; $(_MAKE) -s build=dll install-libici install-ici-exe prefix=$(prefix) dccflags="$(dccflag) --quiet"
-	@echo '7  - make modules'; $(_MAKE) -s clean-modules; $(_MAKE) -s modules
-	@echo '8  - make install modules'; $(_MAKE) -s install-modules
-	@echo '9  - make clean'; $(_MAKE) -s clean; $(_MAKE) -s clean-modules
+
+#	@echo '7  - make modules'; $(_MAKE) -s clean-modules; $(_MAKE) -s modules
+#	@echo '8  - make install modules'; $(_MAKE) -s install-modules
+#	@echo '9  - make clean'; $(_MAKE) -s clean; $(_MAKE) -s clean-modules
 
 
 # cmake
