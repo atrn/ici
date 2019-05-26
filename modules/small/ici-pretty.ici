@@ -105,9 +105,15 @@ extern print(any, file)
 
 /*
  * Return a "pretty size".
+ *
+ * The prec argument controls the precision of the sizes in
+ * in the resultant string. If not specified a suitable number
+ * of digits are used for the magnitude of the size.
  */
-extern size(z)
+extern size(z, prec)
 {
+    var prec = -1;
+
     local K = 1024.0;
     local M = 1024*K;
     local G = 1024*M;
@@ -115,19 +121,24 @@ extern size(z)
 
     if (z >= T)
     {
-        return sprintf("%.2fT", z/T);
+        if (prec == -1) prec = 2;
+        return sprintf("%.*fT", prec, z/T);
     }
     if (z >= G)
     {
-        return sprintf("%.2fG", z/G);
+        if (prec == -1) prec = 2;
+        return sprintf("%.*fG", prec, z/G);
     }
     if (z >= M)
     {
-        return sprintf("%.2fM", z/M);
+        if (prec == -1) prec = 1;
+        return sprintf("%.*fM", prec, z/M);
     }
     if (z >= K)
     {
-        return sprintf("%.2fM", z/K);
+        if (prec == -1) prec = 1;
+        return sprintf("%.*fK", prec, z/K);
     }
-    return sprintf("%d\n", int(z));
+    if (prec == -1) prec = 0;
+    return sprintf("%.*f", prec, int(z));
 }
