@@ -171,7 +171,7 @@ $(prog):		lib
 
 lib:
 	@[ -d $(objdir) ] || mkdir $(objdir)
-	@$(_dcc) --dll $(dll) -fPIC $(srcs) $(libs) $(ldflags)
+	@$(_dcc) --dll $(dll) -fPIC $(srcs)
 
 
 else ifeq ($(build),exe)
@@ -189,7 +189,7 @@ else ifeq ($(build),lib)
 #
 $(prog):		lib
 	@[ -d $(objdir) ] || mkdir $(objdir)
-	@$(_dcc) etc/main.cc -o $@ -L. -lici  $(libs)
+	@$(_dcc) etc/main.cc -o $@ -L. -lici
 
 lib:
 	@[ -d $(objdir) ] || mkdir $(objdir)
