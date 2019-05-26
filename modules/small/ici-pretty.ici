@@ -102,3 +102,32 @@ extern print(any, file)
 {
     puts(sprint(any), file ? file : stdout);
 }
+
+/*
+ * Return a "pretty size".
+ */
+extern size(z)
+{
+    local K = 1024.0;
+    local M = 1024*K;
+    local G = 1024*M;
+    local T = 1024*G;
+
+    if (z >= T)
+    {
+        return sprintf("%.2fT", z/T);
+    }
+    if (z >= G)
+    {
+        return sprintf("%.2fG", z/G);
+    }
+    if (z >= M)
+    {
+        return sprintf("%.2fM", z/M);
+    }
+    if (z >= K)
+    {
+        return sprintf("%.2fM", z/K);
+    }
+    return sprintf("%d\n", int(z));
+}
