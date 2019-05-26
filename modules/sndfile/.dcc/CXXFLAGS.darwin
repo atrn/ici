@@ -1,0 +1,2 @@
+#include "CXXFLAGS.common"
+-I/opt/local/include

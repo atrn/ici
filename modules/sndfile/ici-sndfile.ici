@@ -1,0 +1,180 @@
+/* Formats */
+
+extern FORMAT_WAV	= 0x010000;	/* Microsoft WAV format (little endian default). */
+extern FORMAT_AIFF	= 0x020000;	/* Apple/SGI AIFF format (big endian). */
+extern FORMAT_AU	= 0x030000;	/* Sun/NeXT AU format (big endian). */
+extern FORMAT_RAW	= 0x040000;	/* RAW PCM data. */
+extern FORMAT_PAF	= 0x050000;	/* Ensoniq PARIS file format. */
+extern FORMAT_SVX	= 0x060000;	/* Amiga IFF / SVX8 / SV16 format. */
+extern FORMAT_NIST	= 0x070000;	/* Sphere NIST format. */
+extern FORMAT_VOC	= 0x080000;	/* VOC files. */
+extern FORMAT_IRCAM	= 0x0A0000;	/* Berkeley/IRCAM/CARL */
+extern FORMAT_W64	= 0x0B0000;	/* Sonic Foundry's 64 bit RIFF/WAV */
+extern FORMAT_MAT4	= 0x0C0000;	/* Matlab (tm) V4.2 / GNU Octave 2.0 */
+extern FORMAT_MAT5	= 0x0D0000;	/* Matlab (tm) V5.0 / GNU Octave 2.1 */
+extern FORMAT_PVF	= 0x0E0000;	/* Portable Voice Format */
+extern FORMAT_XI	= 0x0F0000;	/* Fasttracker 2 Extended Instrument */
+extern FORMAT_HTK	= 0x100000;	/* HMM Tool Kit format */
+extern FORMAT_SDS	= 0x110000;	/* Midi Sample Dump Standard */
+extern FORMAT_AVR	= 0x120000;	/* Audio Visual Research */
+extern FORMAT_WAVEX	= 0x130000;	/* MS WAVE with WAVEFORMATEX */
+extern FORMAT_SD2	= 0x160000;	/* Sound Designer 2 */
+extern FORMAT_FLAC	= 0x170000;	/* FLAC lossless file format */
+extern FORMAT_CAF	= 0x180000;	/* Core Audio File format */
+extern FORMAT_WVE	= 0x190000;	/* Psion WVE format */
+extern FORMAT_OGG	= 0x200000;	/* Xiph OGG container */
+extern FORMAT_MPC2K	= 0x210000;	/* Akai MPC 2000 sampler */
+extern FORMAT_RF64	= 0x220000;	/* RF64 WAV file */
+
+/* Subtypes */
+
+extern FORMAT_PCM_S8	= 0x0001;	/* Signed 8 bit data */
+extern FORMAT_PCM_16	= 0x0002;	/* Signed 16 bit data */
+extern FORMAT_PCM_24	= 0x0003;	/* Signed 24 bit data */
+extern FORMAT_PCM_32	= 0x0004;	/* Signed 32 bit data */
+extern FORMAT_PCM_U8	= 0x0005;	/* Unsigned 8 bit data (WAV and RAW only) */
+extern FORMAT_FLOAT	= 0x0006;	/* 32 bit float data */
+extern FORMAT_DOUBLE	= 0x0007;	/* 64 bit float data */
+extern FORMAT_ULAW	= 0x0010;	/* U-Law encoded. */
+extern FORMAT_ALAW	= 0x0011;	/* A-Law encoded. */
+extern FORMAT_IMA_ADPCM	= 0x0012;	/* IMA ADPCM. */
+extern FORMAT_MS_ADPCM	= 0x0013;	/* Microsoft ADPCM. */
+extern FORMAT_GSM610	= 0x0020;	/* GSM 6.10 encoding. */
+extern FORMAT_VOX_ADPCM	= 0x0021;	/* OKI / Dialogix ADPCM */
+extern FORMAT_G721_32	= 0x0030;	/* 32kbs G721 ADPCM encoding. */
+extern FORMAT_G723_24	= 0x0031;	/* 24kbs G723 ADPCM encoding. */
+extern FORMAT_G723_40	= 0x0032;	/* 40kbs G723 ADPCM encoding. */
+extern FORMAT_DWVW_12	= 0x0040; 	/* 12 bit Delta Width Variable Word encoding. */
+extern FORMAT_DWVW_16	= 0x0041; 	/* 16 bit Delta Width Variable Word encoding. */
+extern FORMAT_DWVW_24	= 0x0042; 	/* 24 bit Delta Width Variable Word encoding. */
+extern FORMAT_DWVW_N	= 0x0043; 	/* N bit Delta Width Variable Word encoding. */
+extern FORMAT_DPCM_8	= 0x0050;	/* 8 bit differential PCM (XI only) */
+extern FORMAT_DPCM_16	= 0x0051;	/* 16 bit differential PCM (XI only) */
+extern FORMAT_VORBIS	= 0x0060;	/* Xiph Vorbis encoding. */
+extern FORMAT_ALAC_16	= 0x0070;	/* Apple Lossless Audio Codec (16 bit). */
+extern FORMAT_ALAC_20	= 0x0071;	/* Apple Lossless Audio Codec (20 bit). */
+extern FORMAT_ALAC_24	= 0x0072;	/* Apple Lossless Audio Codec (24 bit). */
+extern FORMAT_ALAC_32	= 0x0073;	/* Apple Lossless Audio Codec (32 bit). */
+
+/* Endian-ness. */
+
+extern ENDIAN_FILE	= 0x00000000;   /* Default file endian-ness. */
+extern ENDIAN_LITTLE	= 0x10000000;   /* Force little endian-ness. */
+extern ENDIAN_BIG	= 0x20000000;   /* Force big endian-ness. */
+extern ENDIAN_CPU	= 0x30000000;   /* Force CPU endian-ness. */
+
+/* Masks */
+
+extern FORMAT_SUBMASK	= 0x0000FFFF;   /* Format type bits */
+extern FORMAT_TYPEMASK	= 0x0FFF0000;   /* Subtype bits */
+extern FORMAT_ENDMASK   = 0x30000000;   /* Endianess bits */
+
+
+extern describe_type(format)
+{
+    switch (format & FORMAT_TYPEMASK)
+    {
+    case FORMAT_WAV: return "Microsoft WAV";
+    case FORMAT_AIFF: return "Apple/SGI AIFF";
+    case FORMAT_AU: return "Sun/NeXT AU";
+    case FORMAT_RAW: return "Raw PCM data";
+    case FORMAT_PAF: return "Ensoniq PARIS";
+    case FORMAT_SVX: return "Amiga IFF / SVX8 / SV16";
+    case FORMAT_NIST: return "Sphere NIST";
+    case FORMAT_VOC: return "VOC";
+    case FORMAT_IRCAM: return "Berkeley/IRCAM/CARL";
+    case FORMAT_W64: return "Sonic Foundry's 64 bit RIFF/WAV";
+    case FORMAT_MAT4: return "Matlab (tm) V4.2 / GNU Octave 2.0";
+    case FORMAT_MAT5: return "Matlab (tm) V5.0 / GNU Octave 2.1";
+    case FORMAT_PVF: return "Portable Voice Format";
+    case FORMAT_XI: return "Fasttracker 2 Extended Instrument";
+    case FORMAT_HTK: return "HMM Tool Kit format";
+    case FORMAT_SDS: return "Midi Sample Dump Standard";
+    case FORMAT_AVR: return "Audio Visual Research";
+    case FORMAT_WAVEX: return "MS WAVE with WAVEFORMATEX";
+    case FORMAT_SD2: return "Sound Designer 2";
+    case FORMAT_FLAC: return "FLAC lossless";
+    case FORMAT_CAF: return "Core Audio";
+    case FORMAT_WVE: return "Psion WVE";
+    case FORMAT_OGG: return "Xiph OGG container";
+    case FORMAT_MPC2K: return "Akai MPC 2000 sampler";
+    case FORMAT_RF64: return "RF64 WAV file";
+    }
+    return sprintf("format code %08X", format & FORMAT_TYPEMASK);
+}
+
+extern describe_subtype(format)
+{
+    switch (format & FORMAT_SUBMASK)
+    {
+    case FORMAT_PCM_S8: return "8 bit";
+    case FORMAT_PCM_16: return "16 bit";
+    case FORMAT_PCM_24: return "24 bit";
+    case FORMAT_PCM_32: return "32 bit";
+    case FORMAT_PCM_U8: return "8 bit unsigned";
+    case FORMAT_FLOAT: return "32 bit float";
+    case FORMAT_DOUBLE: return "64 bit float";
+    case FORMAT_ULAW: return "U-Law encoded";
+    case FORMAT_ALAW: return "A-Law encoded";
+    case FORMAT_IMA_ADPCM: return "ADPCM";
+    case FORMAT_MS_ADPCM: return "ADPCM";
+    case FORMAT_GSM610: return "GSM 6.10 encoding";
+    case FORMAT_VOX_ADPCM: return "/ Dialogix ADPCM";
+    case FORMAT_G721_32: return "G721 ADPCM encoding";
+    case FORMAT_G723_24: return "G723 ADPCM encoding";
+    case FORMAT_G723_40: return "G723 ADPCM encoding";
+    case FORMAT_DWVW_12: return "bit Delta Width Variable Word encoding";
+    case FORMAT_DWVW_16: return "bit Delta Width Variable Word encoding";
+    case FORMAT_DWVW_24: return "bit Delta Width Variable Word encoding";
+    case FORMAT_DWVW_N: return "bit Delta Width Variable Word encoding";
+    case FORMAT_DPCM_8: return "bit differential PCM";
+    case FORMAT_DPCM_16: return "bit differential PCM";
+    case FORMAT_VORBIS: return "Xiph Vorbis encoding";
+    case FORMAT_ALAC_16: return "Lossless Audio Codec (16 bit)";
+    case FORMAT_ALAC_20: return "Lossless Audio Codec (20 bit)";
+    case FORMAT_ALAC_24: return "Lossless Audio Codec (24 bit)";
+    case FORMAT_ALAC_32: return "Lossless Audio Codec (32 bit)";
+    }
+    return sprintf("subtype code %08X", format & FORMAT_SUBMASK);
+}
+
+extern describe_endianess(format)
+{
+    switch (format & FORMAT_ENDMASK)
+    {
+    case ENDIAN_FILE: return "default endianness";
+    case ENDIAN_LITTLE: return "little endian";
+    case ENDIAN_BIG: return "big endian";
+    case ENDIAN_CPU: return "native endianess";
+    }
+    return sprintf("endianess code %08X", format & FORMAT_ENDMASK);
+}
+
+extern describe_format(format)
+{
+    return sprintf("%s, %s, %s", describe_type(format), describe_subtype(format), describe_endianess(format));
+}
+
+extern format_type(format)
+{
+    return format & FORMAT_TYPEMASK;
+}
+
+extern format_subtype(format)
+{
+    return format & FORMAT_SUBMASK;
+}
+
+extern format_endianess(format)
+{
+    return format & FORMAT_ENDMASK;
+}
+
+extern duration(file)
+{
+    if (rate := float(file.samplerate))
+    {
+	return float(file.frames) / rate;
+    }
+    return 0.0;
+}

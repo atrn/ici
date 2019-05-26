@@ -9,6 +9,7 @@ _dirs=\
 	env\
 	example\
 	small\
+	sndfile\
 	sqlite\
 	util
 

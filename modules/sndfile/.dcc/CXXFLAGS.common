@@ -1,0 +1,10 @@
+-DICI_MODULE_NAME=sndfile
+-std=c++14
+-g
+-O2
+-fPIC
+-Wall
+-Wextra
+-DNDEBUG
+-I/usr/local/include
+-I.

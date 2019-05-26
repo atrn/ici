@@ -1,0 +1,20 @@
+filename := argv[1] || "test-data.wav";
+f := sndfile.open(filename);
+printf("%s (format code 0x%08X)\n", sndfile.describe_format(f.format), f.format);
+printf("%d frames\n", f.frames);
+printf("%d samples per second\n", f.samplerate);
+printf("%d channels\n", f.channels);
+// printf("%d sections\n", f.sections);
+// printf("%d seekable\n", f.seekable);
+printf("duration %.2f seconds\n", sndfile.duration(f));
+sndfile.close(f);
+
+f := sndfile.open(filename);
+frames := sndfile.read(f);
+sndfile.close(f);
+
+printf("read %d frames", frames.size/frames.channels);
+printf(" (%sB)\n", pretty.size(frames.size * 4));
+
+frames = NULL;
+reclaim();
