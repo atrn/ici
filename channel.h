@@ -18,7 +18,7 @@ struct channel : object
 };
 
 inline channel *channelof(object *o) { return o->as<channel>(); }
-inline bool ischannel(object *o) { return o->isa(TC_CHANNEL); }
+inline bool ischannel(object *o) { return o->hastype(TC_CHANNEL); }
 
 constexpr int ICI_CHANNEL_CLOSED =  0x20;
 

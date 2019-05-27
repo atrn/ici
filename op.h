@@ -35,7 +35,7 @@ struct op : object
 };
 
 inline op *opof(object *o) { return o->as<op>(); }
-inline bool isop(object *o) { return o->isa(TC_OP); }
+inline bool isop(object *o) { return o->hastype(TC_OP); }
 
 /*
  * Operator codes. These are stored in the op_ecode field and

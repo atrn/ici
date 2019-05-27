@@ -26,7 +26,7 @@ struct map : objwsup
 };
 
 inline map *mapof(object *o) { return o->as<map>(); }
-inline bool ismap(object *o) { return o->isa(TC_MAP); }
+inline bool ismap(object *o) { return o->hastype(TC_MAP); }
 
 /*
  * End of ici.h export. --ici.h-end--

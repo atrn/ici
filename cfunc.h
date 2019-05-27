@@ -70,7 +70,7 @@ struct cfunc : object
  */
 
 inline cfunc *cfuncof(object *o) { return o->as<cfunc>(); }
-inline bool iscfunc(object *o) { return o->isa(TC_CFUNC); }
+inline bool iscfunc(object *o) { return o->hastype(TC_CFUNC); }
 
 /*
  * The operand stack on entry to an intrinsic function:

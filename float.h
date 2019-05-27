@@ -24,7 +24,7 @@ struct ici_float : object
 };
 
 inline ici_float *floatof(object *o) { return o->as<ici_float>(); }
-inline bool isfloat(object *o) { return o->isa(TC_FLOAT); }
+inline bool isfloat(object *o) { return o->hastype(TC_FLOAT); }
 
 /*
  * End of ici.h export. --ici.h-end--

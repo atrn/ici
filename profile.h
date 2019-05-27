@@ -40,7 +40,7 @@ struct profilecall : object
  */
 
 inline profilecall *profilecallof(object *o) { return o->as<profilecall>(); }
-inline bool isprofilecall(object *o) { return o->isa(TC_PROFILECALL); }
+inline bool isprofilecall(object *o) { return o->hastype(TC_PROFILECALL); }
 
 extern int ici_profile_active;
 void ici_profile_call(func *f);

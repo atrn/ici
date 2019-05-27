@@ -25,7 +25,7 @@ struct catcher : object {
 };
 
 inline catcher *catcherof(object *o) { return o->as<catcher>(); }
-inline bool iscatcher(object *o) { return o->isa(TC_CATCHER); }
+inline bool iscatcher(object *o) { return o->hastype(TC_CATCHER); }
 
 /*
  * Flags set stored in the upper nibble of o_flags (which is

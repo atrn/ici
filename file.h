@@ -44,7 +44,7 @@ struct file : object
  */
 
 inline file *fileof(object *o) { return o->as<file>(); }
-inline bool isfile(object *o) { return o->isa(TC_FILE); }
+inline bool isfile(object *o) { return o->hastype(TC_FILE); }
 
 /*
  * End of ici.h export. --ici.h-end--

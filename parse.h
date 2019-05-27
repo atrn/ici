@@ -37,7 +37,7 @@ struct parse : object
 
 inline parse *parseof(object *o) { return o->as<parse>(); }
 inline parse *parseof(void *f) { return reinterpret_cast<parse *>(f); }
-inline bool isparse(object *o) { return o->isa(TC_PARSE); }
+inline bool isparse(object *o) { return o->hastype(TC_PARSE); }
 
 /*
  * End of ici.h export. --ici.h-end--

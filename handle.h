@@ -134,7 +134,7 @@ static constexpr int METHOD = 0x8000000;
 };
 
 inline handle *handleof(object *o) { return o->as<handle>(); }
-inline bool ishandle(object *o) { return o->isa(TC_HANDLE); }
+inline bool ishandle(object *o) { return o->hastype(TC_HANDLE); }
 inline bool ishandleof(object *o, str *n) { return ishandle(o) && handleof(o)->h_name == n; }
 
 struct name_id

@@ -18,7 +18,7 @@ struct method : object
 };
 
 inline method *methodof(object *o) { return o->as<method>(); }
-inline bool ismethod(object *o) { return o->isa(TC_METHOD); }
+inline bool ismethod(object *o) { return o->hastype(TC_METHOD); }
 
 /*
  * End of ici.h export. --ici.h-end--

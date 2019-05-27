@@ -146,7 +146,7 @@ struct object
     /*
      * Return true if this object has the given type code.
      */
-    inline bool isa(uint8_t tcode) const {
+    inline bool hastype(uint8_t tcode) const {
         return o_tcode == tcode;
     }
 

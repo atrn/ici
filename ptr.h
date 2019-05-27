@@ -18,7 +18,7 @@ struct ptr : object
 };
 
 inline ptr *ptrof(object *o) { return o->as<ptr>(); }
-inline bool isptr(object *o) { return o->isa(TC_PTR); }
+inline bool isptr(object *o) { return o->hastype(TC_PTR); }
 
 /*
  * End of ici.h export. --ici.h-end--

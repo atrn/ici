@@ -22,7 +22,7 @@ struct integer : object
 };
 
 inline integer *intof(object *o) { return o->as<integer>(); }
-inline bool isint(object *o) { return o->isa(TC_INT); }
+inline bool isint(object *o) { return o->hastype(TC_INT); }
 
 /*
  * End of ici.h export. --ici.h-end--

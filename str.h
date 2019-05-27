@@ -61,7 +61,7 @@ struct str : object
  *                      be pointing. The actual string chars follow on from this.
  */
 inline str *stringof(object *o) { return o->as<str>(); }
-inline bool isstring(object *o) { return o->isa(TC_STRING); }
+inline bool isstring(object *o) { return o->hastype(TC_STRING); }
 
 /*
  * This flag (in o_flags) indicates that the lookup-lookaside mechanism
