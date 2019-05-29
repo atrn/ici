@@ -28,7 +28,7 @@ struct sndfile_type : ici::type
 };
 
 inline sndfile *sndfileof(ici::object *o) { return o->as<sndfile>(); }
-inline bool issndfile(ici::object *o) { return o->isa(sndfile_type::code); }
+inline bool issndfile(ici::object *o) { return o->hastype(sndfile_type::code); }
 
 sndfile *new_sndfile();
 

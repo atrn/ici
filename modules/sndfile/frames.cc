@@ -5,7 +5,7 @@ int frames_type::code = 0;
 
 size_t frames_type::mark(ici::object *o)
 {
-    return ici::type::mark(o) + framesof(o)->_size;
+    return ici::type::mark(o) + framesof(o)->_size * sizeof (float);
 }
 
 void frames_type::free(ici::object *o)
@@ -133,18 +133,18 @@ int frames_type::assign(ici::object *o, ici::object *k, ici::object *v)
 
 frames *new_frames(size_t nframes, int samplerate, int channels)
 {
-    const auto z = nframes * channels;
+    const auto nfloats = nframes * channels;
     auto f = ici::ici_talloc<frames>();
     if (f)
     {
-        f->_ptr = static_cast<float *>(ici::ici_alloc(z * sizeof (float)));
+        f->_ptr = static_cast<float *>(ici::ici_alloc(nfloats * sizeof (float)));
         if (!f->_ptr)
         {
             ici::ici_free(f);
             return nullptr;
         }
         f->set_tfnz(frames_type::code, 0, 1, 0);
-        f->_size = z;
+        f->_size = nfloats;
         f->_count = 0;
         f->_samplerate = samplerate;
         f->_channels = channels;
