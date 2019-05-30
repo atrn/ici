@@ -15,4 +15,12 @@ Linux)
     ;;
 esac
 cd $2
-$1 mk-ici-h.ici ${conf_dot_h} "$2" "$3"
+ici=ici
+if [ -x "$1" ]; then
+    ici="$1"
+elif [ -x "$1/Debug/ici" ]; then
+    ici="$1/Debug/ici"
+elif [ -x "$1/Release/ici" ]; then
+    ici="$1/Release/ici"
+fi
+"${ici}" mk-ici-h.ici ${conf_dot_h} "$2" "$3"
