@@ -18,8 +18,17 @@ namespace ici
 constexpr int max_error_msg = 1024;
 
 /*
+ * Clear the ici error value, setting it to the nullptr.
+ *
+ * This --func-- forms part of the --ici-api--.
+ */
+void clear_error();
+
+/*
  * Retrieve the ici error value. If no error is in effect
  * this returns nullptr.
+ *
+ * This --func-- forms part of the --ici-api--.
  */
 const char *get_error();
 
