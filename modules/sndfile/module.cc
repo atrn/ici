@@ -3,7 +3,6 @@
 #include <icistr-setup.h>
 
 #include "file.h"
-#include "frames.h"
 
 namespace
 {
@@ -104,8 +103,26 @@ int f_read()
     {
         z = sf->_info.frames;
     }
-    auto frames = new_frames(sf->_info.frames, sf->_info.samplerate, sf->_info.channels);
+    auto frames = ici::new_frames32(sf->_info.frames * sf->_info.channels);
     if (!frames)
+    {
+        return 1;
+    }
+    auto samplerate = ici::make_ref<>(ici::new_int(sf->_info.samplerate));
+    if (!samplerate)
+    {
+        return 1;
+    }
+    if (frames->assign(ICIS(samplerate), samplerate))
+    {
+        return 1;
+    }
+    auto channels = ici::make_ref<>(ici::new_int(sf->_info.channels));
+    if (!channels)
+    {
+        return 1;
+    }
+    if (frames->assign(ICIS(channels), channels))
     {
         return 1;
     }
@@ -121,7 +138,7 @@ int f_read()
 int f_write()
 {
     sndfile *sf;
-    frames * frames;
+    ici::frames32 * frames;
 
     if (ici::typecheck("oo", &sf, &frames))
     {
@@ -131,7 +148,7 @@ int f_write()
     {
         return ici::argerror(0);
     }
-    if (!isframes(frames))
+    if (!ici::isframes32(frames))
     {
         return ici::argerror(1);
     }
@@ -177,7 +194,6 @@ int f_close()
 extern "C" ici::object *ici_sndfile_init()
 {
     static sndfile_type sndfile_type;
-    static frames_type  frames_type;
 
     if (ici::check_interface(ici::version_number, ici::back_compat_version, "sndfile"))
     {
@@ -188,10 +204,6 @@ extern "C" ici::object *ici_sndfile_init()
         return nullptr;
     }
     if (!(sndfile_type::code = ici::register_type(&sndfile_type)))
-    {
-        return nullptr;
-    }
-    if (!(frames_type::code = ici::register_type(&frames_type)))
     {
         return nullptr;
     }

@@ -10,10 +10,12 @@ printf("duration %.2f seconds\n", sndfile.duration(f));
 sndfile.close(f);
 
 f := sndfile.open(filename);
+
 frames := sndfile.read(f);
 sndfile.close(f);
+frames.source = filename;
 
-printf("read %d frames", frames.size/frames.channels);
+printf("read %d frames of %d channels from %s", frames.size/frames.channels, frames.channels, frames.source);
 printf(" (%sB)\n", pretty.size(frames.size * 4));
 
 frames = NULL;
