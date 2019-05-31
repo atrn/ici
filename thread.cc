@@ -250,9 +250,9 @@ static void ici_thread_base(void *arg)
     n_ops = os.a_top - os.a_base;
     if ((x->x_result = evaluate(&o_call, n_ops)) == nullptr)
     {
-        x->x_result = str_get_nul_term(error);
+        x->x_result = str_get_nul_term(ici_error);
         x->x_state = XS_FAILED;
-        fprintf(stderr, "Warning, uncaught error in sub-thread: %s\n", error);
+        fprintf(stderr, "Warning, uncaught error in sub-thread: %s\n", ici_error);
     }
     else
     {

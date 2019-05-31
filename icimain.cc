@@ -368,7 +368,7 @@ usage:
 
 fail:
     fflush(stdout);
-    fprintf(stderr, "%s\n", error);
+    fprintf(stderr, "%s\n", ici_error);
     uninit();
     return 1;
 }

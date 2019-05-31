@@ -1114,11 +1114,11 @@ object *evaluate(object *code, int n_operands) {
         {
             catcher *c;
 
-            if (error == nullptr) {
+            if (!ici_error) {
                 set_error("error");
             }
             if (UNLIKELY(debug_active && !debug_ignore_err)) {
-                debugger->error_set(error, ex->x_src);
+                debugger->error_set(ici_error, ex->x_src);
             }
             for (;;) {
                 if ((c = unwind()) == nullptr || c->hasflag(CF_EVAL_BASE)) {
@@ -1136,7 +1136,7 @@ object *evaluate(object *code, int n_operands) {
                 long lineno = ex->x_src->s_lineno; // set_val below requires a long
                 if
                 (
-                    set_val(objwsupof(vs.a_top[-1]), SS(_error), 's', error)
+                    set_val(objwsupof(vs.a_top[-1]), SS(_error), 's', ici_error)
                     ||
                     set_val(objwsupof(vs.a_top[-1]), SS(errorline), 'i', &lineno)
                     ||
@@ -1160,7 +1160,7 @@ object *evaluate(object *code, int n_operands) {
              * would be breaking on every type of error, even caught ones.
              */
             if (UNLIKELY(debug_active && !debug_ignore_err)) {
-                debugger->error_uncaught(error, ex->x_src);
+                debugger->error_uncaught(ici_error, ex->x_src);
             }
             expand_error(ex->x_src->s_lineno, ex->x_src->s_filename);
             --ex->x_n_engine_recurse;

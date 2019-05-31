@@ -122,7 +122,7 @@ object * func_type::fetch(object *o, object *k)
 {
     object           *r;
 
-    error = nullptr;
+    clear_error();
     r = nullptr;
     if (k == SS(vars))
     {
@@ -136,7 +136,7 @@ object * func_type::fetch(object *o, object *k)
     {
         r = funcof(o)->f_name;
     }
-    if (r == nullptr && error == nullptr)
+    if (r == nullptr && !ici_error)
     {
         r = null;
     }

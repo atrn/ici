@@ -44,7 +44,8 @@ regexp *new_regexp(str *s, int flags)
     /* Special test for possible failure of new_str_nul_term() in lex.c */
     if (s == nullptr)
         return nullptr;
-    re = pcre_compile(s->s_chars, flags, (const char **)&error, &errofs, nullptr);
+    clear_error();
+    re = pcre_compile(s->s_chars, flags, (const char **)&ici_error, &errofs, nullptr);
     if (re == nullptr)
         return nullptr;
     if (pcre_info(re, nullptr, nullptr) > nsubexp)
@@ -52,9 +53,10 @@ regexp *new_regexp(str *s, int flags)
         set_error("too many subexpressions in regexp, limit is %d", nsubexp);
         goto fail;
     }
-    rex = pcre_study(re, 0, (const char **)&error);
-    if (error != nullptr)
+    rex = pcre_study(re, 0, (const char **)&ici_error);
+    if (ici_error) {
         goto fail;
+    }
     /* Note rex can be nullptr if no extra info required */
     if ((r = (regexp *)ici_talloc(regexp)) == nullptr)
         goto fail;

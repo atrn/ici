@@ -17,7 +17,7 @@ int growbuf(size_t);
 /*
  * Ensure that 'buf' points to enough memory to hold index 'n' (plus
  * room for a nul char at the end). Returns 0 on success, else 1 and
- * sets 'error'.
+ * sets 'ici_error'.
  *
  * See also: 'The error return convention'.
  *

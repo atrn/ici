@@ -168,7 +168,7 @@ struct repl_file {
             }
             if (parse_file(p)) {
                 puts(".r ");
-                puts(error);
+                puts(ici_error);
                 puts("\n");
                 clear_error();
             }
@@ -203,7 +203,7 @@ struct repl_file {
                 return;
             }
             if (parse_file(f, objwsupof(current_scope()))) {
-                puts(error);
+                puts(ici_error);
                 puts("\n");
             } else if (auto result = ici_fetch(current_scope(), SS(_))) {
                 if (isstring(result)) {
@@ -355,7 +355,7 @@ void repl_file_new_statement(void *fp, bool top) {
 void repl() {
     // repl_log = fopen("repl.log", "w");
 
-    auto failed = [](const char *why = error) -> void {
+    auto failed = [](const char *why = ici_error) -> void {
         fprintf(stderr, "\nerror: %s\n", why);
     };
 
@@ -393,8 +393,8 @@ void repl() {
         if (parse_file(file, scope)) {
             repl.trace("error");
             repl.puts("error: ");
-            auto err = strchr(error, ':');
-            if (err) err += 2; else err = error;
+            auto err = strchr(ici_error, ':');
+            if (err) err += 2; else err = ici_error;
             repl.puts(err);
             repl.puts("\n");
             clear_error();

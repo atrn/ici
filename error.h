@@ -38,11 +38,20 @@ const char *get_error();
  *
  * This --func-- forms part of the --ici-api--.
  */
+int set_errorc(const char *);
+
+/*
+ * Set the ici error value to the result of formatting a string with
+ * the format string and other arguments, and return non-zero as per
+ * the error returning convention.
+ *
+ * This --func-- forms part of the --ici-api--.
+ */
 int set_error(const char *, ...);
 
 /*
- * Set the global ici::error value and return
- * non-zero as per the error returning convention.
+ * Set the ici::error value by formatting a string using vsprintf
+ * and return non-zero as per the error returning convention.
  *
  * This --func-- forms part of the --ici-api--.
  */

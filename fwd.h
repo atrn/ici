@@ -245,7 +245,7 @@ extern DLI exec                 *ex;
  * This --macro-- forms part of the --ici-api--.
  */
 #ifdef ICI_CORE
-#define error                   (ici::ex->x_error) // per-thread, requires exec.h
+#define ici_error               (ici::ex->x_error) // per-thread, requires exec.h
 #endif
 extern DLI array                xs;
 extern DLI array                os;

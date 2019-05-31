@@ -45,8 +45,8 @@ f_eventloop()
         }
         enter(x);
         TranslateMessage(&msg);
-        error = nullptr;
-        if (DispatchMessage(&msg) == ICI_EVENT_ERROR && error != nullptr)
+        clear_error();
+        if (DispatchMessage(&msg) == ICI_EVENT_ERROR && error)
             return 1;
         x = leave();
     }

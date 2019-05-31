@@ -3323,7 +3323,7 @@ static int f_getfile() {
         if (f->hasflag(ftype::nomutex)) {
             x = leave();
         }
-        error = nullptr;
+        clear_error();
         auto nread = f->read(b, buf_size);
         if (nread != buf_size) {
             set_error("getfile() failed to read entire file (read %lu vs expected %lu)", nread, buf_size);
@@ -3331,7 +3331,7 @@ static int f_getfile() {
         if (f->hasflag(ftype::nomutex)) {
             enter(x);
         }
-        if (error) {
+        if (ici_error) {
             goto finish;
         }
         i = buf_size;
