@@ -99,6 +99,7 @@
 #				object files with no library. Installs the
 #				executable and an ici.h file but no library.
 #
+#
 # The default build type is 'dll'.
 #
 #
@@ -138,6 +139,7 @@
 os=			$(shell uname|tr A-Z a-z)
 
 prog=			ici
+conf?= 			conf/$(os).h
 lib=			libici.a
 ifeq ($(os),darwin)
 dll=			libici.dylib
@@ -149,39 +151,47 @@ build?=			dll
 #build?=		exe
 #build?=		lib
 
-conf?= 			conf/$(os).h
 prefix?= 		/usr/local
 sudo?=
+
 dccflags?=
 cxxflags?=		CXXFLAGS
-objdir?=		.dcc.o
+objdir?=		.objs
+
 cmakebuild?=		Release
 cmakegenerator?=	Ninja
 cmakedir?=		.build
 xcodedir?=		.xcode
 
-.PHONY:			all $(prog) lib clean distclean install
-.PHONY:			modules clean-modules install-modules
 
-srcs=			$(shell ls *.cc | fgrep -v win32)
-hdrs=			$(shell ls *.h | fgrep -v ici.h)
-
-# The common prefix for the dcc command we use
+# ###############################################################
 #
+# Helper macros
+#
+
+_srcs=			$(shell ls *.cc | fgrep -v win32)
+_hdrs=			$(shell ls *.h | fgrep -v ici.h)
 _dcc=			CXXFLAGSFILE=$(cxxflags) dcc $(dccflags) --objdir $(objdir)
+_make=			$(MAKE) --no-print-directory
 
-# The 'all' target builds an ici interpreter executable and library,
-# if that is enabled.
+
+# ###############################################################
 #
+# Targets
+#
+
+.PHONY:			all $(prog) lib clean distclean debug test
+.PHONY:			install full-install install-ici-exe
+.PHONY:			install-libici install-ici-dot-h install-core-ici
+.PHONY:			modules clean-modules install-modules
+.PHONY:			with-cmake configure-cmake clean-cmake
+
+
 all:			$(prog) ici.h
 
-
-#
-# Build $(prog) and lib according to $(build)...
-#
-
 ifeq ($(build),dll)
-# This build variant has the interpreter code in a dynamic library.
+#
+# Build ICI dynamic library
 #
 $(prog):		lib
 	@[ -d $(objdir) ] || mkdir $(objdir)
@@ -189,19 +199,24 @@ $(prog):		lib
 
 lib:
 	@[ -d $(objdir) ] || mkdir $(objdir)
-	@$(_dcc) --dll $(dll) -fPIC $(srcs)
+	@$(_dcc) --dll $(dll) -fPIC $(_srcs)
 
 
 else ifeq ($(build),exe)
+
+#
 # The ici target builds an executable containing the complete
 # interpreter and does not create any library.
 #
 $(prog):
 	@[ -d $(objdir) ] || mkdir $(objdir)
-	@$(_dcc) etc/main.cc $(srcs) -o $@
+	@$(_dcc) etc/main.cc $(_srcs) -o $@
 
 
 else ifeq ($(build),lib)
+
+
+#
 # The 'lib' build creates a static library and an executable that is
 # linked against that library.
 #
@@ -211,7 +226,7 @@ $(prog):		lib
 
 lib:
 	@[ -d $(objdir) ] || mkdir $(objdir)
-	@$(_dcc) --lib $(lib) $(srcs)
+	@$(_dcc) --lib $(lib) $(_srcs)
 
 else
 # Unknown $(build)
@@ -220,30 +235,23 @@ $(error "$(build) is not a supported build type")
 endif
 
 
+#
 # The ici.h file is built using the current interpreter executable to
 # run a program that reads the ICI header files to extract the public
 # parts. So ici.h depends on all these.
 #
-ici.h:		$(prog) mk-ici-h.ici $(hdrs)
+ici.h:		$(prog) mk-ici-h.ici $(_hdrs)
 	@ICIPATH=`pwd` LD_LIBRARY_PATH=`pwd` DYLD_LIBRARY_PATH=`pwd` ./$(prog) mk-ici-h.ici $(conf)
 
 
-# Other targets for developer types.
 #
-.PHONY:		debug test
-
-# GNU make can be very noisy. We use the --no-print-directory switch for
-# all sub-makes to quieten it down.
-#
-_make=		$(MAKE) --no-print-directory
-
-
 # The 'debug' target builds the ici executable using the .debug CXXFLAGS options file.
 #
 debug:
 	@$(_make) $(prog) cxxflags=CXXFLAGS.debug dccflags=$(dccflags) build=$(build)
 
 
+#
 # The 'test' target tests the interpreter by running the standard
 # 'core' test.
 #
@@ -256,6 +264,8 @@ test:		$(prog)
 	ICIPATH=`pwd` LD_LIBRARY_PATH=`pwd` DYLD_LIBRARY_PATH=`pwd` $(_make) -C test/serialization ici=`pwd`/$(prog) test
 
 
+
+# ###############################################################
 #
 # Cleaning
 #
@@ -284,11 +294,11 @@ distclean:	clean
 	rm -rf $(cmakedir) $(xcodedir)
 
 
-#
-# Installation
-#
 
-.PHONY:		install-ici-exe install-libici install-ici-dot-h install-core-ici
+# ###############################################################
+#
+# Installing
+#
 
 ifeq ($(build),exe)
 install:	install-ici-exe
@@ -324,9 +334,11 @@ install-core-ici:
 	$(sudo) mkdir -p $(prefix)/lib/ici
 	$(sudo) install -c -m 444 ici-core*.ici $(prefix)/lib/ici
 
+
+
+#
 # Install everything - static and dynamic libs, exe.
 #
-.PHONY: full-install
 full-install:
 	@echo '1  - make clean'; $(_make) -s clean
 	@echo '2  - make (lib)'; $(_make) -s lib ici.h build=lib conf=$(conf) dccflags="$(dccflags) --quiet"
@@ -342,11 +354,11 @@ full-install:
 #	@echo '9  - make clean'; $(_make) -s clean; $(_make) -s clean-modules
 #
 
-#
-# cmake
-#
 
-.PHONY:		with-cmake configure-cmake clean-cmake
+# ###############################################################
+#
+# Building with cmake
+#
 
 with-cmake:	configure-cmake
 	@cmake --build $(cmakedir)
@@ -364,8 +376,10 @@ clean-cmake:
 
 ifeq ($(os),darwin)
 
+
+# ###############################################################
 #
-# xcode (via cmake)
+# Building with xcode (via cmake)
 #
 
 .PHONY:		with-xcode configure-xcode clean-xcode
@@ -381,8 +395,9 @@ clean-xcode:
 endif
 
 
+# ###############################################################
 #
-# modules
+# Modules
 #
 
 modules:
@@ -393,3 +408,6 @@ clean-modules:
 
 install-modules:
 	@$(_make) -C modules -$(MAKEFLAGS) install
+
+
+# EOF

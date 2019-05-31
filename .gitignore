@@ -2,7 +2,7 @@
 *.dylib
 *.so
 *.a
-.dcc.o/
+.objs/
 /test/serialization/*.dat
 /ici
 /ici.h
