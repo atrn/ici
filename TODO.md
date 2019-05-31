@@ -4,6 +4,16 @@ This file documents a list of things that ICI needs. If you feel like
 doing one of them then by all means do so and if you are public minded
 donate your changes.
 
+## Frames
+
+The basic types are there, and functions to get them but that's
+about all. They need:
+
+- forall
+- vector operators
+- serialization
+- I/O (printf)
+
 ## General
 
 ### Remove reliance on C strings and adopt UTF-8 everywhere
