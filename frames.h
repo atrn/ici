@@ -61,16 +61,14 @@ struct frames : object
 };
 
 using frames32 = frames<float>;
-using frames64 = frames<double>;
-
 inline frames32 *frames32of(ici::object *o) { return static_cast<frames32 *>(o); }
-inline bool     isframes32(ici::object *o)  { return o->hastype(TC_FRAMES32); }
+inline bool isframes32(ici::object *o)  { return o->hastype(TC_FRAMES32); }
+frames32 * new_frames32(size_t);
 
+using frames64 = frames<double>;
 inline frames64 *frames64of(ici::object *o) { return static_cast<frames64 *>(o); }
-inline bool     isframes64(ici::object *o)  { return o->hastype(TC_FRAMES64); }
-
-frames32 *      new_frames32(size_t);
-frames64 *      new_frames64(size_t);
+inline bool isframes64(ici::object *o)  { return o->hastype(TC_FRAMES64); }
+frames64 * new_frames64(size_t);
 
 /*
  * End of ici.h export. --ici.h-end--
