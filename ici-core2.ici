@@ -149,7 +149,7 @@ extern include() {
     scp = map(super(top(vstack(), -1)));
     forall (fn in vargs) {
         try {
-            f = pfopen(icipath, fn + ".ici");
+            f = pfopen(ici.path, fn + ".ici");
             try
                 parse(f, scp);
             onerror

@@ -53,15 +53,9 @@ This feature allowed code to register functions to be
 called when unknown operator/type combinations were
 encountered.
 
-## Define an 'ici' module and move a few things there
+## Move more things into the 'ici' map
 
-version() -> ici.version (note, not a function but a pre-defined var)
-icipath -> ici.path
-
-Basically anything specific to 'ici' or the interpreter goes into that
-module. Perhaps also use it to _hold_ the builtin functions that
-control the interpreter's environment, e.g. `reclaim()` becomes
-`ici.reclaim()` (forces a garbage collection).
+e.g. `reclaim()` -> `ici.reclaim()`
 
 ## Allow classes to implement fetch/assign/forall/keys
 

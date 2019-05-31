@@ -47,7 +47,6 @@ void uninit()
 {
     int           i;
     exec    *x;
-    extern str    *ver_cache;
     extern regexp *smash_default_re;
 
     /*
@@ -78,8 +77,6 @@ void uninit()
         decref(small_ints[i]);
         small_ints[i] = nullptr;
     }
-    if (ver_cache != nullptr)
-        decref(ver_cache);
     if (smash_default_re != nullptr)
         decref(smash_default_re);
 

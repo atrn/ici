@@ -452,7 +452,6 @@ extern int             set_issubset(set *, set *);
 extern int             set_ispropersubset(set *, set *);
 extern int64_t         xstrtol(char const *, char **, int);
 extern void            init_exec();
-extern int             init_path(objwsup *externs);
 extern int             init_sstrings();
 extern void            drop_all_small_allocations();
 extern objwsup        *outermost_writeable();

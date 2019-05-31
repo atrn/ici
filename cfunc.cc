@@ -628,13 +628,23 @@ static object * not_a(const char *what, const char *typ) {
  * referenced from the scope until the caller has finished with it.
  */
 array * need_path() {
-    object *o;
 
-    o = ici_fetch(vs.a_top[-1], SS(icipath));
-    if (!isarray(o)) {
-        return arrayof(not_a("path", "array"));
+    auto outermost = objwsupof(vs.a_top[-1]);
+    assert(outermost);
+    while (outermost->o_super != nullptr) {
+        outermost = outermost->o_super;
     }
-    return arrayof(o);
+    const auto m = ici_fetch(outermost, SS(_ici));
+    if (ismap(m))
+    {
+        auto o = ici_fetch(m, SS(path));
+        if (isarray(o)) {
+            return arrayof(o);
+	} else {
+            return arrayof(not_a("path", "array"));
+        }
+    }
+    return arrayof(not_a("ici", "map"));
 }
 
 /*
@@ -3031,21 +3041,6 @@ static int f_cputime() {
     return float_ret(t);
 }
 
-str *ver_cache;
-
-static int f_version() {
-
-    if
-    (
-        ver_cache == nullptr
-        &&
-        (ver_cache = new_str_nul_term(version_string)) == nullptr
-    ) {
-        return 1;
-    }
-    return ret_no_decref(ver_cache);
-}
-
 static int f_strbuf() {
     str *s;
     str *is;
@@ -3328,6 +3323,7 @@ static int f_getfile() {
         if (f->hasflag(ftype::nomutex)) {
             x = leave();
         }
+        error = nullptr;
         auto nread = f->read(b, buf_size);
         if (nread != buf_size) {
             set_error("getfile() failed to read entire file (read %lu vs expected %lu)", nread, buf_size);
@@ -4098,7 +4094,6 @@ ICI_DEFINE_CFUNCS(std)
     ICI_DEFINE_CFUNC(now,          f_now),
     ICI_DEFINE_CFUNC(calendar,     f_calendar),
     ICI_DEFINE_CFUNC(cputime,      f_cputime),
-    ICI_DEFINE_CFUNC(version,      f_version),
     ICI_DEFINE_CFUNC(sleep,        f_sleep),
     ICI_DEFINE_CFUNC(strbuf,       f_strbuf),
     ICI_DEFINE_CFUNC(strcat,       f_strcat),

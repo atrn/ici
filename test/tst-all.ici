@@ -1,10 +1,10 @@
-printf("%s\n", version());
+printf("%s\n", ici.version);
 
 var n;
 
-rpush(icipath, ".");
+rpush(ici.path, ".");
 
-rpush(icipath, "..");
+rpush(ici.path, "..");
 
 base := dirname(argv[0]);
 
@@ -12,7 +12,7 @@ base := dirname(argv[0]);
  * Use core extensions functions from this directory, even after we
  * change to the test directory.
  */
-rpush(icipath, base);
+rpush(ici.path, base);
 
 chdir(base);
 

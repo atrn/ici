@@ -23,7 +23,7 @@ prof()
     count2000();
 }
 
-if (version() ~ #prof#)
+if (ici.version ~ #prof#)
 {
     prof();
 

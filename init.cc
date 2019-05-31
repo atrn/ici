@@ -9,6 +9,13 @@
 #include "pcre.h"
 #include "archiver.h"
 
+# if defined(_WIN32)
+#  include <io.h>
+#else
+#  include <sys/types.h>
+#  include <unistd.h>
+#endif
+
 namespace ici
 {
 
@@ -117,16 +124,13 @@ int init()
         return 1;
     }
     vs.push(scope, with_decref);
-    if (init_path(externs)) {
+    if (mapici_init(externs)) {
         return 1;
     }
     for (cfp = ici_funcs; *cfp != nullptr; ++cfp) {
         if (assign_cfuncs(externs, *cfp)) {
             return 1;
         }
-    }
-    if (mapici_init(externs)) {
-        return 1;
     }
     if (sys_init(externs)) {
         return 1;
@@ -215,36 +219,186 @@ int check_interface(unsigned long mver, unsigned long bver, char const *name)
 
 }
 
+static                  int push_path_elements(array *a, const char *path); /* Forward. */
+#define PUSH(A, B)      if (push_path_elements((A), (B))) return 1
+
+/*
+ * Push one or more file names from path, seperated by the local system
+ * seperator character (eg. : or ;), onto a. Usual error conventions.
+ */
+static int push_path_elements(array *a, const char *path)
+{
+    const char  *p;
+    const char  *q;
+    str         *s;
+    object     **e;
+
+    for (p = path; *p != '\0'; p = *q == '\0' ? q : q + 1) {
+        if ((q = strchr(p, ICI_PATH_SEP)) == nullptr) {
+            q = p + strlen(p);
+        }
+        if ((s = new_str(p, q - p)) == nullptr) {
+            return 1;
+        }
+        /*
+         * Don't add duplicates...
+         */
+        for (e = a->a_base; e < a->a_top; ++e) {
+            if (*e == s) {
+                goto skip;
+            }
+        }
+        /*
+         * Don't add inaccessable dirs...
+         */
+        if (access(s->s_chars, 0) != 0) {
+            goto skip;
+        }
+        if (a->push_checked(s)) {
+            decref(s);
+            return 1;
+        }
+    skip:
+        decref(s);
+    }
+    return 0;
+}
+
+#if defined(_WIN32)
+/*
+ * Push path elements specific to Windows onto the array a (which is the ICI
+ * path array used for finding dynamically loaded modules and stuff). These
+ * are in addition to the ICIPATH environment variable. We try to mimic
+ * the search behaviour of LoadLibrary() (that being the Windows thing to
+ * do).
+ */
+static int push_os_path_elements(array *a)
+{
+    char                fname[MAX_PATH];
+    char                *p;
+
+    if (GetModuleFileName(nullptr, fname, sizeof fname - 10) > 0)
+    {
+        if ((p = strrchr(fname, ICI_DIR_SEP)) != nullptr)
+        {
+            *p = '\0';
+        }
+        PUSH(a, fname);
+        p = fname + strlen(fname);
+        *p++ = ICI_DIR_SEP;
+        strcpy(p, "ici");
+        PUSH(a, fname);
+    }
+    PUSH(a, ".");
+    if (GetSystemDirectory(fname, sizeof fname - 10) > 0)
+    {
+        PUSH(a, fname);
+        p = fname + strlen(fname);
+        *p++ = ICI_DIR_SEP;
+        strcpy(p, "ici");
+        PUSH(a, fname);
+    }
+    if (GetWindowsDirectory(fname, sizeof fname - 10) > 0)
+    {
+        PUSH(a, fname);
+        p = fname + strlen(fname);
+        *p++ = ICI_DIR_SEP;
+        strcpy(p, "ici");
+        PUSH(a, fname);
+    }
+    if ((p = getenv("PATH")) != nullptr)
+    {
+        PUSH(a, p);
+    }
+    return 0;
+}
+#else
+/*
+ * Assume a UNIX-like sytem.
+ *
+ * Push path elements specific to UNIX-like systems onto the array a (which
+ * is the ICI path array used for finding dynamically loaded modules and
+ * stuff). These are in addition to the ICIPATH environment variable.
+ */
+static int push_os_path_elements(array *a)
+{
+    char                *p;
+    char                *q;
+    char                *path;
+    char                fname[FILENAME_MAX];
+
+    PUSH(a, "/usr/lib/ici:/usr/local/lib/ici:/opt/lib/ici:/opt/ici/lib/ici:.");
+    if ((path = getenv("PATH")) != nullptr)
+    {
+        for (p = path; *p != '\0'; p = *q == '\0' ? q : q + 1)
+        {
+            if ((q = strchr(p, ':')) == nullptr)
+            {
+                q = p + strlen(p);
+            }
+            if (q - 4 < p || memcmp(q - 4, "/bin", 4) != 0 || q - p >= FILENAME_MAX - 10)
+            {
+                continue;
+            }
+            memcpy(fname, p, (q - p) - 4);
+            strcpy(fname + (q - p) - 4, "/lib/ici");
+            PUSH(a, fname);
+        }
+    }
+#   ifdef ICI_CONFIG_PREFIX
+    /*
+     * Put a configuration defined location on, if there is one..
+     */
+    PUSH(a, ICI_CONFIG_PREFIX "/lib/ici");
+#   endif
+    return 0;
+}
+#endif /* End of selection of which push_os_path_elements() to use */
+
+/*
+ * Set the path variable in externs to be an array of all the directories
+ * that should be searched in for ICI extension modules and stuff.
+ */
+ref<array> init_path()
+{
+    ref<array> a = new_array();
+    if (a)
+    {
+        if (char *path = getenv("ICIPATH"))
+        {
+            if (push_path_elements(a, path))
+            {
+                return nullptr;
+            }
+        }
+        push_os_path_elements(a);
+    }
+    return a;
+}
+
 static int mapici_init(objwsup *externs)
 {
+    ref<str> ver = new_str_nul_term(version_string);
+    if (!ver) {
+        return 1;
+    }
+    auto path = init_path();
+    if (!path) {
+        return 1;
+    }
     ref<map> mapici = new_map();
     if (!mapici) {
         return 1;
     }
-
-    ref<str> ver = new_str_nul_term(version_string);
     if (mapici->assign(SS(version), ver)) {
         return 1;
     }
-
-    auto icipath = externs->fetch(SS(icipath));
-    if (icipath == null) {
-        return set_error("'icipath' not defined");
-    }
-
-    if (mapici->assign(SS(path), icipath)) {
+    if (mapici->assign(SS(path), path)) {
         return 1;
     }
-
-    ref<str> mapkey = new_str_nul_term("ici");
-    if (!mapkey) {
+    if (externs->assign(SS(_ici), mapici)) {
         return 1;
     }
-
-    if (externs->assign(mapkey, mapici)) {
-        return 1;
-    }
-
     return 0;
 }
 

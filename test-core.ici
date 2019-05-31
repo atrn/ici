@@ -1454,14 +1454,20 @@ printf("misc...\n");
         fail("stdout is not a file");
     if (typeof(stderr) != "file")
         fail("stderr is not a file");
-    if (typeof(icipath) != "array")
-        fail("icipath is not an array");
-    if (len(icipath) == 0)
-        fail("icipath is empty");
-    forall (x in icipath)
+    if (typeof(ici) != "map")
+        fail("ici is not a map");
+    if (typeof(ici.version) != "string")
+        fail("ici.version is not a string");
+    if (len(ici.version) < 1)
+        fail("ici.version is empty");
+    if (typeof(ici.path) != "array")
+        fail("ici.path is not an array");
+    if (len(ici.path) == 0)
+        fail("ici.path is empty");
+    forall (x in ici.path)
     {
         if (typeof(x) != "string")
-            fail("icipath is not an array of strings");
+            fail("ici.path is not an array of strings");
     }
     if (typeof(argv) != "array")
         fail("argv is not an array");

@@ -1075,10 +1075,10 @@ if (typeof(now()) != "float")
 
 sleep(0.1);
 
-if (version() !~ #ICI#)
-    fail("bad version");
+if (ici.version !~ #ICI#)
+    fail("bad ici.version");
 
-if (version() ~ #pipes#)
+if (ici.version ~ #pipes#)
 {
     a := popen("echo hello", "r");
     if (typeof(a) != "file")

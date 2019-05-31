@@ -1,5 +1,15 @@
 Major Changes in Version 5
 
+*     version() has been removed, use ici.version
+
+*     a map called 'ici' is now defined in the default
+      extern scope and contains things related to the
+      interpreter as a whole. It currently has two
+      members,
+
+      - "path"    - array of strings replacing icipath
+      - "version" - string defining the interpreter version
+
 *     fail() with no arguments now fails with the
       error "failed".
 
