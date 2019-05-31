@@ -14,6 +14,7 @@
 #include "str.h"
 #include "int.h"
 #include "float.h"
+#include "frames.h"
 #include "map.h"
 #include "set.h"
 #include "op.h"
@@ -4003,6 +4004,28 @@ static int f_putenv() {
     return null_ret();
 }
 
+static int f_frames32() {
+    int64_t n;
+    if (typecheck("i", &n)) {
+        return 1;
+    }
+    if (n < 1) {
+        return set_error("%lld: invalid frames size", n);
+    }
+    return ret_with_decref(new_frames32(n));
+}
+
+static int f_frames64() {
+    int64_t n;
+    if (typecheck("i", &n)) {
+        return 1;
+    }
+    if (n < 1) {
+        return set_error("%lld: invalid frames size", n);
+    }
+    return ret_with_decref(new_frames64(n));
+}
+
 namespace {
     // non-overloaded trampolines to get an unambiguous function type
     double xsin(double a) { return sin(a); }
@@ -4143,6 +4166,8 @@ ICI_DEFINE_CFUNCS(std)
     ICI_DEFINE_CFUNC(rename,    f_rename),
     ICI_DEFINE_CFUNC(getenv,    f_getenv),
     ICI_DEFINE_CFUNC(putenv,    f_putenv),
+    ICI_DEFINE_CFUNC(frames32,  f_frames32),
+    ICI_DEFINE_CFUNC(frames64,  f_frames64),
     ICI_CFUNCS_END()
 };
 

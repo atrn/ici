@@ -1,0 +1,20 @@
+f1 := frames32(1000);
+
+if (f1.size != 1000) {
+    fail("f1.size");
+}
+
+if (len(f1) != 0) {
+    fail("len(f1) != 0");
+}
+
+f1[500] = 1.0;
+
+if (len(f1) != 501) {
+    fail("len");
+}
+
+f1.myprop = 28;
+if (f1.myprop != 28) {
+    fail("f1.myprop");
+}

@@ -9,6 +9,7 @@
 #include "file.h"
 #include "float.h"
 #include "forall.h"
+#include "frames.h"
 #include "func.h"
 #include "cfunc.h"
 #include "handle.h"
@@ -68,6 +69,8 @@ type *types[max_types] =
 #endif
     nullptr, // TC_REF is special, a reserved type code with no actual type
     instanceof<channel_type>(),
+    instanceof<frames32_type>(),
+    instanceof<frames64_type>(),
     nullptr
 };
 
