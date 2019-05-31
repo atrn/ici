@@ -46,6 +46,7 @@ set(ICI_SOURCES
   findpath.cc
   float.cc
   forall.cc
+  frames.cc
   ftype.cc
   func.cc
   handle.cc
@@ -107,6 +108,7 @@ set(ICI_SOURCES
   file.h
   float.h
   forall.h
+  frames.h
   ftype.h
   func.h
   fwd.h
