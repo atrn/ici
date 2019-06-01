@@ -1,8 +1,29 @@
 Major Changes in Version 5
 
+*     Two new types have been added - frames32 and frame64.
+
+      A _frames_ type is an array of some C type, currently
+      float or double being supported providing for _vectors_
+      of 32-bit or 64-bit floating point data.
+
+      A number of operators are defined on frames allowing users to
+      perform simple _vector_ operations, operations made upon all the
+      values in the frame. The intent is these operations can be
+      vectorized for higher performance with perhaps explicit
+      support for so-called _performance libraries_.
+
+      The forall statement works with frames. This allows
+      for statements such as,
+
+        block := frames32(4800)
+        ... fill block
+        forall (sample in block) {
+           ...  process sample
+        }
+
 *     version() has been removed, use ici.version
 
-*     a map called 'ici' is now defined in the default
+*     a map called 'ici' is now defined in the default1
       extern scope and contains things related to the
       interpreter as a whole. It currently has two
       members,
