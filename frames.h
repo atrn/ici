@@ -34,10 +34,10 @@ namespace ici
 template <typename DATA>
 struct frames : object
 {
-    size_t      _size;          // number of floats
-    size_t      _count;         // user-defined 'length'
-    DATA *     _ptr;           // pointer to _size floats
-    map *       _props;         // user-defined "properties"
+    size_t      _size;          // total capacity
+    size_t      _count;         // current length
+    DATA *      _ptr;           // pointer to _size DATA
+    map *       _props;         // user-defined properties
 
     const DATA * data() const
     {
@@ -49,6 +49,15 @@ struct frames : object
         return _ptr;
     }
 
+    void fill(DATA value)
+    {
+        for (size_t i = 0; i < _size; ++i)
+        {
+            _ptr[i] = value;
+        }
+        _count = _size;
+    }
+
     const DATA & operator[](size_t index) const
     {
         return _ptr[index];
@@ -57,6 +66,42 @@ struct frames : object
     DATA & operator[](size_t index)
     {
         return _ptr[index];
+    }
+
+    frames & operator+=(DATA scalar)
+    {
+        for (size_t index = 0; index < _count; ++index)
+        {
+            _ptr[index] += scalar;
+        }
+        return *this;
+    }
+
+    frames & operator-=(DATA scalar)
+    {
+        for (size_t index = 0; index < _count; ++index)
+        {
+            _ptr[index] -= scalar;
+        }
+        return *this;
+    }
+
+    frames & operator*=(DATA scalar)
+    {
+        for (size_t index = 0; index < _count; ++index)
+        {
+            _ptr[index] *= scalar;
+        }
+        return *this;
+    }
+
+    frames & operator/=(DATA scalar)
+    {
+        for (size_t index = 0; index < _count; ++index)
+        {
+            _ptr[index] /= scalar;
+        }
+        return *this;
     }
 };
 

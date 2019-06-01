@@ -1,6 +1,6 @@
 .PHONY: test clean
 
-ici?=ici
+ici?=	LD_LIBRARY_PATH=.. DYLD_LIBRARY_PATH=.. ICIPATH=.. ../ici
 
 test:;	-@$(ici) tst-all.ici
 

@@ -564,7 +564,6 @@ constexpr uint8_t TC_PTR =          11;
 constexpr uint8_t TC_ARRAY =        12;
 constexpr uint8_t TC_MAP =          13;
 constexpr uint8_t TC_SET =          14;
-constexpr uint8_t TC_MAX_BINOP =    14; /* Max of 15 for binary op args. */
 constexpr uint8_t TC_EXEC =         15;
 constexpr uint8_t TC_FILE =         16;
 constexpr uint8_t TC_FUNC =         17;
@@ -580,6 +579,7 @@ constexpr uint8_t TC_CHANNEL =      26;
 constexpr uint8_t TC_FRAMES32 =     27;
 constexpr uint8_t TC_FRAMES64 =     28;
 constexpr uint8_t TC_MAX_CORE =     28;
+// constexpr uint8_t TC_MAX_BINOP =    TC_FRAMES64;
 
 /*
  * End of ici.h export. --ici.h-end--

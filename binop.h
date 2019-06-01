@@ -80,9 +80,9 @@
     o0 = os.a_top[-2];
     o1 = os.a_top[-1];
     can_temp = opof(o)->op_ecode == OP_BINOP_FOR_TEMP;
-    if (o0->o_tcode > TC_MAX_BINOP || o1->o_tcode > TC_MAX_BINOP) {
-        goto others;
-    }
+    // if (o0->o_tcode > TC_MAX_BINOP || o1->o_tcode > TC_MAX_BINOP) {
+    //     goto others;
+    // }
     switch (ICI_TRI(o0->o_tcode, o1->o_tcode, opof(o)->op_code)) {
     /*
      * Pure integer operations.
@@ -694,8 +694,104 @@
         }
         USE0();
 
+    case ICI_TRI(TC_FRAMES32, TC_INT, T_PLUS):
+    case ICI_TRI(TC_FRAMES32, TC_INT, T_PLUSEQ):
+        (*frames32of(o0)) += intof(o1)->i_value;
+        o = o0;
+        USEo();
+
+    case ICI_TRI(TC_FRAMES32, TC_INT, T_MINUS):
+    case ICI_TRI(TC_FRAMES32, TC_INT, T_MINUSEQ):
+        (*frames32of(o0)) -= intof(o1)->i_value;
+        o = o0;
+        USEo();
+
+    case ICI_TRI(TC_FRAMES32, TC_INT, T_ASTERIX):
+    case ICI_TRI(TC_FRAMES32, TC_INT, T_ASTERIXEQ):
+        (*frames32of(o0)) *= intof(o1)->i_value;
+        o = o0;
+        USEo();
+
+    case ICI_TRI(TC_FRAMES32, TC_INT, T_SLASH):
+    case ICI_TRI(TC_FRAMES32, TC_INT, T_SLASHEQ):
+        (*frames32of(o0)) /= intof(o1)->i_value;
+        o = o0;
+        USEo();
+
+    case ICI_TRI(TC_FRAMES32, TC_FLOAT, T_PLUS):
+    case ICI_TRI(TC_FRAMES32, TC_FLOAT, T_PLUSEQ):
+        (*frames32of(o0)) += floatof(o1)->f_value;
+        o = o0;
+        USEo();
+
+    case ICI_TRI(TC_FRAMES32, TC_FLOAT, T_MINUS):
+    case ICI_TRI(TC_FRAMES32, TC_FLOAT, T_MINUSEQ):
+        (*frames32of(o0)) -= floatof(o1)->f_value;
+        o = o0;
+        USEo();
+
+    case ICI_TRI(TC_FRAMES32, TC_FLOAT, T_ASTERIX):
+    case ICI_TRI(TC_FRAMES32, TC_FLOAT, T_ASTERIXEQ):
+        (*frames32of(o0)) *= floatof(o1)->f_value;
+        o = o0;
+        USEo();
+
+    case ICI_TRI(TC_FRAMES32, TC_FLOAT, T_SLASH):
+    case ICI_TRI(TC_FRAMES32, TC_FLOAT, T_SLASHEQ):
+        (*frames32of(o0)) /= floatof(o1)->f_value;
+        o = o0;
+        USEo();
+
+    case ICI_TRI(TC_FRAMES64, TC_INT, T_PLUS):
+    case ICI_TRI(TC_FRAMES64, TC_INT, T_PLUSEQ):
+        (*frames64of(o0)) += intof(o1)->i_value;
+        o = o0;
+        USEo();
+
+    case ICI_TRI(TC_FRAMES64, TC_INT, T_MINUS):
+    case ICI_TRI(TC_FRAMES64, TC_INT, T_MINUSEQ):
+        (*frames64of(o0)) -= intof(o1)->i_value;
+        o = o0;
+        USEo();
+
+    case ICI_TRI(TC_FRAMES64, TC_INT, T_ASTERIX):
+    case ICI_TRI(TC_FRAMES64, TC_INT, T_ASTERIXEQ):
+        (*frames64of(o0)) *= intof(o1)->i_value;
+        o = o0;
+        USEo();
+
+    case ICI_TRI(TC_FRAMES64, TC_INT, T_SLASH):
+    case ICI_TRI(TC_FRAMES64, TC_INT, T_SLASHEQ):
+        (*frames64of(o0)) /= intof(o1)->i_value;
+        o = o0;
+        USEo();
+
+    case ICI_TRI(TC_FRAMES64, TC_FLOAT, T_PLUS):
+    case ICI_TRI(TC_FRAMES64, TC_FLOAT, T_PLUSEQ):
+        (*frames64of(o0)) += floatof(o1)->f_value;
+        o = o0;
+        USEo();
+
+    case ICI_TRI(TC_FRAMES64, TC_FLOAT, T_MINUS):
+    case ICI_TRI(TC_FRAMES64, TC_FLOAT, T_MINUSEQ):
+        (*frames64of(o0)) -= floatof(o1)->f_value;
+        o = o0;
+        USEo();
+
+    case ICI_TRI(TC_FRAMES64, TC_FLOAT, T_ASTERIX):
+    case ICI_TRI(TC_FRAMES64, TC_FLOAT, T_ASTERIXEQ):
+        (*frames64of(o0)) *= floatof(o1)->f_value;
+        o = o0;
+        USEo();
+
+    case ICI_TRI(TC_FRAMES64, TC_FLOAT, T_SLASH):
+    case ICI_TRI(TC_FRAMES64, TC_FLOAT, T_SLASHEQ):
+        (*frames64of(o0)) /= floatof(o1)->f_value;
+        o = o0;
+        USEo();
+
     default:
-    others:
+//  others:
         switch (opof(o)->op_code) {
         case t_subtype(T_PLUSEQ):
 	    if (o0->o_tcode == TC_SET) {

@@ -4006,24 +4006,52 @@ static int f_putenv() {
 
 static int f_frames32() {
     int64_t n;
-    if (typecheck("i", &n)) {
+    double filler;
+    bool fill = false;
+
+    if (NARGS() == 1) {
+        if (typecheck("i", &n)) {
+            return 1;
+        }
+    } else if (typecheck("in", &n, &filler)) {
         return 1;
+    } else {
+        fill = true;
     }
     if (n < 1) {
         return set_error("%lld: invalid frames size", n);
     }
-    return ret_with_decref(new_frames32(n));
+    auto f = new_frames32(n);
+    if (fill)
+    {
+        f->fill(static_cast<float>(filler));
+    }
+    return ret_with_decref(f);
 }
 
 static int f_frames64() {
     int64_t n;
-    if (typecheck("i", &n)) {
+    double filler;
+    bool fill = false;
+
+    if (NARGS() == 1) {
+        if (typecheck("i", &n)) {
+            return 1;
+        }
+    } else if (typecheck("in", &n, &filler)) {
         return 1;
+    } else {
+        fill = true;
     }
     if (n < 1) {
         return set_error("%lld: invalid frames size", n);
     }
-    return ret_with_decref(new_frames64(n));
+    auto f = new_frames64(n);
+    if (fill)
+    {
+        f->fill(filler);
+    }
+    return ret_with_decref(f);
 }
 
 namespace {

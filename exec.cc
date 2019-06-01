@@ -14,6 +14,7 @@
 #include "set.h"
 #include "parse.h"
 #include "float.h"
+#include "frames.h"
 #include "re.h"
 #include "method.h"
 #include "mark.h"
