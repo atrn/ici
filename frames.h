@@ -34,6 +34,8 @@ namespace ici
 template <typename DATA>
 struct frames : object
 {
+    typedef DATA data_type;
+
     size_t      _size;          // total capacity
     size_t      _count;         // current length
     DATA *      _ptr;           // pointer to _size DATA
