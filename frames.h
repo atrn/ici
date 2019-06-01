@@ -130,6 +130,7 @@ struct frames32_type : ici::type
     int64_t len(ici::object *o) override;
     ici::object *fetch(ici::object *o, ici::object *k) override;
     int assign(ici::object *o, ici::object *k, ici::object *v) override;
+    int forall(object *) override;
 };
 
 struct frames64_type : ici::type
@@ -141,6 +142,7 @@ struct frames64_type : ici::type
     int64_t len(ici::object *o) override;
     ici::object *fetch(ici::object *o, ici::object *k) override;
     int assign(ici::object *o, ici::object *k, ici::object *v) override;
+    int forall(object *) override;
 };
 
 } // namespace ici

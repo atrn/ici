@@ -10,7 +10,6 @@ The basic types are there, and functions to get them but that's
 about all. They need:
 
 - literal form  -> [frames32 1, 2.0, 3.134, ....];
-- forall
 - serialization
 - I/O (printf)
 

@@ -2,7 +2,9 @@
 #include "frames.h"
 #include "int.h"
 #include "float.h"
+#include "forall.h"
 #include "map.h"
+#include "null.h"
 #include "str.h"
 
 namespace ici
@@ -14,10 +16,9 @@ template struct frames<double>;
 namespace
 {
 
-template <typename T, const int TCODE>
-T *new_frames(size_t nframes)
+template <typename frame, const int typecode> frame *new_frames(size_t nframes)
 {
-    auto f = ici_talloc<T>();
+    auto f = ici_talloc<frame>();
     if (!f)
     {
         return nullptr;
@@ -28,21 +29,20 @@ T *new_frames(size_t nframes)
         ici_free(f);
         return nullptr;
     }
-    f->_ptr = static_cast<typename T::data_type *>(ici_alloc(nframes * sizeof (typename T::data_type)));
+    f->_ptr = static_cast<typename frame::data_type *>(ici_alloc(nframes * sizeof (typename frame::data_type)));
     if (!f->_ptr)
     {
         ici_free(f);
         return nullptr;
     }
-    f->set_tfnz(TCODE, 0, 1, 0);
+    f->set_tfnz(typecode, 0, 1, 0);
     f->_size = nframes;
     f->_count = 0;
     rego(f);
     return f;
 }
 
-template <typename FRAME>
-object *dofetch(FRAME *f, object *k)
+template <typename frame> object *dofetch(frame *f, object *k)
 {
     if (isint(k))
     {
@@ -58,19 +58,21 @@ object *dofetch(FRAME *f, object *k)
         }
         return new_float((*f)[ofs]);
     }
+
     if (k == SS(count))
     {
         return new_int(f->_count);
     }
+
     if (k == SS(size))
     {
         return new_int(f->_size);
     }
+
     return f->_props->fetch(k);
 }
 
-template <typename FRAME>
-int doassign(FRAME *f, object *k, object *v)
+template <typename frame> int doassign(frame *f, object *k, object *v)
 {
     if (isint(k))
     {
@@ -89,13 +91,13 @@ int doassign(FRAME *f, object *k, object *v)
         }
         if (isint(v))
         {
-            (*f)[ofs] = static_cast<typename FRAME::data_type>(intof(v)->i_value);
+            (*f)[ofs] = static_cast<typename frame::data_type>(intof(v)->i_value);
             ++f->_count;
             return 0;
         }
         if (isfloat(v))
         {
-            (*f)[ofs] = static_cast<typename FRAME::data_type>(floatof(v)->f_value);
+            (*f)[ofs] = static_cast<typename frame::data_type>(floatof(v)->f_value);
             ++f->_count;
             return 0;
         }
@@ -124,6 +126,34 @@ int doassign(FRAME *f, object *k, object *v)
     return f->_props->assign(k, v);
 }
 
+template <typename frame> int doforall(object *o)
+{
+    auto     fa = forallof(o);
+
+    auto f = static_cast<frame *>(fa->fa_aggr);
+    if (++fa->fa_index >= f->_count) {
+        return -1;
+    }
+    if (fa->fa_vaggr != null) {
+        auto v = make_ref(new_float(f->_ptr[fa->fa_index]));
+        if (!v)
+            return 1;
+        if (ici_assign(fa->fa_vaggr, fa->fa_vkey, v)) {
+            return 1;
+        }
+    }
+    if (fa->fa_kaggr != null) {
+        integer *i;
+        if ((i = make_ref(new_int((long)fa->fa_index))) == nullptr) {
+            return 1;
+        }
+        if (ici_assign(fa->fa_kaggr, fa->fa_kkey, i)) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
 } // anon
 
 
@@ -132,8 +162,8 @@ int doassign(FRAME *f, object *k, object *v)
 size_t frames32_type::mark(object *o)
 {
     return type::mark(o)
-        + frames32of(o)->_size * sizeof (frames32::data_type)
-        + frames32of(o)->_props->mark();
+        + frames32of(o)->_props->mark()
+        + frames32of(o)->_size * sizeof (frames32::data_type);
 }
 
 void frames32_type::free(object *o)
@@ -157,6 +187,11 @@ int frames32_type::assign(object *o, object *k, object *v)
     return doassign(frames32of(o), k, v);
 }
 
+int frames32_type::forall(object *o)
+{
+    return doforall<frames32>(o);
+}
+
 frames32 *new_frames32(size_t nframes)
 {
     return new_frames<frames32, TC_FRAMES32>(nframes);
@@ -167,8 +202,8 @@ frames32 *new_frames32(size_t nframes)
 size_t frames64_type::mark(object *o)
 {
     return type::mark(o)
-        + frames64of(o)->_size * sizeof(frames64::data_type)
-        + frames64of(o)->_props->mark();
+        + frames64of(o)->_props->mark()
+        + frames64of(o)->_size * sizeof(frames64::data_type);
 }
 
 void frames64_type::free(object *o)
@@ -190,6 +225,11 @@ object *frames64_type::fetch(object *o, object *k)
 int frames64_type::assign(object *o, object *k, object *v)
 {
     return doassign(frames64of(o), k, v);
+}
+
+int frames64_type::forall(object *o)
+{
+    return doforall<frames64>(o);
 }
 
 frames64 *new_frames64(size_t nframes)
