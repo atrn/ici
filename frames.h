@@ -17,19 +17,53 @@ namespace ici
  *  maximum size and allocates that many elements of the underlying
  *  type.
  *
- *  A frames has a 'count' intended to _count_ the amount of data in the frame.
+ *  The data values held in a frames are accessed by indexing the
+ *  frames object with integer keys, the value's _offset_ within
+ *  the frames array. Both reading (fetch) and writing (assign)
+ *  are supported.
  *
- *  The size of a frames may be obtained by indexing the frames
- *  object with the key "size".
+ *  A frames object has two important attributes, its 'size' and what
+ *  is called its 'count'.  The 'size' is maximum number of values able
+ *  to be held in the frame and is defined when the frames object
+ *  is created.
  *
- *  A 'frames' _len_, as returned by the ICI len() function, is
- *  the count of the frames.
+ *  The 'count' counts the actual number of values held in the frame.
+ *  When a frames object is first created it has a count of 0. Adding
+ *  data to the frame increases the count, up to the frames size.
  *
- *  Access to a frame's data is performed by indexing the frame
- *  using integer keys (array indices).
+ *  A 'frames' _len_, as returned by the ICI len() function, is the
+ *  frames' 'count'.  The size of a frames, its maximum _len_, is
+ *  obtained by indexing the frames object with the key "size".
+ *  Attempting to assign to a frames' "size" is an error.
  *
- *  Other non-integer keys, usually strings, are used to access
- *  user-defined _properties_ held in an associated map object.
+ *  Reading values from a frames object, via indexing with an integer
+ *  key, is limited to reading values up to the frames' count'.
+ *  I.e. it is not possible to read data values that have not been
+ *  set.
+ *
+ *  Writing values to a frames object extends its 'count'.  Any value
+ *  in the frames, up to its size, may be assigned a numeric value.
+ *  If the value being assigned is beyond of the frames' current count
+ *  values between the 'count' and the new value are filled with zero
+ *  values. Following the assignment to value at offset i the frames
+ *  object will have a 'count' of i+1. The maximum writable position
+ *  being equal to 'frames.size - 1'.
+ *
+ *  Additionally a frames' 'count' may be retrieved by indexing the
+ *  frames object with "count".  Assigning to a frames' "count" IS
+ *  permitted and functions in a similar manner to indexed assignment.
+ *  The 'count' may only be set to values from 0 to the frames' size
+ *  and extending the 'count' beyonds its current value writes zeros
+ *  to the now accessible values.
+ *
+ *  Properties
+ *
+ *  In addition to its array of values a frames object also has a map
+ *  used to hold user-defined _properties_.  When a frames object is
+ *  indexed by keys other than integers or the strings "size" and
+ *  "count" it forwards the access to the frames' properties map
+ *  allowing users to define, almost, arbitrary collections of
+ *  properies to associate with the frames object.
  */
 template <int TYPE_CODE, typename VALUE_TYPE>
 struct frames : object
