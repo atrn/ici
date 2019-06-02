@@ -16,9 +16,9 @@ template struct frames<TC_FRAMES64, double>;
 namespace
 {
 
-template <typename frame> frame *new_frames(size_t nframes)
+template <typename frames> frames *new_frames(size_t nframes)
 {
-    auto f = ici_talloc<frame>();
+    auto f = ici_talloc<frames>();
     if (!f)
     {
         return nullptr;
@@ -29,20 +29,20 @@ template <typename frame> frame *new_frames(size_t nframes)
         ici_free(f);
         return nullptr;
     }
-    f->_ptr = static_cast<typename frame::value_type *>(ici_alloc(nframes * sizeof (typename frame::value_type)));
+    f->_ptr = static_cast<typename frames::value_type *>(ici_alloc(nframes * sizeof (typename frames::value_type)));
     if (!f->_ptr)
     {
         ici_free(f);
         return nullptr;
     }
-    f->set_tfnz(frame::type_code, 0, 1, 0);
+    f->set_tfnz(frames::type_code, 0, 1, 0);
     f->_size = nframes;
     f->_count = 0;
     rego(f);
     return f;
 }
 
-template <typename frame> object *dofetch(frame *f, object *k)
+template <typename frames> object *dofetch(frames *f, object *k)
 {
     if (isint(k))
     {
@@ -72,7 +72,7 @@ template <typename frame> object *dofetch(frame *f, object *k)
     return f->_props->fetch(k);
 }
 
-template <typename frame> int doassign(frame *f, object *k, object *v)
+template <typename frames> int doassign(frames *f, object *k, object *v)
 {
     if (isint(k))
     {
@@ -91,13 +91,13 @@ template <typename frame> int doassign(frame *f, object *k, object *v)
         }
         if (isint(v))
         {
-            (*f)[ofs] = static_cast<typename frame::value_type>(intof(v)->i_value);
+            (*f)[ofs] = static_cast<typename frames::value_type>(intof(v)->i_value);
             ++f->_count;
             return 0;
         }
         if (isfloat(v))
         {
-            (*f)[ofs] = static_cast<typename frame::value_type>(floatof(v)->f_value);
+            (*f)[ofs] = static_cast<typename frames::value_type>(floatof(v)->f_value);
             ++f->_count;
             return 0;
         }
@@ -126,11 +126,11 @@ template <typename frame> int doassign(frame *f, object *k, object *v)
     return f->_props->assign(k, v);
 }
 
-template <typename frame> int doforall(object *o)
+template <typename frames> int doforall(object *o)
 {
     auto     fa = forallof(o);
 
-    auto f = static_cast<frame *>(fa->fa_aggr);
+    auto f = static_cast<frames *>(fa->fa_aggr);
     if (++fa->fa_index >= f->_count) {
         return -1;
     }
