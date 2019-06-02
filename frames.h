@@ -31,27 +31,28 @@ namespace ici
  *  Other non-integer keys, usually strings, are used to access
  *  user-defined _properties_ held in an associated map object.
  */
-template <typename DATA>
+template <int TYPE_CODE, typename VALUE_TYPE>
 struct frames : object
 {
-    typedef DATA data_type;
+    typedef VALUE_TYPE value_type;
+    constexpr static auto type_code = TYPE_CODE;
 
     size_t      _size;          // total capacity
     size_t      _count;         // current length
-    DATA *      _ptr;           // pointer to _size DATA
+    value_type *_ptr;           // pointer to _size value_type's
     map *       _props;         // user-defined properties
 
-    const DATA * data() const
+    const value_type * data() const
     {
         return _ptr;
     }
 
-    DATA * data()
+    value_type * data()
     {
         return _ptr;
     }
 
-    void fill(DATA value)
+    void fill(value_type value)
     {
         for (size_t i = 0; i < _size; ++i)
         {
@@ -60,17 +61,17 @@ struct frames : object
         _count = _size;
     }
 
-    const DATA & operator[](size_t index) const
+    const value_type & operator[](size_t index) const
     {
         return _ptr[index];
     }
 
-    DATA & operator[](size_t index)
+    value_type & operator[](size_t index)
     {
         return _ptr[index];
     }
 
-    frames & operator+=(DATA scalar)
+    frames & operator+=(value_type scalar)
     {
         for (size_t index = 0; index < _count; ++index)
         {
@@ -79,7 +80,7 @@ struct frames : object
         return *this;
     }
 
-    frames & operator-=(DATA scalar)
+    frames & operator-=(value_type scalar)
     {
         for (size_t index = 0; index < _count; ++index)
         {
@@ -88,7 +89,7 @@ struct frames : object
         return *this;
     }
 
-    frames & operator*=(DATA scalar)
+    frames & operator*=(value_type scalar)
     {
         for (size_t index = 0; index < _count; ++index)
         {
@@ -97,7 +98,7 @@ struct frames : object
         return *this;
     }
 
-    frames & operator/=(DATA scalar)
+    frames & operator/=(value_type scalar)
     {
         for (size_t index = 0; index < _count; ++index)
         {
@@ -107,15 +108,17 @@ struct frames : object
     }
 };
 
-using frames32 = frames<float>;
-inline frames32 *frames32of(ici::object *o) { return static_cast<frames32 *>(o); }
-inline bool isframes32(ici::object *o)  { return o->hastype(TC_FRAMES32); }
-frames32 * new_frames32(size_t);
+using frames32 = frames<TC_FRAMES32, float>;
 
-using frames64 = frames<double>;
+inline frames32 *frames32of(ici::object *o) { return static_cast<frames32 *>(o); }
+inline bool      isframes32(ici::object *o) { return o->hastype(frames32::type_code); }
+frames32 *       new_frames32(size_t);
+
+using frames64 = frames<TC_FRAMES64, double>;
+
 inline frames64 *frames64of(ici::object *o) { return static_cast<frames64 *>(o); }
-inline bool isframes64(ici::object *o)  { return o->hastype(TC_FRAMES64); }
-frames64 * new_frames64(size_t);
+inline bool      isframes64(ici::object *o) { return o->hastype(frames64::type_code); }
+frames64 *       new_frames64(size_t);
 
 /*
  * End of ici.h export. --ici.h-end--

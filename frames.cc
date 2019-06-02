@@ -10,13 +10,13 @@
 namespace ici
 {
 
-template struct frames<float>;
-template struct frames<double>;
+template struct frames<TC_FRAMES32, float>;
+template struct frames<TC_FRAMES64, double>;
 
 namespace
 {
 
-template <typename frame, const int typecode> frame *new_frames(size_t nframes)
+template <typename frame> frame *new_frames(size_t nframes)
 {
     auto f = ici_talloc<frame>();
     if (!f)
@@ -29,13 +29,13 @@ template <typename frame, const int typecode> frame *new_frames(size_t nframes)
         ici_free(f);
         return nullptr;
     }
-    f->_ptr = static_cast<typename frame::data_type *>(ici_alloc(nframes * sizeof (typename frame::data_type)));
+    f->_ptr = static_cast<typename frame::value_type *>(ici_alloc(nframes * sizeof (typename frame::value_type)));
     if (!f->_ptr)
     {
         ici_free(f);
         return nullptr;
     }
-    f->set_tfnz(typecode, 0, 1, 0);
+    f->set_tfnz(frame::type_code, 0, 1, 0);
     f->_size = nframes;
     f->_count = 0;
     rego(f);
@@ -91,13 +91,13 @@ template <typename frame> int doassign(frame *f, object *k, object *v)
         }
         if (isint(v))
         {
-            (*f)[ofs] = static_cast<typename frame::data_type>(intof(v)->i_value);
+            (*f)[ofs] = static_cast<typename frame::value_type>(intof(v)->i_value);
             ++f->_count;
             return 0;
         }
         if (isfloat(v))
         {
-            (*f)[ofs] = static_cast<typename frame::data_type>(floatof(v)->f_value);
+            (*f)[ofs] = static_cast<typename frame::value_type>(floatof(v)->f_value);
             ++f->_count;
             return 0;
         }
@@ -163,7 +163,7 @@ size_t frames32_type::mark(object *o)
 {
     return type::mark(o)
         + frames32of(o)->_props->mark()
-        + frames32of(o)->_size * sizeof (frames32::data_type);
+        + frames32of(o)->_size * sizeof (frames32::value_type);
 }
 
 void frames32_type::free(object *o)
@@ -194,7 +194,7 @@ int frames32_type::forall(object *o)
 
 frames32 *new_frames32(size_t nframes)
 {
-    return new_frames<frames32, TC_FRAMES32>(nframes);
+    return new_frames<frames32>(nframes);
 }
 
 //  ----------------------------------------------------------------
@@ -203,7 +203,7 @@ size_t frames64_type::mark(object *o)
 {
     return type::mark(o)
         + frames64of(o)->_props->mark()
-        + frames64of(o)->_size * sizeof(frames64::data_type);
+        + frames64of(o)->_size * sizeof(frames64::value_type);
 }
 
 void frames64_type::free(object *o)
@@ -234,7 +234,7 @@ int frames64_type::forall(object *o)
 
 frames64 *new_frames64(size_t nframes)
 {
-    return new_frames<frames64, TC_FRAMES64>(nframes);
+    return new_frames<frames64>(nframes);
 }
 
 } // namespace ici
