@@ -85,11 +85,13 @@ public:
     int read(int16_t *hword);
     int read(int32_t *aword);
     int read(int64_t *dword);
+    int read(float *flt);
     int read(double *dbl);
 
     int write(int16_t hword);
     int write(int32_t aword);
     int write(int64_t dword);
+    int write(float aflt);
     int write(double adbl);
 
     int push_name(str *);

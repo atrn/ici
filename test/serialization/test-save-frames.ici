@@ -1,0 +1,9 @@
+file = fopen(test.data_file(), "w");
+Z := 1937;
+f := frames32(Z);
+for (i := 0; i < Z; ++i)
+{
+    f[i] = pi * (i+1);
+}
+save(f, file);
+close(file);

@@ -6,6 +6,7 @@
 #include "map.h"
 #include "null.h"
 #include "str.h"
+#include "archiver.h"
 
 namespace ici
 {
@@ -16,18 +17,26 @@ template struct frames<TC_FRAMES64, double>;
 namespace
 {
 
-template <typename frames> frames *new_frames(size_t nframes)
+template <typename frames> frames *new_frames(size_t nframes, size_t count, object *props)
 {
     auto f = ici_talloc<frames>();
     if (!f)
     {
         return nullptr;
     }
-    f->_props = new_map();
-    if (!f->_props)
+    if (props)
     {
-        ici_free(f);
-        return nullptr;
+        assert(ismap(props));
+        f->_props = mapof(props);
+    }
+    else
+    {
+        f->_props = new_map();
+        if (!f->_props)
+        {
+            ici_free(f);
+            return nullptr;
+        }
     }
     f->_ptr = static_cast<typename frames::value_type *>(ici_alloc(nframes * sizeof (typename frames::value_type)));
     if (!f->_ptr)
@@ -37,7 +46,7 @@ template <typename frames> frames *new_frames(size_t nframes)
     }
     f->set_tfnz(frames::type_code, 0, 1, 0);
     f->_size = nframes;
-    f->_count = 0;
+    f->_count = count;
     rego(f);
     return f;
 }
@@ -154,7 +163,76 @@ template <typename frames> int doforall(object *o)
     return 0;
 }
 
+template <typename frames> int dosave(archiver *ar, frames *f)
+{
+    if (ar->save_name(f)) {
+        return 1;
+    }
+    int64_t size = f->_size;
+    if (ar->write(size)) {
+        return 1;
+    }
+    int64_t count = f->_count;
+    if (ar->write(count)) {
+        return 1;
+    }
+    if (ar->save(f->_props)) {
+        return 1;
+    }
+    for (size_t i = 0; i < f->_count; ++i) {
+        if (ar->write(f->_ptr[i])) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+template <typename frames> object *dorestore(archiver *ar)
+{
+    object *oname;
+    int64_t size;
+    int64_t count;
+    object *props;
+
+    if (ar->restore_name(&oname)) {
+        return nullptr;
+    }
+    if (ar->read(&size)) {
+        return nullptr;
+    }
+    if (ar->read(&count)) {
+        return nullptr;
+    }
+    if ((props = ar->restore()) == nullptr) {
+        ar->remove(oname);
+        return nullptr;
+    }
+    if (!ismap(props)) {
+        set_error("restored properties is not a map");
+        return nullptr;
+    }
+    if (count > size) {
+        set_error("count greater than size");
+        return nullptr;
+    }
+
+    auto f = make_ref<frames>(new_frames<frames>(size, count, props));
+    if (ar->record(oname, f)) {
+        return nullptr;
+    }
+
+    for (size_t i = 0; i < f->_count; ++i)
+    {
+        if (ar->read(&f->_ptr[i]))
+        {
+            return nullptr;
+        }
+    }
+    return f;
+}
+
 } // anon
+
 
 
 //  ----------------------------------------------------------------
@@ -192,9 +270,19 @@ int frames32_type::forall(object *o)
     return doforall<frames32>(o);
 }
 
-frames32 *new_frames32(size_t nframes)
+int frames32_type::save(archiver *ar, object *o)
 {
-    return new_frames<frames32>(nframes);
+    return dosave(ar, frames32of(o));
+}
+
+object * frames32_type::restore(archiver *ar)
+{
+    return dorestore<frames32>(ar);
+}
+
+frames32 *new_frames32(size_t nframes, size_t count, object *props)
+{
+    return new_frames<frames32>(nframes, count, props);
 }
 
 //  ----------------------------------------------------------------
@@ -232,9 +320,19 @@ int frames64_type::forall(object *o)
     return doforall<frames64>(o);
 }
 
-frames64 *new_frames64(size_t nframes)
+int frames64_type::save(archiver *ar, object *o)
 {
-    return new_frames<frames64>(nframes);
+    return dosave(ar, frames64of(o));
+}
+
+object * frames64_type::restore(archiver *ar)
+{
+    return dorestore<frames64>(ar);
+}
+
+frames64 *new_frames64(size_t nframes, size_t count, object *props)
+{
+    return new_frames<frames64>(nframes, count, props);
 }
 
 } // namespace ici

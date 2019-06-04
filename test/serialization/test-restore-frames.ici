@@ -1,0 +1,24 @@
+f := test.restore_of("frames32");
+Z := 1937;
+if (typeof(f) != "frames32")
+{
+    fail("didn't restore a frames32");
+}
+if (f.size != Z)
+{
+    fail(sprintf("unexpected size: %d", f.size));
+}
+if (f.count != f.size)
+{
+    fail(sprintf("unexpected count: %d", f.count));
+}
+for (i := 0; i < Z; ++i)
+{
+    actual := f[i];
+    expected := pi * (i+1);
+    diff := abs(actual - expected);
+    if (diff > 0.001)
+    {
+        fail(sprintf("element %d: expected %.6f got %.6f", i, expected, actual));
+    }
+}

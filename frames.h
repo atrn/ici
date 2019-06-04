@@ -146,13 +146,13 @@ using frames32 = frames<TC_FRAMES32, float>;
 
 inline frames32 *frames32of(ici::object *o) { return static_cast<frames32 *>(o); }
 inline bool      isframes32(ici::object *o) { return o->hastype(frames32::type_code); }
-frames32 *       new_frames32(size_t);
+frames32 *       new_frames32(size_t, size_t = 0, object * = nullptr);
 
 using frames64 = frames<TC_FRAMES64, double>;
 
 inline frames64 *frames64of(ici::object *o) { return static_cast<frames64 *>(o); }
 inline bool      isframes64(ici::object *o) { return o->hastype(frames64::type_code); }
-frames64 *       new_frames64(size_t);
+frames64 *       new_frames64(size_t, size_t = 0, object * = nullptr);
 
 /*
  * End of ici.h export. --ici.h-end--
@@ -168,6 +168,8 @@ struct frames32_type : ici::type
     ici::object *fetch(ici::object *o, ici::object *k) override;
     int assign(ici::object *o, ici::object *k, ici::object *v) override;
     int forall(object *) override;
+    int save(archiver *, object *) override;
+    object * restore(archiver *) override;
 };
 
 struct frames64_type : ici::type
@@ -180,6 +182,8 @@ struct frames64_type : ici::type
     ici::object *fetch(ici::object *o, ici::object *k) override;
     int assign(ici::object *o, ici::object *k, ici::object *v) override;
     int forall(object *) override;
+    int save(archiver *, object *) override;
+    object * restore(archiver *) override;
 };
 
 } // namespace ici

@@ -302,6 +302,14 @@ int archiver::read(int64_t *dword) {
     return 0;
 }
 
+int archiver::read(float *flt) {
+    if (read(flt, sizeof *flt)) {
+        return 1;
+    }
+    swapin(flt, sizeof *flt);
+    return 0;
+}
+
 int archiver::read(double *dbl) {
     if (read(dbl, sizeof *dbl)) {
         return 1;
@@ -323,6 +331,11 @@ int archiver::write(int32_t aword) {
 int archiver::write(int64_t dword) {
     swapout(&dword, sizeof dword);
     return write(&dword, sizeof dword);
+}
+
+int archiver::write(float v) {
+    swapout(&v, sizeof v);
+    return write(&v, sizeof v);
 }
 
 int archiver::write(double v) {
