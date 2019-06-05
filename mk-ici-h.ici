@@ -16,7 +16,7 @@ incs := [array
     "int.h",
     "cfunc.h",
     "float.h",
-    "frames.h",
+    "vec.h",
     "exec.h",
     "ftype.h",
     "file.h",

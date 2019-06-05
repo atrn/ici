@@ -576,10 +576,10 @@ constexpr uint8_t TC_MEM =          23;
 constexpr uint8_t TC_PROFILECALL =  24;
 constexpr uint8_t TC_REF =          25; // serialized ref to previously saved object
 constexpr uint8_t TC_CHANNEL =      26;
-constexpr uint8_t TC_FRAMES32 =     27;
-constexpr uint8_t TC_FRAMES64 =     28;
+constexpr uint8_t TC_VEC32 =        27;
+constexpr uint8_t TC_VEC64 =        28;
 constexpr uint8_t TC_MAX_CORE =     28;
-// constexpr uint8_t TC_MAX_BINOP =    TC_FRAMES64;
+// constexpr uint8_t TC_MAX_BINOP =    TC_VEC64
 
 /*
  * End of ici.h export. --ici.h-end--

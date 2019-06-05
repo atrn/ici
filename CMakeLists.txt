@@ -46,7 +46,6 @@ set(ICI_SOURCES
   findpath.cc
   float.cc
   forall.cc
-  frames.cc
   ftype.cc
   func.cc
   handle.cc
@@ -91,6 +90,7 @@ set(ICI_SOURCES
   types.cc
   unary.cc
   uninit.cc
+  vec.cc
   win32err.cc
   win32timezone.cc
   alloc.h
@@ -108,7 +108,6 @@ set(ICI_SOURCES
   file.h
   float.h
   forall.h
-  frames.h
   ftype.h
   func.h
   fwd.h
@@ -139,6 +138,7 @@ set(ICI_SOURCES
   str.h
   type.h
   types.h
+  vec.h
   wrap.h)
 
 if (ICI_BUILD_LIB)

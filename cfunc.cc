@@ -14,7 +14,7 @@
 #include "str.h"
 #include "int.h"
 #include "float.h"
-#include "frames.h"
+#include "vec.h"
 #include "map.h"
 #include "set.h"
 #include "op.h"
@@ -4004,7 +4004,7 @@ static int f_putenv() {
     return null_ret();
 }
 
-static int f_frames32() {
+static int f_vec32() {
     int64_t n;
     double filler;
     bool fill = false;
@@ -4019,9 +4019,9 @@ static int f_frames32() {
         fill = true;
     }
     if (n < 1) {
-        return set_error("%lld: invalid frames size", n);
+        return set_error("%lld: invalid vec size", n);
     }
-    auto f = new_frames32(n);
+    auto f = new_vec32(n);
     if (fill)
     {
         f->fill(static_cast<float>(filler));
@@ -4029,7 +4029,7 @@ static int f_frames32() {
     return ret_with_decref(f);
 }
 
-static int f_frames64() {
+static int f_vec64() {
     int64_t n;
     double filler;
     bool fill = false;
@@ -4044,9 +4044,9 @@ static int f_frames64() {
         fill = true;
     }
     if (n < 1) {
-        return set_error("%lld: invalid frames size", n);
+        return set_error("%lld: invalid vec size", n);
     }
-    auto f = new_frames64(n);
+    auto f = new_vec64(n);
     if (fill)
     {
         f->fill(filler);
@@ -4194,8 +4194,8 @@ ICI_DEFINE_CFUNCS(std)
     ICI_DEFINE_CFUNC(rename,    f_rename),
     ICI_DEFINE_CFUNC(getenv,    f_getenv),
     ICI_DEFINE_CFUNC(putenv,    f_putenv),
-    ICI_DEFINE_CFUNC(frames32,  f_frames32),
-    ICI_DEFINE_CFUNC(frames64,  f_frames64),
+    ICI_DEFINE_CFUNC(vec32,     f_vec32),
+    ICI_DEFINE_CFUNC(vec64,     f_vec64),
     ICI_CFUNCS_END()
 };
 

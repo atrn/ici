@@ -1,8 +1,8 @@
-f := test.restore_of("frames32");
+f := test.restore_of("vec32");
 Z := 1937;
-if (typeof(f) != "frames32")
+if (typeof(f) != "vec32")
 {
-    fail("didn't restore a frames32");
+    fail("didn't restore a vec32");
 }
 if (f.size != Z)
 {

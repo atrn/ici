@@ -1,5 +1,5 @@
 #define ICI_CORE
-#include "frames.h"
+#include "vec.h"
 #include "int.h"
 #include "float.h"
 #include "forall.h"
@@ -11,15 +11,15 @@
 namespace ici
 {
 
-template struct frames<TC_FRAMES32, float>;
-template struct frames<TC_FRAMES64, double>;
+template struct vec<TC_VEC32, float>;
+template struct vec<TC_VEC64, double>;
 
 namespace
 {
 
-template <typename frames> frames *new_frames(size_t nframes, size_t count, object *props)
+template <typename vec> vec *new_vec(size_t nvec, size_t count, object *props)
 {
-    auto f = ici_talloc<frames>();
+    auto f = ici_talloc<vec>();
     if (!f)
     {
         return nullptr;
@@ -38,20 +38,20 @@ template <typename frames> frames *new_frames(size_t nframes, size_t count, obje
             return nullptr;
         }
     }
-    f->_ptr = static_cast<typename frames::value_type *>(ici_alloc(nframes * sizeof (typename frames::value_type)));
+    f->_ptr = static_cast<typename vec::value_type *>(ici_alloc(nvec * sizeof (typename vec::value_type)));
     if (!f->_ptr)
     {
         ici_free(f);
         return nullptr;
     }
-    f->set_tfnz(frames::type_code, 0, 1, 0);
-    f->_size = nframes;
+    f->set_tfnz(vec::type_code, 0, 1, 0);
+    f->_size = nvec;
     f->_count = count;
     rego(f);
     return f;
 }
 
-template <typename frames> object *dofetch(frames *f, object *k)
+template <typename vec> object *dofetch(vec *f, object *k)
 {
     if (isint(k))
     {
@@ -81,7 +81,7 @@ template <typename frames> object *dofetch(frames *f, object *k)
     return f->_props->fetch(k);
 }
 
-template <typename frames> int doassign(frames *f, object *k, object *v)
+template <typename vec> int doassign(vec *f, object *k, object *v)
 {
     if (isint(k))
     {
@@ -100,13 +100,13 @@ template <typename frames> int doassign(frames *f, object *k, object *v)
         }
         if (isint(v))
         {
-            (*f)[ofs] = static_cast<typename frames::value_type>(intof(v)->i_value);
+            (*f)[ofs] = static_cast<typename vec::value_type>(intof(v)->i_value);
             ++f->_count;
             return 0;
         }
         if (isfloat(v))
         {
-            (*f)[ofs] = static_cast<typename frames::value_type>(floatof(v)->f_value);
+            (*f)[ofs] = static_cast<typename vec::value_type>(floatof(v)->f_value);
             ++f->_count;
             return 0;
         }
@@ -135,11 +135,11 @@ template <typename frames> int doassign(frames *f, object *k, object *v)
     return f->_props->assign(k, v);
 }
 
-template <typename frames> int doforall(object *o)
+template <typename vec> int doforall(object *o)
 {
     auto     fa = forallof(o);
 
-    auto f = static_cast<frames *>(fa->fa_aggr);
+    auto f = static_cast<vec *>(fa->fa_aggr);
     if (++fa->fa_index >= f->_count) {
         return -1;
     }
@@ -163,7 +163,7 @@ template <typename frames> int doforall(object *o)
     return 0;
 }
 
-template <typename frames> int dosave(archiver *ar, frames *f)
+template <typename vec> int dosave(archiver *ar, vec *f)
 {
     if (ar->save_name(f)) {
         return 1;
@@ -187,7 +187,7 @@ template <typename frames> int dosave(archiver *ar, frames *f)
     return 0;
 }
 
-template <typename frames> object *dorestore(archiver *ar)
+template <typename vec> object *dorestore(archiver *ar)
 {
     object *oname;
     int64_t size;
@@ -216,7 +216,7 @@ template <typename frames> object *dorestore(archiver *ar)
         return nullptr;
     }
 
-    auto f = make_ref<frames>(new_frames<frames>(size, count, props));
+    auto f = make_ref<vec>(new_vec<vec>(size, count, props));
     if (ar->record(oname, f)) {
         return nullptr;
     }
@@ -237,102 +237,102 @@ template <typename frames> object *dorestore(archiver *ar)
 
 //  ----------------------------------------------------------------
 
-size_t frames32_type::mark(object *o)
+size_t vec32_type::mark(object *o)
 {
     return type::mark(o)
-        + frames32of(o)->_props->mark()
-        + frames32of(o)->_size * sizeof (frames32::value_type);
+        + vec32of(o)->_props->mark()
+        + vec32of(o)->_size * sizeof (vec32::value_type);
 }
 
-void frames32_type::free(object *o)
+void vec32_type::free(object *o)
 {
-    ici_free(frames32of(o)->_ptr);
+    ici_free(vec32of(o)->_ptr);
     type::free(o);
 }
 
-int64_t frames32_type::len(object *o)
+int64_t vec32_type::len(object *o)
 {
-    return frames32of(o)->_count;
+    return vec32of(o)->_count;
 }
 
-object *frames32_type::fetch(object *o, object *k)
+object *vec32_type::fetch(object *o, object *k)
 {
-    return dofetch(frames32of(o), k);
+    return dofetch(vec32of(o), k);
 }
 
-int frames32_type::assign(object *o, object *k, object *v)
+int vec32_type::assign(object *o, object *k, object *v)
 {
-    return doassign(frames32of(o), k, v);
+    return doassign(vec32of(o), k, v);
 }
 
-int frames32_type::forall(object *o)
+int vec32_type::forall(object *o)
 {
-    return doforall<frames32>(o);
+    return doforall<vec32>(o);
 }
 
-int frames32_type::save(archiver *ar, object *o)
+int vec32_type::save(archiver *ar, object *o)
 {
-    return dosave(ar, frames32of(o));
+    return dosave(ar, vec32of(o));
 }
 
-object * frames32_type::restore(archiver *ar)
+object * vec32_type::restore(archiver *ar)
 {
-    return dorestore<frames32>(ar);
+    return dorestore<vec32>(ar);
 }
 
-frames32 *new_frames32(size_t nframes, size_t count, object *props)
+vec32 *new_vec32(size_t size, size_t count, object *props)
 {
-    return new_frames<frames32>(nframes, count, props);
+    return new_vec<vec32>(size, count, props);
 }
 
 //  ----------------------------------------------------------------
 
-size_t frames64_type::mark(object *o)
+size_t vec64_type::mark(object *o)
 {
     return type::mark(o)
-        + frames64of(o)->_props->mark()
-        + frames64of(o)->_size * sizeof(frames64::value_type);
+        + vec64of(o)->_props->mark()
+        + vec64of(o)->_size * sizeof(vec64::value_type);
 }
 
-void frames64_type::free(object *o)
+void vec64_type::free(object *o)
 {
-    ici_free(frames64of(o)->_ptr);
+    ici_free(vec64of(o)->_ptr);
     type::free(o);
 }
 
-int64_t frames64_type::len(object *o)
+int64_t vec64_type::len(object *o)
 {
-    return frames64of(o)->_count;
+    return vec64of(o)->_count;
 }
 
-object *frames64_type::fetch(object *o, object *k)
+object *vec64_type::fetch(object *o, object *k)
 {
-    return dofetch(frames64of(o), k);
+    return dofetch(vec64of(o), k);
 }
 
-int frames64_type::assign(object *o, object *k, object *v)
+int vec64_type::assign(object *o, object *k, object *v)
 {
-    return doassign(frames64of(o), k, v);
+    return doassign(vec64of(o), k, v);
 }
 
-int frames64_type::forall(object *o)
+int vec64_type::forall(object *o)
 {
-    return doforall<frames64>(o);
+    return doforall<vec64>(o);
 }
 
-int frames64_type::save(archiver *ar, object *o)
+int vec64_type::save(archiver *ar, object *o)
 {
-    return dosave(ar, frames64of(o));
+    return dosave(ar, vec64of(o));
 }
 
-object * frames64_type::restore(archiver *ar)
+object * vec64_type::restore(archiver *ar)
 {
-    return dorestore<frames64>(ar);
+    return dorestore<vec64>(ar);
 }
 
-frames64 *new_frames64(size_t nframes, size_t count, object *props)
+vec64 *new_vec64(size_t size, size_t count, object *props)
 {
-    return new_frames<frames64>(nframes, count, props);
+    return new_vec<vec64>(size, count, props);
 }
 
 } // namespace ici
