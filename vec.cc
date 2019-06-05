@@ -17,7 +17,7 @@ template struct vec<TC_VEC64, double>;
 namespace
 {
 
-template <typename vec> vec *new_vec(size_t nvec, size_t count, object *props)
+template <typename vec> vec *new_vec(size_t size, size_t count, object *props)
 {
     auto f = ici_talloc<vec>();
     if (!f)
@@ -38,14 +38,15 @@ template <typename vec> vec *new_vec(size_t nvec, size_t count, object *props)
             return nullptr;
         }
     }
-    f->_ptr = static_cast<typename vec::value_type *>(ici_alloc(nvec * sizeof (typename vec::value_type)));
+    using value_type = typename vec::value_type;
+    f->_ptr = static_cast<value_type *>(ici_alloc(size * sizeof (value_type)));
     if (!f->_ptr)
     {
         ici_free(f);
         return nullptr;
     }
     f->set_tfnz(vec::type_code, 0, 1, 0);
-    f->_size = nvec;
+    f->_size = size;
     f->_count = count;
     rego(f);
     return f;
@@ -98,15 +99,16 @@ template <typename vec> int doassign(vec *f, object *k, object *v)
         {
             (*f)[f->_count] = 0.0f;
         }
+	using value_type = typename vec::value_type;
         if (isint(v))
         {
-            (*f)[ofs] = static_cast<typename vec::value_type>(intof(v)->i_value);
+            (*f)[ofs] = static_cast<value_type>(intof(v)->i_value);
             ++f->_count;
             return 0;
         }
         if (isfloat(v))
         {
-            (*f)[ofs] = static_cast<typename vec::value_type>(floatof(v)->f_value);
+            (*f)[ofs] = static_cast<value_type>(floatof(v)->f_value);
             ++f->_count;
             return 0;
         }
@@ -232,7 +234,6 @@ template <typename vec> object *dorestore(archiver *ar)
 }
 
 } // anon
-
 
 
 //  ----------------------------------------------------------------

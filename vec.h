@@ -73,7 +73,7 @@ struct vec : object
 
     size_t      _size;          // total capacity
     size_t      _count;         // current length
-    value_type *_ptr;           // pointer to _size value_type's
+    value_type *_ptr;           // _size x value_type's
     map *       _props;         // user-defined properties
 
     const value_type * data() const
@@ -142,17 +142,17 @@ struct vec : object
     }
 };
 
-using vec32 = vec<TC_VEC32, float>;
+using vec32 =  vec<TC_VEC32, float>;
 
-inline vec32 *vec32of(ici::object *o) { return static_cast<vec32 *>(o); }
-inline bool      isvec32(ici::object *o) { return o->hastype(vec32::type_code); }
-vec32 *       new_vec32(size_t, size_t = 0, object * = nullptr);
+inline vec32 * vec32of(ici::object *o) { return static_cast<vec32 *>(o); }
+inline bool    isvec32(ici::object *o) { return o->hastype(vec32::type_code); }
+vec32 *        new_vec32(size_t, size_t = 0, object * = nullptr);
 
-using vec64 = vec<TC_VEC64, double>;
+using vec64 =  vec<TC_VEC64, double>;
 
-inline vec64 *vec64of(ici::object *o) { return static_cast<vec64 *>(o); }
-inline bool      isvec64(ici::object *o) { return o->hastype(vec64::type_code); }
-vec64 *       new_vec64(size_t, size_t = 0, object * = nullptr);
+inline vec64 * vec64of(ici::object *o) { return static_cast<vec64 *>(o); }
+inline bool    isvec64(ici::object *o) { return o->hastype(vec64::type_code); }
+vec64 *        new_vec64(size_t, size_t = 0, object * = nullptr);
 
 /*
  * End of ici.h export. --ici.h-end--
