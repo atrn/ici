@@ -6,7 +6,7 @@ local eq(a, b)
     return abs(a - b) < epsilon;
 }
 
-f1 := vec32(Z);
+f1 := vec(32, Z);
 if (f1.size != Z)
     fail("f1.size");
 if (len(f1) != 0)
@@ -16,7 +16,7 @@ for (i := 0; i < f1.size; ++i)
 if (len(f1) != Z)
     fail("len != Z");
 
-f2 := vec32(Z, pi);
+f2 := vec(32, Z, pi);
 if (len(f2) != f2.size)
     fail("len(f2) != f2.size");
 if (!eq(f2[15], pi))
