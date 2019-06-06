@@ -4004,52 +4004,102 @@ static int f_putenv() {
     return null_ret();
 }
 
-static int f_vec32() {
-    int64_t n;
-    double filler;
+static int f_vec()
+{
+    int64_t bits;
+    int64_t size;
+    double filler = 0.0;
     bool fill = false;
 
-    if (NARGS() == 1) {
-        if (typecheck("i", &n)) {
+    if (NARGS() == 2)
+    {
+        if (typecheck("ii", &bits, &size))
+        {
             return 1;
         }
-    } else if (typecheck("in", &n, &filler)) {
+    }
+    else if (typecheck("iin", &bits, &size, &filler))
+    {
         return 1;
-    } else {
+    }
+    else
+    {
         fill = true;
     }
-    if (n < 1) {
-        return set_error("%lld: invalid vec size", n);
-    }
-    auto f = new_vec32(n);
-    if (fill)
+    if (bits != 32 && bits != 64)
     {
-        f->fill(static_cast<float>(filler));
+	return argerror(0);
+    }
+    if (size < 1)
+    {
+        return argerror(1);
+    }
+    if (bits == 32)
+    {
+        auto v = new_vec32(size);
+	if (fill)
+	{
+	    v->fill(filler);
+	}
+        return ret_with_decref(v);
+    }
+    // if (bits == 64)
+    {
+        auto v = new_vec64(size);
+	if (fill)
+	{
+	    v->fill(filler);
+	}
+        return ret_with_decref(v);
+    }
+}
+
+static int f_vec32()
+{
+    if (NARGS() < 1)
+    {
+	return argcount(1);
+    }
+    auto f = new_vec32(NARGS());
+    for (int i = 0; i < NARGS(); ++i)
+    {
+	if (isint(ARG(i)))
+	{
+	    (*f)[i] = intof(ARG(i))->i_value;
+	}
+	else if (isfloat(ARG(i)))
+	{
+	    (*f)[i] = floatof(ARG(i))->f_value;
+	}
+	else
+	{
+	    return argerror(i);
+	}
     }
     return ret_with_decref(f);
 }
 
-static int f_vec64() {
-    int64_t n;
-    double filler;
-    bool fill = false;
-
-    if (NARGS() == 1) {
-        if (typecheck("i", &n)) {
-            return 1;
-        }
-    } else if (typecheck("in", &n, &filler)) {
-        return 1;
-    } else {
-        fill = true;
-    }
-    if (n < 1) {
-        return set_error("%lld: invalid vec size", n);
-    }
-    auto f = new_vec64(n);
-    if (fill)
+static int f_vec64()
+{
+    if (NARGS() < 1)
     {
-        f->fill(filler);
+	return argcount(1);
+    }
+    auto f = new_vec64(NARGS());
+    for (int i = 0; i < NARGS(); ++i)
+    {
+	if (isint(ARG(i)))
+	{
+	    (*f)[i] = intof(ARG(i))->i_value;
+	}
+	else if (isfloat(ARG(i)))
+	{
+	    (*f)[i] = floatof(ARG(i))->f_value;
+	}
+	else
+	{
+	    return argerror(i);
+	}
     }
     return ret_with_decref(f);
 }
@@ -4194,6 +4244,7 @@ ICI_DEFINE_CFUNCS(std)
     ICI_DEFINE_CFUNC(rename,    f_rename),
     ICI_DEFINE_CFUNC(getenv,    f_getenv),
     ICI_DEFINE_CFUNC(putenv,    f_putenv),
+    ICI_DEFINE_CFUNC(vec,       f_vec),
     ICI_DEFINE_CFUNC(vec32,     f_vec32),
     ICI_DEFINE_CFUNC(vec64,     f_vec64),
     ICI_CFUNCS_END()
