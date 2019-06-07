@@ -15,3 +15,5 @@
 /cscope.*
 /modules/sqlite/tests/*.db
 /modules/sqlite/tests/*.data
+/.vscode/ipch/
+/.vscode/c_cpp_properties.json
