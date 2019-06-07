@@ -166,14 +166,13 @@ xcodedir?=		.xcode
 
 # ###############################################################
 #
-# Helper macros
+# Helper macros and setup
 #
 
 _srcs=			$(shell ls *.cc | fgrep -v win32)
 _hdrs=			$(shell ls *.h | fgrep -v ici.h)
 _dcc=			CXXFLAGSFILE=$(cxxflags) dcc $(dccflags) --objdir $(objdir)
 _make=			$(MAKE) --no-print-directory
-
 
 # ###############################################################
 #

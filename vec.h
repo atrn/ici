@@ -158,8 +158,12 @@ vec64 *        new_vec64(size_t, size_t = 0, object * = nullptr);
  * End of ici.h export. --ici.h-end--
  */
 
+// ----------------------------------------------------------------
+
 struct vec32_type : ici::type
 {
+    static inline vec32 * cast(object *o) { return static_cast<vec32 *>(o); }
+
     vec32_type() : ici::type("vec32", sizeof (vec32)) {}
 
     size_t mark(ici::object *) override;
@@ -174,6 +178,8 @@ struct vec32_type : ici::type
 
 struct vec64_type : ici::type
 {
+    static inline vec64 * cast(object *o) { return static_cast<vec64 *>(o); }
+
     vec64_type() : ici::type("vec64", sizeof (vec64)) {}
 
     size_t mark(ici::object *) override;
