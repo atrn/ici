@@ -250,29 +250,29 @@ template <typename vec_type> object *restore_vec(archiver *ar)
 size_t vec32_type::mark(object *o)
 {
     return type::mark(o)
-        + vec32_type::cast(o)->_props->mark()
-        + vec32_type::cast(o)->_size * sizeof (vec32::value_type);
+        + vec32of(o)->_props->mark()
+        + vec32of(o)->_size * sizeof (vec32::value_type);
 }
 
 void vec32_type::free(object *o)
 {
-    ici_free(vec32_type::cast(o)->_ptr);
+    ici_free(vec32of(o)->_ptr);
     type::free(o);
 }
 
 int64_t vec32_type::len(object *o)
 {
-    return vec32_type::cast(o)->_count;
+    return vec32of(o)->_count;
 }
 
 object *vec32_type::fetch(object *o, object *k)
 {
-    return fetch_vec(vec32_type::cast(o), k);
+    return fetch_vec(vec32of(o), k);
 }
 
 int vec32_type::assign(object *o, object *k, object *v)
 {
-    return assign_vec(vec32_type::cast(o), k, v);
+    return assign_vec(vec32of(o), k, v);
 }
 
 int vec32_type::forall(object *o)
@@ -282,7 +282,7 @@ int vec32_type::forall(object *o)
 
 int vec32_type::save(archiver *ar, object *o)
 {
-    return save_vec(ar, vec32_type::cast(o));
+    return save_vec(ar, vec32of(o));
 }
 
 object * vec32_type::restore(archiver *ar)
@@ -300,29 +300,29 @@ vec32 *new_vec32(size_t size, size_t count, object *props)
 size_t vec64_type::mark(object *o)
 {
     return type::mark(o)
-        + vec64_type::cast(o)->_props->mark()
-        + vec64_type::cast(o)->_size * sizeof(vec64::value_type);
+        + vec64of(o)->_props->mark()
+        + vec64of(o)->_size * sizeof(vec64::value_type);
 }
 
 void vec64_type::free(object *o)
 {
-    ici_free(vec64_type::cast(o)->_ptr);
+    ici_free(vec64of(o)->_ptr);
     type::free(o);
 }
 
 int64_t vec64_type::len(object *o)
 {
-    return vec64_type::cast(o)->_count;
+    return vec64of(o)->_count;
 }
 
 object *vec64_type::fetch(object *o, object *k)
 {
-    return fetch_vec(vec64_type::cast(o), k);
+    return fetch_vec(vec64of(o), k);
 }
 
 int vec64_type::assign(object *o, object *k, object *v)
 {
-    return assign_vec(vec64_type::cast(o), k, v);
+    return assign_vec(vec64of(o), k, v);
 }
 
 int vec64_type::forall(object *o)
@@ -332,7 +332,7 @@ int vec64_type::forall(object *o)
 
 int vec64_type::save(archiver *ar, object *o)
 {
-    return save_vec(ar, vec64_type::cast(o));
+    return save_vec(ar, vec64of(o));
 }
 
 object * vec64_type::restore(archiver *ar)

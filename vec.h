@@ -86,13 +86,18 @@ struct vec : object
         return _ptr;
     }
 
-    void fill(value_type value)
+    void fill(value_type value, size_t ofs, size_t lim)
     {
-        for (size_t i = 0; i < _size; ++i)
+        for (size_t i = ofs; i < lim; ++i)
         {
             _ptr[i] = value;
         }
         _count = _size;
+    }
+
+    void fill(value_type value, size_t ofs = 0)
+    {
+        fill(value, ofs, _size);
     }
 
     const value_type & operator[](size_t index) const
@@ -105,41 +110,39 @@ struct vec : object
         return _ptr[index];
     }
 
-    vec & operator+=(value_type scalar)
-    {
-        for (size_t index = 0; index < _count; ++index)
-        {
-            _ptr[index] += scalar;
-        }
-        return *this;
+#define declare_vec_binop(OP)                           \
+    vec & operator OP (const vec &rhs)                  \
+    {                                                   \
+        for (size_t index = 0; index < _count; ++index) \
+        {                                               \
+            _ptr[index] OP rhs[index];                  \
+        }                                               \
+        return *this;                                   \
     }
 
-    vec & operator-=(value_type scalar)
-    {
-        for (size_t index = 0; index < _count; ++index)
-        {
-            _ptr[index] -= scalar;
-        }
-        return *this;
+    declare_vec_binop(+=)
+    declare_vec_binop(-=)
+    declare_vec_binop(*=)
+    declare_vec_binop(/=)
+
+#undef declare_vec_binop
+
+#define declare_vec_binop_scalar(OP)                    \
+    vec & operator OP (value_type scalar)               \
+    {                                                   \
+        for (size_t index = 0; index < _count; ++index) \
+        {                                               \
+            _ptr[index] OP scalar;                      \
+        }                                               \
+        return *this;                                   \
     }
 
-    vec & operator*=(value_type scalar)
-    {
-        for (size_t index = 0; index < _count; ++index)
-        {
-            _ptr[index] *= scalar;
-        }
-        return *this;
-    }
+    declare_vec_binop_scalar(+=)
+    declare_vec_binop_scalar(-=)
+    declare_vec_binop_scalar(*=)
+    declare_vec_binop_scalar(/=)
 
-    vec & operator/=(value_type scalar)
-    {
-        for (size_t index = 0; index < _count; ++index)
-        {
-            _ptr[index] /= scalar;
-        }
-        return *this;
-    }
+#undef declare_vec_binop_scalar
 };
 
 using vec32 =  vec<TC_VEC32, float>;
@@ -162,8 +165,6 @@ vec64 *        new_vec64(size_t, size_t = 0, object * = nullptr);
 
 struct vec32_type : ici::type
 {
-    static inline vec32 * cast(object *o) { return static_cast<vec32 *>(o); }
-
     vec32_type() : ici::type("vec32", sizeof (vec32)) {}
 
     size_t mark(ici::object *) override;
@@ -178,8 +179,6 @@ struct vec32_type : ici::type
 
 struct vec64_type : ici::type
 {
-    static inline vec64 * cast(object *o) { return static_cast<vec64 *>(o); }
-
     vec64_type() : ici::type("vec64", sizeof (vec64)) {}
 
     size_t mark(ici::object *) override;
