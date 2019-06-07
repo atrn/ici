@@ -92,7 +92,7 @@ struct vec : object
         {
             _ptr[i] = value;
         }
-        _count = _size;
+        _count = lim;
     }
 
     void fill(value_type value, size_t ofs = 0)
@@ -110,7 +110,13 @@ struct vec : object
         return _ptr[index];
     }
 
-#define declare_vec_binop(OP)                           \
+    vec & operator=(value_type value)
+    {
+        fill(value);
+        return *this;
+    }
+
+#define define_vec_binop(OP)                            \
     vec & operator OP (const vec &rhs)                  \
     {                                                   \
         for (size_t index = 0; index < _count; ++index) \
@@ -120,14 +126,14 @@ struct vec : object
         return *this;                                   \
     }
 
-    declare_vec_binop(+=)
-    declare_vec_binop(-=)
-    declare_vec_binop(*=)
-    declare_vec_binop(/=)
+    define_vec_binop(+=)
+    define_vec_binop(-=)
+    define_vec_binop(*=)
+    define_vec_binop(/=)
 
-#undef declare_vec_binop
+#undef define_vec_binop
 
-#define declare_vec_binop_scalar(OP)                    \
+#define define_vec_binop_scalar(OP)                     \
     vec & operator OP (value_type scalar)               \
     {                                                   \
         for (size_t index = 0; index < _count; ++index) \
@@ -137,12 +143,12 @@ struct vec : object
         return *this;                                   \
     }
 
-    declare_vec_binop_scalar(+=)
-    declare_vec_binop_scalar(-=)
-    declare_vec_binop_scalar(*=)
-    declare_vec_binop_scalar(/=)
+    define_vec_binop_scalar(+=)
+    define_vec_binop_scalar(-=)
+    define_vec_binop_scalar(*=)
+    define_vec_binop_scalar(/=)
 
-#undef declare_vec_binop_scalar
+#undef define_vec_binop_scalar
 };
 
 using vec32 =  vec<TC_VEC32, float>;
