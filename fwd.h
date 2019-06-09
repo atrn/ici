@@ -321,7 +321,7 @@ extern map       *new_map();
 extern map       *new_map(objwsup *);
 extern integer   *new_int(int64_t);
 extern ici_float *new_float(double);
-extern handle    *new_handle(void *, str *, objwsup *);
+extern handle    *new_handle(void *, str *, objwsup *, void (*)(handle *) = nullptr);
 extern method    *new_method(object *, object *);
 extern mem       *new_mem(void *, size_t, int, void (*)(void *));
 extern object    *make_handle_member_map(name_id *);

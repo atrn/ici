@@ -74,7 +74,7 @@ static handle ici_handle_proto;
  *
  * This --func-- forms part of the --ici-api--.
  */
-handle *new_handle(void *ptr, str *name, objwsup *super)
+handle *new_handle(void *ptr, str *name, objwsup *super, void (*prefree)(handle *))
 {
     handle      *h;
     object      **po;
@@ -94,7 +94,7 @@ handle *new_handle(void *ptr, str *name, objwsup *super)
     h->h_ptr = ptr;
     h->h_name = name;
     h->o_super = super;
-    h->h_pre_free = nullptr;
+    h->h_pre_free = prefree;
     h->h_member_map = nullptr;
     h->h_member_intf = nullptr;
     h->h_general_intf = nullptr;

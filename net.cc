@@ -124,11 +124,10 @@ static void socket_prefree(handle *h) {
 static handle *new_netsocket(SOCKET fd) {
     handle *h;
     long lfd = fd;
-    if ((h = new_handle((void *)lfd, SS(socket), nullptr)) == nullptr) {
+    if ((h = new_handle((void *)lfd, SS(socket), nullptr, socket_prefree)) == nullptr) {
         return nullptr;
     }
     h->clr(handle::CLOSED);
-    h->h_pre_free = socket_prefree;
     /*
      * Turn off super support. This means you can't assign or fetch
      * values with a socket.
