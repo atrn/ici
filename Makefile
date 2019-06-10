@@ -345,12 +345,13 @@ full-install:
 	@echo '4  - make clean'; $(_make) -s clean
 	@echo '5  - make (dll)'; $(_make) -s build=dll conf=$(conf) dccflags="$(dccflags) --quiet"
 	@echo '6  - make install (dll)'; $(_make) -s build=dll install-libici install-ici-exe prefix=$(prefix) dccflags="$(dccflag) --quiet"
+	@echo '7  - make clean'; $(_make) -s clean
 
 # And when the modules are more stable, re-enable the following...
 #
-#	@echo '7  - make modules'; $(_make) -s clean-modules; $(_make) -s modules
-#	@echo '8  - make install modules'; $(_make) -s install-modules
-#	@echo '9  - make clean'; $(_make) -s clean; $(_make) -s clean-modules
+#	@echo '8  - make modules'; $(_make) -s clean-modules; $(_make) -s modules
+#	@echo '9  - make install modules'; $(_make) -s install-modules
+#	@echo '10 - make clean modules'; $(_make) -s clean-modules
 #
 
 
