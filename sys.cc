@@ -2030,7 +2030,6 @@ static int sys_usleep()
 
 /*
  * string = error(int)
- * int = error(string)
  */
 static int sys_error()
 {
@@ -2042,13 +2041,6 @@ static int sys_error()
     {
         const int code = intof(ARG(0))->i_value;
         return str_ret(code ? strerror(code) : "");
-    }
-    if (isstring(ARG(0)))
-    {
-        for (int i = 0; i < sys_nerr; ++i)
-            if (strcasecmp(strerror(i), stringof(ARG(0))->s_chars) == 0)
-                return int_ret(i);
-        return int_ret(0);
     }
     return argerror(0);
 }

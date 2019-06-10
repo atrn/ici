@@ -195,7 +195,7 @@ BigNumDigit d;
 {
     /* The C compiler must evaluate the predicate at compile time */
     if (BN_DIGIT_SIZE > BN_WORD_SIZE)
-        return (d >= 1 << BN_WORD_SIZE ? FALSE : TRUE);
+        return (d >= 1l << BN_WORD_SIZE ? FALSE : TRUE);
     else
 	return (TRUE);
 }

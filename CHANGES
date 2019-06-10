@@ -1,5 +1,13 @@
 Major Changes in Version 5
 
+*     Removed the sys.error() function "overload" that allowed
+      mapping an error string back to its code. This required
+      using the common but non-standard sys_nerr which recent
+      glibc's issue warnings for.  As the functionality was
+      of dubious utility its easier to remove that than work
+      around it. Mapping a code to string still works and is
+      the more useful operation.
+
 *     Two new types have been added - vec32 and vec64.
 
       A _vec_ type is an array of some C type - currently float or
