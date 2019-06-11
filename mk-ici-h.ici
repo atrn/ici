@@ -10,6 +10,7 @@ incs := [array
     "null.h",
     "alloc.h",
     "buf.h",
+    "debugger.h",
     "catcher.h",
     "channel.h",
     "array.h",
