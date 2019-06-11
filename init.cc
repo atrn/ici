@@ -44,6 +44,11 @@ extern int net_init(objwsup *);
  */
 int init()
 {
+    static bool init_done = false;
+    if (init_done) {
+        return 0;
+    }
+
     cfunc       **cfp;
     map         *scope;
     objwsup     *externs;
@@ -164,6 +169,7 @@ int init()
     }
 #endif
 
+    init_done = true;
     return 0;
 }
 
