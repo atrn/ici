@@ -738,6 +738,8 @@ object *evaluate(object *code, int n_operands) {
                  */
                 if
                 (
+                    !debug_active
+                    &&
                     stringof(os.a_top[-2])->s_map == mapof(os.a_top[-3])
                     &&
                     stringof(os.a_top[-2])->s_vsver == vsver
@@ -751,6 +753,9 @@ object *evaluate(object *code, int n_operands) {
                 }
                 if (ici_assign(os.a_top[-3], os.a_top[-2], os.a_top[-1])) {
                     goto fail;
+                }
+                if (UNLIKELY(debug_active)) {
+                    debugger->watch(os.a_top[-3], os.a_top[-2], os.a_top[-1]);
                 }
                 goto assign_finish;
 
