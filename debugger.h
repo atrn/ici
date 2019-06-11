@@ -62,7 +62,7 @@ namespace ici
 class debugger {
 public:
     virtual ~debugger();
-    virtual void error_set(char *, struct src *);
+    virtual void error_set(const char *, struct src *);
     virtual void error_uncaught(char *, struct src *);
     virtual void function_call(object *, object **, int);
     virtual void function_result(object *);
