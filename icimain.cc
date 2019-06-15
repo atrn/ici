@@ -32,7 +32,7 @@ namespace ici
  *
  * This --func-- forms part of the --ici-api--.
  */
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[], bool enable_repl) {
     int         i;
     int         j;
     char       *s;
@@ -63,9 +63,10 @@ int main(int argc, char *argv[]) {
         goto fail;
 
     /*
-     * If there are no actual arguments enter the repl.
+     * If there are no actual arguments enter the repl if
+     * its enabled.
      */
-    if (argc <= 1) {
+    if (enable_repl && argc <= 1) {
         repl();
         return 0;
     }

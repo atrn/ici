@@ -285,7 +285,7 @@ extern exec      *leave();
 extern int        wakeup(object *);
 extern int        waitfor(object *);
 extern void       yield();
-extern int        main(int, char **);
+extern int        main(int, char **, bool = true);
 extern int        init();
 extern void       uninit();
 extern void       atexit(void (*)(), wrap *);
