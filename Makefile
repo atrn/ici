@@ -151,7 +151,7 @@ build?=			dll
 #build?=		exe
 #build?=		lib
 
-prefix?= 		/usr/local
+prefix?= 		/usr/local	# Duplicated in LDFLAGS.darwin
 sudo?=
 
 dccflags?=
