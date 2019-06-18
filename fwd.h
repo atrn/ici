@@ -374,11 +374,10 @@ extern DLI void       debug_respect_errors();
 #endif
 
 /*
- * ici_sopen() is deprecated and calls ici_open_charbuf() to obtain a
- * read-only file.  It is included only for backward compatibility;
- * use open_charbuf() instead.
+ * ici_sopen() calls ici_open_charbuf() to obtain a read-only file.
+ * open_charbuf() is preferred.
  */
-inline file *sopen(char *data, int size, object *ref) {
+inline file *sopen(char *data, int size, object *ref = nullptr) {
     return open_charbuf(data, size, ref, true);
 }
 

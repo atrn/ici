@@ -310,7 +310,9 @@ file *open_charbuf(char *data, int size, object *ref, bool readonly)
         }
     }
     if (f == nullptr)
+    {
         ici_tfree(cb, charbuf);
+    }
     return f;
 }
 
