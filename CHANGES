@@ -1,5 +1,7 @@
 Major Changes in Version 5
 
+*     slice() is a synonym for interval().
+
 *     Removed the sys.error() function "overload" that allowed
       mapping an error string back to its code. This required
       using the common but non-standard sys_nerr which recent

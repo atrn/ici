@@ -52,7 +52,6 @@ set(ICI_SOURCES
   icimain.cc
   init.cc
   int.cc
-  intf.cc
   lex.cc
   load.cc
   map.cc
@@ -114,7 +113,6 @@ set(ICI_SOURCES
   handle.h
   icistr-setup.h
   int.h
-  intf.h
   internal.h
   load-w32.h
   map.h
