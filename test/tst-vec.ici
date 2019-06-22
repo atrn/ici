@@ -34,3 +34,14 @@ forall (v in f2)
 {
     if (!eq(v, two_pi)) fail("not 2 pi");
 }
+
+
+sig := vec(32, 192000);
+noise := vec(32, 192000);
+
+for (i := 0; i < 192000; ++i)
+{
+    noise[i] = rand() / float(1<<15);
+}
+
+mod := sig * noise;

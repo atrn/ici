@@ -119,7 +119,7 @@ struct vec : object
 #define define_vec_binop(OP)                            \
     vec & operator OP (const vec &rhs)                  \
     {                                                   \
-        for (size_t index = 0; index < _count; ++index) \
+        for (size_t index = 0; index < _size; ++index)  \
         {                                               \
             _ptr[index] OP rhs[index];                  \
         }                                               \

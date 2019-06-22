@@ -63,6 +63,13 @@
 #define USEi(I)         i = (I); goto usei
 #define USEf(F)         f = (F); goto usef
 #define MISMATCH()      goto mismatch
+#define VECMISMATCH()   goto vecmismatch
+
+#define MATCHVEC(VECOF)                               \
+    if (VECOF(o0)->_size != VECOF(o1)->_size)         \
+    {                                                 \
+        VECMISMATCH();                                \
+    }
 
 /*
  * On entry, o = xs.a_top[-1], technically, but xs.a_top has been pre-decremented
@@ -694,6 +701,62 @@
         }
         USE0();
 
+    case ICI_TRI(TC_VEC32, TC_VEC32, T_PLUS):
+    case ICI_TRI(TC_VEC32, TC_VEC32, T_PLUSEQ):
+        MATCHVEC(vec32of);
+        (*vec32of(o0)) += (*vec32of(o1));
+        o = o0;
+        USEo();
+
+    case ICI_TRI(TC_VEC32, TC_VEC32, T_MINUS):
+    case ICI_TRI(TC_VEC32, TC_VEC32, T_MINUSEQ):
+        MATCHVEC(vec32of);
+        (*vec32of(o0)) -= (*vec32of(o1));
+        o = o0;
+        USEo();
+
+    case ICI_TRI(TC_VEC32, TC_VEC32, T_ASTERIX):
+    case ICI_TRI(TC_VEC32, TC_VEC32, T_ASTERIXEQ):
+        MATCHVEC(vec32of);
+        (*vec32of(o0)) *= (*vec32of(o1));
+        o = o0;
+        USEo();
+
+    case ICI_TRI(TC_VEC32, TC_VEC32, T_SLASH):
+    case ICI_TRI(TC_VEC32, TC_VEC32, T_SLASHEQ):
+        MATCHVEC(vec32of);
+        (*vec32of(o0)) /= (*vec32of(o1));
+        o = o0;
+        USEo();
+
+    case ICI_TRI(TC_VEC64, TC_VEC64, T_PLUS):
+    case ICI_TRI(TC_VEC64, TC_VEC64, T_PLUSEQ):
+        MATCHVEC(vec64of);
+        (*vec64of(o0)) += (*vec64of(o1));
+        o = o0;
+        USEo();
+
+    case ICI_TRI(TC_VEC64, TC_VEC64, T_MINUS):
+    case ICI_TRI(TC_VEC64, TC_VEC64, T_MINUSEQ):
+        MATCHVEC(vec64of);
+        (*vec64of(o0)) -= (*vec64of(o1));
+        o = o0;
+        USEo();
+
+    case ICI_TRI(TC_VEC64, TC_VEC64, T_ASTERIX):
+    case ICI_TRI(TC_VEC64, TC_VEC64, T_ASTERIXEQ):
+        MATCHVEC(vec64of);
+        (*vec64of(o0)) *= (*vec64of(o1));
+        o = o0;
+        USEo();
+
+    case ICI_TRI(TC_VEC64, TC_VEC64, T_SLASH):
+    case ICI_TRI(TC_VEC64, TC_VEC64, T_SLASHEQ):
+        MATCHVEC(vec64of);
+        (*vec64of(o0)) /= (*vec64of(o1));
+        o = o0;
+        USEo();
+
     case ICI_TRI(TC_VEC32, TC_INT, T_PLUS):
     case ICI_TRI(TC_VEC32, TC_INT, T_PLUSEQ):
         (*vec32of(o0)) += intof(o1)->i_value;
@@ -837,6 +900,10 @@
                 objname(n2, o1));
         }
         set_error(buf);
+        FAIL();
+
+    vecmismatch:
+        set_error("vec size mis-match");
         FAIL();
     }
 
