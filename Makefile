@@ -407,7 +407,7 @@ clean-modules:
 	@$(_make) -C modules -$(MAKEFLAGS) clean
 
 install-modules:
-	@$(_make) -C modules -$(MAKEFLAGS) install
+	@$(_make) -C modules -$(MAKEFLAGS) sudo=$(sudo) prefix=$(prefix) install
 
 
 # EOF

@@ -18,4 +18,8 @@ test-loading: dll
 	@ici -e 'printf("len(\"$(_OS)\") -> %d (function)\n", example.function("$(_OS)"));'
 	@ici -e 'printf("len(\"$(_OS)\") -> %d (other_function)\n", example.other_function("$(_OS)"));'
 
+# Giving install a command, that does nothing, (: with no args)
+# stops (GNU) make issuing a diagnostic that makes the build
+# output look ugly.
 install:
+	@:
