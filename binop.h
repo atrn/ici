@@ -66,7 +66,7 @@
 #define VECMISMATCH()   goto vecmismatch
 
 #define MATCHVEC(VECOF)                               \
-    if (VECOF(o0)->_size != VECOF(o1)->_size)         \
+    if (VECOF(o0)->_count > VECOF(o1)->_count)        \
     {                                                 \
         VECMISMATCH();                                \
     }
