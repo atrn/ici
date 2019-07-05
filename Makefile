@@ -84,23 +84,22 @@
 #
 # The 'build' macro controls how ICI it built. It can be one of,
 #
-#	dll			Builds ICI as a dynamic library, libici.so
-#				(libici.dylib on MacOS, ici.dll on Windows)
-#				and links an ici executable against that
-#				library. Installs the executable, dynamic
-#				library and associated ici.h file.
-#
 #   	lib			Builds ICI as a static library, libici.a,
-#				using itto create the ici executable.
+#				and uses it to create an ici executable.
 #				Installs the executable, static library
 #				and its associated ici.h file.
 #
+#	dll			Builds ICI as a dynamic library and uses
+#				it to create the ici executable. Installs
+#				the executable, dynamic library and its
+#				associated ici.h file.
+#
 #   	exe			Builds ICI as an executable directly from
 #				object files with no library. Installs the
-#				executable and an ici.h file but no library.
+#				executable and an ici.h file.
 #
 #
-# The default build type is 'dll'.
+# The default build type is 'lib'.
 #
 #
 # ** Other Macros
@@ -147,9 +146,9 @@ else
 dll=			libici.so
 endif
 
-build?=			dll
+build?=			lib
+#build?=		dll
 #build?=		exe
-#build?=		lib
 
 prefix?= 		/usr/local	# Duplicated in LDFLAGS.darwin
 sudo?=

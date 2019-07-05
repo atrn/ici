@@ -2,5 +2,5 @@
 
 #include "CXXFLAGS.common"
 
--Os
+-O3
 -mtune=native

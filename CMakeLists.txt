@@ -15,7 +15,7 @@ cmake_minimum_required(VERSION 3.0 FATAL_ERROR) # A guess
 project(ici LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 11)
 
-option(ICI_BUILD_LIB "Build the ICI shared object" ON)
+option(ICI_BUILD_LIB "Build the ICI shared object" OFF)
 
 set(ICI_MAIN etc/main.cc)
 
