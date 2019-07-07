@@ -22,40 +22,40 @@ static int index_error(int64_t ofs)
     return set_error("%lld: index out of range", ofs);
 }
 
-template <typename vec_type> vec_type *new_vec(size_t size, size_t count, object *props)
+template <typename vec_type> vec_type *new_vec(size_t capacity, size_t size, object *props)
 {
     using value_type = typename vec_type::value_type;
 
-    auto f = ici_talloc<vec_type>();
-    if (!f)
+    auto v = ici_talloc<vec_type>();
+    if (!v)
     {
         return nullptr;
     }
     if (props)
     {
         assert(ismap(props));
-        f->_props = mapof(props);
+        v->v_props = mapof(props);
     }
     else
     {
-        f->_props = new_map();
-        if (!f->_props)
+        v->v_props = new_map();
+        if (!v->v_props)
         {
-            ici_free(f);
+            ici_free(v);
             return nullptr;
         }
     }
-    f->_ptr = static_cast<value_type *>(ici_alloc(size * sizeof (value_type)));
-    if (!f->_ptr)
+    v->v_ptr = static_cast<value_type *>(ici_alloc(capacity * sizeof (value_type)));
+    if (!v->v_ptr)
     {
-        ici_free(f);
+        ici_free(v);
         return nullptr;
     }
-    f->set_tfnz(vec_type::type_code, 0, 1, 0);
-    f->_size = size;
-    f->_count = count;
-    rego(f);
-    return f;
+    v->set_tfnz(vec_type::type_code, 0, 1, 0);
+    v->v_capacity = capacity;
+    v->v_size = size;
+    rego(v);
+    return v;
 }
 
 template <typename vec_type> object *fetch_vec(vec_type *f, object *k)
@@ -65,9 +65,9 @@ template <typename vec_type> object *fetch_vec(vec_type *f, object *k)
         auto ofs = intof(k)->i_value;
         if (ofs < 0)
         {
-            ofs = f->_size + ofs;
+            ofs = f->v_capacity + ofs;
         }
-        if (ofs < 0 || static_cast<size_t>(ofs) >= f->_count)
+        if (ofs < 0 || static_cast<size_t>(ofs) >= f->v_size)
         {
             index_error(ofs);
             return nullptr;
@@ -75,17 +75,27 @@ template <typename vec_type> object *fetch_vec(vec_type *f, object *k)
         return new_float((*f)[ofs]);
     }
 
-    if (k == SS(count))
-    {
-        return new_int(f->_count);
-    }
-
     if (k == SS(size))
     {
-        return new_int(f->_size);
+        auto o = new_int(f->v_size);
+        if (o)
+        {
+            o->decref();
+        }
+        return o;
     }
 
-    return f->_props->fetch(k);
+    if (k == SS(capacity))
+    {
+        auto o = new_int(f->v_capacity);
+        if (o)
+        {
+            o->decref();
+        }
+        return o;
+    }
+
+    return f->v_props->fetch(k);
 }
 
 template <typename vec_type> int assign_vec(vec_type *f, object *k, object *v)
@@ -98,9 +108,9 @@ template <typename vec_type> int assign_vec(vec_type *f, object *k, object *v)
         auto ofs = intof(k)->i_value;
         if (ofs < 0)
         {
-            ofs = f->_size + ofs;
+            ofs = f->v_capacity + ofs;
         }
-        if (ofs < 0 || static_cast<size_t>(ofs) >= f->_size)
+        if (ofs < 0 || static_cast<size_t>(ofs) >= f->v_capacity)
         {
             return index_error(ofs);
         }
@@ -108,9 +118,9 @@ template <typename vec_type> int assign_vec(vec_type *f, object *k, object *v)
         {
             return type::assign_fail(f, k, v);
         }
-        for (; f->_count < static_cast<size_t>(ofs); ++f->_count)
+        for (; f->v_size < static_cast<size_t>(ofs); ++f->v_size)
         {
-            (*f)[f->_count] = zero;
+            (*f)[f->v_size] = zero;
         }
         if (isint(v))
         {
@@ -120,30 +130,29 @@ template <typename vec_type> int assign_vec(vec_type *f, object *k, object *v)
         {
             (*f)[ofs] = static_cast<value_type>(floatof(v)->f_value);
         }
-        ++f->_count;
+        ++f->v_size;
         return 0;
     }
 
-    if (k == SS(size))
+    if (k == SS(capacity))
     {
         return type::assign_fail(f, k, v);
     }
 
-    if (k == SS(count))
+    if (k == SS(size))
     {
         if (isint(v))
         {
-            size_t count = intof(v)->i_value;
-            if (intof(v)->i_value < 0 || count > f->_size)
+            size_t z = intof(v)->i_value;
+            if (intof(v)->i_value < 0 || z > f->v_capacity)
             {
-                return set_error("%u: count out of range", count);
+                return set_error("%u: size out of range", z);
             }
-            f->_count = count;
+            f->v_size = z;
             return 0;
         }
     }
-
-    return f->_props->assign(k, v);
+    return f->v_props->assign(k, v);
 }
 
 template <typename vec_type> int forall_vec(object *o)
@@ -151,11 +160,11 @@ template <typename vec_type> int forall_vec(object *o)
     auto     fa = forallof(o);
 
     auto f = static_cast<vec_type *>(fa->fa_aggr);
-    if (++fa->fa_index >= f->_count) {
+    if (++fa->fa_index >= f->v_size) {
         return -1;
     }
     if (fa->fa_vaggr != null) {
-        auto v = make_ref(new_float(f->_ptr[fa->fa_index]));
+        auto v = make_ref(new_float(f->v_ptr[fa->fa_index]));
         if (!v)
             return 1;
         if (ici_assign(fa->fa_vaggr, fa->fa_vkey, v)) {
@@ -179,19 +188,19 @@ template <typename vec_type> int save_vec(archiver *ar, vec_type *f)
     if (ar->save_name(f)) {
         return 1;
     }
-    int64_t size = f->_size;
+    int64_t capacity = f->v_capacity;
+    if (ar->write(capacity)) {
+        return 1;
+    }
+    int64_t size = f->v_size;
     if (ar->write(size)) {
         return 1;
     }
-    int64_t count = f->_count;
-    if (ar->write(count)) {
+    if (ar->save(f->v_props)) {
         return 1;
     }
-    if (ar->save(f->_props)) {
-        return 1;
-    }
-    for (size_t i = 0; i < f->_count; ++i) {
-        if (ar->write(f->_ptr[i])) {
+    for (size_t i = 0; i < f->v_size; ++i) {
+        if (ar->write(f->v_ptr[i])) {
             return 1;
         }
     }
@@ -201,17 +210,17 @@ template <typename vec_type> int save_vec(archiver *ar, vec_type *f)
 template <typename vec_type> object *restore_vec(archiver *ar)
 {
     object *oname;
+    int64_t capacity;
     int64_t size;
-    int64_t count;
     object *props;
 
     if (ar->restore_name(&oname)) {
         return nullptr;
     }
-    if (ar->read(&size)) {
+    if (ar->read(&capacity)) {
         return nullptr;
     }
-    if (ar->read(&count)) {
+    if (ar->read(&size)) {
         return nullptr;
     }
     if ((props = ar->restore()) == nullptr) {
@@ -222,19 +231,17 @@ template <typename vec_type> object *restore_vec(archiver *ar)
         set_error("restored properties is not a map");
         return nullptr;
     }
-    if (count > size) {
-        set_error("count greater than size");
+    if (size > capacity) {
+        set_error("size greater than capacity");
         return nullptr;
     }
-
-    auto f = make_ref(new_vec<vec_type>(size, count, props));
+    auto f = make_ref(new_vec<vec_type>(capacity, size, props));
     if (ar->record(oname, f)) {
         return nullptr;
     }
-
-    for (size_t i = 0; i < f->_count; ++i)
+    for (size_t i = 0; i < f->v_size; ++i)
     {
-        if (ar->read(&f->_ptr[i]))
+        if (ar->read(&f->v_ptr[i]))
         {
             return nullptr;
         }
@@ -250,19 +257,19 @@ template <typename vec_type> object *restore_vec(archiver *ar)
 size_t vec32_type::mark(object *o)
 {
     return type::mark(o)
-        + vec32of(o)->_props->mark()
-        + vec32of(o)->_size * sizeof (vec32::value_type);
+        + vec32of(o)->v_props->mark()
+        + vec32of(o)->v_capacity * sizeof (vec32::value_type);
 }
 
 void vec32_type::free(object *o)
 {
-    ici_free(vec32of(o)->_ptr);
+    ici_free(vec32of(o)->v_ptr);
     type::free(o);
 }
 
 int64_t vec32_type::len(object *o)
 {
-    return vec32of(o)->_count;
+    return vec32of(o)->v_size;
 }
 
 object *vec32_type::fetch(object *o, object *k)
@@ -290,9 +297,9 @@ object * vec32_type::restore(archiver *ar)
     return restore_vec<vec32>(ar);
 }
 
-vec32 *new_vec32(size_t size, size_t count, object *props)
+vec32 *new_vec32(size_t capacity, size_t size, object *props)
 {
-    return new_vec<vec32>(size, count, props);
+    return new_vec<vec32>(capacity, size, props);
 }
 
 //  ----------------------------------------------------------------
@@ -300,19 +307,19 @@ vec32 *new_vec32(size_t size, size_t count, object *props)
 size_t vec64_type::mark(object *o)
 {
     return type::mark(o)
-        + vec64of(o)->_props->mark()
-        + vec64of(o)->_size * sizeof(vec64::value_type);
+        + vec64of(o)->v_props->mark()
+        + vec64of(o)->v_capacity * sizeof(vec64::value_type);
 }
 
 void vec64_type::free(object *o)
 {
-    ici_free(vec64of(o)->_ptr);
+    ici_free(vec64of(o)->v_ptr);
     type::free(o);
 }
 
 int64_t vec64_type::len(object *o)
 {
-    return vec64of(o)->_count;
+    return vec64of(o)->v_size;
 }
 
 object *vec64_type::fetch(object *o, object *k)
@@ -340,9 +347,9 @@ object * vec64_type::restore(archiver *ar)
     return restore_vec<vec64>(ar);
 }
 
-vec64 *new_vec64(size_t size, size_t count, object *props)
+vec64 *new_vec64(size_t capacity, size_t size, object *props)
 {
-    return new_vec<vec64>(size, count, props);
+    return new_vec<vec64>(capacity, size, props);
 }
 
 } // namespace ici

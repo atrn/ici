@@ -4,13 +4,13 @@ if (typeof(f) != "vec32")
 {
     fail("didn't restore a vec32");
 }
-if (f.size != Z)
+if (f.capacity != Z)
+{
+    fail(sprintf("unexpected capacity: %d", f.capacity));
+}
+if (f.size != f.capacity)
 {
     fail(sprintf("unexpected size: %d", f.size));
-}
-if (f.count != f.size)
-{
-    fail(sprintf("unexpected count: %d", f.count));
 }
 for (i := 0; i < Z; ++i)
 {

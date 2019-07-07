@@ -12,9 +12,9 @@ namespace ici
  * The following portion of this file exports to ici.h. --ici.h-start--
  */
 /*
- *  A 'vec' object is an 1-dimensional array of an underlying C
- *  type - float or double. A 'vec' is created with a defined
- *  maximum size and allocates that many elements of the underlying
+ *  A 'vec' object is an 1-dimensional array of an underlying C type -
+ *  float or double. A 'vec' is created with a defined maximum size,
+ *  or _capacity_, and allocates that many elements of the underlying
  *  type.
  *
  *  The data values held in a vec are accessed by indexing the
@@ -22,38 +22,35 @@ namespace ici
  *  the vec array. Both reading (fetch) and writing (assign)
  *  are supported.
  *
- *  A vec object has two important attributes, its 'size' and what
- *  is called its 'count'.  The 'size' is maximum number of values able
- *  to be held in the vec and is defined when the vec object
- *  is created.
+ *  A vec object has two important attributes, its 'capacity' and
+ *  its 'size'.  The 'capacity' is maximum number of values the
+ *  vec can hold and is defined when the vec object is created.
  *
- *  The 'count' counts the actual number of values held in the vec.
- *  When a vec object is first created it has a count of 0. Adding
- *  data to the vec increases the count, up to the vec size.
+ *  The 'size' is the count of the actual number of values held in the
+ *  vec.  When first created a vec has a size of 0. Adding data to the
+ *  vec increases that number, up to the vec's capacity.
  *
  *  A 'vec' _len_, as returned by the ICI len() function, is the
- *  vec' 'count'.  The size of a vec, its maximum _len_, is
- *  obtained by indexing the vec object with the key "size".
- *  Attempting to assign to a vec' "size" is an error.
+ *  vec' 'size'.  The cpacity of a vec, the maximum _len_, is
+ *  obtained by indexing the vec object with the key "capacity".
+ *  Attempting to assign to a vec' "capacity" is an error.
  *
  *  Reading values from a vec object, via indexing with an integer
- *  key, is limited to reading values up to the vec' count'.
- *  I.e. it is not possible to read data values that have not been
- *  set.
+ *  key, is limited to reading values up to the vec' size'.  I.e. it
+ *  is not possible to read data values that have not been set.
  *
- *  Writing values to a vec object extends its 'count'.  Any value
- *  in the vec, up to its size, may be assigned a numeric value.
- *  If the value being assigned is beyond of the vec' current count
- *  values between the 'count' and the new value are filled with zero
- *  values. Following the assignment to value at offset i the vec
- *  object will have a 'count' of i+1. The maximum writable position
- *  being equal to 'vec.size - 1'.
+ *  Writing values to a vec object extends its 'size'.  Any value in
+ *  the vec, up to its size - 1, may be assigned to.  If the element
+ *  being assigned is beyond current size values inbetween the old
+ *  and new sizes are set to zero values. Following the assignment to
+ *  value at offset i the vec object will have a 'size' of i+1. The
+ *  maximum writable position being equal to 'vec.capacity - 1'.
  *
- *  Additionally a vec' 'count' may be retrieved by indexing the
- *  vec object with "count".  Assigning to a vec' "count" IS
- *  permitted and functions in a similar manner to indexed assignment.
- *  The 'count' may only be set to values from 0 to the vec' size
- *  and extending the 'count' beyonds its current value writes zeros
+ *  Additionally a vec' 'size' may be retrieved by indexing the
+ *  vec object with "size".  Assigning to a vec' "size" IS
+ *  permitted and functions in a similar manner as an indexed assignment.
+ *  The 'size' may only be set to values from 0 to the vec' capacity
+ *  and extending the 'size' beyond its current value writes zeros
  *  to the now accessible values.
  *
  *  Properties
@@ -61,7 +58,7 @@ namespace ici
  *  In addition to its array of values a vec object also has a map
  *  used to hold user-defined _properties_.  When a vec object is
  *  indexed by keys other than integers or the strings "size" and
- *  "count" it forwards the access to the vec' properties map
+ *  "capacity" it forwards the access to the vec' properties map
  *  allowing users to define, almost, arbitrary collections of
  *  properies to associate with the vec object.
  */
@@ -71,43 +68,43 @@ struct vec : object
     typedef VALUE_TYPE value_type;
     constexpr static auto type_code = TYPE_CODE;
 
-    size_t      _size;          // total capacity
-    size_t      _count;         // current length
-    value_type *_ptr;           // _size x value_type's
-    map *       _props;         // user-defined properties
+    size_t      v_capacity;     // total capacity
+    size_t      v_size;         // current length
+    value_type *v_ptr;          // v_capacity x value_type's
+    map *       v_props;        // user-defined properties
 
     const value_type * data() const
     {
-        return _ptr;
+        return v_ptr;
     }
 
     value_type * data()
     {
-        return _ptr;
+        return v_ptr;
     }
 
     void fill(value_type value, size_t ofs, size_t lim)
     {
         for (size_t i = ofs; i < lim; ++i)
         {
-            _ptr[i] = value;
+            v_ptr[i] = value;
         }
-        _count = lim;
+        v_size = lim;
     }
 
     void fill(value_type value, size_t ofs = 0)
     {
-        fill(value, ofs, _size);
+        fill(value, ofs, v_capacity);
     }
 
     const value_type & operator[](size_t index) const
     {
-        return _ptr[index];
+        return v_ptr[index];
     }
 
     value_type & operator[](size_t index)
     {
-        return _ptr[index];
+        return v_ptr[index];
     }
 
     vec & operator=(value_type value)
@@ -119,9 +116,9 @@ struct vec : object
 #define define_vec_binop(OP)                            \
     vec & operator OP (const vec &rhs)                  \
     {                                                   \
-        for (size_t index = 0; index < _count; ++index) \
+        for (size_t index = 0; index < v_size; ++index) \
         {                                               \
-            _ptr[index] OP rhs[index];                  \
+            v_ptr[index] OP rhs[index];                 \
         }                                               \
         return *this;                                   \
     }
@@ -136,9 +133,9 @@ struct vec : object
 #define define_vec_binop_scalar(OP)                     \
     vec & operator OP (value_type scalar)               \
     {                                                   \
-        for (size_t index = 0; index < _count; ++index) \
+        for (size_t index = 0; index < v_size; ++index) \
         {                                               \
-            _ptr[index] OP scalar;                      \
+            v_ptr[index] OP scalar;                     \
         }                                               \
         return *this;                                   \
     }
