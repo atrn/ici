@@ -289,7 +289,7 @@ clean:	; @case "$(MAKEFLAGS)" in \
 
 distclean:	clean
 	rm -f *.a *.so *.dylib
-	rm -rf $(cmakedir) $(xcodedir)
+	rm -rf $(cmakedir) $(xcodedir) build
 
 
 
