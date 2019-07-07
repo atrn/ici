@@ -191,10 +191,16 @@ for (i = 0; i < 100; i++); /* churn some objects */
 getfile(s);
 
 /*
- * This test causes ici 4.1.0 to try to write at an address
- * outside the process's legal address space.
- * This bug in sfile.c was fixed 8/9/2005.
+ * This test caused ici 4.1.0 to try to write at an address
+ * outside the process's legal address space. The bug in
+ * sfile.c was fixed 8/9/2005.
  */
-local xyz = sopen("{seek(xyz, 1000000, 0);rejectchar(currentfile(),\" \");}");
-parse(xyz);
+try
+{
+    local xyz = sopen("{seek(xyz, 1000000, 0);rejectchar(currentfile(),\" \");}");
+    parse(xyz);
+    fail("failed to catch bogus write");
+}
+onerror;
 
+exit(0);

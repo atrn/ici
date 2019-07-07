@@ -45,3 +45,5 @@ for (i := 0; i < 192000; ++i)
 }
 
 mod := sig * noise;
+
+// printf("%d, %d, %d\n", mod.size, sig.size, noise.size);
