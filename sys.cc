@@ -29,9 +29,11 @@
 #include <signal.h>
 
 #ifndef _WIN32
+#include <fcntl.h>
 #include <unistd.h>
 #include <sys/wait.h>
 #include <sys/time.h>
+#include <sys/mman.h>
 #endif
 
 #ifdef __CYGWIN__
@@ -2045,6 +2047,131 @@ static int sys_error()
     return argerror(0);
 }
 
+/*
+ * mem = mmap(addr, len, prot, flags, fd, offset)
+ *      Raw system call.
+ *
+ * mem = mmap(string [, prot [, flags]])
+ *      Simple interface, maps an entire file into memory.
+ *      Default prot is PROT_READ|PROT_WRITE, default flags
+ *      are MAP_FILE|MAP_SHARED. If prot given as PROT_READ
+ *      file is opened O_RDONLY otherwise it is O_RDWR.
+ */
+
+static void sys_unmap_mem(void *) // , size_t size)
+{
+    // mem's deleter doesn't pass the size...yet...
+    // when it does we can collect mapped regions.
+    // Until then users have to explicitly unmap mem
+    // objects with sys.munmap(). When we do add
+    // collection ability we will also need a flag
+    // on mem objects to tell us if they are mapped
+    // so we can provide nice errors upon mis-use.
+    //
+    // munmap(addr, size);
+}
+
+static int sys_raw_mmap()
+{
+    int64_t addr, len, prot, flags, fd, offset;
+    if (typecheck("iiiiii", &addr, &len, &prot, &flags, &fd, &offset))
+    {
+        return 1;
+    }
+    auto r = mmap((void *)addr, len, prot, flags, fd, offset);
+    if (r == (void *)-1)
+    {
+        return set_error(strerror(errno));
+    }
+    return int_ret((int64_t)r);
+}
+
+static int sys_munmap()
+{
+    mem *m;
+    if (typecheck("o", &m))
+    {
+        return 1;
+    }
+    if (!ismem(m))
+    {
+        return argerror(0);
+    }
+    munmap(m->m_base, m->m_length * m->m_accessz);
+    return null_ret();
+}
+
+static int sys_mmap()
+{
+    if (NARGS() > 3)
+    {
+        return sys_raw_mmap();
+    }
+
+    static auto error = []()
+    {
+        return set_error(strerror(errno));
+    };
+
+    char *path;
+    int64_t prot = PROT_READ|PROT_WRITE;
+    int64_t flags = MAP_FILE|MAP_SHARED;
+
+    switch (NARGS())
+    {
+    case 0:
+        return argcount(3);
+    case 1:
+        if (typecheck("s", &path))
+        {
+            return 1;
+        }
+        break;
+    case 2:
+        if (typecheck("si", &path, &prot))
+        {
+            return 1;
+        }
+        break;
+    case 3:
+        if (typecheck("sii", &path, &prot, &flags))
+        {
+            return 1;
+        }
+        break;
+    default:
+        assert(!"NARGS() is broken (-ve)");
+        abort();
+    }
+
+    const int fd = open(path, prot & PROT_WRITE ? O_RDWR : O_RDONLY);
+    if (fd == -1)
+    {
+        return error();
+    }
+    struct stat statbuf;
+    if (fstat(fd, &statbuf) == -1)
+    {
+        close(fd);
+        return error();
+    }
+    const size_t len = statbuf.st_size;
+    auto addr = mmap(0, len, prot, flags, fd, 0);
+    if (addr == (void *)-1)
+    {
+        close(fd);
+        return error();
+    }
+    close(fd);
+    auto m = new_mem(addr, len, 1, sys_unmap_mem);
+    if (!m)
+    {
+        munmap(addr, len);
+        return 1;
+    }
+    return ret_with_decref(m);
+}
+
 ICI_DEFINE_CFUNCS(sys) {
     ICI_DEFINE_CFUNC(_error, sys_error),
 
@@ -2361,6 +2488,10 @@ ICI_DEFINE_CFUNCS(sys) {
     ICI_DEFINE_CFUNC2(ulimit,  sys_simple, ulimit, "ii"),
 #endif
 #endif
+#ifndef _WIN32
+    ICI_DEFINE_CFUNC(mmap, sys_mmap),
+    ICI_DEFINE_CFUNC(munmap, sys_munmap),
+#endif
     ICI_CFUNCS_END()
 };
 
@@ -2416,6 +2547,19 @@ int sys_init(ici::objwsup *scp) {
         VALOF(S_IREAD),
         VALOF(S_IWRITE),
         VALOF(S_IEXEC),
+
+#ifndef _WIN32
+        VALOF(PROT_NONE),
+        VALOF(PROT_READ),
+        VALOF(PROT_WRITE),
+        VALOF(PROT_EXEC),
+        VALOF(MAP_ANONYMOUS),
+        VALOF(MAP_ANON),
+        VALOF(MAP_FILE),
+        VALOF(MAP_FIXED),
+        VALOF(MAP_PRIVATE),
+        VALOF(MAP_SHARED),
+#endif
 
 #ifndef _WIN32
         VALOF(S_IFIFO),
