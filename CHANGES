@@ -1,5 +1,10 @@
 Major Changes in Version 5
 
+*     added the function float32(), used in the same manner
+      as the existing float() function (convert float/int/string
+      to float). float32() converts the result to single-precision,
+      and then back to double.
+
 *     slice() is a synonym for interval().
 
 *     Removed the sys.error() function "overload" that allowed

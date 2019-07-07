@@ -939,6 +939,36 @@ static int f_float() {
     return float_ret(v);
 }
 
+static int f_float32() {
+    object  *o;
+    double  v;
+
+    if (NARGS() != 1)
+    {
+        return argcount(1);
+    }
+    o = ARG(0);
+    if (isfloat(o))
+    {
+        v = floatof(o)->f_value;
+    }
+    else if (isstring(o))
+    {
+        v = strtod(stringof(o)->s_chars, nullptr);
+    }
+    else if (isint(o))
+    {
+        v = (double)intof(o)->i_value;
+    }
+    else
+    {
+        v = 0;
+    }
+    const auto fv = static_cast<float>(v);
+    return float_ret((double)fv);
+}
+
+
 static int f_num() {
     object  *o;
     double  f;
@@ -4131,6 +4161,7 @@ ICI_DEFINE_CFUNCS(std)
     ICI_DEFINE_CFUNC(exit,         f_exit),
     ICI_DEFINE_CFUNC(fail,         f_fail),
     ICI_DEFINE_CFUNC(float,        f_float),
+    ICI_DEFINE_CFUNC(float32,      f_float32),
     ICI_DEFINE_CFUNC(int,          f_int),
     ICI_DEFINE_CFUNC(eq,           f_eq),
     ICI_DEFINE_CFUNC(parse,        f_parse),
