@@ -1,5 +1,11 @@
 Major Changes in Version 5
 
+*     added sys.mmap() and sys.munmap(). sys.mmap() comes in two
+      flavors, simple and complete. The simple interface maps an
+      entire file into memory and returns a byte-sized ICI mem
+      object _containing_ the data. The complete version is
+      a direct interface to the system call.
+
 *     added the function float32(), used in the same manner
       as the existing float() function (convert float/int/string
       to float). float32() converts the result to single-precision,
