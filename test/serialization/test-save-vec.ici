@@ -1,6 +1,6 @@
 file = fopen(test.data_file(), "w");
 Z := 1937;
-f := vec32(Z);
+f := vec(32, Z);
 for (i := 0; i < Z; ++i)
 {
     f[i] = pi * (i+1);

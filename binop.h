@@ -65,10 +65,10 @@
 #define MISMATCH()      goto mismatch
 #define VECMISMATCH()   goto vecmismatch
 
-#define MATCHVEC(VECOF)                               \
-    if (VECOF(o0)->_count > VECOF(o1)->_count)        \
-    {                                                 \
-        VECMISMATCH();                                \
+#define MATCHVEC(VECOF)                         \
+    if (VECOF(o0)->_size != VECOF(o1)->_size)   \
+    {                                           \
+        VECMISMATCH();                          \
     }
 
 /*
@@ -903,7 +903,8 @@
         FAIL();
 
     vecmismatch:
-        set_error("vec size mis-match");
+        // nb. the cast works for vec64 too
+        set_error("vec size mis-match: %lu vs. %lu", vec32of(o0)->_size, vec32of(o1)->_size);
         FAIL();
     }
 
