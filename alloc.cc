@@ -57,6 +57,17 @@ static chunk            *ici_chunks;
 
 #endif /* ICI_ALLALLOC */
 
+constexpr size_t flist_limit = 64;
+
+constexpr size_t flist_index(size_t z)
+{
+    if (z > 0 && z <= flist_limit)
+    {
+        constexpr size_t which_flist[] = {0, 1, 2, 2, 3, 3, 3, 3};
+        return which_flist[(z - 1) >> 3];
+    }
+    return z;
+}
 
 /*
  * Allocate an object of the given 'size'.  Return nullptr on failure, usual
@@ -79,7 +90,7 @@ void *ici_nalloc(size_t z)
     char                *r;
 #if !ICI_ALLALLOC
     size_t              fi;
-    static char const   which_flist[] = {0, 1, 2, 2, 3, 3, 3, 3};
+    // static char const   which_flist[] = {0, 1, 2, 2, 3, 3, 3, 3};
 #endif
 
     if ((ici_mem += z) > ici_mem_limit)
@@ -89,14 +100,15 @@ void *ici_nalloc(size_t z)
 
 #if !ICI_ALLALLOC
 
-    if (z <= 64)
-    {
-        fi = which_flist[(z - 1) >> 3];
-    }
-    else
-    {
-        fi = z;
-    }
+    fi = flist_index(z);
+    // if (z <= flist_limit)
+    // {
+    //     fi = which_flist[(z - 1) >> 3];
+    // }
+    // else
+    // {
+    //     fi = z;
+    // }
     if (fi < (int)nels(ici_flists))
     {
         char    **fp;
@@ -169,17 +181,18 @@ void ici_nfree(void *p, size_t z)
 {
 #if !ICI_ALLALLOC
     int                 fi;
-    static char const   which_flist[] = {0, 1, 2, 2, 3, 3, 3, 3};
+    // static char const   which_flist[] = {0, 1, 2, 2, 3, 3, 3, 3};
 #endif
 
     ici_mem -= z;
 #if !ICI_ALLALLOC
-    if (z <= 64)
+    if (z <= flist_limit)
     {
         /*
          * Small block. Just push it onto one of our fast free lists.
          */
-        fi = which_flist[(z - 1) >> 3];
+        // fi = which_flist[(z - 1) >> 3];
+        fi = flist_index(z);
         *(char **)p = ici_flists[fi];
         ici_flists[fi] = (char *)p;
     }
