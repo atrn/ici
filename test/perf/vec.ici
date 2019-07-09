@@ -1,23 +1,15 @@
-local Z = int(96000);
-local N = 20*1000;
+local Z = 240 * int(44100);
+local N = 100;
 
-local measure(caption, f)
-{
-    elapsed := util.measure_elapsed_time(f);
-    printf("%s %.06fs\n", caption, elapsed);
-    return elapsed;
-}
-
-local v0 = vec(32, Z, 1.0);
-local v1 = vec(32, Z);
-local v2 = vec(32, Z);
+local v0 = vec32(Z, 1.0);
+local v1 = vec32(Z);
+local v2 = vec32(Z);
 
 noise(v1);
 noise(v2);
 
-elapsed := measure
+elapsed := util.measure_elapsed_time
 (
-    sprintf("%d times \"v0 + v1 * v2\"", N),
     [func () {
         for (i := 0; i < N; ++i)
         {
@@ -25,5 +17,9 @@ elapsed := measure
         }
     }]
 );
+
+printf("%d elements, ", v0.size);
+caption := sprintf("%d times \"v0 + v1 * v2\"", N),
+printf("%s  ->  %.06fs  ->  ", caption, elapsed);
 per := elapsed / N;
-printf("%.03fus per op\n", per*1e6);
+printf("%.03fus/op\n", per*1e6);

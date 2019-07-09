@@ -904,7 +904,7 @@
 
     vecmismatch:
         // nb. the cast works for vec64 too
-        set_error("vec size mis-match: %lu vs. %lu", vec32of(o0)->v_capacity, vec32of(o1)->v_capacity);
+        set_error("vec size mis-match: %lu vs. %lu", vec32of(o0)->v_size, vec32of(o1)->v_size);
         FAIL();
     }
 

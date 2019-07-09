@@ -39,14 +39,10 @@ forall (v in f2)
 }
 
 
-sig := vec(32, 192000);
-noise := vec(32, 192000);
-
-for (i := 0; i < 192000; ++i)
-{
-    noise[i] = rand() / float(1<<15);
-}
-
-mod := sig * noise;
+sig := vec32(192000);
+mod := vec32(192000);
+fill(sig, 0.5);
+noise(mod);
+mod := sig * mod;
 
 // printf("%d, %d, %d\n", mod.capacity, sig.capacity, noise.capacity);
