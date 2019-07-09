@@ -9,6 +9,7 @@
 #include "archiver.h"
 
 #ifdef ICI_VEC_USE_IPP
+#include <ippcore.h>
 #include <ipps.h>
 #endif
 
@@ -49,7 +50,11 @@ template <typename vec_type> vec_type *new_vec(size_t capacity, size_t size, obj
             return nullptr;
         }
     }
+#ifdef ICI_VEC_USE_IPP
+    v->v_ptr = static_cast<value_type *>(ippMalloc(capacity * sizeof (value_type)));
+#else
     v->v_ptr = static_cast<value_type *>(ici_alloc(capacity * sizeof (value_type)));
+#endif
     if (!v->v_ptr)
     {
         ici_free(v);
@@ -262,12 +267,20 @@ size_t vec32_type::mark(object *o)
 {
     return type::mark(o)
         + vec32of(o)->v_props->mark()
+#ifdef ICI_VEC_USE_IPP
+    ; // IPP's malloc is a distinct arena
+#else
         + vec32of(o)->v_capacity * sizeof (vec32::value_type);
+#endif
 }
 
 void vec32_type::free(object *o)
 {
+#ifdef ICI_VEC_USE_IPP
+    ippFree(vec32of(o)->v_ptr);
+#else
     ici_free(vec32of(o)->v_ptr);
+#endif
     type::free(o);
 }
 
