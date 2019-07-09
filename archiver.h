@@ -27,8 +27,7 @@ int  f_archive_restore(...);
 
 /*
  * The top bit of the tcode set when the object is atomic.  This of
- * course limits us to 128 types. This supports the move to a 16-bit
- * per-value header.
+ * course limits archiving to 128 distinct types.
  */
 constexpr int O_ARCHIVE_ATOMIC = 0x80;
 
@@ -37,7 +36,7 @@ constexpr int O_ARCHIVE_ATOMIC = 0x80;
  */
 
 /*
- * An archiving session.
+ * An archiver holds the /state/ used when saving or restoring an object graph.
  */
 class archiver
 {
@@ -45,64 +44,84 @@ public:
     static int op_func_code(int (*fn)());
     static int (*op_func(int))();
 
+    /**
+     *  Constructs an archiver that will use the given file and scope.
+     *
+     *  If saving the file must be writable and if restoring it must
+     *  be readable.
+     *
+     *  The scope is used when restoring function objects. The scope
+     *  is the, restored, function's 'local' scope (the super of its
+     *  autos) and holds the restored function, keyed by its name.
+     *  The object (a map) must be writable.
+     */
     archiver(file *, objwsup *);
     operator bool() const; // checks construction success
-    ~archiver();
 
+    ~archiver() = default;
+    archiver(archiver &&) = delete;
     archiver(const archiver &) = delete;
     archiver& operator=(const archiver &) = delete;
 
     inline objwsup *scope() const { return a_scope; }
 
+    /*
+     *  Save the given object to the archiver's file.
+     *
+     *  Returns 0 on success, 1 on error, usual conventions.
+     */
     int save(object *);
+
+    /*
+     *  Restore an object from the archiver's files.
+     *
+     *  Returns nullptr on error.
+     */
     object *restore();
-
-    int record(object *, object *);
-    object *lookup(object *);
-    void remove(object *);
-
-    int save_name(object *);
-    int restore_name(object **);
-    int save_ref(object *);
-    object *restore_ref();
 
     inline int read(void *buf, int len) {
         return a_file->read(buf, len) != len;
-    }
-
-    inline int write(const void *buf, int len) {
-        return a_file->write(buf, len) != len;
     }
 
     inline int read(uint8_t *abyte) {
         return read(abyte, 1);
     }
 
+    inline int write(const void *buf, int len) {
+        return a_file->write(buf, len) != len;
+    }
+
     inline int write(uint8_t abyte) {
         return write(&abyte, 1);
     }
 
-    int read(int16_t *hword);
-    int read(int32_t *aword);
-    int read(int64_t *dword);
-    int read(float *flt);
-    int read(double *dbl);
+    int read(int16_t *);
+    int read(int32_t *);
+    int read(int64_t *);
+    int read(float *);
+    int read(double *);
 
-    int write(int16_t hword);
-    int write(int32_t aword);
-    int write(int64_t dword);
-    int write(float aflt);
-    int write(double adbl);
+    int write(int16_t);
+    int write(int32_t);
+    int write(int64_t);
+    int write(float);
+    int write(double);
 
+    int record(object *, object *);
+    object *lookup(object *);
+    void remove(object *);
+    int save_name(object *);
+    int restore_name(object **);
+    int save_ref(object *);
+    object *restore_ref();
     int push_name(str *);
     int pop_name();
-
     str *name_qualifier();
 
 private:
     file *  a_file;
     objwsup *a_scope;
-    ref<map> a_sent;
+    ref<map> a_sent;    // object -> 'name' (int)
     ref<array> a_names;
 };
 

@@ -184,9 +184,6 @@ archiver::operator bool() const {
     return a_sent != nullptr && a_names != nullptr;
 }
 
-archiver::~archiver() {
-}
-
 int archiver::push_name(str *name) {
     return a_names->push_back(name);
 }
@@ -197,8 +194,8 @@ int archiver::pop_name() {
 }
 
 int archiver::record(object *obj, object *ref) {
-    if (auto k = make_key(obj)) {
-        return a_sent->assign(k, ref);
+    if (auto key = make_key(obj)) {
+        return a_sent->assign(key, ref);
     }
     return 1;
 }

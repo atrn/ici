@@ -235,7 +235,7 @@ int cfunc_type::save(archiver *ar, object *o) {
         if (ar->write(icicore_prefix, icicore_prefix_len)) {
             return 1;
         }
-    } else if (prefix->s_nchars) {
+    } else if (prefix->s_nchars > 0) {
         if (ar->write(prefix->s_chars, prefix->s_nchars)) {
             return 1;
         }
