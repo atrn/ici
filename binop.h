@@ -65,10 +65,10 @@
 #define MISMATCH()      goto mismatch
 #define VECMISMATCH()   goto vecmismatch
 
-#define MATCHVEC(VECOF)                                   \
-    if (VECOF(o0)->v_capacity != VECOF(o1)->v_capacity)   \
-    {                                                     \
-        VECMISMATCH();                                    \
+#define MATCHVEC(VECOF)                         \
+    if (VECOF(o0)->v_size == VECOF(o1)->v_size) \
+    {                                           \
+        VECMISMATCH();                          \
     }
 
 /*
