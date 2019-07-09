@@ -126,7 +126,7 @@ int f_read()
     {
         return 1;
     }
-    frames->_count = sf_readf_float(sf->_file, frames->_ptr, z);
+    frames->v_size = sf_readf_float(sf->_file, frames->v_ptr, z);
     return ici::ret_with_decref(frames);
 }
 
@@ -156,7 +156,7 @@ int f_write()
     {
         return ici::set_error("attempt to used closed file");
     }
-    const auto r = sf_writef_float(sf->_file, frames->_ptr, frames->_count);
+    const auto r = sf_writef_float(sf->_file, frames->v_ptr, frames->v_size);
     return ici::int_ret(r);
 }
 

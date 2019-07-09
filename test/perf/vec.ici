@@ -1,0 +1,28 @@
+N := 10*1000;
+BIG := 1000*1000;
+
+local fill(v)
+{
+    for (i := 0; i < v.capacity; ++i)
+    {
+        v[i] = rand() / 32768.0;
+    }
+}
+
+v1 := vec(32, BIG);
+v2 := vec(32, BIG);
+
+start := now();
+fill(v1);
+fill(v2);
+elapsed := now() - start;
+printf("filling 2x %d %.2fs\n", BIG, elapsed);
+
+start := now();
+for (i := 0; i < N; ++i)
+{
+    v3 := v1 + v2;
+}
+elapsed := now() - start;
+per := elapsed / N;
+printf("v1 + v2 x %d %.2fs - %g per op\n", N, elapsed, per);
