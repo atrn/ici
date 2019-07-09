@@ -8,6 +8,10 @@
 #include "str.h"
 #include "archiver.h"
 
+#ifdef ICI_VEC_USE_IPP
+#include <ipps.h>
+#endif
+
 namespace ici
 {
 
@@ -351,5 +355,141 @@ vec64 *new_vec64(size_t capacity, size_t size, object *props)
 {
     return new_vec<vec64>(capacity, size, props);
 }
+
+#ifdef ICI_VEC_USE_IPP
+
+template <>
+vec<TC_VEC32, float> &
+vec<TC_VEC32, float>::operator+=(const vec &rhs)
+{
+    ippsAdd_32f_I(rhs.v_ptr, v_ptr, v_size);
+    return *this;
+}
+
+template <>
+vec<TC_VEC32, float> &
+vec<TC_VEC32, float>::operator-=(const vec &rhs)
+{
+    ippsSub_32f_I(rhs.v_ptr, v_ptr, v_size);
+    return *this;
+}
+
+template <>
+vec<TC_VEC32, float> &
+vec<TC_VEC32, float>::operator*=(const vec &rhs)
+{
+    ippsMul_32f_I(rhs.v_ptr, v_ptr, v_size);
+    return *this;
+}
+
+template <>
+vec<TC_VEC32, float> &
+vec<TC_VEC32, float>::operator/=(const vec &rhs)
+{
+    ippsDiv_32f_I(rhs.v_ptr, v_ptr, v_size);
+    return *this;
+}
+
+template <>
+vec<TC_VEC32, float> &
+vec<TC_VEC32, float>::operator+=(value_type value)
+{
+    ippsAddC_32f_I(value, v_ptr, v_size);
+    return *this;
+}
+
+template <>
+vec<TC_VEC32, float> &
+vec<TC_VEC32, float>::operator-=(value_type value)
+{
+    ippsSubC_32f_I(value, v_ptr, v_size);
+    return *this;
+}
+
+template <>
+vec<TC_VEC32, float> &
+vec<TC_VEC32, float>::operator*=(value_type value)
+{
+    ippsMulC_32f_I(value, v_ptr, v_size);
+    return *this;
+}
+
+template <>
+vec<TC_VEC32, float> &
+vec<TC_VEC32, float>::operator/=(value_type value)
+{
+    ippsDivC_32f_I(value, v_ptr, v_size);
+    return *this;
+}
+
+// TC_VEC64 -------------------------------------------------------
+
+template <>
+vec<TC_VEC64, double> &
+vec<TC_VEC64, double>::operator+=(const vec &rhs)
+{
+    ippsAdd_64f_I(rhs.v_ptr, v_ptr, v_size);
+    return *this;
+}
+
+template <>
+vec<TC_VEC64, double> &
+vec<TC_VEC64, double>::operator-=(const vec &rhs)
+{
+    ippsSub_64f_I(rhs.v_ptr, v_ptr, v_size);
+    return *this;
+}
+
+template <>
+vec<TC_VEC64, double> &
+vec<TC_VEC64, double>::operator*=(const vec &rhs)
+{
+    ippsMul_64f_I(rhs.v_ptr, v_ptr, v_size);
+    return *this;
+}
+
+template <>
+vec<TC_VEC64, double> &
+vec<TC_VEC64, double>::operator/=(const vec &rhs)
+{
+    ippsDiv_64f_I(rhs.v_ptr, v_ptr, v_size);
+    return *this;
+}
+
+
+template <>
+vec<TC_VEC64, double> &
+vec<TC_VEC64, double>::operator+=(value_type value)
+{
+    ippsAddC_64f_I(value, v_ptr, v_size);
+    return *this;
+}
+
+template <>
+vec<TC_VEC64, double> &
+vec<TC_VEC64, double>::operator-=(value_type value)
+{
+    ippsSubC_64f_I(value, v_ptr, v_size);
+    return *this;
+}
+
+template <>
+vec<TC_VEC64, double> &
+vec<TC_VEC64, double>::operator*=(value_type value)
+{
+    ippsMulC_64f_I(value, v_ptr, v_size);
+    return *this;
+}
+
+template <>
+vec<TC_VEC64, double> &
+vec<TC_VEC64, double>::operator/=(value_type value)
+{
+    ippsDivC_64f_I(value, v_ptr, v_size);
+    return *this;
+}
+
+#endif // ICI_VEC_USE_IPP
+
 
 } // namespace ici

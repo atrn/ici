@@ -23,41 +23,47 @@ Major Changes in Version 5
 
 *     Two new types have been added - vec32 and vec64.
 
-      A _vec_ type is an array of some C type - currently float or
-      double. The storage for the vec is allocated in a single block
-      of fixed size defined at the time the vec is created.
+      A _vec_ type is an array of a C++ scalar type - currently float
+      or double are supported. Storage for the vec is allocated in a
+      single block of defined capacity. The vec's capacity is its
+      maximum allowable size.
       
-      In addition to its size, defined at creation time, a vec also
-      has a 'count' - the number of actual values held in the vec.
-      The 'count' is the vec's len() (the result of calling the ICI
-      len() function) while the size limits the total possible len().
+      In addition to its capacity a vec has a 'size' - the number of
+      actual values held in the vec. The 'size' is the vec's len( )
+      (the result of calling the ICI len() function) while the
+      capacity limits the total possible len().
 
       A newly created, empty, vec has a len() of zero. Assigning
-      values to elements of the vec sets the count. Assigning to
-      elements beyond the current len() 
+      values to elements of the vec sets its size. Assigning to
+      elements beyond the current len() sets intervening elements to
+      zero. A vec's len() cannot be increased beyond its capacity.
 
-      Each vec object has two properties - a 'count' of the number of
-      actual values in the vec and a map to hold user-defined
-      properties.
-      
       Data in vec objects is accessed by indexing the vec with
-      an integer as if it were an, ICI, array or mem object.
-      The forall operation is supported with the obvious semantics,
-      forall-ing over the contents of the vec.
+      an integer in the same manner as an array or mem object.
+      The forall operation is supported, with the obvious semantics.
 
-      A number of operators are defined for vec to perform simple
-      _vector_ operations - vec * vec, vec + scalar, vec * scalar, and
-      so on.  The intent is to eventually ensure the resultant code is
-      vectorized or uses SIMD capabilities of the target procesor.
-      Implementation using vendor libraries, e.g. IPP, is also
-      a possibility.
+      A number of operators are defined that perform _vector_
+      arithmetic operations:
 
-        block := vec(32, blocksize)
-        ... fill block somehow
+      - vec + vec
+      - vec - vec
+      - vec * vec
+      - vec / vec
 
-        forall (sample in block) {
-           ...  process sample
-        }
+      Currently arithmetic operations are only support for
+      vecs of the same size (len()).
+
+      - vec + scalar
+      - vec - scalar
+      - vec * scalar
+      - vec / scalar
+
+      Other functions, e.g interval()/slice(), math functions,
+      will be extended to support operations on vec objects.
+
+      On supported platforms the Intel IPP library is used to
+      implement vector operations. In future similar libraries
+      for other platforms may be supported.
 
 *     version() has been removed, use ici.version
 

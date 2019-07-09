@@ -14,11 +14,11 @@ namespace ici
 /*
  *  A 'vec' object is an 1-dimensional array of an underlying C type -
  *  float or double. A 'vec' is created with a defined maximum size,
- *  or _capacity_, and allocates that many elements of the underlying
+ *  or /capacity/, and allocates that many elements of the underlying
  *  type.
  *
  *  The data values held in a vec are accessed by indexing the
- *  vec object with integer keys, the value's _offset_ within
+ *  vec object with integer keys, the value's /offset/ within
  *  the vec array. Both reading (fetch) and writing (assign)
  *  are supported.
  *
@@ -27,13 +27,15 @@ namespace ici
  *  vec can hold and is defined when the vec object is created.
  *
  *  The 'size' is the count of the actual number of values held in the
- *  vec.  When first created a vec has a size of 0. Adding data to the
- *  vec increases that number, up to the vec's capacity.
+ *  vec - one more than the maximum index assigned a value.  When
+ *  first created a vec has a size of zero. Assigning to elements of
+ *  the vec sets its size, up to the vec's capacity. Setting an
+ *  element that is NOT the /next/ 
  *
- *  A 'vec' _len_, as returned by the ICI len() function, is the
- *  vec' 'size'.  The cpacity of a vec, the maximum _len_, is
- *  obtained by indexing the vec object with the key "capacity".
- *  Attempting to assign to a vec' "capacity" is an error.
+ *  A vec's /length/, as returned by the ICI len() function, is the
+ *  vec' 'size'.  The cpacity of a vec, its maximum size, is obtained
+ *  by indexing the vec object with the key "capacity".  Assignment to
+ *  a vec's "capacity" is not permitted and raises an error.
  *
  *  Reading values from a vec object, via indexing with an integer
  *  key, is limited to reading values up to the vec' size'.  I.e. it
@@ -113,7 +115,11 @@ struct vec : object
         return *this;
     }
 
-#define define_vec_binop(OP)                            \
+#ifdef ICI_VEC_USE_IPP
+# define define_vec_binop_vec(OP)        vec & operator OP (const vec &);
+# define define_vec_binop_scalar(OP)     vec & operator OP (value_type);
+#else
+# define define_vec_binop_vec(OP)                       \
     vec & operator OP (const vec &rhs)                  \
     {                                                   \
         for (size_t index = 0; index < v_size; ++index) \
@@ -122,15 +128,7 @@ struct vec : object
         }                                               \
         return *this;                                   \
     }
-
-    define_vec_binop(+=)
-    define_vec_binop(-=)
-    define_vec_binop(*=)
-    define_vec_binop(/=)
-
-#undef define_vec_binop
-
-#define define_vec_binop_scalar(OP)                     \
+# define define_vec_binop_scalar(OP)                    \
     vec & operator OP (value_type scalar)               \
     {                                                   \
         for (size_t index = 0; index < v_size; ++index) \
@@ -139,13 +137,21 @@ struct vec : object
         }                                               \
         return *this;                                   \
     }
+#endif
+
+    define_vec_binop_vec(+=)
+    define_vec_binop_vec(-=)
+    define_vec_binop_vec(*=)
+    define_vec_binop_vec(/=)
 
     define_vec_binop_scalar(+=)
     define_vec_binop_scalar(-=)
     define_vec_binop_scalar(*=)
     define_vec_binop_scalar(/=)
 
+#undef define_vec_binop_vec
 #undef define_vec_binop_scalar
+
 };
 
 using vec32 =  vec<TC_VEC32, float>;
