@@ -1,42 +1,29 @@
-local N = 1000;
-local Z = 10*1000*1000;
+local Z = int(96000);
+local N = 20*1000;
 
 local measure(caption, f)
 {
     elapsed := util.measure_elapsed_time(f);
-    printf("%s %.03fs\n", caption, elapsed);
+    printf("%s %.06fs\n", caption, elapsed);
     return elapsed;
 }
 
-local fill(v)
-{
-    for (i := 0; i < v.capacity; ++i)
-    {
-        v[i] = rand() / 32768.0;
-    }
-}
-
+local v0 = vec(32, Z, 1.0);
 local v1 = vec(32, Z);
 local v2 = vec(32, Z);
 
-measure
-(
-    sprintf("filling 2 x %d", Z),
-    [func () {
-        fill(v1);
-        fill(v2);
-    }]
-);
+noise(v1);
+noise(v2);
 
 elapsed := measure
 (
-    sprintf("%d times \"v1 * v2\"", N),
+    sprintf("%d times \"v0 + v1 * v2\"", N),
     [func () {
         for (i := 0; i < N; ++i)
         {
-            v3 := v1 * v2;
+            v3 := v0 + v1 * v2;
         }
     }]
 );
 per := elapsed / N;
-printf("%.09g per op\n", per);
+printf("%.03fus per op\n", per*1e6);

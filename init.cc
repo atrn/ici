@@ -26,6 +26,7 @@ extern cfunc *ici_funcs[];
 static int mapici_init(objwsup *);
 extern int sys_init(objwsup *);
 extern int net_init(objwsup *);
+extern int vec_init(objwsup *);
 
 /*
  * Perform basic interpreter setup. Return non-zero on failure, usual
@@ -136,6 +137,9 @@ int init()
         if (assign_cfuncs(externs, *cfp)) {
             return 1;
         }
+    }
+    if (vec_init(externs)) {
+        return 1;
     }
     if (sys_init(externs)) {
         return 1;

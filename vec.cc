@@ -7,6 +7,7 @@
 #include "null.h"
 #include "str.h"
 #include "archiver.h"
+#include "cfunc.h"
 
 #ifdef ICI_VEC_USE_IPP
 #include <ippcore.h>
@@ -18,6 +19,188 @@ namespace ici
 
 template struct vec<TC_VEC32, float>;
 template struct vec<TC_VEC64, double>;
+
+
+#ifdef ICI_VEC_USE_IPP
+
+template <>
+void
+vec<TC_VEC32, float>::fill(float value, size_t ofs, size_t lim)
+{
+    ippsSet_32f(value, &v_ptr[ofs], lim - ofs);
+    v_size = lim;
+}
+
+template <>
+void
+vec<TC_VEC32, float>::fill(float value, size_t ofs)
+{
+    fill(value, ofs, v_capacity);
+}
+
+template <>
+vec<TC_VEC32, float> & 
+vec<TC_VEC32, float>::operator=(float value)
+{
+    fill(value);
+    return *this;
+}
+
+template <>
+void
+vec<TC_VEC64, double>::fill(double value, size_t ofs, size_t lim)
+{
+    ippsSet_64f(value, &v_ptr[ofs], lim - ofs);
+    v_size = lim;
+}
+
+template <>
+void
+vec<TC_VEC64, double>::fill(double value, size_t ofs)
+{
+    fill(value, ofs, v_capacity);
+}
+
+template <>
+vec<TC_VEC64, double> & 
+vec<TC_VEC64, double>::operator=(double value)
+{
+    fill(value);
+    return *this;
+}
+
+template <>
+vec<TC_VEC32, float> &
+vec<TC_VEC32, float>::operator+=(const vec &rhs)
+{
+    ippsAdd_32f_I(rhs.v_ptr, v_ptr, v_size);
+    return *this;
+}
+
+template <>
+vec<TC_VEC32, float> &
+vec<TC_VEC32, float>::operator-=(const vec &rhs)
+{
+    ippsSub_32f_I(rhs.v_ptr, v_ptr, v_size);
+    return *this;
+}
+
+template <>
+vec<TC_VEC32, float> &
+vec<TC_VEC32, float>::operator*=(const vec &rhs)
+{
+    ippsMul_32f_I(rhs.v_ptr, v_ptr, v_size);
+    return *this;
+}
+
+template <>
+vec<TC_VEC32, float> &
+vec<TC_VEC32, float>::operator/=(const vec &rhs)
+{
+    ippsDiv_32f_I(rhs.v_ptr, v_ptr, v_size);
+    return *this;
+}
+
+template <>
+vec<TC_VEC32, float> &
+vec<TC_VEC32, float>::operator+=(value_type value)
+{
+    ippsAddC_32f_I(value, v_ptr, v_size);
+    return *this;
+}
+
+template <>
+vec<TC_VEC32, float> &
+vec<TC_VEC32, float>::operator-=(value_type value)
+{
+    ippsSubC_32f_I(value, v_ptr, v_size);
+    return *this;
+}
+
+template <>
+vec<TC_VEC32, float> &
+vec<TC_VEC32, float>::operator*=(value_type value)
+{
+    ippsMulC_32f_I(value, v_ptr, v_size);
+    return *this;
+}
+
+template <>
+vec<TC_VEC32, float> &
+vec<TC_VEC32, float>::operator/=(value_type value)
+{
+    ippsDivC_32f_I(value, v_ptr, v_size);
+    return *this;
+}
+
+// TC_VEC64 -------------------------------------------------------
+
+template <>
+vec<TC_VEC64, double> &
+vec<TC_VEC64, double>::operator+=(const vec &rhs)
+{
+    ippsAdd_64f_I(rhs.v_ptr, v_ptr, v_size);
+    return *this;
+}
+
+template <>
+vec<TC_VEC64, double> &
+vec<TC_VEC64, double>::operator-=(const vec &rhs)
+{
+    ippsSub_64f_I(rhs.v_ptr, v_ptr, v_size);
+    return *this;
+}
+
+template <>
+vec<TC_VEC64, double> &
+vec<TC_VEC64, double>::operator*=(const vec &rhs)
+{
+    ippsMul_64f_I(rhs.v_ptr, v_ptr, v_size);
+    return *this;
+}
+
+template <>
+vec<TC_VEC64, double> &
+vec<TC_VEC64, double>::operator/=(const vec &rhs)
+{
+    ippsDiv_64f_I(rhs.v_ptr, v_ptr, v_size);
+    return *this;
+}
+
+
+template <>
+vec<TC_VEC64, double> &
+vec<TC_VEC64, double>::operator+=(value_type value)
+{
+    ippsAddC_64f_I(value, v_ptr, v_size);
+    return *this;
+}
+
+template <>
+vec<TC_VEC64, double> &
+vec<TC_VEC64, double>::operator-=(value_type value)
+{
+    ippsSubC_64f_I(value, v_ptr, v_size);
+    return *this;
+}
+
+template <>
+vec<TC_VEC64, double> &
+vec<TC_VEC64, double>::operator*=(value_type value)
+{
+    ippsMulC_64f_I(value, v_ptr, v_size);
+    return *this;
+}
+
+template <>
+vec<TC_VEC64, double> &
+vec<TC_VEC64, double>::operator/=(value_type value)
+{
+    ippsDivC_64f_I(value, v_ptr, v_size);
+    return *this;
+}
+
+#endif // ICI_VEC_USE_IPP
 
 namespace
 {
@@ -369,140 +552,76 @@ vec64 *new_vec64(size_t capacity, size_t size, object *props)
     return new_vec<vec64>(capacity, size, props);
 }
 
-#ifdef ICI_VEC_USE_IPP
+// ----------------------------------------------------------------
 
-template <>
-vec<TC_VEC32, float> &
-vec<TC_VEC32, float>::operator+=(const vec &rhs)
+static int f_vec_fill()
 {
-    ippsAdd_32f_I(rhs.v_ptr, v_ptr, v_size);
-    return *this;
+    object *vec;
+    double value;
+    if (typecheck("on", &vec, &value))
+    {
+        return 1;
+    }
+    if (isvec32(vec))
+    {
+        vec32of(vec)->fill(float(value));
+    }
+    else if (isvec64(vec))
+    {
+        vec64of(vec)->fill(value);
+    }
+    else
+    {
+        return argerror(0);
+    }
+    return null_ret();
 }
 
-template <>
-vec<TC_VEC32, float> &
-vec<TC_VEC32, float>::operator-=(const vec &rhs)
+static int f_vec_noise()
 {
-    ippsSub_32f_I(rhs.v_ptr, v_ptr, v_size);
-    return *this;
+    auto noise = []() -> double
+    {
+        return rand() / double(RAND_MAX);
+    };
+    
+    object *vec;
+    if (typecheck("o", &vec))
+    {
+        return 1;
+    }
+    if (isvec32(vec))
+    {
+        for (size_t i = 0; i < vec32of(vec)->v_capacity; ++i)
+        {
+            vec32of(vec)->v_ptr[i] = float(noise());
+        }
+        vec32of(vec)->v_size = vec32of(vec)->v_capacity;
+    }
+    else if (isvec64(vec))
+    {
+        for (size_t i = 0; i < vec64of(vec)->v_capacity; ++i)
+        {
+            vec64of(vec)->v_ptr[i] = noise();
+        }
+        vec64of(vec)->v_size = vec64of(vec)->v_capacity;
+    }
+    else
+    {
+        return argerror(0);
+    }
+    return null_ret();
 }
 
-template <>
-vec<TC_VEC32, float> &
-vec<TC_VEC32, float>::operator*=(const vec &rhs)
+ICI_DEFINE_CFUNCS(vec)
 {
-    ippsMul_32f_I(rhs.v_ptr, v_ptr, v_size);
-    return *this;
-}
+    ICI_DEFINE_CFUNC(fill, f_vec_fill),
+    ICI_DEFINE_CFUNC(noise, f_vec_noise),
+    ICI_CFUNCS_END()
+};
 
-template <>
-vec<TC_VEC32, float> &
-vec<TC_VEC32, float>::operator/=(const vec &rhs)
+int vec_init(ici::objwsup *scp)
 {
-    ippsDiv_32f_I(rhs.v_ptr, v_ptr, v_size);
-    return *this;
+    return assign_cfuncs(scp, ICI_CFUNCS(vec));
 }
-
-template <>
-vec<TC_VEC32, float> &
-vec<TC_VEC32, float>::operator+=(value_type value)
-{
-    ippsAddC_32f_I(value, v_ptr, v_size);
-    return *this;
-}
-
-template <>
-vec<TC_VEC32, float> &
-vec<TC_VEC32, float>::operator-=(value_type value)
-{
-    ippsSubC_32f_I(value, v_ptr, v_size);
-    return *this;
-}
-
-template <>
-vec<TC_VEC32, float> &
-vec<TC_VEC32, float>::operator*=(value_type value)
-{
-    ippsMulC_32f_I(value, v_ptr, v_size);
-    return *this;
-}
-
-template <>
-vec<TC_VEC32, float> &
-vec<TC_VEC32, float>::operator/=(value_type value)
-{
-    ippsDivC_32f_I(value, v_ptr, v_size);
-    return *this;
-}
-
-// TC_VEC64 -------------------------------------------------------
-
-template <>
-vec<TC_VEC64, double> &
-vec<TC_VEC64, double>::operator+=(const vec &rhs)
-{
-    ippsAdd_64f_I(rhs.v_ptr, v_ptr, v_size);
-    return *this;
-}
-
-template <>
-vec<TC_VEC64, double> &
-vec<TC_VEC64, double>::operator-=(const vec &rhs)
-{
-    ippsSub_64f_I(rhs.v_ptr, v_ptr, v_size);
-    return *this;
-}
-
-template <>
-vec<TC_VEC64, double> &
-vec<TC_VEC64, double>::operator*=(const vec &rhs)
-{
-    ippsMul_64f_I(rhs.v_ptr, v_ptr, v_size);
-    return *this;
-}
-
-template <>
-vec<TC_VEC64, double> &
-vec<TC_VEC64, double>::operator/=(const vec &rhs)
-{
-    ippsDiv_64f_I(rhs.v_ptr, v_ptr, v_size);
-    return *this;
-}
-
-
-template <>
-vec<TC_VEC64, double> &
-vec<TC_VEC64, double>::operator+=(value_type value)
-{
-    ippsAddC_64f_I(value, v_ptr, v_size);
-    return *this;
-}
-
-template <>
-vec<TC_VEC64, double> &
-vec<TC_VEC64, double>::operator-=(value_type value)
-{
-    ippsSubC_64f_I(value, v_ptr, v_size);
-    return *this;
-}
-
-template <>
-vec<TC_VEC64, double> &
-vec<TC_VEC64, double>::operator*=(value_type value)
-{
-    ippsMulC_64f_I(value, v_ptr, v_size);
-    return *this;
-}
-
-template <>
-vec<TC_VEC64, double> &
-vec<TC_VEC64, double>::operator/=(value_type value)
-{
-    ippsDivC_64f_I(value, v_ptr, v_size);
-    return *this;
-}
-
-#endif // ICI_VEC_USE_IPP
-
 
 } // namespace ici

@@ -85,6 +85,12 @@ struct vec : object
         return v_ptr;
     }
 
+
+#ifdef ICI_VEC_USE_IPP
+    void fill(value_type, size_t, size_t);
+    void fill(value_type, size_t = 0);
+    vec & operator=(value_type);
+#else
     void fill(value_type value, size_t ofs, size_t lim)
     {
         for (size_t i = ofs; i < lim; ++i)
@@ -99,6 +105,14 @@ struct vec : object
         fill(value, ofs, v_capacity);
     }
 
+    vec & operator=(value_type value)
+    {
+        fill(value);
+        return *this;
+    }
+
+#endif
+
     const value_type & operator[](size_t index) const
     {
         return v_ptr[index];
@@ -107,12 +121,6 @@ struct vec : object
     value_type & operator[](size_t index)
     {
         return v_ptr[index];
-    }
-
-    vec & operator=(value_type value)
-    {
-        fill(value);
-        return *this;
     }
 
 #ifdef ICI_VEC_USE_IPP
