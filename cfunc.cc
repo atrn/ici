@@ -4034,12 +4034,15 @@ static int f_putenv() {
     return null_ret();
 }
 
+/*
+ * vec32|vec64 = vec(bits, size, fill)
+ */
 static int f_vec()
 {
     int64_t bits;
     int64_t size;
     double filler = 0.0;
-    bool fill = false;
+    bool dofill = false;
 
     if (NARGS() == 2)
     {
@@ -4054,7 +4057,7 @@ static int f_vec()
     }
     else
     {
-        fill = true;
+        dofill = true;
     }
     if (bits != 32 && bits != 64)
     {
@@ -4067,7 +4070,7 @@ static int f_vec()
     if (bits == 32)
     {
         auto v = new_vec32(size);
-	if (fill)
+	if (dofill)
 	{
 	    v->fill(filler);
 	}
@@ -4076,7 +4079,7 @@ static int f_vec()
     // if (bits == 64)
     {
         auto v = new_vec64(size);
-	if (fill)
+	if (dofill)
 	{
 	    v->fill(filler);
 	}
@@ -4084,54 +4087,170 @@ static int f_vec()
     }
 }
 
+/*
+ * vec32 = vec32(size)
+ * vec32 = vec32(size, fill)
+ * vec32 = vec32(array)
+ */
 static int f_vec32()
 {
-    if (NARGS() < 1)
+    if (NARGS() == 2)
     {
-	return argcount(1);
+        int64_t size;
+        double filler;
+        if (typecheck("in", &size, &filler))
+        {
+            return 1;
+        }
+        if (size < 1)
+        {
+            return set_error("%lld: invalid size", size);
+        }
+        auto v = new_vec32(size);
+        if (!v)
+        {
+            return 1;
+        }
+        v->fill(filler);
+        return ret_with_decref(v);
     }
-    auto f = new_vec32(NARGS());
-    for (int i = 0; i < NARGS(); ++i)
+    else if (isint(ARG(0)))
     {
-	if (isint(ARG(i)))
-	{
-	    (*f)[i] = intof(ARG(i))->i_value;
-	}
-	else if (isfloat(ARG(i)))
-	{
-	    (*f)[i] = floatof(ARG(i))->f_value;
-	}
-	else
-	{
-	    return argerror(i);
-	}
+        int64_t size;
+        if (typecheck("i", &size))
+        {
+            return 1;
+        }
+        if (size < 1)
+        {
+            return set_error("%lld: invalid size", size);
+        }
+        auto v = new_vec32(size);
+        if (!v)
+        {
+            return 1;
+        }
+        return ret_with_decref(v);
     }
-    return ret_with_decref(f);
+    else if (isarray(ARG(0)))
+    {
+        if (arrayof(ARG(0))->len() == 0)
+        {
+            return set_error("attempt to initialize vec32 with an empty array");
+        }
+        auto v = new_vec32(arrayof(ARG(0))->len());
+        for (size_t i = 0; i < arrayof(ARG(0))->len(); ++i)
+        {
+            double value = 0.0;
+            auto o = arrayof(ARG(0))->get(i);
+            if (isint(o))
+            {
+                value = intof(o)->i_value;
+            }
+            else if (isfloat(o))
+            {
+                value = floatof(o)->f_value;
+            }
+            (*v)[i] = value;
+        }
+        v->v_size = v->v_capacity;
+        return ret_with_decref(v);
+    }
+#ifdef NOT_YET
+    else if (isvec32(ARG(0)))
+    {
+    }
+    else if (isvec64(ARG(0)))
+    {
+    }
+#endif
+    else
+    {
+        return argerror(0);
+    }
 }
 
+/*
+ * vec64 = vec64(size)
+ * vec64 = vec64(size, fill)
+ * vec64 = vec64(array)
+ */
 static int f_vec64()
 {
-    if (NARGS() < 1)
+    if (NARGS() == 2)
     {
-	return argcount(1);
+        int64_t size;
+        double filler;
+        if (typecheck("in", &size, &filler))
+        {
+            return 1;
+        }
+        if (size < 1)
+        {
+            return set_error("%lld: invalid size", size);
+        }
+        auto v = new_vec64(size);
+        if (!v)
+        {
+            return 1;
+        }
+        v->fill(filler);
+        return ret_with_decref(v);
     }
-    auto f = new_vec64(NARGS());
-    for (int i = 0; i < NARGS(); ++i)
+    else if (isint(ARG(0)))
     {
-	if (isint(ARG(i)))
-	{
-	    (*f)[i] = intof(ARG(i))->i_value;
-	}
-	else if (isfloat(ARG(i)))
-	{
-	    (*f)[i] = floatof(ARG(i))->f_value;
-	}
-	else
-	{
-	    return argerror(i);
-	}
+        int64_t size;
+        if (typecheck("i", &size))
+        {
+            return 1;
+        }
+        if (size < 1)
+        {
+            return set_error("%lld: invalid size", size);
+        }
+        auto v = new_vec64(size);
+        if (!v)
+        {
+            return 1;
+        }
+        return ret_with_decref(v);
     }
-    return ret_with_decref(f);
+    else if (isarray(ARG(0)))
+    {
+        if (arrayof(ARG(0))->len() == 0)
+        {
+            return set_error("attempt to initialize vec64 with an empty array");
+        }
+        auto v = new_vec64(arrayof(ARG(0))->len());
+        for (size_t i = 0; i < arrayof(ARG(0))->len(); ++i)
+        {
+            double value = 0.0;
+            auto o = arrayof(ARG(0))->get(i);
+            if (isint(o))
+            {
+                value = intof(o)->i_value;
+            }
+            else if (isfloat(o))
+            {
+                value = floatof(o)->f_value;
+            }
+            (*v)[i] = value;
+        }
+        v->v_size = v->v_capacity;
+        return ret_with_decref(v);
+    }
+#ifdef NOT_YET
+    else if (isvec32(ARG(0)))
+    {
+    }
+    else if (isvec64(ARG(0)))
+    {
+    }
+#endif
+    else
+    {
+        return argerror(0);
+    }
 }
 
 namespace {
