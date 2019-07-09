@@ -1,6 +1,17 @@
 /*
- * util.log_elapsed_time(function, args...)
- * util.log_elapsed_time(string, function, args...)
+ *  float = util.measure_elapsed_time(callable[, args...])
+ */
+extern measure_elapsed_time(fn)
+{
+    var vargs = [array];
+    start := now();
+    call(fn, vargs);
+    return now() - start;
+}
+
+/*
+ * util.log_elapsed_time(callable [, args...])
+ * util.log_elapsed_time(string, callable [, args...])
  */
 extern log_elapsed_time(fn)
 {

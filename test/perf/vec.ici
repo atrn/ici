@@ -1,5 +1,12 @@
-N := 10*1000;
-BIG := 1000*1000;
+local N = 1000;
+local Z = 10*1000*1000;
+
+local measure(caption, f)
+{
+    elapsed := util.measure_elapsed_time(f);
+    printf("%s %.03fs\n", caption, elapsed);
+    return elapsed;
+}
 
 local fill(v)
 {
@@ -9,20 +16,27 @@ local fill(v)
     }
 }
 
-v1 := vec(32, BIG);
-v2 := vec(32, BIG);
+local v1 = vec(32, Z);
+local v2 = vec(32, Z);
 
-start := now();
-fill(v1);
-fill(v2);
-elapsed := now() - start;
-printf("filling 2x %d %.2fs\n", BIG, elapsed);
+measure
+(
+    sprintf("filling 2 x %d", Z),
+    [func () {
+        fill(v1);
+        fill(v2);
+    }]
+);
 
-start := now();
-for (i := 0; i < N; ++i)
-{
-    v3 := v1 + v2;
-}
-elapsed := now() - start;
+elapsed := measure
+(
+    sprintf("%d times \"v1 * v2\"", N),
+    [func () {
+        for (i := 0; i < N; ++i)
+        {
+            v3 := v1 * v2;
+        }
+    }]
+);
 per := elapsed / N;
-printf("v1 + v2 x %d %.2fs - %g per op\n", N, elapsed, per);
+printf("%.09g per op\n", per);
