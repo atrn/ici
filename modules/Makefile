@@ -11,7 +11,8 @@ _dirs=\
 	small\
 	sndfile\
 	sqlite\
-	util
+	util\
+	vector
 
 _make=	$(MAKE) --no-print-directory
 

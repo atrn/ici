@@ -7,7 +7,6 @@
 #include "null.h"
 #include "str.h"
 #include "archiver.h"
-#include "cfunc.h"
 
 #ifdef ICI_VEC_USE_IPP
 #include <ippcore.h>
@@ -550,78 +549,6 @@ object * vec64_type::restore(archiver *ar)
 vec64 *new_vec64(size_t capacity, size_t size, object *props)
 {
     return new_vec<vec64>(capacity, size, props);
-}
-
-// ----------------------------------------------------------------
-
-static int f_vec_fill()
-{
-    object *vec;
-    double value;
-    if (typecheck("on", &vec, &value))
-    {
-        return 1;
-    }
-    if (isvec32(vec))
-    {
-        vec32of(vec)->fill(float(value));
-    }
-    else if (isvec64(vec))
-    {
-        vec64of(vec)->fill(value);
-    }
-    else
-    {
-        return argerror(0);
-    }
-    return null_ret();
-}
-
-static int f_vec_noise()
-{
-    auto noise = []() -> double
-    {
-        return rand() / double(RAND_MAX);
-    };
-    
-    object *vec;
-    if (typecheck("o", &vec))
-    {
-        return 1;
-    }
-    if (isvec32(vec))
-    {
-        for (size_t i = 0; i < vec32of(vec)->v_capacity; ++i)
-        {
-            vec32of(vec)->v_ptr[i] = float(noise());
-        }
-        vec32of(vec)->v_size = vec32of(vec)->v_capacity;
-    }
-    else if (isvec64(vec))
-    {
-        for (size_t i = 0; i < vec64of(vec)->v_capacity; ++i)
-        {
-            vec64of(vec)->v_ptr[i] = noise();
-        }
-        vec64of(vec)->v_size = vec64of(vec)->v_capacity;
-    }
-    else
-    {
-        return argerror(0);
-    }
-    return null_ret();
-}
-
-ICI_DEFINE_CFUNCS(vec)
-{
-    ICI_DEFINE_CFUNC(fill, f_vec_fill),
-    ICI_DEFINE_CFUNC(noise, f_vec_noise),
-    ICI_CFUNCS_END()
-};
-
-int vec_init(ici::objwsup *scp)
-{
-    return assign_cfuncs(scp, ICI_CFUNCS(vec));
 }
 
 } // namespace ici

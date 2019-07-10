@@ -1,0 +1,8 @@
+-DICI_MODULE_NAME=vector
+-fPIC
+-std=c++14
+-Wall -Wextra
+-DNDEBUG
+-g -O2
+-I.
+-I/usr/local/include
