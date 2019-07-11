@@ -1,0 +1,7 @@
+-L/usr/local/lib
+-L/opt/intel/ipp/lib
+-lippcore
+-lipps
+-lici
+-lc++
+-lSystem

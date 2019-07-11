@@ -8,6 +8,7 @@ _dirs=\
 	curses\
 	env\
 	example\
+	ipp\
 	small\
 	sndfile\
 	sqlite\
