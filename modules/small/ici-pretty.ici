@@ -144,6 +144,13 @@ extern size(z, prec)
 }
 
 
+// string = pretty.time(float [, int])
+//
+// Returns a string with a 'pretty' version of a time
+// value - floating-point count of seconds from the
+// epoch.  The optional second argument defines the
+// precision of floating-point values returned for
+// times less than one second.
 //
 extern time(t, prec)
 {
