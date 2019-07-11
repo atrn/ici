@@ -1,21 +1,20 @@
 .PHONY: all dll clean test-loading install
 
-#  Our output filename is OS specific
-_OS=$(shell uname)
-ifeq ($(_OS),Darwin)
-MODULE=ici-vector.dylib
+sudo?=
+prefix?=/usr/local
+
+_os=$(shell uname)
+ifeq ($(_os),Darwin)
+_module=ici-vector.dylib
 else
-MODULE=ici-vector.so
+_module=ici-vector.so
 endif
 
-all : dll
+all: dll
 
-dll:; @dmake -o $(MODULE) dll
+dll:; @dmake -o $(_module) dll
 
-clean:; @dmake -o $(MODULE) dll clean
+clean:; @dmake -o $(_module) dll clean
 
-# Giving install a command, that does nothing, (: with no args)
-# stops (GNU) make issuing a diagnostic that makes the build
-# output look ugly.
-install:
-	@:
+install: dll
+	$(sudo) install -c -m 444 $(_module) $(prefix)/lib/ici/$(_module)

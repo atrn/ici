@@ -1,12 +1,12 @@
-local Z = 240 * int(44100);
+local Z = 3 * 60 * int(44100) * 2;
 local N = 100;
 
 local v0 = vec32(Z, 1.0);
 local v1 = vec32(Z);
 local v2 = vec32(Z);
 
-noise(v1);
-noise(v2);
+vector.randomize(v1);
+vector.randomize(v2);
 
 elapsed := util.measure_elapsed_time
 (
@@ -17,9 +17,5 @@ elapsed := util.measure_elapsed_time
         }
     }]
 );
-
-printf("%d elements, ", v0.size);
-caption := sprintf("%d times \"v0 + v1 * v2\"", N),
-printf("%s  ->  %.06fs  ->  ", caption, elapsed);
 per := elapsed / N;
-printf("%.03fus/op\n", per*1e6);
+printf("%d elements, %d times \"v0 + v1 * v2\"  ->  %s  ->  %s/op\n", v0.size, N, pretty.time(elapsed, 2), pretty.time(per, 4));

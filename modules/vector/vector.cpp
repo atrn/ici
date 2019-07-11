@@ -30,7 +30,7 @@ static int f_fill()
     return ici::null_ret();
 }
 
-static int f_fillnoise()
+static int f_randomize()
 {
     auto noise = []() -> double
     {
@@ -132,8 +132,8 @@ extern "C" ici::object *ici_vector_init()
     static ICI_DEFINE_CFUNCS(vector)
     {
         ICI_DEFINE_CFUNC(fill, f_fill),
-        ICI_DEFINE_CFUNC(fillnoise, f_fillnoise),
         ICI_DEFINE_CFUNC(normalize, f_normalize),
+        ICI_DEFINE_CFUNC(randomize, f_randomize),
         ICI_CFUNCS_END()
     };
     return ici::new_module(ICI_CFUNCS(vector));
