@@ -1,1 +1,7 @@
+ICI_STR(exp,  "exp")
 ICI_STR(init, "init")
+ICI_STR(ln,   "ln")
+ICI_STR(set,  "set")
+ICI_STR(sqrt, "sqrt")
+ICI_STR(tone, "tone")
+ICI_STR(zero, "zero")
