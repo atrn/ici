@@ -1,0 +1,7 @@
+extern write_wav_file(name, samples, samplerate, format)
+{
+    var format = sndfile.FORMAT_WAV|sndfile.FORMAT_FLOAT;
+    file := sndfile.create(name, format, int(samplerate), 1);
+    sndfile.write(file, samples);
+    sndfile.close(file);
+}

@@ -109,7 +109,7 @@ static int f_tone()
 {
     ici::object *vec;
     double magnitude, frequency, phase;
-    int64_t hint = 0;
+    int64_t hint = ippAlgHintAccurate;
 
     switch (ici::NARGS())
     {

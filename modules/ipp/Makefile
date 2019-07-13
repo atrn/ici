@@ -18,3 +18,4 @@ clean:; @dmake -o $(_module) dll clean
 
 install: dll
 	$(sudo) install -c -m 444 $(_module) $(prefix)/lib/ici/$(_module)
+	$(sudo) install -c -m 444 ici-ipp.ici $(prefix)/lib/ici/ici-ipp.ici

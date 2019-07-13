@@ -1,0 +1,11 @@
+samplerate := 48000.0;
+duration := 5.0;
+freq := 440.0;
+magn := 1.0;
+
+r := ipp.frequency_for_samplerate(freq, samplerate);
+
+sound := vec32(int(ceil(duration * samplerate)));
+ipp.tone(sound, magn, r);
+
+testutil.write_wav_file("test-tone-output.wav", sound, samplerate);

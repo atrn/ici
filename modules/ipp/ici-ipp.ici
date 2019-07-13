@@ -1,3 +1,19 @@
+/*
+ * float = ipp.frequency_for_samplerate(freq, rate)
+ *
+ * Returns the frequency measured as a ratio of the given
+ * sample rate in the range 0 to 0.5 (ipp uses values > 0.5)
+ * to represent complex number valued data which we don't
+ * yet support).
+ */
+extern frequency_for_samplerate(freq, rate)
+{
+    return freq / (2.0 * rate);
+}
+
+/*
+ * Algorithm hints.
+ */
 extern AlgHintNone = 0;
 extern AlgHintFas = 1;
 extern AlgHintAccurate = 2;
