@@ -1,3 +1,4 @@
+ICI_STR(abs,  "abs")
 ICI_STR(exp,  "exp")
 ICI_STR(init, "init")
 ICI_STR(ln,   "ln")

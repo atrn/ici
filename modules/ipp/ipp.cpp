@@ -72,6 +72,13 @@ static int f_init()
 
 DEFINE_INPLACE_NULLARY_OP
 (
+    abs,
+    ippsAbs_32f_I(vec->v_ptr, int(vec->v_size)),
+    ippsAbs_64f_I(vec->v_ptr, int(vec->v_size))
+)
+
+DEFINE_INPLACE_NULLARY_OP
+(
     exp,
     ippsExp_32f_I(vec->v_ptr, int(vec->v_size)),
     ippsExp_64f_I(vec->v_ptr, int(vec->v_size))
@@ -272,6 +279,7 @@ extern "C" ici::object *ici_ipp_init()
     }
     static ICI_DEFINE_CFUNCS(ipp)
     {
+        ICI_DEFINE_CFUNC(abs,           f_abs),
         ICI_DEFINE_CFUNC(exp,           f_exp),
         ICI_DEFINE_CFUNC(init,          f_init),
         ICI_DEFINE_CFUNC(ln,            f_ln),
