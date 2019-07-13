@@ -75,6 +75,10 @@ struct vec : object
     value_type *v_ptr;          // v_capacity x value_type's
     map *       v_props;        // user-defined properties
 
+    vec(const vec &) = delete;
+    vec & operator=(const vec &) = delete;
+    vec(vec &&) = delete;
+
     const value_type * data() const
     {
         return v_ptr;
@@ -179,12 +183,14 @@ using vec32 =  vec<TC_VEC32, float>;
 inline vec32 * vec32of(ici::object *o) { return static_cast<vec32 *>(o); }
 inline bool    isvec32(ici::object *o) { return o->hastype(vec32::type_code); }
 vec32 *        new_vec32(size_t, size_t = 0, object * = nullptr);
+vec32 *        new_vec32(vec32 *);
 
 using vec64 =  vec<TC_VEC64, double>;
 
 inline vec64 * vec64of(ici::object *o) { return static_cast<vec64 *>(o); }
 inline bool    isvec64(ici::object *o) { return o->hastype(vec64::type_code); }
 vec64 *        new_vec64(size_t, size_t = 0, object * = nullptr);
+vec64 *        new_vec64(vec64 *);
 
 /*
  * End of ici.h export. --ici.h-end--
