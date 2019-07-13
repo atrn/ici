@@ -11,6 +11,7 @@ extern frequency_for_samplerate(freq, rate)
     return freq / (2.0 * rate);
 }
 
+extern relative_frequency = frequency_for_samplerate;
 
 /*
  * vec32 = ipp.generate_sine_wave(freq, duration, samplerate, mag)
@@ -21,6 +22,18 @@ extern generate_sine_wave(freq, duration, samplerate)
     var mag = 1.0;
 
     vec := vec32(int(ceil(duration * samplerate)));
-    tone(vec, mag, frequency_for_samplerate(freq, samplerate));
+    tone(vec, mag, relative_frequency(freq, samplerate));
+    return vec;
+}
+
+/*
+ * vec32 = ipp.generate_sawtooth_wave(freq, duration, samplerate, mag)
+ */
+extern generate_sawtooth_wave(freq, duration, samplerate)
+{
+    var samplerate = 44100.0;
+    var mag = 1.0;
+    vec := vec32(int(ceil(duration * samplerate)));
+    triangle(vec, mag, relative_frequency(freq, samplerate));
     return vec;
 }

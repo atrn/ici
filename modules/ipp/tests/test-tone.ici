@@ -1,5 +1,9 @@
 freq := 1000.0;
 duration := 5.0;
 samplerate := 48000.0;
+
 tone := ipp.generate_sine_wave(freq, duration, samplerate);
-testutil.write_wav_file("test-tone-output.wav", tone, samplerate);
+testutil.write_wav_file("test-tone-sine-output.wav", tone, samplerate);
+
+triangle := ipp.generate_sawtooth_wave(freq, duration, samplerate);
+testutil.write_wav_file("test-tone-saw-output.wav", triangle, samplerate);

@@ -106,7 +106,7 @@ DEFINE_INPLACE_NULLARY_OP
 )
 
 /*
- * float = ipp.tone(vec, mag, freq [, phase [, alg]])
+ * float = ipp.tone(vec, mag, rfreq [, phase [, alg]])
  *
  * Fills vec to capacity with a (co)sine wave of the
  * given magnitude and frequency starting with the
@@ -119,26 +119,26 @@ static int f_tone()
 {
     ici::object *       vec;
     double              magnitude;
-    double              frequency;
+    double              rfrequency;
     double              phase;
     int64_t             hint = ippAlgHintAccurate;
 
     switch (ici::NARGS())
     {
     case 5:
-        if (ici::typecheck("onnnd", &vec, &magnitude, &frequency, &phase, &hint))
+        if (ici::typecheck("onnnd", &vec, &magnitude, &rfrequency, &phase, &hint))
         {
             return 1;
         }
         break;
     case 4:
-        if (ici::typecheck("onnn", &vec, &magnitude, &frequency, &phase))
+        if (ici::typecheck("onnn", &vec, &magnitude, &rfrequency, &phase))
         {
             return 1;
         }
         break;
     case 3:
-        if (ici::typecheck("onn", &vec, &magnitude, &frequency))
+        if (ici::typecheck("onn", &vec, &magnitude, &rfrequency))
         {
             return 1;
         }
@@ -154,7 +154,7 @@ static int f_tone()
         (
             ici::vec32of(vec)->v_ptr, int(ici::vec32of(vec)->v_capacity),
             float(magnitude),
-            float(frequency),
+            float(rfrequency),
             &phase32,
             IppHintAlgorithm(hint)
         );
@@ -167,9 +167,85 @@ static int f_tone()
         (
             ici::vec64of(vec)->v_ptr, int(ici::vec64of(vec)->v_capacity),
             magnitude,
-            frequency,
+            rfrequency,
             &phase,
             IppHintAlgorithm(hint)
+        );
+        ici::vec64of(vec)->resize();
+    }
+    else
+    {
+        return ici::argerror(0);
+    }
+    return ici::float_ret(phase);
+}
+
+/*
+ * float = ipp.triangle(vec, mag, freq [, phase [, asym]])
+ *
+ * Fills vec to capacity with a triangular wave of the given magnitude
+ * and frequency starting with the supplied initial phase, or 0.0. The
+ * optional 'alg' argument specifies the algorithm to use.
+ *
+ * Returns the next initial phase value.
+ */
+static int f_triangle()
+{
+    ici::object *       vec;
+    double              magnitude;
+    double              rfrequency;
+    double              phase;
+    double              asym;
+
+    switch (ici::NARGS())
+    {
+    case 5:
+        if (ici::typecheck("onnnn", &vec, &magnitude, &rfrequency, &phase, &asym))
+        {
+            return 1;
+        }
+        break;
+    case 4:
+        if (ici::typecheck("onnn", &vec, &magnitude, &rfrequency, &phase))
+        {
+            return 1;
+        }
+        asym = 0.0;
+        break;
+    case 3:
+        if (ici::typecheck("onn", &vec, &magnitude, &rfrequency))
+        {
+            return 1;
+        }
+        asym = 0.0;
+        phase = 0.0;
+        break;
+    default:
+        return ici::argcount(3);
+    }
+    if (ici::isvec32(vec))
+    {
+        float phase32 = float(phase);
+        ippsTriangle_32f
+        (
+            ici::vec32of(vec)->v_ptr, int(ici::vec32of(vec)->v_capacity),
+            float(magnitude),
+            float(rfrequency),
+            float(asym),
+            &phase32
+        );
+        ici::vec32of(vec)->resize();
+        phase = phase32;
+    }
+    else if (ici::isvec64(vec))
+    {
+        ippsTriangle_64f
+        (
+            ici::vec64of(vec)->v_ptr, int(ici::vec64of(vec)->v_capacity),
+            magnitude,
+            rfrequency,
+            asym,
+            &phase
         );
         ici::vec64of(vec)->resize();
     }
@@ -196,13 +272,14 @@ extern "C" ici::object *ici_ipp_init()
     }
     static ICI_DEFINE_CFUNCS(ipp)
     {
-        ICI_DEFINE_CFUNC(exp,  f_exp),
-        ICI_DEFINE_CFUNC(init, f_init),
-        ICI_DEFINE_CFUNC(ln,   f_ln),
-        ICI_DEFINE_CFUNC(set,  f_set),
-        ICI_DEFINE_CFUNC(sqrt, f_sqrt),
-        ICI_DEFINE_CFUNC(tone, f_tone),
-        ICI_DEFINE_CFUNC(zero, f_zero),
+        ICI_DEFINE_CFUNC(exp,           f_exp),
+        ICI_DEFINE_CFUNC(init,          f_init),
+        ICI_DEFINE_CFUNC(ln,            f_ln),
+        ICI_DEFINE_CFUNC(set,           f_set),
+        ICI_DEFINE_CFUNC(sqrt,          f_sqrt),
+        ICI_DEFINE_CFUNC(tone,          f_tone),
+        ICI_DEFINE_CFUNC(triangle,      f_triangle),
+        ICI_DEFINE_CFUNC(zero,          f_zero),
         ICI_CFUNCS_END()
     };
     auto module = ici::new_module(ICI_CFUNCS(ipp));
