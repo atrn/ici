@@ -15,7 +15,17 @@ cmake_minimum_required(VERSION 3.0 FATAL_ERROR) # A guess
 project(ici LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 14)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 option(ICI_BUILD_LIB "Build the ICI shared object" OFF)
+option(ICI_VEC_USE_IPP "Use Intel IPP for vec arithmetic" ON)
+
+if (ICI_VEC_USE_IPP)
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake" CACHE PATH "" FORCE)
+find_package(IPP REQUIRED)
+endif (ICI_VEC_USE_IPP)
+
+set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g" CACHE STRING "" FORCE)
 
 set(ICI_MAIN etc/main.cc)
 
@@ -140,10 +150,12 @@ set(ICI_SOURCES
   wrap.h)
 
 if (ICI_BUILD_LIB)
+  set(ICI_TARGET "ici")
   add_library(ici SHARED ${ICI_SOURCES})
   add_executable(ici_exe ${ICI_MAIN})
   target_link_libraries(ici_exe PUBLIC ici)
 else()
+  set(ICI_TARGET "ici_exe")
   add_executable(ici_exe ${ICI_MAIN} ${ICI_SOURCES})
 endif()
 
@@ -161,7 +173,7 @@ endif()
 #  Required libraries:
 #
 #  - Linux and FreeBSD need -lpthread
-#  - Linux still has dlopen et al in libdl
+#  - And Linux glibc still has dlopen et al in libdl
 #
 if("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "FreeBSD")
   target_link_libraries(ici_exe PUBLIC -lpthread)
@@ -169,6 +181,12 @@ endif()
 if("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Linux")
   target_link_libraries(ici_exe PUBLIC -ldl -lpthread)
 endif()
+
+if (ICI_VEC_USE_IPP)
+  target_compile_definitions(${ICI_TARGET} PUBLIC ICI_VEC_USE_IPP)
+  target_include_directories(${ICI_TARGET} PUBLIC ${IPP_INCLUDE_DIRS})
+  target_link_libraries(${ICI_TARGET} PUBLIC ${IPP_LIBRARIES})
+endif (ICI_VEC_USE_IPP)
 
 #  To create ici.h we use the, just built, ici executable to
 #  run mk-ici-h.ici which creates ici.h from the ICI headers.
