@@ -105,11 +105,23 @@ DEFINE_INPLACE_NULLARY_OP
     ippsZero_64f(vec->v_ptr, int(vec->v_size))
 )
 
+/*
+ * float = ipp.tone(vec, mag, freq [, phase [, alg]])
+ *
+ * Fills vec to capacity with a (co)sine wave of the
+ * given magnitude and frequency starting with the
+ * supplied initial phase, or 0.0. The optional
+ * 'alg' argument specifies the algorithm to use.
+ *
+ * Returns the next initial phase value.
+ */
 static int f_tone()
 {
-    ici::object *vec;
-    double magnitude, frequency, phase;
-    int64_t hint = ippAlgHintAccurate;
+    ici::object *       vec;
+    double              magnitude;
+    double              frequency;
+    double              phase;
+    int64_t             hint = ippAlgHintAccurate;
 
     switch (ici::NARGS())
     {
@@ -130,6 +142,7 @@ static int f_tone()
         {
             return 1;
         }
+        phase = 0.0;
         break;
     default:
         return ici::argcount(3);
@@ -140,17 +153,22 @@ static int f_tone()
         ippsTone_32f
         (
             ici::vec32of(vec)->v_ptr, int(ici::vec32of(vec)->v_capacity),
-            float(magnitude), float(frequency), &phase32,
+            float(magnitude),
+            float(frequency),
+            &phase32,
             IppHintAlgorithm(hint)
         );
         ici::vec32of(vec)->resize();
+        phase = phase32;
     }
     else if (ici::isvec64(vec))
     {
         ippsTone_64f
         (
             ici::vec64of(vec)->v_ptr, int(ici::vec64of(vec)->v_capacity),
-            float(magnitude), float(frequency), &phase,
+            magnitude,
+            frequency,
+            &phase,
             IppHintAlgorithm(hint)
         );
         ici::vec64of(vec)->resize();
@@ -159,10 +177,12 @@ static int f_tone()
     {
         return ici::argerror(0);
     }
-    return ici::null_ret();
+    return ici::float_ret(phase);
 }
 
 } // anon
+
+// ----------------------------------------------------------------
 
 extern "C" ici::object *ici_ipp_init()
 {
@@ -185,5 +205,40 @@ extern "C" ici::object *ici_ipp_init()
         ICI_DEFINE_CFUNC(zero, f_zero),
         ICI_CFUNCS_END()
     };
-    return ici::new_module(ICI_CFUNCS(ipp));
+    auto module = ici::new_module(ICI_CFUNCS(ipp));
+
+#define DEFINE_CONST(NAME)                                              \
+    do                                                                  \
+    {                                                                   \
+        auto key = ici::make_ref(ici::new_str_nul_term(#NAME));         \
+        auto val = ici::make_ref(ici::new_int(ipp ## NAME));            \
+        module->assign(key, val);                                       \
+    }                                                                   \
+    while (0)
+
+    DEFINE_CONST(RndZero);
+    DEFINE_CONST(RndNear);
+    DEFINE_CONST(RndFinancial);
+    DEFINE_CONST(RndHintAccurate);
+
+    DEFINE_CONST(AlgHintNone);
+    DEFINE_CONST(AlgHintFast);
+    DEFINE_CONST(AlgHintAccurate);
+
+    DEFINE_CONST(CmpLess);
+    DEFINE_CONST(CmpLessEq);
+    DEFINE_CONST(CmpEq);
+    DEFINE_CONST(CmpGreaterEq);
+    DEFINE_CONST(CmpGreater);
+
+    DEFINE_CONST(AlgAuto);
+    DEFINE_CONST(AlgDirect);
+    DEFINE_CONST(AlgFFT);
+    DEFINE_CONST(AlgMask);
+
+    DEFINE_CONST(NormInf);
+    DEFINE_CONST(NormL1);
+    DEFINE_CONST(NormL2);
+
+    return module;
 }

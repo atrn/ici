@@ -10,10 +10,3 @@ extern frequency_for_samplerate(freq, rate)
 {
     return freq / (2.0 * rate);
 }
-
-/*
- * Algorithm hints.
- */
-extern AlgHintNone = 0;
-extern AlgHintFas = 1;
-extern AlgHintAccurate = 2;
