@@ -10,3 +10,17 @@ extern frequency_for_samplerate(freq, rate)
 {
     return freq / (2.0 * rate);
 }
+
+
+/*
+ * vec32 = ipp.generate_sine_wave(freq, duration, samplerate, mag)
+ */
+extern generate_sine_wave(freq, duration, samplerate)
+{
+    var samplerate = 44100.0;
+    var mag = 1.0;
+
+    vec := vec32(int(ceil(duration * samplerate)));
+    tone(vec, mag, frequency_for_samplerate(freq, samplerate));
+    return vec;
+}
