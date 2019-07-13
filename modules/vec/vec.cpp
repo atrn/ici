@@ -28,21 +28,23 @@ static int f_channel()
     }
     if (ici::isvec32(vec))
     {
-        auto size = size_t(ceil(ici::vec32of(vec)->v_size / double(stride)));
+        const auto size = size_t(ceil(ici::vec32of(vec)->v_size / double(stride)));
         out = ici::new_vec32(size);
         for (size_t i = 0, j = 0; i < size; i += stride, ++j)
         {
             ici::vec32of(out)->v_ptr[j] = ici::vec32of(vec)->v_ptr[i+channel-1];
         }
+        ici::vec32of(out)->v_size = size;
     }
-    if (ici::isvec64(vec))
+    else if (ici::isvec64(vec))
     {
-        auto size = size_t(ceil(ici::vec64of(vec)->v_size / double(stride)));
+        const auto size = size_t(ceil(ici::vec64of(vec)->v_size / double(stride)));
         out = ici::new_vec64(size);
         for (size_t i = 0, j = 0; i < size; i += stride, ++j)
         {
             ici::vec64of(out)->v_ptr[j] = ici::vec64of(vec)->v_ptr[i+channel-1];
         }
+        ici::vec64of(out)->v_size = size;
     }
     else
     {
