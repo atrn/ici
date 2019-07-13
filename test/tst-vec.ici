@@ -6,7 +6,7 @@ local eq(a, b)
     return abs(a - b) < epsilon;
 }
 
-f1 := vec(32, Z);
+f1 := vec32(Z);
 if (f1.capacity != Z)
     fail("f1.capacity");
 if (len(f1) != 0)
@@ -18,7 +18,7 @@ for (i := 0; i < f1.capacity; ++i)
 if (len(f1) != Z)
     fail("len != Z");
 
-f2 := vec(32, Z, pi);
+f2 := vec32(Z, pi);
 if (len(f2) != f2.capacity)
     fail("len(f2) != f2.capacity");
 if (!eq(f2[Z/2], pi))

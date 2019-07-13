@@ -4035,59 +4035,6 @@ static int f_putenv() {
 }
 
 /*
- * vec32|vec64 = vec(bits, size, fill)
- */
-static int f_vec()
-{
-    int64_t bits;
-    int64_t size;
-    double filler = 0.0;
-    bool dofill = false;
-
-    if (NARGS() == 2)
-    {
-        if (typecheck("ii", &bits, &size))
-        {
-            return 1;
-        }
-    }
-    else if (typecheck("iin", &bits, &size, &filler))
-    {
-        return 1;
-    }
-    else
-    {
-        dofill = true;
-    }
-    if (bits != 32 && bits != 64)
-    {
-	return argerror(0);
-    }
-    if (size < 1)
-    {
-        return argerror(1);
-    }
-    if (bits == 32)
-    {
-        auto v = new_vec32(size);
-	if (dofill)
-	{
-	    v->fill(filler);
-	}
-        return ret_with_decref(v);
-    }
-    // if (bits == 64)
-    {
-        auto v = new_vec64(size);
-	if (dofill)
-	{
-	    v->fill(filler);
-	}
-        return ret_with_decref(v);
-    }
-}
-
-/*
  * vec32 = vec32(size)
  * vec32 = vec32(size, fill)
  * vec32 = vec32(array)
@@ -4394,7 +4341,6 @@ ICI_DEFINE_CFUNCS(std)
     ICI_DEFINE_CFUNC(rename,    f_rename),
     ICI_DEFINE_CFUNC(getenv,    f_getenv),
     ICI_DEFINE_CFUNC(putenv,    f_putenv),
-    ICI_DEFINE_CFUNC(vec,       f_vec),
     ICI_DEFINE_CFUNC(vec32,     f_vec32),
     ICI_DEFINE_CFUNC(vec64,     f_vec64),
     ICI_CFUNCS_END()
