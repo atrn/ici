@@ -1,0 +1,22 @@
+#!/usr/bin/env ici
+
+local sndfile_info(path)
+{
+    file := sndfile.open(path);
+    duration := file.frames / float(file.samplerate) / file.channels;
+    printf("%s\n", sndfile.describe_format(file.format));
+    printf("%d channels @ %dHz\n", file.channels, file.samplerate);
+    printf("%d frames, %s\n", file.frames, pretty.time(duration, 2));
+    sndfile.close(file);
+}
+
+if (argc < 2)
+{
+    exit("usage: sndfile-info <filename>...");
+}
+
+forall (filename in slice(argv, 1))
+{
+    if (argc > 2) printf("%s ", filename);
+    sndfile_info(filename);
+}
