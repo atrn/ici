@@ -156,48 +156,49 @@ extern time(t, prec)
 {
     var prec = 3;
 
+    SECS := 1.0;
     SECS_PER_MIN := 60;
     SECS_PER_HR := 60 * SECS_PER_MIN;
     SECS_PER_DAY := 24 * SECS_PER_HR;
     SECS_PER_WEEK := 7 * SECS_PER_DAY;
     SECS_PER_YEAR := 365.25 * SECS_PER_DAY;
+    MS := SECS / 1000.0;
+    US :=   MS / 1000.0;
+    NS :=   US / 1000.0;
 
-    MS := 1  / 1000.0;
-    US := MS / 1000.0;
-    NS := US / 1000.0;
-
-    pluralize := [func (word, n) {
+    plural := [func (word, n) {
         return n == 1 ? word : word + "s";
     }];
 
     if (t >= SECS_PER_YEAR)
     {
         n := int(floor(t/SECS_PER_YEAR));
-        return sprintf("%d %s, %s", n, pluralize("year", n), time(t - n * SECS_PER_YEAR, prec));
+        return sprintf("%d %s, %s", n, plural("year", n), time(t - n * SECS_PER_YEAR, prec));
     }
     if (t >= SECS_PER_WEEK)
     {
         n := int(floor(t/SECS_PER_WEEK));
-        return sprintf("%d %s, %s", n, pluralize("week", n), time(t - n * SECS_PER_WEEK, prec));
+        return sprintf("%d %s, %s", n, plural("week", n), time(t - n * SECS_PER_WEEK, prec));
     }
     if (t >= SECS_PER_DAY)
     {
         n := int(floor(t/SECS_PER_DAY));
-        return sprintf("%d %s, %s", n, pluralize("day", n), time(t - n * SECS_PER_DAY, prec));
+        return sprintf("%d %s, %s", n, plural("day", n), time(t - n * SECS_PER_DAY, prec));
     }
     if (t >= SECS_PER_HR)
     {
         n := int(floor(t/SECS_PER_HR));
-        return sprintf("%d %s, %s", n, pluralize("hour", n), time(t - n * SECS_PER_HR, prec));
+        return sprintf("%d %s, %s", n, plural("hour", n), time(t - n * SECS_PER_HR, prec));
     }
     if (t >= SECS_PER_MIN)
     {
         n := int(floor(t/SECS_PER_MIN));
-        return sprintf("%d %s, %s", n, pluralize("minute", n), time(t - n * SECS_PER_MIN, prec));
+        return sprintf("%d %s, %s", n, plural("minute", n), time(t - n * SECS_PER_MIN, prec));
     }
-    if (t >= 1)
+    if (t >= SECS)
     {
-        return sprintf("%.*f %s", prec, t, pluralize("second", int(t)));
+        n := int(t);
+        return sprintf("%.*f %s", prec, t, plural("second", n));
     }
     if (t >= MS)
     {
@@ -211,5 +212,5 @@ extern time(t, prec)
     {
         return sprintf("%.*fns", prec, t / NS);
     }
-    return sprintf("%g seconds", t);
+    return sprintf("%g %s", t, plural("second", int(t)));
 }
