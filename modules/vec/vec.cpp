@@ -163,9 +163,9 @@ static int f_normalize()
 
 } // anon
 
-extern "C" ici::object *ici_vector_init()
+extern "C" ici::object *ici_vec_init()
 {
-    if (ici::check_interface(ici::version_number, ici::back_compat_version, "vector"))
+    if (ici::check_interface(ici::version_number, ici::back_compat_version, "vec"))
     {
         return nullptr;
     }
@@ -173,7 +173,7 @@ extern "C" ici::object *ici_vector_init()
     {
         return nullptr;
     }
-    static ICI_DEFINE_CFUNCS(vector)
+    static ICI_DEFINE_CFUNCS(vec)
     {
         ICI_DEFINE_CFUNC(channel, f_channel),
         ICI_DEFINE_CFUNC(fill, f_fill),
@@ -181,5 +181,5 @@ extern "C" ici::object *ici_vector_init()
         ICI_DEFINE_CFUNC(randomize, f_randomize),
         ICI_CFUNCS_END()
     };
-    return ici::new_module(ICI_CFUNCS(vector));
+    return ici::new_module(ICI_CFUNCS(vec));
 }

@@ -5,8 +5,8 @@ local v0 = vec32(Z, 1.0);
 local v1 = vec32(Z);
 local v2 = vec32(Z);
 
-vector.randomize(v1);
-vector.randomize(v2);
+vec.randomize(v1);
+vec.randomize(v2);
 
 elapsed := util.measure_elapsed_time
 (

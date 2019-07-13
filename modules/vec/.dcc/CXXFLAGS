@@ -1,4 +1,4 @@
--DICI_MODULE_NAME=vector
+-DICI_MODULE_NAME=vec
 -fPIC
 -std=c++14
 -Wall -Wextra

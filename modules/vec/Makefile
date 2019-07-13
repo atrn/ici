@@ -5,9 +5,9 @@ prefix?=/usr/local
 
 _os=$(shell uname)
 ifeq ($(_os),Darwin)
-_module=ici-vector.dylib
+_module=ici-vec.dylib
 else
-_module=ici-vector.so
+_module=ici-vec.so
 endif
 
 all: dll

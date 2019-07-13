@@ -13,7 +13,7 @@ _dirs=\
 	sndfile\
 	sqlite\
 	util\
-	vector
+	vec
 
 _make=	$(MAKE) --no-print-directory
 
