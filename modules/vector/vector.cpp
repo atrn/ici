@@ -7,6 +7,50 @@ namespace
 #include "icistr.h"
 #include <icistr-setup.h>
 
+static int f_channel()
+{
+    ici::object *vec;
+    ici::object *out;
+    int64_t     channel;
+    int64_t     stride;
+
+    if (typecheck("oii", &vec, &channel, &stride))
+    {
+        return 1;
+    }
+    if (channel <= 0)
+    {
+        return ici::argerror(1);
+    }
+    if (stride <= 0)
+    {
+        return ici::argerror(2);
+    }
+    if (ici::isvec32(vec))
+    {
+        auto size = size_t(ceil(ici::vec32of(vec)->v_size / double(stride)));
+        out = ici::new_vec32(size);
+        for (size_t i = 0, j = 0; i < size; i += stride, ++j)
+        {
+            ici::vec32of(out)->v_ptr[j] = ici::vec32of(vec)->v_ptr[i+channel-1];
+        }
+    }
+    if (ici::isvec64(vec))
+    {
+        auto size = size_t(ceil(ici::vec64of(vec)->v_size / double(stride)));
+        out = ici::new_vec64(size);
+        for (size_t i = 0, j = 0; i < size; i += stride, ++j)
+        {
+            ici::vec64of(out)->v_ptr[j] = ici::vec64of(vec)->v_ptr[i+channel-1];
+        }
+    }
+    else
+    {
+        return ici::argerror(0);
+    }
+    return ici::ret_with_decref(out);
+}
+
 static int f_fill()
 {
     ici::object *vec;
@@ -131,6 +175,7 @@ extern "C" ici::object *ici_vector_init()
     }
     static ICI_DEFINE_CFUNCS(vector)
     {
+        ICI_DEFINE_CFUNC(channel, f_channel),
         ICI_DEFINE_CFUNC(fill, f_fill),
         ICI_DEFINE_CFUNC(normalize, f_normalize),
         ICI_DEFINE_CFUNC(randomize, f_randomize),
