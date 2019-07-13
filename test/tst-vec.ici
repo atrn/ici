@@ -41,8 +41,8 @@ forall (v in f2)
 
 sig := vec32(192000);
 mod := vec32(192000);
-fill(sig, 0.5);
-noise(mod);
+vec.fill(sig, 0.5);
+vec.randomize(mod);
 mod := sig * mod;
 
 // printf("%d, %d, %d\n", mod.capacity, sig.capacity, noise.capacity);
