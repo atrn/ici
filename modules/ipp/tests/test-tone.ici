@@ -1,5 +1,5 @@
-samplerate := 48000.0;
-duration := 5.0;
 freq := 1000.0;
+duration := 5.0;
+samplerate := 48000.0;
 tone := ipp.generate_sine_wave(freq, duration, samplerate);
 testutil.write_wav_file("test-tone-output.wav", tone, samplerate);
