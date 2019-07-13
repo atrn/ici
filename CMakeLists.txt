@@ -4,8 +4,8 @@
 #  ici.h file, and a ici executable linked against the dynamic
 #  library.
 #
-#  Alternatively, if the ICI_BUILD_LIB option is disabled (set to OFF)
-#  no library is built.
+#  Alternatively, if the ICI_BUILD_SHARED_LIB option is disabled
+#  (set to OFF) no library is built.
 #  
 #  There is no 'install' support as yet.
 #
@@ -15,19 +15,9 @@ cmake_minimum_required(VERSION 3.0 FATAL_ERROR) # A guess
 project(ici LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 14)
 
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-
-option(ICI_BUILD_LIB "Build the ICI shared object" OFF)
-option(ICI_VEC_USE_IPP "Use Intel IPP for vec arithmetic" ON)
-
-if (ICI_VEC_USE_IPP)
-set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake" CACHE PATH "" FORCE)
-find_package(IPP REQUIRED)
-endif (ICI_VEC_USE_IPP)
-
-set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g" CACHE STRING "" FORCE)
-
-set(ICI_MAIN etc/main.cc)
+option(ICI_BUILD_DYNAMIC_LIB    "Build the ICI dynamic library"         OFF)
+option(ICI_BUILD_STATIC_LIB     "Build the ICI static library"          OFF)
+option(ICI_VEC_USE_IPP          "Use Intel IPP for vec arithmetic"      ON)
 
 set(ICI_SOURCES
   alloc.cc
@@ -100,8 +90,6 @@ set(ICI_SOURCES
   unary.cc
   uninit.cc
   vec.cc
-  win32err.cc
-  win32timezone.cc
   alloc.h
   archiver.h
   array.h
@@ -149,20 +137,54 @@ set(ICI_SOURCES
   vec.h
   wrap.h)
 
-if (ICI_BUILD_LIB)
+if(WIN32)
+  set(ICI_SOURCES "${ICI_SOURCES} win32err.cc win32timezone.cc")
+endif()
+
+# Explicitly disable any optimization for debug builds (some compilers
+# optimize by default, e.g. icc)
+#
+set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g" CACHE STRING "" FORCE)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+#  If we're using IPP we need to "find" it. To do that we have a
+#  custom cmake module, FindIPP.cmake. To locate FindIPP.cmake cmake
+#  uses a _module path_ and we add our 'etc' directory to that path as
+#  our file resides there.  That's not enough.
+#
+#  To allow rebuilds to work we have to, (a) force the modified value
+#  of CMAKE_MODULE_PATH to be set in cmake's cache file and, (b) use
+#  an absolute path for our 'etc' directory so it can be found.
+#
+if(ICI_VEC_USE_IPP)
+  set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/etc" CACHE PATH "" FORCE)
+  find_package(IPP REQUIRED)
+endif(ICI_VEC_USE_IPP)
+
+
+#  Building...
+#
+if(ICI_BUILD_DYNAMIC_LIB)
   set(ICI_TARGET "ici")
   add_library(ici SHARED ${ICI_SOURCES})
-  add_executable(ici_exe ${ICI_MAIN})
+  add_executable(ici_exe etc/main.cc)
+  target_link_libraries(ici_exe PUBLIC ici)
+elseif(ICI_BUILD_STATIC_LIB)
+  set(ICI_TARGET "ici_exe")
+  add_library(ici STATIC ${ICI_SOURCES})
+  add_executable(ici_exe etc/main.cc)
   target_link_libraries(ici_exe PUBLIC ici)
 else()
   set(ICI_TARGET "ici_exe")
-  add_executable(ici_exe ${ICI_MAIN} ${ICI_SOURCES})
+  add_executable(ici_exe etc/main.cc ${ICI_SOURCES})
 endif()
 
-#  The executable target can't be called 'ici' as that's the library
-#  target name.  Instead we call it 'ici_exe'. But that results in the
-#  executable being called 'ici_exe[.exe]' so we have to set the
-#  'OUTPUT_NAME' property to get the file name we want.
+
+#  The executable target can't be called 'ici' since that's the name
+#  of the library.  Instead we call it 'ici_exe'. Doing that, however,
+#  results in the executable file being named 'ici_exe[.exe]' which we
+#  don't want so we have to set the 'OUTPUT_NAME' property of the
+#  ici_exe target to the file name we want.
 #
 if(WIN32)
   set_target_properties(ici_exe PROPERTIES OUTPUT_NAME ici.exe)
@@ -178,15 +200,18 @@ endif()
 if("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "FreeBSD")
   target_link_libraries(ici_exe PUBLIC -lpthread)
 endif()
-if("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Linux")
+if ("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Linux")
   target_link_libraries(ici_exe PUBLIC -ldl -lpthread)
 endif()
 
-if (ICI_VEC_USE_IPP)
+#  And if we're using IPP we need to include its options
+#  and libraries.
+#
+if(ICI_VEC_USE_IPP)
   target_compile_definitions(${ICI_TARGET} PUBLIC ICI_VEC_USE_IPP)
   target_include_directories(${ICI_TARGET} PUBLIC ${IPP_INCLUDE_DIRS})
   target_link_libraries(${ICI_TARGET} PUBLIC ${IPP_LIBRARIES})
-endif (ICI_VEC_USE_IPP)
+endif()
 
 #  To create ici.h we use the, just built, ici executable to
 #  run mk-ici-h.ici which creates ici.h from the ICI headers.
