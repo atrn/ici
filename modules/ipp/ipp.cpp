@@ -147,10 +147,10 @@ static int f_tone()
     }
     else if (ici::isvec64(vec))
     {
-        ippsTone_32f
+        ippsTone_64f
         (
-            ici::vec32of(vec)->v_ptr, int(ici::vec32of(vec)->v_capacity),
-            float(magnitude), float(frequency), &phase32,
+            ici::vec64of(vec)->v_ptr, int(ici::vec64of(vec)->v_capacity),
+            float(magnitude), float(frequency), &phase,
             IppHintAlgorithm(hint)
         );
         ici::vec64of(vec)->resize();
@@ -181,6 +181,7 @@ extern "C" ici::object *ici_ipp_init()
         ICI_DEFINE_CFUNC(ln,   f_ln),
         ICI_DEFINE_CFUNC(set,  f_set),
         ICI_DEFINE_CFUNC(sqrt, f_sqrt),
+        ICI_DEFINE_CFUNC(tone, f_tone),
         ICI_DEFINE_CFUNC(zero, f_zero),
         ICI_CFUNCS_END()
     };
