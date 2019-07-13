@@ -4100,7 +4100,7 @@ static int f_vec32()
             }
             (*v)[i] = value;
         }
-        v->v_size = v->v_capacity;
+        v->resize();
         return ret_with_decref(v);
     }
 #ifdef NOT_YET
@@ -4183,7 +4183,7 @@ static int f_vec64()
             }
             (*v)[i] = value;
         }
-        v->v_size = v->v_capacity;
+        v->resize();
         return ret_with_decref(v);
     }
 #ifdef NOT_YET

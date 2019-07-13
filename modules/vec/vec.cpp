@@ -34,7 +34,7 @@ static int f_channel()
         {
             ici::vec32of(out)->v_ptr[j] = ici::vec32of(vec)->v_ptr[i+channel-1];
         }
-        ici::vec32of(out)->v_size = size;
+        ici::vec32of(out)->resize(size);
     }
     else if (ici::isvec64(vec))
     {
@@ -44,7 +44,7 @@ static int f_channel()
         {
             ici::vec64of(out)->v_ptr[j] = ici::vec64of(vec)->v_ptr[i+channel-1];
         }
-        ici::vec64of(out)->v_size = size;
+        ici::vec64of(out)->resize(size);
     }
     else
     {
@@ -94,7 +94,7 @@ static int f_randomize()
         {
             ici::vec32of(vec)->v_ptr[i] = float(noise());
         }
-        ici::vec32of(vec)->v_size = ici::vec32of(vec)->v_capacity;
+        ici::vec32of(vec)->resize();
     }
     else if (isvec64(vec))
     {
@@ -102,7 +102,7 @@ static int f_randomize()
         {
             ici::vec64of(vec)->v_ptr[i] = noise();
         }
-        ici::vec64of(vec)->v_size = ici::vec64of(vec)->v_capacity;
+        ici::vec64of(vec)->resize();
     }
     else
     {

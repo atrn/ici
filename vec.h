@@ -85,6 +85,18 @@ struct vec : object
         return v_ptr;
     }
 
+    void resize()
+    {
+        v_size = v_capacity;
+    }
+
+    void resize(size_t z)
+    {
+        if (z <= v_capacity)
+        {
+            v_size = z;
+        }
+    }
 
 #ifdef ICI_VEC_USE_IPP
     void fill(value_type, size_t, size_t);

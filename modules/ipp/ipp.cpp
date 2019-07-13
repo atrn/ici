@@ -105,6 +105,63 @@ DEFINE_INPLACE_NULLARY_OP
     ippsZero_64f(vec->v_ptr, int(vec->v_size))
 )
 
+static int f_tone()
+{
+    ici::object *vec;
+    double magnitude, frequency, phase;
+    int64_t hint = 0;
+
+    switch (ici::NARGS())
+    {
+    case 5:
+        if (ici::typecheck("onnnd", &vec, &magnitude, &frequency, &phase, &hint))
+        {
+            return 1;
+        }
+        break;
+    case 4:
+        if (ici::typecheck("onnn", &vec, &magnitude, &frequency, &phase))
+        {
+            return 1;
+        }
+        break;
+    case 3:
+        if (ici::typecheck("onn", &vec, &magnitude, &frequency))
+        {
+            return 1;
+        }
+        break;
+    default:
+        return ici::argcount(3);
+    }
+    if (ici::isvec32(vec))
+    {
+        float phase32 = float(phase);
+        ippsTone_32f
+        (
+            ici::vec32of(vec)->v_ptr, int(ici::vec32of(vec)->v_capacity),
+            float(magnitude), float(frequency), &phase32,
+            IppHintAlgorithm(hint)
+        );
+        ici::vec32of(vec)->resize();
+    }
+    else if (ici::isvec64(vec))
+    {
+        ippsTone_32f
+        (
+            ici::vec32of(vec)->v_ptr, int(ici::vec32of(vec)->v_capacity),
+            float(magnitude), float(frequency), &phase32,
+            IppHintAlgorithm(hint)
+        );
+        ici::vec64of(vec)->resize();
+    }
+    else
+    {
+        return ici::argerror(0);
+    }
+    return ici::null_ret();
+}
+
 } // anon
 
 extern "C" ici::object *ici_ipp_init()

@@ -1,0 +1,3 @@
+extern AlgHintNone = 0;
+extern AlgHintFas = 1;
+extern AlgHintAccurate = 2;
