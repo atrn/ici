@@ -178,13 +178,31 @@ namespace ici
  * global error string if the call fails otherwise returns the integer
  * result of the system call.
  */
-static int
-sys_ret(int ret)
+static int sys_ret(int ret)
 {
-    char        n1[objnamez];
-
+    char n1[objnamez];
     if (ret < 0)
+    {
         return get_last_errno(objname(n1, os.a_top[-1]), nullptr);
+    }
+    return int_ret((long)ret);
+}
+
+static int sys_ret(int ret, const char *what)
+{
+    if (ret < 0)
+    {
+        return get_last_errno(what, nullptr);
+    }
+    return int_ret((long)ret);
+}
+
+static int sys_ret(int ret, const char *how, const char *what)
+{
+    if (ret < 0)
+    {
+        return get_last_errno(how, what);
+    }
     return int_ret((long)ret);
 }
 
@@ -242,7 +260,7 @@ static int sys_open()
         set_error("permission bits not specified in open() with O_CREAT");
         return 1;
     }
-    return sys_ret(open(fname, omode, perms));
+    return sys_ret(open(fname, omode, perms), fname);
 }
 
 #ifdef _WIN32
@@ -767,17 +785,33 @@ static int sys_stat()
         return argcount(1);
     o = ARG(0);
     if (isint(o))
+    {
         rc = fstat(intof(o)->i_value, &statb);
+    }
     else if (isstring(o))
+    {
         rc = stat(stringof(o)->s_chars, &statb);
+        if (rc == -1)
+        {
+            return sys_ret(rc, stringof(o)->s_chars);
+        }
+    }
     else if (isfile(o) && fileof(o)->f_type == stdio_ftype)
+    {
         rc = fstat(fileof(o)->fileno(), &statb);
+    }
     else
+    {
         return argerror(0);
+    }
     if (rc == -1)
+    {
         return sys_ret(rc);
+    }
     if ((s = new_map()) == nullptr)
+    {
         return 1;
+    }
 #define SETFIELD(x)                                     \
     if ((o = new_int(statb.st_ ##x)) == nullptr)       \
         goto fail;                                      \
