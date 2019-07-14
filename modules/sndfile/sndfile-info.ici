@@ -2,11 +2,21 @@
 
 local sndfile_info(path)
 {
+    try
+    {
+        info := sys.stat(path);
+    }
+    onerror
+    {
+        exit(error);
+    }
     file := sndfile.open(path);
     duration := file.frames / float(file.samplerate) / file.channels;
     printf("%s, ", sndfile.describe_format(file.format));
     printf("%d channel%s @ %dHz, ", file.channels, file.channels == 1 ? "" : "s", file.samplerate);
-    printf("%d frames, %s\n", file.frames, pretty.time(duration, 2));
+    printf("%d frames, %s, ", file.frames, pretty.time(duration, 2));
+    printf("%sB", pretty.size(info.size, 2));
+    puts("");
     sndfile.close(file);
 }
 
