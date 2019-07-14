@@ -205,6 +205,7 @@ struct vec32_type : ici::type
     size_t mark(ici::object *) override;
     void free(ici::object *) override;
     int64_t len(ici::object *o) override;
+    object *copy(object *) override;
     ici::object *fetch(ici::object *o, ici::object *k) override;
     int assign(ici::object *o, ici::object *k, ici::object *v) override;
     int forall(object *) override;
@@ -219,6 +220,7 @@ struct vec64_type : ici::type
     size_t mark(ici::object *) override;
     void free(ici::object *) override;
     int64_t len(ici::object *o) override;
+    object *copy(object *) override;
     ici::object *fetch(ici::object *o, ici::object *k) override;
     int assign(ici::object *o, ici::object *k, ici::object *v) override;
     int forall(object *) override;

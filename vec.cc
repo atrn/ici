@@ -209,6 +209,8 @@ static int index_error(int64_t ofs)
     return set_error("%lld: index out of range", ofs);
 }
 
+// ----------------------------------------------------------------
+
 template <typename vec_type> vec_type *new_vec(size_t capacity, size_t size, object *props)
 {
     using value_type = typename vec_type::value_type;
@@ -321,6 +323,11 @@ template <typename vec_type> object *fetch_vec(vec_type *f, object *k)
     }
 
     return f->v_props->fetch(k);
+}
+
+template <typename vec_type> object * copy_vec(vec_type *v)
+{
+    return new_vec(v);
 }
 
 template <typename vec_type> int assign_vec(vec_type *f, object *k, object *v)
@@ -505,6 +512,11 @@ int64_t vec32_type::len(object *o)
     return vec32of(o)->v_size;
 }
 
+object *vec32_type::copy(object *o)
+{
+    return copy_vec(vec32of(o));
+}
+
 object *vec32_type::fetch(object *o, object *k)
 {
     return fetch_vec(vec32of(o), k);
@@ -558,6 +570,11 @@ void vec64_type::free(object *o)
 int64_t vec64_type::len(object *o)
 {
     return vec64of(o)->v_size;
+}
+
+object *vec64_type::copy(object *o)
+{
+    return copy_vec(vec64of(o));
 }
 
 object *vec64_type::fetch(object *o, object *k)
