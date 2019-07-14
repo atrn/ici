@@ -122,25 +122,25 @@ extern size(z, prec)
     if (z >= T)
     {
         if (prec == -1) prec = 2;
-        return sprintf("%.*fT", prec, z/T);
+        return sprintf("%.*fTB", prec, z/T);
     }
     if (z >= G)
     {
         if (prec == -1) prec = 2;
-        return sprintf("%.*fG", prec, z/G);
+        return sprintf("%.*fGB", prec, z/G);
     }
     if (z >= M)
     {
         if (prec == -1) prec = 1;
-        return sprintf("%.*fM", prec, z/M);
+        return sprintf("%.*fMB", prec, z/M);
     }
     if (z >= K)
     {
         if (prec == -1) prec = 1;
-        return sprintf("%.*fK", prec, z/K);
+        return sprintf("%.*fKB", prec, z/K);
     }
     if (prec == -1) prec = 0;
-    return sprintf("%.*f", prec, int(z));
+    return sprintf("%.*fB", prec, int(z));
 }
 
 
