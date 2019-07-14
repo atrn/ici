@@ -260,7 +260,7 @@ static int sys_open()
         set_error("permission bits not specified in open() with O_CREAT");
         return 1;
     }
-    return sys_ret(open(fname, omode, perms), fname);
+    return sys_ret(open(fname, omode, perms), "open", fname);
 }
 
 #ifdef _WIN32
@@ -362,8 +362,10 @@ static int sys_close()
             rc = close(intof(fd1)->i_value);
     }
     else
+    {
         return argerror(0);
-    return sys_ret(rc);
+    }
+    return sys_ret(rc, "close");
 }
 
 

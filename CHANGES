@@ -63,7 +63,7 @@ Major Changes in Version 5
 
       On supported platforms the Intel IPP library is used to
       implement vector operations. In future similar libraries
-      for other platforms may be supported.
+      or intrinics for other platforms could be supported.
 
 *     version() has been removed, use ici.version
 

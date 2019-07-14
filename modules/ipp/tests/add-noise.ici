@@ -1,0 +1,24 @@
+level := 0.001;
+
+if (argc < 2)
+{
+    tone := ipp.generate_sine_wave(freq, duration, samplerate);
+    testutil.write_wav_file("test-tone-sine-output.wav", tone, samplerate);
+    file := sndfile.open("test-tone-sine-output.wav");
+}
+else
+{
+    file := sndfile.open(argv[1]);
+}
+
+audio := sndfile.read(file);
+sndfile.close(file);
+
+signal := vec.channel(audio, 1, audio.channels);
+
+noise := vec32(signal.size);
+vec.randomize(noise);
+
+output := (signal * (1.0-level)) + (noise * level);
+
+testutil.write_wav_file("noisey.wav", output, audio.samplerate);

@@ -19,4 +19,4 @@
 /.vscode/ipch/
 /.vscode/c_cpp_properties.json
 .DS_Store
-/modules/ipp/tests/test-tone-output.wav
+/modules/ipp/tests/test-*-output.wav
