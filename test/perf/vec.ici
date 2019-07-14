@@ -1,5 +1,8 @@
-local Z = 3 * 60 * int(44100) * 2;
-local N = 100;
+local D = 3.0 * 60;
+local C = 2;
+local R = 98000.0;
+local Z = int(D * R * C);
+local N = 50;
 
 local v0 = vec32(Z, 1.0);
 local v1 = vec32(Z);
@@ -13,9 +16,19 @@ elapsed := util.measure_elapsed_time
     [func () {
         for (i := 0; i < N; ++i)
         {
-            v3 := v0 + v1 * v2;
+            v3 := v1 * v2;
+            v3 += v0;
         }
     }]
 );
 per := elapsed / N;
-printf("%d elements, %d times \"v0 + v1 * v2\"  ->  %s  ->  %s/op\n", v0.size, N, pretty.time(elapsed, 2), pretty.time(per, 4));
+xrt := D / per;
+printf
+(
+    "%d elements, %d times \"v0 + v1 * v2\"  ->  %s  ->  %s/op  -> %.0f x real-time\n",
+    v0.size,
+    N,
+    pretty.time(elapsed, 2),
+    pretty.time(per, 2),
+    xrt
+);
