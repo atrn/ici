@@ -9,20 +9,30 @@ namespace
 #include "icistr.h"
 #include <icistr-setup.h>
 
-static int f_init()
+int check_error(int code)
 {
-    auto error = ippInit();
-    if (error != ippStsNoErr)
+    if (code != ippStsNoErr)
     {
-        return ici::set_error("ipp error %d", int(error));
+        return ici::set_error("%s", ippGetStatusString(code));
+    }
+    return 0;
+}
+
+int f_init()
+{
+    const int error = ippInit();
+    if (check_error(error))
+    {
+        return 1;
     }
     return ici::null_ret();
 }
 
-#define DEFINE_INPLACE_NULLARY_OP(NAME, F32, F64)       \
-    static int f_ ## NAME ()                            \
+#define DEFINE_INPLACE_NULLARY_OP(NAME, CODE32, CODE64) \
+    int f_ ## NAME ()                                   \
     {                                                   \
         ici::object *o;                                 \
+        int error = ippStsNoErr;                        \
         if (ici::typecheck("o", &o))                    \
         {                                               \
             return 1;                                   \
@@ -30,25 +40,30 @@ static int f_init()
         if (ici::isvec32(o))                            \
         {                                               \
             auto vec = ici::vec32of(o);                 \
-            F32 ;                                       \
+            CODE32 ;                                    \
         }                                               \
         else if(ici::isvec64(o))                        \
         {                                               \
             auto vec = ici::vec64of(o);                 \
-            F64 ;                                       \
+            CODE64 ;                                    \
         }                                               \
         else                                            \
         {                                               \
             return ici::argerror(0);                    \
         }                                               \
+        if (check_error(error))                         \
+        {                                               \
+            return 1;                                   \
+        }                                               \
         return ici::null_ret();                         \
     }
 
-#define DEFINE_INPLACE_OP(NAME, F32, F64)               \
-    static int f_ ## NAME ()                            \
+#define DEFINE_INPLACE_OP(NAME, CODE32, CODE64)         \
+    int f_ ## NAME ()                                   \
     {                                                   \
         ici::object *o;                                 \
         double arg;                                     \
+        int error = ippStsNoErr;                        \
         if (ici::typecheck("on", &o, &arg))             \
         {                                               \
             return 1;                                   \
@@ -56,16 +71,20 @@ static int f_init()
         if (ici::isvec32(o))                            \
         {                                               \
             auto vec = ici::vec32of(o);                 \
-            F32 ;                                       \
+            CODE32 ;                                    \
         }                                               \
         else if(ici::isvec64(o))                        \
         {                                               \
             auto vec = ici::vec64of(o);                 \
-            F64 ;                                       \
+            CODE64 ;                                    \
         }                                               \
         else                                            \
         {                                               \
             return ici::argerror(0);                    \
+        }                                               \
+        if (check_error(error))                         \
+        {                                               \
+            return 1;                                   \
         }                                               \
         return ici::null_ret();                         \
     }
@@ -73,43 +92,43 @@ static int f_init()
 DEFINE_INPLACE_NULLARY_OP
 (
     abs,
-    ippsAbs_32f_I(vec->v_ptr, int(vec->v_size)),
-    ippsAbs_64f_I(vec->v_ptr, int(vec->v_size))
+    error = ippsAbs_32f_I(vec->v_ptr, int(vec->v_size)),
+    error = ippsAbs_64f_I(vec->v_ptr, int(vec->v_size))
 )
 
 DEFINE_INPLACE_NULLARY_OP
 (
     exp,
-    ippsExp_32f_I(vec->v_ptr, int(vec->v_size)),
-    ippsExp_64f_I(vec->v_ptr, int(vec->v_size))
+    error = ippsExp_32f_I(vec->v_ptr, int(vec->v_size)),
+    error = ippsExp_64f_I(vec->v_ptr, int(vec->v_size))
 )
 
 DEFINE_INPLACE_NULLARY_OP
 (
     ln,
-    ippsLn_32f_I(vec->v_ptr, int(vec->v_size)),
-    ippsLn_64f_I(vec->v_ptr, int(vec->v_size))
+    error = ippsLn_32f_I(vec->v_ptr, int(vec->v_size)),
+    error = ippsLn_64f_I(vec->v_ptr, int(vec->v_size))
 )
 
 DEFINE_INPLACE_OP
 (
     set,
-    ippsSet_32f(arg, vec->v_ptr, int(vec->v_size)),
-    ippsSet_64f(arg, vec->v_ptr, int(vec->v_size))
+    error = ippsSet_32f(arg, vec->v_ptr, int(vec->v_size)),
+    error = ippsSet_64f(arg, vec->v_ptr, int(vec->v_size))
 )
 
 DEFINE_INPLACE_NULLARY_OP
 (
     sqrt,
-    ippsSqrt_32f_I(vec->v_ptr, int(vec->v_size)),
-    ippsSqrt_64f_I(vec->v_ptr, int(vec->v_size))
+    error = ippsSqrt_32f_I(vec->v_ptr, int(vec->v_size)),
+    error = ippsSqrt_64f_I(vec->v_ptr, int(vec->v_size))
 )
 
 DEFINE_INPLACE_NULLARY_OP
 (
     zero,
-    ippsZero_32f(vec->v_ptr, int(vec->v_size)),
-    ippsZero_64f(vec->v_ptr, int(vec->v_size))
+    error = ippsZero_32f(vec->v_ptr, int(vec->v_size)),
+    error = ippsZero_64f(vec->v_ptr, int(vec->v_size))
 )
 
 /*
@@ -122,7 +141,7 @@ DEFINE_INPLACE_NULLARY_OP
  *
  * Returns the next initial phase value.
  */
-static int f_tone()
+int f_tone()
 {
     ici::object *       vec;
     double              magnitude;
@@ -154,10 +173,11 @@ static int f_tone()
     default:
         return ici::argcount(3);
     }
+    int error = ippStsNoErr;
     if (ici::isvec32(vec))
     {
         float phase32 = float(phase);
-        ippsTone_32f
+        error = ippsTone_32f
         (
             ici::vec32of(vec)->v_ptr, int(ici::vec32of(vec)->v_capacity),
             float(magnitude),
@@ -170,7 +190,7 @@ static int f_tone()
     }
     else if (ici::isvec64(vec))
     {
-        ippsTone_64f
+        error = ippsTone_64f
         (
             ici::vec64of(vec)->v_ptr, int(ici::vec64of(vec)->v_capacity),
             magnitude,
@@ -184,6 +204,10 @@ static int f_tone()
     {
         return ici::argerror(0);
     }
+    if (check_error(error))
+    {
+        return 1;
+    }
     return ici::float_ret(phase);
 }
 
@@ -196,13 +220,14 @@ static int f_tone()
  *
  * Returns the next initial phase value.
  */
-static int f_triangle()
+int f_triangle()
 {
     ici::object *       vec;
     double              magnitude;
     double              rfrequency;
     double              phase;
     double              asym;
+    int                 error = ippStsNoErr;
 
     switch (ici::NARGS())
     {
@@ -233,7 +258,7 @@ static int f_triangle()
     if (ici::isvec32(vec))
     {
         float phase32 = float(phase);
-        ippsTriangle_32f
+        error = ippsTriangle_32f
         (
             ici::vec32of(vec)->v_ptr, int(ici::vec32of(vec)->v_capacity),
             float(magnitude),
@@ -246,7 +271,7 @@ static int f_triangle()
     }
     else if (ici::isvec64(vec))
     {
-        ippsTriangle_64f
+        error = ippsTriangle_64f
         (
             ici::vec64of(vec)->v_ptr, int(ici::vec64of(vec)->v_capacity),
             magnitude,
@@ -259,6 +284,10 @@ static int f_triangle()
     else
     {
         return ici::argerror(0);
+    }
+    if (check_error(error))
+    {
+        return 1;
     }
     return ici::float_ret(phase);
 }
