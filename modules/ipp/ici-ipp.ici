@@ -1,20 +1,38 @@
 /*
  * float = ipp.frequency_for_samplerate(freq, rate)
  *
- * Returns the frequency measured as a ratio of the given
- * sample rate in the range 0 to 0.5 (ipp uses values > 0.5)
- * to represent complex number valued data which we don't
- * yet support).
+ * Returns the relative frequency value, in the range 0 to 0.5, for
+ * the given frequency and sample rate.
+ *
+ * NB, this function's arguments are the reverse order to those of the
+ * samplerate_relative_frequency() function - the nouns in the
+ * function name define the order of the arguments.
  */
 extern frequency_for_samplerate(freq, rate)
 {
     return freq / (2.0 * rate);
 }
 
-extern relative_frequency = frequency_for_samplerate;
+/*
+ * float = ipp.samplerate_relative_frequency(rate, freq)
+ *
+ * Returns the relative frequency value, in the range 0 to 0.5, for
+ * the given sample rate and frequency.
+
+ * NB, this function's arguments are the reverse order to those of the
+ * frequency_for_samplerate() function - the nouns in the function
+ * name define the order of the argument.
+ */
+extern samplerate_relative_frequency(rate, freq)
+{
+    return freq / (2.0 * rate);
+}
 
 /*
  * vec32 = ipp.generate_sine_wave(freq, duration, samplerate, mag)
+ *
+ * Utility using ipp.tone() to generate a sine wave of the given
+ * frequency, duration and magnitude at a certain sample rate.
  */
 extern generate_sine_wave(freq, duration, samplerate)
 {
@@ -22,18 +40,21 @@ extern generate_sine_wave(freq, duration, samplerate)
     var mag = 1.0;
 
     vec := vec32(int(ceil(duration * samplerate)));
-    tone(vec, mag, relative_frequency(freq, samplerate));
+    tone(vec, mag, samplerate_relative_frequency(samplerate, freq));
     return vec;
 }
 
 /*
  * vec32 = ipp.generate_sawtooth_wave(freq, duration, samplerate, mag)
+ *
+ * Utility using ipp.triangle() to generate a sawtooth wave of the given
+ * frequency and duration at a certain sample rate.
  */
 extern generate_sawtooth_wave(freq, duration, samplerate)
 {
     var samplerate = 44100.0;
     var mag = 1.0;
     vec := vec32(int(ceil(duration * samplerate)));
-    triangle(vec, mag, relative_frequency(freq, samplerate));
+    triangle(vec, mag, samplerate_relative_frequency(samplerate, freq));
     return vec;
 }
