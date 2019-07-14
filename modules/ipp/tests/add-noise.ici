@@ -1,4 +1,4 @@
-level := 0.001;
+level := 0.0001;
 
 if (argc < 2)
 {

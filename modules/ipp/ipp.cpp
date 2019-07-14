@@ -119,6 +119,13 @@ DEFINE_INPLACE_OP
 
 DEFINE_INPLACE_NULLARY_OP
 (
+    sqr,
+    error = ippsSqr_32f_I(vec->v_ptr, int(vec->v_size)),
+    error = ippsSqr_64f_I(vec->v_ptr, int(vec->v_size))
+)
+
+DEFINE_INPLACE_NULLARY_OP
+(
     sqrt,
     error = ippsSqrt_32f_I(vec->v_ptr, int(vec->v_size)),
     error = ippsSqrt_64f_I(vec->v_ptr, int(vec->v_size))
@@ -292,6 +299,255 @@ int f_triangle()
     return ici::float_ret(phase);
 }
 
+int f_vector_slope()
+{
+    ici::object *vec;
+    double offset;
+    double slope;
+    int error;
+
+    if (ici::typecheck("onn", &vec, &offset, &slope))
+    {
+        return 1;
+    }
+    if (ici::isvec32(vec))
+    {
+        error = ippsVectorSlope_32f(vec32of(vec)->v_ptr, int(vec32of(vec)->v_capacity), float(offset), float(slope));
+    }
+    else if (ici::isvec64(vec))
+    {
+        error = ippsVectorSlope_64f(vec64of(vec)->v_ptr, int(vec64of(vec)->v_capacity), offset, slope);
+    }
+    else
+    {
+        return ici::argerror(0);
+    }
+    if (check_error(error))
+    {
+        return 1;
+    }
+    return ici::null_ret();
+}
+
+int f_min()
+{
+    ici::object *vec;
+    double minval;
+    int error;
+
+    if (ici::typecheck("o", &vec))
+    {
+        return 1;
+    }
+    if (ici::isvec32(vec))
+    {
+        float min32;
+        error = ippsMin_32f(vec32of(vec)->v_ptr, int(vec32of(vec)->v_size), &min32);
+        minval = min32;
+    }
+    else if (ici::isvec64(vec))
+    {
+        error = ippsMin_64f(vec64of(vec)->v_ptr, int(vec64of(vec)->v_size), &minval);
+    }
+    else
+    {
+        return ici::argerror(0);
+    }
+    if (check_error(error))
+    {
+        return 1;
+    }
+    return ici::float_ret(minval);
+}
+
+int f_max()
+{
+    ici::object *vec;
+    double maxval;
+    int error;
+
+    if (ici::typecheck("o", &vec))
+    {
+        return 1;
+    }
+    if (ici::isvec32(vec))
+    {
+        float max32;
+        error = ippsMax_32f(vec32of(vec)->v_ptr, int(vec32of(vec)->v_size), &max32);
+        maxval = max32;
+    }
+    else if (ici::isvec64(vec))
+    {
+        error = ippsMax_64f(vec64of(vec)->v_ptr, int(vec64of(vec)->v_size), &maxval);
+    }
+    else
+    {
+        return ici::argerror(0);
+    }
+    if (check_error(error))
+    {
+        return 1;
+    }
+    return ici::float_ret(maxval);
+}
+
+int f_minmax()
+{
+    ici::object *vec;
+    double minval;
+    double maxval;
+    int error;
+
+    if (ici::typecheck("o", &vec))
+    {
+        return 1;
+    }
+    if (ici::isvec32(vec))
+    {
+        float min32;
+        float max32;
+        error = ippsMinMax_32f(vec32of(vec)->v_ptr, int(vec32of(vec)->v_size), &min32, &max32);
+        minval = min32;
+        maxval = max32;
+    }
+    else if (ici::isvec64(vec))
+    {
+        error = ippsMinMax_64f(vec64of(vec)->v_ptr, int(vec64of(vec)->v_size), &minval, &maxval);
+    }
+    else
+    {
+        return ici::argerror(0);
+    }
+    if (check_error(error))
+    {
+        return 1;
+    }
+    auto r = ici::make_ref(ici::new_map());
+    if (!r)
+    {
+        return 1;
+    }
+    auto v = ici::make_ref(ici::new_float(minval));
+    if (!v)
+    {
+        return 1;
+    }
+    if (r->assign(ICIS(min), v))
+    {
+        return 1;
+    }
+    v = ici::make_ref(ici::new_float(maxval));
+    if (!v)
+    {
+        return 1;
+    }
+    if (r->assign(ICIS(max), v))
+    {
+        return 1;
+    }
+    return ici::ret_with_decref(r);
+}
+
+// vec = ipp.add(vec, vec)
+//      Non-inplace addition of equal size vectors. Returns a new vector.
+//
+// vec = ipp.add(vec, int|float)
+//      Inplace addition of constant to vector. Returns its input vector.
+//
+int f_add()
+{
+    ici::object *vec;
+    ici::object *rhs;
+    double constant;
+    int error;
+
+    auto size_mismatch = [](size_t z1, size_t z2) -> int
+    {
+        return z1 == z2 ? 0 : ici::set_error("vector size mis-match, %lu vs %lu", z1, z2);
+    };
+
+    if (ici::typecheck("on", &vec, &constant) == 0)
+    {
+        if (ici::isvec32(vec))
+        {
+            error = ippsAddC_32f_I(float(constant), vec32of(vec)->v_ptr, int(vec32of(vec)->v_size));
+        }
+        else if (ici::isvec64(vec))
+        {
+            error = ippsAddC_64f_I(constant, vec64of(vec)->v_ptr, int(vec64of(vec)->v_size));
+        }
+        else
+        {
+            return ici::argerror(0);
+        }
+        if (check_error(error))
+        {
+            return 1;
+        }
+        return ici::ret_no_decref(vec);
+    }
+
+    if (ici::typecheck("oo", &vec, &rhs))
+    {
+        return 1;
+    }
+
+    ici::object *result;
+
+    if (ici::isvec32(vec))
+    {
+        if (ici::isvec32(rhs))
+        {
+            if (size_mismatch(vec32of(vec)->v_size, vec32of(rhs)->v_size))
+            {
+                return 1;
+            }
+            auto r = ici::make_ref(ici::new_vec32(ici::vec32of(vec)->v_size, ici::vec32of(vec)->v_size));
+            if (!r)
+            {
+                return 1;
+            }
+            error = ippsAdd_32f(ici::vec32of(vec)->v_ptr, ici::vec32of(rhs)->v_ptr, r->v_ptr, int(r->v_size));
+            result = r;
+        }
+        else
+        {
+            return ici::argerror(1);
+        }
+    }
+    else if (ici::isvec64(vec))
+    {
+        if (ici::isvec64(rhs))
+        {
+            if (size_mismatch(vec64of(vec)->v_size, vec64of(rhs)->v_size))
+            {
+                return 1;
+            }
+            auto r = ici::make_ref(ici::new_vec64(ici::vec64of(vec)->v_size, ici::vec64of(vec)->v_size));
+            if (!r)
+            {
+                return 1;
+            }
+            error = ippsAdd_64f(ici::vec64of(vec)->v_ptr, ici::vec64of(rhs)->v_ptr, r->v_ptr, int(r->v_size));
+            result = r;
+        }
+        else
+        {
+            return ici::argerror(1);
+        }
+    }
+    else
+    {
+        return ici::argerror(0);
+    }
+
+    if (check_error(error))
+    {
+        return 1;
+    }
+    return ici::ret_with_decref(result);
+}
+
 } // anon
 
 // ----------------------------------------------------------------
@@ -309,13 +565,19 @@ extern "C" ici::object *ici_ipp_init()
     static ICI_DEFINE_CFUNCS(ipp)
     {
         ICI_DEFINE_CFUNC(abs,           f_abs),
+        ICI_DEFINE_CFUNC(add,           f_add),
         ICI_DEFINE_CFUNC(exp,           f_exp),
         ICI_DEFINE_CFUNC(init,          f_init),
         ICI_DEFINE_CFUNC(ln,            f_ln),
+        ICI_DEFINE_CFUNC(min,           f_min),
+        ICI_DEFINE_CFUNC(minmax,        f_minmax),
+        ICI_DEFINE_CFUNC(max,           f_max),
         ICI_DEFINE_CFUNC(set,           f_set),
+        ICI_DEFINE_CFUNC(sqr,           f_sqr),
         ICI_DEFINE_CFUNC(sqrt,          f_sqrt),
         ICI_DEFINE_CFUNC(tone,          f_tone),
         ICI_DEFINE_CFUNC(triangle,      f_triangle),
+        ICI_DEFINE_CFUNC(vector_slope,  f_vector_slope),
         ICI_DEFINE_CFUNC(zero,          f_zero),
         ICI_CFUNCS_END()
     };
