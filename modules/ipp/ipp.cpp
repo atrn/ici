@@ -320,39 +320,46 @@ extern "C" ici::object *ici_ipp_init()
         ICI_CFUNCS_END()
     };
     auto module = ici::new_module(ICI_CFUNCS(ipp));
+    if (!module)
+    {
+        return nullptr;
+    }
 
-#define DEFINE_CONST(NAME)                                              \
+#define DEFINE_INT_VALUE(NAME)                                          \
     do                                                                  \
     {                                                                   \
         auto key = ici::make_ref(ici::new_str_nul_term(#NAME));         \
         auto val = ici::make_ref(ici::new_int(ipp ## NAME));            \
-        module->assign(key, val);                                       \
+        if (module->assign(key, val))                                   \
+        {                                                               \
+            return nullptr;                                             \
+        }                                                               \
     }                                                                   \
     while (0)
 
-    DEFINE_CONST(RndZero);
-    DEFINE_CONST(RndNear);
-    DEFINE_CONST(RndFinancial);
-    DEFINE_CONST(RndHintAccurate);
+    DEFINE_INT_VALUE(RndZero);
+    DEFINE_INT_VALUE(RndNear);
+    DEFINE_INT_VALUE(RndFinancial);
+    DEFINE_INT_VALUE(RndHintAccurate);
 
-    DEFINE_CONST(AlgHintNone);
-    DEFINE_CONST(AlgHintFast);
-    DEFINE_CONST(AlgHintAccurate);
+    DEFINE_INT_VALUE(AlgHintNone);
+    DEFINE_INT_VALUE(AlgHintFast);
+    DEFINE_INT_VALUE(AlgHintAccurate);
 
-    DEFINE_CONST(CmpLess);
-    DEFINE_CONST(CmpLessEq);
-    DEFINE_CONST(CmpEq);
-    DEFINE_CONST(CmpGreaterEq);
-    DEFINE_CONST(CmpGreater);
+    DEFINE_INT_VALUE(CmpLess);
+    DEFINE_INT_VALUE(CmpLessEq);
+    DEFINE_INT_VALUE(CmpEq);
+    DEFINE_INT_VALUE(CmpGreaterEq);
+    DEFINE_INT_VALUE(CmpGreater);
 
-    DEFINE_CONST(AlgAuto);
-    DEFINE_CONST(AlgDirect);
-    DEFINE_CONST(AlgFFT);
-    DEFINE_CONST(AlgMask);
+    DEFINE_INT_VALUE(AlgAuto);
+    DEFINE_INT_VALUE(AlgDirect);
+    DEFINE_INT_VALUE(AlgFFT);
+    DEFINE_INT_VALUE(AlgMask);
 
-    DEFINE_CONST(NormInf);
-    DEFINE_CONST(NormL1);
-    DEFINE_CONST(NormL2);
+    DEFINE_INT_VALUE(NormInf);
+    DEFINE_INT_VALUE(NormL1);
+    DEFINE_INT_VALUE(NormL2);
 
     return module;
 }
