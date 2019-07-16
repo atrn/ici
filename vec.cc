@@ -270,17 +270,18 @@ template <typename vec_type> vec_type *new_vec(vec_type *other)
         return nullptr;
     }
     decref(v->v_props);
+    const auto nbytes = other->v_capacity * sizeof (value_type);
 #ifdef ICI_VEC_USE_IPP
-    v->v_ptr = static_cast<value_type *>(ippMalloc(other->v_capacity * sizeof (value_type)));
+    v->v_ptr = static_cast<value_type *>(ippMalloc(nbytes));
 #else
-    v->v_ptr = static_cast<value_type *>(ici_alloc(other->v_capacity * sizeof (value_type)));
+    v->v_ptr = static_cast<value_type *>(ici_alloc(nbytes));
 #endif
     if (!v->v_ptr)
     {
         ici_free(v);
         return nullptr;
     }
-    memcpy(v->v_ptr, other->v_ptr, other->v_capacity * sizeof (value_type));
+    memcpy(v->v_ptr, other->v_ptr, nbytes);
     rego(v);
     return v;
 }
@@ -558,12 +559,20 @@ size_t vec64_type::mark(object *o)
 {
     return type::mark(o)
         + vec64of(o)->v_props->mark()
-        + vec64of(o)->v_capacity * sizeof(vec64::value_type);
+#ifdef ICI_VEC_USE_IPP
+    ; // IPP's malloc is a distinct arena
+#else
+    + vec64of(o)->v_capacity * sizeof(vec64::value_type);
+#endif
 }
 
 void vec64_type::free(object *o)
 {
+#ifdef ICI_VEC_USE_IPP
+    ippFree(vec32of(o)->v_ptr);
+#else
     ici_free(vec64of(o)->v_ptr);
+#endif
     type::free(o);
 }
 
