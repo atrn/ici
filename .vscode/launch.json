@@ -5,13 +5,13 @@
                 {
                         "type": "lldb",
                         "request": "launch",
-                        "name": "Launch",
-                        "program": "${workspaceFolder}/ici",
+                        "name": "Debug",
+                        "program": "${workspaceFolder}/.build/ici",
                         "cwd": "${workspaceFolder}",
+                        "args": ["test-core.ici"],
                         "env": {
                                 "ICIPATH": "${workspaceFolder}",
-                        },
-                        "terminal": "integrated",
+                        }
                 }
         ]
 }

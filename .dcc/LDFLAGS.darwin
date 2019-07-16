@@ -2,4 +2,4 @@
 -Wl,-macosx_version_min -Wl,10.12
 -Wl,-install_name -Wl,/usr/local/lib/libici.dylib
 -framework System
-# -Wl,-rpath -Wl,/opt/intel/ipp/lib
+-Wl,-rpath -Wl,/opt/intel/ipp/lib

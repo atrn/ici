@@ -2,8 +2,8 @@
 
 #include "CXXFLAGS.common"
 
-# -I/opt/intel/ipp/include
-# -DICI_VEC_USE_IPP
+-I/opt/intel/ipp/include
+-DICI_VEC_USE_IPP
 
 -O3
 -mtune=native
