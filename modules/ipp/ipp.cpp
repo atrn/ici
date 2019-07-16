@@ -540,7 +540,6 @@ int f_add()
     {
         return ici::argerror(0);
     }
-
     if (check_error(error))
     {
         return 1;
