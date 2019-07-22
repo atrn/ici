@@ -4038,6 +4038,8 @@ static int f_putenv() {
  * vec32 = vec32(size)
  * vec32 = vec32(size, fill)
  * vec32 = vec32(array)
+ * vec32 = vec32(vec32)
+ * vec32 = vec32(vec64)
  */
 static int f_vec32()
 {
@@ -4103,14 +4105,24 @@ static int f_vec32()
         v->resize();
         return ret_with_decref(v);
     }
-#ifdef NOT_YET
     else if (isvec32(ARG(0)))
     {
+        auto v = new_vec32(vec32of(ARG(0)));
+        if (!v)
+        {
+            return 1;
+        }
+        return ret_with_decref(v);
     }
     else if (isvec64(ARG(0)))
     {
+        auto v = new_vec32(vec64of(ARG(0)));
+        if (!v)
+        {
+            return 1;
+        }
+        return ret_with_decref(v);
     }
-#endif
     else
     {
         return argerror(0);
@@ -4121,6 +4133,8 @@ static int f_vec32()
  * vec64 = vec64(size)
  * vec64 = vec64(size, fill)
  * vec64 = vec64(array)
+ * vec64 = vec64(vec32)
+ * vec64 = vec64(vec64)
  */
 static int f_vec64()
 {
@@ -4186,14 +4200,24 @@ static int f_vec64()
         v->resize();
         return ret_with_decref(v);
     }
-#ifdef NOT_YET
     else if (isvec32(ARG(0)))
     {
+        auto v = new_vec64(vec32of(ARG(0)));
+        if (!v)
+        {
+            return 1;
+        }
+        return ret_with_decref(v);
     }
     else if (isvec64(ARG(0)))
     {
+        auto v = new_vec64(vec64of(ARG(0)));
+        if (!v)
+        {
+            return 1;
+        }
+        return ret_with_decref(v);
     }
-#endif
     else
     {
         return argerror(0);

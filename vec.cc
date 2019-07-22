@@ -286,6 +286,44 @@ template <typename vec_type> vec_type *new_vec(vec_type *other)
     return v;
 }
 
+template <typename vec_type, typename other_type> vec_type *new_vec_conv(other_type *other)
+{
+    using value_type = typename vec_type::value_type;
+
+    auto v = ici_talloc<vec_type>();
+    if (!v)
+    {
+        return nullptr;
+    }
+    v->set_tfnz(vec_type::type_code, 0, 1, 0);
+    v->v_capacity = other->v_capacity;
+    v->v_size = other->v_size;
+    v->v_props = mapof(copyof(other->v_props));
+    if (!v->v_props)
+    {
+        ici_free(v);
+        return nullptr;
+    }
+    decref(v->v_props);
+    const auto nbytes = other->v_capacity * sizeof (value_type);
+#ifdef ICI_VEC_USE_IPP
+    v->v_ptr = static_cast<value_type *>(ippMalloc(nbytes));
+#else
+    v->v_ptr = static_cast<value_type *>(ici_alloc(nbytes));
+#endif
+    if (!v->v_ptr)
+    {
+        ici_free(v);
+        return nullptr;
+    }
+    for (size_t i = 0; i < other->v_capacity; ++i)
+    {
+        v->v_ptr[i] = value_type(other->v_ptr[i]);
+    }
+    rego(v);
+    return v;
+}
+
 template <typename vec_type> object *fetch_vec(vec_type *f, object *k)
 {
     if (isint(k))
@@ -553,6 +591,10 @@ vec32 *new_vec32(vec32 *other)
     return new_vec<vec32>(other);
 }
 
+vec32 *new_vec32(vec64 *other)
+{
+    return new_vec_conv<vec32>(other);
+}
 //  ----------------------------------------------------------------
 
 size_t vec64_type::mark(object *o)
@@ -619,6 +661,11 @@ vec64 *new_vec64(size_t capacity, size_t size, object *props)
 vec64 *new_vec64(vec64 *other)
 {
     return new_vec<vec64>(other);
+}
+
+vec64 *new_vec64(vec32 *other)
+{
+    return new_vec_conv<vec64>(other);
 }
 
 } // namespace ici
