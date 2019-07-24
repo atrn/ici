@@ -1,9 +1,10 @@
-//  The closure() function returns a object that "binds" some number of
-//  argument objects to a function object so that calling the returned
-//  object calls the function with the "bound" arguments.
+//  The closure() function returns an object that "binds" some number of
+//  arguments to a function so that calling the returned object calls
+//  that function with the "bound" arguments.
 //
-//  Arguments passed in the call of the callable object are passed as
-//  additional arguments to the bound function.
+//  Any extra arguments passed in the call are passed as additional
+//  arguments to the bound function.  I.e. partial closures may be
+//  _filled_ in with the remaining, positional, arguments.
 //
 extern closure(f) {
     var binding = [class
