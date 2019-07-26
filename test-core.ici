@@ -1584,3 +1584,25 @@ printf("onerror...\n");
 //  fail("deliberate failure");
 ];
 
+printf("vec...\n");
+[module
+    Z := 1000;
+    v0 := vec32(Z);
+    if (len(v0) != 0)
+    {
+        fail("v0 len != 0");
+    }
+    v1 := vec32(Z, 0.0);
+    if (len(v1) != Z)
+    {
+        fail("vec len != Z");
+    }
+    for (i := 0; i < Z; ++i)
+    {
+        if (v1[i] != 0.0)
+        {
+            fail(sprintf("vec[%d] != 0.0", i));
+        }
+    }
+    v1 += pi;
+];

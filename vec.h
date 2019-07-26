@@ -74,6 +74,7 @@ struct vec : object
     size_t      v_size;         // current length
     value_type *v_ptr;          // v_capacity x value_type's
     map *       v_props;        // user-defined properties
+    vec *       v_parent;       // parent vec if this is a slice
 
     vec(const vec &) = delete;
     vec & operator=(const vec &) = delete;
@@ -186,12 +187,14 @@ inline bool    isvec32(ici::object *o) { return o->hastype(vec32::type_code); }
 vec32 *        new_vec32(size_t, size_t = 0, object * = nullptr);
 vec32 *        new_vec32(vec32 *);
 vec32 *        new_vec32(vec64 *);
+vec32 *        new_vec32(vec32 *, size_t, size_t);
 
 inline vec64 * vec64of(ici::object *o) { return static_cast<vec64 *>(o); }
 inline bool    isvec64(ici::object *o) { return o->hastype(vec64::type_code); }
 vec64 *        new_vec64(size_t, size_t = 0, object * = nullptr);
 vec64 *        new_vec64(vec64 *);
 vec64 *        new_vec64(vec32 *);
+vec64 *        new_vec64(vec64 *, size_t, size_t);
 
 /*
  * End of ici.h export. --ici.h-end--

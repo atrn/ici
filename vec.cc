@@ -211,6 +211,8 @@ static int index_error(int64_t ofs)
 
 // ----------------------------------------------------------------
 
+//  Create a vec of the given capacity, initial size and properties map
+//
 template <typename vec_type> vec_type *new_vec(size_t capacity, size_t size, object *props)
 {
     using value_type = typename vec_type::value_type;
@@ -247,10 +249,13 @@ template <typename vec_type> vec_type *new_vec(size_t capacity, size_t size, obj
     v->set_tfnz(vec_type::type_code, 0, 1, 0);
     v->v_capacity = capacity;
     v->v_size = size;
+    v->v_parent = nullptr;
     rego(v);
     return v;
 }
 
+// Create a vec that is a copy of some other vec.
+//
 template <typename vec_type> vec_type *new_vec(vec_type *other)
 {
     using value_type = typename vec_type::value_type;
@@ -263,6 +268,7 @@ template <typename vec_type> vec_type *new_vec(vec_type *other)
     v->set_tfnz(vec_type::type_code, 0, 1, 0);
     v->v_capacity = other->v_capacity;
     v->v_size = other->v_size;
+    v->v_parent = nullptr;
     v->v_props = mapof(copyof(other->v_props));
     if (!v->v_props)
     {
@@ -286,6 +292,8 @@ template <typename vec_type> vec_type *new_vec(vec_type *other)
     return v;
 }
 
+//  Create a new vec by copying another, converting its values one-by-one.
+//
 template <typename vec_type, typename other_type> vec_type *new_vec_conv(other_type *other)
 {
     using value_type = typename vec_type::value_type;
@@ -298,6 +306,7 @@ template <typename vec_type, typename other_type> vec_type *new_vec_conv(other_t
     v->set_tfnz(vec_type::type_code, 0, 1, 0);
     v->v_capacity = other->v_capacity;
     v->v_size = other->v_size;
+    v->v_parent = nullptr;
     v->v_props = mapof(copyof(other->v_props));
     if (!v->v_props)
     {
@@ -323,6 +332,38 @@ template <typename vec_type, typename other_type> vec_type *new_vec_conv(other_t
     rego(v);
     return v;
 }
+
+//  Creates a new vec by taking a slice of another vec.  The resultant
+//  vec shares the arguments underlying data and does not free it.
+//
+template <typename vec_type, typename other_type> vec_type *new_vec(other_type *other, size_t offset, size_t len)
+{
+    if (offset + len >= other->v_capacity)
+    {
+        set_error("slice bounds exceed parent's capacity");
+        return nullptr;
+    }
+    auto v = ici_talloc<vec_type>();
+    if (!v)
+    {
+        return nullptr;
+    }
+    v->set_tfnz(vec_type::type_code, 0, 1, 0);
+    v->v_capacity = other->v_capacity - len;
+    v->v_ptr = other->v_ptr + offset;
+    v->v_size = len;
+    v->v_props = mapof(copyof(other->v_props));
+    v->v_parent = other;
+    if (!v->v_props)
+    {
+        ici_free(v);
+        return nullptr;
+    }
+    decref(v->v_props);
+    rego(v);
+    return v;
+}
+
 
 template <typename vec_type> object *fetch_vec(vec_type *f, object *k)
 {
@@ -529,6 +570,7 @@ size_t vec32_type::mark(object *o)
 {
     return type::mark(o)
         + vec32of(o)->v_props->mark()
+        + mark_optional(vec32of(o)->v_parent)
 #ifdef ICI_VEC_USE_IPP
     ; // IPP's malloc is a distinct arena
 #else
@@ -538,11 +580,14 @@ size_t vec32_type::mark(object *o)
 
 void vec32_type::free(object *o)
 {
+    if (!vec32of(o)->v_parent)
+    {
 #ifdef ICI_VEC_USE_IPP
-    ippFree(vec32of(o)->v_ptr);
+        ippFree(vec32of(o)->v_ptr);
 #else
-    ici_free(vec32of(o)->v_ptr);
+        ici_free(vec32of(o)->v_ptr);
 #endif
+    }
     type::free(o);
 }
 
@@ -595,12 +640,19 @@ vec32 *new_vec32(vec64 *other)
 {
     return new_vec_conv<vec32>(other);
 }
+
+vec32 *new_vec32(vec32 *other, size_t offset, size_t len)
+{
+    return new_vec<vec32>(other, offset, len);
+}
+
 //  ----------------------------------------------------------------
 
 size_t vec64_type::mark(object *o)
 {
     return type::mark(o)
         + vec64of(o)->v_props->mark()
+        + mark_optional(vec64of(o)->v_parent)
 #ifdef ICI_VEC_USE_IPP
     ; // IPP's malloc is a distinct arena
 #else
@@ -610,11 +662,14 @@ size_t vec64_type::mark(object *o)
 
 void vec64_type::free(object *o)
 {
+    if (!vec64of(o)->v_parent)
+    {
 #ifdef ICI_VEC_USE_IPP
-    ippFree(vec32of(o)->v_ptr);
+        ippFree(vec32of(o)->v_ptr);
 #else
-    ici_free(vec64of(o)->v_ptr);
+        ici_free(vec64of(o)->v_ptr);
 #endif
+    }
     type::free(o);
 }
 
@@ -666,6 +721,11 @@ vec64 *new_vec64(vec64 *other)
 vec64 *new_vec64(vec32 *other)
 {
     return new_vec_conv<vec64>(other);
+}
+
+vec64 *new_vec64(vec64 *other, size_t offset, size_t len)
+{
+    return new_vec<vec64>(other, offset, len);
 }
 
 } // namespace ici

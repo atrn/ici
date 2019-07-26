@@ -1389,6 +1389,10 @@ static int f_interval() {
     } else if (isarray(o)) {
         a = arrayof(o);
         nel = a->len();
+    } else if (isvec32(o)) {
+        nel = vec32of(o)->v_capacity;
+    } else if (isvec64(o)) {
+        nel = vec64of(o)->v_capacity;
     } else {
         return argerror(0);
     }
@@ -1421,6 +1425,12 @@ static int f_interval() {
     }
     if (isstring(o)) {
         return ret_with_decref(new_str(s->s_chars + start, (int)length));
+    }
+    if (isvec32(o)) {
+        return ret_with_decref(new_vec32(vec32of(o), size_t(start), size_t(length)));
+    }
+    if (isvec64(o)) {
+        return ret_with_decref(new_vec64(vec64of(o), size_t(start), size_t(length)));
     }
     if ((a1 = new_array(length)) == nullptr) {
         return 1;

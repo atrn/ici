@@ -1,5 +1,10 @@
 Major Changes in Version 5
 
+*     slice() (aka interval) accepts vec32 and vec64 as
+      the object to be "sliced". It returns a _slice_ of
+      another vec, a vec of compatible type that shares
+      another vec's data, itself possibly a slice.
+
 *     added sys.mmap() and sys.munmap(). sys.mmap() comes in two
       flavors, simple and complete. The simple interface maps an
       entire file into memory and returns a byte-sized ICI mem
