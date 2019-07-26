@@ -9,7 +9,7 @@ donate your changes.
 Things to add:
 
 - literal form  -> [vec32 1, 2.0, 3.134, ....]
-- I/O (printf)
+- I/O (printf?)
 
 ## Remove reliance on C strings and adopt UTF-8 everywhere
 

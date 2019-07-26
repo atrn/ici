@@ -51,7 +51,7 @@ bignum values and do the right thing re. precision/width specs.
 
 This feature allowed code to register functions to be
 called when unknown operator/type combinations were
-encountered.
+encountered providing a form of user-defined operators.
 
 ## Move more things into the 'ici' map
 
@@ -63,11 +63,8 @@ Resurect my old _utype_ (user type) module, adding support the newly
 added _forall_ and _keys_ per-type functions, and incorporate it into
 the language in some manner.
 
-The _utype_ modules allows users to implement the fundamental per-type
-operations used by the interpreter in ICI code. _utype_ lets users
-implement the _fetch()_, _assign()_, _forall()_ and _keys()_ per-type
-functions used to implement ICI's _indexing_ feature, the `forall`
-statement and the`keys()` function (amongst other things).
-
-This is similar to Python where the user can control fundamental
-operations by implementing specific methods.
+The _utype_ modules allows users to implement ICI types in ICI. User
+code implemenenting a number of ici::type functions to implement
+types, specifically it lets users implement _fetch()_, _assign()_,
+_forall()_ and _keys()_. This provides type-specific _indexing_,
+`forall` and `keys()` support, and serialization.
