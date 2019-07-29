@@ -2,6 +2,8 @@
  * any = deepatom(any)
  */
 extern deepatom(o) {
+    if (isatom(o))
+	return o;
     t := typeof(o);
     r := v := k := NULL;
     switch (t) {
@@ -21,6 +23,7 @@ extern deepatom(o) {
 	r := map();
 	forall (v, k in o)
 	    r[deepatom(k)] = deepatom(v);
+	super(r, deepatom(super(o)));
 	return @r;
 
     default:
@@ -31,15 +34,28 @@ extern deepatom(o) {
 /*
  * any = deepcopy(any)
  */
+
+local copymap(o, x) {
+    if (x[o]) return;
+    x[o] = 1;
+    r := map();
+    forall (v, k in o)
+	r[deepcopy(k)] = deepcopy(v);
+    if (s := super(o)) {
+	if (x[o]) return;
+	super(r, copymap(s, x));
+    }
+    return r;
+}
+
 extern deepcopy(o) {
+    r := v := k := NULL;
     t := typeof(o);
-    r := o;
-    v := k := NULL;
     switch (t) {
     case "array":
         r = array();
         forall (v in o)
-            push(r, copy(v));
+            push(r, deepcopy(v));
         break;
 
     case "set":
@@ -49,13 +65,11 @@ extern deepcopy(o) {
         break;
 
     case "map":
-        r = map();
-        forall (v, k in o)
-            r[deepcopy(k)] = deepcopy(v);
+        r = copymap(o, set());
         break;
 
     default:
-        r := o;
+        r = copy(o);
         break;
     }
     return r;
