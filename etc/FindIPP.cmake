@@ -58,6 +58,7 @@ SET(IPP_POSSIBLE_INCDIRS
 )
 
 SET(IPP_POSSIBLE_LIBRARY_PATHS
+	"$ENV{IPP_ROOT}/lib/intel64"
 	"$ENV{IPP_ROOT}/lib"
 	"$ENV{IPP_ROOT}/stublib"
 	"$ENV{IPP_ROOT}/sharedlib"  
@@ -82,6 +83,7 @@ IF (EXISTS "$ENV{IPP_DIR}")
 	SET(IPP_POSSIBLE_LIBRARY_PATHS
 		"$ENV{IPP_DIR}"
 		"$ENV{IPP_DIR}/sharedlib"
+		"$ENV{IPP_DIR}/lib/intel64"
 		"$ENV{IPP_DIR}/lib"
 		"$ENV{IPP_DIR}/stublib"
 		"$ENV{IPP_DIR}/sharedLib" 
@@ -119,6 +121,7 @@ IF (NOT IPP_POSSIBLE_LIBRARY_PATHS)
 	SET(IPP_POSSIBLE_LIBRARY_PATHS
 		"$ENV{ProgramFiles}/IPP/lib"
 		"/usr/local/lib"
+		"/opt/intel/ipp/lib/intel64"
 		"/opt/intel/ipp/lib"
 		"/opt/intel/ipp/sharedlib"
 		"/usr/lib"
