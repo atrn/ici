@@ -42,7 +42,7 @@ local copymap(o, x) {
     forall (v, k in o)
 	r[deepcopy(k)] = deepcopy(v);
     if (s := super(o)) {
-	if (x[o]) return;
+	if (x[o]) return r;
 	super(r, copymap(s, x));
     }
     return r;
