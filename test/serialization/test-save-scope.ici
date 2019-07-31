@@ -47,7 +47,7 @@ local sans_files(s) {
 }
 
 externs := super(super(scope()));
-s := deepcopy_of(sans_files(externs), set(), 0);
+s := sans_files(deepcopy_of(externs, set(), 0));
 file = fopen(test.data_file(), "w");
 save(s, file);
 close(file);

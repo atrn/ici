@@ -146,8 +146,8 @@ else
 dll=			libici.so
 endif
 
-build?=			lib
-#build?=		dll
+build?=			dll
+#build?=		lib
 #build?=		exe
 
 prefix?= 		/usr/local	# Duplicated in LDFLAGS.darwin
