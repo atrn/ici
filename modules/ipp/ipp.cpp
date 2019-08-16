@@ -547,6 +547,139 @@ int f_add()
     return ici::ret_with_decref(result);
 }
 
+// ----------------------------------------------------------------
+//
+// FFT
+
+int fft_tcode;
+
+struct fft : ici::object
+{
+    int _specsize;
+    int _specbufsize;
+    int _workbufsize;
+
+    Ipp8u *_spec;
+    Ipp8u *_specbuf;
+    Ipp8u *_workbuf;
+
+    IppsFFTSpec_R_32f *_pspec;
+
+    void init(int order, int flag, IppHintAlgorithm hint)
+    {
+        set_tfnz(fft_tcode, 0, 1, 0);
+        ippsFFTGetSize_R_32f(order, flag, hint, &_specsize, &_specbufsize, &_workbufsize);
+        _spec = ippsMalloc_8u(_specsize);
+        _specbuf = ippsMalloc_8u(_specbufsize);
+        _workbuf = ippsMalloc_8u(_workbufsize);
+        ippsFFTInit_R_32f(&_pspec, order, flag, hint, _spec, _specbuf);
+    }
+
+    void fwd(ici::vec32 *src, ici::vec32 *dst)
+    {
+        dst->resize(src->v_size);
+        ippsFFTFwd_RToPerm_32f(src->v_ptr, dst->v_ptr, _pspec, _workbuf);
+    }
+
+};
+
+inline bool isfft(ici::object *o) { return o->hastype(fft_tcode); }
+inline fft * fftof(ici::object *o) { return static_cast<fft *>(o); }
+
+struct fft_type : ici::type
+{
+    fft_type() : ici::type("fft", sizeof (fft))
+    {
+    }
+
+    size_t mark(ici::object *o) override
+    {
+        return type::mark(o) + fftof(o)->_specsize + fftof(o)->_specbufsize + fftof(o)->_workbufsize;
+    }
+
+    void free(ici::object *o) override
+    {
+        ippsFree(fftof(o)->_spec);
+        ippsFree(fftof(o)->_specbuf);
+        ippsFree(fftof(o)->_workbuf);
+        type::free(o);
+    }
+}
+fft_type;
+
+fft *new_fft(int order, int flag = 0, IppHintAlgorithm hint = ippAlgHintAccurate)
+{
+    fft *f = ici::ici_talloc<fft>();
+    if (f)
+    {
+        f->init(order, flag, hint);
+    }
+    return f;
+}
+
+//
+// fft = ipp.fft(order, flag, hint)
+//
+//
+int f_fft()
+{
+    int64_t order;
+    int64_t flag;
+    int64_t hint;
+
+    if (ici::NARGS() == 1)
+    {
+        if (ici::typecheck("i", &order))
+        {
+            return 1;
+        }
+        flag = IPP_FFT_DIV_FWD_BY_N;
+        hint = int64_t(ippAlgHintAccurate);
+    }
+    else if (ici::NARGS() == 2)
+    {
+        if (ici::typecheck("ii", &order, &flag))
+        {
+            return 1;
+        }
+        hint = int64_t(ippAlgHintAccurate);
+    }
+    else if (ici::typecheck("iii", &order, &flag, &hint))
+    {
+        return 1;
+    }
+
+    auto f = new_fft(int(order), int(flag), IppHintAlgorithm(hint));
+    return ici::ret_with_decref(f);
+}
+
+// ipp.fwd(fft, src, dst)
+//
+int f_fft_fwd()
+{
+    fft *f;
+    ici::vec32 *src;
+    ici::vec32 *dst;
+    if (ici::typecheck("ooo", &f, &src, &dst))
+    {
+        return 1;
+    }
+    if (!isfft(f))
+    {
+        return ici::argerror(0);
+    }
+    if (!ici::isvec32(src))
+    {
+        return ici::argerror(1);
+    }
+    if (!ici::isvec32(dst))
+    {
+        return ici::argerror(2);
+    }
+    f->fwd(src, dst);
+    return ici::null_ret();
+}
+
 } // anon
 
 // ----------------------------------------------------------------
@@ -561,11 +694,18 @@ extern "C" ici::object *ici_ipp_init()
     {
         return nullptr;
     }
+    fft_tcode = ici::register_type(&fft_type);
+    if (fft_tcode == 0)
+    {
+        return nullptr;
+    }
     static ICI_DEFINE_CFUNCS(ipp)
     {
         ICI_DEFINE_CFUNC(abs,           f_abs),
         ICI_DEFINE_CFUNC(add,           f_add),
         ICI_DEFINE_CFUNC(exp,           f_exp),
+        ICI_DEFINE_CFUNC(fft,           f_fft),
+        ICI_DEFINE_CFUNC(fwd,           f_fft_fwd),
         ICI_DEFINE_CFUNC(init,          f_init),
         ICI_DEFINE_CFUNC(ln,            f_ln),
         ICI_DEFINE_CFUNC(min,           f_min),
@@ -586,11 +726,11 @@ extern "C" ici::object *ici_ipp_init()
         return nullptr;
     }
 
-#define DEFINE_INT_VALUE(NAME)                                          \
+#define DEFINE_INT_VALUE(PREFIX, NAME)                                  \
     do                                                                  \
     {                                                                   \
         auto key = ici::make_ref(ici::new_str_nul_term(#NAME));         \
-        auto val = ici::make_ref(ici::new_int(ipp ## NAME));            \
+        auto val = ici::make_ref(ici::new_int(PREFIX ## NAME));         \
         if (module->assign(key, val))                                   \
         {                                                               \
             return nullptr;                                             \
@@ -598,29 +738,34 @@ extern "C" ici::object *ici_ipp_init()
     }                                                                   \
     while (0)
 
-    DEFINE_INT_VALUE(RndZero);
-    DEFINE_INT_VALUE(RndNear);
-    DEFINE_INT_VALUE(RndFinancial);
-    DEFINE_INT_VALUE(RndHintAccurate);
+    DEFINE_INT_VALUE(ipp, RndZero);
+    DEFINE_INT_VALUE(ipp, RndNear);
+    DEFINE_INT_VALUE(ipp, RndFinancial);
+    DEFINE_INT_VALUE(ipp, RndHintAccurate);
 
-    DEFINE_INT_VALUE(AlgHintNone);
-    DEFINE_INT_VALUE(AlgHintFast);
-    DEFINE_INT_VALUE(AlgHintAccurate);
+    DEFINE_INT_VALUE(ipp, AlgHintNone);
+    DEFINE_INT_VALUE(ipp, AlgHintFast);
+    DEFINE_INT_VALUE(ipp, AlgHintAccurate);
 
-    DEFINE_INT_VALUE(CmpLess);
-    DEFINE_INT_VALUE(CmpLessEq);
-    DEFINE_INT_VALUE(CmpEq);
-    DEFINE_INT_VALUE(CmpGreaterEq);
-    DEFINE_INT_VALUE(CmpGreater);
+    DEFINE_INT_VALUE(ipp, CmpLess);
+    DEFINE_INT_VALUE(ipp, CmpLessEq);
+    DEFINE_INT_VALUE(ipp, CmpEq);
+    DEFINE_INT_VALUE(ipp, CmpGreaterEq);
+    DEFINE_INT_VALUE(ipp, CmpGreater);
 
-    DEFINE_INT_VALUE(AlgAuto);
-    DEFINE_INT_VALUE(AlgDirect);
-    DEFINE_INT_VALUE(AlgFFT);
-    DEFINE_INT_VALUE(AlgMask);
+    DEFINE_INT_VALUE(ipp, AlgAuto);
+    DEFINE_INT_VALUE(ipp, AlgDirect);
+    DEFINE_INT_VALUE(ipp, AlgFFT);
+    DEFINE_INT_VALUE(ipp, AlgMask);
 
-    DEFINE_INT_VALUE(NormInf);
-    DEFINE_INT_VALUE(NormL1);
-    DEFINE_INT_VALUE(NormL2);
+    DEFINE_INT_VALUE(ipp, NormInf);
+    DEFINE_INT_VALUE(ipp, NormL1);
+    DEFINE_INT_VALUE(ipp, NormL2);
+
+    DEFINE_INT_VALUE(IPP_, FFT_DIV_FWD_BY_N);
+    DEFINE_INT_VALUE(IPP_, FFT_DIV_INV_BY_N);
+    DEFINE_INT_VALUE(IPP_, FFT_DIV_BY_SQRTN);
+    DEFINE_INT_VALUE(IPP_, FFT_NODIV_BY_ANY);
 
     return module;
 }

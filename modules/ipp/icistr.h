@@ -1,6 +1,8 @@
 ICI_STR(abs,  "abs")
 ICI_STR(add, "add")
 ICI_STR(exp,  "exp")
+ICI_STR(fft, "fft")
+ICI_STR(fwd, "fwd")
 ICI_STR(init, "init")
 ICI_STR(ln,   "ln")
 ICI_STR(max, "max")
