@@ -117,6 +117,10 @@
 #				NOT use this! It selects the conf file using
 #				platform detection at the top of fwd.h.
 #
+#	cmakeargs		Extra arguments passed to cmake when it is
+#				is run to configure thing for the specific
+#				generator (ninja by default).
+#
 #	cmakebuild		Sets cmake's CMAKE_BUILD_TYPE. The default
 #				is "Release".
 #
@@ -157,6 +161,7 @@ dccflags?=
 cxxflags?=		CXXFLAGS
 objdir?=		.objs
 
+cmakeargs?=
 cmakebuild?=		Release
 cmakegenerator?=	Ninja
 cmakedir?=		.build
@@ -364,9 +369,9 @@ with-cmake:	configure-cmake
 
 configure-cmake:
 ifneq ($(cmakebuild),)
-	@cmake -B$(cmakedir) -H. -G'$(cmakegenerator)' -DCMAKE_BUILD_TYPE='$(cmakebuild)'
+	@cmake -B$(cmakedir) -H. -G'$(cmakegenerator)' -DCMAKE_BUILD_TYPE='$(cmakebuild)' $(cmakeargs)
 else
-	@cmake -B$(cmakedir) -H. -G'$(cmakegenerator)'
+	@cmake -B$(cmakedir) -H. -G'$(cmakegenerator)' $(cmakeargs)
 endif
 
 clean-cmake:
