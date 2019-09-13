@@ -164,7 +164,7 @@ objdir?=		.objs
 cmakeargs?=
 cmakebuild?=		Release
 cmakegenerator?=	Ninja
-cmakedir?=		.build
+cmakedir?=		build
 xcodedir?=		.xcode
 
 
@@ -395,7 +395,7 @@ with-xcode:
 	@$(MAKE) with-cmake cmakedir=$(xcodedir) cmakegenerator=Xcode cmakebuild=
 
 clean-xcode:
-	@[ -d .build ] && cmake --build .build.xcode --target clean
+	@[ -d .build.xcode ] && cmake --build .build.xcode --target clean
 endif
 
 
