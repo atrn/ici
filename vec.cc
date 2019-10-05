@@ -19,7 +19,6 @@ namespace ici
 template struct vec<TC_VEC32, float>;
 template struct vec<TC_VEC64, double>;
 
-
 #ifdef ICI_VEC_USE_IPP
 
 template <>
@@ -40,29 +39,6 @@ vec<TC_VEC32, float>::fill(float value, size_t ofs)
 template <>
 vec<TC_VEC32, float> & 
 vec<TC_VEC32, float>::operator=(float value)
-{
-    fill(value);
-    return *this;
-}
-
-template <>
-void
-vec<TC_VEC64, double>::fill(double value, size_t ofs, size_t lim)
-{
-    ippsSet_64f(value, &v_ptr[ofs], lim - ofs);
-    v_size = lim;
-}
-
-template <>
-void
-vec<TC_VEC64, double>::fill(double value, size_t ofs)
-{
-    fill(value, ofs, v_capacity);
-}
-
-template <>
-vec<TC_VEC64, double> & 
-vec<TC_VEC64, double>::operator=(double value)
 {
     fill(value);
     return *this;
@@ -133,6 +109,29 @@ vec<TC_VEC32, float>::operator/=(value_type value)
 }
 
 // TC_VEC64 -------------------------------------------------------
+
+template <>
+void
+vec<TC_VEC64, double>::fill(double value, size_t ofs, size_t lim)
+{
+    ippsSet_64f(value, &v_ptr[ofs], lim - ofs);
+    v_size = lim;
+}
+
+template <>
+void
+vec<TC_VEC64, double>::fill(double value, size_t ofs)
+{
+    fill(value, ofs, v_capacity);
+}
+
+template <>
+vec<TC_VEC64, double> & 
+vec<TC_VEC64, double>::operator=(double value)
+{
+    fill(value);
+    return *this;
+}
 
 template <>
 vec<TC_VEC64, double> &
