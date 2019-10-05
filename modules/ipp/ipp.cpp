@@ -1,3 +1,9 @@
+/*
+ * ICI IPP interface.
+ *
+ * Copyright (C) A.Newman 2019.
+ */
+
 #include <ici.h>
 
 #include <ippcore.h>

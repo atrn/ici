@@ -1,3 +1,9 @@
+/*
+ * ICI IPP interface.
+ *
+ * Copyright (C) A.Newman 2019.
+ */
+
 ICI_STR(abs,  "abs")
 ICI_STR(add, "add")
 ICI_STR(exp,  "exp")

@@ -1,3 +1,9 @@
+/*
+ * ICI IPP interface.
+ *
+ * Copyright (C) A.Newman 2019.
+ */
+
 level := 0.0001;
 
 if (argc < 2)

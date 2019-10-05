@@ -1,3 +1,9 @@
+/*
+ * ICI IPP interface.
+ *
+ * Copyright (C) A.Newman 2019.
+ */
+
 extern write_wav_file(name, samples, samplerate, format)
 {
     var format = sndfile.FORMAT_WAV|sndfile.FORMAT_FLOAT;

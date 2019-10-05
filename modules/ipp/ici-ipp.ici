@@ -1,4 +1,10 @@
 /*
+ * ICI IPP interface.
+ *
+ * Copyright (C) A.Newman 2019.
+ */
+
+/*
  * float = ipp.frequency_for_samplerate(freq, rate)
  *
  * Returns the relative frequency value, in the range 0 to 0.5, for
