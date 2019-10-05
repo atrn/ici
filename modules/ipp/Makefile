@@ -3,6 +3,10 @@
 sudo?=
 prefix?=/usr/local
 
+# ippdir must exist for this makefile to do anything
+
+ippdir?=/opt/intel/ipp/include/
+
 _os=$(shell uname)
 ifeq ($(_os),Darwin)
 _module=ici-ipp.dylib
@@ -12,10 +16,12 @@ endif
 
 all: dll
 
-dll:; @dmake -o $(_module) dll
+dll:; @if [ -d $(ippdir) ]; then dmake -o $(_module) dll; else exit 0; fi
 
-clean:; @dmake -o $(_module) dll clean
+clean:; @if [ -d $(ippdir) ]; then dmake -o $(_module) dll cleana; else exit 0; fi
 
 install: dll
-	$(sudo) install -c -m 444 $(_module) $(prefix)/lib/ici/$(_module)
-	$(sudo) install -c -m 444 ici-ipp.ici $(prefix)/lib/ici/ici-ipp.ici
+	@if [ -d $(ippdir) ]; then \
+	 $(sudo) install -c -m 444 $(_module) $(prefix)/lib/ici/$(_module);\
+	 $(sudo) install -c -m 444 ici-ipp.ici $(prefix)/lib/ici/ici-ipp.ici;\
+	fi
