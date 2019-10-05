@@ -562,169 +562,91 @@ template <typename vec_type> object *restore_vec(archiver *ar)
 
 } // anon
 
+#ifdef ICI_VEC_USE_IPP
+#   define GET_VEC_MEM_USE(VEC) (0)
+#   define FREE_VEC_MEM(VEC)    ippFree((VEC)->v_ptr)
+#else
+#   define GET_VEC_MEM_USE(VEC) ((VEC)->v_capacity * sizeof(VEC :: value_type))
+#   define FREE_VEC_MEM(VEC)    ici_free((VEC)->v_ptr)
+#endif
+
+#define DEFINE_VEC_TYPE_CLASS(VECTYPE, VECOF, VECOBJ, OTHERVEC)         \
+                                                                        \
+    size_t VECTYPE::mark(object *o)                                     \
+    {                                                                   \
+        return type::mark(o)                                            \
+            + VECOF(o)->v_props->mark()                                 \
+            + mark_optional(VECOF(o)->v_parent)                         \
+            + GET_VEC_MEM_USE(VECOF(o));                                \
+    }                                                                   \
+                                                                        \
+    void VECTYPE::free(object *o)                                       \
+    {                                                                   \
+        if (!VECOF(o)->v_parent)                                        \
+        {                                                               \
+            FREE_VEC_MEM(VECOF(o));                                     \
+        }                                                               \
+        type::free(o);                                                  \
+    }                                                                   \
+                                                                        \
+    int64_t VECTYPE::len(object *o)                                     \
+    {                                                                   \
+        return VECOF(o)->v_size;                                        \
+    }                                                                   \
+                                                                        \
+    object *VECTYPE::copy(object *o)                                    \
+    {                                                                   \
+        return copy_vec(VECOF(o));                                      \
+    }                                                                   \
+                                                                        \
+    object *VECTYPE::fetch(object *o, object *k)                        \
+    {                                                                   \
+        return fetch_vec(VECOF(o), k);                                  \
+    }                                                                   \
+                                                                        \
+    int VECTYPE::assign(object *o, object *k, object *v)                \
+    {                                                                   \
+        return assign_vec(VECOF(o), k, v);                              \
+    }                                                                   \
+                                                                        \
+    int VECTYPE::forall(object *o)                                      \
+    {                                                                   \
+        return forall_vec<VECOBJ>(o);                                   \
+    }                                                                   \
+                                                                        \
+    int VECTYPE::save(archiver *ar, object *o)                          \
+    {                                                                   \
+        return save_vec(ar, VECOF(o));                                  \
+    }                                                                   \
+                                                                        \
+    object * VECTYPE::restore(archiver *ar)                             \
+    {                                                                   \
+        return restore_vec<VECOBJ>(ar);                                 \
+    }                                                                   \
+                                                                        \
+    VECOBJ *new_## VECOBJ(size_t capacity, size_t size, object *props)  \
+    {                                                                   \
+        return new_vec<VECOBJ>(capacity, size, props);                  \
+    }                                                                   \
+                                                                        \
+    VECOBJ *new_## VECOBJ(VECOBJ *other)                                \
+    {                                                                   \
+        return new_vec<VECOBJ>(other);                                  \
+    }                                                                   \
+                                                                        \
+    VECOBJ *new_## VECOBJ(OTHERVEC *other)                              \
+    {                                                                   \
+        return new_vec_conv<VECOBJ>(other);                             \
+    }                                                                   \
+                                                                        \
+    VECOBJ *new_## VECOBJ(VECOBJ *other, size_t offset, size_t len)     \
+    {                                                                   \
+        return new_vec<VECOBJ>(other, offset, len);                     \
+    }
 
 //  ----------------------------------------------------------------
 
-size_t vec32_type::mark(object *o)
-{
-    return type::mark(o)
-        + vec32of(o)->v_props->mark()
-        + mark_optional(vec32of(o)->v_parent)
-#ifdef ICI_VEC_USE_IPP
-    ; // IPP's malloc is a distinct arena
-#else
-        + vec32of(o)->v_capacity * sizeof (vec32::value_type);
-#endif
-}
-
-void vec32_type::free(object *o)
-{
-    if (!vec32of(o)->v_parent)
-    {
-#ifdef ICI_VEC_USE_IPP
-        ippFree(vec32of(o)->v_ptr);
-#else
-        ici_free(vec32of(o)->v_ptr);
-#endif
-    }
-    type::free(o);
-}
-
-int64_t vec32_type::len(object *o)
-{
-    return vec32of(o)->v_size;
-}
-
-object *vec32_type::copy(object *o)
-{
-    return copy_vec(vec32of(o));
-}
-
-object *vec32_type::fetch(object *o, object *k)
-{
-    return fetch_vec(vec32of(o), k);
-}
-
-int vec32_type::assign(object *o, object *k, object *v)
-{
-    return assign_vec(vec32of(o), k, v);
-}
-
-int vec32_type::forall(object *o)
-{
-    return forall_vec<vec32>(o);
-}
-
-int vec32_type::save(archiver *ar, object *o)
-{
-    return save_vec(ar, vec32of(o));
-}
-
-object * vec32_type::restore(archiver *ar)
-{
-    return restore_vec<vec32>(ar);
-}
-
-vec32 *new_vec32(size_t capacity, size_t size, object *props)
-{
-    return new_vec<vec32>(capacity, size, props);
-}
-
-vec32 *new_vec32(vec32 *other)
-{
-    return new_vec<vec32>(other);
-}
-
-vec32 *new_vec32(vec64 *other)
-{
-    return new_vec_conv<vec32>(other);
-}
-
-vec32 *new_vec32(vec32 *other, size_t offset, size_t len)
-{
-    return new_vec<vec32>(other, offset, len);
-}
-
-//  ----------------------------------------------------------------
-
-size_t vec64_type::mark(object *o)
-{
-    return type::mark(o)
-        + vec64of(o)->v_props->mark()
-        + mark_optional(vec64of(o)->v_parent)
-#ifdef ICI_VEC_USE_IPP
-    ; // IPP's malloc is a distinct arena
-#else
-    + vec64of(o)->v_capacity * sizeof(vec64::value_type);
-#endif
-}
-
-void vec64_type::free(object *o)
-{
-    if (!vec64of(o)->v_parent)
-    {
-#ifdef ICI_VEC_USE_IPP
-        ippFree(vec32of(o)->v_ptr);
-#else
-        ici_free(vec64of(o)->v_ptr);
-#endif
-    }
-    type::free(o);
-}
-
-int64_t vec64_type::len(object *o)
-{
-    return vec64of(o)->v_size;
-}
-
-object *vec64_type::copy(object *o)
-{
-    return copy_vec(vec64of(o));
-}
-
-object *vec64_type::fetch(object *o, object *k)
-{
-    return fetch_vec(vec64of(o), k);
-}
-
-int vec64_type::assign(object *o, object *k, object *v)
-{
-    return assign_vec(vec64of(o), k, v);
-}
-
-int vec64_type::forall(object *o)
-{
-    return forall_vec<vec64>(o);
-}
-
-int vec64_type::save(archiver *ar, object *o)
-{
-    return save_vec(ar, vec64of(o));
-}
-
-object * vec64_type::restore(archiver *ar)
-{
-    return restore_vec<vec64>(ar);
-}
-
-vec64 *new_vec64(size_t capacity, size_t size, object *props)
-{
-    return new_vec<vec64>(capacity, size, props);
-}
-
-vec64 *new_vec64(vec64 *other)
-{
-    return new_vec<vec64>(other);
-}
-
-vec64 *new_vec64(vec32 *other)
-{
-    return new_vec_conv<vec64>(other);
-}
-
-vec64 *new_vec64(vec64 *other, size_t offset, size_t len)
-{
-    return new_vec<vec64>(other, offset, len);
-}
+DEFINE_VEC_TYPE_CLASS(vec32_type, vec32of, vec32, vec64)
+DEFINE_VEC_TYPE_CLASS(vec64_type, vec64of, vec64, vec32)
 
 } // namespace ici
