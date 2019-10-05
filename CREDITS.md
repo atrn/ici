@@ -2,28 +2,27 @@
 
 ## Tim Long
 
-Tim Long is ICI's principle author and creator,
+Tim Long is ICI's principle author/creator/architect.
 
 ## Andy Newman (github.com/atrn)
 
 Recent changes are all by Andy Newman.
 
-- language changes
 - conversion to C++
+- language changes
+- vector types, operators, modules
 
-Previously added:
+Previously responsible for:
 
-- POSIX threads
-- sockets
-- more system calls
-- more cfuncs
-- set operators
-- integrate PCRE
-- dynamic modules
+- dynamically loaded modules
 - object serialization
-- debugger i/f
-- many modules
-- more...
+- set operations
+- debugger
+- sockets
+- more cfuncs
+- PCRE integration
+- POSIX threads
+- numerous fixes
 
 ## Chris Amies
 
