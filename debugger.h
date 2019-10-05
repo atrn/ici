@@ -13,16 +13,16 @@ namespace ici
  */
 
 /*
- * ICI debug interface.
+ * ICI debugger interface.
  *
  * A debugger is an instance of the 'ici::debugger' class, a base
- * class for ICI debuggers who's member functions define the interface
- * to a debugger.
+ * class for ICI debuggers. ici::debugger declares a number of virtual
+ * member functions called to report events of interest to debuggers.
  *
  * The interpreter has a global flag 'ici::debug_enabled' and a global
  * pointer to the debugger instance, 'ici::debugger'. If the flag is
- * set, the interpreter calls the debugger's member functions.  See
- * 'ici::debugger' and 'ici::debug_enabled'.
+ * set, the interpreter calls the debugger's member functions at the
+ * appropriate times.  See 'ici::debugger' and 'ici::debug_enabled'.
  *
  * The ici::debugger base-class provides default implementations of
  * the debugging functions. The default implementations do nothing.
