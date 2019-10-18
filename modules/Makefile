@@ -18,4 +18,4 @@ _dirs=\
 _make=	$(MAKE) --no-print-directory
 
 all clean install:
-	@for _d in $(_dirs); do (cd $$_d; $(_make) -$(MAKEFLAGS) sudo=$(sudo) prefix=$(prefix) $@); done
+	@for _d in $(_dirs); do (cd $$_d; echo $$_d; $(_make) -$(MAKEFLAGS) sudo=$(sudo) prefix=$(prefix) $@); done
