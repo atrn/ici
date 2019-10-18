@@ -49,9 +49,9 @@ bignum values and do the right thing re. precision/width specs.
 
 ## Re-implement my user-defined operator "hack"
 
-This feature allowed code to register functions to be
-called when unknown operator/type combinations were
-encountered providing a form of user-defined operators.
+This feature allowed code to register functions to be called when
+unknown operator/type combinations were encountered providing a form
+of user-defined operators.
 
 ## Move more things into the 'ici' map
 
@@ -67,4 +67,4 @@ The _utype_ modules allows users to implement ICI types in ICI. User
 code implemenenting a number of ici::type functions to implement
 types, specifically it lets users implement _fetch()_, _assign()_,
 _forall()_ and _keys()_. This provides type-specific _indexing_,
-`forall` and `keys()` support, and serialization.
+`forall`, `keys()` and serialization.
