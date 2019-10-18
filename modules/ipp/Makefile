@@ -18,7 +18,7 @@ all: dll
 
 dll:; @if [ -d $(ippdir) ]; then dmake -o $(_module) dll; else exit 0; fi
 
-clean:; @if [ -d $(ippdir) ]; then dmake -o $(_module) dll cleana; else exit 0; fi
+clean:; @if [ -d $(ippdir) ]; then dmake -o $(_module) dll clean; else exit 0; fi
 
 install: dll
 	@if [ -d $(ippdir) ]; then \
