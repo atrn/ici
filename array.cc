@@ -36,16 +36,12 @@ int array::grow_stack(ptrdiff_t n)
      * We don't use realloc to ensure that memory exhaustion is
      * cleanly recovereable.
      */
-    if ((oldz = a_limit - a_base) * 3 / 2 < a_limit - a_base + n)
-    {
+    if ((oldz = a_limit - a_base) * 3 / 2 < a_limit - a_base + n) {
         n += (a_limit - a_base) + 10;
-    }
-    else
-    {
+    } else {
         n = (a_limit - a_base) * 3 / 2;
     }
-    if ((e = (object **)ici_nalloc(n * sizeof (object *))) == nullptr)
-    {
+    if ((e = (object **)ici_nalloc(n * sizeof (object *))) == nullptr) {
         return 1;
     }
     memcpy((char *)e, (char *)a_base, (a_limit - a_base) * sizeof (object *));
@@ -141,8 +137,7 @@ void array::gather(object **b, ptrdiff_t start, ptrdiff_t n)
     ptrdiff_t   i;
     ptrdiff_t   m;
 
-    for (i = start; i < start + n; i += m, b += m)
-    {
+    for (i = start; i < start + n; i += m, b += m) {
         m = n - (i - start);
         e = span(i, &m);
         memcpy(b, e, m * sizeof (object *));
@@ -162,12 +157,10 @@ int array::grow()
     object    **e;              /* New allocation. */
 
     n = a_limit - a_base;
-    if ((m = n * 3 / 2) < 8)
-    {
+    if ((m = n * 3 / 2) < 8) {
         m = 8;
     }
-    if ((e = (object **)ici_nalloc(m * sizeof (object *))) == nullptr)
-    {
+    if ((e = (object **)ici_nalloc(m * sizeof (object *))) == nullptr) {
         return 1;
     }
     nel = len();
@@ -626,6 +619,10 @@ object *array_type::restore(archiver *ar) {
         return nullptr;
     }
     if (ar->read(&len)) {
+        return nullptr;
+    }
+    if (len < 0) {
+        set_error("restored invalid array lemgth");
         return nullptr;
     }
     if ((a = make_ref(new_array(len))) == nullptr) {

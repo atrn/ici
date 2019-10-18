@@ -26,7 +26,7 @@ int  f_archive_restore(...);
 #endif
 
 /*
- * The top bit of the tcode set when the object is atomic.  This of
+ * The top bit of the tcode is set when the object is atomic.  This of
  * course limits archiving to 128 distinct types.
  */
 constexpr int O_ARCHIVE_ATOMIC = 0x80;

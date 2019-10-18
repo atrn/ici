@@ -360,6 +360,7 @@ int archiver::save(object *o) {
 object *archiver::restore() {
     uint8_t tcode;
     uint8_t flags = 0;
+
     if (read(&tcode)) {
         return nullptr;
     }
@@ -370,14 +371,16 @@ object *archiver::restore() {
         flags |= object::O_ATOM;
         tcode &= ~O_ARCHIVE_ATOMIC;
     }
-    if (tcode >= num_types) {
-        set_error("restored type code %d exceeds number of registered types %d", (int)tcode, num_types);
+    auto no_type = [&]() {
+        set_error("no type with code %02X", tcode);
         return nullptr;
+    };
+    if (tcode >= num_types) {
+        return no_type();
     }
     auto t = types[tcode];
     if (!t) {
-        set_error("no type with code %02X", tcode);
-        return nullptr;
+        return no_type();
     }
     auto o = t->restore(this);
     if (!o) {
@@ -468,11 +471,9 @@ int f_archive_restore(...) {
         break;
     }
 
-    {
-        archiver ar(file, scp);
-        if (ar) {
-            obj = ar.restore();
-        }
+    archiver ar(file, scp);
+    if (ar) {
+        obj = ar.restore();
     }
 
     return obj == nullptr ? 1 : ret_with_decref(obj);
