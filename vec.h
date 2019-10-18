@@ -67,14 +67,14 @@ namespace ici
 template <int TYPE_CODE, typename VALUE_TYPE>
 struct vec : object
 {
-    typedef VALUE_TYPE value_type;
-    constexpr static auto type_code = TYPE_CODE;
+    constexpr static int type_code  = TYPE_CODE;
+    using                value_type = VALUE_TYPE;
 
-    size_t      v_capacity;     // total capacity
-    size_t      v_size;         // current length
     value_type *v_ptr;          // v_capacity x value_type's
+    size_t      v_size;         // current length
+    size_t      v_capacity;     // total capacity
     map *       v_props;        // user-defined properties
-    vec *       v_parent;       // parent vec if this is a slice
+    vec *       v_parent;       // parent vec (iff this is a slice)
 
     vec(const vec &) = delete;
     vec & operator=(const vec &) = delete;
@@ -182,15 +182,17 @@ struct vec : object
 using vec32 =  vec<TC_VEC32, float>;
 using vec64 =  vec<TC_VEC64, double>;
 
-inline vec32 * vec32of(ici::object *o) { return static_cast<vec32 *>(o); }
-inline bool    isvec32(ici::object *o) { return o->hastype(vec32::type_code); }
+inline vec32 * vec32of(object *o) { return static_cast<vec32 *>(o); }
+inline bool    isvec32(object *o) { return o->hastype(vec32::type_code); }
+
 vec32 *        new_vec32(size_t, size_t = 0, object * = nullptr);
 vec32 *        new_vec32(vec32 *);
 vec32 *        new_vec32(vec64 *);
 vec32 *        new_vec32(vec32 *, size_t, size_t);
 
-inline vec64 * vec64of(ici::object *o) { return static_cast<vec64 *>(o); }
-inline bool    isvec64(ici::object *o) { return o->hastype(vec64::type_code); }
+inline vec64 * vec64of(object *o) { return static_cast<vec64 *>(o); }
+inline bool    isvec64(object *o) { return o->hastype(vec64::type_code); }
+
 vec64 *        new_vec64(size_t, size_t = 0, object * = nullptr);
 vec64 *        new_vec64(vec64 *);
 vec64 *        new_vec64(vec32 *);
@@ -202,31 +204,31 @@ vec64 *        new_vec64(vec64 *, size_t, size_t);
 
 // ----------------------------------------------------------------
 
-struct vec32_type : ici::type
+struct vec32_type : type
 {
-    vec32_type() : ici::type("vec32", sizeof (vec32)) {}
+    vec32_type() : type("vec32", sizeof (vec32)) {}
 
-    size_t mark(ici::object *) override;
-    void free(ici::object *) override;
-    int64_t len(ici::object *o) override;
+    size_t mark(object *) override;
+    void free(object *) override;
+    int64_t len(object *o) override;
     object *copy(object *) override;
-    ici::object *fetch(ici::object *o, ici::object *k) override;
-    int assign(ici::object *o, ici::object *k, ici::object *v) override;
+    object *fetch(object *o, object *k) override;
+    int assign(object *o, object *k, object *v) override;
     int forall(object *) override;
     int save(archiver *, object *) override;
     object * restore(archiver *) override;
 };
 
-struct vec64_type : ici::type
+struct vec64_type : type
 {
-    vec64_type() : ici::type("vec64", sizeof (vec64)) {}
+    vec64_type() : type("vec64", sizeof (vec64)) {}
 
-    size_t mark(ici::object *) override;
-    void free(ici::object *) override;
-    int64_t len(ici::object *o) override;
+    size_t mark(object *) override;
+    void free(object *) override;
+    int64_t len(object *o) override;
     object *copy(object *) override;
-    ici::object *fetch(ici::object *o, ici::object *k) override;
-    int assign(ici::object *o, ici::object *k, ici::object *v) override;
+    object *fetch(object *o, object *k) override;
+    int assign(object *o, object *k, object *v) override;
     int forall(object *) override;
     int save(archiver *, object *) override;
     object * restore(archiver *) override;
