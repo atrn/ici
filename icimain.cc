@@ -11,6 +11,7 @@
 #ifndef NOPROFILE
 #include "profile.h"
 #endif
+#include "debugger.h"
 
 namespace ici
 {
@@ -315,6 +316,10 @@ int main(int argc, char *argv[], bool enable_repl) {
                 break;
             }
         }
+    }
+
+    if (UNLIKELY(debug_active)) {
+        debugger->finished();
     }
 
 #ifndef NOPROFILE

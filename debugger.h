@@ -68,6 +68,7 @@ public:
     virtual void function_result(object *);
     virtual void source_line(struct src *);
     virtual void watch(object *, object *, object *);
+    virtual void finished();
 };
 
 /*

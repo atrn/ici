@@ -738,7 +738,7 @@ object *evaluate(object *code, int n_operands) {
                  */
                 if
                 (
-                    !debug_active
+                    LIKELY(!debug_active)
                     &&
                     stringof(os.a_top[-2])->s_map == mapof(os.a_top[-3])
                     &&
