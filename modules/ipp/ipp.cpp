@@ -454,6 +454,88 @@ int f_minmax()
     return ici::ret_with_decref(r);
 }
 
+// vec = ipp.normalize(vec, sub, div)
+//      Inplace normalization of vector data via ippsNormalize.
+//
+// Returns its 1st argument to permit function call chaining.
+//
+int f_normalize()
+{
+    ici::object *vec;
+    double sub;
+    double div;
+    int error;
+
+    if (ici::typecheck("onn", &vec, &sub, &div))
+    {
+        return 1;
+    }
+    if (ici::isvec32(vec))
+    {
+        error = ippsNormalize_32f_I(ici::vec32of(vec)->v_ptr, ici::vec32of(vec)->v_size, float(sub), float(div));
+    }
+    else if (ici::isvec64(vec))
+    {
+        error = ippsNormalize_64f_I(ici::vec64of(vec)->v_ptr, ici::vec64of(vec)->v_size, sub, div);
+    }
+    else
+    {
+        return ici::argerror(0);
+    }
+    if (check_error(error))
+    {
+        return 1;
+    }
+    return ici::ret_no_decref(vec);
+}
+
+// vec = ipp.normalized(vec, sub, div)
+//      Non-inplace normalization of vector data via ippsNormalize.
+//
+// Returns a new vec containing the result of normalizing the
+// input vec with the given sub and div parameters.
+//
+int f_normalized()
+{
+    ici::object *result;
+    ici::object *vec;
+    double sub;
+    double div;
+    int error;
+
+    if (ici::typecheck("onn", &vec, &sub, &div))
+    {
+        return 1;
+    }
+    if (ici::isvec32(vec))
+    {
+        auto v = ici::vec32of(vec);
+        if (!(result = ici::new_vec32(v->v_size, v->v_size)))
+        {
+            return 1;
+        }
+        error = ippsNormalize_32f(v->v_ptr, ici::vec32of(result)->v_ptr, v->v_size, float(sub), float(div));
+    }
+    else if (ici::isvec64(vec))
+    {
+        auto v = ici::vec64of(vec);
+        if (!(result = ici::new_vec64(v->v_size, v->v_size)))
+        {
+            return 1;
+        }
+        error = ippsNormalize_64f(v->v_ptr, ici::vec64of(result)->v_ptr, v->v_size, sub, div);
+    }
+    else
+    {
+        return ici::argerror(0);
+    }
+    if (check_error(error))
+    {
+        return 1;
+    }
+    return ici::ret_with_decref(result);
+}
+
 // vec = ipp.add(vec, vec)
 //      Non-inplace addition of equal size vectors. Returns a new vector.
 //
@@ -715,8 +797,10 @@ extern "C" ici::object *ici_ipp_init()
         ICI_DEFINE_CFUNC(init,          f_init),
         ICI_DEFINE_CFUNC(ln,            f_ln),
         ICI_DEFINE_CFUNC(min,           f_min),
-        ICI_DEFINE_CFUNC(minmax,        f_minmax),
         ICI_DEFINE_CFUNC(max,           f_max),
+        ICI_DEFINE_CFUNC(minmax,        f_minmax),
+        ICI_DEFINE_CFUNC(normalize,     f_normalize),
+        ICI_DEFINE_CFUNC(normalized,    f_normalized),
         ICI_DEFINE_CFUNC(set,           f_set),
         ICI_DEFINE_CFUNC(sqr,           f_sqr),
         ICI_DEFINE_CFUNC(sqrt,          f_sqrt),
