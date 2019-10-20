@@ -2,6 +2,36 @@
  * ICI IPP interface.
  *
  * Copyright (C) A.Newman 2019.
+ *
+ * This is an ICI module providing access to functions defined by the
+ * Intel IPP libraries.
+ *
+ * It is assumed, although not required, the module is used with a
+ * IPP-enabled ici. This is not because of some code dependency or
+ * anything like that but is because this module assumes various
+ * IPP-functions are provided to the user by ici itself and are not
+ * implemented in the module. Specifically, the ici _vec_ types are
+ * assumed to provide basic vector/vector, vector/scalar arithmetic
+ * operations that use IPP.
+ *
+ * Mapping the IPP C/C++ functions to ICI is straight forward and
+ * where possible IPP-naming and argument orders are preserved
+ * (allowing the C/C++ IPP documentation to be used). The general rule
+ * is that when an IPP function takes a pointer to a vector and a
+ * vector size the ici version uses a single _vec_ value, `vec32` for
+ * single-precision or `vec64` for double-precision.
+ *
+ * Some operations are represented differently to better integrate
+ * inplace and non-inplace operations. E.g. the `normalize` function
+ * performs in-place normalization of data while the `normalized`
+ * function is the non-inplace operation, returning a new value with
+ * the normalized data.
+ *
+ * Performance
+ *
+ * The module is a relatively thin wrapper atop the IPP functions but
+ * of course adds overhead. That overhead, however, is minimal when
+ * compared to other overheads in an ici program's execution.
  */
 
 #include <ici.h>
@@ -15,7 +45,7 @@ namespace
 #include "icistr.h"
 #include <icistr-setup.h>
 
-int check_error(int code)
+inline int check_error(int code)
 {
     if (code != ippStsNoErr)
     {
@@ -24,14 +54,20 @@ int check_error(int code)
     return 0;
 }
 
-int f_init()
+template <typename Fn>
+inline int check_error(int code, const Fn &fn)
 {
-    const int error = ippInit();
-    if (check_error(error))
+    if (check_error(code))
     {
         return 1;
     }
-    return ici::null_ret();
+    return fn();
+}
+
+int f_init()
+{
+    const int error = ippInit();
+    return check_error(error, ici::null_ret);
 }
 
 #define DEFINE_INPLACE_NULLARY_OP(NAME, CODE32, CODE64) \
@@ -57,11 +93,7 @@ int f_init()
         {                                               \
             return ici::argerror(0);                    \
         }                                               \
-        if (check_error(error))                         \
-        {                                               \
-            return 1;                                   \
-        }                                               \
-        return ici::null_ret();                         \
+        return check_error(error, ici::null_ret);       \
     }
 
 #define DEFINE_INPLACE_OP(NAME, CODE32, CODE64)         \
@@ -88,11 +120,7 @@ int f_init()
         {                                               \
             return ici::argerror(0);                    \
         }                                               \
-        if (check_error(error))                         \
-        {                                               \
-            return 1;                                   \
-        }                                               \
-        return ici::null_ret();                         \
+        return check_error(error, ici::null_ret);       \
     }
 
 DEFINE_INPLACE_NULLARY_OP
@@ -217,11 +245,7 @@ int f_tone()
     {
         return ici::argerror(0);
     }
-    if (check_error(error))
-    {
-        return 1;
-    }
-    return ici::float_ret(phase);
+    return check_error(error, [phase]() { return ici::float_ret(phase); });
 }
 
 /*
@@ -298,11 +322,7 @@ int f_triangle()
     {
         return ici::argerror(0);
     }
-    if (check_error(error))
-    {
-        return 1;
-    }
-    return ici::float_ret(phase);
+    return check_error(error, [phase]() { return ici::float_ret(phase); });
 }
 
 int f_vector_slope()
@@ -328,11 +348,7 @@ int f_vector_slope()
     {
         return ici::argerror(0);
     }
-    if (check_error(error))
-    {
-        return 1;
-    }
-    return ici::null_ret();
+    return check_error(error, ici::null_ret);
 }
 
 int f_min()
@@ -359,11 +375,7 @@ int f_min()
     {
         return ici::argerror(0);
     }
-    if (check_error(error))
-    {
-        return 1;
-    }
-    return ici::float_ret(minval);
+    return check_error(error, [minval]() { return ici::float_ret(minval); });
 }
 
 int f_max()
@@ -390,11 +402,7 @@ int f_max()
     {
         return ici::argerror(0);
     }
-    if (check_error(error))
-    {
-        return 1;
-    }
-    return ici::float_ret(maxval);
+    return check_error(error, [maxval]() { return ici::float_ret(maxval); });
 }
 
 int f_minmax()
@@ -482,11 +490,7 @@ int f_normalize()
     {
         return ici::argerror(0);
     }
-    if (check_error(error))
-    {
-        return 1;
-    }
-    return ici::ret_no_decref(vec);
+    return check_error(error, [vec]() { return ici::ret_no_decref(vec); });
 }
 
 // vec = ipp.normalized(vec, sub, div)
@@ -529,11 +533,7 @@ int f_normalized()
     {
         return ici::argerror(0);
     }
-    if (check_error(error))
-    {
-        return 1;
-    }
-    return ici::ret_with_decref(result);
+    return check_error(error, [result]() { return ici::ret_with_decref(result); });
 }
 
 // vec = ipp.add(vec, vec)
@@ -628,11 +628,7 @@ int f_add()
     {
         return ici::argerror(0);
     }
-    if (check_error(error))
-    {
-        return 1;
-    }
-    return ici::ret_with_decref(result);
+    return check_error(error, [result]() { return ici::ret_with_decref(result); });
 }
 
 // ----------------------------------------------------------------
