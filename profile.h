@@ -42,11 +42,11 @@ struct profilecall : object
 inline profilecall *profilecallof(object *o) { return o->as<profilecall>(); }
 inline bool isprofilecall(object *o) { return o->hastype(TC_PROFILECALL); }
 
-extern int ici_profile_active;
-void ici_profile_call(func *f);
-void ici_profile_return();
-void ici_profile_set_done_callback(void (*)(profilecall *));
-profilecall *ici_profilecall_new(profilecall *called_by);
+extern int profile_active;
+void profile_call(func *f);
+void profile_return();
+void profile_set_done_callback(void (*)(profilecall *));
+profilecall *profilecall_new(profilecall *called_by);
 
 /*
  * End of ici.h export. --ici.h-end--

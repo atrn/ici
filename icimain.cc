@@ -324,8 +324,8 @@ int main(int argc, char *argv[], bool enable_repl) {
 
 #ifndef NOPROFILE
     /* Make sure any profiling that started while parsing has finished. */
-    if (ici_profile_active)
-        ici_profile_return();
+    if (profile_active)
+        profile_return();
 #endif
 
 #ifndef NDEBUG

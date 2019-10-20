@@ -89,8 +89,8 @@ int op_return()
 
     --vs.a_top;
 #ifndef NOPROFILE
-    if (ici_profile_active)
-        ici_profile_return();
+    if (profile_active)
+        profile_return();
 #endif
     return 0;
 }
@@ -180,9 +180,9 @@ int func_type::call(object *o, object *subject)
 
     f = funcof(o);
 #ifndef NOPROFILE
-    if (UNLIKELY(ici_profile_active))
+    if (UNLIKELY(profile_active))
     {
-        ici_profile_call(f);
+        profile_call(f);
     }
 #endif
 

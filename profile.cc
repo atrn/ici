@@ -49,7 +49,7 @@ namespace ici
 /*
  * Set to true by an ICI call to 'profile()'
  */
-int ici_profile_active = 0;
+int profile_active = 0;
 
 
 /*
@@ -112,7 +112,7 @@ size_t profilecall_type::mark(object *o)
  *  A new profilecall object.
  */
 profilecall *
-ici_profilecall_new(profilecall *called_by)
+profilecall_new(profilecall *called_by)
 {
     profilecall *pc;
 
@@ -133,7 +133,7 @@ ici_profilecall_new(profilecall *called_by)
     /* Fill in the bits common to all ICI objects. */
     set_tfnz(pc, TC_PROFILECALL, 0, 1, 0);
 
-    /* Fill in ici_profilecall specific bits. */
+    /* Fill in profilecall specific bits. */
     pc->pc_calledby = called_by;
     pc->pc_calls = new_map();
     if (pc->pc_calls == nullptr)
@@ -159,7 +159,7 @@ ici_profilecall_new(profilecall *called_by)
  *              parameter is the root of the profiling call graph.
  */
 void
-ici_profile_set_done_callback(void (*done)(profilecall *))
+profile_set_done_callback(void (*done)(profilecall *))
 {
     ici_prof_done_callback = done;
 }
@@ -176,14 +176,14 @@ ici_profile_set_done_callback(void (*done)(profilecall *))
  *              profiling session.  See the comment with ici_prof_outfile for
  *              the format of the file.  If this parameter is omitted then
  *              the profiling is not written to any file.  However, see
- *              ici_profile_set_done_callback() for another mechanism to
+ *              profile_set_done_callback() for another mechanism to
  *              get at the data.
  */
 static int
 f_profile(...)
 {
     char *outfile;
-    assert(!ici_profile_active);
+    assert(!profile_active);
 
     /* Check parameters. */
     if (NARGS() > 1)
@@ -197,7 +197,7 @@ f_profile(...)
     }
 
     /* Start profiling. */
-    ici_profile_active = 1;
+    profile_active = 1;
     return null_ret();
 }
 
@@ -205,7 +205,7 @@ f_profile(...)
 /*
  *  This is called whenever ICI calls a function.
  */
-void ici_profile_call(func *f)
+void profile_call(func *f)
 {
     profilecall *pc;
     time_t start;
@@ -216,7 +216,7 @@ void ici_profile_call(func *f)
     if (isnull(pc = profilecallof(ici_fetch(ici_prof_cur_call->pc_calls, f))))
     {
         /* No, create a new record. */
-        pc = ici_profilecall_new(ici_prof_cur_call);
+        pc = profilecall_new(ici_prof_cur_call);
         assert(pc != nullptr);
         decref(pc);
 
@@ -282,13 +282,13 @@ static void write_outfile(FILE *of, profilecall *pc, int indent)
  *  Called whenever ICI returns from a function.
  */
 void
-ici_profile_return()
+profile_return()
 {
     /* Is this the return immediately after the call to profile()? */
     if (ici_prof_cur_call == nullptr)
     {
-        /* Yes, create the top-level ici_profilecall object. */
-        ici_prof_cur_call = ici_profilecall_new(nullptr);
+        /* Yes, create the top-level profilecall object. */
+        ici_prof_cur_call = profilecall_new(nullptr);
         ici_prof_cur_call->pc_laststart = time_in_ms();
         #ifdef _WIN32
             timeBeginPeriod(1);
@@ -330,7 +330,7 @@ ici_profile_return()
             /* No more profiling. */
             decref(ici_prof_cur_call);
             ici_prof_cur_call = nullptr;
-            ici_profile_active = 0;
+            profile_active = 0;
         }
         else
         {

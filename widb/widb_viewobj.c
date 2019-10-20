@@ -97,7 +97,7 @@ func_totals(ici_struct_t *funcs, profilecall_t *pc)
             if (isnull(objof(tot_pc = profilecallof(ici_fetch(objof(funcs), f)))))
             {
                 /* No, create a new record. */
-                tot_pc = ici_profilecall_new(nullptr);
+                tot_pc = profilecall_new(nullptr);
                 _ASSERT(tot_pc != nullptr);
 
                 /* Add it to the calling function. */
@@ -167,7 +167,7 @@ func_intrinsic_totals(profilecall_t *funcs, profilecall_t *pc)
             if (isnull(objof(tot_pc = profilecallof(ici_fetch(funcs->pc_calls, f)))))
             {
                 /* No, create a new record. */
-                tot_pc = ici_profilecall_new(funcs);
+                tot_pc = profilecall_new(funcs);
                 _ASSERT(tot_pc != nullptr);
 
                 /* Add it to the calling function. */
@@ -234,7 +234,7 @@ profile_done_callback(profilecall_t *pc)
     name = objof(ici_str_new_nul_term("function intrinsic totals"));
     _ASSERT(name != nullptr);
     /* Hold them in a profilecall_t so that they're sorted by pc_total */
-    intrinsic_totals = ici_profilecall_new(nullptr);
+    intrinsic_totals = profilecall_new(nullptr);
     _ASSERT(intrinsic_totals != nullptr);
     VERIFY(!ici_assign(profile, name, objof(intrinsic_totals)));
     ici_decref(name);
@@ -277,7 +277,7 @@ profile_done_callback(profilecall_t *pc)
 void
 WIDB_enable_profiling_display()
 {
-    ici_profile_set_done_callback(profile_done_callback);
+    profile_set_done_callback(profile_done_callback);
 }
 
 

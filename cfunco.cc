@@ -175,7 +175,7 @@ int cfunc_type::call(object *o, object *subject)
     if (UNLIKELY(debug_active)
 #ifndef NOPROFILE
         ||
-        UNLIKELY(ici_profile_active)
+        UNLIKELY(profile_active)
 #endif  
     )
     {
@@ -196,8 +196,8 @@ int cfunc_type::call(object *o, object *subject)
             return result;
         }
 #ifndef NOPROFILE
-        if (ici_profile_active) {
-            ici_profile_return();
+        if (profile_active) {
+            profile_return();
         }
 #endif
         if (UNLIKELY(debug_active)) {
