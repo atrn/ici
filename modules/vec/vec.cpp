@@ -78,11 +78,16 @@ static int f_fill()
 
 static int f_randomize()
 {
-    auto noise = []() -> double
+    auto noisef = []()
     {
-        return rand() / double(RAND_MAX);
+        return 2.0f * (float(rand()) / float(RAND_MAX)) - 1.0f;
     };
-    
+
+    auto noise = []()
+    {
+        return 2.0 * (double(rand()) / double(RAND_MAX)) - 1.0;
+    };
+
     ici::object *vec;
     if (typecheck("o", &vec))
     {
@@ -92,7 +97,7 @@ static int f_randomize()
     {
         for (size_t i = 0; i < ici::vec32of(vec)->v_capacity; ++i)
         {
-            ici::vec32of(vec)->v_ptr[i] = float(noise());
+            ici::vec32of(vec)->v_ptr[i] = noisef();
         }
         ici::vec32of(vec)->resize();
     }
