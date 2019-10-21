@@ -31,8 +31,12 @@ func *new_func()
     {
         return nullptr;
     }
-    memset((char *)f, 0, sizeof (func));
     set_tfnz(f, TC_FUNC, 0, 1, 0);
+    f->f_code = nullptr;
+    f->f_args = nullptr;
+    f->f_autos = nullptr;
+    f->f_name = nullptr;
+    f->f_nautos = 0;
     rego(f);
     return f;
 }
