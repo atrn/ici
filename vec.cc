@@ -337,9 +337,9 @@ template <typename vec_type, typename other_type> vec_type *new_vec_conv(other_t
 //
 template <typename vec_type, typename other_type> vec_type *new_vec(other_type *other, size_t offset, size_t len)
 {
-    if (offset + len >= other->v_capacity)
+    if (offset + len >= other->v_size)
     {
-        set_error("slice bounds exceed parent's capacity");
+        set_error("slice bounds exceed parent's size");
         return nullptr;
     }
     auto v = ici_talloc<vec_type>();
@@ -371,7 +371,7 @@ template <typename vec_type> object *fetch_vec(vec_type *f, object *k)
         auto ofs = intof(k)->i_value;
         if (ofs < 0)
         {
-            ofs = f->v_capacity + ofs;
+            ofs = f->v_size + ofs;
         }
         if (ofs < 0 || static_cast<size_t>(ofs) >= f->v_size)
         {
@@ -419,7 +419,7 @@ template <typename vec_type> int assign_vec(vec_type *f, object *k, object *v)
         auto ofs = intof(k)->i_value;
         if (ofs < 0)
         {
-            ofs = f->v_capacity + ofs;
+            ofs = f->v_size + ofs;
         }
         if (ofs < 0 || static_cast<size_t>(ofs) >= f->v_capacity)
         {
@@ -452,17 +452,23 @@ template <typename vec_type> int assign_vec(vec_type *f, object *k, object *v)
 
     if (k == SS(size))
     {
-        if (isint(v))
+        if (!isint(v))
         {
-            size_t z = intof(v)->i_value;
-            if (intof(v)->i_value < 0 || z > f->v_capacity)
-            {
-                return set_error("%u: size out of range", z);
-            }
-            f->v_size = z;
-            return 0;
+            return type::assign_fail(f, k, v);
         }
+        const size_t z = intof(v)->i_value;
+        if (z < 0)
+        {
+            return type::assign_fail(f, k, v);
+        }
+        if (z > f->v_capacity)
+        {
+            return set_error("%u: size exceeds capacity", z);
+        }
+        f->v_size = z;
+        return 0;
     }
+
     return f->v_props->assign(k, v);
 }
 
@@ -484,7 +490,7 @@ template <typename vec_type> int forall_vec(object *o)
     }
     if (fa->fa_kaggr != null) {
         integer *i;
-        if ((i = make_ref(new_int((long)fa->fa_index))) == nullptr) {
+        if ((i = make_ref(new_int(int64_t(fa->fa_index)))) == nullptr) {
             return 1;
         }
         if (ici_assign(fa->fa_kaggr, fa->fa_kkey, i)) {
