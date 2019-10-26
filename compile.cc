@@ -6,6 +6,7 @@
 #include "null.h"
 #include "int.h"
 #include "str.h"
+#include "userop.h"
 
 namespace ici
 {
@@ -276,13 +277,13 @@ int compile_expr(array *a, expr *e, int why) {
         {
             return 1;
         }
-        if (a->push_check())
-        {
-            return 1;
-        }
         if (why == FOR_EFFECT)
         {
             return 0;
+        }
+        if (a->push_check())
+        {
+            return 1;
         }
         if (auto o = new_binop(e->e_what, why))
         {
