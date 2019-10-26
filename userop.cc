@@ -36,14 +36,22 @@ int define_user_binop(const char *t1, const char *binop, const char *t2, func *f
 
 func *lookup_user_binop(const char *t1, const char *binop, const char *t2)
 {
+    if (!userops)
+    {
+        return nullptr;
+    }
     ref<str> k = make_key(t1, binop, t2);
     if (auto r = userops->fetch(k))
     {
+        if (isnull(r))
+        {
+            return nullptr;
+        }
         if (isfunc(r))
         {
             return funcof(r);
         }
-        set_error("%s is %s, not a string", k->s_chars, r->icitype()->name);
+        set_error("%*s is %s, not a string", k->s_nchars,  k->s_chars, r->icitype()->name);
     }
     return nullptr;
 }
