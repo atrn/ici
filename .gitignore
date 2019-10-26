@@ -20,3 +20,5 @@
 /.vscode/c_cpp_properties.json
 .DS_Store
 /modules/ipp/tests/test-*-output.wav
+/modules/*
+/debugger/

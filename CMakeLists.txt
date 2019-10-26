@@ -15,7 +15,7 @@ cmake_minimum_required(VERSION 3.0 FATAL_ERROR) # A guess
 project(ici LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 14)
 
-option(ICI_BUILD_DYNAMIC_LIB    "Build the ICI dynamic library"         OFF)
+option(ICI_BUILD_DYNAMIC_LIB    "Build the ICI dynamic library"         ON)
 option(ICI_BUILD_STATIC_LIB     "Build the ICI static library"          OFF)
 option(ICI_VEC_USE_IPP          "Use Intel IPP for vec arithmetic"      ON)
 

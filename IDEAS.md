@@ -47,12 +47,6 @@ C++ templates and the assoicated code replication).
 Formatting (f_sprintf) will need to cope correctly with bigint and
 bignum values and do the right thing re. precision/width specs.
 
-## Re-implement my user-defined operator "hack"
-
-This feature allowed code to register functions to be called when
-unknown operator/type combinations were encountered providing a form
-of user-defined operators.
-
 ## Move more things into the 'ici' map
 
 e.g. `reclaim()` -> `ici.reclaim()`
@@ -68,3 +62,11 @@ code implemenenting a number of ici::type functions to implement
 types, specifically it lets users implement _fetch()_, _assign()_,
 _forall()_ and _keys()_. This provides type-specific _indexing_,
 `forall`, `keys()` and serialization.
+
+## JIT the ICI VM Code
+
+Resurrect yet another old module of mine, vm, that exposed the ICI VM
+types (op_t, src_t, func_t, et al...) to ICI code and let me write a
+translator from ICI virtual machine operators to text. It could
+generate LLVM compatible output too. Or just generate direct calls to
+ICI functions and remove the interpreter's "loop".

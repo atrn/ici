@@ -1,5 +1,11 @@
 Major Changes in Version 5
 
+*     A new binop() function allows users to define new binary
+      operators. Users register functions to be called when operations
+      use a specific type/binop/type combiaetion.  The result of the
+      function being the result of the operation. Note, existing
+      operators CANNOT be redefined using this mechanism.
+
 *     slice() (aka interval) accepts vec32 and vec64 as
       the object to be "sliced". It returns a _slice_ of
       another vec, a vec of compatible type that shares

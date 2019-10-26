@@ -81,6 +81,7 @@ const char *binop_name(int op)
 #ifdef  BINOPFUNC
 
 #include "pcre.h"
+#include "userop.h"
 
 /*
  * See the comment in binop.h.

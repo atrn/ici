@@ -41,6 +41,7 @@ incs := [array
     "str.h",
     "map.h",
     "wrap.h",
+    "userop.h",
 ];
 
 icih := array

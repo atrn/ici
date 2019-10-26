@@ -24,6 +24,7 @@ extern cfunc  ici_profile_cfuncs[];
 #ifndef NODEBUGGING
 extern cfunc  ici_debug_cfuncs[];
 #endif
+extern cfunc ici_userop_cfuncs[];
 
 cfunc *ici_funcs[] =
 {
@@ -46,6 +47,7 @@ cfunc *ici_funcs[] =
 #ifndef NOPROFILE
     ici_profile_cfuncs,
 #endif
+    ici_userop_cfuncs,
     nullptr
 };
 

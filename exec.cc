@@ -22,6 +22,7 @@
 #include "null.h"
 #include "forall.h"
 #include "primes.h"
+#include "userop.h"
 #include <signal.h>
 
 namespace ici

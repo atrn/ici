@@ -1065,18 +1065,34 @@
             }
             USE0();
         }
+
+        // user-defined binops
+        {
+            const auto t0 = o0->icitype()->name;
+            const auto t1 = o1->icitype()->name;
+fprintf(stderr, "BINOP: lookup_user_binop(\"%s\", \"%s\", \"%s\")\n", t0, binop_name(opof(o)->op_code), t1);
+            if (auto fn = lookup_user_binop(t0, binop_name(opof(o)->op_code), t1))
+            {
+                if ((o = call_user_binop(fn, o0, o1)))
+                {
+                    USEo();
+                }
+            }
+        }
+
         /*FALLTHROUGH*/
     mismatch:
         {
-            char        n1[30];
-            char        n2[30];
-
+            char n1[30];
+            char n2[30];
+            objname(n1, o0);
+            objname(n2, o1);
             sprintf(buf, "attempt to perform \"%s %s %s\"",
-                objname(n1, o0),
-                binop_name(opof(o)->op_code),
-                objname(n2, o1));
+                    n1,
+                    binop_name(opof(o)->op_code),
+                    n2);
+            set_error(buf);
         }
-        set_error(buf);
         FAIL();
 
     vecmismatch:

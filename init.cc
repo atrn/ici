@@ -54,8 +54,8 @@ int init()
     objwsup     *externs;
     exec        *x;
     int         i;
-    double      pi = 3.1415926535897932;
-    
+    double      pi = 3.14159265358979323848;
+
     /*
      * Just make sure our universal headers are really the size we
      * hope they are. Nothing actually assumes this. But it would
