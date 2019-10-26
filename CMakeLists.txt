@@ -89,6 +89,7 @@ set(ICI_SOURCES
   types.cc
   unary.cc
   uninit.cc
+  userop.cc
   vec.cc
   alloc.h
   archiver.h
@@ -135,7 +136,8 @@ set(ICI_SOURCES
   type.h
   types.h
   vec.h
-  wrap.h)
+  wrap.h
+  userop.h)
 
 if(WIN32)
   set(ICI_SOURCES "${ICI_SOURCES} win32err.cc win32timezone.cc")

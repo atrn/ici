@@ -14,6 +14,7 @@ Linux)
     exit 1
     ;;
 esac
+
 cd $2
 ici=ici
 if [ -x "$1" ]; then
@@ -23,4 +24,27 @@ elif [ -x "$1/Debug/ici" ]; then
 elif [ -x "$1/Release/ici" ]; then
     ici="$1/Release/ici"
 fi
-"${ici}" mk-ici-h.ici ${conf_dot_h} "$2" "$3"
+
+wants_ipp=
+case $(uname) in
+    Darwin)
+        if otool -L "${ici}" | grep -q libippcore; then
+            wants_ipp=YES
+        fi
+        ;;
+    *)
+        if ldd "${ici}" | grep -q libippcore; then
+            wants_ipp=YES
+        fi
+        ;;
+esac
+
+if [ "${wants_ipp}" = YES ]; then
+    if [ -f /opt/intel/ipp/bin/ippvars.sh ]; then
+        . /opt/intel/ipp/bin/ippvars.sh
+    else
+        echo "warning: no ippvars.sh sourced" 1>&2
+    fi
+fi
+
+exec "${ici}" mk-ici-h.ici ${conf_dot_h} "$2" "$3"
