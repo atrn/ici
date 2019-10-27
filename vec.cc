@@ -13,6 +13,65 @@
 #include <ipps.h>
 #endif
 
+// When uing IPP we allocate the memory for a vec's array using the
+// ipp malloc function to ensure correct alignment and anything else
+// IPP may do. In this case we do NOT account for that memory when
+// returning a vec's size during the GC mark phase as its not really
+// ICI memory in use.
+//
+// The following, inline, functions hide the details.
+//
+// - allocvec   Allocate N values for a vec's array.
+// - freevec    Free memory allocated for a vec's array.
+// - vecmemuse  Return the GC size of the vec array.
+//
+#ifdef ICI_VEC_USE_IPP
+template <typename vec_type>
+inline typename vec_type::value_type *
+allocvec(size_t z)
+{
+    using value_type = typename vec_type::value_type;
+    return static_cast<value_type *>(ippMalloc(z * sizeof (value_type)));
+}
+
+template <typename vec_type>
+inline void
+freevec(vec_type *vec)
+{
+    ippFree(vec->v_ptr);
+}
+
+template <typename vec_type>
+inline size_t
+vecmemuse(vec_type *)
+{
+    return 0;
+}
+#else
+template <typename vec_type>
+inline typename vec_type::value_type *
+allocvec(size_t z)
+{
+    using value_type = typename vec_type::value_type;
+    return static_cast<value_type *>(ici_alloc(z * sizeof (value_type)));
+}
+
+template <typename vec_type>
+inline void
+freevec(vec_type *vec)
+{
+    ici_free(vec->v_ptr);
+}
+
+template <typename vec_type>
+inline size_t
+vecmemuse(vec_type *vec)
+{
+    using value_type = typename vec_type::value_type;
+    return vec->v_capacity * sizeof (value_type);
+}
+#endif
+
 namespace ici
 {
 
@@ -20,7 +79,6 @@ template struct vec<TC_VEC32, float>;
 template struct vec<TC_VEC64, double>;
 
 #ifdef ICI_VEC_USE_IPP
-
 template <>
 void
 vec<TC_VEC32, float>::fill(float value, size_t ofs, size_t lim)
@@ -214,8 +272,6 @@ static int index_error(int64_t ofs)
 //
 template <typename vec_type> vec_type *new_vec(size_t capacity, size_t size, object *props)
 {
-    using value_type = typename vec_type::value_type;
-
     auto v = ici_talloc<vec_type>();
     if (!v)
     {
@@ -235,11 +291,7 @@ template <typename vec_type> vec_type *new_vec(size_t capacity, size_t size, obj
             return nullptr;
         }
     }
-#ifdef ICI_VEC_USE_IPP
-    v->v_ptr = static_cast<value_type *>(ippMalloc(capacity * sizeof (value_type)));
-#else
-    v->v_ptr = static_cast<value_type *>(ici_alloc(capacity * sizeof (value_type)));
-#endif
+    v->v_ptr = allocvec<vec_type>(capacity);
     if (!v->v_ptr)
     {
         ici_free(v);
@@ -275,17 +327,13 @@ template <typename vec_type> vec_type *new_vec(vec_type *other)
         return nullptr;
     }
     decref(v->v_props);
-    const auto nbytes = other->v_capacity * sizeof (value_type);
-#ifdef ICI_VEC_USE_IPP
-    v->v_ptr = static_cast<value_type *>(ippMalloc(nbytes));
-#else
-    v->v_ptr = static_cast<value_type *>(ici_alloc(nbytes));
-#endif
+    v->v_ptr = allocvec<vec_type>(other->v_capacity);
     if (!v->v_ptr)
     {
         ici_free(v);
         return nullptr;
     }
+    const auto nbytes = other->v_capacity * sizeof (value_type);
     memcpy(v->v_ptr, other->v_ptr, nbytes);
     rego(v);
     return v;
@@ -313,12 +361,7 @@ template <typename vec_type, typename other_type> vec_type *new_vec_conv(other_t
         return nullptr;
     }
     decref(v->v_props);
-    const auto nbytes = other->v_capacity * sizeof (value_type);
-#ifdef ICI_VEC_USE_IPP
-    v->v_ptr = static_cast<value_type *>(ippMalloc(nbytes));
-#else
-    v->v_ptr = static_cast<value_type *>(ici_alloc(nbytes));
-#endif
+    v->v_ptr = allocvec<vec_type>(other->v_capacity);
     if (!v->v_ptr)
     {
         ici_free(v);
@@ -568,14 +611,6 @@ template <typename vec_type> object *restore_vec(archiver *ar)
 
 } // anon
 
-#ifdef ICI_VEC_USE_IPP
-#   define GET_VEC_MEM_USE(VEC) (0)
-#   define FREE_VEC_MEM(VEC)    ippFree((VEC)->v_ptr)
-#else
-#   define GET_VEC_MEM_USE(VEC) ((VEC)->v_capacity * sizeof(VEC :: value_type))
-#   define FREE_VEC_MEM(VEC)    ici_free((VEC)->v_ptr)
-#endif
-
 #define DEFINE_VEC_TYPE_CLASS(VECTYPE, VECOF, VECOBJ, OTHERVEC)         \
                                                                         \
     size_t VECTYPE::mark(object *o)                                     \
@@ -583,14 +618,14 @@ template <typename vec_type> object *restore_vec(archiver *ar)
         return type::mark(o)                                            \
             + VECOF(o)->v_props->mark()                                 \
             + mark_optional(VECOF(o)->v_parent)                         \
-            + GET_VEC_MEM_USE(VECOF(o));                                \
+        + vecmemuse(VECOF(o));                                          \
     }                                                                   \
                                                                         \
     void VECTYPE::free(object *o)                                       \
     {                                                                   \
         if (!VECOF(o)->v_parent)                                        \
         {                                                               \
-            FREE_VEC_MEM(VECOF(o));                                     \
+            freevec(VECOF(o));                                          \
         }                                                               \
         type::free(o);                                                  \
     }                                                                   \
