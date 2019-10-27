@@ -607,7 +607,7 @@ object *evaluate(object *code, int n_operands) {
 
             case OP_CALL:
                 xs.push(o);  /* Restore to formal state. */
-                o = nullptr;                   /* No subject object. */
+                o = nullptr; /* No subject object. */
             do_call:
                 if (UNLIKELY(!os.a_top[-1]->can_call())) {
                     char    n1[objnamez];
@@ -618,9 +618,9 @@ object *evaluate(object *code, int n_operands) {
                     }
                     goto fail;
                 }
-                if (UNLIKELY(debug_active)) {
-                    debugger->function_call(os.a_top[-1], ARGS(), NARGS());
-                }
+                // if (UNLIKELY(debug_active)) {
+                //     debugger->function_call(os.a_top[-1], ARGS(), NARGS());
+                // }
                 if (os.a_top[-1]->call(o)) {
                     if (o != nullptr) {
                         decref(o);

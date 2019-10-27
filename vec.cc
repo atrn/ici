@@ -53,14 +53,14 @@ inline typename vec_type::value_type *
 allocvec(size_t z)
 {
     using value_type = typename vec_type::value_type;
-    return static_cast<value_type *>(ici_alloc(z * sizeof (value_type)));
+    return static_cast<value_type *>(ici::ici_alloc(z * sizeof (value_type)));
 }
 
 template <typename vec_type>
 inline void
 freevec(vec_type *vec)
 {
-    ici_free(vec->v_ptr);
+    ici::ici_free(vec->v_ptr);
 }
 
 template <typename vec_type>

@@ -284,6 +284,10 @@ int func_type::call(object *o, object *subject)
         }
     }
 
+    if (UNLIKELY(debug_active)) {
+        debugger->function_call(o, ARGS(), NARGS());
+    }
+
     /*
      * we push the current source marker onto the execution stack.
      * That way, after the function returns, it will cause the current

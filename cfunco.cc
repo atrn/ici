@@ -182,8 +182,12 @@ int cfunc_type::call(object *o, object *subject)
         object       **xt;
         int          result;
 
+        if (UNLIKELY(debug_active)) {
+            debugger->cfunc_call(o);
+        }
+
         /*
-         * Not all function calls that go stright to C code are complete
+         * Not all function calls that go straight to C code are complete
          * function calls in the ICI sense. Some push stuff to execute on
          * the ICI execution stack and the return will happen later by the
          * usual return mechanism. Only those that come back with the
@@ -201,7 +205,7 @@ int cfunc_type::call(object *o, object *subject)
         }
 #endif
         if (UNLIKELY(debug_active)) {
-            debugger->function_result(os.a_top[-1]);
+            debugger->cfunc_result(os.a_top[-1]);
         }
         return result;
     }

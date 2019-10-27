@@ -66,6 +66,8 @@ public:
     virtual void error_uncaught(const char *, struct src *);
     virtual void function_call(object *, object **, int);
     virtual void function_result(object *);
+    virtual void cfunc_call(object *);
+    virtual void cfunc_result(object *);
     virtual void source_line(struct src *);
     virtual void watch(object *, object *, object *);
     virtual void finished();
