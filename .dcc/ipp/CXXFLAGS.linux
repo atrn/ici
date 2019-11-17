@@ -2,7 +2,8 @@
 
 #include "CXXFLAGS.common"
 
--DICI_VEC_USE_IPP
--I/opt/intel/ipp/include
 -O3
+-funroll-loops
 -mtune=native
+-I/opt/intel/ipp/include
+-DICI_VEC_USE_IPP

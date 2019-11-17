@@ -6,10 +6,9 @@
 /test/serialization/*.dat
 /ici
 /ici.h
-/.build/
 /build/
-/.build*/
 /.xcode/
+/tmp/
 /CMakeLists.txt.user
 /modules/bignum/mit/bztest
 /modules/bignum/mit/testKerN

@@ -1,0 +1,4 @@
+-L/opt/intel/ipp/lib
+-lipps
+-lippcore
+-lc++
