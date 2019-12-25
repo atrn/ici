@@ -500,10 +500,6 @@ template <typename vec_type> int assign_vec(vec_type *f, object *k, object *v)
             return type::assign_fail(f, k, v);
         }
         const size_t z = intof(v)->i_value;
-        if (z < 0)
-        {
-            return type::assign_fail(f, k, v);
-        }
         if (z > f->v_capacity)
         {
             return set_error("%u: size exceeds capacity", z);
