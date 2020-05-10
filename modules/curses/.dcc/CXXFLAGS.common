@@ -4,5 +4,6 @@
 -Wall -Wextra
 -DNDEBUG
 -g -O2
+-I/local/include
 -I/usr/local/include
 -I.

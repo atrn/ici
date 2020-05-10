@@ -5,4 +5,5 @@
 -DNDEBUG
 -g -O2
 -I.
+-I/local/include
 -I/usr/local/include

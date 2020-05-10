@@ -8,4 +8,5 @@
 -O2
 -I.
 -I../..
+-I/local/include
 -I/usr/local/include

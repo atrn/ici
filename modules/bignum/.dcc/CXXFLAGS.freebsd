@@ -6,4 +6,5 @@
 -Imit/h
 -I.
 -I../..
+-I/local/include
 -I/usr/local/include

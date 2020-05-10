@@ -6,3 +6,6 @@
 -g -O2
 -I.
 -I/opt/intel/ipp/include
+-I/local/include
+-I/opt/local/include
+-I/usr/local/include

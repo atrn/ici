@@ -1,1 +1,3 @@
--Wl,-rpath -Wl,/usr/local/lib
+-Wl,-rpath -Wl,/opt/intel/ipp/lib/intel64
+-Wl,-rpath -Wl,/local/lib
+# -Wl,-rpath -Wl,/usr/local/lib

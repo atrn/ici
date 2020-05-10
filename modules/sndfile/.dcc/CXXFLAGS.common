@@ -6,5 +6,6 @@
 -Wall
 -Wextra
 -DNDEBUG
+-I/local/include
 -I/usr/local/include
 -I.
