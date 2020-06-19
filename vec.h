@@ -12,10 +12,21 @@ namespace ici
  * The following portion of this file exports to ici.h. --ici.h-start--
  */
 /*
- *  A 'vec' object is an 1-dimensional array of an underlying C type -
- *  float or double. A 'vec' is created with a defined maximum size,
- *  or /capacity/, and allocates that many elements of the underlying
- *  type.
+ *  A 'vec' object is a _vector_, a 1-dimensional array, of an
+ *  underlying floating point type - C's float or double.
+ *
+ *  A 'vec' is created with a defined maximum size, its /capacity/,
+ *  and allocates that many elements of the underlyin type when the
+ *  vec is created. This array represents the vec's _values_.
+ *
+ *  A vec's values are accessed by using the vec as an array via
+ *  indexing with integer keys.
+ *
+ *  In addition to values a vec has _properties_. User-defined
+ *  key/value pairs (it's an ici map). All non-integer keys are
+ *  redirected to the properties map. Typically strings keys are
+ *  used permitting ici's dot-notation be used for user-defined
+ *  properties.
  *
  *  The data values held in a vec are accessed by indexing the
  *  vec object with integer keys, the value's /offset/ within
