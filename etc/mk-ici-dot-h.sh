@@ -1,4 +1,5 @@
 #!/bin/sh
+
 case $(uname) in
 Darwin)
     conf_dot_h=conf/darwin.h
@@ -41,7 +42,7 @@ esac
 
 if [ "${wants_ipp}" = YES ]; then
     if [ -f /opt/intel/ipp/bin/ippvars.sh ]; then
-        . /opt/intel/ipp/bin/ippvars.sh
+        . /opt/intel/ipp/bin/ippvars.sh intel64
     else
         echo "warning: no ippvars.sh sourced" 1>&2
     fi
