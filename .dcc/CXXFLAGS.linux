@@ -2,8 +2,11 @@
 
 #include "CXXFLAGS.common"
 
+-D_DEFAULT_SOURCE
+-D_BSD_SOURCE
+-fPIC
 -O3
 -funroll-loops
 -mtune=native
--I/opt/intel/ipp/include
 -DICI_VEC_USE_IPP
+-I${IPPROOT}/include

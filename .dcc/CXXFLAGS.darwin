@@ -3,6 +3,6 @@
 #include "CXXFLAGS.common"
 
 -DICI_VEC_USE_IPP
--I/opt/intel/ipp/include
+-I${IPPROOT}/include
 -O3
 -mtune=native

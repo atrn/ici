@@ -1,4 +1,4 @@
--L/opt/intel/ipp/lib
+-L${IPPROOT}/lib
 -lipps
 -lippcore
 -lc++
