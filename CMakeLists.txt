@@ -19,6 +19,9 @@ option(ICI_BUILD_DYNAMIC_LIB    "Build the ICI dynamic library"         ON)
 option(ICI_BUILD_STATIC_LIB     "Build the ICI static library"          OFF)
 option(ICI_VEC_USE_IPP          "Use Intel IPP for vec arithmetic"      ON)
 
+# Use IPP_ROOT environment variable to find IPP
+cmake_policy(SET CMP0074 NEW)
+
 set(ICI_SOURCES
   alloc.cc
   aplfuncs.cc
