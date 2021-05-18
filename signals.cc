@@ -167,11 +167,20 @@ static char *signal_names[NSIG] =
  * Modern BSD systems define the signal names in the sys_signame
  * table so we use that if possible. 
  */
-#ifdef __linux__
+#if defined(__linux__)
 # define signal_names sys_siglist
-#elif defined BSD
+#elif defined(BSD)
 # define signal_names sys_signame
 #endif
+
+static const char *get_signal_name(int sig)
+{
+#if defined(__linux__)
+    return strsignal(sig);
+#else
+    return signal_names[sig];
+#endif
+}
 
 /*
  * Given a signal name return the signal number. Understands
@@ -189,7 +198,7 @@ signam_to_signo(char *nam)
         nam += 3;
     for (signo = 0; signo < NSIG; ++signo)
     {
-        if (strcasecmp(nam, signal_names[signo]) == 0)
+        if (strcasecmp(nam, get_signal_name(signo)) == 0)
             return index_to_signo(signo);
     }
     return 0;
@@ -210,7 +219,7 @@ signo_to_signam(int signo)
 #else
     if (signo < 1 || signo >= NSIG)
         return nullptr;
-    return signal_names[signo_to_index(signo)];
+    return get_signal_name(signo_to_index(signo));
 #endif
 }
 
