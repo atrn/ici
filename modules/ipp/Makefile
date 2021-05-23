@@ -1,4 +1,4 @@
-# IPPROOT must exist for this makefile to do anything
+# IPPROOT must be set for this makefile to do anything
 #
 # IPPROOT is usually set the intel-provided setvars.sh
 

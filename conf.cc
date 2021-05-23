@@ -71,6 +71,9 @@ char version_string[] =
     CONFIG_FILE ", "
     __DATE__ " " __TIME__ ", "
     CONFIG_STR
+#ifdef ICI_VEC_USE_IPP
+    " (ipp)"
+#endif
 #ifndef NDEBUG
     " *** DEBUG BUILD ***"
 #endif
