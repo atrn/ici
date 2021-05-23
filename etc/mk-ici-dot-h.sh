@@ -40,7 +40,7 @@ case $(uname) in
         ;;
 esac
 
-if [ "${wants_ipp}" = YES ]; then
+if [ "${wants_ipp}" = YES ] && [ -z "$IPPROOT" ]; then
     if [ -f /opt/intel/oneapi/setvars.sh ]; then
 	. /opt/intel/oneapi/setvars.sh
     elif [ -f /opt/intel/ipp/bin/ippvars.sh ]; then

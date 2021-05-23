@@ -6,7 +6,7 @@
 /test/serialization/*.dat
 /ici
 /ici.h
-/build/
+/build*/
 /.xcode/
 /tmp/
 /CMakeLists.txt.user
