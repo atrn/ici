@@ -43,3 +43,24 @@ extern join(v, sep) {
     }
     return implode(r);
 }
+
+/*
+ * string = trim(string)
+ */
+extern trim( s) {
+    return s ~~ #^[ 	]*(.*)[ 	]*$#;
+}
+
+/*
+ * string = trimleft(string)
+ */
+extern trimleft(s) {
+    return s ~~ #^[ 	]*(.*)$#;
+}
+
+/*
+ * string = trimright(string)
+ */
+extern trimright(s) {
+    return s ~~ #^(.*)[ 	]*$#;
+}
