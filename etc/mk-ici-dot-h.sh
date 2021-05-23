@@ -41,7 +41,9 @@ case $(uname) in
 esac
 
 if [ "${wants_ipp}" = YES ]; then
-    if [ -f /opt/intel/ipp/bin/ippvars.sh ]; then
+    if [ -f /opt/intel/oneapi/setvars.sh ]; then
+	. /opt/intel/oneapi/setvars.sh
+    elif [ -f /opt/intel/ipp/bin/ippvars.sh ]; then
         . /opt/intel/ipp/bin/ippvars.sh intel64
     else
         echo "warning: no ippvars.sh sourced" 1>&2
