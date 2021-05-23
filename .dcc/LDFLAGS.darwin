@@ -1,5 +1,5 @@
 -g
--Wl,-install_name -Wl,/usr/local/lib/libici.dylib
 -Wl,-macosx_version_min -Wl,10.13.0
+-Wl,-install_name -Wl,${PREFIX}/lib/libici.dylib
 -Wl,-rpath -Wl,${IPPROOT}/lib
 -framework System

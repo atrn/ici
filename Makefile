@@ -154,7 +154,7 @@ build?=			dll
 #build?=		lib
 #build?=		exe
 
-prefix?= 		/usr/local	# Duplicated in LDFLAGS.darwin
+prefix?= 		/usr/local
 sudo?=
 
 dccflags?=
@@ -175,7 +175,7 @@ xcodedir?=		.xcode
 
 _srcs=			$(shell ls *.cc | fgrep -v win32)
 _hdrs=			$(shell ls *.h | fgrep -v ici.h)
-_dcc=			CXXFLAGSFILE=$(cxxflags) dcc $(dccflags) --objdir $(objdir)
+_dcc=			CXXFLAGSFILE=$(cxxflags) PREFIX=$(prefix) dcc $(dccflags) --objdir $(objdir)
 _make=			$(MAKE) --no-print-directory
 
 # ###############################################################

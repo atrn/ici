@@ -1,3 +1,2 @@
 -Wl,-rpath -Wl,${IPPROOT}/lib/intel64
--Wl,-rpath -Wl,/local/lib
-# -Wl,-rpath -Wl,/usr/local/lib
+-Wl,-rpath -Wl,${PREFIX}/lib
