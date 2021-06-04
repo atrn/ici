@@ -1,6 +1,18 @@
+# This file defines the compiler options. It is read by dcc.
+#
+# Define the compiler options common to gcc and clang on the
+# supported platforms - macOS, FreeBSD, various Linux-based systems.
+
 -std=c++14
 -Wall
 -Wextra
 -Wno-implicit-fallthrough
 -g
+
+#ifdef ICI_DEBUG_BUILD
+-O0
+-UNDEBUG
+#else
+-O2
 -DNDEBUG
+#endif

@@ -1,5 +1,10 @@
+# This file defines the linked libraries. It is read by dcc.
+
+#ifdef ICI_USE_IPP
 -L${IPPROOT}/lib/intel64
 -lipps
 -lippcore
--ldl
+#endif
+
 -lpthread
+-ldl

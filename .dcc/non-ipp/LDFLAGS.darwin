@@ -1,4 +1,0 @@
--g
--Wl,-macosx_version_min -Wl,10.14.0
--Wl,-install_name -Wl,/usr/local/lib/libici.dylib
--framework System

@@ -3,5 +3,11 @@
 #include "CXXFLAGS.common"
 
 -pthread
--O3
+
+#ifndef ICI_DEBUG_BUILD
 -mtune=native
+#endif
+
+#ifdef ICI_DLL_BUILD
+-fPIC
+#endif

@@ -4,9 +4,17 @@
 
 -D_DEFAULT_SOURCE
 -D_BSD_SOURCE
+
+#ifdef ICI_DLL_BUILD
 -fPIC
--O3
+#endif
+
+#ifndef ICI_DEBUG_BUILD
 -funroll-loops
 -mtune=native
+#endif
+
+#ifdef ICI_WITH_IPP
 -DICI_VEC_USE_IPP
 -I${IPPROOT}/include
+#endif

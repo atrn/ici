@@ -1,8 +1,14 @@
 # This file defines the compiler options. It is read by dcc.
+#
+# Compiler options for darwin, aka macOS
 
 #include "CXXFLAGS.common"
 
+#ifdef ICI_WITH_IPP
 -DICI_VEC_USE_IPP
 -I${IPPROOT}/include
--O3
+#endif
+
+#ifndef ICI_DEBUG_BUILD
 -mtune=native
+#endif

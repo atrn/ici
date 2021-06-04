@@ -1,2 +1,4 @@
+# This file defines the linked libraries. It is read by dcc.
+
 # We need to explicitly link against libpthread on FreeBSD.
 -lpthread

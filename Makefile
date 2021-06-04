@@ -27,6 +27,19 @@
 #
 #	$ go get github.com/atrn/dcc
 #
+# **** environment variables for dcc builds
+#
+# ICI_DEBUG_BUILD		Enable the debug build by
+#				disabling optimization and
+#				not defining NDEBUG.
+#
+# ICI_WITH_IPP			Use Intel's IPP for vecXX types.
+#				Assumes IPPROOT is defined (via
+#				the Intel set up scripts).
+#
+# ICI_DLL_BUILD			Set when compiling the shared
+#				object/DLL - used to enable
+#				position independent code.
 #
 # *** cmake
 #
@@ -157,8 +170,7 @@ build?=			dll
 prefix?= 		/usr/local
 sudo?=
 
-dccflags?=
-cxxflags?=		CXXFLAGS
+dccflags?=		--write-compile-commands
 objdir?=		.objs
 
 cmakeargs?=
@@ -175,7 +187,7 @@ xcodedir?=		.xcode
 
 _srcs=			$(shell ls *.cc | fgrep -v win32)
 _hdrs=			$(shell ls *.h | fgrep -v ici.h)
-_dcc=			CXXFLAGSFILE=$(cxxflags) PREFIX=$(prefix) dcc $(dccflags) --objdir $(objdir)
+_dcc=			PREFIX=$(prefix) dcc $(dccflags) --objdir $(objdir)
 _make=			$(MAKE) --no-print-directory
 
 # ###############################################################
@@ -198,7 +210,7 @@ ifeq ($(build),dll)
 #
 $(prog):		lib
 	@[ -d $(objdir) ] || mkdir $(objdir)
-	@$(_dcc) etc/main.cc -fPIC -o $@ -L. -lici
+	@$(_dcc) --append-compile-commands etc/main.cc -fPIC -o $@ -L. -lici
 
 lib:
 	@[ -d $(objdir) ] || mkdir $(objdir)
@@ -225,7 +237,7 @@ else ifeq ($(build),lib)
 #
 $(prog):		lib
 	@[ -d $(objdir) ] || mkdir $(objdir)
-	@$(_dcc) etc/main.cc -o $@ -L. -lici
+	@$(_dcc) --append-compile-commands etc/main.cc -o $@ -L. -lici
 
 lib:
 	@[ -d $(objdir) ] || mkdir $(objdir)
@@ -248,10 +260,11 @@ ici.h:		$(prog) mk-ici-h.ici $(_hdrs)
 
 
 #
-# The 'debug' target builds the ici executable using the .debug CXXFLAGS options file.
+# The 'debug' target builds in debug mode by settng the ICI_DEBUG_BUILD environment
+# variable which dcc uses to select compilation options.
 #
 debug:
-	@$(_make) $(prog) cxxflags=CXXFLAGS.debug dccflags=$(dccflags) build=$(build)
+	@$(_make) $(prog) ICI_DEBUG_BUILD=1 dccflags=$(dccflags) build=$(build)
 
 
 #

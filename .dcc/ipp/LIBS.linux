@@ -1,5 +1,0 @@
--L/opt/intel/ipp/lib/intel64
--lipps
--lippcore
--ldl
--lpthread

@@ -1,2 +1,0 @@
--Wl,-rpath -Wl,/opt/intel/ipp/lib/intel64
--Wl,-rpath -Wl,/usr/local/lib

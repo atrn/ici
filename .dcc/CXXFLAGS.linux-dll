@@ -1,8 +1,0 @@
-# This file defines the compiler options. It is read by dcc.
-
-#include "CXXFLAGS.common"
-
--fPIC
--Os
--funroll-loops
--mtune=native

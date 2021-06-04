@@ -1,4 +1,8 @@
+# This file defines the linked libraries. It is read by dcc.
+
+#ifdef ICI_WITH_IPP
 -L${IPPROOT}/lib
 -lipps
 -lippcore
+#endif
 -lc++

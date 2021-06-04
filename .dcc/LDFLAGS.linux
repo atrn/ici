@@ -1,2 +1,6 @@
+# This file defines the linker options. It is read by dcc.
+
+#ifdef ICI_USE_IPP
 -Wl,-rpath -Wl,${IPPROOT}/lib/intel64
+#endif
 -Wl,-rpath -Wl,${PREFIX}/lib
