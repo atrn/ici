@@ -1070,7 +1070,9 @@
         {
             const auto t0 = o0->icitype()->name;
             const auto t1 = o1->icitype()->name;
+#ifndef NDEBUG
 fprintf(stderr, "BINOP: lookup_user_binop(\"%s\", \"%s\", \"%s\")\n", t0, binop_name(opof(o)->op_code), t1);
+#endif
             if (auto fn = lookup_user_binop(t0, binop_name(opof(o)->op_code), t1))
             {
                 if ((o = call_user_binop(fn, o0, o1)))
