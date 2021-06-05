@@ -7,7 +7,13 @@ namespace
 #include "icistr.h"
 #include <icistr-setup.h>
 
-static int f_channel()
+/**
+ * vec = vec.channel(vec, index, stride)
+ *
+ * Return a new vec comprising the values of every index'th element
+ * from the input vec that contains a total of <stide> channels.
+ */
+int f_channel()
 {
     ici::object *vec;
     ici::object *out;
@@ -53,12 +59,38 @@ static int f_channel()
     return ici::ret_with_decref(out);
 }
 
-// vec = merge(vec...)
-//
-// Merge the data from two or more input vecs to interleave
-// their values, i.e. complement channel()
-//
-static int f_merge()
+/*
+ * Helper function for f_merge, see below.
+ */
+template <typename VEC>
+void merge(VEC *result, size_t maxsize, ici::object **vec, size_t nvec)
+{
+    size_t j = 0;
+    for (size_t i = 0; i < maxsize; ++i)
+    {
+        for (size_t k = 0; k < nvec; ++k)
+        {
+            auto v = static_cast<VEC *>(vec[k]);
+            if (i < v->size())
+            {
+                (*result)[j] = (*v)[i];
+            }
+            else
+            {
+                (*result)[j] = typename VEC::value_type(0.0);
+            }
+            ++j;
+        }
+    }
+}
+
+/*
+ * vec = merge(vec...)
+ *
+ * Merge the data from two or more input vecs to interleave
+ * their values, i.e. a complement function to channel()
+ */
+int f_merge()
 {
     if (ici::NARGS() == 1)
     {
@@ -70,7 +102,9 @@ static int f_merge()
     }
 
     const auto tcode = ici::ARG(0)->o_tcode;
+
     size_t size = ici::vec_size(ici::ARG(0));
+    size_t maxsize = size;
 
     for (int i = 1; i < ici::NARGS(); ++i)
     {
@@ -82,7 +116,12 @@ static int f_merge()
             }
             return ici::set_errorc("cannot merge vectors of different types");
         }
-        const auto newsize = size + ici::vec_size(ici::ARG(i));
+        const auto z = ici::vec_size(ici::ARG(i));
+        if (z > maxsize)
+        {
+            maxsize = z;
+        }
+        const auto newsize = size + z;
         if (newsize < size)
         {
             return ici::set_errorc("merged vector is too large");
@@ -90,12 +129,33 @@ static int f_merge()
         size = newsize;
     }
 
-    ici::object *result = tcode == ici::TC_VEC32 ? ici::new_vec32(size) : ici::new_vec64(size);
+    ici::object *result;
+    if (tcode == ici::TC_VEC32)
+    {
+        result = ici::new_vec32(size);
+        if (!result)
+        {
+            return 1;
+        }
+        merge<ici::vec32>(vec32of(result), maxsize, ici::ARGS(), ici::NARGS());
+    }
+    else
+    {
+        result = ici::new_vec64(size);
+        if (!result)
+        {
+            return 1;
+        }
+        merge<ici::vec64>(vec64of(result), maxsize, ici::ARGS(), ici::NARGS());
+    }
 
     return ici::ret_with_decref(result);
 }
 
-static int f_fill()
+/*
+ * Fill a vec with a constant value.
+ */
+int f_fill()
 {
     ici::object *vec;
     double value;
@@ -118,7 +178,10 @@ static int f_fill()
     return ici::null_ret();
 }
 
-static int f_randomize()
+/*
+ * Fill a vec with random values.
+ */
+int f_randomize()
 {
     auto noisef = []()
     {
@@ -158,6 +221,9 @@ static int f_randomize()
     return ici::null_ret();
 }
 
+/*
+ * Helper for f_normalize, see below.
+ */
 template <typename FLOAT>
 void normalize(FLOAT *data, size_t sz)
 {
@@ -188,7 +254,10 @@ void normalize(FLOAT *data, size_t sz)
     }
 }
 
-static int f_normalize()
+/*
+ * Normalize the values held within a vec.
+ */
+int f_normalize()
 {
     ici::object *vec;
     if (ici::typecheck("o", &vec))

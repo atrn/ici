@@ -1,4 +1,5 @@
 ICI_STR(channel, "channel")
 ICI_STR(fill, "fill")
 ICI_STR(randomize, "randomize")
+ICI_STR(merge, "merge")
 ICI_STR(normalize, "normalize")
