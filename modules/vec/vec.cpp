@@ -53,6 +53,48 @@ static int f_channel()
     return ici::ret_with_decref(out);
 }
 
+// vec = merge(vec...)
+//
+// Merge the data from two or more input vecs to interleave
+// their values, i.e. complement channel()
+//
+static int f_merge()
+{
+    if (ici::NARGS() == 1)
+    {
+        if (!ici::isvec32(ici::ARG(0)) && !ici::isvec64(ici::ARG(0)))
+        {
+            return ici::argerror(0);
+        }
+	return ici::ret_with_decref(ici::ARG(0));
+    }
+
+    const auto tcode = ici::ARG(0)->o_tcode;
+    size_t size = ici::vec_size(ici::ARG(0));
+
+    for (int i = 1; i < ici::NARGS(); ++i)
+    {
+        if (ici::ARG(i)->o_tcode != tcode)
+        {
+            if (!ici::isvec32(ici::ARG(i)) && !ici::isvec64(ici::ARG(i)))
+            {
+                return ici::argerror(i);
+            }
+            return ici::set_errorc("cannot merge vectors of different types");
+        }
+        const auto newsize = size + ici::vec_size(ici::ARG(i));
+        if (newsize < size)
+        {
+            return ici::set_errorc("merged vector is too large");
+        }
+        size = newsize;
+    }
+
+    ici::object *result = tcode == ici::TC_VEC32 ? ici::new_vec32(size) : ici::new_vec64(size);
+
+    return ici::ret_with_decref(result);
+}
+
 static int f_fill()
 {
     ici::object *vec;
@@ -184,6 +226,7 @@ extern "C" ici::object *ici_vec_init()
     {
         ICI_DEFINE_CFUNC(channel, f_channel),
         ICI_DEFINE_CFUNC(fill, f_fill),
+        ICI_DEFINE_CFUNC(merge, f_merge),
         ICI_DEFINE_CFUNC(normalize, f_normalize),
         ICI_DEFINE_CFUNC(randomize, f_randomize),
         ICI_CFUNCS_END()

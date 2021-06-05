@@ -1,6 +1,7 @@
 #define ICI_CORE
 #include "vec.h"
 #include "int.h"
+#include "error.h"
 #include "float.h"
 #include "forall.h"
 #include "map.h"
@@ -685,5 +686,21 @@ template <typename vec_type> object *restore_vec(archiver *ar)
 
 DEFINE_VEC_TYPE_CLASS(vec32_type, vec32of, vec32, vec64)
 DEFINE_VEC_TYPE_CLASS(vec64_type, vec64of, vec64, vec32)
+
+// ----------------------------------------------------------------
+
+size_t vec_size(object *o)
+{
+    if (isvec32(o))
+    {
+        return vec32of(o)->size();
+    }
+    if (isvec64(o))
+    {
+        return vec64of(o)->size();
+    }
+    set_errorc("attempt to obtain vector size of non-vector");
+    return ~0u;
+}
 
 } // namespace ici

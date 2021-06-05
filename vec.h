@@ -101,6 +101,11 @@ struct vec : object
         return v_ptr;
     }
 
+    size_t size() const
+    {
+        return v_size;
+    }
+
     void resize()
     {
         v_size = v_capacity;
@@ -208,6 +213,8 @@ vec64 *        new_vec64(size_t, size_t = 0, object * = nullptr);
 vec64 *        new_vec64(vec64 *);
 vec64 *        new_vec64(vec32 *);
 vec64 *        new_vec64(vec64 *, size_t, size_t);
+
+size_t         vec_size(object *);
 
 /*
  * End of ici.h export. --ici.h-end--
