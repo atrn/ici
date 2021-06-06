@@ -15,6 +15,9 @@
 #endif
 
 #ifdef ICI_WITH_IPP
+#ifndef IPPROOT
+#error IPPROOT not defined
+#endif
 -DICI_VEC_USE_IPP
 -I${IPPROOT}/include
 #endif

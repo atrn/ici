@@ -3,7 +3,12 @@
 -g
 -Wl,-macosx_version_min -Wl,10.13.0
 -Wl,-install_name -Wl,${PREFIX}/lib/libici.dylib
+
 #ifdef ICI_WITH_IPP
+#ifndef IPPROOT
+#error IPPROOT not defined
+#endif
 -Wl,-rpath -Wl,${IPPROOT}/lib
 #endif
+
 -framework System
