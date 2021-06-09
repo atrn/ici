@@ -1,6 +1,7 @@
 *.o
 *.dylib
 *.so
+*.bundle
 *.a
 .objs/
 /test/serialization/*.dat
@@ -20,5 +21,4 @@
 /.vscode/c_cpp_properties.json
 .DS_Store
 /modules/ipp/tests/test-*-output.wav
-/modules/*
 /debugger/

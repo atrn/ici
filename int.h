@@ -24,10 +24,6 @@ struct integer : object
 inline integer *intof(object *o) { return o->as<integer>(); }
 inline bool isint(object *o) { return o->hastype(TC_INT); }
 
-/*
- * End of ici.h export. --ici.h-end--
- */
-
 class int_type : public type
 {
 public:
@@ -37,6 +33,10 @@ public:
     int save(archiver *, object *) override;
     object *restore(archiver *) override;
 };
+
+/*
+ * End of ici.h export. --ici.h-end--
+ */
 
 /*
  * So-called "small" integers are pre-created to prime the atom table.

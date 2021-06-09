@@ -28,6 +28,7 @@ inline bool isforall(object *o) { return o->hastype(TC_FORALL); }
 /*
  * End of ici.h export. --ici.h-end--
  */
+
 class forall_type : public type
 {
 public:

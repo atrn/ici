@@ -193,10 +193,6 @@ struct array : object
 inline array *arrayof(object *o) { return o->as<array>(); }
 inline bool isarray(object *o) { return o->hastype(TC_ARRAY); }
 
- /*
- * End of ici.h export. --ici.h-end--
- */
-
 class array_type : public type
 {
  public:
@@ -214,6 +210,10 @@ class array_type : public type
     object *restore(archiver *) override;
     int64_t len(object *) override;
 };
+
+/*
+ * End of ici.h export. --ici.h-end--
+ */
 
 } // namespace ici
 

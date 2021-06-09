@@ -4,7 +4,7 @@
 #
 
 build?=exe
-prefix?=/usr/local
+dest?=/usr/local
 sudo?=
 
 targets=all \
@@ -28,4 +28,4 @@ targets=all \
 	clean-cmake \
 
 
-$(targets) !; @gmake --no-print-directory $@ build=$(build) prefix=$(prefix) sudo=$(sudo)
+$(targets) !; @gmake --no-print-directory $@ build=$(build) dest=$(dest) sudo=$(sudo)

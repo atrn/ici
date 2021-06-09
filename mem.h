@@ -22,10 +22,6 @@ struct mem : object
 inline mem *memof(object *o) { return o->as<mem>(); }
 inline bool ismem(object *o) { return o->hastype(TC_MEM); }
 
-/*
- * End of ici.h export. --ici.h-end--
- */
-
 class mem_type : public type
 {
 public:
@@ -39,6 +35,10 @@ public:
     object *restore(archiver *) override;
     int64_t len(object *) override;
 };
+
+/*
+ * End of ici.h export. --ici.h-end--
+ */
 
 } // namespace ici
 

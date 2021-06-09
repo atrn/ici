@@ -22,10 +22,6 @@ inline bool ischannel(object *o) { return o->hastype(TC_CHANNEL); }
 
 constexpr int ICI_CHANNEL_CLOSED =  0x20;
 
-/*
- * End of ici.h export. --ici.h-end--
- */
-
 class channel_type : public type
 {
 public:
@@ -36,6 +32,10 @@ public:
     object *restore(archiver *) override;
     int64_t len(object *) override;
 };
+
+/*
+ * End of ici.h export. --ici.h-end--
+ */
 
 } // namespace ici
 

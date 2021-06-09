@@ -113,9 +113,6 @@ constexpr int ICI_S_SEP_ALLOC     = 0x40;
 #define ICI_STR_MAKE(NAM, STR)  (ICIS(NAM) = ici::new_str_nul_term(STR)) == nullptr ||
 #define ICI_STR_REL(NAM, STR)   (ICIS(NAM))->decref();
 #define ICI_STR                 ICI_STR_NORM
-/*
- * End of ici.h export. --ici.h-end--
- */
 
 class string_type : public type
 {
@@ -134,6 +131,10 @@ public:
     object *restore(archiver *) override;
     int64_t len(object *) override;
 };
+
+/*
+ * End of ici.h export. --ici.h-end--
+ */
 
 #ifdef  ICI_CORE
 /*

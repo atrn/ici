@@ -26,6 +26,16 @@ struct ici_float : object
 inline ici_float *floatof(object *o) { return o->as<ici_float>(); }
 inline bool isfloat(object *o) { return o->hastype(TC_FLOAT); }
 
+class float_type : public type
+{
+public:
+    float_type() : type("float", sizeof (struct ici_float)) {}
+    int cmp(object *o1, object *o2) override;
+    unsigned long hash(object *o) override;
+    int save(archiver *, object *) override;
+    object *restore(archiver *) override;
+};
+
 /*
  * End of ici.h export. --ici.h-end--
  */
@@ -48,16 +58,6 @@ inline bool isfloat(object *o) { return o->hastype(TC_FLOAT); }
 #else
 #define DBL_BIT_CMP(a, b) (memcmp(a, b, sizeof (double)) == 0)
 #endif
-
-class float_type : public type
-{
-public:
-    float_type() : type("float", sizeof (struct ici_float)) {}
-    int cmp(object *o1, object *o2) override;
-    unsigned long hash(object *o) override;
-    int save(archiver *, object *) override;
-    object *restore(archiver *) override;
-};
 
 } // namespace ici
 

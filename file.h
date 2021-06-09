@@ -46,10 +46,6 @@ struct file : object
 inline file *fileof(object *o) { return o->as<file>(); }
 inline bool isfile(object *o) { return o->hastype(TC_FILE); }
 
-/*
- * End of ici.h export. --ici.h-end--
- */
-
 class file_type : public type
 {
 public:
@@ -62,6 +58,10 @@ public:
     int save(archiver *, object *) override;
     object *restore(archiver *) override;
 };
+
+/*
+ * End of ici.h export. --ici.h-end--
+ */
 
 } // namespace ici
 

@@ -12,7 +12,7 @@
 #define PREFIX          "/usr/local/"
 #endif
 
-#define ICI_DLL_EXT     ".dylib"
+#define ICI_DLL_EXT     ".bundle"
 
 #include <crt_externs.h>
 #define environ *_NSGetEnviron()

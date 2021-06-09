@@ -1,9 +1,0 @@
--std=c++11
--Wall -Wextra
--DNDEBUG
--g -O0
--Imit/h
--I.
--I../..
--I/local/include
--I/usr/local/include

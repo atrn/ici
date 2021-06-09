@@ -1,5 +1,8 @@
 Major Changes in Version 5
 
+*     Modules on macOS are now built as ".bundle" files instead
+      of macOS ".dylib" files.
+
 *     A new binop() function allows users to define new binary
       operators. Users register functions to be called when operations
       use a specific type/binop/type combiaetion.  The result of the

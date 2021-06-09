@@ -20,10 +20,6 @@ struct ptr : object
 inline ptr *ptrof(object *o) { return o->as<ptr>(); }
 inline bool isptr(object *o) { return o->hastype(TC_PTR); }
 
-/*
- * End of ici.h export. --ici.h-end--
- */
-
 class ptr_type : public type
 {
 public:
@@ -38,6 +34,10 @@ public:
     int save(archiver *, object *) override;
     object *restore(archiver *) override;
 };
+
+/*
+ * End of ici.h export. --ici.h-end--
+ */
 
 } // namespace ici
 

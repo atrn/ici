@@ -1,4 +1,4 @@
--L/usr/local/lib
+-L${ICI_LIB_DIR}
 -lici
 -lc++
 -lSystem

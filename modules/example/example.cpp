@@ -19,7 +19,8 @@
  */
 
 #include <ici.h>
-#include <string.h> /* strlen */
+
+#include <cstring> /* strlen */
 
 /*
  *  Modules only need to export a single name, their 'init' function
@@ -70,9 +71,20 @@ int f_function()
     int len = strlen(s);
 
     /*
-     *  And finally call ici::int_ret to return an int value to our
-     *  caller.  There are various other "ret" functions for different
-     *  types, see ici.h.
+     *  And finally call ici::int_ret to return an ICI integer value
+     *  to our caller.  There are various other "ret" functions for
+     *  different types, see ici.h for more information.
+     *
+     *  The "ret" functions push the ICI object onto the ICI stack
+     *  used by the interpreter's function calling mechanism to obtain
+     *  the function's result.  Functions in ICI always return
+     *  something and those without a defined result, which would be
+     *  void in C/C++ (aka "procedures" in Pascal) return an ICI
+     *  "NULL" (via ici::null_ret()).
+     *
+     *  The int being returned by this, C++, function is NOT the value
+     *  of the ici integer but is an error code - non-zero meaning the
+     *  function failed.
      */
     return ici::int_ret(len);
 }
@@ -127,7 +139,9 @@ extern "C" ici::object *ici_example_init()
      *
      */
     if (ici::check_interface(ici::version_number, ici::back_compat_version, "example"))
+    {
         return nullptr;
+    }
 
     /*
      *  The icistr-setup.h header defines a function 'init_ici_str' that
@@ -137,7 +151,9 @@ extern "C" ici::object *ici_example_init()
      *
      */
     if (init_ici_str())
+    {
         return nullptr;
+    }
 
     /*
      *  Finally we can create our module using the 'new_module'

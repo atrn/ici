@@ -1,9 +1,0 @@
--DICI_MODULE_NAME=example
--fPIC
--std=c++11
--Wall -Wextra
--DNDEBUG
--g -O2
--I.
--I/local/include
--I/usr/local/include

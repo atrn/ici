@@ -37,7 +37,7 @@
 #				Assumes IPPROOT is defined (via
 #				the Intel set up scripts).
 #
-# ICI_DLL_BUILD			Set when compiling the shared
+# ICI_BUILD_TYPE_DLL		Set when compiling the shared
 #				object/DLL - used to enable
 #				position independent code.
 #
@@ -417,14 +417,25 @@ endif
 # Modules
 #
 
+ifeq ($(build),dll)
+_make_modules = $(_make) -C modules -$(MAKEFLAGS) \
+	ICI_DOT_H_DIR=$(PWD) \
+	ICI_MACOS_BUNDLE_HOST=$(dll) \
+	ICI_BUILD_TYPE_DLL=1
+else
+_make_modules = $(_make) -C modules -$(MAKEFLAGS) \
+	ICI_DOT_H_DIR=$(PWD) \
+	ICI_MACOS_BUNDLE_HOST=$(prog)
+endif
+
 modules:
-	@$(_make) -C modules -$(MAKEFLAGS)
+	@$(_make_modules)
 
 clean-modules:
-	@$(_make) -C modules -$(MAKEFLAGS) clean
+	@$(_make_modules) clean
 
 install-modules:
-	@$(_make) -C modules -$(MAKEFLAGS) sudo=$(sudo) prefix=$(prefix) install
+	@$(_make_modules) sudo=$(sudo) prefix=$(prefix) install
 
 
 # EOF

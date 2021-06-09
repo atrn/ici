@@ -20,10 +20,6 @@ struct method : object
 inline method *methodof(object *o) { return o->as<method>(); }
 inline bool ismethod(object *o) { return o->hastype(TC_METHOD); }
 
-/*
- * End of ici.h export. --ici.h-end--
- */
-
 class method_type : public type
 {
 public:
@@ -33,6 +29,10 @@ public:
     int call(object *o, object *subject) override;
     void objname(object *o, char p[objnamez]) override;
 };
+
+/*
+ * End of ici.h export. --ici.h-end--
+ */
 
 } // namespace ici
 

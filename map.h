@@ -28,10 +28,6 @@ struct map : objwsup
 inline map *mapof(object *o) { return o->as<map>(); }
 inline bool ismap(object *o) { return o->hastype(TC_MAP); }
 
-/*
- * End of ici.h export. --ici.h-end--
- */
-
 class map_type : public type
 {
 public:
@@ -55,6 +51,10 @@ public:
     int nkeys(object *) override;
     int keys(object *, array *) override;
 };
+
+/*
+ * End of ici.h export. --ici.h-end--
+ */
 
 } // namespace ici
 

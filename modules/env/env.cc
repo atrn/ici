@@ -19,13 +19,7 @@
  * This --intro-- and --synopsis-- are part of --ici-env-- documentation.
  */
 
-#include <fwd.h>
-#include <alloc.h>
-#include <forall.h>
-#include <array.h>
-#include <map.h>
-#include <null.h>
-#include <str.h>
+#include <ici.h>
 
 namespace
 {

@@ -164,11 +164,6 @@ inline const void *ICI_CF_ARG2() { return cfuncof(os.a_top[-1])->cf_arg2; }
  */
 #define ICI_DEFINE_METHOD(NAME, FUNC) ICI_DEFINE_CFUNC(NAME, FUNC)
 
-/*
- * End of ici.h export. --ici.h-end--
- */
-
-
 class cfunc_type : public type
 {
 public:
@@ -181,6 +176,10 @@ public:
     int save(archiver *, object *) override;
     object *restore(archiver *) override;
 };
+
+/*
+ * End of ici.h export. --ici.h-end--
+ */
 
 } // namespace ici
 

@@ -23,10 +23,6 @@ int unassign(set *, object *);
 inline set *setof(object *o) { return o->as<set>(); }
 inline bool isset(object *o) { return o->hastype(TC_SET); }
 
-/*
- * End of ici.h export. --ici.h-end--
- */
-
 class set_type : public type
 {
 public:
@@ -46,6 +42,10 @@ public:
     int nkeys(object *) override;
     int keys(object *, array *) override;
 };
+
+/*
+ * End of ici.h export. --ici.h-end--
+ */
 
 } // namespace ici
 

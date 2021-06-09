@@ -143,10 +143,6 @@ struct name_id
     long        ni_id;
 };
 
-/*
- * End of ici.h export. --ici.h-end--
- */
-
 class handle_type : public type
 {
 public:
@@ -164,6 +160,10 @@ public:
     int assign_super(object *o, object *k, object *v, map *b) override;
     void objname(object *o, char p[objnamez]) override;
 };
+
+/*
+ * End of ici.h export. --ici.h-end--
+ */
 
 } // namespace ici
 

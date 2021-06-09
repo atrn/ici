@@ -42,7 +42,8 @@ constexpr int CF_CRIT_SECT = 0x40;    /* Critical section guard. */
  * End of ici.h export. --ici.h-end--
  */
 
-class catcher_type : public type {
+class catcher_type : public type
+{
 public:
     catcher_type() : type("catcher", sizeof (struct catcher)) {}
     size_t mark(object *o) override;

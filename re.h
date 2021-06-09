@@ -47,10 +47,6 @@ int ici_pcre
     int offsetcount
 );
 
-/*
- * End of ici.h export. --ici.h-end--
- */
-
 class regexp_type : public type
 {
 public:
@@ -64,6 +60,10 @@ public:
     int save(archiver *, object *) override;
     object *restore(archiver *) override;
 };
+
+/*
+ * End of ici.h export. --ici.h-end--
+ */
 
 } // namespace ici
 

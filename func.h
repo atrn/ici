@@ -23,10 +23,6 @@ struct func : object
 inline func *funcof(object *o) { return o->as<func>(); }
 inline bool isfunc(object *o) {return o->hastype(TC_FUNC); }
 
-/*
- * End of ici.h export. --ici.h-end--
- */
-
 class func_type : public type
 {
 public:
@@ -41,6 +37,10 @@ public:
     int save(archiver *, object *) override;
     object *restore(archiver *) override;
 };
+
+/*
+ * End of ici.h export. --ici.h-end--
+ */
 
 } // namespace ici
 

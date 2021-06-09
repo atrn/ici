@@ -70,7 +70,7 @@ void merge(VEC *result, size_t maxsize, ici::object **vec, size_t nvec)
     {
         for (size_t k = 0; k < nvec; ++k)
         {
-            auto v = static_cast<VEC *>(vec[k]);
+            auto v = static_cast<VEC *>(vec[-k]); // see docs for ici::NARGS()
             if (i < v->size())
             {
                 (*result)[j] = (*v)[i];

@@ -1,0 +1,28 @@
+#
+# Compiler options for modules
+#
+
+#ifndef ICI_MODULE_NAME
+#error ICI_MODULE_NAME not defined in environment
+#endif
+
+# the ici static strings mechanism requires
+# that a ICI_MODULE_NAME macro be defined.
+-DICI_MODULE_NAME=${ICI_MODULE_NAME}
+
+-std=c++14
+-g
+-Wall -Wextra
+
+-I.
+-I${ICI_DOT_H_DIR}
+
+-fPIC
+
+#ifdef ICI_DEBUG_BUILD
+-UNDEBUG
+-O0
+#else
+-DNDEBUG
+-O2
+#endif

@@ -59,6 +59,8 @@ icih := array
     "\n"
 );
 
+if (ici.version ~ #\(ipp\)#) push(icih, "#define ICI_VEC_USE_IPP\n\n");
+
 if (argc > 2)
     src_dir = argv[2];
 if (argc > 3)
