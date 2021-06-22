@@ -7,11 +7,11 @@
 prefix?=/usr/local
 sudo?=
 
-ICI_DOT_H_DIR?=$(PWD)/..
-ICI_LIB_DIR?=$(PWD)/..
+ICI_DOT_H_DIR?=$(prefix)/include
+ICI_LIB_DIR?=$(prefix)/lib
 
 ifeq ($(shell uname),Darwin)
-ifeq($(ICI_BUILD_TYPE_DLL),)
+ifdef ICI_BUILD_TYPE_DLL
 ICI_MACOS_BUNDLE_HOST=ici
 else
 ICI_MACOS_BUNDLE_HOST=libici.dylib
@@ -33,7 +33,8 @@ MODULES=\
 _make=	$(MAKE) --no-print-directory
 
 all clean install:
-	@for _d in $(MODULES);\
+	@set -e;\
+	for _d in $(MODULES);\
 	do (\
 	    echo $$_d; \
 	    cd $$_d; \

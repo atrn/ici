@@ -1,6 +1,2 @@
 /opt/local/lib/libsqlite3.a
--L/opt/local/lib
--L/usr/local/lib
--lici
--lc++
--lSystem
+#inherit

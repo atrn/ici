@@ -1,0 +1,5 @@
+-L${IPPROOT}/lib
+-lippcore
+-lipps
+
+#inherit

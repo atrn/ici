@@ -1,2 +1,3 @@
-#include "CXXFLAGS.common"
+-DICI_MODULE_NAME=sndfile
 -I/opt/local/include
+#inherit

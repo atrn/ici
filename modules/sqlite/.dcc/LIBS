@@ -1,5 +1,0 @@
--L/local/lib
--L/opt/local/lib
--L/usr/local/lib
--lsqlite3
--lici

@@ -2,26 +2,36 @@
 #
 # IPPROOT is usually set the intel-provided setvars.sh
 
-.PHONY: all dll clean test-loading install
+.PHONY: all dll clean install
+
+ICI_MODULE_NAME=ipp
 
 sudo?=
 prefix?=/usr/local
 
-_os=$(shell uname)
-ifeq ($(_os),Darwin)
-_module=ici-ipp.dylib
+_OS=$(shell uname)
+ifeq ($(_OS),Darwin)
+MODULE=ici-$(ICI_MODULE_NAME).bundle
 else
-_module=ici-ipp.so
+MODULE=ici-$(ICI_MODULE_NAME).so
 endif
 
-all: dll
+ifndef ICI_LIB_DIR
+ICI_LIB_DIR = $(prefix)/lib
+endif
 
-dll:; @if [ -n "$(IPPROOT)" ]; then dmake -o $(_module) dll; else exit 0; fi
+all : plugin
 
-clean:; @if [ -n "$(IPPROOT)" ]; then dmake -o $(_module) dll clean; else exit 0; fi
+plugin:
+	ICI_MODULE_NAME=$(ICI_MODULE_NAME) \
+	ICI_LIB_DIR=$(ICI_LIB_DIR) \
+	dmake --dcc-debug -o $(MODULE) plugin
 
-install: dll
-	@if [ -n "$(IPPROOT)" ]; then \
-	    $(sudo) install -c -m 444 $(_module) $(prefix)/lib/ici/$(_module); \
-	    $(sudo) install -c -m 444 ici-ipp.ici $(prefix)/lib/ici/ici-ipp.ici; \
-	fi
+clean:
+	@ICI_MODULE_NAME=$(ICI_MODULE_NAME) dmake plugin clean
+
+distclean: clean
+
+install: plugin
+	$(sudo) install -c -m 444 ici-$(ICI_MODULE_NAME).ici $(prefix)/lib/ici
+	$(sudo) install -c -m 444 $(MODULE) $(prefix)/lib/ici

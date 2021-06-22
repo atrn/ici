@@ -1,27 +1,30 @@
 .PHONY: all dll clean install
 
-module	= ici-curses
-prefix	?= /usr/local
-sudo	?=
-os	= $(shell uname)
-ifeq ($(os),Darwin)
-dll	= dylib
+ICI_MODULE_NAME=curses
+
+_OS=$(shell uname)
+ifeq ($(_OS),Darwin)
+MODULE=ici-$(ICI_MODULE_NAME).bundle
 else
-dll	= so
+MODULE=ici-$(ICI_MODULE_NAME).so
 endif
 
-_dest	= $(prefix)/lib/ici
-_dll	= $(module).$(dll)
-_ici	= $(module).ici
+ifndef ICI_LIB_DIR
+ICI_LIB_DIR = $(prefix)/lib
+endif
 
-all : dll
+all : plugin
 
-dll:
-	@dmake -o $(_dll) dll
+plugin:
+	ICI_MODULE_NAME=$(ICI_MODULE_NAME) \
+	ICI_LIB_DIR=$(ICI_LIB_DIR) \
+	dmake --dcc-debug -o $(MODULE) plugin
 
 clean:
-	@dmake -o $(_dll) dll clean
+	@ICI_MODULE_NAME=$(ICI_MODULE_NAME) dmake plugin clean
 
-install: dll
-	$(sudo) install -c -m 444 $(_dll) $(_dest)
-#	@$(sudo) install -c -m 444 $(_ici) $(_dest)
+distclean: clean
+
+install: plugin
+	$(sudo) install -c -m 444 ici-$(ICI_MODULE_NAME).ici $(prefix)/lib/ici
+	$(sudo) install -c -m 444 $(MODULE) $(prefix)/lib/ici

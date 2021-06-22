@@ -58,9 +58,11 @@ _dmake = \
 	ICI_DOT_H_DIR=$(ICI_DOT_H_DIR) \
 	ICI_LIB_DIR=$(ICI_LIB_DIR) \
 	ICI_MACOS_BUNDLE_HOST=$(ICI_MACOS_BUNDLE_HOST) \
-	dmake --dcc-debug -o $(_plugin) plugin
+	dmake -o $(_plugin) plugin
 
 _install = install -c -m 444
+
+
 
 all: plugin
 

@@ -1,6 +1,4 @@
 -L/opt/local/lib
--L/usr/local/lib
 -lsndfile
--lici
--lc++
--lSystem
+
+#inherit

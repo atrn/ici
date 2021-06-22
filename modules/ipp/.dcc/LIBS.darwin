@@ -1,8 +1,0 @@
--L/local/lib
--L/usr/local/lib
--L${IPPROOT}/lib
--lippcore
--lipps
--lici
--lc++
--lSystem

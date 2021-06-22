@@ -1,2 +1,3 @@
+-DICI_MODULE_NAME=sqlite
 -I/opt/local/include
-#include "CXXFLAGS.common"
+#inherit
