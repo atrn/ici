@@ -1,4 +1,4 @@
 -L/opt/local/lib
 -lsndfile
 
-#inherit
+!inherit

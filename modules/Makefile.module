@@ -1,68 +1,31 @@
+.PHONY: all plugin clean distclean install
+
 # -*- mode:Makefile -*-
 
 # Makefile fragment used to create per-module Makefiles.
 #
-# Users define ICI_MODULE_NAME, e.g. vec, xml, and so on,
-# then include this file.
-#
 
+ifeq ($(ICI_MODULES_DIR),)
+$(error ICI_MODULES_DIR not defined)
+endif
 ifeq ($(ICI_MODULE_NAME),)
 $(error ICI_MODULE_NAME not defined)
 endif
 
-# Installation locations
+# Include Makefile.inc to define common macros.
 
-sudo?=
-prefix?=/usr/local
-_plugin_dir = $(prefix)/lib/ici
+include $(ICI_MODULES_DIR)/Makefile.inc
 
-# Platform-dependent
-
-uname=$(shell uname)
-
-ifeq ($(uname),Darwin)
-_plugin=ici-$(ICI_MODULE_NAME).bundle
-
-ifeq ($(ICI_MACOS_BUNDLE_HOST),)
-ifeq ($(ICI_BUILD_TYPE_DLL),)
-ICI_MACOS_BUNDLE_HOST=$(prefix)/bin/ici
-else
-ICI_MACOS_BUNDLE_HOST=$(prefix)/lib/libici.dylib
-endif
-endif
-
-endif # Darwin
-
-ifeq ($(uname),FreeBSD)
-_plugin=ici-$(ICI_MODULE_NAME).so
-endif # FreeBSD
-
-ifeq ($(uname),Linux)
-_plugin=ici-$(ICI_MODULE_NAME).so
-endif # Linux
-
-_plugin_dot_ici=ici-$(ICI_MODULE_NAME).ici
-
-ifeq ($(ICI_DOT_H_DIR),)
-ICI_DOT_H_DIR = $(prefix)/include
-endif
-
-ifeq ($(ICI_LIB_DIR),)
-ICI_LIB_DIR = $(prefix)/lib
-endif
-
-# Shorthand
+# Shorthands for running dmake and install
 
 _dmake = \
 	ICI_MODULE_NAME=$(ICI_MODULE_NAME) \
 	ICI_DOT_H_DIR=$(ICI_DOT_H_DIR) \
 	ICI_LIB_DIR=$(ICI_LIB_DIR) \
 	ICI_MACOS_BUNDLE_HOST=$(ICI_MACOS_BUNDLE_HOST) \
-	dmake -o $(_plugin) plugin
+	dmake -o $(ICI_PLUGIN_FILE) plugin
 
-_install = install -c -m 444
-
-
+_install = $(sudo) install -c -m 444
 
 all: plugin
 
@@ -70,6 +33,8 @@ plugin:; @$(_dmake)
 
 clean:; @$(_dmake) clean
 
+distclean: clean
+
 install: plugin
-	$(sudo) $(_install) $(_plugin) $(_plugin_dir)/$(_plugin)
-	[ -f $(_plugin_dot_ici) ] && $(sudo) $(_install) $(_plugin_dot_ici) $(_plugin_dir)/$(_plugin_dot_ici)
+	$(_install) $(ICI_PLUGIN_FILE) $(ICI_PLUGIN_DIR)/$(ICI_PLUGIN_FILE)
+	[ -f $(ICI_PLUGIN_DOT_ICI) ] && $(_install) $(ICI_PLUGIN_DOT_ICI) $(ICI_PLUGIN_DIR)/$(ICI_PLUGIN_DOT_ICI)

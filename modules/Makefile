@@ -1,24 +1,10 @@
 #
-# GNU make specific Makefile for building all modules.
+# (GNU make) Makefile for building all modules.
 #
 
-.PHONY: all clean
+.PHONY: all clean distclean install
 
-prefix?=/usr/local
-sudo?=
-
-ICI_DOT_H_DIR?=$(prefix)/include
-ICI_LIB_DIR?=$(prefix)/lib
-
-ifeq ($(shell uname),Darwin)
-ifdef ICI_BUILD_TYPE_DLL
-ICI_MACOS_BUNDLE_HOST=ici
-else
-ICI_MACOS_BUNDLE_HOST=libici.dylib
-endif
-endif
-
-MODULES=\
+ALL_MODULES=\
 	bignum\
 	curses\
 	env\
@@ -30,13 +16,25 @@ MODULES=\
 	util\
 	vec
 
+ifndef ICI_MODULES_DIR
+ICI_MODULES_DIR=$(shell pwd)
+endif
+
+# Include Makefile.inc to define common macros.
+
+include $(ICI_MODULES_DIR)/Makefile.inc
+
 _make=	$(MAKE) --no-print-directory
 
-all clean install:
+all clean distclean install:
 	@set -e;\
-	for _d in $(MODULES);\
+	for _d in $(ALL_MODULES);\
 	do (\
-	    echo $$_d; \
+	    _doecho=YES; \
+	    for _flag in "$(MAKEFLAGS)"; do \
+	        case "$$_flag" in --*);; *s*) _doecho='';; esac ; \
+	    done; \
+	    [ -z "$$_doecho" ] || echo $@ $$_d; \
 	    cd $$_d; \
 	    $(_make) -$(MAKEFLAGS) \
 		sudo=$(sudo) prefix=$(prefix) \

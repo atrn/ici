@@ -1,2 +1,2 @@
 /opt/local/lib/libsqlite3.a
-#inherit
+!inherit

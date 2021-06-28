@@ -1,31 +1,14 @@
-# This file is read by BSD make (aka pmake) and is used to redirect
+# This file is read by BSD make (aka pmake) and redirects making
 # things to GNU make which is typically called 'gmake' on systems
-# where BSD makefile is 'make'.
-#
+# where BSD make is 'make'.
 
 build?=exe
 dest?=/usr/local
 sudo?=
 
 targets=all \
-	ici \
-	ici.h \
-	lib \
-	test \
-	debug \
 	clean \
 	distclean \
 	install \
-	install-ici-dot-h \
-	install-libici \
-	install-ici-exe \
-	full-install \
-	modules \
-	clean-modules \
-	install-modules \
-	with-cmake \
-	configure-cmake \
-	clean-cmake \
-
 
 $(targets) !; @gmake --no-print-directory $@ build=$(build) dest=$(dest) sudo=$(sudo)

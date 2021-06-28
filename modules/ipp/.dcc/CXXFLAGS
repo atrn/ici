@@ -1,2 +1,2 @@
 -DICI_MODULE_NAME=ipp
-#inherit
+!inherit

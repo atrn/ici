@@ -2,16 +2,16 @@
 #
 # Compiler options for darwin, aka macOS
 
-#include "CXXFLAGS.common"
+!include "CXXFLAGS.common"
 
-#ifdef ICI_WITH_IPP
-#ifndef IPPROOT
-#error IPPROOT not defined
-#endif
+!ifdef ICI_WITH_IPP
+!ifndef IPPROOT
+!error IPPROOT not defined
+!endif
 -DICI_VEC_USE_IPP
 -I${IPPROOT}/include
-#endif
+!endif
 
-#ifndef ICI_DEBUG_BUILD
+!ifndef ICI_DEBUG_BUILD
 -mtune=native
-#endif
+!endif

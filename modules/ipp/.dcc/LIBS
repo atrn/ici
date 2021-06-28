@@ -2,4 +2,4 @@
 -lippcore
 -lipps
 
-#inherit
+!inherit

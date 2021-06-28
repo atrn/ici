@@ -2,9 +2,9 @@
 # Compiler options for modules
 #
 
-#ifndef ICI_MODULE_NAME
-#error ICI_MODULE_NAME not defined in environment
-#endif
+!ifndef ICI_MODULE_NAME
+!error ICI_MODULE_NAME not defined in environment
+!endif
 
 # the ici static strings mechanism requires
 # that a ICI_MODULE_NAME macro be defined.
@@ -19,10 +19,10 @@
 
 -fPIC
 
-#ifdef ICI_DEBUG_BUILD
+!ifdef ICI_DEBUG_BUILD
 -UNDEBUG
 -O0
-#else
+!else
 -DNDEBUG
 -O2
-#endif
+!endif

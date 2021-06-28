@@ -9,10 +9,10 @@
 -Wno-implicit-fallthrough
 -g
 
-#ifdef ICI_DEBUG_BUILD
+!ifdef ICI_DEBUG_BUILD
 -O0
 -UNDEBUG
-#else
+!else
 -O2
 -DNDEBUG
-#endif
+!endif

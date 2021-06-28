@@ -1,13 +1,13 @@
 # This file defines the compiler options. It is read by dcc.
 
-#include "CXXFLAGS.common"
+!include "CXXFLAGS.common"
 
 -pthread
 
-#ifndef ICI_DEBUG_BUILD
+!ifndef ICI_DEBUG_BUILD
 -mtune=native
-#endif
+!endif
 
-#ifdef ICI_DLL_BUILD
+!ifdef ICI_DLL_BUILD
 -fPIC
-#endif
+!endif

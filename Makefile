@@ -82,6 +82,7 @@
 #
 #	modules			Build the modules.
 #	clean-modules		Clean them modules.
+#	distclean-modules	Distclean them modules.
 #	install-modules		Install the modules.
 #
 #	with-cmake		Run cmake to build ici.
@@ -198,7 +199,7 @@ _make=			$(MAKE) --no-print-directory
 .PHONY:			all $(prog) lib clean distclean debug test
 .PHONY:			install full-install install-ici-exe
 .PHONY:			install-libici install-ici-dot-h install-core-ici
-.PHONY:			modules clean-modules install-modules
+.PHONY:			modules clean-modules distclean-modules install-modules
 .PHONY:			with-cmake configure-cmake clean-cmake
 
 
@@ -433,6 +434,9 @@ modules:
 
 clean-modules:
 	@$(_make_modules) clean
+
+distclean-modules:
+	@$(_make_modules) distclean
 
 install-modules:
 	@$(_make_modules) sudo=$(sudo) prefix=$(prefix) install

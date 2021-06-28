@@ -1,12 +1,12 @@
 # This file defines the linked libraries. It is read by dcc.
 
-#ifdef ICI_WITH_IPP
-#ifndef IPPROOT
-#error IPPROOT not defined
-#endif
+!ifdef ICI_WITH_IPP
+!ifndef IPPROOT
+!error IPPROOT not defined
+!endif
 -L${IPPROOT}/lib
 -lipps
 -lippcore
-#endif
+!endif
 
 -lc++

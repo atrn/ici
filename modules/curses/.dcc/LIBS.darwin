@@ -1,4 +1,4 @@
 -L/opt/local/lib
 -lcurses
 
-#inherit
+!inherit
