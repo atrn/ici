@@ -36,5 +36,5 @@ clean:; @$(_dmake) clean
 distclean: clean
 
 install: plugin
-	$(_install) $(ICI_PLUGIN_FILE) $(ICI_PLUGIN_DIR)/$(ICI_PLUGIN_FILE)
-	[ -f $(ICI_PLUGIN_DOT_ICI) ] && $(_install) $(ICI_PLUGIN_DOT_ICI) $(ICI_PLUGIN_DIR)/$(ICI_PLUGIN_DOT_ICI)
+	@$(_install) $(ICI_PLUGIN_FILE) $(ICI_PLUGIN_DIR)/$(ICI_PLUGIN_FILE)
+	@if [ -f $(ICI_PLUGIN_DOT_ICI) ]; then $(_install) $(ICI_PLUGIN_DOT_ICI) $(ICI_PLUGIN_DIR)/$(ICI_PLUGIN_DOT_ICI); fi
