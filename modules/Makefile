@@ -9,12 +9,15 @@ ALL_MODULES=\
 	curses\
 	env\
 	example\
-	ipp\
 	small\
 	sndfile\
 	sqlite\
 	util\
 	vec
+
+ifndef NO_IPP
+ALL_MODULES += ipp
+endif
 
 ifndef ICI_MODULES_DIR
 ICI_MODULES_DIR=$(shell pwd)

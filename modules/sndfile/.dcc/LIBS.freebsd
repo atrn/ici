@@ -1,0 +1,4 @@
+-L/usr/local/lib
+-lsndfile
+
+!inherit
