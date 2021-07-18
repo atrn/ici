@@ -15,7 +15,10 @@ ALL_MODULES=\
 	util\
 	vec
 
-ifndef NO_IPP
+# If IPPROOT is defined (via the environment) assume it
+# points to Intel's IPP and we can build the IPP module.
+
+ifdef IPPROOT
 ALL_MODULES += ipp
 endif
 
