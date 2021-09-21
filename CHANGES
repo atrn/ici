@@ -1,3 +1,6 @@
+*     Added reserve() function to grow an array reserve
+      space for future push calls.
+
 Major Changes in Version 5
 
 *     Modules on macOS are now built as ".bundle" files instead

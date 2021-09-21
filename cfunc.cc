@@ -1114,6 +1114,28 @@ static int f_top() {
     return ret_no_decref(a->get(n));
 }
 
+static int f_reserve() {
+    array *a;
+    long  n = 0;
+
+    if (typecheck("ai", &a, &n)) {
+        return 1;
+    }
+    if (a->isatom()) {
+        return set_error("attempt to reserve atomic array");
+    }
+    if (a->a_bot != a->a_base) {
+        return set_error("attempt to reserve deque-like array");
+    }
+    if (n < 0) {
+        return argerror(1);
+    }
+    if (a->push_check(n)) {
+        return 1;
+    }
+    return null_ret();
+}
+
 static int f_parse() {
     object *o;
     file   *f;
@@ -4273,6 +4295,7 @@ ICI_DEFINE_CFUNCS(std)
     ICI_DEFINE_CFUNC(pop,          f_pop),
     ICI_DEFINE_CFUNC(rpush,        f_rpush),
     ICI_DEFINE_CFUNC(rpop,         f_rpop),
+    ICI_DEFINE_CFUNC(reserve,      f_reserve),
     ICI_DEFINE_CFUNC(call,         f_call),
     ICI_DEFINE_CFUNC(keys,         f_keys),
     ICI_DEFINE_CFUNC(vstack,       f_vstack),
