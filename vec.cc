@@ -262,7 +262,7 @@ vec<TC_VEC64, double>::operator/=(value_type value)
 namespace
 {
 
-static int index_error(int64_t ofs)
+int index_error(int64_t ofs)
 {
     return set_error("%lld: index out of range", ofs);
 }
