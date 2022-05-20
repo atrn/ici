@@ -360,7 +360,6 @@ void collect()
     object  **a;
     object  *o;
     object  **b;
-    /*int        ndead_atoms;*/
 
     if (supress_collect)
     {
@@ -414,7 +413,7 @@ void collect()
      * Count how many atoms are going to be retained and how many are
      * going to be lost so we can decide on the fastest method.
      */
-    ndead_atoms = 0;
+    unsigned long ndead_atoms = 0;
     for (a = objs; a < objs_top; ++a) {
         if ((*a)->flags(O_ATOM|O_MARK) == O_ATOM)
             ++ndead_atoms;
@@ -486,9 +485,13 @@ void collect()
         }
         objs_top = b;
     }
-/*
-printf("mem=%ld vs. %ld, nobjects=%d, ici_natoms=%d\n", mem, ici_mem, objs_top - objs, ici_natoms);
-*/
+
+#if 0
+    printf("mem=%ld vs. %ld, nobjects=%d, ici_natoms=%d\n", mem, ici_mem, objs_top - objs, ici_natoms);
+#else
+    (void) mem;
+#endif
+
     /*
      * Set ici_mem_limit (which is the point at which to trigger a
      * new call to us) to 1.5 times what is currently allocated, but
