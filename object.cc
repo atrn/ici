@@ -360,7 +360,6 @@ void collect()
     object  **a;
     object  *o;
     object  **b;
-    size_t  mem;    /* Total mem tied up in refed objects. */
     /*int        ndead_atoms;*/
 
     if (supress_collect)
@@ -403,7 +402,7 @@ void collect()
     /*
      * Mark all objects which are referenced (and thus what they ref).
      */
-    mem = 0;
+    size_t mem = 0;
     for (a = objs; a < objs_top; ++a) {
         if ((*a)->o_nrefs != 0) {
             mem += ici_mark(*a);
