@@ -171,7 +171,8 @@ build?=			dll
 prefix?= 		/usr/local
 sudo?=
 
-dccflags?=		--write-compile-commands
+njobs?=
+dccflags?=		--write-compile-commands $(njobs)
 objdir?=		.objs
 
 cmakeargs?=
