@@ -1,28 +1,28 @@
 #define ICI_CORE
 #include "exec.h"
-#include "op.h"
-#include "debugger.h"
-#include "catcher.h"
-#include "ptr.h"
-#include "func.h"
-#include "cfunc.h"
-#include "str.h"
 #include "buf.h"
-#include "pc.h"
+#include "catcher.h"
+#include "cfunc.h"
+#include "debugger.h"
+#include "float.h"
+#include "forall.h"
+#include "func.h"
 #include "int.h"
 #include "map.h"
-#include "set.h"
-#include "parse.h"
-#include "float.h"
-#include "vec.h"
-#include "re.h"
-#include "method.h"
 #include "mark.h"
-#include "src.h"
+#include "method.h"
 #include "null.h"
-#include "forall.h"
+#include "op.h"
+#include "parse.h"
+#include "pc.h"
 #include "primes.h"
+#include "ptr.h"
+#include "re.h"
+#include "set.h"
+#include "src.h"
+#include "str.h"
 #include "userop.h"
+#include "vec.h"
 #include <signal.h>
 
 namespace ici
@@ -31,19 +31,19 @@ namespace ici
 /*
  * List of all active execution structures.
  */
-exec      *execs;
+exec *execs;
 
 /*
  * The global pointer to the current execution context and cached pointers
  * to the three stacks (execution, operand and variable (scope)). These are
  * set every time we switch ICI threads.
  */
-exec      *ex;
+exec *ex;
 
 /*
  * A cached copy of ex->x_count for the current thread.
  */
-int        exec_count;
+int exec_count;
 
 /*
  * The arrays that form the current execution, operand and variable (scope)
@@ -57,12 +57,12 @@ int        exec_count;
  * from a particular context, we copies these stacks back to real array
  * structs (see thread.c).
  */
-array     xs;
-array     os;
-array     vs;
+array xs;
+array os;
+array vs;
 
-integer   *o_zero;
-integer   *o_one;
+integer *o_zero;
+integer *o_one;
 
 /*
  * Set this to non-zero to cause an "aborted" failure even when the ICI
@@ -71,20 +71,22 @@ integer   *o_one;
  * set is not addressed here (by an interupt perhaps).  Remember to clear
  * it before re-running any ICI code.
  */
-volatile int    aborted;
+volatile int aborted;
 
 /*
  * The limit to the number of recursive invocations of evaluate().
  */
-int             evaluate_recursion_limit = 50;
+int evaluate_recursion_limit = 50;
 
 static sigset_t empty_sigset;
 
-inline bool isempty(const sigset_t *s) {
+inline bool isempty(const sigset_t *s)
+{
     return memcmp(s, &empty_sigset, sizeof empty_sigset) == 0;
 }
 
-void init_exec() {
+void init_exec()
+{
     sigemptyset(&empty_sigset);
 }
 
@@ -95,34 +97,41 @@ void init_exec() {
  * The new exec struct is linked onto the global list of all exec
  * structs (execs).
  */
-exec *new_exec() {
-    exec          *x;
-    static src    default_src;
+exec *new_exec()
+{
+    exec      *x;
+    static src default_src;
 
-    if ((x = ici_talloc(exec)) ==  nullptr) {
+    if ((x = ici_talloc(exec)) == nullptr)
+    {
         return nullptr;
     }
     memset((void *)x, 0, sizeof *x);
     set_tfnz(x, TC_EXEC, 0, 1, 0);
     rego(x);
     x->x_src = &default_src;
-    if ((x->x_xs = new_array(80)) == nullptr) {
+    if ((x->x_xs = new_array(80)) == nullptr)
+    {
         goto fail;
     }
     decref(x->x_xs);
-    if ((x->x_os = new_array(80)) == nullptr) {
+    if ((x->x_os = new_array(80)) == nullptr)
+    {
         goto fail;
     }
     decref(x->x_os);
-    if ((x->x_vs = new_array(80)) == nullptr) {
+    if ((x->x_vs = new_array(80)) == nullptr)
+    {
         goto fail;
     }
     decref(x->x_vs);
-    if ((x->x_pc_closet = new_array(80)) == nullptr) {
+    if ((x->x_pc_closet = new_array(80)) == nullptr)
+    {
         goto fail;
     }
     decref(x->x_pc_closet);
-    if ((x->x_os_temp_cache = new_array(80)) == nullptr) {
+    if ((x->x_os_temp_cache = new_array(80)) == nullptr)
+    {
         goto fail;
     }
     decref(x->x_os_temp_cache);
@@ -149,25 +158,32 @@ fail:
 int engine_stack_check()
 {
     array *pcs;
-    int   depth;
+    int    depth;
 
-    if (xs.push_check(60)) {
+    if (xs.push_check(60))
+    {
         return 1;
     }
-    if (os.push_check(60)) {
+    if (os.push_check(60))
+    {
         return 1;
     }
-    if (vs.push_check(60)) {
+    if (vs.push_check(60))
+    {
         return 1;
     }
     pcs = ex->x_pc_closet;
     depth = (xs.a_top - xs.a_base) + 60;
-    if ((depth -= (pcs->a_top - pcs->a_base)) > 0) {
-        if (pcs->push_check(depth)) {
+    if ((depth -= (pcs->a_top - pcs->a_base)) > 0)
+    {
+        if (pcs->push_check(depth))
+        {
             return 1;
         }
-        while (pcs->a_top < pcs->a_limit) {
-            if ((*pcs->a_top = new_pc()) == nullptr) {
+        while (pcs->a_top < pcs->a_limit)
+        {
+            if ((*pcs->a_top = new_pc()) == nullptr)
+            {
                 return 1;
             }
             ++pcs->a_top;
@@ -179,11 +195,16 @@ int engine_stack_check()
 /*
  * Faster lookup for string keys.
  */
-inline object *fetch(object *s, object *k) {
+inline object *fetch(object *s, object *k)
+{
     if (isstring(k) && stringof(k)->s_map == mapof(s) && stringof(k)->s_vsver == vsver)
+    {
         return stringof(k)->s_slot->sl_value;
+    }
     else
+    {
         return ici_fetch(s, k);
+    }
 }
 
 /*
@@ -191,9 +212,12 @@ inline object *fetch(object *s, object *k) {
  * the scope and operand stacks to the matching depth (but only if it is).
  * Returns the catcher, or nullptr if there wasn't one.
  */
-static catcher *unwind() {
-    for (auto p = xs.a_top - 1; p >= xs.a_base; --p) {
-        if (iscatcher(*p)) {
+static catcher *unwind()
+{
+    for (auto p = xs.a_top - 1; p >= xs.a_base; --p)
+    {
+        if (iscatcher(*p))
+        {
             auto c = catcherof(*p);
             xs.a_top = p;
             os.a_top = &os.a_base[c->c_odepth];
@@ -234,18 +258,21 @@ static catcher *unwind() {
  *
  * Note that binop.h is included half way down this function.
  */
-object *evaluate(object *code, int n_operands) {
-    object      *o;
-    object      *pc;
-    int         flags;
-    catcher     frame;
+object *evaluate(object *code, int n_operands)
+{
+    object *o;
+    object *pc;
+    int     flags;
+    catcher frame;
 
-    if (++ex->x_n_engine_recurse > evaluate_recursion_limit) {
+    if (++ex->x_n_engine_recurse > evaluate_recursion_limit)
+    {
         set_error("excessive recursive invocations of main interpreter");
         goto badfail;
     }
 
-    if (engine_stack_check()) {
+    if (engine_stack_check())
+    {
         goto badfail;
     }
 
@@ -267,9 +294,12 @@ object *evaluate(object *code, int n_operands) {
     frame.c_vdepth = vs.a_top - vs.a_base;
     xs.push(&frame);
 
-    if (isarray(code)) {
+    if (isarray(code))
+    {
         set_pc(arrayof(code), xs.a_top);
-    } else {
+    }
+    else
+    {
         *xs.a_top = code;
     }
     ++xs.a_top;
@@ -277,9 +307,12 @@ object *evaluate(object *code, int n_operands) {
     /*
      * The execution loop.
      */
-    for (;;) {
-        if (UNLIKELY(--exec_count == 0)) {
-            if (UNLIKELY(aborted)) {
+    for (;;)
+    {
+        if (UNLIKELY(--exec_count == 0))
+        {
+            if (UNLIKELY(aborted))
+            {
                 set_error("aborted");
                 goto fail;
             }
@@ -287,11 +320,13 @@ object *evaluate(object *code, int n_operands) {
              * Ensure that there is enough room on all stacks for at
              * least 20 more worst case operations.  See also f_call().
              */
-            if (UNLIKELY(engine_stack_check())) {
+            if (UNLIKELY(engine_stack_check()))
+            {
                 goto fail;
             }
             exec_count = 100;
-            if (UNLIKELY(++ex->x_yield_count > 10)) {
+            if (UNLIKELY(++ex->x_yield_count > 10))
+            {
                 yield();
                 ex->x_yield_count = 0;
             }
@@ -300,7 +335,8 @@ object *evaluate(object *code, int n_operands) {
              * Check for, and handle, pending signals.
              */
             sigset_t *p = (sigset_t *)(void *)&signals_pending;
-            if (UNLIKELY(!isempty(p))) {
+            if (UNLIKELY(!isempty(p)))
+            {
                 invoke_signal_handlers();
             }
         }
@@ -310,7 +346,7 @@ object *evaluate(object *code, int n_operands) {
          * know that they have not increased any stack depths, can just
          * goto this label to avoid the check above.
          */
-    stable_stacks_continue:
+stable_stacks_continue:
         /*
          * In principle our execution model is pretty simple. We execute
          * the thing on the top of the execution stack. When that is a pc
@@ -331,13 +367,17 @@ object *evaluate(object *code, int n_operands) {
          */
         assert(os.a_top >= os.a_base);
         pc = xs.a_top[-1];
-        if (ispc(pc)) {
-    continue_with_same_pc:
+        if (ispc(pc))
+        {
+continue_with_same_pc:
             o = *pcof(pc)->pc_next++;
-            if (isop(o)) {
+            if (isop(o))
+            {
                 goto an_op;
             }
-        } else {
+        }
+        else
+        {
             o = pc;
             --xs.a_top;
         }
@@ -352,10 +392,12 @@ object *evaluate(object *code, int n_operands) {
          * the formal model. The code just above here assumes this, but
          * has to explicitly pop the stack in the non-pc case.
          */
-        switch (o->o_tcode) {
+        switch (o->o_tcode)
+        {
         case TC_SRC:
             ex->x_src = srcof(o);
-            if (UNLIKELY(debug_active)) {
+            if (UNLIKELY(debug_active))
+            {
                 xs.push(o); /* Restore formal state. */
                 debugger->source_line(srcof(o));
                 --xs.a_top;
@@ -365,7 +407,8 @@ object *evaluate(object *code, int n_operands) {
 
         case TC_PARSE:
             xs.push(o); /* Restore formal state. */
-            if (parse_exec()) {
+            if (parse_exec())
+            {
                 goto fail;
             }
             continue;
@@ -379,12 +422,8 @@ object *evaluate(object *code, int n_operands) {
              *
              * First check for lookup lookaside.
              */
-            if
-            (
-                stringof(o)->s_map == mapof(vs.a_top[-1])
-                &&
-                stringof(o)->s_vsver == vsver
-            ) {
+            if (stringof(o)->s_map == mapof(vs.a_top[-1]) && stringof(o)->s_vsver == vsver)
+            {
                 /*
                  * We know directly where the value is because we have
                  * looked up this name since the last change to the scope
@@ -393,8 +432,10 @@ object *evaluate(object *code, int n_operands) {
                 assert(ici_fetch_super(vs.a_top[-1], o, os.a_top, nullptr) == 1);
                 assert(*os.a_top == stringof(o)->s_slot->sl_value);
                 os.push(stringof(o)->s_slot->sl_value);
-            } else {
-                object   *f;
+            }
+            else
+            {
+                object *f;
 
                 /*
                  * This is an in-line version of fetch_map because
@@ -402,16 +443,8 @@ object *evaluate(object *code, int n_operands) {
                  * always a struct, and (b) we want to detect when the
                  * value is not found so we can do auto-loading.
                  */
-                switch
-                (
-                    ici_fetch_super
-                    (
-                        vs.a_top[-1],
-                        o,
-                        os.a_top,
-                        mapof(vs.a_top[-1])
-                    )
-                ) {
+                switch (ici_fetch_super(vs.a_top[-1], o, os.a_top, mapof(vs.a_top[-1])))
+                {
                 case -1:
                     goto fail;
 
@@ -421,7 +454,8 @@ object *evaluate(object *code, int n_operands) {
                      * Try to load a library of that name and repeat
                      * the lookup before deciding it is undefined.
                      */
-                    if ((f = ici_fetch(vs.a_top[-1], SS(load))) == null) {
+                    if ((f = ici_fetch(vs.a_top[-1], SS(load))) == null)
+                    {
                         set_error("\"%s\" undefined", stringof(o)->s_chars);
                         goto fail;
                     }
@@ -429,7 +463,8 @@ object *evaluate(object *code, int n_operands) {
                     {
                         src *srco = ex->x_src;
                         incref(srco);
-                        if (call(f, "o", o)) {
+                        if (call(f, "o", o))
+                        {
                             decref(srco);
                             goto fail;
                         }
@@ -437,16 +472,7 @@ object *evaluate(object *code, int n_operands) {
                         decref(srco);
                     }
                     --xs.a_top;
-                    switch
-                    (
-                        ici_fetch_super
-                        (
-                            vs.a_top[-1],
-                            o,
-                            os.a_top,
-                            mapof(vs.a_top[-1])
-                        )
-                    )
+                    switch (ici_fetch_super(vs.a_top[-1], o, os.a_top, mapof(vs.a_top[-1])))
                     {
                     case -1:
                         goto fail;
@@ -471,15 +497,19 @@ object *evaluate(object *code, int n_operands) {
              * on it, it becomes the return value, else we return null.
              * The caller knows if there is really a value to return.
              */
-            xs.push(o);  /* Restore formal state. */
-            if (o->hasflag(CF_EVAL_BASE)) {
+            xs.push(o); /* Restore formal state. */
+            if (o->hasflag(CF_EVAL_BASE))
+            {
                 /*
                  * This is the base of a call to evaluate().  It is now
                  * time to return.
                  */
-                if (catcherof(o)->c_odepth < uint32_t(os.a_top - os.a_base)) {
+                if (catcherof(o)->c_odepth < uint32_t(os.a_top - os.a_base))
+                {
                     o = os.a_top[-1];
-                } else {
+                }
+                else
+                {
                     o = null;
                 }
                 incref(o);
@@ -487,7 +517,8 @@ object *evaluate(object *code, int n_operands) {
                 --ex->x_n_engine_recurse;
                 return o;
             }
-            if (o->hasflag(CF_CRIT_SECT)) {
+            if (o->hasflag(CF_CRIT_SECT))
+            {
                 --ex->x_critsect;
                 /*
                  * Force a check for a yield (see top of loop). If we
@@ -501,8 +532,9 @@ object *evaluate(object *code, int n_operands) {
             goto stable_stacks_continue;
 
         case TC_FORALL:
-            xs.push(o);  /* Restore formal state. */
-            if (exec_forall()) {
+            xs.push(o); /* Restore formal state. */
+            if (exec_forall())
+            {
                 goto fail;
             }
             continue;
@@ -512,11 +544,13 @@ object *evaluate(object *code, int n_operands) {
             continue;
 
         case TC_OP:
-        an_op:
-            switch (opof(o)->op_ecode) {
+an_op:
+            switch (opof(o)->op_ecode)
+            {
             case OP_OTHER:
                 xs.push(o); /* Restore to formal state. */
-                if ((*opof(o)->op_func)()) {
+                if ((*opof(o)->op_func)())
+                {
                     goto fail;
                 }
                 continue;
@@ -534,47 +568,60 @@ object *evaluate(object *code, int n_operands) {
                  * aggr key => method (os) (normal case)
                  */
                 {
-                    object           *o1;
-                    object           *t;
+                    object *o1;
+                    object *t;
 
                     flags = opof(o)->op_code;
-                do_colon:
+do_colon:
                     o1 = o;
                     t = os.a_top[-2];
-                    if (flags & OPC_COLON_CARET) {
-                        if ((o = fetch(vs.a_top[-1], SS(class))) == nullptr) {
+                    if (flags & OPC_COLON_CARET)
+                    {
+                        if ((o = fetch(vs.a_top[-1], SS(class))) == nullptr)
+                        {
                             goto fail;
                         }
-                        if (!hassuper(o)) {
-                            char        n1[objnamez];
+                        if (!hassuper(o))
+                        {
+                            char n1[objnamez];
                             set_error("\"class\" evaluated to %s in :^ operation", objname(n1, o));
                             goto fail;
                         }
-                        if ((t = objwsupof(o)->o_super) == nullptr) {
+                        if ((t = objwsupof(o)->o_super) == nullptr)
+                        {
                             set_error("class has no super class in :^ operation");
                             goto fail;
                         }
                     }
-                    if (t->icitype()->can_fetch_method()) {
-                        if ((o = t->icitype()->fetch_method(t, os.a_top[-1])) == nullptr) {
+                    if (t->icitype()->can_fetch_method())
+                    {
+                        if ((o = t->icitype()->fetch_method(t, os.a_top[-1])) == nullptr)
+                        {
                             goto fail;
                         }
-                    } else {
-                        if ((o = fetch(t, os.a_top[-1])) == nullptr) {
+                    }
+                    else
+                    {
+                        if ((o = fetch(t, os.a_top[-1])) == nullptr)
+                        {
                             goto fail;
                         }
-                        if (isnull(o)) {
-                            if ((o = fetch(t, SS(unknown_method))) == nullptr) {
+                        if (isnull(o))
+                        {
+                            if ((o = fetch(t, SS(unknown_method))) == nullptr)
+                            {
                                 goto fail;
                             }
-                            if (!isnull(o)) {
+                            if (!isnull(o))
+                            {
                                 object *nam = os.a_top[-1];
-                                long nargs = intof(os.a_top[-3])->i_value;
-                                
+                                long    nargs = intof(os.a_top[-3])->i_value;
+
                                 ++os.a_top;
                                 os.a_top[-1] = SS(unknown_method);
                                 os.a_top[-2] = os.a_top[-3];
-                                if ((os.a_top[-3] = new_int(nargs + 1)) == nullptr) {
+                                if ((os.a_top[-3] = new_int(nargs + 1)) == nullptr)
+                                {
                                     goto fail;
                                 }
                                 decref(os.a_top[-3]);
@@ -582,10 +629,12 @@ object *evaluate(object *code, int n_operands) {
                             }
                         }
                     }
-                    if ((flags & OPC_COLON_CALL) == 0) {
+                    if ((flags & OPC_COLON_CALL) == 0)
+                    {
                         method *m;
 
-                        if ((m = new_method(os.a_top[-2], o)) == nullptr) {
+                        if ((m = new_method(os.a_top[-2], o)) == nullptr)
+                        {
                             goto fail;
                         }
                         --os.a_top;
@@ -596,10 +645,10 @@ object *evaluate(object *code, int n_operands) {
                     /*
                      * This is a direct call, don't form the method object.
                      */
-                    xs.push(o1); /* Restore xs to formal state. */
+                    xs.push(o1);       /* Restore xs to formal state. */
                     o1 = os.a_top[-2]; /* The subject object. */
                     --os.a_top;
-                    os.a_top[-1] = o;  /* The callable object. */
+                    os.a_top[-1] = o; /* The callable object. */
                     o = o1;
                     incref(o);
                     goto do_call;
@@ -608,12 +657,14 @@ object *evaluate(object *code, int n_operands) {
             case OP_CALL:
                 xs.push(o);  /* Restore to formal state. */
                 o = nullptr; /* No subject object. */
-            do_call:
-                if (UNLIKELY(!os.a_top[-1]->can_call())) {
-                    char    n1[objnamez];
+do_call:
+                if (UNLIKELY(!os.a_top[-1]->can_call()))
+                {
+                    char n1[objnamez];
 
                     set_error("attempt to call %s", objname(n1, os.a_top[-1]));
-                    if (o != nullptr) {
+                    if (o != nullptr)
+                    {
                         decref(o);
                     }
                     goto fail;
@@ -621,13 +672,16 @@ object *evaluate(object *code, int n_operands) {
                 // if (UNLIKELY(debug_active)) {
                 //     debugger->function_call(os.a_top[-1], ARGS(), NARGS());
                 // }
-                if (os.a_top[-1]->call(o)) {
-                    if (o != nullptr) {
+                if (os.a_top[-1]->call(o))
+                {
+                    if (o != nullptr)
+                    {
                         decref(o);
                     }
                     goto fail;
                 }
-                if (o != nullptr) {
+                if (o != nullptr)
+                {
                     decref(o);
                 }
                 continue;
@@ -663,7 +717,8 @@ object *evaluate(object *code, int n_operands) {
                 /*
                  * aggr key => value (os)
                  */
-                if ((o = fetch(os.a_top[-2], os.a_top[-1])) == nullptr) {
+                if ((o = fetch(os.a_top[-2], os.a_top[-1])) == nullptr)
+                {
                     goto fail;
                 }
                 --os.a_top;
@@ -674,7 +729,8 @@ object *evaluate(object *code, int n_operands) {
                 /*
                  * aggr key => aggr key value (os)
                  */
-                if ((o = fetch(os.a_top[-2], os.a_top[-1])) == nullptr) {
+                if ((o = fetch(os.a_top[-2], os.a_top[-1])) == nullptr)
+                {
                     goto fail;
                 }
                 os.push(o);
@@ -686,7 +742,8 @@ object *evaluate(object *code, int n_operands) {
                  *
                  * Used in postfix ++/-- for value.
                  */
-                if ((o = fetch(os.a_top[-2], os.a_top[-1])) == nullptr) {
+                if ((o = fetch(os.a_top[-2], os.a_top[-1])) == nullptr)
+                {
                     goto fail;
                 }
                 os.a_top += 2;
@@ -702,10 +759,12 @@ object *evaluate(object *code, int n_operands) {
                  *                => value (os, for value)
                  *                => aggr key (os, for lvalue)
                  */
-                if (ici_assign_base(vs.a_top[-1], os.a_top[-2],os.a_top[-1])) {
+                if (ici_assign_base(vs.a_top[-1], os.a_top[-2], os.a_top[-1]))
+                {
                     goto fail;
                 }
-                switch (opof(o)->op_code) {
+                switch (opof(o)->op_code)
+                {
                 case FOR_EFFECT:
                     os.a_top -= 2;
                     break;
@@ -737,25 +796,19 @@ object *evaluate(object *code, int n_operands) {
                  *                => value (os, for value)
                  *                => aggr key (os, for lvalue)
                  */
-                if
-                (
-                    LIKELY(!debug_active)
-                    &&
-                    stringof(os.a_top[-2])->s_map == mapof(os.a_top[-3])
-                    &&
-                    stringof(os.a_top[-2])->s_vsver == vsver
-                    &&
-                    isstring(os.a_top[-2])
-                    &&
-                    !os.a_top[-2]->hasflag(ICI_S_LOOKASIDE_IS_ATOM)
-                ) {
+                if (LIKELY(!debug_active) && stringof(os.a_top[-2])->s_map == mapof(os.a_top[-3]) &&
+                    stringof(os.a_top[-2])->s_vsver == vsver && isstring(os.a_top[-2]) &&
+                    !os.a_top[-2]->hasflag(ICI_S_LOOKASIDE_IS_ATOM))
+                {
                     stringof(os.a_top[-2])->s_slot->sl_value = os.a_top[-1];
                     goto assign_finish;
                 }
-                if (ici_assign(os.a_top[-3], os.a_top[-2], os.a_top[-1])) {
+                if (ici_assign(os.a_top[-3], os.a_top[-2], os.a_top[-1]))
+                {
                     goto fail;
                 }
-                if (UNLIKELY(debug_active)) {
+                if (UNLIKELY(debug_active))
+                {
                     debugger->watch(os.a_top[-3], os.a_top[-2], os.a_top[-1]);
                 }
                 goto assign_finish;
@@ -766,17 +819,23 @@ object *evaluate(object *code, int n_operands) {
                  *                => value (os, for value)
                  *                => aggr key (os, for lvalue)
                  */
-                if (hassuper(os.a_top[-3])) {
-                    if (ici_assign_base(os.a_top[-3], os.a_top[-2], os.a_top[-1])) {
-                        goto fail;
-                    }
-                } else {
-                    if (ici_assign(os.a_top[-3], os.a_top[-2], os.a_top[-1])) {
+                if (hassuper(os.a_top[-3]))
+                {
+                    if (ici_assign_base(os.a_top[-3], os.a_top[-2], os.a_top[-1]))
+                    {
                         goto fail;
                     }
                 }
-            assign_finish:
-                switch (opof(o)->op_code) {
+                else
+                {
+                    if (ici_assign(os.a_top[-3], os.a_top[-2], os.a_top[-1]))
+                    {
+                        goto fail;
+                    }
+                }
+assign_finish:
+                switch (opof(o)->op_code)
+                {
                 case FOR_EFFECT:
                     os.a_top -= 3;
                     break;
@@ -799,29 +858,34 @@ object *evaluate(object *code, int n_operands) {
                  *                              => aggr1 key1
                  */
                 {
-                    object  *v1;
-                    object  *v2;
+                    object *v1;
+                    object *v2;
 
-                    if ((v1 = ici_fetch(os.a_top[-4], os.a_top[-3])) == nullptr) {
+                    if ((v1 = ici_fetch(os.a_top[-4], os.a_top[-3])) == nullptr)
+                    {
                         goto fail;
                     }
                     incref(v1);
-                    if ((v2 = ici_fetch(os.a_top[-2], os.a_top[-1])) == nullptr) {
+                    if ((v2 = ici_fetch(os.a_top[-2], os.a_top[-1])) == nullptr)
+                    {
                         decref(v1);
                         goto fail;
                     }
                     incref(v2);
-                    if (ici_assign(os.a_top[-2], os.a_top[-1], v1)) {
+                    if (ici_assign(os.a_top[-2], os.a_top[-1], v1))
+                    {
                         decref(v1);
                         decref(v2);
                         goto fail;
                     }
-                    if (ici_assign(os.a_top[-4], os.a_top[-3], v2)) {
+                    if (ici_assign(os.a_top[-4], os.a_top[-3], v2))
+                    {
                         decref(v1);
                         decref(v2);
                         goto fail;
                     }
-                    switch (opof(o)->op_code) {
+                    switch (opof(o)->op_code)
+                    {
                     case FOR_EFFECT:
                         os.a_top -= 4;
                         break;
@@ -845,7 +909,8 @@ object *evaluate(object *code, int n_operands) {
                  * bool => - (os)
                  *
                  */
-                if (isfalse(os.a_top[-1])) {
+                if (isfalse(os.a_top[-1]))
+                {
                     --os.a_top;
                     ++pcof(xs.a_top[-1])->pc_next;
                     goto stable_stacks_continue;
@@ -860,10 +925,13 @@ object *evaluate(object *code, int n_operands) {
                 /*
                  * bool => -
                  */
-                if (isfalse(os.a_top[-1])) {
+                if (isfalse(os.a_top[-1]))
+                {
                     ++pcof(xs.a_top[-1])->pc_next;
                     o = *pcof(xs.a_top[-1])->pc_next++;
-                } else {
+                }
+                else
+                {
                     o = *pcof(xs.a_top[-1])->pc_next++;
                     ++pcof(xs.a_top[-1])->pc_next;
                 }
@@ -877,26 +945,28 @@ object *evaluate(object *code, int n_operands) {
                  * bool => - (os)
                  *      => [o_break] (xs)
                  */
-                if (isfalse(os.a_top[-1])) {
+                if (isfalse(os.a_top[-1]))
+                {
                     --os.a_top;
                     continue;
                 }
                 --os.a_top;
                 goto do_break;
 
-             case OP_IFNOTBREAK:
+            case OP_IFNOTBREAK:
                 /*
                  * bool => - (os)
                  *      => [o_break] (xs)
                  */
-                if (!isfalse(os.a_top[-1])) {
+                if (!isfalse(os.a_top[-1]))
+                {
                     --os.a_top;
                     continue;
                 }
                 --os.a_top;
                 /*FALLTHROUGH*/
             case OP_BREAK:
-            do_break:
+do_break:
                 /*
                  * Pop the execution stack until a looper or switcher
                  * is found and disgard it (and the thing under it,
@@ -904,21 +974,29 @@ object *evaluate(object *code, int n_operands) {
                  * Oh, and forall as well.
                  */
                 {
-                    object  **s;
+                    object **s;
 
-                    for (s = xs.a_top; s > xs.a_base + 1; --s) {
-                        if (iscatcher(s[-1])) {
-                            if (s[-1]->hasflag(CF_CRIT_SECT)) {
+                    for (s = xs.a_top; s > xs.a_base + 1; --s)
+                    {
+                        if (iscatcher(s[-1]))
+                        {
+                            if (s[-1]->hasflag(CF_CRIT_SECT))
+                            {
                                 --ex->x_critsect;
                                 exec_count = 1;
                             }
-                            else if (s[-1]->hasflag(CF_EVAL_BASE)) {
+                            else if (s[-1]->hasflag(CF_EVAL_BASE))
+                            {
                                 break;
                             }
-                        } else if (s[-1] == &o_looper || s[-1] == &o_switcher) {
+                        }
+                        else if (s[-1] == &o_looper || s[-1] == &o_switcher)
+                        {
                             xs.a_top = s - 2;
                             goto stable_stacks_continue;
-                        } else if (isforall(s[-1])) {
+                        }
+                        else if (isforall(s[-1]))
+                        {
                             xs.a_top = s - 1;
                             goto stable_stacks_continue;
                         }
@@ -932,9 +1010,10 @@ object *evaluate(object *code, int n_operands) {
                  * bool obj => bool (os) OR pc (xs)
                  */
                 {
-                    int         c;
+                    int c;
 
-                    if ((c = !isfalse(os.a_top[-2])) == opof(o)->op_code) {
+                    if ((c = !isfalse(os.a_top[-2])) == opof(o)->op_code)
+                    {
                         /*
                          * Have to test next part of the condition.
                          */
@@ -958,19 +1037,24 @@ object *evaluate(object *code, int n_operands) {
                  * Pop the execution stack until a looper is found.
                  */
                 {
-                    object   **s;
+                    object **s;
 
-                    for (s = xs.a_top; s > xs.a_base + 1; --s) {
-                        if (iscatcher(s[-1])) {
-                            if (s[-1]->hasflag(CF_EVAL_BASE)) {
+                    for (s = xs.a_top; s > xs.a_base + 1; --s)
+                    {
+                        if (iscatcher(s[-1]))
+                        {
+                            if (s[-1]->hasflag(CF_EVAL_BASE))
+                            {
                                 break;
                             }
-                            if (s[-1]->hasflag(CF_CRIT_SECT)) {
+                            if (s[-1]->hasflag(CF_CRIT_SECT))
+                            {
                                 --ex->x_critsect;
                                 exec_count = 1;
                             }
                         }
-                        if (s[-1] == &o_looper || isforall(s[-1])) {
+                        if (s[-1] == &o_looper || isforall(s[-1]))
+                        {
                             xs.a_top = s;
                             goto stable_stacks_continue;
                         }
@@ -1047,8 +1131,10 @@ object *evaluate(object *code, int n_operands) {
                 {
                     slot *sl;
 
-                    if ((sl = find_raw_slot(mapof(os.a_top[-1]), os.a_top[-3]))->sl_key == nullptr) {
-                        if ((sl = find_raw_slot(mapof(os.a_top[-1]), &o_mark))->sl_key == nullptr) {
+                    if ((sl = find_raw_slot(mapof(os.a_top[-1]), os.a_top[-3]))->sl_key == nullptr)
+                    {
+                        if ((sl = find_raw_slot(mapof(os.a_top[-1]), &o_mark))->sl_key == nullptr)
+                        {
                             /*
                              * No matching case, no default. Pop everything off and
                              * continue;
@@ -1066,25 +1152,19 @@ object *evaluate(object *code, int n_operands) {
                 }
                 goto stable_stacks_continue;
 
-            case OP_CRITSECT:
+            case OP_CRITSECT: {
+                *xs.a_top = new_catcher(nullptr, (os.a_top - os.a_base) - 1, vs.a_top - vs.a_base, CF_CRIT_SECT);
+                if (*xs.a_top == nullptr)
                 {
-                    *xs.a_top = new_catcher(
-                        nullptr,
-                        (os.a_top - os.a_base) - 1,
-                        vs.a_top - vs.a_base,
-                        CF_CRIT_SECT
-                    );
-                    if (*xs.a_top == nullptr) {
-                        goto fail;
-                    }
-                    ++xs.a_top;
-                    set_pc(arrayof(os.a_top[-1]), xs.a_top);
-                    ++xs.a_top;
-                    --os.a_top;
-                    ++ex->x_critsect;
+                    goto fail;
                 }
+                ++xs.a_top;
+                set_pc(arrayof(os.a_top[-1]), xs.a_top);
+                ++xs.a_top;
+                --os.a_top;
+                ++ex->x_critsect;
+            }
                 continue;
-
 
             case OP_WAITFOR:
                 /*
@@ -1103,9 +1183,10 @@ object *evaluate(object *code, int n_operands) {
             case OP_BINOP:
             case OP_BINOP_FOR_TEMP:
 #ifndef BINOPFUNC
-#include        "binop.h"
+#include "binop.h"
 #else
-                if (op_binop(o)) {
+                if (op_binop(o))
+                {
                     goto fail;
                 }
 #endif
@@ -1117,62 +1198,62 @@ object *evaluate(object *code, int n_operands) {
             continue;
         }
 
-    fail:
+fail : {
+    catcher *c;
+
+    if (!ici_error)
+    {
+        set_error("error");
+    }
+    if (UNLIKELY(debug_active && !debug_ignore_err))
+    {
+        debugger->error_set(ici_error, ex->x_src);
+    }
+    for (;;)
+    {
+        if ((c = unwind()) == nullptr || c->hasflag(CF_EVAL_BASE))
         {
-            catcher *c;
-
-            if (!ici_error) {
-                set_error("error");
-            }
-            if (UNLIKELY(debug_active && !debug_ignore_err)) {
-                debugger->error_set(ici_error, ex->x_src);
-            }
-            for (;;) {
-                if ((c = unwind()) == nullptr || c->hasflag(CF_EVAL_BASE)) {
-                    goto badfail;
-                }
-                if (c->hasflag(CF_CRIT_SECT)) {
-                    --ex->x_critsect;
-                    exec_count = 1;
-                    continue;
-                }
-                break;
-            }
-            incref(c);
-            {
-                long lineno = ex->x_src->s_lineno; // set_val below requires a long
-                if
-                (
-                    set_val(objwsupof(vs.a_top[-1]), SS(_error), 's', ici_error)
-                    ||
-                    set_val(objwsupof(vs.a_top[-1]), SS(errorline), 'i', &lineno)
-                    ||
-                    set_val(objwsupof(vs.a_top[-1]), SS(errorfile), 'o', ex->x_src->s_filename)
-                )
-                {
-                    decref(c);
-                    goto badfail;
-                }
-            }
-            set_pc(arrayof(c->c_catcher), xs.a_top);
-            ++xs.a_top;
-            decref(c);
-            continue;
-
-        badfail:
-            /*
-             * This is not such a useful place to hop into the debugger on
-             * error, because we have already unwound the stack. So the user's
-             * scope for debugging is very limited. But if it was earlier, we
-             * would be breaking on every type of error, even caught ones.
-             */
-            if (UNLIKELY(debug_active && !debug_ignore_err)) {
-                debugger->error_uncaught(ici_error, ex->x_src);
-            }
-            expand_error(ex->x_src->s_lineno, ex->x_src->s_filename);
-            --ex->x_n_engine_recurse;
-            return nullptr;
+            goto badfail;
         }
+        if (c->hasflag(CF_CRIT_SECT))
+        {
+            --ex->x_critsect;
+            exec_count = 1;
+            continue;
+        }
+        break;
+    }
+    incref(c);
+    {
+        long lineno = ex->x_src->s_lineno; // set_val below requires a long
+        if (set_val(objwsupof(vs.a_top[-1]), SS(_error), 's', ici_error) ||
+            set_val(objwsupof(vs.a_top[-1]), SS(errorline), 'i', &lineno) ||
+            set_val(objwsupof(vs.a_top[-1]), SS(errorfile), 'o', ex->x_src->s_filename))
+        {
+            decref(c);
+            goto badfail;
+        }
+    }
+    set_pc(arrayof(c->c_catcher), xs.a_top);
+    ++xs.a_top;
+    decref(c);
+    continue;
+
+badfail:
+    /*
+     * This is not such a useful place to hop into the debugger on
+     * error, because we have already unwound the stack. So the user's
+     * scope for debugging is very limited. But if it was earlier, we
+     * would be breaking on every type of error, even caught ones.
+     */
+    if (UNLIKELY(debug_active && !debug_ignore_err))
+    {
+        debugger->error_uncaught(ici_error, ex->x_src);
+    }
+    expand_error(ex->x_src->s_lineno, ex->x_src->s_filename);
+    --ex->x_n_engine_recurse;
+    return nullptr;
+}
     }
 }
 
@@ -1200,20 +1281,14 @@ object *eval(str *name)
 size_t exec_type::mark(object *o)
 {
     auto x = execof(o);
-    return type::mark(o)
-        + mark_optional(x->x_xs)
-        + mark_optional(x->x_os)
-        + mark_optional(x->x_vs)
-        + mark_optional(x->x_src)
-        + mark_optional(x->x_pc_closet)
-        + mark_optional(x->x_os_temp_cache)
-        + mark_optional(x->x_waitfor)
-        + mark_optional(x->x_result);
+    return type::mark(o) + mark_optional(x->x_xs) + mark_optional(x->x_os) + mark_optional(x->x_vs) +
+           mark_optional(x->x_src) + mark_optional(x->x_pc_closet) + mark_optional(x->x_os_temp_cache) +
+           mark_optional(x->x_waitfor) + mark_optional(x->x_result);
 }
 
 void exec_type::free(object *o)
 {
-    exec *x;
+    exec  *x;
     exec **xp;
 
     for (xp = &execs; (x = *xp) != nullptr; xp = &x->x_next)
@@ -1238,18 +1313,23 @@ object *exec_type::fetch(object *o, object *k)
     exec *x;
 
     x = execof(o);
-    if (k == SS(_error)) {
-        if (x->x_error == nullptr) {
+    if (k == SS(_error))
+    {
+        if (x->x_error == nullptr)
+        {
             return null;
         }
         str *s = new_str_nul_term(x->x_error);
-        if (s != nullptr) {
+        if (s != nullptr)
+        {
             decref(s);
         }
         return s;
     }
-    if (k == SS(result)) {
-        switch (x->x_state) {
+    if (k == SS(result))
+    {
+        switch (x->x_state)
+        {
         case XS_ACTIVE:
             return null;
 
@@ -1257,23 +1337,30 @@ object *exec_type::fetch(object *o, object *k)
             return x->x_result;
 
         case XS_FAILED:
-            set_error("%s", x->x_result == nullptr  ? "failed" : stringof(x->x_result)->s_chars);
+            set_error("%s", x->x_result == nullptr ? "failed" : stringof(x->x_result)->s_chars);
             return nullptr;
 
         default:
             assert(0);
         }
-    } else if (k == SS(status)) {
-        switch (x->x_state) {
-        case XS_ACTIVE:     return SS(active);
-        case XS_RETURNED:   return SS(finished);
-        case XS_FAILED:     return SS(failed);
-        default:            assert(0);
+    }
+    else if (k == SS(status))
+    {
+        switch (x->x_state)
+        {
+        case XS_ACTIVE:
+            return SS(active);
+        case XS_RETURNED:
+            return SS(finished);
+        case XS_FAILED:
+            return SS(failed);
+        default:
+            assert(0);
         }
     }
     return null;
 }
 
-op    o_quote{OP_QUOTE};
+op o_quote{OP_QUOTE};
 
 } // namespace ici

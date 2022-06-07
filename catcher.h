@@ -18,21 +18,28 @@ namespace ici
 
 #include "object.h"
 
-struct catcher : object {
+struct catcher : object
+{
     object  *c_catcher;
-    uint32_t c_odepth;       /* Operand stack depth. */
-    uint32_t c_vdepth;       /* Variable stack depth. */
+    uint32_t c_odepth; /* Operand stack depth. */
+    uint32_t c_vdepth; /* Variable stack depth. */
 };
 
-inline catcher *catcherof(object *o) { return o->as<catcher>(); }
-inline bool iscatcher(object *o) { return o->hastype(TC_CATCHER); }
+inline catcher *catcherof(object *o)
+{
+    return o->as<catcher>();
+}
+inline bool iscatcher(object *o)
+{
+    return o->hastype(TC_CATCHER);
+}
 
 /*
  * Flags set stored in the upper nibble of o_flags (which is
  * allowed to be used by objects).
  */
-constexpr int CF_EVAL_BASE = 0x20;    /* evaluate should return. */
-constexpr int CF_CRIT_SECT = 0x40;    /* Critical section guard. */
+constexpr int CF_EVAL_BASE = 0x20; /* evaluate should return. */
+constexpr int CF_CRIT_SECT = 0x40; /* Critical section guard. */
 
 /*
  * The following portion of this file exports to ici.h. --ici.h-start--
@@ -44,10 +51,13 @@ constexpr int CF_CRIT_SECT = 0x40;    /* Critical section guard. */
 
 class catcher_type : public type
 {
-public:
-    catcher_type() : type("catcher", sizeof (struct catcher)) {}
+  public:
+    catcher_type()
+        : type("catcher", sizeof(struct catcher))
+    {
+    }
     size_t mark(object *o) override;
-    void free(object *o) override;
+    void   free(object *o) override;
 };
 
 } // namespace ici

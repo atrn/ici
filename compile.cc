@@ -1,10 +1,10 @@
 #define ICI_CORE
-#include "fwd.h"
-#include "parse.h"
 #include "array.h"
-#include "op.h"
-#include "null.h"
+#include "fwd.h"
 #include "int.h"
+#include "null.h"
+#include "op.h"
+#include "parse.h"
 #include "str.h"
 #include "userop.h"
 
@@ -24,7 +24,7 @@ static object *binops_temps[BINOP_MAX + 1];
  */
 static object *new_binop(int op, int why)
 {
-    object           *o;
+    object *o;
 
     op = t_subtype(op);
     if (why != FOR_TEMP)
@@ -70,52 +70,58 @@ static object *new_binop(int op, int why)
  * Compile the expression into the code array, for the reason given.
  * Returns 1 on failure, 0 on success.
  */
-int compile_expr(array *a, expr *e, int why) {
+int compile_expr(array *a, expr *e, int why)
+{
 
-#define NOTLV(why)      ((why) == FOR_LVALUE ? FOR_VALUE : (why))
-#define NOTTEMP(why)    ((why) == FOR_TEMP ? FOR_VALUE : (why))
+#define NOTLV(why) ((why) == FOR_LVALUE ? FOR_VALUE : (why))
+#define NOTTEMP(why) ((why) == FOR_TEMP ? FOR_VALUE : (why))
 
-    if (a->push_check()) {
+    if (a->push_check())
+    {
         return 1;
     }
-    if (t_type(e->e_what) == T_BINOP && e->e_arg[1] != nullptr) {
-        if (e->e_what == T_COMMA) {
-            if (compile_expr(a, e->e_arg[0], FOR_EFFECT)) {
+    if (t_type(e->e_what) == T_BINOP && e->e_arg[1] != nullptr)
+    {
+        if (e->e_what == T_COMMA)
+        {
+            if (compile_expr(a, e->e_arg[0], FOR_EFFECT))
+            {
                 return 1;
             }
-            if (compile_expr(a, e->e_arg[1], why)) {
+            if (compile_expr(a, e->e_arg[1], why))
+            {
                 return 1;
             }
             return 0;
         }
-        if (e->e_what == T_QUESTION) {
+        if (e->e_what == T_QUESTION)
+        {
             ref<array> a1;
             ref<array> a2;
 
-            if (e->e_arg[1]->e_what != T_COLON) {
+            if (e->e_arg[1]->e_what != T_COLON)
+            {
                 return set_error("syntax error in \"? :\" use");
             }
-            if (compile_expr(a, e->e_arg[0], FOR_VALUE)) {
+            if (compile_expr(a, e->e_arg[0], FOR_VALUE))
+            {
                 return 1;
             }
-            if ((a1 = new_array()) == nullptr) {
+            if ((a1 = new_array()) == nullptr)
+            {
                 return 1;
             }
-            if (compile_expr(a1, e->e_arg[1]->e_arg[0], why) || a1->push_check()) {
+            if (compile_expr(a1, e->e_arg[1]->e_arg[0], why) || a1->push_check())
+            {
                 return 1;
             }
             a1->push(&o_end);
-            if ((a2 = new_array()) == nullptr) {
+            if ((a2 = new_array()) == nullptr)
+            {
                 return 1;
             }
-            if
-            (
-                compile_expr(a2, e->e_arg[1]->e_arg[1], why)
-                ||
-                a2->push_check()
-                ||
-                a->push_check(3)
-            ) {
+            if (compile_expr(a2, e->e_arg[1]->e_arg[1], why) || a2->push_check() || a->push_check(3))
+            {
                 return 1;
             }
             a2->push(&o_end);
@@ -124,18 +130,25 @@ int compile_expr(array *a, expr *e, int why) {
             a->push(a2.release(with_decref));
             return 0;
         }
-        if (e->e_what == T_LESSEQGRT) {
-            if (compile_expr(a, e->e_arg[0], FOR_LVALUE)) {
+        if (e->e_what == T_LESSEQGRT)
+        {
+            if (compile_expr(a, e->e_arg[0], FOR_LVALUE))
+            {
                 return 1;
             }
-            if (compile_expr(a, e->e_arg[1], FOR_LVALUE)) {
+            if (compile_expr(a, e->e_arg[1], FOR_LVALUE))
+            {
                 return 1;
             }
-            if (a->push_check()) {
+            if (a->push_check())
+            {
                 return 1;
             }
             auto o = new_op(nullptr, OP_SWAP, NOTTEMP(why));
-            if (!o) return 1;
+            if (!o)
+            {
+                return 1;
+            }
             a->push(o, with_decref);
             return 0;
         }
@@ -161,7 +174,10 @@ int compile_expr(array *a, expr *e, int why) {
                     return 1;
                 }
                 auto o = new_op(nullptr, OP_ASSIGNLOCALVAR, NOTTEMP(why));
-                if (!o) return 1;
+                if (!o)
+                {
+                    return 1;
+                }
                 a->push(o, with_decref);
                 return 0;
             }
@@ -176,7 +192,10 @@ int compile_expr(array *a, expr *e, int why) {
                     return 1;
                 }
                 auto o = new_op(nullptr, OP_ASSIGN_TO_NAME, NOTTEMP(why));
-                if (!o) return 1;
+                if (!o)
+                {
+                    return 1;
+                }
                 a->push(o, with_decref);
                 a->push(e->e_arg[0]->e_obj);
                 return 0;
@@ -194,7 +213,10 @@ int compile_expr(array *a, expr *e, int why) {
                 return 1;
             }
             auto o = new_op(nullptr, e->e_what == T_EQ ? OP_ASSIGN : OP_ASSIGNLOCAL, NOTTEMP(why));
-            if (!o) return 1;
+            if (!o)
+            {
+                return 1;
+            }
             a->push(o, with_decref);
             return 0;
         }
@@ -221,10 +243,16 @@ int compile_expr(array *a, expr *e, int why) {
                 return 1;
             }
             auto o = new_binop(e->e_what, FOR_VALUE);
-            if (!o) return 1;
+            if (!o)
+            {
+                return 1;
+            }
             a->push(o);
             o = new_op(nullptr, OP_ASSIGN, NOTTEMP(why));
-            if (!o) return 1;
+            if (!o)
+            {
+                return 1;
+            }
             a->push(o, with_decref);
             return 0;
         }
@@ -234,7 +262,7 @@ int compile_expr(array *a, expr *e, int why) {
         }
         if (e->e_what == T_ANDAND || e->e_what == T_BARBAR)
         {
-            array    *a1;
+            array *a1;
 
             if (compile_expr(a, e->e_arg[0], FOR_VALUE))
             {
@@ -244,14 +272,7 @@ int compile_expr(array *a, expr *e, int why) {
             {
                 return 1;
             }
-            if
-            (
-                compile_expr(a1, e->e_arg[1], FOR_VALUE)
-                ||
-                a1->push_check(3)
-                ||
-                a->push_check(3)
-            )
+            if (compile_expr(a1, e->e_arg[1], FOR_VALUE) || a1->push_check(3) || a->push_check(3))
             {
                 decref(a1);
                 return 1;
@@ -312,36 +333,30 @@ int compile_expr(array *a, expr *e, int why) {
             }
             break;
 
-        case T_DOLLAR:
-            {
-                array *a1;
+        case T_DOLLAR: {
+            array *a1;
 
-                if ((a1 = new_array()) == nullptr)
-                {
-                    return 1;
-                }
-                if (why == FOR_TEMP)
-                {
-                    why = FOR_VALUE;
-                }
-                if
-                (
-                    compile_expr(a1, e->e_arg[0], NOTLV(why))
-                    ||
-                    a1->push_check()
-                )
-                {
-                    decref(a1);
-                    return 1;
-                }
-                a1->push(&o_end);
-                if ((e->e_obj = evaluate(a1, 0)) == nullptr)
-                {
-                    decref(a1);
-                    return 1;
-                }
-                decref(a1);
+            if ((a1 = new_array()) == nullptr)
+            {
+                return 1;
             }
+            if (why == FOR_TEMP)
+            {
+                why = FOR_VALUE;
+            }
+            if (compile_expr(a1, e->e_arg[0], NOTLV(why)) || a1->push_check())
+            {
+                decref(a1);
+                return 1;
+            }
+            a1->push(&o_end);
+            if ((e->e_obj = evaluate(a1, 0)) == nullptr)
+            {
+                decref(a1);
+                return 1;
+            }
+            decref(a1);
+        }
             /* Fall through. */
         case T_INT:
         case T_FLOAT:
@@ -409,10 +424,16 @@ int compile_expr(array *a, expr *e, int why) {
                 a->push(o_one);
                 {
                     op1 = new_binop(e->e_what == T_PLUSPLUS ? T_PLUS : T_MINUS, FOR_VALUE);
-                    if (!op1) return 1;
+                    if (!op1)
+                    {
+                        return 1;
+                    }
                     a->push(op1);
                     op2 = new_op(nullptr, OP_ASSIGN, FOR_EFFECT);
-                    if (!op2) return 1;
+                    if (!op2)
+                    {
+                        return 1;
+                    }
                     a->push(op2, with_decref);
                 }
             }
@@ -425,7 +446,7 @@ int compile_expr(array *a, expr *e, int why) {
                 {
                     return 1;
                 }
-            pluspluseffect:
+pluspluseffect:
                 if (a->push_check(4))
                 {
                     return 1;
@@ -433,10 +454,16 @@ int compile_expr(array *a, expr *e, int why) {
                 a->push(&o_dotkeep);
                 a->push(o_one);
                 op1 = new_binop(e->e_what == T_PLUSPLUS ? T_PLUS : T_MINUS, FOR_VALUE);
-                if (!op1) return 1;
+                if (!op1)
+                {
+                    return 1;
+                }
                 a->push(op1);
                 op2 = new_op(nullptr, OP_ASSIGN, NOTTEMP(why));
-                if (!op2) return 1;
+                if (!op2)
+                {
+                    return 1;
+                }
                 a->push(op2, with_decref);
                 return 0;
             }
@@ -461,7 +488,10 @@ int compile_expr(array *a, expr *e, int why) {
                 return 1;
             }
             op1 = new_binop(e->e_what, why);
-            if (!op1) break;
+            if (!op1)
+            {
+                break;
+            }
             a->push(op1);
             break;
 
@@ -476,7 +506,7 @@ int compile_expr(array *a, expr *e, int why) {
             {
                 return 1;
             }
-        unary_arith:
+unary_arith:
             if (why == FOR_EFFECT)
             {
                 break;
@@ -486,7 +516,10 @@ int compile_expr(array *a, expr *e, int why) {
                 return 1;
             }
             op1 = new_op(op_unary, 0, t_subtype(e->e_what));
-            if (!op1) return 1;
+            if (!op1)
+            {
+                return 1;
+            }
             a->push(op1, with_decref);
             break;
 
@@ -504,7 +537,10 @@ int compile_expr(array *a, expr *e, int why) {
                 return 1;
             }
             op1 = new_op(nullptr, OP_AT, 0);
-            if (!op1) return 1;
+            if (!op1)
+            {
+                return 1;
+            }
             a->push(op1, with_decref);
             break;
 
@@ -595,7 +631,10 @@ int compile_expr(array *a, expr *e, int why) {
                 return 1;
             }
             op1 = new_op(nullptr, OP_COLON, e->e_what == T_COLONCARET ? OPC_COLON_CARET : 0);
-            if (!op1) return 1;
+            if (!op1)
+            {
+                return 1;
+            }
             a->push(op1, with_decref);
             break;
 
@@ -618,7 +657,7 @@ int compile_expr(array *a, expr *e, int why) {
             {
                 return 1;
             }
-        dot2:
+dot2:
             if (compile_expr(a, e->e_arg[1], why != FOR_EFFECT ? FOR_VALUE : why))
             {
                 return 1;
@@ -663,74 +702,92 @@ int compile_expr(array *a, expr *e, int why) {
             break;
 
         case T_ONROUND: /* Function call. */
-            {
-                int   nargs;
-                expr  *e1;
+        {
+            int   nargs;
+            expr *e1;
 
+            /*
+             * First, code the arguments. Evaluated in right to
+             * left order. Also code the number of actuals.
+             */
+            nargs = 0;
+            for (e1 = e->e_arg[1]; e1 != nullptr; e1 = e1->e_arg[1])
+            {
+                if (compile_expr(a, e1->e_arg[0], FOR_VALUE))
+                {
+                    return 1;
+                }
+                ++nargs;
+            }
+            if (a->push_check())
+            {
+                return 1;
+            }
+            if ((*a->a_top = new_int(nargs)) == nullptr)
+            {
+                return 1;
+            }
+            decref((*a->a_top));
+            ++a->a_top;
+            if (e->e_arg[0]->e_what == T_PRIMARYCOLON || e->e_arg[0]->e_what == T_COLONCARET)
+            {
                 /*
-                 * First, code the arguments. Evaluated in right to
-                 * left order. Also code the number of actuals.
+                 * Special optimisation. The call is of the form
+                 *
+                 *   this:that(...) or this:^that()
+                 *
+                 * Use the direct method call to avoid ever forming
+                 * the method object.
                  */
-                nargs = 0;
-                for (e1 = e->e_arg[1]; e1 != nullptr; e1 = e1->e_arg[1]) {
-                    if (compile_expr(a, e1->e_arg[0], FOR_VALUE)) {
-                        return 1;
-                    }
-                    ++nargs;
-                }
-                if (a->push_check()) {
+                if (compile_expr(a, e->e_arg[0]->e_arg[0], FOR_VALUE))
+                {
                     return 1;
                 }
-                if ((*a->a_top = new_int(nargs)) == nullptr) {
+                if (compile_expr(a, e->e_arg[0]->e_arg[1], FOR_VALUE))
+                {
                     return 1;
                 }
-                decref((*a->a_top));
-                ++a->a_top;
-                if (e->e_arg[0]->e_what == T_PRIMARYCOLON || e->e_arg[0]->e_what == T_COLONCARET) {
-                    /*
-                     * Special optimisation. The call is of the form
-                     *
-                     *   this:that(...) or this:^that()
-                     *
-                     * Use the direct method call to avoid ever forming
-                     * the method object.
-                     */
-                    if (compile_expr(a, e->e_arg[0]->e_arg[0], FOR_VALUE)) {
-                        return 1;
-                    }
-                    if (compile_expr(a, e->e_arg[0]->e_arg[1], FOR_VALUE)) {
-                        return 1;
-                    }
-                    if (a->push_check(2)) {
-                        return 1;
-                    }
-                    if (e->e_arg[0]->e_what == T_COLONCARET) {
-                        a->push(&o_super_call);
-                    } else {
-                        a->push(&o_method_call);
-                    }
-                } else {
-                    /*
-                     * Normal case. Code the thing being called and a call
-                     * operation.
-                     */
-                    if (compile_expr(a, e->e_arg[0], FOR_VALUE)) {
-                        return 1;
-                    }
-                    if (a->push_check(2)) {
-                        return 1;
-                    }
-                    a->push(&o_call);
+                if (a->push_check(2))
+                {
+                    return 1;
                 }
-                if (why == FOR_EFFECT) {
-                    a->push(&o_pop);
+                if (e->e_arg[0]->e_what == T_COLONCARET)
+                {
+                    a->push(&o_super_call);
+                }
+                else
+                {
+                    a->push(&o_method_call);
                 }
             }
-            break;
+            else
+            {
+                /*
+                 * Normal case. Code the thing being called and a call
+                 * operation.
+                 */
+                if (compile_expr(a, e->e_arg[0], FOR_VALUE))
+                {
+                    return 1;
+                }
+                if (a->push_check(2))
+                {
+                    return 1;
+                }
+                a->push(&o_call);
+            }
+            if (why == FOR_EFFECT)
+            {
+                a->push(&o_pop);
+            }
+        }
+        break;
         }
     }
-    if (why == FOR_LVALUE) {
-        if (a->push_check()) {
+    if (why == FOR_LVALUE)
+    {
+        if (a->push_check())
+        {
             return 1;
         }
         a->push(&o_mklvalue);
@@ -748,7 +805,7 @@ void uninit_compile()
 {
     int i;
 
-    for (i = 0; i <= BINOP_MAX; ++ i)
+    for (i = 0; i <= BINOP_MAX; ++i)
     {
         if (binops[i] != nullptr)
         {

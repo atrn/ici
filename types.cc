@@ -1,19 +1,19 @@
 #define ICI_CORE
-#include "fwd.h"
 #include "types.h"
 #include "array.h"
 #include "buf.h"
 #include "catcher.h"
+#include "cfunc.h"
 #include "channel.h"
 #include "exec.h"
 #include "file.h"
 #include "float.h"
 #include "forall.h"
-#include "vec.h"
 #include "func.h"
-#include "cfunc.h"
+#include "fwd.h"
 #include "handle.h"
 #include "int.h"
+#include "map.h"
 #include "mark.h"
 #include "mem.h"
 #include "method.h"
@@ -26,7 +26,7 @@
 #include "set.h"
 #include "src.h"
 #include "str.h"
-#include "map.h"
+#include "vec.h"
 
 namespace ici
 {
@@ -36,43 +36,62 @@ namespace ici
  * core. NB: The positions of these must exactly match the TC_* values
  * in object.h.
  */
-type *types[max_types] =
-{
-    nullptr,
-    instanceof<pc_type>(),
-    instanceof<src_type>(),
-    instanceof<parse_type>(),
-    instanceof<op_type>(),
-    instanceof<string_type>(),
-    instanceof<catcher_type>(),
-    instanceof<forall_type>(),
-    instanceof<int_type>(),
-    instanceof<float_type>(),
-    instanceof<regexp_type>(),
-    instanceof<ptr_type>(),
-    instanceof<array_type>(),
-    instanceof<map_type>(),
-    instanceof<set_type>(),
-    instanceof<exec_type>(),
-    instanceof<file_type>(),
-    instanceof<func_type>(),
-    instanceof<cfunc_type>(),
-    instanceof<method_type>(),
-    instanceof<mark_type>(),
-    instanceof<null_type>(),
-    instanceof<handle_type>(),
-    instanceof<mem_type>(),
+type *types[max_types] = {nullptr,
+                          instanceof
+                          <pc_type>(),
+                          instanceof
+                          <src_type>(),
+                          instanceof
+                          <parse_type>(),
+                          instanceof
+                          <op_type>(),
+                          instanceof
+                          <string_type>(),
+                          instanceof
+                          <catcher_type>(),
+                          instanceof
+                          <forall_type>(),
+                          instanceof
+                          <int_type>(),
+                          instanceof
+                          <float_type>(),
+                          instanceof
+                          <regexp_type>(),
+                          instanceof
+                          <ptr_type>(),
+                          instanceof
+                          <array_type>(),
+                          instanceof
+                          <map_type>(),
+                          instanceof
+                          <set_type>(),
+                          instanceof
+                          <exec_type>(),
+                          instanceof
+                          <file_type>(),
+                          instanceof
+                          <func_type>(),
+                          instanceof
+                          <cfunc_type>(),
+                          instanceof
+                          <method_type>(),
+                          instanceof
+                          <mark_type>(),
+                          instanceof
+                          <null_type>(),
+                          instanceof
+                          <handle_type>(),
+                          instanceof
+                          <mem_type>(),
 #ifndef NOPROFILE
-    instanceof<profilecall_type>(),
+                          instanceof
+                          <profilecall_type>(),
 #else
-    nullptr,
+                          nullptr,
 #endif
-    nullptr, // TC_REF is special, a reserved type code with no actual type
-    instanceof<channel_type>(),
-    instanceof<vec32_type>(),
-    instanceof<vec64_type>(),
-    nullptr
-};
+                          nullptr, // TC_REF is special, a reserved type code with no actual type
+                          instanceof
+                          <channel_type>(), instanceof <vec32_type>(), instanceof <vec64_type>(), nullptr};
 
 int num_types = TC_MAX_CORE + 1;
 
@@ -102,7 +121,8 @@ void uninit_types()
 {
     for (type **t = types; t - types < num_types; ++t)
     {
-        if (*t != nullptr) {
+        if (*t != nullptr)
+        {
             (*t)->uninit();
         }
     }

@@ -13,15 +13,15 @@ namespace ici
  * When we reach the limit, a garbage collection is triggered (which
  * will presumably reduce ici_mem and re-evaluate the limit).
  */
-size_t                  ici_mem;
-size_t                  ici_mem_limit;
+size_t ici_mem;
+size_t ici_mem_limit;
 
 /*
  * A count and estimated total size of outstanding allocs done through
  * ici_alloc and yet freed with ici_free.
  */
-size_t                  ici_n_allocs;
-size_t                  ici_alloc_mem;
+size_t ici_n_allocs;
+size_t ici_alloc_mem;
 
 #if !ICI_ALLALLOC
 
@@ -32,28 +32,28 @@ size_t                  ici_alloc_mem;
  */
 struct chunk
 {
-    char                c_data[4088]; // FIXME: assumes 64-bit pointer
-    chunk              *c_next;
+    char   c_data[4088]; // FIXME: assumes 64-bit pointer
+    chunk *c_next;
 };
 
 /*
  * The base pointers of our four fast free lists.
  */
-char                    *ici_flists[4];
+char *ici_flists[4];
 
 /*
  * The current next available block, and limits, within each of
  * the allocation chunks for each of the size categories we have
  * for small objects.
  */
-static char             *mem_next[4];
-static char             *mem_limit[4];
+static char *mem_next[4];
+static char *mem_limit[4];
 
 /*
  * The global list of all chunks of small dense objects we have allocated.
  * We just keep this so we can free them all on interpreter shutdown.
  */
-static chunk            *ici_chunks;
+static chunk *ici_chunks;
 
 #endif /* ICI_ALLALLOC */
 
@@ -87,9 +87,9 @@ constexpr size_t flist_index(size_t z)
  */
 void *ici_nalloc(size_t z)
 {
-    char                *r;
+    char *r;
 #if !ICI_ALLALLOC
-    size_t              fi;
+    size_t fi;
     // static char const   which_flist[] = {0, 1, 2, 2, 3, 3, 3, 3};
 #endif
 
@@ -111,7 +111,7 @@ void *ici_nalloc(size_t z)
     // }
     if (fi < (int)nels(ici_flists))
     {
-        char    **fp;
+        char **fp;
         int    cz;
         chunk *c;
 
@@ -138,11 +138,13 @@ void *ici_nalloc(size_t z)
         /*
          * Current chunk empty. Allocate another one.
          */
-        if ((c = (chunk *)malloc(sizeof (chunk))) == nullptr)
+        if ((c = (chunk *)malloc(sizeof(chunk))) == nullptr)
         {
             collect();
-            if ((c = (chunk *)malloc(sizeof (chunk))) == nullptr)
+            if ((c = (chunk *)malloc(sizeof(chunk))) == nullptr)
+            {
                 goto fail;
+            }
         }
         c->c_next = ici_chunks;
         ici_chunks = c;
@@ -158,7 +160,9 @@ void *ici_nalloc(size_t z)
     {
         collect();
         if ((r = (char *)malloc(z)) == nullptr)
+        {
             goto fail;
+        }
     }
     return r;
 
@@ -180,7 +184,7 @@ fail:
 void ici_nfree(void *p, size_t z)
 {
 #if !ICI_ALLALLOC
-    int                 fi;
+    int fi;
     // static char const   which_flist[] = {0, 1, 2, 2, 3, 3, 3, 3};
 #endif
 
@@ -223,7 +227,7 @@ void ici_nfree(void *p, size_t z)
  */
 void *ici_alloc(size_t z)
 {
-    void                *p;
+    void *p;
 
 #if ALLCOLLECT
     collect();
@@ -258,7 +262,7 @@ void *ici_alloc(size_t z)
  */
 void ici_free(void *p)
 {
-    ptrdiff_t           z;
+    ptrdiff_t z;
 
     /*
      * This makes a really dodgy attempt to track memory usage. Because

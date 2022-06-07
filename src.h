@@ -21,9 +21,14 @@ namespace ici
  */
 struct src : object
 {
-    src() : object(TC_SRC, 0, 1), s_lineno(0), s_filename(nullptr) {}
+    src()
+        : object(TC_SRC, 0, 1)
+        , s_lineno(0)
+        , s_filename(nullptr)
+    {
+    }
 
-    int s_lineno;
+    int  s_lineno;
     str *s_filename;
 };
 /*
@@ -35,8 +40,14 @@ struct src : object
  * --ici-api-- continued.
  */
 
-inline src *srcof(object *o) { return o->as<src>(); }
-inline bool issrc(object *o) { return o->hastype(TC_SRC); }
+inline src *srcof(object *o)
+{
+    return o->as<src>();
+}
+inline bool issrc(object *o)
+{
+    return o->hastype(TC_SRC);
+}
 
 /*
  * End of ici.h export. --ici.h-end--
@@ -44,10 +55,13 @@ inline bool issrc(object *o) { return o->hastype(TC_SRC); }
 
 class src_type : public type
 {
-public:
-    src_type() : type("src", sizeof (src)) {}
-    size_t mark(object *o) override;
-    int save(archiver *, object *) override;
+  public:
+    src_type()
+        : type("src", sizeof(src))
+    {
+    }
+    size_t  mark(object *o) override;
+    int     save(archiver *, object *) override;
     object *restore(archiver *) override;
 };
 

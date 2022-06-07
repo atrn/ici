@@ -9,8 +9,8 @@
 #ifndef ICI_ARCHIVE_H
 #define ICI_ARCHIVE_H
 
-#include "object.h"
 #include "file.h"
+#include "object.h"
 
 namespace ici
 {
@@ -21,7 +21,7 @@ int  f_archive_save(...);
 int  f_archive_restore(...);
 
 // HACK - endianess support needs re-think
-#if defined (__i386__) || defined (__x86_64__)
+#if defined(__i386__) || defined(__x86_64__)
 #define ICI_ARCHIVE_LITTLE_ENDIAN_HOST 1
 #endif
 
@@ -40,7 +40,7 @@ constexpr int O_ARCHIVE_ATOMIC = 0x80;
  */
 class archiver
 {
-public:
+  public:
     static int op_func_code(int (*fn)());
     static int (*op_func(int))();
 
@@ -61,9 +61,12 @@ public:
     ~archiver() = default;
     archiver(archiver &&) = delete;
     archiver(const archiver &) = delete;
-    archiver& operator=(const archiver &) = delete;
+    archiver &operator=(const archiver &) = delete;
 
-    inline objwsup *scope() const { return a_scope; }
+    inline objwsup *scope() const
+    {
+        return a_scope;
+    }
 
     /*
      *  Save the given object to the archiver's file.
@@ -79,19 +82,23 @@ public:
      */
     object *restore();
 
-    inline int read(void *buf, int len) {
+    inline int read(void *buf, int len)
+    {
         return a_file->read(buf, len) != len;
     }
 
-    inline int read(uint8_t *abyte) {
+    inline int read(uint8_t *abyte)
+    {
         return read(abyte, 1);
     }
 
-    inline int write(const void *buf, int len) {
+    inline int write(const void *buf, int len)
+    {
         return a_file->write(buf, len) != len;
     }
 
-    inline int write(uint8_t abyte) {
+    inline int write(uint8_t abyte)
+    {
         return write(&abyte, 1);
     }
 
@@ -107,21 +114,21 @@ public:
     int write(float);
     int write(double);
 
-    int record(object *, object *);
+    int     record(object *, object *);
     object *lookup(object *);
-    void remove(object *);
-    int save_name(object *);
-    int restore_name(object **);
-    int save_ref(object *);
+    void    remove(object *);
+    int     save_name(object *);
+    int     restore_name(object **);
+    int     save_ref(object *);
     object *restore_ref();
-    int push_name(str *);
-    int pop_name();
-    str *name_qualifier();
+    int     push_name(str *);
+    int     pop_name();
+    str    *name_qualifier();
 
-private:
-    file *  a_file;
-    objwsup *a_scope;
-    ref<map> a_sent;    // object -> 'name' (int)
+  private:
+    file      *a_file;
+    objwsup   *a_scope;
+    ref<map>   a_sent; // object -> 'name' (int)
     ref<array> a_names;
 };
 

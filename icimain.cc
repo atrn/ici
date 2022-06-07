@@ -1,13 +1,13 @@
 #define ICI_CORE
-#include "fwd.h"
-#include "ptr.h"
+#include "buf.h"
 #include "exec.h"
 #include "file.h"
-#include "null.h"
-#include "str.h"
-#include "map.h"
-#include "buf.h"
 #include "func.h"
+#include "fwd.h"
+#include "map.h"
+#include "null.h"
+#include "ptr.h"
+#include "str.h"
 #ifndef NOPROFILE
 #include "profile.h"
 #endif
@@ -33,13 +33,14 @@ namespace ici
  *
  * This --func-- forms part of the --ici-api--.
  */
-int main(int argc, char *argv[], bool enable_repl) {
+int main(int argc, char *argv[], bool enable_repl)
+{
     int         i;
     int         j;
     char       *s;
     const char *fmt;
     char       *arg0;
-    array      *av   = nullptr;
+    array      *av = nullptr;
     FILE       *stream;
     file       *f;
     int         help = 0;
@@ -55,19 +56,23 @@ int main(int argc, char *argv[], bool enable_repl) {
      * issue it if our argv[0] indicates we're running from some
      * sort of /bin.
      */
-    if (strstr(argv[0], "/bin/")) {
+    if (strstr(argv[0], "/bin/"))
+    {
         fprintf(stderr, "%s: THIS IS A DEBUG BUILD: %s\n", argv[0], version_string);
     }
 #endif
 
     if (init())
+    {
         goto fail;
+    }
 
     /*
      * If there are no actual arguments enter the repl if
      * its enabled.
      */
-    if (enable_repl && argc <= 1) {
+    if (enable_repl && argc <= 1)
+    {
         repl();
         return 0;
     }
@@ -78,26 +83,26 @@ int main(int argc, char *argv[], bool enable_repl) {
      * the array av.  NB: must be in sync with the second pass below.
      */
     if ((av = new_array(1)) == nullptr)
+    {
         goto fail;
+    }
     av->push(null); /* Leave room for argv[0]. */
     arg0 = nullptr;
 
-    if
-    (
-        argc > 1
-        &&
-        argv[1][0] != '-'
-#       ifdef WIN32
-            && argv[1][0] != '/'
-#       endif
+    if (argc > 1 && argv[1][0] != '-'
+#ifdef WIN32
+        && argv[1][0] != '/'
+#endif
     )
     {
         /*
          * Usage1: ici file [args...]
          */
         arg0 = argv[1];
-        for (i = 2; i < argc; ++i) {
-            if (av->push_checked(str_get_nul_term(argv[i]))) {
+        for (i = 2; i < argc; ++i)
+        {
+            if (av->push_checked(str_get_nul_term(argv[i])))
+            {
                 goto fail;
             }
         }
@@ -109,12 +114,10 @@ int main(int argc, char *argv[], bool enable_repl) {
          */
         for (i = 1; i < argc; ++i)
         {
-            if
-            (
-                argv[i][0] == '-'
-#               ifdef WIN32
-                    || argv[i][0] == '/'
-#               endif
+            if (argv[i][0] == '-'
+#ifdef WIN32
+                || argv[i][0] == '/'
+#endif
             )
             {
                 for (j = 1; argv[i][j] != '\0'; ++j)
@@ -127,18 +130,28 @@ int main(int argc, char *argv[], bool enable_repl) {
 
                     case 'm':
                         if (argv[i][++j] != '\0')
+                        {
                             s = &argv[i][j];
+                        }
                         else if (++i >= argc)
+                        {
                             goto usage;
+                        }
                         else
+                        {
                             s = argv[i];
+                        }
                         if ((av->a_base[0] = str_get_nul_term(s)) == nullptr)
+                        {
                             goto fail;
+                        }
                         break;
 
                     case '-':
-                        while (++i < argc) {
-                            if (av->push_checked(str_get_nul_term(argv[i]))) {
+                        while (++i < argc)
+                        {
+                            if (av->push_checked(str_get_nul_term(argv[i])))
+                            {
                                 goto fail;
                             }
                         }
@@ -148,15 +161,29 @@ int main(int argc, char *argv[], bool enable_repl) {
                     case 'l':
                     case 'e':
                         if (argv[i][++j] != '\0')
+                        {
                             arg0 = &argv[i][j];
+                        }
                         else if (++i >= argc)
+                        {
                             goto usage;
+                        }
                         else
+                        {
                             arg0 = argv[i];
+                        }
                         break;
 
-                    case '0': case '1': case '2': case '3': case '4':
-                    case '5': case '6': case '7': case '8': case '9':
+                    case '0':
+                    case '1':
+                    case '2':
+                    case '3':
+                    case '4':
+                    case '5':
+                    case '6':
+                    case '7':
+                    case '8':
+                    case '9':
                         continue;
 
                     case 'h':
@@ -170,7 +197,8 @@ int main(int argc, char *argv[], bool enable_repl) {
             }
             else
             {
-                if (av->push_checked(str_get_nul_term(argv[i]), with_decref)) {
+                if (av->push_checked(str_get_nul_term(argv[i]), with_decref))
+                {
                     goto fail;
                 }
             }
@@ -179,9 +207,13 @@ int main(int argc, char *argv[], bool enable_repl) {
     if (av->a_base[0] == null)
     {
         if (arg0 == nullptr)
+        {
             arg0 = argv[0];
+        }
         if ((av->a_base[0] = str_get_nul_term(arg0)) == nullptr)
+        {
             goto fail;
+        }
     }
     else
     {
@@ -196,13 +228,11 @@ int main(int argc, char *argv[], bool enable_repl) {
 
     {
         long l = av->a_top - av->a_base;
-        if
-        (
-            set_val(objwsupof(vs.a_top[-1])->o_super, SS(argv), 'o', av)
-            ||
-            set_val(objwsupof(vs.a_top[-1])->o_super, SS(argc), 'i', &l)
-        )
+        if (set_val(objwsupof(vs.a_top[-1])->o_super, SS(argv), 'o', av) ||
+            set_val(objwsupof(vs.a_top[-1])->o_super, SS(argc), 'i', &l))
+        {
             goto fail;
+        }
         decref(av);
         av = nullptr;
     }
@@ -210,22 +240,19 @@ int main(int argc, char *argv[], bool enable_repl) {
     /*
      * Pass two over the arguments; actually parse the modules.
      */
-    if
-    (
-        argc > 1
-        &&
-        argv[1][0] != '-'
-#       ifdef WIN32
-        &&
-        argv[1][0] != '/'
-#       endif
+    if (argc > 1 && argv[1][0] != '-'
+#ifdef WIN32
+        && argv[1][0] != '/'
+#endif
     )
     {
-        if ((stream = fopen(argv[1], "r")) == nullptr) {
+        if ((stream = fopen(argv[1], "r")) == nullptr)
+        {
             set_error("%s: Open failed - %s", argv[1], strerror(errno));
             goto fail;
         }
-        if (parse_file(argv[1], (char *)stream, stdio_ftype)) {
+        if (parse_file(argv[1], (char *)stream, stdio_ftype))
+        {
             goto fail;
         }
     }
@@ -233,18 +260,20 @@ int main(int argc, char *argv[], bool enable_repl) {
     {
         for (i = 1; i < argc; ++i)
         {
-            if
-            (
-                argv[i][0] != '-'
-#               ifdef WIN32
-                    && argv[i][0] != '/'
-#               endif
+            if (argv[i][0] != '-'
+#ifdef WIN32
+                && argv[i][0] != '/'
+#endif
             )
+            {
                 continue;
+            }
             if (argv[i][1] == '\0')
             {
                 if (parse_file("stdin", (char *)stdin, stdio_ftype))
+                {
                     goto fail;
+                }
                 continue;
             }
             for (j = 1; argv[i][j] != '\0'; ++j)
@@ -257,40 +286,66 @@ int main(int argc, char *argv[], bool enable_repl) {
 
                 case 'e':
                     if (argv[i][++j] != '\0')
+                    {
                         s = &argv[i][j];
+                    }
                     else if (++i >= argc)
+                    {
                         goto usage;
+                    }
                     else
+                    {
                         s = argv[i];
+                    }
                     if ((f = sopen(s, strlen(s), nullptr)) == nullptr)
+                    {
                         goto fail;
+                    }
                     f->f_name = SS(empty_string);
                     if (parse_file(f, objwsupof(vs.a_top[-1])) < 0)
+                    {
                         goto fail;
+                    }
                     decref(f);
                     break;
 
                 case 'l':
                     if (argv[i][++j] != '\0')
+                    {
                         s = &argv[i][j];
+                    }
                     else if (++i >= argc)
+                    {
                         goto usage;
+                    }
                     else
+                    {
                         s = argv[i];
+                    }
                     if (call(SS(load), "s", s))
+                    {
                         goto fail;
+                    }
                     break;
 
                 case 'f':
                     fmt = "%s";
                     if (argv[i][++j] != '\0')
+                    {
                         s = &argv[i][j];
+                    }
                     else if (++i >= argc)
+                    {
                         goto usage;
+                    }
                     else
+                    {
                         s = argv[i];
+                    }
                     if (chkbuf(strlen(s) + strlen(fmt)))
+                    {
                         goto fail;
+                    }
                     sprintf(buf, fmt, s);
                     if ((stream = fopen(buf, "r")) == nullptr)
                     {
@@ -298,19 +353,30 @@ int main(int argc, char *argv[], bool enable_repl) {
                         goto fail;
                     }
                     if (parse_file(buf, (char *)stream, stdio_ftype))
+                    {
                         goto fail;
+                    }
                     break;
 
-                case '0': case '1': case '2': case '3': case '4':
-                case '5': case '6': case '7': case '8': case '9':
+                case '0':
+                case '1':
+                case '2':
+                case '3':
+                case '4':
+                case '5':
+                case '6':
+                case '7':
+                case '8':
+                case '9':
                     if ((stream = fdopen(argv[i][j] - '0', "r")) == nullptr)
                     {
-                        set_error("%s: Could not access file descriptor %d.",
-                            argv[0], argv[i][j] - '0');
+                        set_error("%s: Could not access file descriptor %d.", argv[0], argv[i][j] - '0');
                         goto fail;
                     }
                     if (parse_file(arg0, (char *)stream, stdio_ftype))
+                    {
                         goto fail;
+                    }
                     continue;
                 }
                 break;
@@ -318,14 +384,17 @@ int main(int argc, char *argv[], bool enable_repl) {
         }
     }
 
-    if (UNLIKELY(debug_active)) {
+    if (UNLIKELY(debug_active))
+    {
         debugger->finished();
     }
 
 #ifndef NOPROFILE
     /* Make sure any profiling that started while parsing has finished. */
     if (profile_active)
+    {
         profile_return();
+    }
 #endif
 
 #ifndef NDEBUG
@@ -367,7 +436,9 @@ usage:
         fprintf(stderr, "See 'The ICI Programming Language' (ici.pdf from ici.sf.net).\n");
     }
     if (av != nullptr)
+    {
         decref(av);
+    }
     uninit();
     set_error("invalid command line arguments");
     return !help;

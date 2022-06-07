@@ -1,6 +1,6 @@
 #define ICI_CORE
-#include "exec.h"
 #include "pc.h"
+#include "exec.h"
 
 namespace ici
 {
@@ -15,7 +15,9 @@ pc *new_pc()
     pc *p;
 
     if ((p = ici_talloc(pc)) == nullptr)
+    {
         return nullptr;
+    }
     set_tfnz(p, TC_PC, 0, 0, 0);
     p->pc_code = nullptr;
     rego(p);

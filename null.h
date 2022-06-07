@@ -13,11 +13,20 @@ namespace ici
  */
 struct null : object
 {
-    null() : object{TC_NULL, O_ATOM, 1, 0} {}
+    null()
+        : object{TC_NULL, O_ATOM, 1, 0}
+    {
+    }
 };
 
-inline struct null *nullof(object *o) { return o->as<struct null>(); }
-inline bool isnull(object *o) { return o == null; }
+inline struct null *nullof(object *o)
+{
+    return o->as<struct null>();
+}
+inline bool isnull(object *o)
+{
+    return o == null;
+}
 
 /*
  * End of ici.h export. --ici.h-end--
@@ -25,10 +34,13 @@ inline bool isnull(object *o) { return o == null; }
 
 class null_type : public type
 {
-public:
-    null_type() : type("NULL", sizeof (struct null)) {}
-    void free(object *) override;
-    int save(archiver *, object *) override;
+  public:
+    null_type()
+        : type("NULL", sizeof(struct null))
+    {
+    }
+    void    free(object *) override;
+    int     save(archiver *, object *) override;
     object *restore(archiver *) override;
 };
 

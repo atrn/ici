@@ -3,8 +3,8 @@
 #ifndef ici_userop_h
 #define ici_userop_h
 
-#include "object.h"
 #include "func.h"
+#include "object.h"
 
 namespace ici
 {
@@ -36,13 +36,13 @@ namespace ici
  *
  * Returns 0 for success, non-zero for failure, usual conventions.
  */
-int     define_user_binop(const char *, const char *, const char *, func *);
+int define_user_binop(const char *, const char *, const char *, func *);
 
 /*
  * Lookup a user-defined operator given the type1/binop/type2 arguments
  * used to define it. Returns nullptr if no function is found.
  */
-func *  lookup_user_binop(const char *, const char *, const char *);
+func *lookup_user_binop(const char *, const char *, const char *);
 
 /*
  * Call the user-defined binop function and return the result

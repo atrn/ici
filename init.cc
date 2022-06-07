@@ -1,19 +1,19 @@
 #define ICI_CORE
-#include "fwd.h"
-#include "func.h"
+#include "archiver.h"
 #include "buf.h"
-#include "map.h"
 #include "exec.h"
+#include "func.h"
+#include "fwd.h"
+#include "map.h"
+#include "pcre.h"
 #include "ref.h"
 #include "str.h"
-#include "pcre.h"
-#include "archiver.h"
 
-# if defined(_WIN32)
-#  include <io.h>
+#if defined(_WIN32)
+#include <io.h>
 #else
-#  include <sys/types.h>
-#  include <unistd.h>
+#include <sys/types.h>
+#include <unistd.h>
 #endif
 
 namespace ici
@@ -23,9 +23,9 @@ constexpr size_t INITIAL_ATOMSZ = 1024; // Must be power of two
 constexpr size_t INITIAL_OBJS = 4096;
 
 extern cfunc *ici_funcs[];
-static int mapici_init(objwsup *);
-extern int sys_init(objwsup *);
-extern int net_init(objwsup *);
+static int    mapici_init(objwsup *);
+extern int    sys_init(objwsup *);
+extern int    net_init(objwsup *);
 
 /*
  * Perform basic interpreter setup. Return non-zero on failure, usual
@@ -38,30 +38,31 @@ extern int net_init(objwsup *);
  * extern scope of any files parsed at the top level.
  *
  * In systems supporting threads, on exit, the global ICI mutex has been
- * acquired (with enter()). 
+ * acquired (with enter()).
  *
  * This --func-- forms part of the --ici-api--.
  */
 int init()
 {
     static bool init_done = false;
-    if (init_done) {
+    if (init_done)
+    {
         return 0;
     }
 
-    cfunc       **cfp;
-    map         *scope;
-    objwsup     *externs;
-    exec        *x;
-    int         i;
-    double      pi = 3.14159265358979323848;
+    cfunc  **cfp;
+    map     *scope;
+    objwsup *externs;
+    exec    *x;
+    int      i;
+    double   pi = 3.14159265358979323848;
 
     /*
      * Just make sure our universal headers are really the size we
      * hope they are. Nothing actually assumes this. But it would
      * represent a significant inefficiency if they were padded.
      */
-    assert(sizeof (object) == 4);
+    assert(sizeof(object) == 4);
 
     /*
      * The following assertion is only valid on some architectures.
@@ -71,9 +72,9 @@ int init()
     assert(offsetof(objwsup, o_super) == 4);
      */
 
-#   ifndef NDEBUG
+#ifndef NDEBUG
     {
-        char            v[80];
+        char v[80];
         /*
          * Check that the #defines of version number are in sync with our version
          * string from conf.c.
@@ -81,83 +82,89 @@ int init()
         sprintf(v, "@(#)ICI %d.%d.%d", major_version, minor_version, release_number);
         assert(strncmp(v, version_string, strlen(v)) == 0);
     }
-#   endif
+#endif
 
     if (chkbuf(1024))
     {
         return 1;
     }
-    if ((atoms = (object **)ici_nalloc(INITIAL_ATOMSZ * sizeof (object *))) == nullptr)
+    if ((atoms = (object **)ici_nalloc(INITIAL_ATOMSZ * sizeof(object *))) == nullptr)
     {
         return 1;
     }
     atomsz = INITIAL_ATOMSZ;
-    memset((char *)atoms, 0, atomsz * sizeof (object *));
-    if ((objs = (object **)ici_nalloc(INITIAL_OBJS * sizeof (object *))) == nullptr) {
+    memset((char *)atoms, 0, atomsz * sizeof(object *));
+    if ((objs = (object **)ici_nalloc(INITIAL_OBJS * sizeof(object *))) == nullptr)
+    {
         return 1;
     }
-    memset((char *)objs, 0, INITIAL_OBJS * sizeof (object *));
+    memset((char *)objs, 0, INITIAL_OBJS * sizeof(object *));
     objs_limit = objs + INITIAL_OBJS;
     objs_top = objs;
-    for (i = 0; i < (int)nels(small_ints); ++i) {
-        if ((small_ints[i] = new_int(i)) == nullptr) {
+    for (i = 0; i < (int)nels(small_ints); ++i)
+    {
+        if ((small_ints[i] = new_int(i)) == nullptr)
+        {
             return -1;
         }
     }
     o_zero = small_ints[0];
     o_one = small_ints[1];
-    if (init_sstrings()) {
+    if (init_sstrings())
+    {
         return 1;
     }
     pcre_free = ici_free;
     pcre_malloc = (void *(*)(size_t))ici_alloc;
-    if ((scope = new_map()) == nullptr) {
+    if ((scope = new_map()) == nullptr)
+    {
         return 1;
     }
-    if ((scope->o_super = externs = objwsupof(new_map())) == nullptr) {
+    if ((scope->o_super = externs = objwsupof(new_map())) == nullptr)
+    {
         return 1;
     }
     decref(externs);
-    if ((x = new_exec()) == nullptr) {
+    if ((x = new_exec()) == nullptr)
+    {
         return 1;
     }
     enter(x);
     rego(&os);
     rego(&xs);
     rego(&vs);
-    if (engine_stack_check()) {
+    if (engine_stack_check())
+    {
         return 1;
     }
     vs.push(scope, with_decref);
-    if (mapici_init(externs)) {
+    if (mapici_init(externs))
+    {
         return 1;
     }
-    for (cfp = ici_funcs; *cfp != nullptr; ++cfp) {
-        if (assign_cfuncs(externs, *cfp)) {
+    for (cfp = ici_funcs; *cfp != nullptr; ++cfp)
+    {
+        if (assign_cfuncs(externs, *cfp))
+        {
             return 1;
         }
     }
-    if (sys_init(externs)) {
+    if (sys_init(externs))
+    {
         return 1;
     }
-    if (net_init(externs)) {
+    if (net_init(externs))
+    {
         return 1;
     }
-    if (archive_init()) {
+    if (archive_init())
+    {
         return 1;
     };
     init_signals();
     init_exec();
-    if
-    (
-        set_val(externs, SS(_stdin),  'u', stdin)
-        ||
-        set_val(externs, SS(_stdout), 'u', stdout)
-        ||
-        set_val(externs, SS(_stderr), 'u', stderr)
-        ||
-        set_val(externs, SS(pi), 'f', &pi)
-    )
+    if (set_val(externs, SS(_stdin), 'u', stdin) || set_val(externs, SS(_stdout), 'u', stdout) ||
+        set_val(externs, SS(_stderr), 'u', stderr) || set_val(externs, SS(pi), 'f', &pi))
     {
         return 1;
     }
@@ -212,21 +219,21 @@ int check_interface(unsigned long mver, unsigned long bver, char const *name)
             return 0;
         }
     }
-    return set_error
-    (
-        "%s module was built for ICI %d.%d.%d, which is incompatible with this version %d.%d.%d",
-        name,
-        (int)(mver >> 24),
-        (int)(mver >> 16) & 0xFF,
-        (int)(mver & 0xFFFF),
-        major_version,
-        minor_version,
-        release_number);
-
+    return set_error("%s module was built for ICI %d.%d.%d, which is incompatible with this version %d.%d.%d", name,
+                     (int)(mver >> 24), (int)(mver >> 16) & 0xFF, (int)(mver & 0xFFFF), major_version, minor_version,
+                     release_number);
 }
 
-static                  int push_path_elements(array *a, const char *path); /* Forward. */
-#define PUSH(A, B)      if (push_path_elements((A), (B))) return 1
+static int push_path_elements(array *a, const char *path); /* Forward. */
+#define PUSH(A, B)                              \
+    do                                          \
+    {                                           \
+        if (push_path_elements((A), (B)))       \
+        {                                       \
+            return 1;                           \
+        }                                       \
+    }                                           \
+    while (0)
 
 /*
  * Push one or more file names from path, seperated by the local system
@@ -234,37 +241,44 @@ static                  int push_path_elements(array *a, const char *path); /* F
  */
 static int push_path_elements(array *a, const char *path)
 {
-    const char  *p;
-    const char  *q;
-    str         *s;
-    object     **e;
+    const char *p;
+    const char *q;
+    str        *s;
+    object    **e;
 
-    for (p = path; *p != '\0'; p = *q == '\0' ? q : q + 1) {
-        if ((q = strchr(p, ICI_PATH_SEP)) == nullptr) {
+    for (p = path; *p != '\0'; p = *q == '\0' ? q : q + 1)
+    {
+        if ((q = strchr(p, ICI_PATH_SEP)) == nullptr)
+        {
             q = p + strlen(p);
         }
-        if ((s = new_str(p, q - p)) == nullptr) {
+        if ((s = new_str(p, q - p)) == nullptr)
+        {
             return 1;
         }
         /*
          * Don't add duplicates...
          */
-        for (e = a->a_base; e < a->a_top; ++e) {
-            if (*e == s) {
+        for (e = a->a_base; e < a->a_top; ++e)
+        {
+            if (*e == s)
+            {
                 goto skip;
             }
         }
         /*
          * Don't add inaccessable dirs...
          */
-        if (access(s->s_chars, 0) != 0) {
+        if (access(s->s_chars, 0) != 0)
+        {
             goto skip;
         }
-        if (a->push_checked(s)) {
+        if (a->push_checked(s))
+        {
             decref(s);
             return 1;
         }
-    skip:
+skip:
         decref(s);
     }
     return 0;
@@ -280,8 +294,8 @@ static int push_path_elements(array *a, const char *path)
  */
 static int push_os_path_elements(array *a)
 {
-    char                fname[MAX_PATH];
-    char                *p;
+    char  fname[MAX_PATH];
+    char *p;
 
     if (GetModuleFileName(nullptr, fname, sizeof fname - 10) > 0)
     {
@@ -328,10 +342,10 @@ static int push_os_path_elements(array *a)
  */
 static int push_os_path_elements(array *a)
 {
-    char                *p;
-    char                *q;
-    char                *path;
-    char                fname[FILENAME_MAX];
+    char *p;
+    char *q;
+    char *path;
+    char  fname[FILENAME_MAX];
 
     PUSH(a, "/usr/lib/ici:/usr/local/lib/ici:/opt/lib/ici:/opt/ici/lib/ici:.");
     if ((path = getenv("PATH")) != nullptr)
@@ -351,12 +365,12 @@ static int push_os_path_elements(array *a)
             PUSH(a, fname);
         }
     }
-#   ifdef ICI_CONFIG_PREFIX
+#ifdef ICI_CONFIG_PREFIX
     /*
      * Put a configuration defined location on, if there is one..
      */
     PUSH(a, ICI_CONFIG_PREFIX "/lib/ici");
-#   endif
+#endif
     return 0;
 }
 #endif /* End of selection of which push_os_path_elements() to use */
@@ -385,24 +399,30 @@ ref<array> init_path()
 static int mapici_init(objwsup *externs)
 {
     ref<str> ver = new_str_nul_term(version_string);
-    if (!ver) {
+    if (!ver)
+    {
         return 1;
     }
     auto path = init_path();
-    if (!path) {
+    if (!path)
+    {
         return 1;
     }
     ref<map> mapici = new_map();
-    if (!mapici) {
+    if (!mapici)
+    {
         return 1;
     }
-    if (mapici->assign(SS(version), ver)) {
+    if (mapici->assign(SS(version), ver))
+    {
         return 1;
     }
-    if (mapici->assign(SS(path), path)) {
+    if (mapici->assign(SS(path), path))
+    {
         return 1;
     }
-    if (externs->assign(SS(_ici), mapici)) {
+    if (externs->assign(SS(_ici), mapici))
+    {
         return 1;
     }
     return 0;

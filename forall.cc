@@ -1,12 +1,12 @@
 #define ICI_CORE
 #include "forall.h"
+#include "buf.h"
 #include "exec.h"
-#include "pc.h"
 #include "map.h"
+#include "null.h"
+#include "pc.h"
 #include "set.h"
 #include "str.h"
-#include "buf.h"
-#include "null.h"
 
 namespace ici
 {
@@ -50,7 +50,7 @@ int op_forall()
 int exec_forall()
 {
     forall *fa;
-    type *t;
+    type   *t;
 
     fa = forallof(xs.a_top[-1]);
     t = fa->fa_aggr->icitype();

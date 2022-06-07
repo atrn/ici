@@ -1,14 +1,14 @@
 #define ICI_CORE
+#include "array.h"
+#include "buf.h"
+#include "cfunc.h"
 #include "exec.h"
 #include "func.h"
-#include "cfunc.h"
-#include "str.h"
 #include "int.h"
 #include "map.h"
-#include "buf.h"
 #include "null.h"
 #include "op.h"
-#include "array.h"
+#include "str.h"
 
 namespace ici
 {
@@ -19,14 +19,14 @@ namespace ici
  */
 struct context
 {
-    object   **c_dlimit;
-    int         c_dstep;
-    char        c_option;
-    object   **c_cstart;
-    object   **c_climit;
-    object   **c_cnext;
-    long        c_ccount;
-    long        c_cstep;
+    object **c_dlimit;
+    int      c_dstep;
+    char     c_option;
+    object **c_cstart;
+    object **c_climit;
+    object **c_cnext;
+    long     c_ccount;
+    long     c_cstep;
 };
 /*
  * c_dlimit             Addr of 1st dimension we don't use.
@@ -59,9 +59,9 @@ struct context
  */
 static int buildxx(object **r, object **dnext, struct context *c)
 {
-    int         i;
-    char        n1[objnamez];
-    char        n2[objnamez];
+    int  i;
+    char n1[objnamez];
+    char n2[objnamez];
 
     if (dnext == c->c_dlimit)
     {
@@ -74,16 +74,16 @@ static int buildxx(object **r, object **dnext, struct context *c)
         {
         case 'i':
             if ((*r = new_int(c->c_ccount)) == nullptr)
+            {
                 return 1;
+            }
             c->c_ccount += c->c_cstep;
             break;
 
         case 'a':
             if (!isarray(*c->c_cnext))
             {
-                return set_error(
-                    "build(..\"a\"..) given %s instead of an array for content",
-                    objname(n1, *c->c_cnext));
+                return set_error("build(..\"a\"..) given %s instead of an array for content", objname(n1, *c->c_cnext));
             }
             *r = arrayof(*c->c_cnext)->get(c->c_ccount);
             incref(*r);
@@ -113,29 +113,35 @@ static int buildxx(object **r, object **dnext, struct context *c)
 
         case 'l':
             if (c->c_cnext == c->c_climit)
+            {
                 c->c_cnext -= c->c_cstep;
+            }
             break;
 
         default:
-            return set_error("option \"%c\" given to %s is not one of c, r, a, i or l",
-                c->c_option, objname(n1, os.a_top[-1]));
+            return set_error("option \"%c\" given to %s is not one of c, r, a, i or l", c->c_option,
+                             objname(n1, os.a_top[-1]));
         }
         return 0;
     }
-    if (isint(*dnext)) {
+    if (isint(*dnext))
+    {
         ref<array> a;
-        int64_t   n;
+        int64_t    n;
 
         /*
          * We have an int dimension. We must make an array that big and
          * recursively fill it based on the next dimension or content.
          */
         n = intof(*dnext)->i_value;
-        if ((a = new_array(n)) == nullptr) {
+        if ((a = new_array(n)) == nullptr)
+        {
             return 1;
         }
-        for (i = 0; i < n; ++i) {
-            if (buildxx(a->a_top, dnext + c->c_dstep, c)) {
+        for (i = 0; i < n; ++i)
+        {
+            if (buildxx(a->a_top, dnext + c->c_dstep, c))
+            {
                 return 1;
             }
             ++a->a_top;
@@ -143,10 +149,11 @@ static int buildxx(object **r, object **dnext, struct context *c)
         }
         *r = a.release();
     }
-    else if (isarray(*dnext)) {
+    else if (isarray(*dnext))
+    {
         ref<map> s;
         array   *a;
-        object  **e;
+        object **e;
         object  *o = nullptr;
 
         /*
@@ -155,26 +162,31 @@ static int buildxx(object **r, object **dnext, struct context *c)
          * with the next dimension or content.
          */
         a = arrayof(*dnext);
-        if ((s = new_map()) == nullptr) {
+        if ((s = new_map()) == nullptr)
+        {
             return 1;
         }
-        for (e = a->astart(); e != a->alimit(); e = a->anext(e)) {
-            if (buildxx(&o, dnext + c->c_dstep, c)) {
+        for (e = a->astart(); e != a->alimit(); e = a->anext(e))
+        {
+            if (buildxx(&o, dnext + c->c_dstep, c))
+            {
                 return 1;
             }
             assert(o);
-            if (ici_assign(s, *e, o)) {
+            if (ici_assign(s, *e, o))
+            {
                 return 1;
             }
             decref(o);
         }
         *r = s.release();
     }
-    else {
-        return set_error("%s supplied as a dimension to %s",
-            objname(n1, *dnext), objname(n2, os.a_top[-1]));
+    else
+    {
+        return set_error("%s supplied as a dimension to %s", objname(n1, *dnext), objname(n2, os.a_top[-1]));
     }
-    if (c->c_option == 'r') {
+    if (c->c_option == 'r')
+    {
         c->c_cnext = c->c_cstart;
     }
     return 0;
@@ -182,22 +194,25 @@ static int buildxx(object **r, object **dnext, struct context *c)
 
 static int f_build()
 {
-    object         **dstart;
-    int              i;
-    object          *r = nullptr;
-    object          *default_content;
-    char             n1[objnamez];
-    struct context   c;
+    object       **dstart;
+    int            i;
+    object        *r = nullptr;
+    object        *default_content;
+    char           n1[objnamez];
+    struct context c;
 
     memset(&c, 0, sizeof c);
     dstart = &ARG(0);
     c.c_dlimit = &ARG(NARGS()); /* Assume for the moment. */
     c.c_dstep = -1;
-    for (i = 0; i < NARGS(); ++i) {
-        if (isstring(ARG(i))) {
+    for (i = 0; i < NARGS(); ++i)
+    {
+        if (isstring(ARG(i)))
+        {
             c.c_dlimit = &ARG(i); /* Revise. */
             c.c_option = str_char_at(stringof(ARG(i)), 0);
-            if (++i < NARGS()) {
+            if (++i < NARGS())
+            {
                 c.c_cstart = &ARG(i);
                 c.c_climit = &ARG(NARGS());
                 c.c_cstep = -1;
@@ -205,10 +220,12 @@ static int f_build()
             break;
         }
     }
-    if (dstart == c.c_dlimit) {
+    if (dstart == c.c_dlimit)
+    {
         return null_ret();
     }
-    if (c.c_cstart == nullptr) {
+    if (c.c_cstart == nullptr)
+    {
         default_content = null;
         c.c_cstart = &default_content;
         c.c_climit = c.c_cstart + 1;
@@ -216,38 +233,42 @@ static int f_build()
     }
     c.c_cnext = c.c_cstart;
 
-    if (c.c_option == 'i') {
-        if (c.c_cnext != c.c_climit && c.c_cnext != &default_content) {
-            if (!isint(*c.c_cnext)) {
-                return set_error("%s given as auto-increment start is not an int",
-                    objname(n1, *c.c_cnext));
+    if (c.c_option == 'i')
+    {
+        if (c.c_cnext != c.c_climit && c.c_cnext != &default_content)
+        {
+            if (!isint(*c.c_cnext))
+            {
+                return set_error("%s given as auto-increment start is not an int", objname(n1, *c.c_cnext));
             }
             c.c_ccount = intof(*c.c_cnext)->i_value;
             c.c_cnext += c.c_cstep;
-            if (c.c_cnext != c.c_climit) {
-                if (!isint(*c.c_cnext)) {
-                    return set_error("%s given as auto-increment step is not an int",
-                        objname(n1, *c.c_cnext));
+            if (c.c_cnext != c.c_climit)
+            {
+                if (!isint(*c.c_cnext))
+                {
+                    return set_error("%s given as auto-increment step is not an int", objname(n1, *c.c_cnext));
                 }
                 c.c_cstep = intof(*c.c_cnext)->i_value;
-            } else {
+            }
+            else
+            {
                 c.c_cstep = 1;
             }
-        } else {
+        }
+        else
+        {
             c.c_cstep = 1;
         }
     }
 
-    if (buildxx(&r, dstart, &c)) {
+    if (buildxx(&r, dstart, &c))
+    {
         return 1;
     }
     return ret_with_decref(r);
 }
 
-ICI_DEFINE_CFUNCS(apl)
-{
-    ICI_DEFINE_CFUNC(build, f_build),
-    ICI_CFUNCS_END()
-};
+ICI_DEFINE_CFUNCS(apl){ICI_DEFINE_CFUNC(build, f_build), ICI_CFUNCS_END()};
 
 } // namespace ici

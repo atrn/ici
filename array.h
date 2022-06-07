@@ -75,10 +75,10 @@ namespace ici
  */
 struct array : object
 {
-    object   **a_top;    /* The next free slot. */
-    object   **a_bot;    /* The first used slot. */
-    object   **a_base;   /* The base of allocation. */
-    object   **a_limit;  /* Allocation limit, first one you can't use. */
+    object **a_top;   /* The next free slot. */
+    object **a_bot;   /* The first used slot. */
+    object **a_base;  /* The base of allocation. */
+    object **a_limit; /* Allocation limit, first one you can't use. */
 
     /*
      * Functions to assist in doing for loops over the elements of an array.
@@ -91,30 +91,33 @@ struct array : object
      *
      * This --func-- forms part of the --ici-api--.
      */
-    inline object **astart() {
+    inline object **astart()
+    {
         return a_bot == a_limit && a_bot != a_top ? a_base : a_bot;
     }
 
-    inline object **alimit() {
+    inline object **alimit()
+    {
         return a_top;
     }
 
-    inline object **anext(object **e) {
+    inline object **anext(object **e)
+    {
         return e + 1 == a_limit && a_limit != a_top ? a_base : e + 1;
     }
 
-    int grow_stack(ptrdiff_t n);
-    int fault_stack(ptrdiff_t i);
-    size_t len();
+    int      grow_stack(ptrdiff_t n);
+    int      fault_stack(ptrdiff_t i);
+    size_t   len();
     object **span(size_t i, ptrdiff_t *np);
-    int grow();
-    int push_back(object *o);
-    int push_front(object *o);
-    object *pop_back();
+    int      grow();
+    int      push_back(object *o);
+    int      push_front(object *o);
+    object  *pop_back();
     object **find_slot(ptrdiff_t i);
-    object *get(ptrdiff_t i);
-    object *pop_front();
-    void gather(object **, ptrdiff_t, ptrdiff_t);
+    object  *get(ptrdiff_t i);
+    object  *pop_front();
+    void     gather(object **, ptrdiff_t, ptrdiff_t);
 
     /*
      * Check that there is room for 'n' new elements on the end of 'a'.  May
@@ -127,7 +130,8 @@ struct array : object
      *
      * This --func-- forms part of the --ici-ap--.
      */
-    inline int push_check(ptrdiff_t n = 1) {
+    inline int push_check(ptrdiff_t n = 1)
+    {
         return a_limit - a_top < n ? grow_stack(n) : 0;
     }
 
@@ -135,7 +139,8 @@ struct array : object
      * Ensure that the stack a has i as a valid index.  Will grow and nullptr fill
      * as necessary. Return non-zero on failure, usual conventions.
      */
-    inline int stk_probe(ptrdiff_t i) {
+    inline int stk_probe(ptrdiff_t i)
+    {
         return a_top - a_bot <= i ? fault_stack(i) : 0;
     }
 
@@ -144,7 +149,8 @@ struct array : object
      * This can only be used if the array has sufficient space as indicated
      * by a succesful call to push_check.
      */
-    inline void push(object *o) {
+    inline void push(object *o)
+    {
         *a_top++ = o;
     }
 
@@ -153,7 +159,8 @@ struct array : object
      * (and decrefs it).  This can only be used if the array has sufficient
      * space as indicated by a succesful call to push_check.
      */
-    inline void push(object *o, struct tag_with_decref) {
+    inline void push(object *o, struct tag_with_decref)
+    {
         *a_top++ = o;
         o->decref();
     }
@@ -162,11 +169,14 @@ struct array : object
      *  Check there is room for and push an object in a single operation.
      *  Returns true if the push FAILED due to lack of space.
      */
-    inline bool push_checked(object *o) {
-        if (o == nullptr) {
+    inline bool push_checked(object *o)
+    {
+        if (o == nullptr)
+        {
             return true;
         }
-        if (push_check()) {
+        if (push_check())
+        {
             return true;
         }
         push(o);
@@ -177,38 +187,49 @@ struct array : object
      *  Check there is room for and push an object in a single operation.
      *  Returns true if the push FAILED due to lack of space.
      */
-    inline bool push_checked(object *o, struct tag_with_decref tag) {
-        if (o == nullptr) {
+    inline bool push_checked(object *o, struct tag_with_decref tag)
+    {
+        if (o == nullptr)
+        {
             return true;
         }
-        if (push_check()) {
+        if (push_check())
+        {
             return true;
         }
         push(o, tag);
         return false;
     }
-
 };
 
-inline array *arrayof(object *o) { return o->as<array>(); }
-inline bool isarray(object *o) { return o->hastype(TC_ARRAY); }
+inline array *arrayof(object *o)
+{
+    return o->as<array>();
+}
+inline bool isarray(object *o)
+{
+    return o->hastype(TC_ARRAY);
+}
 
 class array_type : public type
 {
- public:
-    array_type() : type("array", sizeof (struct array)) {}
+  public:
+    array_type()
+        : type("array", sizeof(struct array))
+    {
+    }
 
-    size_t mark(object *) override;
-    void free(object *) override;
+    size_t        mark(object *) override;
+    void          free(object *) override;
     unsigned long hash(object *) override;
-    int cmp(object *, object *) override;
-    object *copy(object *) override;
-    int assign(object *, object *, object *) override;
-    object *fetch(object *, object *) override;
-    int forall(object *) override;
-    int save(archiver *, object *) override;
-    object *restore(archiver *) override;
-    int64_t len(object *) override;
+    int           cmp(object *, object *) override;
+    object       *copy(object *) override;
+    int           assign(object *, object *, object *) override;
+    object       *fetch(object *, object *) override;
+    int           forall(object *) override;
+    int           save(archiver *, object *) override;
+    object       *restore(archiver *) override;
+    int64_t       len(object *) override;
 };
 
 /*

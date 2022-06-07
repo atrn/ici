@@ -3,11 +3,11 @@
 #ifndef ICI_EXEC_H
 #define ICI_EXEC_H
 
-#include "fwd.h"
 #include "array.h"
+#include "float.h"
+#include "fwd.h"
 #include "int.h"
 #include "null.h"
-#include "float.h"
 #include "pc.h"
 #include "src.h"
 
@@ -16,8 +16,7 @@
 namespace ici
 {
 
-union ostemp
-{
+union ostemp {
     integer   i;
     ici_float f;
 };
@@ -28,33 +27,39 @@ union ostemp
 
 struct exec : object
 {
-    array                   *x_xs;
-    array                   *x_os;
-    array                   *x_vs;
-    src                     *x_src;
-    int                      x_count;
-    int                      x_yield_count;
-    array                   *x_pc_closet; /* See below. */
-    array                   *x_os_temp_cache; /* See below. */
-    exec                    *x_next;
-    int                      x_n_engine_recurse;
-    int                      x_critsect;
-    object                  *x_waitfor;
-    int                      x_state;
-    object                  *x_result;
-    char                    *x_error;
-/*
- * End of ici.h export. --ici.h-end--
- */
+    array  *x_xs;
+    array  *x_os;
+    array  *x_vs;
+    src    *x_src;
+    int     x_count;
+    int     x_yield_count;
+    array  *x_pc_closet;     /* See below. */
+    array  *x_os_temp_cache; /* See below. */
+    exec   *x_next;
+    int     x_n_engine_recurse;
+    int     x_critsect;
+    object *x_waitfor;
+    int     x_state;
+    object *x_result;
+    char   *x_error;
+    /*
+     * End of ici.h export. --ici.h-end--
+     */
     std::condition_variable *x_semaphore;
-    char		     x_buf[1024-16*sizeof(int)]; // space for x_error
-/*
- * The following portion of this file exports to ici.h. --ici.h-start--
- */
+    char                     x_buf[1024 - 16 * sizeof(int)]; // space for x_error
+    /*
+     * The following portion of this file exports to ici.h. --ici.h-start--
+     */
 };
 
-inline exec *execof(object *o) { return o->as<exec>(); }
-inline bool isexec(object *o) { return o->hastype(TC_EXEC); }
+inline exec *execof(object *o)
+{
+    return o->as<exec>();
+}
+inline bool isexec(object *o)
+{
+    return o->hastype(TC_EXEC);
+}
 
 /*
  * x_xs                 The ICI interpreter execution stack. This contains
@@ -134,15 +139,18 @@ inline bool isexec(object *o) { return o->hastype(TC_EXEC); }
  */
 enum
 {
-    XS_ACTIVE,          /* Thread has not exited yet. */
-    XS_RETURNED,        /* Function returned and thread exited normally. */
-    XS_FAILED,          /* Function failed and thread exitied. */
+    XS_ACTIVE,   /* Thread has not exited yet. */
+    XS_RETURNED, /* Function returned and thread exited normally. */
+    XS_FAILED,   /* Function failed and thread exitied. */
 };
 
 /*
  * Test if an object represents a false value nullptr or integer 0.
  */
-inline bool isfalse(object *o) { return isnull(o) || o == o_zero; }
+inline bool isfalse(object *o)
+{
+    return isnull(o) || o == o_zero;
+}
 
 /*
  * End of ici.h export. --ici.h-end--
@@ -150,14 +158,18 @@ inline bool isfalse(object *o) { return isnull(o) || o == o_zero; }
 
 class exec_type : public type
 {
-public:
-    exec_type() : type("exec", sizeof (struct exec)) {}
-    size_t mark(object *o) override;
-    void free(object *o) override;
+  public:
+    exec_type()
+        : type("exec", sizeof(struct exec))
+    {
+    }
+    size_t  mark(object *o) override;
+    void    free(object *o) override;
     object *fetch(object *o, object *k) override;
 };
 
-inline void set_pc(array *code, object **x) {
+inline void set_pc(array *code, object **x)
+{
     *x = ex->x_pc_closet->a_base[x - xs.a_base];
     auto p = pcof(*x);
     p->pc_code = code;

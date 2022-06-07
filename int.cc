@@ -1,8 +1,8 @@
 #define ICI_CORE
-#include "fwd.h"
 #include "int.h"
-#include "primes.h"
 #include "archiver.h"
+#include "fwd.h"
+#include "primes.h"
 
 namespace ici
 {
@@ -21,31 +21,30 @@ integer *small_ints[small_int_count];
  */
 integer *new_int(int64_t i)
 {
-    object *o;
+    object  *o;
     object **po;
 
-    if ((i & ~small_int_mask) == 0 && (o = small_ints[i]) != nullptr) {
+    if ((i & ~small_int_mask) == 0 && (o = small_ints[i]) != nullptr)
+    {
         incref(o);
         return intof(o);
     }
-    for
-    (
-        po = &atoms[atom_hash_index((unsigned long)i * INT_PRIME)];
-        (o = *po) != nullptr;
-        --po < atoms ? po = atoms + atomsz - 1 : nullptr
-    )
+    for (po = &atoms[atom_hash_index((unsigned long)i * INT_PRIME)]; (o = *po) != nullptr;
+         --po < atoms ? po = atoms + atomsz - 1 : nullptr)
     {
-        if (isint(o) && intof(o)->i_value == i) {
+        if (isint(o) && intof(o)->i_value == i)
+        {
             incref(o);
             return intof(o);
         }
     }
     ++supress_collect;
-    if ((o = ici_talloc(integer)) == nullptr) {
+    if ((o = ici_talloc(integer)) == nullptr)
+    {
         --supress_collect;
         return nullptr;
     }
-    set_tfnz(o, TC_INT, object::O_ATOM, 1, sizeof (integer));
+    set_tfnz(o, TC_INT, object::O_ATOM, 1, sizeof(integer));
     rego(o);
     intof(o)->i_value = i;
     --supress_collect;
@@ -74,13 +73,16 @@ unsigned long int_type::hash(object *o)
     return (unsigned long)intof(o)->i_value * INT_PRIME;
 }
 
-int int_type::save(archiver *ar, object *obj) {
+int int_type::save(archiver *ar, object *obj)
+{
     return ar->write(intof(obj)->i_value);
 }
 
-object *int_type::restore(archiver *ar) {
+object *int_type::restore(archiver *ar)
+{
     int64_t value;
-    if (ar->read(&value)) {
+    if (ar->read(&value))
+    {
         return nullptr;
     }
     return new_int(value);

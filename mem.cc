@@ -1,11 +1,11 @@
 #define ICI_CORE
-#include "fwd.h"
 #include "mem.h"
-#include "int.h"
+#include "archiver.h"
 #include "buf.h"
+#include "fwd.h"
+#include "int.h"
 #include "null.h"
 #include "primes.h"
-#include "archiver.h"
 
 namespace ici
 {
@@ -23,11 +23,13 @@ namespace ici
  */
 mem *new_mem(void *base, size_t length, int accessz, void (*free_func)(void *))
 {
-    mem  *m;
+    mem *m;
 
     if ((m = ici_talloc(mem)) == nullptr)
+    {
         return nullptr;
-    set_tfnz(m, TC_MEM, 0, 1, sizeof (mem));
+    }
+    set_tfnz(m, TC_MEM, 0, 1, sizeof(mem));
     rego(m);
     m->m_base = base;
     m->m_length = length;
@@ -44,10 +46,8 @@ int mem_type::cmp(object *o1, object *o2)
 {
     auto m1 = memof(o1);
     auto m2 = memof(o2);
-    return m1->m_base != m2->m_base
-        || m1->m_length != m2->m_length
-        || m1->m_accessz != m2->m_accessz
-        || m1->m_free != m2->m_free;
+    return m1->m_base != m2->m_base || m1->m_length != m2->m_length || m1->m_accessz != m2->m_accessz ||
+           m1->m_free != m2->m_free;
 }
 
 /*
@@ -57,9 +57,8 @@ int mem_type::cmp(object *o1, object *o2)
 unsigned long mem_type::hash(object *o)
 {
     auto m = memof(o);
-    return (unsigned long)m->m_base * MEM_PRIME_0
-        + (unsigned long)m->m_length * MEM_PRIME_1
-        + (unsigned long)m->m_accessz * MEM_PRIME_2;
+    return (unsigned long)m->m_base * MEM_PRIME_0 + (unsigned long)m->m_length * MEM_PRIME_1 +
+           (unsigned long)m->m_accessz * MEM_PRIME_2;
 }
 
 void mem_type::free(object *o)
@@ -74,11 +73,13 @@ void mem_type::free(object *o)
 
 int mem_type::assign(object *o, object *k, object *v)
 {
-    auto m = memof(o);
+    auto    m = memof(o);
     int64_t i;
 
     if (!isint(k) || !isint(v))
+    {
         return assign_fail(o, k, v);
+    }
     i = intof(k)->i_value;
     if (i < 0 || i >= (int64_t)m->m_length)
     {
@@ -105,16 +106,20 @@ int mem_type::assign(object *o, object *k, object *v)
     return 0;
 }
 
-object * mem_type::fetch(object *o, object *k)
+object *mem_type::fetch(object *o, object *k)
 {
-    auto m = memof(o);
+    auto    m = memof(o);
     int64_t i;
 
     if (!isint(k))
+    {
         return fetch_fail(o, k);
+    }
     i = intof(k)->i_value;
     if (i < 0 || i >= (int64_t)m->m_length)
+    {
         return null;
+    }
     switch (m->m_accessz)
     {
     case 1:
@@ -138,42 +143,52 @@ object * mem_type::fetch(object *o, object *k)
     return o;
 }
 
-int mem_type::save(archiver *ar, object *o) {
+int mem_type::save(archiver *ar, object *o)
+{
     auto m = memof(o);
-    if (ar->save_name(o)) {
+    if (ar->save_name(o))
+    {
         return 1;
     }
     const int64_t len = m->m_length;
-    if (ar->write(len)) {
+    if (ar->write(len))
+    {
         return 1;
     }
     const int16_t accessz = m->m_accessz;
-    if (ar->write(accessz)) {
+    if (ar->write(accessz))
+    {
         return 1;
     }
-    if (ar->write(m->m_base, m->m_length * m->m_accessz)) {
+    if (ar->write(m->m_base, m->m_length * m->m_accessz))
+    {
         return 1;
     }
     return 0;
 }
 
-object *mem_type::restore(archiver *ar) {
+object *mem_type::restore(archiver *ar)
+{
     int64_t len;
     int16_t accessz;
-    size_t sz;
-    void *p;
-    mem *m = 0;
+    size_t  sz;
+    void   *p;
+    mem    *m = 0;
     object *name;
 
-    if (ar->restore_name(&name) || ar->read(&len) || ar->read(&accessz)) {
+    if (ar->restore_name(&name) || ar->read(&len) || ar->read(&accessz))
+    {
         return nullptr;
     }
     sz = size_t(len) * size_t(accessz);
-    if ((p = ici_alloc(sz)) != nullptr) {
-        if ((m = new_mem(p, len, accessz, ici_free)) == nullptr) {
+    if ((p = ici_alloc(sz)) != nullptr)
+    {
+        if ((m = new_mem(p, len, accessz, ici_free)) == nullptr)
+        {
             ici_free(p);
         }
-        else if (ar->read(p, sz) || ar->record(name, m)) {
+        else if (ar->read(p, sz) || ar->record(name, m))
+        {
             decref(m);
             m = nullptr;
         }
@@ -181,7 +196,8 @@ object *mem_type::restore(archiver *ar) {
     return m;
 }
 
-int64_t mem_type::len(object *o) {
+int64_t mem_type::len(object *o)
+{
     return memof(o)->m_length;
 }
 

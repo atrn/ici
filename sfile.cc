@@ -1,11 +1,11 @@
 #define ICI_CORE
 
-#include "fwd.h"
+#include "buf.h"
 #include "file.h"
 #include "ftype.h"
-#include "str.h"
+#include "fwd.h"
 #include "mem.h"
-#include "buf.h"
+#include "str.h"
 
 namespace ici
 {
@@ -32,7 +32,7 @@ struct charbuf
 
 class charbuf_ftype : public ftype
 {
-public:
+  public:
     int getch(void *file) override
     {
         charbuf *cb = (charbuf *)file;
@@ -45,11 +45,12 @@ public:
         return *cb->cb_ptr++ & 0xFF;
     }
 
-    int read(void *buf, long n, void *file) override {
+    int read(void *buf, long n, void *file) override
+    {
         charbuf *cb = (charbuf *)file;
-        int r = cb->cb_ptr - cb->cb_data;
-        int a = cb->cb_size - r;
-        int m = a < n ? a : n;
+        int      r = cb->cb_ptr - cb->cb_data;
+        int      a = cb->cb_size - r;
+        int      m = a < n ? a : n;
         memcpy(buf, cb->cb_ptr, m);
         return int(m);
     }
@@ -58,7 +59,9 @@ public:
     {
         charbuf *cb = (charbuf *)file;
         if (c == EOF || cb->cb_ptr <= cb->cb_data || cb->cb_ptr > (cb->cb_data + cb->cb_size))
+        {
             return EOF;
+        }
         *--cb->cb_ptr = c;
         cb->cb_eof = 0;
         return c;
@@ -68,7 +71,9 @@ public:
     {
         charbuf *cb = (charbuf *)file;
         if (cb->cb_ref == nullptr)
+        {
             ici_free(cb->cb_data);
+        }
         ici_tfree(cb, charbuf);
         return 0;
     }
@@ -79,31 +84,38 @@ public:
         switch (whence)
         {
         case 0:
-	    if (offset < 0 || offset >= cb->cb_size) {
-		return -1;
-	    }
+            if (offset < 0 || offset >= cb->cb_size)
+            {
+                return -1;
+            }
             cb->cb_ptr = cb->cb_data + offset;
             break;
 
         case 1:
-	    if (offset < 0) {
-		const auto lim = -(cb->cb_ptr - cb->cb_data);
-		if (offset < lim) {
-		    return -1;
-		}
-	    } else if (offset > 0) {
-		const auto lim = cb->cb_size - (cb->cb_ptr - cb->cb_data);
-		if (offset >= lim) {
-		    return -1;
-		}
-	    }
+            if (offset < 0)
+            {
+                const auto lim = -(cb->cb_ptr - cb->cb_data);
+                if (offset < lim)
+                {
+                    return -1;
+                }
+            }
+            else if (offset > 0)
+            {
+                const auto lim = cb->cb_size - (cb->cb_ptr - cb->cb_data);
+                if (offset >= lim)
+                {
+                    return -1;
+                }
+            }
             cb->cb_ptr += offset;
             break;
 
         case 2:
-	    if (offset > 0) {
-		return -1;
-	    }
+            if (offset > 0)
+            {
+                return -1;
+            }
             cb->cb_ptr = cb->cb_data + cb->cb_size + offset;
             break;
         }
@@ -120,16 +132,21 @@ public:
     {
         charbuf *cb = (charbuf *)file;
         if (cb->cb_readonly || count <= 0)
+        {
             return 0;
+        }
         if (cb->cb_ptr < cb->cb_data || cb->cb_ptr >= cb->cb_data + cb->cb_size)
+        {
             return 0;
+        }
         if (count > cb->cb_data + cb->cb_size - cb->cb_ptr)
+        {
             count = cb->cb_data + cb->cb_size - cb->cb_ptr;
+        }
         memcpy(cb->cb_ptr, data, count);
         cb->cb_ptr += count;
         return count;
     }
-
 };
 
 /*
@@ -141,7 +158,7 @@ public:
  * This type replaces string_ftype (which was a misnomer since it could be
  * used for memory objects but not mutable string objects).
  */
-ftype *charbuf_ftype = instanceof<class charbuf_ftype>();
+ftype *charbuf_ftype = instanceof <class charbuf_ftype>();
 
 static void reattach_string_buffer(charbuf *sb)
 {
@@ -160,7 +177,7 @@ static void reattach_string_buffer(charbuf *sb)
 
 class stringbuf_ftype : public charbuf_ftype
 {
-public:
+  public:
     int getch(void *file) override
     {
         charbuf *sb = (charbuf *)file;
@@ -185,20 +202,28 @@ public:
     int write(const void *ptr, long count, void *file) override
     {
         const char *data = (const char *)ptr;
-        charbuf *sb = (charbuf *)file;
-        str   *s;
-        size_t  size;
+        charbuf    *sb = (charbuf *)file;
+        str        *s;
+        size_t      size;
 
         if (sb->cb_readonly || count <= 0)
+        {
             return 0;
+        }
         if (sb->cb_ptr < sb->cb_data || sb->cb_ptr > sb->cb_data + sb->cb_size)
+        {
             return 0;
+        }
         s = stringof(sb->cb_ref);
         size = sb->cb_ptr - sb->cb_data + count;
         if (str_need_size(s, size))
+        {
             return 0;
+        }
         if (s->s_nchars < size)
+        {
             s->s_nchars = size;
+        }
         s->s_chars[s->s_nchars] = '\0';
         reattach_string_buffer(sb);
         memcpy(sb->cb_ptr, data, count);
@@ -214,7 +239,7 @@ public:
  * moved.  This makes it less efficient than charbuf_ftype for buffers
  * that are known to be immovable.
  */
-ftype *strbuf_ftype = instanceof<class stringbuf_ftype>();
+ftype *strbuf_ftype = instanceof <class stringbuf_ftype>();
 
 /*
  * Create an ICI file object that treats the character buffer referenced by
@@ -237,8 +262,8 @@ ftype *strbuf_ftype = instanceof<class stringbuf_ftype>();
  */
 file *open_charbuf(char *data, int size, object *ref, bool readonly)
 {
-    file     *f      = nullptr;
-    charbuf  *cb;
+    file    *f = nullptr;
+    charbuf *cb;
 
     if ((cb = ici_talloc(charbuf)) == nullptr)
     {
@@ -264,7 +289,7 @@ file *open_charbuf(char *data, int size, object *ref, bool readonly)
          */
         if (isstring(ref))
         {
-            if (ref->flags(object::O_ATOM|ICI_S_SEP_ALLOC) == ICI_S_SEP_ALLOC)
+            if (ref->flags(object::O_ATOM | ICI_S_SEP_ALLOC) == ICI_S_SEP_ALLOC)
             {
                 f = new_file((char *)cb, strbuf_ftype, nullptr, ref);
             }
@@ -301,7 +326,9 @@ file *open_charbuf(char *data, int size, object *ref, bool readonly)
                 cb->cb_ptr = cb->cb_data;
                 f = new_file((char *)cb, charbuf_ftype, nullptr, ref);
                 if (f == nullptr)
+                {
                     ici_free(cb->cb_data);
+                }
             }
         }
         else

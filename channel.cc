@@ -1,9 +1,9 @@
 #define ICI_CORE
-#include "fwd.h"
 #include "channel.h"
+#include "array.h"
 #include "cfunc.h"
 #include "forall.h"
-#include "array.h"
+#include "fwd.h"
 #include "int.h"
 #include "null.h"
 #include "str.h"
@@ -14,7 +14,7 @@
 
 /*
  * Inter-thread link object
- * 
+ *
  * A channel is a communications link between threads. Channels
  * allows threads to send objects to one another and to synchronize
  * their actions.
@@ -65,16 +65,21 @@
 
 #include "channel.h"
 
-namespace ici {
+namespace ici
+{
 
 // ----------------------------------------------------------------
 
-channel *new_channel(size_t capacity) {
+channel *new_channel(size_t capacity)
+{
     channel *chan = ici_talloc(channel);
     if (chan == nullptr)
+    {
         return nullptr;
+    }
     set_tfnz(chan, TC_CHANNEL, 0, 1, 0);
-    if ((chan->c_q = new_array(capacity)) == nullptr) {
+    if ((chan->c_q = new_array(capacity)) == nullptr)
+    {
         ici_tfree(chan, channel);
         return nullptr;
     }
@@ -84,55 +89,72 @@ channel *new_channel(size_t capacity) {
     return chan;
 }
 
-object *get(channel *c) {
+object *get(channel *c)
+{
     auto q = channelof(c)->c_q;
-    while (q->len() < 1) {
-        if (c->hasflag(ICI_CHANNEL_CLOSED)) {
+    while (q->len() < 1)
+    {
+        if (c->hasflag(ICI_CHANNEL_CLOSED))
+        {
             return nullptr;
         }
-        if (waitfor(q)) {
+        if (waitfor(q))
+        {
             return nullptr;
         }
     }
     auto o = q->pop_front();
     wakeup(q);
-    if (c->c_altobj) {
+    if (c->c_altobj)
+    {
         wakeup(c->c_altobj);
     }
     return o;
 }
 
-int put(channel *c, object *o) {
-    if (c->hasflag(ICI_CHANNEL_CLOSED)) {
+int put(channel *c, object *o)
+{
+    if (c->hasflag(ICI_CHANNEL_CLOSED))
+    {
         return null_ret();
     }
 
     auto q = channelof(c)->c_q;
 
     // unbuffered
-    if (channelof(c)->c_capacity == 0) {
-        while (q->len() > 0) {
-            if (waitfor(q)) {
+    if (channelof(c)->c_capacity == 0)
+    {
+        while (q->len() > 0)
+        {
+            if (waitfor(q))
+            {
                 return 1;
             }
         }
-    } else {
-        while (q->len() >= channelof(c)->c_capacity) {
-            if (waitfor(q)) {
+    }
+    else
+    {
+        while (q->len() >= channelof(c)->c_capacity)
+        {
+            if (waitfor(q))
+            {
                 return 1;
             }
         }
     }
     q->push_back(o);
     wakeup(q);
-    if (channelof(c)->c_altobj != nullptr) {
+    if (channelof(c)->c_altobj != nullptr)
+    {
         wakeup(channelof(c)->c_altobj);
     }
     return 0;
 }
 
-int close_channel(channel *c) {
-    if (c->hasflag(ICI_CHANNEL_CLOSED)) {
+int close_channel(channel *c)
+{
+    if (c->hasflag(ICI_CHANNEL_CLOSED))
+    {
         set_error("attempt to close a channel that is already closed");
         return 1;
     }
@@ -150,43 +172,56 @@ size_t channel_type::mark(object *o)
     return mem;
 }
 
-int channel_type::forall(object *o) {
+int channel_type::forall(object *o)
+{
     auto fa = forallof(o);
     auto chan = channelof(fa->fa_aggr);
 
     auto val = get(chan);
-    if (val == nullptr) {
+    if (val == nullptr)
+    {
         return -1;
     }
 
-    if (fa->fa_kaggr == null) {
-        if (fa->fa_vaggr != null) {
-            if (ici_assign(fa->fa_vaggr, fa->fa_vkey, val)) {
+    if (fa->fa_kaggr == null)
+    {
+        if (fa->fa_vaggr != null)
+        {
+            if (ici_assign(fa->fa_vaggr, fa->fa_vkey, val))
+            {
                 return 1;
             }
         }
-    } else {
-        if (fa->fa_vaggr != null) {
-            if (ici_assign(fa->fa_vaggr, fa->fa_vkey, val)) {
+    }
+    else
+    {
+        if (fa->fa_vaggr != null)
+        {
+            if (ici_assign(fa->fa_vaggr, fa->fa_vkey, val))
+            {
                 return 1;
             }
         }
-        if (ici_assign(fa->fa_kaggr, fa->fa_kkey, val)) {
+        if (ici_assign(fa->fa_kaggr, fa->fa_kkey, val))
+        {
             return 1;
         }
     }
     return 0;
 }
 
-int channel_type::save(archiver *ar, object *o) {
+int channel_type::save(archiver *ar, object *o)
+{
     return type::save(ar, o);
 }
 
-object *channel_type::restore(archiver *ar) {
+object *channel_type::restore(archiver *ar)
+{
     return type::restore(ar);
 }
 
-int64_t channel_type::len(object *o) {
+int64_t channel_type::len(object *o)
+{
     return channelof(o)->c_capacity;
 }
 
@@ -199,24 +234,30 @@ int64_t channel_type::len(object *o) {
  *
  * This --topic-- forms part of the --ici-channel-- documentation.
  */
-static int f_channel() {
+static int f_channel()
+{
     size_t capacity = 0;
 
-    if (NARGS() != 0) {
+    if (NARGS() != 0)
+    {
         long val;
-        if (typecheck("i", &val)) {
+        if (typecheck("i", &val))
+        {
             return 1;
         }
-        if (val < 0) {
+        if (val < 0)
+        {
             set_error("channel capacity must be non-negative");
             return 1;
         }
         capacity = size_t(val);
     }
-    if (capacity == 0) {
+    if (capacity == 0)
+    {
         capacity = 1;
     }
-    if (auto chan = new_channel(capacity)) {
+    if (auto chan = new_channel(capacity))
+    {
         return ret_with_decref(chan);
     }
     return 1;
@@ -224,20 +265,24 @@ static int f_channel() {
 
 /*
  * any = get(channel)
- * 
+ *
  * Return the next object from the channel.  If there are no objects
  * in the channel the caller is blocked until an object is available.
  * If the channel is closed NULL is returned.
  */
-static int f_get() {
+static int f_get()
+{
     object *c;
-    if (typecheck("o", &c)) {
+    if (typecheck("o", &c))
+    {
         return 1;
     }
-    if (!ischannel(c)) {
+    if (!ischannel(c))
+    {
         return argerror(0);
     }
-    if (auto chan = get(channelof(c))) {
+    if (auto chan = get(channelof(c)))
+    {
         return ret_no_decref(chan);
     }
     return null_ret();
@@ -259,13 +304,16 @@ static int f_put()
     object *c;
     object *o;
 
-    if (typecheck("oo", &c, &o)) {
+    if (typecheck("oo", &c, &o))
+    {
         return 1;
     }
-    if (!ischannel(c)) {
+    if (!ischannel(c))
+    {
         return 1;
     }
-    if (put(channelof(c), o)) {
+    if (put(channelof(c), o))
+    {
         return 1;
     }
     return null_ret();
@@ -278,13 +326,17 @@ static int alt_setup(array *alts, object *obj)
     size_t n = alts->len();
     size_t i;
 
-    for (i = 0; i < n; ++i) {
-        object *o = alts->get(i);
+    for (i = 0; i < n; ++i)
+    {
+        object  *o = alts->get(i);
         channel *chan;
-        if (ischannel(o)) {
+        if (ischannel(o))
+        {
             chan = channelof(o);
             chan->c_altobj = obj;
-        } else if (!isnull(o)) {
+        }
+        else if (!isnull(o))
+        {
             set_error("bad object in array passed to channel.alt");
             return 1;
         }
@@ -292,14 +344,17 @@ static int alt_setup(array *alts, object *obj)
     return 0;
 }
 
-static int alt(array *alts) {
+static int alt(array *alts)
+{
     int idx = -1;
     int n = alts->len();
     int i;
 
-    for (i = 0; i < n && idx == -1; ++i) {
+    for (i = 0; i < n && idx == -1; ++i)
+    {
         object *o = alts->get(i);
-        if (ischannel(o) && channelof(o)->c_q->len() > 0) {
+        if (ischannel(o) && channelof(o)->c_q->len() > 0)
+        {
             idx = i;
         }
     }
@@ -316,18 +371,23 @@ static int alt(array *alts) {
  * @todo return a set of ready channels
  * @todo randomize selection to avoid livelock
  */
-static int f_alt() {
-    int idx;
+static int f_alt()
+{
+    int    idx;
     array *alts;
 
-    if (typecheck("a", &alts)) {
+    if (typecheck("a", &alts))
+    {
         return 1;
     }
-    if (alt_setup(alts, alts)) {
+    if (alt_setup(alts, alts))
+    {
         return 1;
     }
-    while ((idx = alt(alts)) == -1) {
-        if (waitfor(alts)) {
+    while ((idx = alt(alts)) == -1)
+    {
+        if (waitfor(alts))
+        {
             return 1;
         }
     }
@@ -335,13 +395,7 @@ static int f_alt() {
     return int_ret(idx);
 }
 
-ICI_DEFINE_CFUNCS(channel)
-{
-    ICI_DEFINE_CFUNC(channel,   f_channel),
-    ICI_DEFINE_CFUNC(get,       f_get),
-    ICI_DEFINE_CFUNC(put,       f_put),
-    ICI_DEFINE_CFUNC(alt,       f_alt),
-    ICI_CFUNCS_END()
-};
+ICI_DEFINE_CFUNCS(channel){ICI_DEFINE_CFUNC(channel, f_channel), ICI_DEFINE_CFUNC(get, f_get),
+                           ICI_DEFINE_CFUNC(put, f_put), ICI_DEFINE_CFUNC(alt, f_alt), ICI_CFUNCS_END()};
 
 } // namespace ici

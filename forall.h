@@ -22,8 +22,14 @@ struct forall : object
     object *fa_kkey;
 };
 
-inline forall *forallof(object *o) { return o->as<forall>(); }
-inline bool isforall(object *o) { return o->hastype(TC_FORALL); }
+inline forall *forallof(object *o)
+{
+    return o->as<forall>();
+}
+inline bool isforall(object *o)
+{
+    return o->hastype(TC_FORALL);
+}
 
 /*
  * End of ici.h export. --ici.h-end--
@@ -31,8 +37,11 @@ inline bool isforall(object *o) { return o->hastype(TC_FORALL); }
 
 class forall_type : public type
 {
-public:
-    forall_type() : type("forall", sizeof (struct forall)) {}
+  public:
+    forall_type()
+        : type("forall", sizeof(struct forall))
+    {
+    }
     size_t mark(object *o) override;
 };
 

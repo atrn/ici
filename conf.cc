@@ -1,55 +1,46 @@
 #define ICI_CORE
-#include "fwd.h"
 #include "func.h"
+#include "fwd.h"
 
 namespace ici
 {
 
-extern cfunc  ici_std_cfuncs[];
-extern cfunc  ici_save_restore_cfuncs[];
-extern cfunc  ici_re_cfuncs[];
-extern cfunc  ici_oo_cfuncs[];
-extern cfunc  ici_apl_cfuncs[];
-extern cfunc  ici_load_cfuncs[];
-extern cfunc  ici_parse_cfuncs[];
-extern cfunc  ici_signals_cfuncs[];
-extern cfunc  ici_thread_cfuncs[];
-extern cfunc  ici_channel_cfuncs[];
+extern cfunc ici_std_cfuncs[];
+extern cfunc ici_save_restore_cfuncs[];
+extern cfunc ici_re_cfuncs[];
+extern cfunc ici_oo_cfuncs[];
+extern cfunc ici_apl_cfuncs[];
+extern cfunc ici_load_cfuncs[];
+extern cfunc ici_parse_cfuncs[];
+extern cfunc ici_signals_cfuncs[];
+extern cfunc ici_thread_cfuncs[];
+extern cfunc ici_channel_cfuncs[];
 #ifndef NOEVENTS
-extern cfunc  ici_event_cfuncs[];
+extern cfunc ici_event_cfuncs[];
 #endif
 #ifndef NOPROFILE
-extern cfunc  ici_profile_cfuncs[];
+extern cfunc ici_profile_cfuncs[];
 #endif
 #ifndef NODEBUGGING
-extern cfunc  ici_debug_cfuncs[];
+extern cfunc ici_debug_cfuncs[];
 #endif
 extern cfunc ici_userop_cfuncs[];
 
-cfunc *ici_funcs[] =
-{
-    ici_std_cfuncs,
-    ici_save_restore_cfuncs,
-    ici_re_cfuncs,
-    ici_oo_cfuncs,
-    ici_apl_cfuncs,
-    ici_load_cfuncs,
-    ici_parse_cfuncs,
-    ici_signals_cfuncs,
-    ici_thread_cfuncs,
-    ici_channel_cfuncs,
+cfunc *ici_funcs[] = {ici_std_cfuncs,     ici_save_restore_cfuncs,
+                      ici_re_cfuncs,      ici_oo_cfuncs,
+                      ici_apl_cfuncs,     ici_load_cfuncs,
+                      ici_parse_cfuncs,   ici_signals_cfuncs,
+                      ici_thread_cfuncs,  ici_channel_cfuncs,
 #ifndef NODEBUGGING
-    ici_debug_cfuncs,
+                      ici_debug_cfuncs,
 #endif
 #ifndef NOEVENTS
-    ici_event_cfuncs,
+                      ici_event_cfuncs,
 #endif
 #ifndef NOPROFILE
-    ici_profile_cfuncs,
+                      ici_profile_cfuncs,
 #endif
-    ici_userop_cfuncs,
-    nullptr
-};
+                      ici_userop_cfuncs,  nullptr};
 
 /*
  * All this does is define a string to identify the version number
@@ -66,18 +57,14 @@ cfunc *ici_funcs[] =
  * Note that the version number also occurs in some defines in fwd.h (ICI_*_VER)
  * and Makefile.maint.
  */
-char version_string[] =
-    "@(#)ICI 5.0.0, "
-    CONFIG_FILE ", "
-    __DATE__ " " __TIME__ ", "
-    CONFIG_STR
+char version_string[] = "@(#)ICI 5.0.0, " CONFIG_FILE ", " __DATE__ " " __TIME__ ", " CONFIG_STR
 #ifdef ICI_VEC_USE_IPP
-    " (ipp)"
+                        " (ipp)"
 #endif
 #ifndef NDEBUG
-    " *** DEBUG BUILD ***"
+                        " *** DEBUG BUILD ***"
 #endif
-    "";
+                        "";
 
 #else /* __STDC__ */
 

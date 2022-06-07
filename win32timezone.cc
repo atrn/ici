@@ -3,37 +3,26 @@
 #include "object.h"
 #include "str.h"
 
-#ifdef  _WIN32
+#ifdef _WIN32
 #include <windows.h>
 
 namespace ici
 {
 
-static char *
-convert(WCHAR *s)
+static char *convert(WCHAR *s)
 {
     char buffer[256];
-    int len;
-    len = WideCharToMultiByte
-    (
-        CP_UTF8,
-        WC_DEFAULTCHAR | WC_SEPCHARS,
-        s,
-        -1,
-        buffer,
-        sizeof buffer,
-        nullptr,
-        nullptr
-    );
+    int  len;
+    len = WideCharToMultiByte(CP_UTF8, WC_DEFAULTCHAR | WC_SEPCHARS, s, -1, buffer, sizeof buffer, nullptr, nullptr);
     return len == 0 ? nullptr : buffer;
 }
 
 int set_timezone_vals(map *s)
 {
-    TIME_ZONE_INFORMATION               info;
-    char                                *zone;
-    long                                gmtoff;
-    DWORD                               result;
+    TIME_ZONE_INFORMATION info;
+    char                 *zone;
+    long                  gmtoff;
+    DWORD                 result;
 
     result = GetTimeZoneInformation(&info);
     switch (result)

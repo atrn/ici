@@ -1,16 +1,16 @@
 #define ICI_CORE
-#include "fwd.h"
-#include "src.h"
+#include "array.h"
+#include "buf.h"
+#include "cfunc.h"
 #include "exec.h"
+#include "file.h"
+#include "func.h"
+#include "fwd.h"
 #include "int.h"
 #include "map.h"
-#include "str.h"
-#include "func.h"
-#include "cfunc.h"
-#include "array.h"
 #include "op.h"
-#include "buf.h"
-#include "file.h"
+#include "src.h"
+#include "str.h"
 
 namespace ici
 {
@@ -31,14 +31,16 @@ int debug_ignore_err = 0;
  * Ignore errors within exec loop. Used by internal calls to
  * exec that handle errors themselves, e.g., f_include().
  */
-void debug_ignore_errors() {
+void debug_ignore_errors()
+{
     ++debug_ignore_err;
 }
 
 /*
  * Restore error processing.
  */
-void debug_respect_errors() {
+void debug_respect_errors()
+{
     --debug_ignore_err;
 }
 
@@ -56,11 +58,14 @@ void debug_respect_errors() {
  * don't want to be debugged or need to avoid the performance impact of
  * debugging.
  */
-static int f_debug(...) {
+static int f_debug(...)
+{
     auto result = debug_enabled;
-    if (NARGS() != 0) {
+    if (NARGS() != 0)
+    {
         int64_t v;
-        if (typecheck("i", &v)) {
+        if (typecheck("i", &v))
+        {
             return 1;
         }
         debug_enabled = v;
@@ -68,10 +73,6 @@ static int f_debug(...) {
     return int_ret(result);
 }
 
-ICI_DEFINE_CFUNCS(debug)
-{
-    ICI_DEFINE_CFUNC(debug, f_debug),
-    ICI_CFUNCS_END()
-};
+ICI_DEFINE_CFUNCS(debug){ICI_DEFINE_CFUNC(debug, f_debug), ICI_CFUNCS_END()};
 
 } // namespace ici

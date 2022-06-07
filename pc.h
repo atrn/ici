@@ -13,12 +13,18 @@ namespace ici
  */
 struct pc : object
 {
-    array *pc_code;
+    array   *pc_code;
     object **pc_next;
 };
 
-inline pc * pcof(object *o) { return o->as<pc>(); }
-inline bool ispc(object *o) { return o->hastype(TC_PC); }
+inline pc *pcof(object *o)
+{
+    return o->as<pc>();
+}
+inline bool ispc(object *o)
+{
+    return o->hastype(TC_PC);
+}
 
 /*
  * End of ici.h export. --ici.h-end--
@@ -26,12 +32,14 @@ inline bool ispc(object *o) { return o->hastype(TC_PC); }
 
 class pc_type : public type
 {
-public:
-    pc_type() : type("pc", sizeof (struct pc)) {}
+  public:
+    pc_type()
+        : type("pc", sizeof(struct pc))
+    {
+    }
     size_t mark(object *o) override;
 };
 
-
 } // namespace ici
 
-#endif  /* ICI_PC_H */
+#endif /* ICI_PC_H */

@@ -26,39 +26,39 @@ namespace ici
 
 struct regexp : object
 {
-    pcre        *r_re;
-    pcre_extra  *r_rex;
-    str         *r_pat;
+    pcre       *r_re;
+    pcre_extra *r_rex;
+    str        *r_pat;
 };
 
-inline regexp *regexpof(object *o) { return o->as<regexp>(); }
-inline bool isregexp(object *o) { return o->hastype(TC_REGEXP); }
+inline regexp *regexpof(object *o)
+{
+    return o->as<regexp>();
+}
+inline bool isregexp(object *o)
+{
+    return o->hastype(TC_REGEXP);
+}
 
 int ici_pcre_exec_simple(regexp *, str *);
 
-int ici_pcre
-(
-    regexp *r,
-    const char *subject,
-    int length,
-    int start_offset,
-    int options,
-    int *offsets,
-    int offsetcount
-);
+int ici_pcre(regexp *r, const char *subject, int length, int start_offset, int options, int *offsets, int offsetcount);
 
 class regexp_type : public type
 {
-public:
-    regexp_type() : type("regexp", sizeof (struct regexp)) {}
+  public:
+    regexp_type()
+        : type("regexp", sizeof(struct regexp))
+    {
+    }
 
-    size_t mark(object *o) override;
-    void free(object *o) override;
+    size_t        mark(object *o) override;
+    void          free(object *o) override;
     unsigned long hash(object *o) override;
-    int cmp(object *o1, object *o2) override;
-    object *fetch(object *o, object *k) override;
-    int save(archiver *, object *) override;
-    object *restore(archiver *) override;
+    int           cmp(object *o1, object *o2) override;
+    object       *fetch(object *o, object *k) override;
+    int           save(archiver *, object *) override;
+    object       *restore(archiver *) override;
 };
 
 /*

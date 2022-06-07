@@ -8,42 +8,30 @@
 namespace ici
 {
 
-typedef void    *dll_t;
+typedef void *dll_t;
 
-#define valid_dll(dll)  ((dll) != nullptr)
+#define valid_dll(dll) ((dll) != nullptr)
 
-static dll_t
-dlopen(const char *name, int mode)
+static dll_t dlopen(const char *name, int mode)
 {
     return LoadLibrary(name);
 }
 
-static void *
-dlsym(dll_t hinst, const char *name)
+static void *dlsym(dll_t hinst, const char *name)
 {
     return GetProcAddress(hinst, name);
 }
 
-static char *
-dlerror()
+static char *dlerror()
 {
-    static char     msg[80];
+    static char msg[80];
 
-    FormatMessage
-    (
-        FORMAT_MESSAGE_FROM_SYSTEM,
-        nullptr,
-        GetLastError(),
-        MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-        msg,
-        sizeof msg,
-        nullptr
-    );
+    FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, nullptr, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), msg,
+                  sizeof msg, nullptr);
     return msg;
 }
 
-static void
-dlclose(dll_t hinst)
+static void dlclose(dll_t hinst)
 {
 }
 

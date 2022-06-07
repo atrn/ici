@@ -23,7 +23,7 @@ namespace ici
  */
 constexpr size_t max_types = 256;
 extern DLI type *types[max_types];
-extern DLI int num_types;
+extern DLI int   num_types;
 
 /*
  * End of ici.h export. --ici.h-end--

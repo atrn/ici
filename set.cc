@@ -1,14 +1,14 @@
 #define ICI_CORE
-#include "object.h"
 #include "set.h"
-#include "exec.h"
-#include "op.h"
-#include "int.h"
-#include "buf.h"
-#include "null.h"
-#include "primes.h"
-#include "forall.h"
 #include "archiver.h"
+#include "buf.h"
+#include "exec.h"
+#include "forall.h"
+#include "int.h"
+#include "null.h"
+#include "object.h"
+#include "op.h"
+#include "primes.h"
 
 namespace ici
 {
@@ -21,13 +21,17 @@ inline size_t hashindex(object *k, set *s)
 /*
  * Find the set slot which does, or should, contain the key k.
  */
-object **ici_find_set_slot(set *s, object *k) {
+object **ici_find_set_slot(set *s, object *k)
+{
     auto e = &s->s_slots[hashindex(k, s)];
-    while (*e != nullptr) {
-        if (*e == k) {
+    while (*e != nullptr)
+    {
+        if (*e == k)
+        {
             return e;
         }
-        if (--e < s->s_slots) {
+        if (--e < s->s_slots)
+        {
             e = s->s_slots + s->s_nslots - 1;
         }
     }
@@ -42,22 +46,24 @@ object **ici_find_set_slot(set *s, object *k) {
  */
 set *new_set()
 {
-    set  *s;
+    set *s;
 
     /*
      * NB: there is a copy of this sequence in copy_set.
      */
     if ((s = ici_talloc(set)) == nullptr)
+    {
         return nullptr;
+    }
     set_tfnz(s, TC_SET, 0, 1, 0);
     s->s_nels = 0;
     s->s_nslots = 4; /* Must be power of 2. */
-    if ((s->s_slots = (object **)ici_nalloc(4 * sizeof (object *))) == nullptr)
+    if ((s->s_slots = (object **)ici_nalloc(4 * sizeof(object *))) == nullptr)
     {
         ici_tfree(s, set);
         return nullptr;
     }
-    memset(s->s_slots, 0, 4 * sizeof (object *));
+    memset(s->s_slots, 0, 4 * sizeof(object *));
     rego(s);
     return s;
 }
@@ -67,26 +73,30 @@ set *new_set()
  */
 static int grow_set(set *s)
 {
-    object    **e;
-    object    **oldslots;
-    size_t     z;
-    ptrdiff_t   oldn;
+    object  **e;
+    object  **oldslots;
+    size_t    z;
+    ptrdiff_t oldn;
 
     oldn = s->s_nslots;
-    z = (oldn * 2) * sizeof (object *);
+    z = (oldn * 2) * sizeof(object *);
     if ((e = (object **)ici_nalloc(z)) == nullptr)
+    {
         return 1;
+    }
     memset((char *)e, 0, z);
     oldslots = s->s_slots;
     s->s_slots = e;
     s->s_nslots = oldn * 2;
-    for (z = oldn; z > 0; )
+    for (z = oldn; z > 0;)
     {
         --z;
         if (oldslots[z] != nullptr)
+        {
             *ici_find_set_slot(s, oldslots[z]) = oldslots[z];
+        }
     }
-    ici_nfree(oldslots, oldn * sizeof (object *));
+    ici_nfree(oldslots, oldn * sizeof(object *));
     return 0;
 }
 
@@ -95,12 +105,14 @@ static int grow_set(set *s)
  */
 int unassign(set *s, object *k)
 {
-    object  **sl;
-    object  **ss;
-    object  **ws;   /* Wanted position. */
+    object **sl;
+    object **ss;
+    object **ws; /* Wanted position. */
 
     if (*(ss = ici_find_set_slot(s, k)) == nullptr)
+    {
         return 0;
+    }
     --s->s_nels;
     sl = ss;
     /*
@@ -110,16 +122,15 @@ int unassign(set *s, object *k)
     for (;;)
     {
         if (--sl < s->s_slots)
+        {
             sl = s->s_slots + s->s_nslots - 1;
+        }
         if (*sl == nullptr)
+        {
             break;
+        }
         ws = &s->s_slots[hashindex(*sl, s)];
-        if
-        (
-            (sl < ss && (ws >= ss || ws < sl))
-            ||
-            (sl > ss && (ws >= ss && ws < sl))
-        )
+        if ((sl < ss && (ws >= ss || ws < sl)) || (sl > ss && (ws >= ss && ws < sl)))
         {
             /*
              * The value at sl, which really wants to be at ws, should go
@@ -141,11 +152,15 @@ int unassign(set *s, object *k)
 size_t set_type::mark(object *o)
 {
     auto s = setof(o);
-    auto mem = type::mark(s) + s->s_nslots * sizeof (object *);
+    auto mem = type::mark(s) + s->s_nslots * sizeof(object *);
     if (s->s_nels == 0)
+    {
         return mem;
+    }
     for (object **e = &s->s_slots[s->s_nslots - 1]; e >= s->s_slots; --e)
+    {
         mem += mark_optional(*e);
+    }
     return mem;
 }
 
@@ -157,7 +172,9 @@ void set_type::free(object *o)
 {
     auto s = setof(o);
     if (s->s_slots != nullptr)
-        ici_nfree(s->s_slots, s->s_nslots * sizeof (object *));
+    {
+        ici_nfree(s->s_slots, s->s_nslots * sizeof(object *));
+    }
     ici_tfree(o, set);
 }
 
@@ -170,14 +187,20 @@ int set_type::cmp(object *o1, object *o2)
     object **e;
 
     if (o1 == o2)
+    {
         return 0;
+    }
     if (setof(o1)->s_nels != setof(o2)->s_nels)
+    {
         return 1;
+    }
     e = setof(o1)->s_slots;
-    for (auto i = setof(o1)->s_nslots; i-- > 0; )
+    for (auto i = setof(o1)->s_nslots; i-- > 0;)
     {
         if (*e != nullptr && *ici_find_set_slot(setof(o2), *e) == nullptr)
+        {
             return 1;
+        }
         ++e;
     }
     return 0;
@@ -189,8 +212,8 @@ int set_type::cmp(object *o1, object *o2)
  */
 unsigned long set_type::hash(object *o)
 {
-    unsigned long   h;
-    object        **po;
+    unsigned long h;
+    object      **po;
 
     /*
      * This assumes nullptr will become zero when cast to unsigned long.
@@ -198,8 +221,10 @@ unsigned long set_type::hash(object *o)
 
     h = 0;
     po = setof(o)->s_slots;
-    for (auto i = setof(o)->s_nels; i-- > 0; )
+    for (auto i = setof(o)->s_nels; i-- > 0;)
+    {
         h += (unsigned long)*po++ >> 4;
+    }
     return h * SET_PRIME_0 + SET_PRIME_1;
 }
 
@@ -207,26 +232,28 @@ unsigned long set_type::hash(object *o)
  * Return a copy of the given object, or nullptr on error.
  * See the comment on t_copy() in object.h.
  */
-object * set_type::copy(object *o) {
-    auto s = setof(o);
+object *set_type::copy(object *o)
+{
+    auto     s = setof(o);
     ref<set> ns;
 
-    if ((ns = ici_talloc(set)) == nullptr) {
+    if ((ns = ici_talloc(set)) == nullptr)
+    {
         return nullptr;
     }
     set_tfnz(ns, TC_SET, 0, 1, 0);
     ns->s_nels = 0;
     ns->s_nslots = 0;
-    if ((ns->s_slots = (object **)ici_nalloc(s->s_nslots * sizeof (object *))) == nullptr) {
+    if ((ns->s_slots = (object **)ici_nalloc(s->s_nslots * sizeof(object *))) == nullptr)
+    {
         return nullptr;
     }
-    memcpy(ns->s_slots, s->s_slots, s->s_nslots * sizeof (object *));
+    memcpy(ns->s_slots, s->s_slots, s->s_nslots * sizeof(object *));
     ns->s_nels = s->s_nels;
     ns->s_nslots = s->s_nslots;
     rego(ns);
     return ns.release();
 }
-
 
 /*
  * Assign to key k of the object o the value v. Return 1 on error, else 0.
@@ -236,8 +263,8 @@ object * set_type::copy(object *o) {
  */
 int set_type::assign(object *o, object *k, object *v)
 {
-    auto s = setof(o);
-    object  **e;
+    auto     s = setof(o);
+    object **e;
 
     if (o->isatom())
     {
@@ -248,14 +275,18 @@ int set_type::assign(object *o, object *k, object *v)
         return unassign(s, k);
     }
     if (*(e = ici_find_set_slot(s, k)) != nullptr)
+    {
         return 0;
+    }
     if (s->s_nels >= s->s_nslots - s->s_nslots / 4)
     {
         /*
          * This set is 75% full.  Grow it.
          */
         if (grow_set(s))
+        {
             return 1;
+        }
         e = ici_find_set_slot(s, k);
     }
     ++s->s_nels;
@@ -267,10 +298,11 @@ int set_type::assign(object *o, object *k, object *v)
  * Return the object at key k of the obejct o, or nullptr on error.
  * See the comment on t_fetch in object.h.
  */
-object * set_type::fetch(object *o, object *k)
+object *set_type::fetch(object *o, object *k)
 {
     auto slot = *ici_find_set_slot(setof(o), k);
-    if (slot == nullptr) {
+    if (slot == nullptr)
+    {
         return null;
     }
     return o_one;
@@ -278,9 +310,9 @@ object * set_type::fetch(object *o, object *k)
 
 int set_type::forall(object *o)
 {
-    auto fa = forallof(o);
-    set           *s;
-    object       **sl;
+    auto     fa = forallof(o);
+    set     *s;
+    object **sl;
 
     s = setof(fa->fa_aggr);
     while (++fa->fa_index < s->s_nslots)
@@ -304,7 +336,9 @@ int set_type::forall(object *o)
             if (fa->fa_vaggr != null)
             {
                 if (ici_assign(fa->fa_vaggr, fa->fa_vkey, o_one))
+                {
                     return 1;
+                }
             }
             if (ici_assign(fa->fa_kaggr, fa->fa_kkey, *sl))
             {
@@ -316,46 +350,59 @@ int set_type::forall(object *o)
     return -1;
 }
 
-int set_type::save(archiver *ar, object *o) {
+int set_type::save(archiver *ar, object *o)
+{
     auto s = setof(o);
-    if (ar->save_name(o)) {
+    if (ar->save_name(o))
+    {
         return 1;
     }
     const int64_t nels = s->s_nels;
-    if (ar->write(nels)) {
+    if (ar->write(nels))
+    {
         return 1;
     }
-    for (object **e = s->s_slots; size_t(e - s->s_slots) < s->s_nslots; ++e) {
-        if (*e && ar->save(*e)) {
+    for (object **e = s->s_slots; size_t(e - s->s_slots) < s->s_nslots; ++e)
+    {
+        if (*e && ar->save(*e))
+        {
             return 1;
         }
     }
     return 0;
 }
 
-object *set_type::restore(archiver *ar) {
+object *set_type::restore(archiver *ar)
+{
     ref<set> s;
-    int64_t n;
-    object *name;
+    int64_t  n;
+    object  *name;
 
-    if (ar->restore_name(&name)) {
+    if (ar->restore_name(&name))
+    {
         return nullptr;
     }
-    if ((s = new_set()) == nullptr) {
+    if ((s = new_set()) == nullptr)
+    {
         return nullptr;
     }
-    if (ar->record(name, s)) {
+    if (ar->record(name, s))
+    {
         return nullptr;
     }
-    if (ar->read(&n)) {
+    if (ar->read(&n))
+    {
         goto fail;
     }
-    for (int64_t i = 0; i < n; ++i) {
+    for (int64_t i = 0; i < n; ++i)
+    {
         ref<> o = ar->restore();
-        if (!o) {
+        if (!o)
+        {
             goto fail;
         }
-        if (ici_assign(s, o, o_one)) {
+        if (ici_assign(s, o, o_one))
+        {
             goto fail;
         }
     }
@@ -366,22 +413,27 @@ fail:
     return nullptr;
 }
 
-int64_t set_type::len(object *o) {
+int64_t set_type::len(object *o)
+{
     return setof(o)->s_nels;
 }
 
-int set_type::nkeys(object *o) {
+int set_type::nkeys(object *o)
+{
     return setof(o)->s_nels;
 }
 
-int set_type::keys(object *o, array *k) {
-    set *s = setof(o);
+int set_type::keys(object *o, array *k)
+{
+    set   *s = setof(o);
     size_t i;
-    for (i = 0; i < s->s_nslots; ++i) {
-	object *o;
-	if ((o = s->s_slots[i]) != nullptr) {
-	    k->push(o);
-	}
+    for (i = 0; i < s->s_nslots; ++i)
+    {
+        object *o;
+        if ((o = s->s_slots[i]) != nullptr)
+        {
+            k->push(o);
+        }
     }
     return 0;
 }
@@ -391,14 +443,17 @@ int set_type::keys(object *o, array *k) {
  */
 int set_issubset(set *a, set *b) /* a is a subset of b */
 {
-    object  **sl;
-    size_t  i;
+    object **sl;
+    size_t   i;
 
-    for (sl = a->s_slots, i = 0; i < a->s_nslots; ++i, ++sl) {
-        if (*sl == nullptr) {
+    for (sl = a->s_slots, i = 0; i < a->s_nslots; ++i, ++sl)
+    {
+        if (*sl == nullptr)
+        {
             continue;
         }
-        if (*ici_find_set_slot(b, *sl) == nullptr) {
+        if (*ici_find_set_slot(b, *sl) == nullptr)
+        {
             return 0;
         }
     }

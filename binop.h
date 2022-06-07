@@ -10,65 +10,65 @@
 
 #ifndef BINOPFUNC
 
-#define ICI_TRI(a,b,t)      (((((a) << 4) + b) << 6) + t_subtype(t))
+#define ICI_TRI(a, b, t) (((((a) << 4) + b) << 6) + t_subtype(t))
 
 // This uses knowledge of the exec switch in exec.c to avoid chains of
 // gotos.  The continue_with_same_pc label is defined there.
 //
-#define USE0()					\
-    do						\
-    {						\
-        os.a_top[-2] = o_zero;                  \
-	--os.a_top;				\
-	goto continue_with_same_pc;		\
-    }						\
-    while (0)
+#define USE0()                                                                                                         \
+    do                                                                                                                 \
+    {                                                                                                                  \
+        os.a_top[-2] = o_zero;                                                                                         \
+        --os.a_top;                                                                                                    \
+        goto continue_with_same_pc;                                                                                    \
+    } while (0)
 
-#define USE1()					\
-    do						\
-    {						\
-	os.a_top[-2] = o_one;                   \
-	--os.a_top;				\
-	goto continue_with_same_pc;		\
-    }						\
-    while (0)
+#define USE1()                                                                                                         \
+    do                                                                                                                 \
+    {                                                                                                                  \
+        os.a_top[-2] = o_one;                                                                                          \
+        --os.a_top;                                                                                                    \
+        goto continue_with_same_pc;                                                                                    \
+    } while (0)
 
-#define USEo()					\
-    do						\
-    {						\
-	os.a_top[-2] = o;			\
-	--os.a_top;				\
-	goto continue_with_same_pc;		\
-    }						\
-    while (0)
+#define USEo()                                                                                                         \
+    do                                                                                                                 \
+    {                                                                                                                  \
+        os.a_top[-2] = o;                                                                                              \
+        --os.a_top;                                                                                                    \
+        goto continue_with_same_pc;                                                                                    \
+    } while (0)
 
-#define LOOSEo()				\
-    do						\
-    {						\
-	decref(o);				\
-	os.a_top[-2] = o;			\
-	--os.a_top;				\
-	goto continue_with_same_pc;		\
-    }						\
-    while (0)
+#define LOOSEo()                                                                                                       \
+    do                                                                                                                 \
+    {                                                                                                                  \
+        decref(o);                                                                                                     \
+        os.a_top[-2] = o;                                                                                              \
+        --os.a_top;                                                                                                    \
+        goto continue_with_same_pc;                                                                                    \
+    } while (0)
 
 #else
-#define USE0() 	        goto use0
-#define USE1() 	        goto use1
-#define USEo() 	        goto useo
-#define LOOSEo() 	goto looseo
+#define USE0() goto use0
+#define USE1() goto use1
+#define USEo() goto useo
+#define LOOSEo() goto looseo
 #endif
 
-#define FAIL()          goto fail
-#define USEi(I)         i = (I); goto usei
-#define USEf(F)         f = (F); goto usef
-#define MISMATCH()      goto mismatch
-#define VECMISMATCH()   goto vecmismatch
+#define FAIL() goto fail
+#define USEi(I)                                                                                                        \
+    i = (I);                                                                                                           \
+    goto usei
+#define USEf(F)                                                                                                        \
+    f = (F);                                                                                                           \
+    goto usef
+#define MISMATCH() goto mismatch
+#define VECMISMATCH() goto vecmismatch
 
-#define MATCHVEC(VECOF)                         \
-    if (VECOF(o0)->v_size != VECOF(o1)->v_size) \
-    {                                           \
-        VECMISMATCH();                          \
+#define MATCHVEC(VECOF)                                                                                                \
+    if (VECOF(o0)->v_size != VECOF(o1)->v_size)                                                                        \
+    {                                                                                                                  \
+        VECMISMATCH();                                                                                                 \
     }
 
 /*
@@ -82,7 +82,7 @@
     double  f;
     bool    can_temp;
 
-#define SWAP()          (o = o0, o0 = o1, o1 = o)
+#define SWAP() (o = o0, o0 = o1, o1 = o)
 
     o0 = os.a_top[-2];
     o1 = os.a_top[-1];
@@ -90,7 +90,8 @@
     // if (o0->o_tcode > TC_MAX_BINOP || o1->o_tcode > TC_MAX_BINOP) {
     //     goto others;
     // }
-    switch (ICI_TRI(o0->o_tcode, o1->o_tcode, opof(o)->op_code)) {
+    switch (ICI_TRI(o0->o_tcode, o1->o_tcode, opof(o)->op_code))
+    {
     /*
      * Pure integer operations.
      */
@@ -100,7 +101,8 @@
 
     case ICI_TRI(TC_INT, TC_INT, T_SLASH):
     case ICI_TRI(TC_INT, TC_INT, T_SLASHEQ):
-        if (intof(o1)->i_value == 0) {
+        if (intof(o1)->i_value == 0)
+        {
             set_error("division by 0");
             FAIL();
         }
@@ -108,7 +110,8 @@
 
     case ICI_TRI(TC_INT, TC_INT, T_PERCENT):
     case ICI_TRI(TC_INT, TC_INT, T_PERCENTEQ):
-        if (intof(o1)->i_value == 0) {
+        if (intof(o1)->i_value == 0)
+        {
             set_error("modulus by 0");
             FAIL();
         }
@@ -131,37 +134,43 @@
         USEi(intof(o0)->i_value << intof(o1)->i_value);
 
     case ICI_TRI(TC_INT, TC_INT, T_LESS):
-        if (intof(o0)->i_value < intof(o1)->i_value) {
+        if (intof(o0)->i_value < intof(o1)->i_value)
+        {
             USE1();
         }
         USE0();
 
     case ICI_TRI(TC_INT, TC_INT, T_GRT):
-        if (intof(o0)->i_value > intof(o1)->i_value) {
+        if (intof(o0)->i_value > intof(o1)->i_value)
+        {
             USE1();
         }
         USE0();
 
     case ICI_TRI(TC_INT, TC_INT, T_LESSEQ):
-        if (intof(o0)->i_value <= intof(o1)->i_value) {
+        if (intof(o0)->i_value <= intof(o1)->i_value)
+        {
             USE1();
         }
         USE0();
 
     case ICI_TRI(TC_INT, TC_INT, T_GRTEQ):
-        if (intof(o0)->i_value >= intof(o1)->i_value) {
+        if (intof(o0)->i_value >= intof(o1)->i_value)
+        {
             USE1();
         }
         USE0();
 
     case ICI_TRI(TC_INT, TC_INT, T_EQEQ):
-        if (intof(o0)->i_value == intof(o1)->i_value) {
+        if (intof(o0)->i_value == intof(o1)->i_value)
+        {
             USE1();
         }
         USE0();
 
     case ICI_TRI(TC_INT, TC_INT, T_EXCLAMEQ):
-        if (intof(o0)->i_value != intof(o1)->i_value) {
+        if (intof(o0)->i_value != intof(o1)->i_value)
+        {
             USE1();
         }
         USE0();
@@ -195,7 +204,8 @@
 
     case ICI_TRI(TC_FLOAT, TC_FLOAT, T_SLASH):
     case ICI_TRI(TC_FLOAT, TC_FLOAT, T_SLASHEQ):
-        if (floatof(o1)->f_value == 0) {
+        if (floatof(o1)->f_value == 0)
+        {
             set_error("division by 0.0");
             FAIL();
         }
@@ -203,7 +213,8 @@
 
     case ICI_TRI(TC_FLOAT, TC_INT, T_SLASH):
     case ICI_TRI(TC_FLOAT, TC_INT, T_SLASHEQ):
-        if (intof(o1)->i_value == 0) {
+        if (intof(o1)->i_value == 0)
+        {
             set_error("division by 0");
             FAIL();
         }
@@ -211,7 +222,8 @@
 
     case ICI_TRI(TC_INT, TC_FLOAT, T_SLASH):
     case ICI_TRI(TC_INT, TC_FLOAT, T_SLASHEQ):
-        if (floatof(o1)->f_value == 0) {
+        if (floatof(o1)->f_value == 0)
+        {
             set_error("division by 0.0");
             FAIL();
         }
@@ -242,109 +254,127 @@
         USEf(intof(o0)->i_value - floatof(o1)->f_value);
 
     case ICI_TRI(TC_FLOAT, TC_FLOAT, T_LESS):
-        if (floatof(o0)->f_value < floatof(o1)->f_value) {
+        if (floatof(o0)->f_value < floatof(o1)->f_value)
+        {
             USE1();
         }
         USE0();
 
     case ICI_TRI(TC_FLOAT, TC_INT, T_LESS):
-        if (floatof(o0)->f_value < intof(o1)->i_value) {
+        if (floatof(o0)->f_value < intof(o1)->i_value)
+        {
             USE1();
         }
         USE0();
 
     case ICI_TRI(TC_INT, TC_FLOAT, T_LESS):
-        if (intof(o0)->i_value < floatof(o1)->f_value) {
+        if (intof(o0)->i_value < floatof(o1)->f_value)
+        {
             USE1();
         }
         USE0();
 
     case ICI_TRI(TC_FLOAT, TC_FLOAT, T_GRT):
-        if (floatof(o0)->f_value > floatof(o1)->f_value) {
+        if (floatof(o0)->f_value > floatof(o1)->f_value)
+        {
             USE1();
         }
         USE0();
 
     case ICI_TRI(TC_FLOAT, TC_INT, T_GRT):
-        if (floatof(o0)->f_value > intof(o1)->i_value) {
+        if (floatof(o0)->f_value > intof(o1)->i_value)
+        {
             USE1();
         }
         USE0();
 
     case ICI_TRI(TC_INT, TC_FLOAT, T_GRT):
-        if (intof(o0)->i_value > floatof(o1)->f_value) {
+        if (intof(o0)->i_value > floatof(o1)->f_value)
+        {
             USE1();
         }
         USE0();
 
     case ICI_TRI(TC_FLOAT, TC_FLOAT, T_LESSEQ):
-        if (floatof(o0)->f_value <= floatof(o1)->f_value) {
+        if (floatof(o0)->f_value <= floatof(o1)->f_value)
+        {
             USE1();
         }
         USE0();
 
     case ICI_TRI(TC_FLOAT, TC_INT, T_LESSEQ):
-        if (floatof(o0)->f_value <= intof(o1)->i_value) {
+        if (floatof(o0)->f_value <= intof(o1)->i_value)
+        {
             USE1();
         }
         USE0();
 
     case ICI_TRI(TC_INT, TC_FLOAT, T_LESSEQ):
-        if (intof(o0)->i_value <= floatof(o1)->f_value) {
+        if (intof(o0)->i_value <= floatof(o1)->f_value)
+        {
             USE1();
         }
         USE0();
 
     case ICI_TRI(TC_FLOAT, TC_FLOAT, T_GRTEQ):
-        if (floatof(o0)->f_value >= floatof(o1)->f_value) {
+        if (floatof(o0)->f_value >= floatof(o1)->f_value)
+        {
             USE1();
         }
         USE0();
 
     case ICI_TRI(TC_FLOAT, TC_INT, T_GRTEQ):
-        if (floatof(o0)->f_value >= intof(o1)->i_value) {
+        if (floatof(o0)->f_value >= intof(o1)->i_value)
+        {
             USE1();
         }
         USE0();
 
     case ICI_TRI(TC_INT, TC_FLOAT, T_GRTEQ):
-        if (intof(o0)->i_value >= floatof(o1)->f_value) {
+        if (intof(o0)->i_value >= floatof(o1)->f_value)
+        {
             USE1();
         }
         USE0();
 
     case ICI_TRI(TC_FLOAT, TC_FLOAT, T_EQEQ):
-        if (floatof(o0)->f_value == floatof(o1)->f_value) {
+        if (floatof(o0)->f_value == floatof(o1)->f_value)
+        {
             USE1();
         }
         USE0();
 
     case ICI_TRI(TC_FLOAT, TC_INT, T_EQEQ):
-        if (floatof(o0)->f_value == intof(o1)->i_value) {
+        if (floatof(o0)->f_value == intof(o1)->i_value)
+        {
             USE1();
         }
         USE0();
 
     case ICI_TRI(TC_INT, TC_FLOAT, T_EQEQ):
-        if (intof(o0)->i_value == floatof(o1)->f_value) {
+        if (intof(o0)->i_value == floatof(o1)->f_value)
+        {
             USE1();
         }
         USE0();
 
     case ICI_TRI(TC_FLOAT, TC_FLOAT, T_EXCLAMEQ):
-        if (floatof(o0)->f_value != floatof(o1)->f_value) {
+        if (floatof(o0)->f_value != floatof(o1)->f_value)
+        {
             USE1();
         }
         USE0();
 
     case ICI_TRI(TC_FLOAT, TC_INT, T_EXCLAMEQ):
-        if (floatof(o0)->f_value != intof(o1)->i_value) {
+        if (floatof(o0)->f_value != intof(o1)->i_value)
+        {
             USE1();
         }
         USE0();
 
     case ICI_TRI(TC_INT, TC_FLOAT, T_EXCLAMEQ):
-        if (intof(o0)->i_value != floatof(o1)->f_value) {
+        if (intof(o0)->i_value != floatof(o1)->f_value)
+        {
             USE1();
         }
         USE0();
@@ -356,7 +386,8 @@
         SWAP();
         /*FALLTHROUGH*/
     case ICI_TRI(TC_REGEXP, TC_STRING, T_TILDE):
-        if (ici_pcre_exec_simple(regexpof(o0), stringof(o1)) >= 0) {
+        if (ici_pcre_exec_simple(regexpof(o0), stringof(o1)) >= 0)
+        {
             USE1();
         }
         USE0();
@@ -365,7 +396,8 @@
         SWAP();
         /*FALLTHROUGH*/
     case ICI_TRI(TC_REGEXP, TC_STRING, T_EXCLAMTILDE):
-        if (ici_pcre_exec_simple(regexpof(o0), stringof(o1)) < 0) {
+        if (ici_pcre_exec_simple(regexpof(o0), stringof(o1)) < 0)
+        {
             USE1();
         }
         USE0();
@@ -377,19 +409,16 @@
     case ICI_TRI(TC_REGEXP, TC_STRING, T_2TILDE):
     case ICI_TRI(TC_REGEXP, TC_STRING, T_2TILDEEQ):
         memset(re_bra, 0, sizeof re_bra);
-        if (ici_pcre_exec_simple(regexpof(o0), stringof(o1)) < 0
-            ||
-            re_bra[2] < 0 || re_bra[3] < 0
-        ) {
+        if (ici_pcre_exec_simple(regexpof(o0), stringof(o1)) < 0 || re_bra[2] < 0 || re_bra[3] < 0)
+        {
             o = null;
             USEo();
-        } else {
-            o = new_str
-            (
-                stringof(o1)->s_chars + re_bra[2],
-                re_bra[3] - re_bra[2]
-            );
-            if (o == nullptr) {
+        }
+        else
+        {
+            o = new_str(stringof(o1)->s_chars + re_bra[2], re_bra[3] - re_bra[2]);
+            if (o == nullptr)
+            {
                 FAIL();
             }
         }
@@ -401,33 +430,27 @@
     case ICI_TRI(TC_REGEXP, TC_STRING, T_3TILDE):
         memset(re_bra, 0, sizeof re_bra);
         re_nbra = ici_pcre_exec_simple(regexpof(o0), stringof(o1));
-        if (re_nbra < 0) {
+        if (re_nbra < 0)
+        {
             o = null;
             USEo();
         }
-        if ((o = new_array(re_nbra)) == nullptr) {
+        if ((o = new_array(re_nbra)) == nullptr)
+        {
             FAIL();
         }
-        for (i = 1; i < re_nbra; ++i) {
-            if (re_bra[i*2] == -1) {
-                if ((*arrayof(o)->a_top = str_alloc(0)) == nullptr) {
+        for (i = 1; i < re_nbra; ++i)
+        {
+            if (re_bra[i * 2] == -1)
+            {
+                if ((*arrayof(o)->a_top = str_alloc(0)) == nullptr)
+                {
                     FAIL();
                 }
             }
-            else if
-            (
-                (
-                    *arrayof(o)->a_top
-                    =
-                    new_str
-                    (
-                        stringof(o1)->s_chars + re_bra[i*2],
-                        re_bra[(i * 2) + 1 ] - re_bra[i * 2]
-                    )
-                )
-                ==
-                nullptr
-            ) {
+            else if ((*arrayof(o)->a_top = new_str(stringof(o1)->s_chars + re_bra[i * 2],
+                                                   re_bra[(i * 2) + 1] - re_bra[i * 2])) == nullptr)
+            {
                 FAIL();
             }
             decref(*arrayof(o)->a_top);
@@ -440,41 +463,48 @@
      */
     case ICI_TRI(TC_PTR, TC_INT, T_MINUS):
     case ICI_TRI(TC_PTR, TC_INT, T_MINUSEQ):
-        if (!isint(ptrof(o0)->p_key)) {
+        if (!isint(ptrof(o0)->p_key))
+        {
             MISMATCH();
         }
         {
-            object   *i;
+            object *i;
 
-            if ((i = new_int(intof(ptrof(o0)->p_key)->i_value - intof(o1)->i_value)) == nullptr) {
+            if ((i = new_int(intof(ptrof(o0)->p_key)->i_value - intof(o1)->i_value)) == nullptr)
+            {
                 FAIL();
             }
-            if ((o = new_ptr(ptrof(o0)->p_aggr, i)) == nullptr) {
+            if ((o = new_ptr(ptrof(o0)->p_aggr, i)) == nullptr)
+            {
                 FAIL();
             }
             decref(i);
         }
         LOOSEo();
-        
+
     case ICI_TRI(TC_INT, TC_PTR, T_PLUS):
     case ICI_TRI(TC_INT, TC_PTR, T_PLUSEQ):
-        if (!isint(ptrof(o1)->p_key)) {
+        if (!isint(ptrof(o1)->p_key))
+        {
             MISMATCH();
         }
         SWAP();
         /*FALLTHROUGH*/
     case ICI_TRI(TC_PTR, TC_INT, T_PLUS):
     case ICI_TRI(TC_PTR, TC_INT, T_PLUSEQ):
-        if (!isint(ptrof(o0)->p_key)) {
+        if (!isint(ptrof(o0)->p_key))
+        {
             MISMATCH();
         }
         {
-            object   *i;
+            object *i;
 
-            if ((i = new_int(intof(ptrof(o0)->p_key)->i_value + intof(o1)->i_value)) == nullptr) {
+            if ((i = new_int(intof(ptrof(o0)->p_key)->i_value + intof(o1)->i_value)) == nullptr)
+            {
                 FAIL();
             }
-            if ((o = new_ptr(ptrof(o0)->p_aggr, i)) == nullptr) {
+            if ((o = new_ptr(ptrof(o0)->p_aggr, i)) == nullptr)
+            {
                 FAIL();
             }
             decref(i);
@@ -493,122 +523,135 @@
         LOOSEo();
 
     case ICI_TRI(TC_ARRAY, TC_ARRAY, T_PLUS):
-    case ICI_TRI(TC_ARRAY, TC_ARRAY, T_PLUSEQ):
-        {
-            array *a;
-            ptrdiff_t   z0;
-            ptrdiff_t   z1;
+    case ICI_TRI(TC_ARRAY, TC_ARRAY, T_PLUSEQ): {
+        array    *a;
+        ptrdiff_t z0;
+        ptrdiff_t z1;
 
-            z0 = arrayof(o0)->len();
-            z1 = arrayof(o1)->len();
-            if ((a = new_array(z0 + z1)) == nullptr) {
-                FAIL();
-            }
-            arrayof(o0)->gather(a->a_top, 0, z0);
-            a->a_top += z0;
-            arrayof(o1)->gather(a->a_top, 0, z1);
-            a->a_top += z1;
-            o = a;
+        z0 = arrayof(o0)->len();
+        z1 = arrayof(o1)->len();
+        if ((a = new_array(z0 + z1)) == nullptr)
+        {
+            FAIL();
         }
+        arrayof(o0)->gather(a->a_top, 0, z0);
+        a->a_top += z0;
+        arrayof(o1)->gather(a->a_top, 0, z1);
+        a->a_top += z1;
+        o = a;
+    }
         LOOSEo();
 
     case ICI_TRI(TC_MAP, TC_MAP, T_PLUS):
-    case ICI_TRI(TC_MAP, TC_MAP, T_PLUSEQ):
-        {
-            map    *s;
-            slot  *sl;
-            size_t  i;
+    case ICI_TRI(TC_MAP, TC_MAP, T_PLUSEQ): {
+        map   *s;
+        slot  *sl;
+        size_t i;
 
-            if ((s = mapof(copyof(o0))) == nullptr) {
+        if ((s = mapof(copyof(o0))) == nullptr)
+        {
+            FAIL();
+        }
+        sl = mapof(o1)->s_slots;
+        for (i = 0; i < mapof(o1)->s_nslots; ++i, ++sl)
+        {
+            if (sl->sl_key == nullptr)
+            {
+                continue;
+            }
+            if (ici_assign(s, sl->sl_key, sl->sl_value))
+            {
+                decref(s);
                 FAIL();
             }
-            sl = mapof(o1)->s_slots;
-            for (i = 0; i < mapof(o1)->s_nslots; ++i, ++sl) {
-                if (sl->sl_key == nullptr) {
-                    continue;
-                }
-                if (ici_assign(s, sl->sl_key, sl->sl_value)) {
-                    decref(s);
-                    FAIL();
-                }
-            }
-            o = s;
         }
+        o = s;
+    }
         LOOSEo();
 
     case ICI_TRI(TC_SET, TC_SET, T_PLUS):
-    case ICI_TRI(TC_SET, TC_SET, T_PLUSEQ):
-        {
-            set     *s;
-            object  **sl;
-            size_t  i;
+    case ICI_TRI(TC_SET, TC_SET, T_PLUSEQ): {
+        set     *s;
+        object **sl;
+        size_t   i;
 
-            if ((s = setof(copyof(o0))) == nullptr) {
+        if ((s = setof(copyof(o0))) == nullptr)
+        {
+            FAIL();
+        }
+        sl = setof(o1)->s_slots;
+        for (i = 0; i < setof(o1)->s_nslots; ++i, ++sl)
+        {
+            if (*sl == nullptr)
+            {
+                continue;
+            }
+            if (ici_assign(s, *sl, o_one))
+            {
+                decref(s);
                 FAIL();
             }
-            sl = setof(o1)->s_slots;
-            for (i = 0; i < setof(o1)->s_nslots; ++i, ++sl) {
-                if (*sl == nullptr){
-                    continue;
-                }
-                if (ici_assign(s, *sl, o_one)) {
-                    decref(s);
-                    FAIL();
-                }
-            }
-            o = s;
         }
+        o = s;
+    }
         LOOSEo();
 
     case ICI_TRI(TC_SET, TC_SET, T_MINUS):
-    case ICI_TRI(TC_SET, TC_SET, T_MINUSEQ):
-        {
-            set     *s;
-            object  **sl;
-            size_t  i;
+    case ICI_TRI(TC_SET, TC_SET, T_MINUSEQ): {
+        set     *s;
+        object **sl;
+        size_t   i;
 
-            if ((s = setof(copyof(o0))) == nullptr) {
+        if ((s = setof(copyof(o0))) == nullptr)
+        {
+            FAIL();
+        }
+        sl = setof(o1)->s_slots;
+        for (i = 0; i < setof(o1)->s_nslots; ++i, ++sl)
+        {
+            if (*sl == nullptr)
+            {
+                continue;
+            }
+            if (ici_assign(s, *sl, null))
+            {
+                decref(s);
                 FAIL();
             }
-            sl = setof(o1)->s_slots;
-            for (i = 0; i < setof(o1)->s_nslots; ++i, ++sl) {
-                if (*sl == nullptr) {
-                    continue;
-                }
-                if (ici_assign(s, *sl, null)) {
-                    decref(s);
-                    FAIL();
-                }
-            }
-            o = s;
         }
+        o = s;
+    }
         LOOSEo();
 
     case ICI_TRI(TC_SET, TC_SET, T_ASTERIX):
-    case ICI_TRI(TC_SET, TC_SET, T_ASTERIXEQ):
-        {
-            set     *s;
-            object  **sl;
-            size_t  i;
+    case ICI_TRI(TC_SET, TC_SET, T_ASTERIXEQ): {
+        set     *s;
+        object **sl;
+        size_t   i;
 
-            if (setof(o0)->s_nels > setof(o1)->s_nels) {
-                SWAP();
+        if (setof(o0)->s_nels > setof(o1)->s_nels)
+        {
+            SWAP();
+        }
+        if ((s = new_set()) == nullptr)
+        {
+            FAIL();
+        }
+        sl = setof(o0)->s_slots;
+        for (i = 0; i < setof(o0)->s_nslots; ++i, ++sl)
+        {
+            if (*sl == nullptr)
+            {
+                continue;
             }
-            if ((s = new_set()) == nullptr) {
+            if (ici_fetch(o1, *sl) != null && ici_assign(s, *sl, o_one))
+            {
+                decref(s);
                 FAIL();
             }
-            sl = setof(o0)->s_slots;
-            for (i = 0; i < setof(o0)->s_nslots; ++i, ++sl) {
-                if (*sl == nullptr) {
-                    continue;
-                }
-                if (ici_fetch(o1, *sl) != null && ici_assign(s, *sl, o_one)) {
-                    decref(s);
-                    FAIL();
-                }
-            }
-            o = s;
         }
+        o = s;
+    }
         LOOSEo();
 
     case ICI_TRI(TC_SET, TC_SET, T_GRTEQ):
@@ -629,10 +672,12 @@
 
     case ICI_TRI(TC_PTR, TC_PTR, T_MINUS):
     case ICI_TRI(TC_PTR, TC_PTR, T_MINUSEQ):
-        if (!isint(ptrof(o1)->p_key) || !isint(ptrof(o0)->p_key)) {
+        if (!isint(ptrof(o1)->p_key) || !isint(ptrof(o0)->p_key))
+        {
             MISMATCH();
         }
-        if ((o = new_int(intof(ptrof(o0)->p_key)->i_value - intof(ptrof(o1)->p_key)->i_value)) == nullptr) {
+        if ((o = new_int(intof(ptrof(o0)->p_key)->i_value - intof(ptrof(o1)->p_key)->i_value)) == nullptr)
+        {
             FAIL();
         }
         LOOSEo();
@@ -640,64 +685,88 @@
     case ICI_TRI(TC_STRING, TC_STRING, T_LESS):
     case ICI_TRI(TC_STRING, TC_STRING, T_GRT):
     case ICI_TRI(TC_STRING, TC_STRING, T_LESSEQ):
-    case ICI_TRI(TC_STRING, TC_STRING, T_GRTEQ):
-        {
-            ssize_t   compare;
-            str   *s1;
-            str   *s2;
+    case ICI_TRI(TC_STRING, TC_STRING, T_GRTEQ): {
+        ssize_t compare;
+        str    *s1;
+        str    *s2;
 
-            s1 = stringof(o0);
-            s2 = stringof(o1);
-            compare = s1->s_nchars < s2->s_nchars ? s1->s_nchars : s2->s_nchars;
-            compare = memcmp(s1->s_chars, s2->s_chars, compare);
-            if (compare == 0) {
-                if (s1->s_nchars < s2->s_nchars) {
-                    compare = -1;
-                } else if (s1->s_nchars > s2->s_nchars) {
-                    compare = 1;
-                }
+        s1 = stringof(o0);
+        s2 = stringof(o1);
+        compare = s1->s_nchars < s2->s_nchars ? s1->s_nchars : s2->s_nchars;
+        compare = memcmp(s1->s_chars, s2->s_chars, compare);
+        if (compare == 0)
+        {
+            if (s1->s_nchars < s2->s_nchars)
+            {
+                compare = -1;
             }
-            switch (opof(o)->op_code) {
-            case t_subtype(T_LESS):   if (compare < 0) USE1(); break;
-            case t_subtype(T_GRT):    if (compare > 0) USE1(); break;
-            case t_subtype(T_LESSEQ): if (compare <= 0) USE1(); break;
-            case t_subtype(T_GRTEQ):  if (compare >= 0) USE1(); break;
+            else if (s1->s_nchars > s2->s_nchars)
+            {
+                compare = 1;
             }
         }
+        switch (opof(o)->op_code)
+        {
+        case t_subtype(T_LESS):
+            if (compare < 0)
+                USE1();
+            break;
+        case t_subtype(T_GRT):
+            if (compare > 0)
+                USE1();
+            break;
+        case t_subtype(T_LESSEQ):
+            if (compare <= 0)
+                USE1();
+            break;
+        case t_subtype(T_GRTEQ):
+            if (compare >= 0)
+                USE1();
+            break;
+        }
+    }
         USE0();
 
     case ICI_TRI(TC_PTR, TC_PTR, T_LESS):
-        if (!isint(ptrof(o1)->p_key) || !isint(ptrof(o0)->p_key)) {
+        if (!isint(ptrof(o1)->p_key) || !isint(ptrof(o0)->p_key))
+        {
             MISMATCH();
         }
-        if (intof(ptrof(o0)->p_key)->i_value < intof(ptrof(o1)->p_key)->i_value) {
+        if (intof(ptrof(o0)->p_key)->i_value < intof(ptrof(o1)->p_key)->i_value)
+        {
             USE1();
         }
         USE0();
 
     case ICI_TRI(TC_PTR, TC_PTR, T_GRTEQ):
-        if (!isint(ptrof(o1)->p_key) || !isint(ptrof(o0)->p_key)) {
+        if (!isint(ptrof(o1)->p_key) || !isint(ptrof(o0)->p_key))
+        {
             MISMATCH();
         }
-        if (intof(ptrof(o0)->p_key)->i_value >=intof(ptrof(o1)->p_key)->i_value) {
+        if (intof(ptrof(o0)->p_key)->i_value >= intof(ptrof(o1)->p_key)->i_value)
+        {
             USE1();
         }
         USE0();
 
     case ICI_TRI(TC_PTR, TC_PTR, T_LESSEQ):
-        if (!isint(ptrof(o1)->p_key) || !isint(ptrof(o0)->p_key)) {
+        if (!isint(ptrof(o1)->p_key) || !isint(ptrof(o0)->p_key))
+        {
             MISMATCH();
         }
-        if (intof(ptrof(o0)->p_key)->i_value <=intof(ptrof(o1)->p_key)->i_value) {
+        if (intof(ptrof(o0)->p_key)->i_value <= intof(ptrof(o1)->p_key)->i_value)
+        {
             USE1();
         }
         USE0();
 
     case ICI_TRI(TC_PTR, TC_PTR, T_GRT):
-        if (!isint(ptrof(o1)->p_key) || !isint(ptrof(o0)->p_key)) {
+        if (!isint(ptrof(o1)->p_key) || !isint(ptrof(o0)->p_key))
+        {
             MISMATCH();
         }
-        if (intof(ptrof(o0)->p_key)->i_value > intof(ptrof(o1)->p_key)->i_value) {
+        if (intof(ptrof(o0)->p_key)->i_value > intof(ptrof(o1)->p_key)->i_value)
+        {
             USE1();
         }
         USE0();
@@ -1031,36 +1100,43 @@
         USEo();
 
     default:
-//  others:
-        switch (opof(o)->op_code) {
+        //  others:
+        switch (opof(o)->op_code)
+        {
         case t_subtype(T_PLUSEQ):
-	    if (o0->o_tcode == TC_SET) {
-		if (ici_assign(o0, o1, o_one)) {
-		    FAIL();
+            if (o0->o_tcode == TC_SET)
+            {
+                if (ici_assign(o0, o1, o_one))
+                {
+                    FAIL();
                 }
-		o = o0;
-		USEo();
-	    }
-	    MISMATCH();
+                o = o0;
+                USEo();
+            }
+            MISMATCH();
 
-	case t_subtype(T_MINUSEQ):
-	    if (o0->o_tcode == TC_SET) {
-		if (unassign(setof(o0), o1)) {
-		    FAIL();
+        case t_subtype(T_MINUSEQ):
+            if (o0->o_tcode == TC_SET)
+            {
+                if (unassign(setof(o0), o1))
+                {
+                    FAIL();
                 }
-		o = o0;
-		USEo();
-	    }
-	    MISMATCH();
+                o = o0;
+                USEo();
+            }
+            MISMATCH();
 
         case t_subtype(T_EQEQ):
-            if (o0->icitype() == o1->icitype() && compare(o0, o1) == 0) {
+            if (o0->icitype() == o1->icitype() && compare(o0, o1) == 0)
+            {
                 USE1();
             }
             USE0();
 
         case t_subtype(T_EXCLAMEQ):
-            if (!(o0->icitype() == o1->icitype() && compare(o0, o1) == 0)) {
+            if (!(o0->icitype() == o1->icitype() && compare(o0, o1) == 0))
+            {
                 USE1();
             }
             USE0();
@@ -1071,7 +1147,7 @@
             const auto t0 = o0->icitype()->name;
             const auto t1 = o1->icitype()->name;
 #ifndef NDEBUG
-fprintf(stderr, "BINOP: lookup_user_binop(\"%s\", \"%s\", \"%s\")\n", t0, binop_name(opof(o)->op_code), t1);
+            fprintf(stderr, "BINOP: lookup_user_binop(\"%s\", \"%s\", \"%s\")\n", t0, binop_name(opof(o)->op_code), t1);
 #endif
             if (auto fn = lookup_user_binop(t0, binop_name(opof(o)->op_code), t1))
             {
@@ -1083,21 +1159,17 @@ fprintf(stderr, "BINOP: lookup_user_binop(\"%s\", \"%s\", \"%s\")\n", t0, binop_
         }
 
         /*FALLTHROUGH*/
-    mismatch:
-        {
-            char n1[30];
-            char n2[30];
-            objname(n1, o0);
-            objname(n2, o1);
-            sprintf(buf, "attempt to perform \"%s %s %s\"",
-                    n1,
-                    binop_name(opof(o)->op_code),
-                    n2);
-            set_error(buf);
-        }
+mismatch : {
+    char n1[30];
+    char n2[30];
+    objname(n1, o0);
+    objname(n2, o1);
+    sprintf(buf, "attempt to perform \"%s %s %s\"", n1, binop_name(opof(o)->op_code), n2);
+    set_error(buf);
+}
         FAIL();
 
-    vecmismatch:
+vecmismatch:
         // nb. the cast works for vec64 too
         set_error("vec size mis-match: %lu vs. %lu", vec32of(o0)->v_size, vec32of(o1)->v_size);
         FAIL();
@@ -1114,21 +1186,25 @@ use1:
 #endif
 
 usef:
-    if (can_temp) {
+    if (can_temp)
+    {
         ptrdiff_t n;
 
         n = &os.a_top[-2] - os.a_base;
-        if (ex->x_os_temp_cache->stk_probe(n)) {
+        if (ex->x_os_temp_cache->stk_probe(n))
+        {
             FAIL();
         }
-        if ((o = ex->x_os_temp_cache->a_base[n]) == null) {
-            if ((o = reinterpret_cast<object *>(ici_talloc(ostemp))) == nullptr) {
+        if ((o = ex->x_os_temp_cache->a_base[n]) == null)
+        {
+            if ((o = reinterpret_cast<object *>(ici_talloc(ostemp))) == nullptr)
+            {
                 FAIL();
             }
             ex->x_os_temp_cache->a_base[n] = o;
             rego(o);
         }
-        set_tfnz(o, TC_FLOAT, object::O_TEMP, 0, sizeof (ostemp));
+        set_tfnz(o, TC_FLOAT, object::O_TEMP, 0, sizeof(ostemp));
         floatof(o)->f_value = f;
         USEo();
     }
@@ -1145,35 +1221,29 @@ usef:
      * In-line expansion of float creation.
      */
     {
-        object               **po;
-        unsigned long           h;
+        object      **po;
+        unsigned long h;
 
 #if 1
         h = hash_float(f);
 #else
-        union
-        {
-            double              f;
-            int32_t             l[2];
-        }
-            v;
+        union {
+            double  f;
+            int32_t l[2];
+        } v;
 
         /*
          * If this assert fails, we should switch back to a an explicit call
          * to hash_float().
          */
-        assert(sizeof floatof(o)->f_value == 2 * sizeof (int32_t));
+        assert(sizeof floatof(o)->f_value == 2 * sizeof(int32_t));
         v.f = f;
         h = FLOAT_PRIME + v.l[0] + v.l[1] * 31;
         h ^= (h >> 12) ^ (h >> 24);
 #endif
 
-        for
-        (
-            po = &atoms[atom_hash_index(h)];
-            (o = *po) != nullptr;
-            --po < atoms ? po = atoms + atomsz - 1 : nullptr
-        ) {
+        for (po = &atoms[atom_hash_index(h)]; (o = *po) != nullptr; --po < atoms ? po = atoms + atomsz - 1 : nullptr)
+        {
 #if 1
             if (isfloat(o) && DBL_BIT_CMP(&floatof(o)->f_value, &f))
 #else
@@ -1184,11 +1254,12 @@ usef:
             }
         }
         ++supress_collect;
-        if ((o = ici_talloc(ici_float)) == nullptr) {
+        if ((o = ici_talloc(ici_float)) == nullptr)
+        {
             --supress_collect;
             FAIL();
         }
-        set_tfnz(o, TC_FLOAT, object::O_ATOM, 1, sizeof (ici_float));
+        set_tfnz(o, TC_FLOAT, object::O_ATOM, 1, sizeof(ici_float));
         floatof(o)->f_value = f;
         rego(o);
         assert(h == hashof(o));
@@ -1198,21 +1269,25 @@ usef:
     }
 
 usei:
-    if (can_temp) {
-        ptrdiff_t   n;
+    if (can_temp)
+    {
+        ptrdiff_t n;
 
         n = &os.a_top[-2] - os.a_base;
-        if (UNLIKELY(ex->x_os_temp_cache->stk_probe(n))) {
+        if (UNLIKELY(ex->x_os_temp_cache->stk_probe(n)))
+        {
             FAIL();
         }
-        if ((o = ex->x_os_temp_cache->a_base[n]) == null) {
-            if ((o = reinterpret_cast<object *>(ici_talloc(ostemp))) == nullptr) {
+        if ((o = ex->x_os_temp_cache->a_base[n]) == null)
+        {
+            if ((o = reinterpret_cast<object *>(ici_talloc(ostemp))) == nullptr)
+            {
                 FAIL();
             }
             ex->x_os_temp_cache->a_base[n] = o;
             rego(o);
         }
-        set_tfnz(o, TC_INT, object::O_TEMP, 0, sizeof (ostemp));
+        set_tfnz(o, TC_INT, object::O_TEMP, 0, sizeof(ostemp));
         intof(o)->i_value = i;
         USEo();
     }
@@ -1220,30 +1295,29 @@ usei:
      * In-line expansion of atom_int() from object.c. Following that, and
      * merged with it, is in-line atom creation.
      */
-    if ((i & ~small_int_mask) == 0) {
+    if ((i & ~small_int_mask) == 0)
+    {
         o = small_ints[i];
         USEo();
     }
     {
-        object      **po;
+        object **po;
 
-        for
-        (
-            po = &atoms[atom_hash_index((unsigned long)i * INT_PRIME)];
-            (o = *po) != nullptr;
-            --po < atoms ? po = atoms + atomsz - 1 : nullptr
-        )
+        for (po = &atoms[atom_hash_index((unsigned long)i * INT_PRIME)]; (o = *po) != nullptr;
+             --po < atoms ? po = atoms + atomsz - 1 : nullptr)
         {
-            if (isint(o) && intof(o)->i_value == i) {
+            if (isint(o) && intof(o)->i_value == i)
+            {
                 USEo();
             }
         }
         ++supress_collect;
-        if ((o = ici_talloc(integer)) == nullptr) {
+        if ((o = ici_talloc(integer)) == nullptr)
+        {
             --supress_collect;
             FAIL();
         }
-        set_tfnz(o, TC_INT, object::O_ATOM, 1, sizeof (integer));
+        set_tfnz(o, TC_INT, object::O_ATOM, 1, sizeof(integer));
         intof(o)->i_value = i;
         rego(o);
         --supress_collect;

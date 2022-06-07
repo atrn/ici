@@ -7,18 +7,17 @@
  * by the invoker. See ici.h or "The ICI Programming Language"
  * for further details.
  */
-#undef  ICI_STR
+#undef ICI_STR
 #define ICI_STR ICI_STR_DECL
 #include "icistr.h"
 
-static int
-init_ici_str()
+static int init_ici_str()
 {
-#undef  ICI_STR
+#undef ICI_STR
 #define ICI_STR ICI_STR_MAKE
     return
 #include "icistr.h"
-    0;
+        0;
 }
-#undef  ICI_STR
+#undef ICI_STR
 #define ICI_STR ICI_STR_NORM

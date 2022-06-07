@@ -1,12 +1,12 @@
 #define ICI_CORE
-#include "fwd.h"
-#include "parse.h"
+#include "array.h"
+#include "buf.h"
 #include "file.h"
 #include "ftype.h"
-#include "buf.h"
+#include "fwd.h"
+#include "parse.h"
 #include "src.h"
 #include "str.h"
-#include "array.h"
 
 namespace ici
 {
@@ -20,7 +20,7 @@ namespace ici
  *
  * This --variable-- forms part of the --ici-api--.
  */
-int     record_line_nums = 1;
+int record_line_nums = 1;
 
 /*
  * Return the next character from the file being parsed in the given parse
@@ -32,7 +32,7 @@ int     record_line_nums = 1;
  */
 static int get(parse *p, array *a)
 {
-    int         c;
+    int c;
 
     if ((c = p->p_file->getch()) == '\n' || c == '\r')
     {
@@ -67,14 +67,18 @@ static int get(parse *p, array *a)
         p->p_sol = 0;
     }
 
-    if (a != nullptr && record_line_nums) {
+    if (a != nullptr && record_line_nums)
+    {
         /*
          * There is a code array being built. Update any trailing
          * source marker, or if there isn't one, add one.
          */
-        if (a->a_top > a->a_base && issrc(a->a_top[-1])) {
+        if (a->a_top > a->a_base && issrc(a->a_top[-1]))
+        {
             srcof(a->a_top[-1])->s_lineno = p->p_lineno;
-        } else {
+        }
+        else
+        {
             a->push_checked(new_src(p->p_lineno, p->p_file->f_name), with_decref);
         }
     }
@@ -103,13 +107,13 @@ static void unget(int c, parse *p)
  */
 int lex(parse *p, array *a)
 {
-    int     c;
-    int     t = 0;              /* init to shut up compiler */
-    int     i;
-    int     fstate;
-    char   *s;
-    long    l;
-    double  d;
+    int    c;
+    int    t = 0; /* init to shut up compiler */
+    int    i;
+    int    fstate;
+    char  *s;
+    long   l;
+    double d;
 
     if (p->p_got.t_what & TM_HASOBJ)
     {
@@ -191,7 +195,7 @@ int lex(parse *p, array *a)
     switch (c)
     {
     case '/':
-    slash:
+slash:
         if ((c = get(p, a)) == '=')
         {
             t = T_SLASHEQ;
@@ -491,8 +495,7 @@ int lex(parse *p, array *a)
         }
         break;
 
-    case '#':
-    {
+    case '#': {
         i = 0;
         while ((c = get(p, a)) != '#' && c != '\n' && c != EOF)
         {
@@ -519,9 +522,9 @@ int lex(parse *p, array *a)
         goto chars;
     case '\"':
         t = T_STRING;
-    chars:
+chars:
         i = 0;
-        while ((c = get(p, a)) != (t == T_INT ? '\'' : '"') && c != '\n' && c!=EOF)
+        while ((c = get(p, a)) != (t == T_INT ? '\'' : '"') && c != '\n' && c != EOF)
         {
             if (chkbuf(i))
             {
@@ -531,19 +534,40 @@ int lex(parse *p, array *a)
             {
                 switch (c = get(p, a))
                 {
-                case '\n': continue;
-                case 'n': c = '\n'; break;
-                case 't': c = '\t'; break;
-                case 'v': c = '\v'; break;
-                case 'b': c = '\b'; break;
-                case 'r': c = '\r'; break;
-                case 'f': c = '\014'; break;
-                case 'a': c = '\007'; break;
-                case 'e': c = '\033'; break;
-                case '\\': break;
-                case '\'': break;
-                case '"': break;
-                case '?': break;
+                case '\n':
+                    continue;
+                case 'n':
+                    c = '\n';
+                    break;
+                case 't':
+                    c = '\t';
+                    break;
+                case 'v':
+                    c = '\v';
+                    break;
+                case 'b':
+                    c = '\b';
+                    break;
+                case 'r':
+                    c = '\r';
+                    break;
+                case 'f':
+                    c = '\014';
+                    break;
+                case 'a':
+                    c = '\007';
+                    break;
+                case 'e':
+                    c = '\033';
+                    break;
+                case '\\':
+                    break;
+                case '\'':
+                    break;
+                case '"':
+                    break;
+                case '?':
+                    break;
 
                 case 'c':
                     c = get(p, a) & 0x1F;
@@ -551,11 +575,7 @@ int lex(parse *p, array *a)
 
                 case 'x':
                     l = 0;
-                    while
-                    (
-                        ((c = get(p, a)) >= '0' && c <= '9')
-                        || (c >= 'a' && c <= 'f')
-                        || (c >= 'A' && c <= 'F'))
+                    while (((c = get(p, a)) >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F'))
                     {
                         if (c >= 'a' && c <= 'f')
                         {
@@ -644,18 +664,7 @@ int lex(parse *p, array *a)
         break;
 
     default:
-        if
-        (
-            (c < '0' || c > '9')
-            &&
-            (c < 'a' || c > 'z')
-            &&
-            (c < 'A' || c > 'Z')
-            &&
-            c != '_'
-            &&
-            c != '.'
-        )
+        if ((c < '0' || c > '9') && (c < 'a' || c > 'z') && (c < 'A' || c > 'Z') && c != '_' && c != '.')
         {
             set_error("lexical error");
             goto fail;
@@ -665,15 +674,15 @@ int lex(parse *p, array *a)
  * States to keep track of passage through a floating point number.
  * ddd[.ddd][e|E[+|-]ddd]
  */
-#define FS_NOTF         0
-#define FS_ININT        1
-#define FS_INFRAC       2
-#define FS_POSTE        3
-#define FS_INEXP        4
+#define FS_NOTF 0
+#define FS_ININT 1
+#define FS_INFRAC 2
+#define FS_POSTE 3
+#define FS_INEXP 4
 
         i = 0;
-    alphanum:
-        fstate = c=='.' ? FS_INFRAC : c>='0' && c<='9' ? FS_ININT : FS_NOTF;
+alphanum:
+        fstate = c == '.' ? FS_INFRAC : c >= '0' && c <= '9' ? FS_ININT : FS_NOTF;
         for (;;)
         {
             if (chkbuf(i))
@@ -711,27 +720,17 @@ int lex(parse *p, array *a)
                 {
                     continue;
                 }
-            notf:
+notf:
                 fstate = FS_NOTF;
                 /*FALLTHROUGH*/
             case FS_NOTF:
-                if
-                (
-                    (c >= '0' && c <= '9')
-                    ||
-                    (c >= 'a' && c <= 'z')
-                    ||
-                    (c >= 'A' && c <= 'Z')
-                    ||
-                    c == '_'
-                )
+                if ((c >= '0' && c <= '9') || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_')
                 {
                     continue;
                 }
                 break;
             }
             break;
-
         }
         unget(c, p);
         if (chkbuf(i))
@@ -789,9 +788,8 @@ class parse_ftype : public ftype
     {
         return parseof(file)->p_file->eof();
     }
-
 };
 
-ftype *parse_ftype = instanceof<class parse_ftype>();
+ftype *parse_ftype = instanceof <class parse_ftype>();
 
 } // namespace ici

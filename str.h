@@ -26,22 +26,23 @@ namespace ici
 
 struct str : object
 {
-    str() : object{TC_STRING} {}
-
-    map             *s_map;      /* Where we were last found on the vs. */
-    slot            *s_slot;        /* And our slot. */
-    uint32_t        s_vsver;        /* The vs version at that time. */
-#   if ICI_KEEP_STRING_HASH
-    unsigned long   s_hash;         /* String hash code or 0 if not yet computed */
-#   endif
-    size_t          s_nchars;
-    char            *s_chars;
-    union
+    str()
+        : object{TC_STRING}
     {
-        int         su_nalloc;
-        char        su_inline_chars[1]; /* And following bytes. */
     }
-                    s_u;
+
+    map     *s_map;   /* Where we were last found on the vs. */
+    slot    *s_slot;  /* And our slot. */
+    uint32_t s_vsver; /* The vs version at that time. */
+#if ICI_KEEP_STRING_HASH
+    unsigned long s_hash; /* String hash code or 0 if not yet computed */
+#endif
+    size_t s_nchars;
+    char  *s_chars;
+    union {
+        int  su_nalloc;
+        char su_inline_chars[1]; /* And following bytes. */
+    } s_u;
 };
 /*
  * s_nchars             The actual number of characters in the string. Note
@@ -60,8 +61,14 @@ struct str : object
  * su.su_inline_chars   If ICI_S_SEP_ALLOC is *not* set, this is where s_chars will
  *                      be pointing. The actual string chars follow on from this.
  */
-inline str *stringof(object *o) { return o->as<str>(); }
-inline bool isstring(object *o) { return o->hastype(TC_STRING); }
+inline str *stringof(object *o)
+{
+    return o->as<str>();
+}
+inline bool isstring(object *o)
+{
+    return o->hastype(TC_STRING);
+}
 
 /*
  * This flag (in o_flags) indicates that the lookup-lookaside mechanism
@@ -75,7 +82,7 @@ constexpr int ICI_S_LOOKASIDE_IS_ATOM = 0x20;
  * allocated memory.  If this is the case, s_u.su_nalloc is significant and
  * the memory was allocated with ici_nalloc(s_u.su_nalloc).
  */
-constexpr int ICI_S_SEP_ALLOC     = 0x40;
+constexpr int ICI_S_SEP_ALLOC = 0x40;
 
 /*
  * Macros to assist external modules in getting ICI strings. To use, make
@@ -99,44 +106,47 @@ constexpr int ICI_S_SEP_ALLOC     = 0x40;
  * conventions.
  */
 #ifdef ICI_MODULE_NAME
-#define ICIS_SYM_EXP(MOD, NAM)  ici_##MOD##_str_##NAM
-#define ICIS_SYM(MOD, NAM)      ICIS_SYM_EXP(MOD, NAM)
-#define ICIS(NAM)               (ICIS_SYM(ICI_MODULE_NAME, NAM))
-#define ICI_STR_NORM(NAM, STR)  extern ici::str *ICIS_SYM(ICI_MODULE_NAME, NAM);
-#define ICI_STR_DECL(NAM, STR)  ici::str *ICIS_SYM(ICI_MODULE_NAME, NAM);
+#define ICIS_SYM_EXP(MOD, NAM) ici_##MOD##_str_##NAM
+#define ICIS_SYM(MOD, NAM) ICIS_SYM_EXP(MOD, NAM)
+#define ICIS(NAM) (ICIS_SYM(ICI_MODULE_NAME, NAM))
+#define ICI_STR_NORM(NAM, STR) extern ici::str *ICIS_SYM(ICI_MODULE_NAME, NAM);
+#define ICI_STR_DECL(NAM, STR) ici::str *ICIS_SYM(ICI_MODULE_NAME, NAM);
 #else
-#define ICIS(NAM)               (ici_str_##NAM)
-#define ICI_STR_NORM(NAM, STR)  extern ici::str *ici_str_##NAM;
-#define ICI_STR_DECL(NAM, STR)  ici::str *ici_str_##NAM;
+#define ICIS(NAM) (ici_str_##NAM)
+#define ICI_STR_NORM(NAM, STR) extern ici::str *ici_str_##NAM;
+#define ICI_STR_DECL(NAM, STR) ici::str *ici_str_##NAM;
 #endif
-#define ICISO(NAM)              (ICIS(NAM))
-#define ICI_STR_MAKE(NAM, STR)  (ICIS(NAM) = ici::new_str_nul_term(STR)) == nullptr ||
-#define ICI_STR_REL(NAM, STR)   (ICIS(NAM))->decref();
-#define ICI_STR                 ICI_STR_NORM
+#define ICISO(NAM) (ICIS(NAM))
+#define ICI_STR_MAKE(NAM, STR) (ICIS(NAM) = ici::new_str_nul_term(STR)) == nullptr ||
+#define ICI_STR_REL(NAM, STR) (ICIS(NAM))->decref();
+#define ICI_STR ICI_STR_NORM
 
 class string_type : public type
 {
-public:
-    string_type() : type("string", sizeof (struct str)) {}
+  public:
+    string_type()
+        : type("string", sizeof(struct str))
+    {
+    }
 
-    size_t mark(object *) override;
-    void free(object *) override;
-    int cmp(object *, object *) override;
-    object *copy(object *) override;
+    size_t        mark(object *) override;
+    void          free(object *) override;
+    int           cmp(object *, object *) override;
+    object       *copy(object *) override;
     unsigned long hash(object *) override;
-    object *fetch(object *, object *) override;
-    int assign(object *, object *, object *) override;
-    int forall(object *) override;
-    int save(archiver *, object *) override;
-    object *restore(archiver *) override;
-    int64_t len(object *) override;
+    object       *fetch(object *, object *) override;
+    int           assign(object *, object *, object *) override;
+    int           forall(object *) override;
+    int           save(archiver *, object *) override;
+    object       *restore(archiver *) override;
+    int64_t       len(object *) override;
 };
 
 /*
  * End of ici.h export. --ici.h-end--
  */
 
-#ifdef  ICI_CORE
+#ifdef ICI_CORE
 /*
  * A structure to hold static (ie, not allocated) strings. These can
  * only be used where the atom() operation is guaranteed to use the
@@ -148,7 +158,7 @@ public:
  *
  * This structure must be an exact overlay of the one above.
  */
-typedef struct sstring  sstring_t;
+typedef struct sstring sstring_t;
 
 struct sstring : object
 {
@@ -165,24 +175,24 @@ struct sstring : object
         memcpy(s_inline_chars, cs, s_nchars);
     }
 
-    map 	*s_map;     /* Where we were last found on the vs. */
-    slot 	*s_slot;        /* And our slot. */
-    uint32_t    s_vsver;        /* The vs version at that time. */
-#   if ICI_KEEP_STRING_HASH
-    unsigned long s_hash;       /* String hash code or 0 if not yet computed */
-#   endif
-    size_t      s_nchars;
-    char        *s_chars;
-    char        s_inline_chars[15]; /* Longest string in sstring.h */
+    map     *s_map;   /* Where we were last found on the vs. */
+    slot    *s_slot;  /* And our slot. */
+    uint32_t s_vsver; /* The vs version at that time. */
+#if ICI_KEEP_STRING_HASH
+    unsigned long s_hash; /* String hash code or 0 if not yet computed */
+#endif
+    size_t s_nchars;
+    char  *s_chars;
+    char   s_inline_chars[15]; /* Longest string in sstring.h */
 };
 
-#define SSTRING(name, str)    extern sstring_t ici_ss_##name;
+#define SSTRING(name, str) extern sstring_t ici_ss_##name;
 #include "sstring.h"
 #undef SSTRING
 
-#define SS(name)         (reinterpret_cast<ici::str *>(&ici_ss_##name))
+#define SS(name) (reinterpret_cast<ici::str *>(&ici_ss_##name))
 
-#define str_char_at(s,i) ((s)->s_chars[i])
+#define str_char_at(s, i) ((s)->s_chars[i])
 
 #endif /* ICI_CORE */
 

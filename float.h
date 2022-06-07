@@ -19,21 +19,34 @@ namespace ici
  */
 struct ici_float : object
 {
-    ici_float(double v = 0.0) : object(TC_FLOAT, 0, 1), f_value(v) {}
+    ici_float(double v = 0.0)
+        : object(TC_FLOAT, 0, 1)
+        , f_value(v)
+    {
+    }
     double f_value;
 };
 
-inline ici_float *floatof(object *o) { return o->as<ici_float>(); }
-inline bool isfloat(object *o) { return o->hastype(TC_FLOAT); }
+inline ici_float *floatof(object *o)
+{
+    return o->as<ici_float>();
+}
+inline bool isfloat(object *o)
+{
+    return o->hastype(TC_FLOAT);
+}
 
 class float_type : public type
 {
-public:
-    float_type() : type("float", sizeof (struct ici_float)) {}
-    int cmp(object *o1, object *o2) override;
+  public:
+    float_type()
+        : type("float", sizeof(struct ici_float))
+    {
+    }
+    int           cmp(object *o1, object *o2) override;
     unsigned long hash(object *o) override;
-    int save(archiver *, object *) override;
-    object *restore(archiver *) override;
+    int           save(archiver *, object *) override;
+    object       *restore(archiver *) override;
 };
 
 /*
@@ -53,10 +66,9 @@ public:
  * having our hash table go bad.
  */
 #ifndef __GNUC__
-#define DBL_BIT_CMP(a, b)     (((int32_t *)(a))[0] == ((int32_t *)(b))[0] \
-                            && ((int32_t *)(a))[1] == ((int32_t *)(b))[1])
+#define DBL_BIT_CMP(a, b) (((int32_t *)(a))[0] == ((int32_t *)(b))[0] && ((int32_t *)(a))[1] == ((int32_t *)(b))[1])
 #else
-#define DBL_BIT_CMP(a, b) (memcmp(a, b, sizeof (double)) == 0)
+#define DBL_BIT_CMP(a, b) (memcmp(a, b, sizeof(double)) == 0)
 #endif
 
 } // namespace ici

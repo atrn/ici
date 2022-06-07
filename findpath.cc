@@ -1,6 +1,6 @@
 #define ICI_CORE
-#include "fwd.h"
 #include "array.h"
+#include "fwd.h"
 #include "str.h"
 #ifndef _WIN32
 #include <unistd.h> /* access(2) prototype */
@@ -29,21 +29,29 @@ int find_on_path(char name[FILENAME_MAX], const char *ext)
     char     realname[FILENAME_MAX];
 
     if ((a = need_path()) == nullptr)
+    {
         return 0;
+    }
     xlen = 1 + strlen(name) + (ext != nullptr ? strlen(ext) : 0) + 1;
     for (e = a->astart(); e != a->alimit(); e = a->anext(e))
     {
         if (!isstring(*e))
+        {
             continue;
+        }
         s = stringof(*e);
         if (s->s_nchars + xlen > FILENAME_MAX)
+        {
             continue;
+        }
         strcpy(realname, s->s_chars);
         p = realname + s->s_nchars;
         *p++ = ICI_DIR_SEP;
         strcpy(p, name);
         if (ext != nullptr)
+        {
             strcat(p, ext);
+        }
         if (access(realname, 0) == 0)
         {
             strcpy(name, realname);

@@ -2,11 +2,11 @@
 #include "fwd.h"
 
 #ifndef NOEVENTS
+#include "cfunc.h"
 #include "exec.h"
 #include "str.h"
-#include "cfunc.h"
 
-#ifdef  _WIN32
+#ifdef _WIN32
 #include <windows.h>
 #endif
 
@@ -14,21 +14,21 @@ namespace ici
 {
 
 #ifdef __APPLE__
-static int f_eventloop() {
+static int f_eventloop()
+{
     return null_ret();
 }
 #endif
 
-#ifdef  _WIN32
+#ifdef _WIN32
 /*
  * Win32 specific event processing.
  */
 
-static int
-f_eventloop()
+static int f_eventloop()
 {
     MSG   msg;
-    exec  *x;
+    exec *x;
 
     x = leave();
     for (;;)
@@ -47,18 +47,16 @@ f_eventloop()
         TranslateMessage(&msg);
         clear_error();
         if (DispatchMessage(&msg) == ICI_EVENT_ERROR && error)
+        {
             return 1;
+        }
         x = leave();
     }
 }
 
 #endif /* _WIN32 */
 
-ICI_DEFINE_CFUNCS(event)
-{
-    ICI_DEFINE_CFUNC(eventloop, f_eventloop),
-    ICI_CFUNCS_END()
-};
+ICI_DEFINE_CFUNCS(event){ICI_DEFINE_CFUNC(eventloop, f_eventloop), ICI_CFUNCS_END()};
 
 } // namespace ici
 

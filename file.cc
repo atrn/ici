@@ -1,18 +1,16 @@
 #define ICI_CORE
-#include "fwd.h"
 #include "file.h"
-#include "str.h"
+#include "archiver.h"
+#include "buf.h"
+#include "fwd.h"
+#include "int.h"
 #include "null.h"
 #include "parse.h"
 #include "primes.h"
-#include "buf.h"
-#include "int.h"
-#include "null.h"
-#include "archiver.h"
+#include "str.h"
 
 namespace ici
 {
-
 
 /*
  * Return a file object with the given 'ftype' and a file type specific
@@ -38,7 +36,9 @@ file *new_file(void *fp, ftype *ftype, str *name, object *ref)
     file *f;
 
     if ((f = ici_talloc(file)) == nullptr)
+    {
         return nullptr;
+    }
     set_tfnz(f, TC_FILE, 0, 1, 0);
     f->f_file = fp;
     f->f_type = ftype;
@@ -69,10 +69,14 @@ int close_file(file *f)
     }
     f->set(file::closed);
     if (f->hasflag(ftype::nomutex))
+    {
         x = leave();
+    }
     r = f->close();
     if (f->hasflag(ftype::nomutex))
+    {
         enter(x);
+    }
     /*
      * If this is a pipe opened with popen(), 'r' is actually the exit status
      * of the process.  If this is non-zero, format it into an error message.
@@ -80,7 +84,8 @@ int close_file(file *f)
      * modifying error between calls to leave()/enter() is not
      * allowed.
      */
-    if (r != 0 && f->f_type == popen_ftype) {
+    if (r != 0 && f->f_type == popen_ftype)
+    {
         set_error("exit status %d", r);
     }
     return r;
@@ -94,10 +99,14 @@ size_t file_type::mark(object *o)
 
 void file_type::free(object *o)
 {
-    if (!o->hasflag(file::closed)) {
-        if (o->hasflag(file::noclose)) {
+    if (!o->hasflag(file::closed))
+    {
+        if (o->hasflag(file::noclose))
+        {
             fileof(o)->flush();
-        } else {
+        }
+        else
+        {
             close_file(fileof(o));
         }
     }
@@ -106,14 +115,15 @@ void file_type::free(object *o)
 
 int file_type::cmp(object *o1, object *o2)
 {
-    return fileof(o1)->f_file != fileof(o2)->f_file
-           || fileof(o1)->f_type != fileof(o2)->f_type;
+    return fileof(o1)->f_file != fileof(o2)->f_file || fileof(o1)->f_type != fileof(o2)->f_type;
 }
 
-object * file_type::fetch(object *o, object *k)
+object *file_type::fetch(object *o, object *k)
 {
-    if (k == SS(name)) {
-        if (fileof(o)->f_name != nullptr) {
+    if (k == SS(name))
+    {
+        if (fileof(o)->f_name != nullptr)
+        {
             return fileof(o)->f_name;
         }
         return null;
@@ -122,7 +132,8 @@ object * file_type::fetch(object *o, object *k)
     {
         integer *l;
 
-        if ((l = new_int(parseof(fileof(o)->f_file)->p_lineno)) != nullptr) {
+        if ((l = new_int(parseof(fileof(o)->f_file)->p_lineno)) != nullptr)
+        {
             decref(l);
         }
         return l;
@@ -130,34 +141,44 @@ object * file_type::fetch(object *o, object *k)
     return fetch_fail(o, k);
 }
 
-int file_type::save(archiver *ar, object *o) {
-    if (fileof(o)->f_type == stdio_ftype) {
+int file_type::save(archiver *ar, object *o)
+{
+    if (fileof(o)->f_type == stdio_ftype)
+    {
         FILE *f = (FILE *)fileof(o)->f_file;
-        if (f == stdin) {
+        if (f == stdin)
+        {
             return ar->write(uint8_t('i'));
         }
-        if (f == stdout) {
+        if (f == stdout)
+        {
             return ar->write(uint8_t('o'));
         }
-        if (f == stderr) {
+        if (f == stderr)
+        {
             return ar->write(uint8_t('e'));
         }
     }
     return type::save(ar, o);
 }
 
-object *file_type::restore(archiver *ar) {
+object *file_type::restore(archiver *ar)
+{
     uint8_t code;
-    if (ar->read(&code)) {
+    if (ar->read(&code))
+    {
         return nullptr;
     }
-    if (code == 'i') {
+    if (code == 'i')
+    {
         return need_stdin();
     }
-    if (code == 'o') {
+    if (code == 'o')
+    {
         return need_stdout();
     }
-    if (code == 'e') {
+    if (code == 'e')
+    {
         return need_stderr();
     }
     set_error("unexpected stream code (%u) when restoring file", code);

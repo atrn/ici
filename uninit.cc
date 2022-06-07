@@ -1,10 +1,10 @@
 #define ICI_CORE
-#include "fwd.h"
+#include "archiver.h"
 #include "buf.h"
 #include "exec.h"
-#include "str.h"
+#include "fwd.h"
 #include "re.h"
-#include "archiver.h"
+#include "str.h"
 #include "wrap.h"
 
 namespace ici
@@ -45,8 +45,8 @@ void atexit(void (*func)(), wrap *w)
  */
 void uninit()
 {
-    int           i;
-    exec    *x;
+    int            i;
+    exec          *x;
     extern regexp *smash_default_re;
 
     /*
@@ -55,7 +55,9 @@ void uninit()
      */
     assert(o_zero != nullptr);
     if (o_zero == nullptr)
+    {
         return;
+    }
 
     /*
      * Clean up anything registered by modules that are only optionally
@@ -78,7 +80,9 @@ void uninit()
         small_ints[i] = nullptr;
     }
     if (smash_default_re != nullptr)
+    {
         decref(smash_default_re);
+    }
 
     /* Call uninitialisation functions for compulsory bits of ICI. */
     uninit_compile();
@@ -99,7 +103,9 @@ void uninit()
      * mutex).
      */
     for (x = execs; x != nullptr; x = x->x_next)
+    {
         x->o_nrefs = 0;
+    }
 
     /*
      * We don't decref the static cached copies of our stacks, because if we
@@ -119,9 +125,9 @@ void uninit()
     /*
      * Now free the allocated part of our three special static stacks.
      */
-    ici_nfree(vs.a_base, (vs.a_limit - vs.a_base) * sizeof (object *));
-    ici_nfree(os.a_base, (os.a_limit - os.a_base) * sizeof (object *));
-    ici_nfree(xs.a_base, (xs.a_limit - xs.a_base) * sizeof (object *));
+    ici_nfree(vs.a_base, (vs.a_limit - vs.a_base) * sizeof(object *));
+    ici_nfree(os.a_base, (os.a_limit - os.a_base) * sizeof(object *));
+    ici_nfree(xs.a_base, (xs.a_limit - xs.a_base) * sizeof(object *));
 
     /*
      * And have type instances undo things.
@@ -145,9 +151,9 @@ void uninit()
     /*
      * Destroy the now empty atom pool and list of registered objects.
      */
-    ici_nfree(atoms, atomsz * sizeof (object *));
+    ici_nfree(atoms, atomsz * sizeof(object *));
     atoms = nullptr;
-    ici_nfree(objs, (objs_limit - objs) * sizeof (object *));
+    ici_nfree(objs, (objs_limit - objs) * sizeof(object *));
     objs = nullptr;
 
     drop_all_small_allocations();
@@ -156,10 +162,10 @@ void uninit()
 #if 1 && defined(_WIN32) && !defined(NDEBUG)
     _CrtDumpMemoryLeaks();
 #endif
-/*    {
-        extern long attempt, miss;
-        printf("%d/%d %f\n", miss, attempt, (float)miss/attempt);
-    }*/
+    /*    {
+            extern long attempt, miss;
+            printf("%d/%d %f\n", miss, attempt, (float)miss/attempt);
+        }*/
 }
 
 } // namespace ici

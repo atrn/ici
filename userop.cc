@@ -1,11 +1,11 @@
 #define ICI_CORE
-#include "fwd.h"
 #include "userop.h"
-#include "map.h"
-#include "null.h"
-#include "int.h"
 #include "cfunc.h"
 #include "func.h"
+#include "fwd.h"
+#include "int.h"
+#include "map.h"
+#include "null.h"
 #include "str.h"
 
 namespace ici
@@ -15,7 +15,7 @@ map *userops = nullptr;
 
 static str *make_key(const char *t1, const char *binop, const char *t2)
 {
-    char buf[100]; // really 30 _ max(binop_name) + 30
+    char      buf[100]; // really 30 _ max(binop_name) + 30
     const int n = snprintf(buf, sizeof buf, "%s %s %s", t1, binop, t2);
     return new_str(buf, n);
 }
@@ -51,7 +51,7 @@ func *lookup_user_binop(const char *t1, const char *binop, const char *t2)
         {
             return funcof(r);
         }
-        set_error("%*s is %s, not a string", k->s_nchars,  k->s_chars, r->icitype()->name);
+        set_error("%*s is %s, not a string", k->s_nchars, k->s_chars, r->icitype()->name);
     }
     return nullptr;
 }
@@ -86,10 +86,6 @@ int f_binop()
     return null_ret();
 }
 
-ICI_DEFINE_CFUNCS(userop)
-{
-    ICI_DEFINE_CFUNC(binop, f_binop),
-    ICI_CFUNCS_END()
-};
+ICI_DEFINE_CFUNCS(userop){ICI_DEFINE_CFUNC(binop, f_binop), ICI_CFUNCS_END()};
 
 } // namespace ici

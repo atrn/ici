@@ -26,7 +26,7 @@ namespace ici
  */
 class ftype
 {
-public:
+  public:
     /*
      * The flags that may appear in flags.  NOTE: If any flag greater than 0x80
      * is specified, file creation with new_file() will fail.  See that
@@ -42,11 +42,16 @@ public:
      */
     static constexpr int nomutex = 0x01;
 
-protected:
-    ftype(int flags = 0) : flags(flags) {}
+  protected:
+    ftype(int flags = 0)
+        : flags(flags)
+    {
+    }
 
-public:
-    virtual ~ftype() {}
+  public:
+    virtual ~ftype()
+    {
+    }
     virtual int  getch(void *);
     virtual int  ungetch(int, void *);
     virtual int  flush(void *);
@@ -66,18 +71,18 @@ public:
 
 class stdio_ftype : public ftype
 {
-public:
+  public:
     stdio_ftype();
-    virtual int getch(void *) override;
-    virtual int ungetch(int, void *) override;
-    virtual int flush(void *) override;
-    virtual int close(void *) override;
+    virtual int  getch(void *) override;
+    virtual int  ungetch(int, void *) override;
+    virtual int  flush(void *) override;
+    virtual int  close(void *) override;
     virtual long seek(void *, long, int) override;
-    virtual int eof(void *) override;
-    virtual int read(void *, long, void *) override;
-    virtual int write(const void *, long, void *) override;
-    virtual int fileno(void *) override;
-    virtual int setvbuf(void *, char *, int, size_t) override;
+    virtual int  eof(void *) override;
+    virtual int  read(void *, long, void *) override;
+    virtual int  write(const void *, long, void *) override;
+    virtual int  fileno(void *) override;
+    virtual int  setvbuf(void *, char *, int, size_t) override;
 };
 
 /*
@@ -86,7 +91,7 @@ public:
  */
 class popen_ftype : public stdio_ftype
 {
-public:
+  public:
     virtual int close(void *) override;
 };
 

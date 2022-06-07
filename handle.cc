@@ -1,15 +1,15 @@
 #define ICI_CORE
-#include "fwd.h"
-#include "object.h"
-#include "string.h"
 #include "handle.h"
-#include "buf.h"
-#include "null.h"
 #include "array.h"
-#include "str.h"
+#include "buf.h"
 #include "cfunc.h"
+#include "fwd.h"
 #include "int.h"
 #include "map.h"
+#include "null.h"
+#include "object.h"
+#include "str.h"
+#include "string.h"
 
 namespace ici
 {
@@ -76,20 +76,23 @@ static handle ici_handle_proto;
  */
 handle *new_handle(void *ptr, str *name, objwsup *super, void (*prefree)(handle *))
 {
-    handle      *h;
-    object      **po;
+    handle  *h;
+    object **po;
 
     ici_handle_proto.h_ptr = ptr;
     ici_handle_proto.h_name = name;
     ici_handle_proto.o_super = super;
-    if (auto x = atom_probe2(&ici_handle_proto, &po)) {
+    if (auto x = atom_probe2(&ici_handle_proto, &po))
+    {
         h = handleof(x);
         incref(h);
         return h;
     }
     ++supress_collect;
     if ((h = ici_talloc(handle)) == nullptr)
+    {
         return nullptr;
+    }
     set_tfnz(h, TC_HANDLE, (super != nullptr ? object::O_SUPER : 0) | object::O_ATOM, 1, 0);
     h->h_ptr = ptr;
     h->h_name = name;
@@ -124,7 +127,9 @@ handle *handle_probe(void *ptr, str *name)
     ici_handle_proto.h_ptr = ptr;
     ici_handle_proto.h_name = name;
     if ((h = handleof(atom_probe(&ici_handle_proto))) != nullptr)
+    {
         incref(h);
+    }
     return h;
 }
 
@@ -158,21 +163,25 @@ handle *handle_probe(void *ptr, str *name)
  */
 int handle_method_check(object *inst, str *name, handle **h, void **p)
 {
-    char                n1[objnamez];
-    char                n2[objnamez];
+    char n1[objnamez];
+    char n2[objnamez];
 
     if (method_check(inst, TC_HANDLE))
+    {
         return 1;
+    }
     if (handleof(inst)->h_name != name)
     {
-        return set_error("attempt to apply method %s to %s",
-                             objname(n1, os.a_top[-1]),
-                             objname(n2, inst));
+        return set_error("attempt to apply method %s to %s", objname(n1, os.a_top[-1]), objname(n2, inst));
     }
     if (h != nullptr)
+    {
         *h = handleof(inst);
+    }
     if (p != nullptr)
+    {
         *p = handleof(inst)->h_ptr;
+    }
     return 0;
 }
 
@@ -181,31 +190,31 @@ int handle_method_check(object *inst, str *name, handle **h, void **p)
  * mechanism.  Checks conditions and transfers to the h_memeber_intf function
  * of the handle.
  */
-static int
-ici_handle_method(object *inst)
+static int ici_handle_method(object *inst)
 {
-    object   *r;
-    char     n1[objnamez];
-    char     n2[objnamez];
-    long     id;
+    object *r;
+    char    n1[objnamez];
+    char    n2[objnamez];
+    long    id;
 
     if (method_check(inst, TC_HANDLE))
+    {
         return 1;
+    }
     if (inst->hasflag(handle::CLOSED))
     {
-        return set_error("attempt to apply method %s to %s which is dead",
-                             objname(n1, os.a_top[-1]),
-                             objname(n2, inst));
+        return set_error("attempt to apply method %s to %s which is dead", objname(n1, os.a_top[-1]),
+                         objname(n2, inst));
     }
     r = nullptr;
     id = (long)cfuncof(os.a_top[-1])->cf_arg1;
     if ((*handleof(inst)->h_member_intf)(handleof(inst)->h_ptr, id, nullptr, &r))
+    {
         return 1;
+    }
     if (r == nullptr)
     {
-        return set_error("attempt to apply method %s to %s",
-                             objname(n1, os.a_top[-1]),
-                             objname(n2, inst));
+        return set_error("attempt to apply method %s to %s", objname(n1, os.a_top[-1]), objname(n2, inst));
     }
     return ret_no_decref(r);
 }
@@ -247,61 +256,74 @@ ici_handle_method(object *inst)
  */
 object *make_handle_member_map(name_id *ni)
 {
-    object       *m;
-    str          *n;
-    object       *id;
+    object *m;
+    str    *n;
+    object *id;
 
     if ((m = new_map()) == nullptr)
+    {
         return nullptr;
+    }
     for (; ni->ni_name != nullptr; ++ni)
     {
         id = nullptr;
         if ((n = new_str_nul_term(ni->ni_name)) == nullptr)
+        {
             goto fail;
+        }
         if (ni->ni_id & handle::METHOD)
         {
-            id = new_cfunc
-            (
-                n,
-                (int (*)(...))(ici_handle_method),
-                (void *)(ni->ni_id & ~handle::METHOD),
-                nullptr
-            );
+            id = new_cfunc(n, (int (*)(...))(ici_handle_method), (void *)(ni->ni_id & ~handle::METHOD), nullptr);
             if (id == nullptr)
+            {
                 goto fail;
+            }
         }
         else
         {
             if ((id = new_int(ni->ni_id)) == nullptr)
+            {
                 goto fail;
+            }
         }
         if (ici_assign(m, n, id))
+        {
             goto fail;
+        }
         decref(n);
         decref(id);
     }
     return m;
 
- fail:
+fail:
     if (n != nullptr)
+    {
         decref(n);
+    }
     if (id != nullptr)
+    {
         decref(id);
+    }
     decref(m);
     return nullptr;
 }
 
-
 void handle_type::objname(object *o, char p[objnamez])
 {
     if (handleof(o)->h_name == nullptr)
+    {
         strcpy(p, "handle");
+    }
     else
     {
         if (handleof(o)->h_name->s_nchars > objnamez - 1)
+        {
             sprintf(p, "%.*s...", objnamez - 4, handleof(o)->h_name->s_chars);
+        }
         else
+        {
             sprintf(p, "%s", handleof(o)->h_name->s_chars);
+        }
     }
 }
 
@@ -309,16 +331,19 @@ size_t handle_type::mark(object *o)
 {
     auto mem = type::mark(o);
     if (objwsupof(o)->o_super != nullptr)
+    {
         mem += ici_mark(objwsupof(o)->o_super);
+    }
     if (handleof(o)->h_name != nullptr)
+    {
         mem += ici_mark(handleof(o)->h_name);
+    }
     return mem;
 }
 
 int handle_type::cmp(object *o1, object *o2)
 {
-    return handleof(o1)->h_ptr != handleof(o2)->h_ptr
-        || handleof(o1)->h_name != handleof(o2)->h_name;
+    return handleof(o1)->h_ptr != handleof(o2)->h_ptr || handleof(o1)->h_name != handleof(o2)->h_name;
 }
 
 unsigned long handle_type::hash(object *o)
@@ -326,7 +351,7 @@ unsigned long handle_type::hash(object *o)
     return ICI_PTR_HASH(handleof(o)->h_ptr) ^ ICI_PTR_HASH(handleof(o)->h_name);
 }
 
-object * handle_type::fetch(object *o, object *k)
+object *handle_type::fetch(object *o, object *k)
 {
     handle *h;
     object *r;
@@ -334,31 +359,45 @@ object * handle_type::fetch(object *o, object *k)
     h = handleof(o);
     if (h->h_member_map != nullptr && !o->hasflag(handle::CLOSED))
     {
-        object       *id;
+        object *id;
 
         if ((id = ici_fetch(h->h_member_map, k)) == nullptr)
+        {
             return nullptr;
+        }
         if (iscfunc(id))
+        {
             return id;
+        }
         if (isint(id))
         {
             r = nullptr;
             if ((*h->h_member_intf)(h->h_ptr, intof(id)->i_value, nullptr, &r))
+            {
                 return nullptr;
+            }
             if (r != nullptr)
+            {
                 return r;
+            }
         }
     }
     if (h->h_general_intf != nullptr)
     {
         r = nullptr;
         if ((*h->h_general_intf)(h, k, nullptr, &r))
+        {
             return nullptr;
+        }
         if (r != nullptr)
+        {
             return r;
+        }
     }
     if (!hassuper(o) || handleof(o)->o_super == nullptr)
+    {
         return fetch_fail(o, k);
+    }
     return ici_fetch(handleof(o)->o_super, k);
 }
 
@@ -379,11 +418,13 @@ int handle_type::fetch_super(object *o, object *k, object **v, map *b)
         return 1;
     }
     if (handleof(o)->o_super == nullptr)
+    {
         return 0;
+    }
     return ici_fetch_super(handleof(o)->o_super, k, v, b);
 }
 
-object * handle_type::fetch_base(object *o, object *k)
+object *handle_type::fetch_base(object *o, object *k)
 {
     handle *h;
     object *r;
@@ -391,33 +432,49 @@ object * handle_type::fetch_base(object *o, object *k)
     h = handleof(o);
     if (h->h_member_map != nullptr && !o->hasflag(handle::CLOSED))
     {
-        object       *id;
+        object *id;
 
         if ((id = ici_fetch(h->h_member_map, k)) == nullptr)
+        {
             return nullptr;
+        }
         if (iscfunc(id))
+        {
             return id;
+        }
         if (isint(id))
         {
             r = nullptr;
             if ((*h->h_member_intf)(h->h_ptr, intof(id)->i_value, nullptr, &r))
+            {
                 return nullptr;
+            }
             if (r != nullptr)
+            {
                 return r;
+            }
         }
     }
     if (h->h_general_intf != nullptr)
     {
         r = nullptr;
         if ((*h->h_general_intf)(h, k, nullptr, &r))
+        {
             return nullptr;
+        }
         if (r != nullptr)
+        {
             return r;
+        }
     }
     if (!hassuper(o))
+    {
         return fetch_fail(o, k);
+    }
     if (!o->hasflag(handle::HAS_PRIV_MAP))
+    {
         return null;
+    }
     return ici_fetch_base(h->o_super, k);
 }
 
@@ -433,32 +490,44 @@ int handle_type::assign_base(object *o, object *k, object *v)
     h = handleof(o);
     if (h->h_member_map != nullptr && !o->hasflag(handle::CLOSED))
     {
-        object       *id;
+        object *id;
 
         if ((id = ici_fetch(h->h_member_map, k)) == nullptr)
+        {
             return 1;
+        }
         if (isint(id))
         {
             r = nullptr;
             if ((*h->h_member_intf)(h->h_ptr, intof(id)->i_value, v, &r))
+            {
                 return 1;
+            }
             if (r != nullptr)
+            {
                 return 0;
+            }
         }
     }
     if (h->h_general_intf != nullptr)
     {
         r = nullptr;
         if ((*h->h_general_intf)(h, k, v, &r))
+        {
             return 1;
+        }
         if (r != nullptr)
+        {
             return 0;
+        }
     }
     if (!hassuper(o))
+    {
         return assign_fail(o, k, v);
+    }
     if (!o->hasflag(handle::HAS_PRIV_MAP))
     {
-        objwsup  *s;
+        objwsup *s;
 
         /*
          * We don't yet have a private struct to hold our values.
@@ -468,7 +537,9 @@ int handle_type::assign_base(object *o, object *k, object *v)
          * We invalidate all existing entries by incrementing vsver.
          */
         if ((s = objwsupof(new_map())) == nullptr)
+        {
             return 1;
+        }
         s->o_super = objwsupof(o)->o_super;
         objwsupof(o)->o_super = s;
         ++vsver;
@@ -490,30 +561,44 @@ int handle_type::assign(object *o, object *k, object *v)
     r = nullptr;
     if (h->h_member_map != nullptr && !o->hasflag(handle::CLOSED))
     {
-        object       *id;
+        object *id;
 
         if ((id = ici_fetch(h->h_member_map, k)) == nullptr)
+        {
             return 1;
+        }
         if (isint(id))
         {
             if ((*h->h_member_intf)(h->h_ptr, intof(id)->i_value, v, &r))
+            {
                 return 1;
+            }
             if (r != nullptr)
+            {
                 return 0;
+            }
         }
     }
     if (h->h_general_intf != nullptr)
     {
         r = nullptr;
         if ((*h->h_general_intf)(h, k, v, &r))
+        {
             return 1;
+        }
         if (r != nullptr)
+        {
             return 0;
+        }
     }
     if (!hassuper(o))
+    {
         return assign_fail(o, k, v);
+    }
     if (o->hasflag(handle::HAS_PRIV_MAP))
+    {
         return ici_assign(h->o_super, k, v);
+    }
     /*
      * We don't have a base struct of our own yet. Try the super.
      */
@@ -521,8 +606,10 @@ int handle_type::assign(object *o, object *k, object *v)
     {
         switch (ici_assign_super(h->o_super, k, v, nullptr))
         {
-        case -1: return 1;
-        case 1:  return 0;
+        case -1:
+            return 1;
+        case 1:
+            return 0;
         }
     }
     /*
@@ -548,9 +635,13 @@ int handle_type::assign(object *o, object *k, object *v)
 int handle_type::assign_super(object *o, object *k, object *v, map *b)
 {
     if (!hassuper(o))
+    {
         return assign_fail(o, k, v);
+    }
     if (handleof(o)->o_super == nullptr)
+    {
         return 0;
+    }
     return ici_assign_super(handleof(o)->o_super, k, v, b);
 }
 
@@ -561,7 +652,9 @@ int handle_type::assign_super(object *o, object *k, object *v, map *b)
 void handle_type::free(object *o)
 {
     if (handleof(o)->h_pre_free != nullptr)
+    {
         (*handleof(o)->h_pre_free)(handleof(o));
+    }
     ici_tfree(o, handle);
 }
 

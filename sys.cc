@@ -11,29 +11,29 @@
  * by the ANSI C strerror() function for the errno set by the call).
  */
 
-#include "fwd.h"
-#include "int.h"
-#include "null.h"
-#include "str.h"
 #include "array.h"
-#include "map.h"
 #include "cfunc.h"
 #include "file.h"
+#include "fwd.h"
+#include "int.h"
+#include "map.h"
 #include "mem.h"
+#include "null.h"
+#include "str.h"
 
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <time.h>
 #include <errno.h>
+#include <fcntl.h>
 #include <signal.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <time.h>
 
 #ifndef _WIN32
 #include <fcntl.h>
-#include <unistd.h>
-#include <sys/wait.h>
-#include <sys/time.h>
 #include <sys/mman.h>
+#include <sys/time.h>
+#include <sys/wait.h>
+#include <unistd.h>
 #endif
 
 #ifdef __CYGWIN__
@@ -47,9 +47,9 @@
 #endif
 
 #ifdef _WIN32
-#define        ICI_SYS_NOPASSWD
-#define        ICI_SYS_NOFLOCK
-#define        ICI_SYS_NORLIMITS
+#define ICI_SYS_NOPASSWD
+#define ICI_SYS_NOFLOCK
+#define ICI_SYS_NORLIMITS
 #endif
 
 #ifndef ICI_SYS_NOPASSWD
@@ -83,19 +83,19 @@
 #endif
 
 #ifdef _WIN32
+#include <direct.h>
 #include <io.h>
 #include <process.h>
-#include <direct.h>
 
 /*
  * Some macros for compatibility with Unix
  */
 
-#define F_OK    0
-#define W_OK    2
-#define R_OK    4
+#define F_OK 0
+#define W_OK 2
+#define R_OK 4
 
-#define MAXPATHLEN  _MAX_PATH
+#define MAXPATHLEN _MAX_PATH
 #endif
 
 /*
@@ -214,10 +214,12 @@ static int sys_ret(int ret, const char *how, const char *what)
  */
 static int sys_simple()
 {
-    long        av[4];
+    long av[4];
 
     if (typecheck((const char *)ICI_CF_ARG2(), &av[0], &av[1], &av[2], &av[3]))
+    {
         return 1;
+    }
     return sys_ret((*(int (*)(...))ICI_CF_ARG1())(av[0], av[1], av[2], av[3]));
 }
 
@@ -236,20 +238,24 @@ static int sys_simple()
  */
 static int sys_open()
 {
-    char        *fname;
-    long        omode;
-    long        perms = -1; /* -1 means not passed */
+    char *fname;
+    long  omode;
+    long  perms = -1; /* -1 means not passed */
 
     switch (NARGS())
     {
     case 2:
         if (typecheck("si", &fname, &omode))
+        {
             return 1;
+        }
         break;
 
     case 3:
         if (typecheck("sii", &fname, &omode, &perms))
+        {
             return 1;
+        }
         break;
 
     default:
@@ -267,8 +273,7 @@ static int sys_open()
 /*
  * General return for things not implemented on (that suckful) Win32.
  */
-static int
-not_on_win32(const char *s)
+static int not_on_win32(const char *s)
 {
     sprintf(buf, "%s is not implemented on Win32 platforms", s);
     set_error(buf);
@@ -291,20 +296,24 @@ static int sys_fdopen()
     return not_on_win32("fdopen");
 #else
     long        fd;
-    const char  *mode;
-    FILE        *stream;
-    file  *f;
+    const char *mode;
+    FILE       *stream;
+    file       *f;
 
     switch (NARGS())
     {
     case 1:
         if (typecheck("i", &fd))
+        {
             return 1;
+        }
         mode = "r";
         break;
     case 2:
         if (typecheck("is", &fd, &mode))
+        {
             return 1;
+        }
         break;
     default:
         return argcount(2);
@@ -333,33 +342,32 @@ static int sys_fdopen()
  */
 static int sys_close()
 {
-    int                 rc;
-    object            *fd0;
-    object            *fd1;
+    int     rc;
+    object *fd0;
+    object *fd1;
 
     if (NARGS() != 1)
+    {
         return argcount(1);
+    }
     if (isint(ARG(0)))
+    {
         rc = close(intof(ARG(0))->i_value);
+    }
     else if (isarray(ARG(0)))
     {
         array *a = arrayof(ARG(0));
 
-        if
-        (
-            a->len() != 2
-            ||
-            !isint(fd0 = a->get(0))
-            ||
-            !isint(fd1 = a->get(1))
-        )
+        if (a->len() != 2 || !isint(fd0 = a->get(0)) || !isint(fd1 = a->get(1)))
         {
             set_error("invalid fd array passed to _close");
             return 1;
         }
         rc = close(intof(fd0)->i_value);
         if (rc == 0)
+        {
             rc = close(intof(fd1)->i_value);
+        }
     }
     else
     {
@@ -368,52 +376,74 @@ static int sys_close()
     return sys_ret(rc, "close");
 }
 
-
 #ifndef _WIN32
 
 /* Convert a struct to a struct flock for fcntl's F_SETLK */
 
-static int
-struct_to_flock(map *d, struct flock *flock)
+static int struct_to_flock(map *d, struct flock *flock)
 {
-    object    *o;
+    object *o;
 
     if ((o = ici_fetch(d, SS(start))) == null)
+    {
         flock->l_start = 0;
+    }
     else
+    {
         flock->l_start = intof(o)->i_value;
+    }
     if ((o = ici_fetch(d, SS(len))) == null)
+    {
         flock->l_len = 0;
+    }
     else
+    {
         flock->l_len = intof(o)->i_value;
+    }
     if ((o = ici_fetch(d, SS(type))) == null)
+    {
         flock->l_type = F_RDLCK;
+    }
     else if (isstring(o))
     {
         if (o == SS(rdlck))
+        {
             flock->l_type = F_RDLCK;
+        }
         else if (o == SS(wrlck))
+        {
             flock->l_type = F_WRLCK;
+        }
         else if (o == SS(unlck))
+        {
             flock->l_type = F_UNLCK;
+        }
         else
+        {
             goto bad_lock_type;
+        }
     }
     else if (isint(o))
+    {
         flock->l_type = intof(o)->i_value;
+    }
     else
     {
-    bad_lock_type:
+bad_lock_type:
         set_error("invalid lock type");
         return 1;
     }
     if ((o = ici_fetch(d, SS(whence))) == null)
+    {
         flock->l_whence = SEEK_SET;
+    }
     else
+    {
         flock->l_whence = intof(o)->i_value;
+    }
     return 0;
 }
-#endif  /* _WIN32 */
+#endif /* _WIN32 */
 
 /*
  * int = fcntl(fd, what [, arg])
@@ -467,12 +497,12 @@ static int sys_fcntl()
 #ifdef _WIN32
     return not_on_win32("fcntl");
 #else
-    long        fd;
+    long    fd;
     str    *what;
-    object    *arg;
-    int         iarg;
-    int         iwhat;
-    int         r;
+    object *arg;
+    int     iarg;
+    int     iwhat;
+    int     r;
 
     switch (NARGS())
     {
@@ -480,37 +510,61 @@ static int sys_fcntl()
         iarg = 1;
         arg = null;
         if (typecheck("io", &fd, &what))
+        {
             return 1;
+        }
         break;
 
     case 3:
         if (typecheck("ioo", &fd, &what, &arg))
+        {
             return 1;
+        }
         if (isint(arg))
+        {
             iarg = intof(arg)->i_value;
+        }
         else
+        {
             iarg = 0;
+        }
         break;
 
     default:
         return argcount(3);
     }
     if (!isstring(what))
+    {
         return argerror(1);
+    }
     if (what == SS(dupfd))
+    {
         iwhat = F_DUPFD;
+    }
     else if (what == SS(getfd))
+    {
         iwhat = F_GETFD;
+    }
     else if (what == SS(setfd))
+    {
         iwhat = F_SETFD;
+    }
     else if (what == SS(getfl))
+    {
         iwhat = F_GETFL;
+    }
     else if (what == SS(setfl))
+    {
         iwhat = F_SETFL;
+    }
     else if (what == SS(getown))
+    {
         iwhat = F_GETOWN;
+    }
     else if (what == SS(setown))
+    {
         iwhat = F_SETOWN;
+    }
     else if (what == SS(setlk))
     {
         struct flock myflock;
@@ -525,9 +579,11 @@ static int sys_fcntl()
         goto ret;
     }
     else
+    {
         return argerror(1);
+    }
     r = fcntl(fd, iwhat, iarg);
- ret:
+ret:
     return sys_ret(r);
 #endif /* _WIN32 */
 }
@@ -542,16 +598,15 @@ static int sys_fcntl()
  */
 static int sys_fileno()
 {
-    file      *f;
+    file *f;
 
     if (typecheck("u", &f))
+    {
         return 1;
-    if
-    (
-        f->f_type != stdio_ftype
+    }
+    if (f->f_type != stdio_ftype
 #ifndef NOPIPES
-        &&
-        f->f_type != popen_ftype
+        && f->f_type != popen_ftype
 #endif
     )
     {
@@ -570,25 +625,35 @@ static int sys_fileno()
  */
 static int sys_mkdir()
 {
-    char        *path;
+    char *path;
 
 #ifdef _WIN32
     if (typecheck("s", &path))
+    {
         return 1;
+    }
     if (mkdir(path) == -1)
+    {
         return get_last_errno("mkdir", path);
+    }
 #else
-    long        mode = 0777;
+    long mode = 0777;
 
     if (NARGS() == 1)
     {
         if (typecheck("s", &path))
+        {
             return 1;
+        }
     }
     else if (typecheck("si", &path, &mode))
+    {
         return 1;
+    }
     if (mkdir(path, mode) == -1)
+    {
         return get_last_errno("mkdir", path);
+    }
 #endif
     return ret_no_decref(null);
 }
@@ -606,13 +671,17 @@ static int sys_mkfifo()
 #ifdef _WIN32 /* WINDOWS can't do mkifo() */
     return not_on_win32("mkfifo");
 #else
-    char        *path;
-    long        mode;
+    char *path;
+    long mode;
 
     if (typecheck("si", &path, &mode))
+    {
         return 1;
+    }
     if (mkfifo(path, mode) == -1)
+    {
         return get_last_errno("mkfifo", path);
+    }
     return ret_no_decref(null);
 #endif /* _WIN32 */
 }
@@ -627,16 +696,20 @@ static int sys_mkfifo()
  */
 static int sys_read()
 {
-    long        fd;
-    long        len;
-    str    *s;
-    int         r;
-    char        *msg;
+    long  fd;
+    long  len;
+    str  *s;
+    int   r;
+    char *msg;
 
     if (typecheck("ii", &fd, &len))
+    {
         return 1;
-    if ((msg = (char *)ici_alloc(len+1)) == nullptr)
+    }
+    if ((msg = (char *)ici_alloc(len + 1)) == nullptr)
+    {
         return 1;
+    }
     switch (r = read(fd, msg, len))
     {
     case -1:
@@ -670,29 +743,35 @@ static int sys_read()
  */
 static int sys_write()
 {
-    long        fd;
-    object      *o;
-    char        *addr;
-    int64_t     sz;
-    int         havesz = 0;
+    long    fd;
+    object *o;
+    char   *addr;
+    int64_t sz;
+    int     havesz = 0;
 
     if (typecheck("io", &fd, &o))
     {
         if (typecheck("ioi", &fd, &o, &sz))
+        {
             return 1;
+        }
         havesz = 1;
     }
     if (isstring(o))
     {
         addr = (char *)stringof(o)->s_chars;
         if (!havesz || size_t(sz) > stringof(o)->s_nchars)
+        {
             sz = stringof(o)->s_nchars;
+        }
     }
     else if (ismem(o))
     {
         addr = (char *)memof(o)->m_base;
         if (!havesz || (size_t)sz > memof(o)->m_length * memof(o)->m_accessz)
+        {
             sz = memof(o)->m_length * memof(o)->m_accessz;
+        }
     }
     else
     {
@@ -714,12 +793,16 @@ static int sys_symlink()
 #ifdef _WIN32 /* WINDOWS can't do symlink() */
     return not_on_win32("symlink");
 #else
-    char        *a, *b;
+    char *a, *b;
 
     if (typecheck("ss", &a, &b))
+    {
         return 1;
+    }
     if (symlink(a, b) == -1)
+    {
         return get_last_errno("symlink", a);
+    }
     return ret_no_decref(null);
 #endif /* _WIN32 */
 }
@@ -737,13 +820,17 @@ static int sys_readlink()
 #ifdef _WIN32 /* WINDOWS can't do readlink(). */
     return not_on_win32("fdopen");
 #else
-    char        *path;
-    char        pbuf[MAXPATHLEN+1];
+    char *path;
+    char pbuf[MAXPATHLEN + 1];
 
     if (typecheck("s", &path))
+    {
         return 1;
+    }
     if (readlink(path, pbuf, sizeof pbuf) == -1)
+    {
         return get_last_errno("readlink", path);
+    }
     return ret_with_decref(new_str_nul_term(pbuf));
 #endif /* _WIN32 */
 }
@@ -778,13 +865,15 @@ static int sys_readlink()
  */
 static int sys_stat()
 {
-    object    *o;
+    object     *o;
     struct stat statb;
     int         rc;
-    map  *s;
+    map        *s;
 
     if (NARGS() != 1)
+    {
         return argcount(1);
+    }
     o = ARG(0);
     if (isint(o))
     {
@@ -814,16 +903,20 @@ static int sys_stat()
     {
         return 1;
     }
-#define SETFIELD(x)                                     \
-    if ((o = new_int(statb.st_ ##x)) == nullptr)       \
-        goto fail;                                      \
-    else if (ici_assign(s, SS(x), o))                  \
-    {                                                   \
-        decref(o);                                      \
-        goto fail;                                      \
-    }                                                   \
-    else                                                \
-        decref(o)
+#define SETFIELD(x)                                                     \
+    if ((o = new_int(statb.st_##x)) == nullptr)                         \
+    {                                                                   \
+        goto fail;                                                      \
+    }                                                                   \
+    else if (ici_assign(s, SS(x), o))                                   \
+    {                                                                   \
+        decref(o);                                                      \
+        goto fail;                                                      \
+    }                                                                   \
+    else                                                                \
+    {                                                                   \
+        decref(o);                                                      \
+    }
 
     SETFIELD(dev);
     SETFIELD(ino);
@@ -845,7 +938,7 @@ static int sys_stat()
 
     return ret_with_decref(s);
 
- fail:
+fail:
     decref(s);
     return 1;
 }
@@ -862,32 +955,46 @@ static int sys_stat()
  */
 static int sys_lstat()
 {
-    object    *o;
+    object     *o;
     struct stat statb;
     int         rc;
-    map  *s;
+    map        *s;
 
     if (NARGS() != 1)
+    {
         return argcount(1);
+    }
     o = ARG(0);
     if (isstring(o))
+    {
         rc = lstat(stringof(o)->s_chars, &statb);
+    }
     else
+    {
         return argerror(0);
+    }
     if (rc == -1)
+    {
         return sys_ret(rc);
+    }
     if ((s = new_map()) == nullptr)
+    {
         return 1;
-#define SETFIELD(x)                                     \
-    if ((o = new_int(statb.st_ ##x)) == nullptr)       \
-        goto fail;                                      \
-    else if (ici_assign(s, SS(x), o))                  \
-    {                                                   \
-        decref(o);                                      \
-        goto fail;                                      \
-    }                                                   \
-    else                                                \
-        decref(o)
+    }
+#define SETFIELD(x)                                                     \
+    if ((o = new_int(statb.st_##x)) == nullptr)                         \
+    {                                                                   \
+        goto fail;                                                      \
+    }                                                                   \
+    else if (ici_assign(s, SS(x), o))                                   \
+    {                                                                   \
+        decref(o);                                                      \
+        goto fail;                                                      \
+    }                                                                   \
+    else                                                                \
+    {                                                                   \
+        decref(o);                                                      \
+    }
 
     SETFIELD(dev);
     SETFIELD(ino);
@@ -907,7 +1014,7 @@ static int sys_lstat()
 
     return ret_with_decref(s);
 
- fail:
+fail:
     decref(s);
     return 1;
 }
@@ -927,11 +1034,13 @@ static int sys_lstat()
  */
 static int sys_ctime()
 {
-    time_t  timev;
-    str    *s;
+    time_t timev;
+    str   *s;
 
     if (typecheck("i", &timev) || (s = new_str_nul_term(ctime(&timev))) == nullptr)
+    {
         return 1;
+    }
     return ret_with_decref(s);
 }
 
@@ -952,18 +1061,23 @@ static int sys_time()
 
 #ifndef _WIN32
 
-static int
-assign_timeval(map *s, str *k, struct timeval *tv)
+static int assign_timeval(map *s, str *k, struct timeval *tv)
 {
-    map    *ss;
-    integer       *i;
+    map     *ss;
+    integer *i;
 
     if (k == nullptr)
+    {
         ss = s;
+    }
     else if ((ss = new_map()) == nullptr)
+    {
         return 1;
+    }
     if ((i = new_int(tv->tv_usec)) == nullptr)
+    {
         goto fail;
+    }
     if (ici_assign(ss, SS(usec), i))
     {
         decref(i);
@@ -971,7 +1085,9 @@ assign_timeval(map *s, str *k, struct timeval *tv)
     }
     decref(i);
     if ((i = new_int(tv->tv_sec)) == nullptr)
+    {
         goto fail;
+    }
     if (ici_assign(ss, SS(sec), i))
     {
         decref(i);
@@ -979,12 +1095,16 @@ assign_timeval(map *s, str *k, struct timeval *tv)
     }
     decref(i);
     if (k != nullptr && ici_assign(s, k, ss))
+    {
         goto fail;
+    }
     return 0;
 
- fail:
+fail:
     if (k != nullptr)
+    {
         decref(ss);
+    }
     return 1;
 }
 
@@ -1010,36 +1130,47 @@ assign_timeval(map *s, str *k, struct timeval *tv)
  */
 static int sys_getitimer()
 {
-    long                which = ITIMER_VIRTUAL;
-    map          *s;
-    struct itimerval    value;
-    object              *o;
+    long             which = ITIMER_VIRTUAL;
+    map             *s;
+    struct itimerval value;
+    object          *o;
 
     if (NARGS() != 0)
     {
         if (typecheck("o", &o))
+        {
             return 1;
+        }
         if (!isstring(o))
+        {
             return argerror(0);
+        }
         if (o == SS(real))
+        {
             which = ITIMER_REAL;
+        }
         else if (o == SS(virtual))
+        {
             which = ITIMER_VIRTUAL;
+        }
         else if (o == SS(prof))
+        {
             which = ITIMER_PROF;
+        }
         else
+        {
             return argerror(0);
+        }
     }
     if (getitimer(which, &value) == -1)
+    {
         return sys_ret(-1);
+    }
     if ((s = new_map()) == nullptr)
+    {
         return 1;
-    if
-    (
-        assign_timeval(s, SS(interval), &value.it_interval)
-        ||
-        assign_timeval(s, SS(value), &value.it_value)
-    )
+    }
+    if (assign_timeval(s, SS(interval), &value.it_interval) || assign_timeval(s, SS(value), &value.it_value))
     {
         decref(s);
         return 1;
@@ -1047,25 +1178,38 @@ static int sys_getitimer()
     return ret_with_decref(s);
 }
 
-static int
-fetch_timeval(object *s, struct timeval *tv)
+static int fetch_timeval(object *s, struct timeval *tv)
 {
-    object    *o;
+    object *o;
 
     if (!ismap(s))
+    {
         return 1;
+    }
     if ((o = ici_fetch(s, SS(usec))) == null)
+    {
         tv->tv_usec = 0;
+    }
     else if (isint(o))
+    {
         tv->tv_usec = intof(o)->i_value;
+    }
     else
+    {
         return 1;
+    }
     if ((o = ici_fetch(s, SS(sec))) == null)
+    {
         tv->tv_sec = 0;
+    }
     else if (isint(o))
+    {
         tv->tv_sec = intof(o)->i_value;
+    }
     else
+    {
         return 1;
+    }
     return 0;
 }
 
@@ -1083,55 +1227,74 @@ fetch_timeval(object *s, struct timeval *tv)
  */
 static int sys_setitimer()
 {
-    long                which = ITIMER_VIRTUAL;
-    map          *s;
-    struct itimerval    value;
-    struct itimerval    ovalue;
-    object              *o;
+    long             which = ITIMER_VIRTUAL;
+    map             *s;
+    struct itimerval value;
+    struct itimerval ovalue;
+    object          *o;
 
     if (NARGS() == 1)
     {
         if (typecheck("d", &s))
+        {
             return 1;
+        }
     }
     else
     {
         if (typecheck("od", &o, &s))
+        {
             return 1;
+        }
         if (o == SS(real))
+        {
             which = ITIMER_REAL;
+        }
         else if (o == SS(virtual))
+        {
             which = ITIMER_VIRTUAL;
+        }
         else if (o == SS(prof))
+        {
             which = ITIMER_PROF;
+        }
         else
+        {
             return argerror(0);
+        }
     }
     if ((o = ici_fetch(s, SS(interval))) == null)
+    {
         value.it_interval.tv_sec = value.it_interval.tv_usec = 0;
+    }
     else if (fetch_timeval(o, &value.it_interval))
+    {
         goto invalid_itimerval;
+    }
     if ((o = ici_fetch(s, SS(value))) == null)
+    {
         value.it_value.tv_sec = value.it_value.tv_usec = 0;
+    }
     else if (fetch_timeval(o, &value.it_value))
+    {
         goto invalid_itimerval;
+    }
     if (setitimer(which, &value, &ovalue) == -1)
+    {
         return sys_ret(-1);
+    }
     if ((s = new_map()) == nullptr)
+    {
         return 1;
-    if
-    (
-        assign_timeval(s, SS(interval), &ovalue.it_interval)
-        ||
-        assign_timeval(s, SS(value), &ovalue.it_value)
-    )
+    }
+    if (assign_timeval(s, SS(interval), &ovalue.it_interval) || assign_timeval(s, SS(value), &ovalue.it_value))
     {
         decref(s);
         return 1;
     }
     return ret_with_decref(s);
 
- invalid_itimerval:
+invalid_itimerval:
     set_error("invalid itimer struct");
     return 1;
 }
@@ -1148,13 +1311,17 @@ static int sys_setitimer()
  */
 static int sys_gettimeofday()
 {
-    map          *s;
-    struct timeval      tv;
+    map           *s;
+    struct timeval tv;
 
     if (gettimeofday(&tv, nullptr) == -1)
+    {
         return sys_ret(-1);
+    }
     if ((s = new_map()) == nullptr)
+    {
         return 1;
+    }
     if (assign_timeval(s, nullptr, &tv))
     {
         decref(s);
@@ -1163,7 +1330,6 @@ static int sys_gettimeofday()
     return ret_with_decref(s);
 }
 #endif /* _WIN32 */
-
 
 /*
  * int = access(string [, int])
@@ -1181,18 +1347,22 @@ static int sys_gettimeofday()
  */
 static int sys_access()
 {
-    char        *fname;
-    int         bits = F_OK;
+    char *fname;
+    int   bits = F_OK;
 
     switch (NARGS())
     {
     case 1:
         if (typecheck("s", &fname))
+        {
             return 1;
+        }
         break;
     case 2:
         if (typecheck("si", &fname, &bits))
+        {
             return 1;
+        }
         break;
     default:
         return argcount(2);
@@ -1213,31 +1383,37 @@ static int sys_pipe()
 #ifdef _WIN32
     return not_on_win32("pipe");
 #else
-    int         pfd[2];
-    array     *a;
-    integer   *fd;
+    int pfd[2];
+    array *a;
+    integer *fd;
 
     if ((a = new_array(2)) == nullptr)
+    {
         return 1;
+    }
     if (pipe(pfd) == -1)
     {
         decref(a);
         return sys_ret(-1);
     }
     if ((fd = new_int(pfd[0])) == nullptr)
+    {
         goto fail;
+    }
     a->push(fd, with_decref);
     if ((fd = new_int(pfd[1])) == nullptr)
+    {
         goto fail;
+    }
     a->push(fd, with_decref);
     return ret_with_decref(a);
 
- fail:
+fail:
     decref(a);
     close(pfd[0]);
     close(pfd[1]);
     return 1;
-#endif  /* #ifndef _WIN32 */
+#endif /* #ifndef _WIN32 */
 }
 
 /*
@@ -1252,14 +1428,18 @@ static int sys_pipe()
  */
 static int sys_creat()
 {
-    char        *fname;
-    long        perms;
-    int         fd;
+    char *fname;
+    long  perms;
+    int   fd;
 
     if (typecheck("si", &fname, &perms))
+    {
         return 1;
+    }
     if ((fd = creat(fname, perms)) == -1)
+    {
         return get_last_errno("creat", fname);
+    }
     return int_ret(fd);
 }
 
@@ -1268,7 +1448,7 @@ static int sys_creat()
  *
  * Duplicate a file descriptor by calling 'dup(2)' or 'dup2(2)' and return a new
  * descriptor.  If only a single parameter is passed 'dup(2)' is called
- * otherwise 'dup2(2)' is called. 
+ * otherwise 'dup2(2)' is called.
  *
  * Supported on Win32 platforms.
  *
@@ -1276,19 +1456,23 @@ static int sys_creat()
  */
 static int sys_dup()
 {
-    long        fd1;
-    long        fd2;
+    long fd1;
+    long fd2;
 
     switch (NARGS())
     {
     case 1:
         if (typecheck("i", &fd1))
+        {
             return 1;
+        }
         fd2 = -1;
         break;
     case 2:
         if (typecheck("ii", &fd1, &fd2))
+        {
             return 1;
+        }
         break;
     default:
         return argcount(2);
@@ -1299,7 +1483,9 @@ static int sys_dup()
         return fd2 < 0 ? sys_ret(fd2) : int_ret(fd2);
     }
     if (dup2(fd1, fd2) < 0)
+    {
         return sys_ret(-1);
+    }
     return int_ret(fd2);
 }
 
@@ -1320,43 +1506,53 @@ static int sys_dup()
  */
 static int sys_exec()
 {
-    char        *sargv[16];
-    char        **argv;
-    int         maxargv;
-    int         n;
-    object    **o;
-    char        *path;
-    int         argc;
+    char    *sargv[16];
+    char   **argv;
+    int      maxargv;
+    int      n;
+    object **o;
+    char    *path;
+    int      argc;
 
-#define ADDARG(X)                                                       \
-    {                                                                   \
-        if (argc >= 16)                                                 \
-        {                                                               \
-            if (argc >= maxargv)                                        \
-            {                                                           \
-                char    **newp;                                         \
-                int      i;                                             \
-                maxargv += argc;                                        \
-                if ((newp = (char **)ici_alloc(maxargv * sizeof (char *))) == nullptr) \
-                {                                                       \
-                    if (argv != sargv)                                  \
-                        ici_free(argv);                                 \
-                    return 1;                                           \
-                }                                                       \
-                for (i = 0; i < argc; ++i)                              \
-                    newp[i] = argv[i];                                  \
-                if (argv != sargv)                                      \
-                    ici_free(argv);                                     \
-                argv = newp;                                            \
-            }                                                           \
-        }                                                               \
-        argv[argc++] = (X);                                             \
+#define ADDARG(X)                                                                                                       \
+    {                                                                                                                   \
+        if (argc >= 16)                                                                                                 \
+        {                                                                                                               \
+            if (argc >= maxargv)                                                                                        \
+            {                                                                                                           \
+                char **newp;                                                                                            \
+                int    i;                                                                                               \
+                maxargv += argc;                                                                                        \
+                if ((newp = (char **)ici_alloc(maxargv * sizeof(char *))) == nullptr)                                   \
+                {                                                                                                       \
+                    if (argv != sargv)                                                                                  \
+                    {                                                                                                   \
+                        ici_free(argv);                                                                                 \
+                    }                                                                                                   \
+                    return 1;                                                                                           \
+                }                                                                                                       \
+                for (i = 0; i < argc; ++i)                                                                              \
+                {                                                                                                       \
+                    newp[i] = argv[i];                                                                                  \
+                }                                                                                                       \
+                if (argv != sargv)                                                                                      \
+                {                                                                                                       \
+                    ici_free(argv);                                                                                     \
+                }                                                                                                       \
+                argv = newp;                                                                                            \
+            }                                                                                                           \
+        }                                                                                                               \
+        argv[argc++] = (X);                                                                                             \
     }
 
     if ((n = NARGS()) < 2)
+    {
         return argcount(2);
+    }
     if (!isstring(*(o = ARGS())))
+    {
         return argerror(0);
+    }
     path = stringof(*o)->s_chars;
     --o;
     argc = 0;
@@ -1371,21 +1567,29 @@ static int sys_exec()
         }
     }
     else if (!isarray(*o))
+    {
         return argerror(0);
+    }
     else
     {
         object **p;
-        array *a;
+        array   *a;
 
         a = arrayof(*o);
         for (p = a->astart(); p < a->alimit(); p = a->anext(p))
+        {
             if (isstring(*p))
+            {
                 ADDARG(stringof(*p)->s_chars);
+            }
+        }
     }
     ADDARG(nullptr);
     n = (*(int (*)(...))ICI_CF_ARG1())(path, argv);
     if (argv != sargv)
+    {
         ici_free(argv);
+    }
     return sys_ret(n);
 }
 
@@ -1418,54 +1622,66 @@ static int sys_exec()
  */
 static int sys_spawn()
 {
-    char        *sargv[16];
-    char        **argv;
-    int         maxargv;
-    int         n;
-    object    **o;
-    char        *path;
-    int         argc;
-    int         mode = _P_NOWAIT;
+    char    *sargv[16];
+    char   **argv;
+    int      maxargv;
+    int      n;
+    object **o;
+    char    *path;
+    int      argc;
+    int      mode = _P_NOWAIT;
 
-#define ADDARG(X)                                                       \
-    {                                                                   \
-        if (argc >= 16)                                                 \
-        {                                                               \
-            if (argc >= maxargv)                                        \
-            {                                                           \
-                char    **newp;                                         \
-                int      i;                                             \
-                maxargv += argc;                                        \
-                if ((newp = ici_alloc(maxargv * sizeof (char *))) == nullptr) \
-                {                                                       \
-                    if (argv != sargv)                                  \
-                        ici_free(argv);                                 \
-                    return 1;                                           \
-                }                                                       \
-                for (i = 0; i < argc; ++i)                              \
-                    newp[i] = argv[i];                                  \
-                if (argv != sargv)                                      \
-                    ici_free(argv);                                     \
-                argv = newp;                                            \
-            }                                                           \
-        }                                                               \
-        argv[argc++] = (X);                                             \
+#define ADDARG(X)                                                                                                       \
+    {                                                                                                                   \
+        if (argc >= 16)                                                                                                 \
+        {                                                                                                               \
+            if (argc >= maxargv)                                                                                        \
+            {                                                                                                           \
+                char **newp;                                                                                            \
+                int    i;                                                                                               \
+                maxargv += argc;                                                                                        \
+                if ((newp = ici_alloc(maxargv * sizeof(char *))) == nullptr)                                            \
+                {                                                                                                       \
+                    if (argv != sargv)                                                                                  \
+                        ici_free(argv);                                                                                 \
+                    return 1;                                                                                           \
+                }                                                                                                       \
+                for (i = 0; i < argc; ++i)                                                                              \
+                {                                                                                                       \
+                    newp[i] = argv[i];                                                                                  \
+                }                                                                                                       \
+                if (argv != sargv)                                                                                      \
+                {                                                                                                       \
+                    ici_free(argv);                                                                                     \
+                }                                                                                                       \
+                argv = newp;                                                                                            \
+            }                                                                                                           \
+        }                                                                                                               \
+        argv[argc++] = (X);                                                                                             \
     }
 
     if ((n = NARGS()) < 2)
+    {
         return argcount(2);
+    }
     o = ARGS();
     if (isint(*o))
     {
         mode = intof(*o)->i_value;
         --o;
         if (--n < 2)
+        {
             return argcount(2);
+        }
         if (!isstring(*o))
+        {
             return argerror(1);
+        }
     }
     else if (!isstring(*o))
+    {
         return argerror(0);
+    }
     path = stringof(*o)->s_chars;
     --o;
     argc = 0;
@@ -1480,23 +1696,33 @@ static int sys_spawn()
         }
     }
     else if (!isarray(*o))
+    {
         return argerror(0);
+    }
     else
     {
         object **p;
-        array *a;
+        array   *a;
 
         a = arrayof(*o);
         for (p = a->astart(); p < a->alimit(); p = a->anext(p))
+        {
             if (isstring(*p))
+            {
                 ADDARG(stringof(*p)->s_chars);
+            }
+        }
     }
     ADDARG(nullptr);
     n = (*(int (*)())ICI_CF_ARG1())(mode, path, argv);
     if (argv != sargv)
+    {
         ici_free(argv);
+    }
     if (n == -1)
+    {
         return sys_ret(n);
+    }
     return int_ret(n);
 }
 #endif /* WIN32 */
@@ -1515,19 +1741,23 @@ static int sys_spawn()
  */
 static int sys_lseek()
 {
-    long        fd;
-    long        ofs;
-    long        whence = SEEK_SET;
+    long fd;
+    long ofs;
+    long whence = SEEK_SET;
 
     switch (NARGS())
     {
     case 2:
         if (typecheck("ii", &fd, &ofs))
+        {
             return 1;
+        }
         break;
     case 3:
         if (typecheck("iii", &fd, &ofs, &whence))
+        {
             return 1;
+        }
         break;
 
     default:
@@ -1549,17 +1779,23 @@ static int sys_wait()
 #ifdef _WIN32
     return not_on_win32("wait");
 #else
-    int                 pid;
-    map          *s;
-    integer             *i;
-    int                 status;
+    int pid;
+    map *s;
+    integer *i;
+    int status;
 
     if ((pid = wait(&status)) < 0)
+    {
         return sys_ret(-1);
+    }
     if ((s = new_map()) == nullptr)
+    {
         return 1;
+    }
     if ((i = new_int(pid)) == nullptr)
+    {
         goto fail;
+    }
     if (ici_assign(s, SS(pid), i))
     {
         decref(i);
@@ -1567,7 +1803,9 @@ static int sys_wait()
     }
     decref(i);
     if ((i = new_int(status)) == nullptr)
+    {
         goto fail;
+    }
     if (ici_assign(s, SS(status), i))
     {
         decref(i);
@@ -1576,7 +1814,7 @@ static int sys_wait()
     decref(i);
     return ret_with_decref(s);
 
- fail:
+fail:
     decref(s);
     return 1;
 #endif /* _WIN32 */
@@ -1619,8 +1857,8 @@ static map *password_map(struct passwd *);
  */
 static int sys_passwd()
 {
-    struct passwd     *pwent;
-    array             *a;
+    struct passwd *pwent;
+    array         *a;
 
     switch (NARGS())
     {
@@ -1629,13 +1867,21 @@ static int sys_passwd()
 
     case 1:
         if (isint(ARG(0)))
+        {
             pwent = getpwuid((uid_t)intof(ARG(0))->i_value);
+        }
         else if (isstring(ARG(0)))
+        {
             pwent = getpwnam(stringof(ARG(0))->s_chars);
+        }
         else
+        {
             return argerror(0);
+        }
         if (pwent == nullptr)
+        {
             set_error("no such user");
+        }
         return ret_with_decref(password_map(pwent));
 
     default:
@@ -1643,15 +1889,20 @@ static int sys_passwd()
     }
 
     if ((a = new_array()) == nullptr)
+    {
         return 1;
+    }
     setpwent();
-    while ((pwent = getpwent()) != nullptr) {
+    while ((pwent = getpwent()) != nullptr)
+    {
         map *m;
-        if ((m = password_map(pwent)) == nullptr) {
+        if ((m = password_map(pwent)) == nullptr)
+        {
             decref(a);
             return 1;
         }
-        if (a->push_checked(m, with_decref)) {
+        if (a->push_checked(m, with_decref))
+        {
             decref(a);
             return 1;
         }
@@ -1660,38 +1911,45 @@ static int sys_passwd()
     return ret_with_decref(a);
 }
 
-static map *
-password_map(struct passwd *pwent)
+static map *password_map(struct passwd *pwent)
 {
-    map *d;
-    object     *o;
+    map    *d;
+    object *o;
 
     if (pwent == nullptr)
+    {
         return nullptr;
+    }
     if ((d = new_map()) != nullptr)
     {
 
-#define SET_INT_FIELD(x)                                \
-        if ((o = new_int(pwent->pw_ ##x)) == nullptr)  \
-            goto fail;                                  \
-        else if (ici_assign(d, SS(x), o))              \
-        {                                               \
-            decref(o);                                  \
-            goto fail;                                  \
-        }                                               \
-        else                                            \
-            decref(o)
+#define SET_INT_FIELD(x)                                                                                                \
+    if ((o = new_int(pwent->pw_##x)) == nullptr)                                                                        \
+        goto fail;                                                                                                      \
+    else if (ici_assign(d, SS(x), o))                                                                                   \
+    {                                                                                                                   \
+        decref(o);                                                                                                      \
+        goto fail;                                                                                                      \
+    }                                                                                                                   \
+    else                                                                                                                \
+    {                                                                                                                   \
+        decref(o);                                                                                                      \
+    }
 
-#define SET_STR_FIELD(x)                                        \
-        if ((o = new_str_nul_term(pwent->pw_ ##x)) == nullptr) \
-            goto fail;                                          \
-        else if (ici_assign(d, SS(x), o))                       \
-        {                                                       \
-            decref(o);                                          \
-            goto fail;                                          \
-        }                                                       \
-        else                                                    \
-            decref(o)
+#define SET_STR_FIELD(x)                                                                                                \
+    if ((o = new_str_nul_term(pwent->pw_##x)) == nullptr)                                                               \
+    {                                                                                                                   \
+        goto fail;                                                                                                      \
+    }                                                                                                                   \
+    else if (ici_assign(d, SS(x), o))                                                                                   \
+    {                                                                                                                   \
+        decref(o);                                                                                                      \
+        goto fail;                                                                                                      \
+    }                                                                                                                   \
+    else                                                                                                                \
+    {                                                                                                                   \
+        decref(o);                                                                                                      \
+    }
 
         SET_STR_FIELD(name);
         SET_STR_FIELD(passwd);
@@ -1703,11 +1961,10 @@ password_map(struct passwd *pwent)
 
 #undef SET_STR_FIELD
 #undef SET_INT_FIELD
-
     }
     return d;
 
- fail:
+fail:
     decref(d);
     return nullptr;
 }
@@ -1729,7 +1986,9 @@ static int sys_getpass()
     if (NARGS() > 0)
     {
         if (typecheck("s", &prompt))
+        {
             return 1;
+        }
     }
     return str_ret(getpass(prompt));
 }
@@ -1746,9 +2005,9 @@ static int sys_getpass()
 static int sys_setpgrp()
 {
 #ifdef SETPGRP_2_ARGS
-    long        pid, pgrp;
+    long pid, pgrp;
 #else
-    long        pgrp;
+    long pgrp;
 #endif
 
 #ifdef SETPGRP_2_ARGS
@@ -1758,13 +2017,17 @@ static int sys_setpgrp()
         pid = 0;
 #endif
         if (typecheck("i", &pgrp))
+        {
             return 1;
+        }
 #ifdef SETPGRP_2_ARGS
         break;
 
     default:
         if (typecheck("ii", &pid, &pgrp))
+        {
             return 1;
+        }
         break;
     }
     return sys_ret(setpgrp((pid_t)pid, (pid_t)pgrp));
@@ -1787,10 +2050,12 @@ static int sys_setpgrp()
  */
 static int sys_flock()
 {
-    long        fd, operation;
+    long fd, operation;
 
     if (typecheck("ii", &fd, &operation))
+    {
         return 1;
+    }
     return sys_ret(flock(fd, operation));
 }
 #endif /* ICI_SYS_NOFLOCK */
@@ -1809,12 +2074,14 @@ static int ftruncate(int fd, long length)
 }
 static int truncate(const char *path, long length)
 {
-    long        fd;
-    int         ret;
+    long fd;
+    int  ret;
 
     fd = open(path, _O_WRONLY);
     if (fd == -1)
+    {
         return -1;
+    }
     ret = _chsize(fd, length);
     close(fd);
     return ret;
@@ -1834,20 +2101,24 @@ static int truncate(const char *path, long length)
  */
 static int sys_truncate()
 {
-    long        fd;
-    long        len;
-    char        *s;
+    long  fd;
+    long  len;
+    char *s;
 
     if (typecheck("ii", &fd, &len) == 0)
     {
         if (ftruncate(fd, len) == -1)
+        {
             return sys_ret(-1L);
+        }
         return null_ret();
     }
     if (typecheck("si", &s, &len) == 0)
     {
         if (truncate(s, len) == -1)
+        {
             return get_last_errno("truncate", s);
+        }
         return null_ret();
     }
     return 1;
@@ -1855,33 +2126,50 @@ static int sys_truncate()
 
 #ifndef _WIN32
 
-static int
-string_to_resource(object *what)
+static int string_to_resource(object *what)
 {
     if (what == SS(core))
+    {
         return RLIMIT_CORE;
+    }
     if (what == SS(cpu))
+    {
         return RLIMIT_CPU;
+    }
     if (what == SS(data))
+    {
         return RLIMIT_DATA;
+    }
     if (what == SS(fsize))
+    {
         return RLIMIT_FSIZE;
+    }
 #if defined(RLIMIT_MEMLOCK)
     if (what == SS(memlock))
+    {
         return RLIMIT_MEMLOCK;
+    }
 #endif
     if (what == SS(nofile))
+    {
         return RLIMIT_NOFILE;
+    }
 #if defined(RLIMIT_NPROC)
     if (what == SS(nproc))
+    {
         return RLIMIT_NPROC;
+    }
 #endif
 #if defined(RLIMIT_RSS)
     if (what == SS(rss))
+    {
         return RLIMIT_RSS;
+    }
 #endif
     if (what == SS(stack))
+    {
         return RLIMIT_STACK;
+    }
 
 #if !(defined __MACH__ && defined __APPLE__)
 #define NO_RLIMIT_DBSIZE
@@ -1892,7 +2180,9 @@ string_to_resource(object *what)
 
 #ifndef NO_RLIMIT_SBSIZE
     if (what == SS(sbsize))
+    {
         return RLIMIT_SBSIZE;
+    }
 #endif
     return -1;
 }
@@ -1932,31 +2222,45 @@ string_to_resource(object *what)
  */
 static int sys_getrlimit()
 {
-    object        *what;
-    int            resource;
-    struct rlimit  rlimit;
-    map           *limit;
-    integer       *iv;
+    object       *what;
+    int           resource;
+    struct rlimit rlimit;
+    map          *limit;
+    integer      *iv;
 
     if (typecheck("o", &what))
+    {
         return 1;
+    }
     if (isint(what))
+    {
         resource = intof(what)->i_value;
+    }
     else if (isstring(what))
     {
         if ((resource = string_to_resource(what)) == -1)
+        {
             return argerror(0);
+        }
     }
     else
+    {
         return argerror(0);
+    }
 
     if (getrlimit(resource, &rlimit) < 0)
+    {
         return sys_ret(-1);
+    }
 
     if ((limit = new_map()) == nullptr)
+    {
         return 1;
+    }
     if ((iv = new_int(rlimit.rlim_cur)) == nullptr)
+    {
         goto fail;
+    }
     if (ici_assign(limit, SS(cur), iv))
     {
         decref(iv);
@@ -1964,7 +2268,9 @@ static int sys_getrlimit()
     }
     decref(iv);
     if ((iv = new_int(rlimit.rlim_max)) == nullptr)
+    {
         goto fail;
+    }
     if (ici_assign(limit, SS(max), iv))
     {
         decref(iv);
@@ -1973,7 +2279,7 @@ static int sys_getrlimit()
     decref(iv);
     return ret_with_decref(limit);
 
- fail:
+fail:
     decref(limit);
     return 1;
 }
@@ -1991,28 +2297,38 @@ static int sys_getrlimit()
  */
 static int sys_setrlimit()
 {
-    object            *what;
-    object            *value;
-    struct rlimit       rlimit;
-    int                 resource;
-    object            *iv;
+    object       *what;
+    object       *value;
+    struct rlimit rlimit;
+    int           resource;
+    object       *iv;
 
     if (typecheck("oo", &what, &value))
+    {
         return 1;
+    }
     if (isint(what))
+    {
         resource = intof(what)->i_value;
+    }
     else if (isstring(what))
     {
         if ((resource = string_to_resource(what)) == -1)
+        {
             return argerror(0);
+        }
     }
     else
+    {
         return argerror(0);
+    }
 
     if (isint(value))
     {
         if (getrlimit(resource, &rlimit) < 0)
+        {
             return sys_ret(-1);
+        }
         rlimit.rlim_cur = intof(value)->i_value;
     }
     else if (value == SS(infinity))
@@ -2022,22 +2338,32 @@ static int sys_setrlimit()
     else if (ismap(value))
     {
         if ((iv = ici_fetch(value, SS(cur))) == null)
+        {
             goto fail;
+        }
         if (!isint(iv))
+        {
             goto fail;
+        }
         rlimit.rlim_cur = intof(iv)->i_value;
         if ((iv = ici_fetch(value, SS(max))) == null)
+        {
             goto fail;
+        }
         if (!isint(iv))
+        {
             goto fail;
+        }
         rlimit.rlim_max = intof(iv)->i_value;
     }
     else
+    {
         return argerror(1);
+    }
 
     return sys_ret(setrlimit(resource, &rlimit));
 
- fail:
+fail:
     set_error("invalid rlimit struct");
     return 1;
 }
@@ -2051,11 +2377,13 @@ static int sys_setrlimit()
  */
 static int sys_usleep()
 {
-    long t;
+    long  t;
     exec *x;
 
     if (typecheck("i", &t))
+    {
         return 1;
+    }
     signals_invoke_immediately(1);
     x = leave();
     usleep(t);
@@ -2144,14 +2472,11 @@ static int sys_mmap()
         return sys_raw_mmap();
     }
 
-    static auto error = []()
-    {
-        return set_error(strerror(errno));
-    };
+    static auto error = []() { return set_error(strerror(errno)); };
 
-    char *path;
-    int64_t prot = PROT_READ|PROT_WRITE;
-    int64_t flags = MAP_FILE|MAP_SHARED;
+    char   *path;
+    int64_t prot = PROT_READ | PROT_WRITE;
+    int64_t flags = MAP_FILE | MAP_SHARED;
 
     switch (NARGS())
     {
@@ -2192,7 +2517,7 @@ static int sys_mmap()
         return error();
     }
     const size_t len = statbuf.st_size;
-    auto addr = mmap(0, len, prot, flags, fd, 0);
+    auto         addr = mmap(0, len, prot, flags, fd, 0);
     if (addr == (void *)-1)
     {
         close(fd);
@@ -2208,335 +2533,321 @@ static int sys_mmap()
     return ret_with_decref(m);
 }
 
-ICI_DEFINE_CFUNCS(sys) {
+ICI_DEFINE_CFUNCS(sys)
+{
     ICI_DEFINE_CFUNC(_error, sys_error),
 
-    /* utime */
-    ICI_DEFINE_CFUNC(access,  sys_access),
-    ICI_DEFINE_CFUNC(_close,   sys_close),
-    ICI_DEFINE_CFUNC(creat,   sys_creat),
-    ICI_DEFINE_CFUNC(ctime,   sys_ctime),
-    ICI_DEFINE_CFUNC(dup,     sys_dup),
-    ICI_DEFINE_CFUNC1(exec,   sys_exec, execv),
-    ICI_DEFINE_CFUNC1(execp,  sys_exec, execvp),
-    /*
-     * _exit(int)
-     *
-     * Exit the current process returning an integer exit status to the
-     * parent.  Supported on Win32 platforms.
-     *
-     * This --topic-- forms part of the --ici-sys-- documentation.
-     */
-    ICI_DEFINE_CFUNC2(_exit,   sys_simple, _exit,  "i"),
-    ICI_DEFINE_CFUNC(fcntl,   sys_fcntl),
-    ICI_DEFINE_CFUNC(fdopen,  sys_fdopen),
-    ICI_DEFINE_CFUNC(fileno,  sys_fileno),
-    ICI_DEFINE_CFUNC(lseek,   sys_lseek),
-    ICI_DEFINE_CFUNC(mkdir,   sys_mkdir),
-    ICI_DEFINE_CFUNC(mkfifo,  sys_mkfifo),
-    ICI_DEFINE_CFUNC(open,    sys_open),
-    ICI_DEFINE_CFUNC(pipe,    sys_pipe),
-    ICI_DEFINE_CFUNC(read,    sys_read),
-    ICI_DEFINE_CFUNC(readlink,sys_readlink),
-    /*
-     * rmdir(pathname)
-     *
-     * Remove a directory. Supported on Win32 platforms.
-     *
-     * This --topic-- forms part of the --ici-sys-- documentation.
-     */
-    ICI_DEFINE_CFUNC2(rmdir,  sys_simple, rmdir,  "s"),
-    ICI_DEFINE_CFUNC(stat,    sys_stat),
-    ICI_DEFINE_CFUNC(symlink, sys_symlink),
-    ICI_DEFINE_CFUNC(time,    sys_time),
-    /*
-     * unlink(pathname)
-     *
-     * Unlink a file. Supported on WIN32 platforms.
-     *
-     * This --topic-- forms part of the --ici-sys-- documentation.
-     */
-    /* should go as remove(}, is more portable */
-    ICI_DEFINE_CFUNC2(unlink, sys_simple, unlink, "s"),
-    ICI_DEFINE_CFUNC(wait,    sys_wait),
-    ICI_DEFINE_CFUNC(write,   sys_write),
+        /* utime */
+        ICI_DEFINE_CFUNC(access, sys_access), ICI_DEFINE_CFUNC(_close, sys_close), ICI_DEFINE_CFUNC(creat, sys_creat),
+        ICI_DEFINE_CFUNC(ctime, sys_ctime), ICI_DEFINE_CFUNC(dup, sys_dup), ICI_DEFINE_CFUNC1(exec, sys_exec, execv),
+        ICI_DEFINE_CFUNC1(execp, sys_exec, execvp),
+        /*
+         * _exit(int)
+         *
+         * Exit the current process returning an integer exit status to the
+         * parent.  Supported on Win32 platforms.
+         *
+         * This --topic-- forms part of the --ici-sys-- documentation.
+         */
+        ICI_DEFINE_CFUNC2(_exit, sys_simple, _exit, "i"), ICI_DEFINE_CFUNC(fcntl, sys_fcntl),
+        ICI_DEFINE_CFUNC(fdopen, sys_fdopen), ICI_DEFINE_CFUNC(fileno, sys_fileno), ICI_DEFINE_CFUNC(lseek, sys_lseek),
+        ICI_DEFINE_CFUNC(mkdir, sys_mkdir), ICI_DEFINE_CFUNC(mkfifo, sys_mkfifo), ICI_DEFINE_CFUNC(open, sys_open),
+        ICI_DEFINE_CFUNC(pipe, sys_pipe), ICI_DEFINE_CFUNC(read, sys_read), ICI_DEFINE_CFUNC(readlink, sys_readlink),
+        /*
+         * rmdir(pathname)
+         *
+         * Remove a directory. Supported on Win32 platforms.
+         *
+         * This --topic-- forms part of the --ici-sys-- documentation.
+         */
+        ICI_DEFINE_CFUNC2(rmdir, sys_simple, rmdir, "s"), ICI_DEFINE_CFUNC(stat, sys_stat),
+        ICI_DEFINE_CFUNC(symlink, sys_symlink), ICI_DEFINE_CFUNC(time, sys_time),
+        /*
+         * unlink(pathname)
+         *
+         * Unlink a file. Supported on WIN32 platforms.
+         *
+         * This --topic-- forms part of the --ici-sys-- documentation.
+         */
+        /* should go as remove(}, is more portable */
+        ICI_DEFINE_CFUNC2(unlink, sys_simple, unlink, "s"), ICI_DEFINE_CFUNC(wait, sys_wait),
+        ICI_DEFINE_CFUNC(write, sys_write),
 #ifdef _WIN32
-    ICI_DEFINE_CFUNC1(spawn,  sys_spawn, spawnv),
-    ICI_DEFINE_CFUNC1(spawnp, sys_spawn, spawnvp),
+        ICI_DEFINE_CFUNC1(spawn, sys_spawn, spawnv), ICI_DEFINE_CFUNC1(spawnp, sys_spawn, spawnvp),
 #endif
 #ifndef _WIN32
-    /* poll */
-    /* times */
-    /* uname */
-    /*
-     * alarm(int)
-     * 
-     * Schedule a SIGALRM signal to be posted to the current process in
-     * the specified number of seconds.  If the parameter is zero any
-     * alarm is cancelled. Not supported on Win32.
-     *
-     * This --topic-- forms part of the --ici-sys-- documentation.
-     */
-    ICI_DEFINE_CFUNC2(alarm,   sys_simple, alarm,  "i"),
-    /*
-     * chmod(pathname, int)
-     *
-     * Change the mode of a file system object. Not supported on Win32.
-     *
-     * This --topic-- forms part of the --ici-sys-- documentation.
-     */
-    ICI_DEFINE_CFUNC2(chmod,   sys_simple, chmod,  "si"),
-    /*
-     * chown(pathname, uid, gid)
-     *
-     * Use 'chown(2)' to change the ownership of a file to new integer
-     * user and group indentifies. Not supported on Win32.
-     *
-     * This --topic-- forms part of the --ici-sys-- documentation.
-     */
-    ICI_DEFINE_CFUNC2(chown,   sys_simple, chown,  "sii"),
-    /*
-     * chroot(pathname)
-     *
-     * Change root directory for process. Not supported on Win32.
-     *
-     * This --topic-- forms part of the --ici-sys-- documentation.
-     */
-    ICI_DEFINE_CFUNC2(chroot,  sys_simple, chroot, "s"),
-    /*
-     * int = clock()
-     *
-     * Return the value of 'clock(2)'.  Not supported on Win32.
-     *
-     * This --topic-- forms part of the --ici-sys-- documentation.
-     */
-    ICI_DEFINE_CFUNC2(clock,   sys_simple, clock,  ""),
-    /*
-     * int = fork()
-     *
-     * Create a new process.  In the parent this returns the process
-     * identifier for the newly created process.  In the newly created
-     * process it returns zero. Not supported on Win32.
-     *
-     * This --topic-- forms part of the --ici-sys-- documentation.
-     */
-    ICI_DEFINE_CFUNC2(fork,    sys_simple, fork,   ""),
-    /*
-     * int = getegid()
-     *
-     * Get the effective group identifier of the owner of the current process.
-     * Not supported on Win32.
-     *
-     * This --topic-- forms part of the --ici-sys-- documentation.
-     */
-    ICI_DEFINE_CFUNC2(getegid, sys_simple, getegid,""),
-    /*
-     * int = geteuid()
-     *
-     * Get the effective user identifier of the owner of the current process.
-     * Not supported on Win32.
-     *
-     * This --topic-- forms part of the --ici-sys-- documentation.
-     */
-    ICI_DEFINE_CFUNC2(geteuid, sys_simple, geteuid,""),
-    /*
-     * int = getgid()
-     *
-     * Get the real group identifier of the owner of the current process.
-     * Not supported on Win32.
-     *
-     * This --topic-- forms part of the --ici-sys-- documentation.
-     */
-    ICI_DEFINE_CFUNC2(getgid,  sys_simple, getgid, ""),
-    ICI_DEFINE_CFUNC(getitimer,sys_getitimer),
-    ICI_DEFINE_CFUNC(getpass, sys_getpass),
-    /*
-     * int = getpgrp()
-     *
-     * Get the current process group identifier.  Not supported on Win32.
-     *
-     * This --topic-- forms part of the --ici-sys-- documentation.
-     */
-    ICI_DEFINE_CFUNC2(getpgrp, sys_simple, getpgrp,""),
-    /*
-     * int = getpid()
-     *
-     * Get the process identifier for the current process.  Not supported
-     * on Win32.
-     *
-     * This --topic-- forms part of the --ici-sys-- documentation.
-     */
-    ICI_DEFINE_CFUNC2(getpid,  sys_simple, getpid, ""),
-    /*
-     * int = getppid()
-     *
-     * Get the process identifier for the parent process.  Not supported
-     * on Win32.
-     *
-     * This --topic-- forms part of the --ici-sys-- documentation.
-     */
-    ICI_DEFINE_CFUNC2(getppid, sys_simple, getppid,""),
-    ICI_DEFINE_CFUNC(getrlimit,sys_getrlimit),
-    ICI_DEFINE_CFUNC(gettimeofday,sys_gettimeofday),
-    /*
-     * int = getuid()
-     *
-     * Get the real user identifier of the owner of the current process.
-     * Not supported on Win32.
-     *
-     * This --topic-- forms part of the --ici-sys-- documentation.
-     */
-    ICI_DEFINE_CFUNC2(getuid,  sys_simple, getuid, ""),
-    /*
-     * int = isatty(fd)
-     *
-     * Returns 1 if the int 'fd' is the open file descriptor of a "tty".
-     * Not supported on Win32.
-     *
-     * This --topic-- forms part of the --ici-sys-- documentation.
-     */
-    ICI_DEFINE_CFUNC2(isatty,  sys_simple, isatty, "i"),
-    /*
-     * kill(int, int)
-     *
-     * Post the signal specified by the second argument to the process
-     * with process ID given by the first argument.  Not supported on
-     * Win32.
-     *
-     * This --topic-- forms part of the --ici-sys-- documentation.
-     */
-    ICI_DEFINE_CFUNC2(kill,    sys_simple, kill,   "ii"),
-    /*
-     * link(oldpath, newpath)
-     *
-     * Create a link to an existing file.  Not supported on Win32.
-     *
-     * This --topic-- forms part of the --ici-sys-- documentation.
-     */
-    ICI_DEFINE_CFUNC2(link,    sys_simple, link,   "ss"),
-    ICI_DEFINE_CFUNC(lstat,   sys_lstat),
-    /*
-     * mknod(pathname, int, int)
-     *
-     * Create a special file with mode given by the second argument and
-     * device type given by the third.  Not supported on Win32.
-     *
-     * This --topic-- forms part of the --ici-sys-- documentation.
-     */
-    ICI_DEFINE_CFUNC2(mknod,   sys_simple, mknod,  "sii"),
-    /*
-     * nice(int)
-     *
-     * Change the nice value of a process.
-     * Not supported on Win32.
-     *
-     * This --topic-- forms part of the --ici-sys-- documentation.
-     */
-    ICI_DEFINE_CFUNC2(nice,    sys_simple, nice,   "i"),
-    ICI_DEFINE_CFUNC(passwd,  sys_passwd),
-    /*
-     * pause()
-     *
-     * Wait until a signal is delivered to the process.
-     * Not supported on Win32.
-     *
-     * This --topic-- forms part of the --ici-sys-- documentation.
-     */
-    ICI_DEFINE_CFUNC2(pause,   sys_simple, pause,  ""),
-    /*
-     * setgid(int)
-     *
-     * Set the real and effective group identifier for the current process.
-     * Not supported on Win32.
-     *
-     * This --topic-- forms part of the --ici-sys-- documentation.
-     */
-    ICI_DEFINE_CFUNC2(setgid,  sys_simple, setgid, "i"),
-    ICI_DEFINE_CFUNC(setitimer,sys_setitimer),
-    ICI_DEFINE_CFUNC(setpgrp, sys_setpgrp),
-    ICI_DEFINE_CFUNC(setrlimit,sys_setrlimit),
-    /*
-     * setuid(int)
-     *
-     * Set the real and effective user identifier for the current process.
-     * Not supported on Win32.
-     *
-     * This --topic-- forms part of the --ici-sys-- documentation.
-     */
-    ICI_DEFINE_CFUNC2(setuid,  sys_simple, setuid, "i"),
-    /*
-     * sync()
-     *
-     * Schedule in-memory file data to be written to disk.
-     * Not supported on Win32.
-     *
-     * This --topic-- forms part of the --ici-sys-- documentation.
-     */
-    ICI_DEFINE_CFUNC2(sync,    sys_simple, sync,   ""),
+        /* poll */
+        /* times */
+        /* uname */
+        /*
+         * alarm(int)
+         *
+         * Schedule a SIGALRM signal to be posted to the current process in
+         * the specified number of seconds.  If the parameter is zero any
+         * alarm is cancelled. Not supported on Win32.
+         *
+         * This --topic-- forms part of the --ici-sys-- documentation.
+         */
+        ICI_DEFINE_CFUNC2(alarm, sys_simple, alarm, "i"),
+        /*
+         * chmod(pathname, int)
+         *
+         * Change the mode of a file system object. Not supported on Win32.
+         *
+         * This --topic-- forms part of the --ici-sys-- documentation.
+         */
+        ICI_DEFINE_CFUNC2(chmod, sys_simple, chmod, "si"),
+        /*
+         * chown(pathname, uid, gid)
+         *
+         * Use 'chown(2)' to change the ownership of a file to new integer
+         * user and group indentifies. Not supported on Win32.
+         *
+         * This --topic-- forms part of the --ici-sys-- documentation.
+         */
+        ICI_DEFINE_CFUNC2(chown, sys_simple, chown, "sii"),
+        /*
+         * chroot(pathname)
+         *
+         * Change root directory for process. Not supported on Win32.
+         *
+         * This --topic-- forms part of the --ici-sys-- documentation.
+         */
+        ICI_DEFINE_CFUNC2(chroot, sys_simple, chroot, "s"),
+        /*
+         * int = clock()
+         *
+         * Return the value of 'clock(2)'.  Not supported on Win32.
+         *
+         * This --topic-- forms part of the --ici-sys-- documentation.
+         */
+        ICI_DEFINE_CFUNC2(clock, sys_simple, clock, ""),
+        /*
+         * int = fork()
+         *
+         * Create a new process.  In the parent this returns the process
+         * identifier for the newly created process.  In the newly created
+         * process it returns zero. Not supported on Win32.
+         *
+         * This --topic-- forms part of the --ici-sys-- documentation.
+         */
+        ICI_DEFINE_CFUNC2(fork, sys_simple, fork, ""),
+        /*
+         * int = getegid()
+         *
+         * Get the effective group identifier of the owner of the current process.
+         * Not supported on Win32.
+         *
+         * This --topic-- forms part of the --ici-sys-- documentation.
+         */
+        ICI_DEFINE_CFUNC2(getegid, sys_simple, getegid, ""),
+        /*
+         * int = geteuid()
+         *
+         * Get the effective user identifier of the owner of the current process.
+         * Not supported on Win32.
+         *
+         * This --topic-- forms part of the --ici-sys-- documentation.
+         */
+        ICI_DEFINE_CFUNC2(geteuid, sys_simple, geteuid, ""),
+        /*
+         * int = getgid()
+         *
+         * Get the real group identifier of the owner of the current process.
+         * Not supported on Win32.
+         *
+         * This --topic-- forms part of the --ici-sys-- documentation.
+         */
+        ICI_DEFINE_CFUNC2(getgid, sys_simple, getgid, ""), ICI_DEFINE_CFUNC(getitimer, sys_getitimer),
+        ICI_DEFINE_CFUNC(getpass, sys_getpass),
+        /*
+         * int = getpgrp()
+         *
+         * Get the current process group identifier.  Not supported on Win32.
+         *
+         * This --topic-- forms part of the --ici-sys-- documentation.
+         */
+        ICI_DEFINE_CFUNC2(getpgrp, sys_simple, getpgrp, ""),
+        /*
+         * int = getpid()
+         *
+         * Get the process identifier for the current process.  Not supported
+         * on Win32.
+         *
+         * This --topic-- forms part of the --ici-sys-- documentation.
+         */
+        ICI_DEFINE_CFUNC2(getpid, sys_simple, getpid, ""),
+        /*
+         * int = getppid()
+         *
+         * Get the process identifier for the parent process.  Not supported
+         * on Win32.
+         *
+         * This --topic-- forms part of the --ici-sys-- documentation.
+         */
+        ICI_DEFINE_CFUNC2(getppid, sys_simple, getppid, ""), ICI_DEFINE_CFUNC(getrlimit, sys_getrlimit),
+        ICI_DEFINE_CFUNC(gettimeofday, sys_gettimeofday),
+        /*
+         * int = getuid()
+         *
+         * Get the real user identifier of the owner of the current process.
+         * Not supported on Win32.
+         *
+         * This --topic-- forms part of the --ici-sys-- documentation.
+         */
+        ICI_DEFINE_CFUNC2(getuid, sys_simple, getuid, ""),
+        /*
+         * int = isatty(fd)
+         *
+         * Returns 1 if the int 'fd' is the open file descriptor of a "tty".
+         * Not supported on Win32.
+         *
+         * This --topic-- forms part of the --ici-sys-- documentation.
+         */
+        ICI_DEFINE_CFUNC2(isatty, sys_simple, isatty, "i"),
+        /*
+         * kill(int, int)
+         *
+         * Post the signal specified by the second argument to the process
+         * with process ID given by the first argument.  Not supported on
+         * Win32.
+         *
+         * This --topic-- forms part of the --ici-sys-- documentation.
+         */
+        ICI_DEFINE_CFUNC2(kill, sys_simple, kill, "ii"),
+        /*
+         * link(oldpath, newpath)
+         *
+         * Create a link to an existing file.  Not supported on Win32.
+         *
+         * This --topic-- forms part of the --ici-sys-- documentation.
+         */
+        ICI_DEFINE_CFUNC2(link, sys_simple, link, "ss"), ICI_DEFINE_CFUNC(lstat, sys_lstat),
+        /*
+         * mknod(pathname, int, int)
+         *
+         * Create a special file with mode given by the second argument and
+         * device type given by the third.  Not supported on Win32.
+         *
+         * This --topic-- forms part of the --ici-sys-- documentation.
+         */
+        ICI_DEFINE_CFUNC2(mknod, sys_simple, mknod, "sii"),
+        /*
+         * nice(int)
+         *
+         * Change the nice value of a process.
+         * Not supported on Win32.
+         *
+         * This --topic-- forms part of the --ici-sys-- documentation.
+         */
+        ICI_DEFINE_CFUNC2(nice, sys_simple, nice, "i"), ICI_DEFINE_CFUNC(passwd, sys_passwd),
+        /*
+         * pause()
+         *
+         * Wait until a signal is delivered to the process.
+         * Not supported on Win32.
+         *
+         * This --topic-- forms part of the --ici-sys-- documentation.
+         */
+        ICI_DEFINE_CFUNC2(pause, sys_simple, pause, ""),
+        /*
+         * setgid(int)
+         *
+         * Set the real and effective group identifier for the current process.
+         * Not supported on Win32.
+         *
+         * This --topic-- forms part of the --ici-sys-- documentation.
+         */
+        ICI_DEFINE_CFUNC2(setgid, sys_simple, setgid, "i"), ICI_DEFINE_CFUNC(setitimer, sys_setitimer),
+        ICI_DEFINE_CFUNC(setpgrp, sys_setpgrp), ICI_DEFINE_CFUNC(setrlimit, sys_setrlimit),
+        /*
+         * setuid(int)
+         *
+         * Set the real and effective user identifier for the current process.
+         * Not supported on Win32.
+         *
+         * This --topic-- forms part of the --ici-sys-- documentation.
+         */
+        ICI_DEFINE_CFUNC2(setuid, sys_simple, setuid, "i"),
+        /*
+         * sync()
+         *
+         * Schedule in-memory file data to be written to disk.
+         * Not supported on Win32.
+         *
+         * This --topic-- forms part of the --ici-sys-- documentation.
+         */
+        ICI_DEFINE_CFUNC2(sync, sys_simple, sync, ""),
 #endif
-    ICI_DEFINE_CFUNC(truncate,sys_truncate),
+        ICI_DEFINE_CFUNC(truncate, sys_truncate),
 #ifndef _WIN32
-    /*
-     * umask(int)
-     *
-     * Set file creation mask.
-     * Not supported on Win32.
-     *
-     * This --topic-- forms part of the --ici-sys-- documentation.
-     */
-    ICI_DEFINE_CFUNC2(umask,   sys_simple, umask,  "i"),
-    ICI_DEFINE_CFUNC(usleep,  sys_usleep),
+        /*
+         * umask(int)
+         *
+         * Set file creation mask.
+         * Not supported on Win32.
+         *
+         * This --topic-- forms part of the --ici-sys-- documentation.
+         */
+        ICI_DEFINE_CFUNC2(umask, sys_simple, umask, "i"), ICI_DEFINE_CFUNC(usleep, sys_usleep),
 #ifndef NO_ACCT
-    /*
-     * acct(pathname)
-     *
-     * Enable accounting on the specified file.  Not suppored on
-     * cygwin or Win32.
-     *
-     * This --topic-- forms part of the --ici-sys-- documentation.
-     */
-    ICI_DEFINE_CFUNC2(acct,    sys_simple, acct,   "s"),
+        /*
+         * acct(pathname)
+         *
+         * Enable accounting on the specified file.  Not suppored on
+         * cygwin or Win32.
+         *
+         * This --topic-- forms part of the --ici-sys-- documentation.
+         */
+        ICI_DEFINE_CFUNC2(acct, sys_simple, acct, "s"),
 #endif
 #ifndef ICI_SYS_NOFLOCK
-    ICI_DEFINE_CFUNC(flock,   sys_flock),
+        ICI_DEFINE_CFUNC(flock, sys_flock),
 #endif
 #if !defined(__linux__) && !defined(BSD) && !defined(__CYGWIN__)
-    /*
-     * int = lockf(fd, cmd, len)
-     *
-     * Invoked 'lockf(3)' on a file.
-     *
-     * Not supported on Linux, Cygwin, Win32.
-     *
-     * This --topic-- forms part of the --ici-sys-- documentation.
-     */
-    ICI_DEFINE_CFUNC2(lockf,   sys_simple, lockf,  "iii"),
+        /*
+         * int = lockf(fd, cmd, len)
+         *
+         * Invoked 'lockf(3)' on a file.
+         *
+         * Not supported on Linux, Cygwin, Win32.
+         *
+         * This --topic-- forms part of the --ici-sys-- documentation.
+         */
+        ICI_DEFINE_CFUNC2(lockf, sys_simple, lockf, "iii"),
 #endif /* __linux__ */
 #if !defined(__FreeBSD__) && !defined(__CYGWIN__) && !defined(__APPLE__)
-    /*
-     * ulimit(int, int)
-     *
-     * Get and set user limits.
-     * Not supported on Win32, NeXT, some BSD, or Cygwin.
-     *
-     * This --topic-- forms part of the --ici-sys-- documentation.
-     */
-    ICI_DEFINE_CFUNC2(ulimit,  sys_simple, ulimit, "ii"),
+        /*
+         * ulimit(int, int)
+         *
+         * Get and set user limits.
+         * Not supported on Win32, NeXT, some BSD, or Cygwin.
+         *
+         * This --topic-- forms part of the --ici-sys-- documentation.
+         */
+        ICI_DEFINE_CFUNC2(ulimit, sys_simple, ulimit, "ii"),
 #endif
 #endif
 #ifndef _WIN32
-    ICI_DEFINE_CFUNC(mmap, sys_mmap),
-    ICI_DEFINE_CFUNC(munmap, sys_munmap),
+        ICI_DEFINE_CFUNC(mmap, sys_mmap), ICI_DEFINE_CFUNC(munmap, sys_munmap),
 #endif
-    ICI_CFUNCS_END()
+        ICI_CFUNCS_END()
 };
 
 /*
  * Create pre-defined variables to replace C's #define's.
  */
-int sys_init(ici::objwsup *scp) {
-#define VALOF(x) { #x , x }
-    static struct { const char *name; long val; } var[] = {
+int sys_init(ici::objwsup *scp)
+{
+#define VALOF(x) {#x, x}
+
+    static struct
+    {
+        const char *name;
+        long        val;
+    }
+    var[] =
+    {
         VALOF(O_RDONLY),
         VALOF(O_WRONLY),
         VALOF(O_RDWR),
@@ -2544,19 +2855,19 @@ int sys_init(ici::objwsup *scp) {
         VALOF(O_CREAT),
         VALOF(O_TRUNC),
         VALOF(O_EXCL),
-#ifdef O_BINARY         /* WINDOWS has binary mode for open() */
+#ifdef O_BINARY /* WINDOWS has binary mode for open() */
         VALOF(O_BINARY),
 #endif
-#ifdef O_SYNC           /* WINDOWS doesn't have O_SYNC */
+#ifdef O_SYNC /* WINDOWS doesn't have O_SYNC */
         VALOF(O_SYNC),
 #endif
-#ifdef O_NDELAY         /* WINDOWS doesn't have O_NDELAY */
+#ifdef O_NDELAY /* WINDOWS doesn't have O_NDELAY */
         VALOF(O_NDELAY),
 #endif
         VALOF(O_NONBLOCK),
         VALOF(R_OK),
         VALOF(W_OK),
-#ifdef X_OK             /* WINDOWS doesn't have X_OK */
+#ifdef X_OK /* WINDOWS doesn't have X_OK */
         VALOF(X_OK),
 #endif
         VALOF(F_OK),
@@ -2619,11 +2930,14 @@ int sys_init(ici::objwsup *scp) {
 #undef VALOF
 
     ref<objwsup> mod = new_module(ici_sys_cfuncs);
-    if (!mod) {
+    if (!mod)
+    {
         return 1;
     }
-    for (size_t i = 0u; i < sizeof var/sizeof var[0]; ++i) {
-        if (cmkvar(mod, var[i].name, 'i', &var[i].val)) {
+    for (size_t i = 0u; i < sizeof var / sizeof var[0]; ++i)
+    {
+        if (cmkvar(mod, var[i].name, 'i', &var[i].val))
+        {
             return 1;
         }
     }

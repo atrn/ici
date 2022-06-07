@@ -41,7 +41,7 @@ namespace ici
  *  vec - one more than the maximum index assigned a value.  When
  *  first created a vec has a size of zero. Assigning to elements of
  *  the vec sets its size, up to the vec's capacity. Setting an
- *  element that is NOT the /next/ 
+ *  element that is NOT the /next/
  *
  *  A vec's /length/, as returned by the ICI len() function, is the
  *  vec' 'size'.  The cpacity of a vec, its maximum size, is obtained
@@ -75,28 +75,27 @@ namespace ici
  *  allowing users to define, almost, arbitrary collections of
  *  properies to associate with the vec object.
  */
-template <int TYPE_CODE, typename VALUE_TYPE>
-struct vec : object
+template <int TYPE_CODE, typename VALUE_TYPE> struct vec : object
 {
-    constexpr static int type_code  = TYPE_CODE;
-    using                value_type = VALUE_TYPE;
+    constexpr static int type_code = TYPE_CODE;
+    using value_type = VALUE_TYPE;
 
-    value_type *v_ptr;          // v_capacity x value_type's
-    size_t      v_size;         // current length
-    size_t      v_capacity;     // total capacity
-    map *       v_props;        // user-defined properties
-    vec *       v_parent;       // parent vec (iff this is a slice)
+    value_type *v_ptr;      // v_capacity x value_type's
+    size_t      v_size;     // current length
+    size_t      v_capacity; // total capacity
+    map        *v_props;    // user-defined properties
+    vec        *v_parent;   // parent vec (iff this is a slice)
 
     vec(const vec &) = delete;
-    vec & operator=(const vec &) = delete;
+    vec &operator=(const vec &) = delete;
     vec(vec &&) = delete;
 
-    const value_type * data() const
+    const value_type *data() const
     {
         return v_ptr;
     }
 
-    value_type * data()
+    value_type *data()
     {
         return v_ptr;
     }
@@ -122,7 +121,7 @@ struct vec : object
 #ifdef ICI_VEC_USE_IPP
     void fill(value_type, size_t, size_t);
     void fill(value_type, size_t = 0);
-    vec & operator=(value_type);
+    vec &operator=(value_type);
 #else
     void fill(value_type value, size_t ofs, size_t lim)
     {
@@ -138,7 +137,7 @@ struct vec : object
         fill(value, ofs, v_capacity);
     }
 
-    vec & operator=(value_type value)
+    vec &operator=(value_type value)
     {
         fill(value);
         return *this;
@@ -146,37 +145,37 @@ struct vec : object
 
 #endif
 
-    const value_type & operator[](size_t index) const
+    const value_type &operator[](size_t index) const
     {
         return v_ptr[index];
     }
 
-    value_type & operator[](size_t index)
+    value_type &operator[](size_t index)
     {
         return v_ptr[index];
     }
 
 #ifdef ICI_VEC_USE_IPP
-# define define_vec_binop_vec(OP)        vec & operator OP (const vec &);
-# define define_vec_binop_scalar(OP)     vec & operator OP (value_type);
+#define define_vec_binop_vec(OP) vec &operator OP(const vec &);
+#define define_vec_binop_scalar(OP) vec &operator OP(value_type);
 #else
-# define define_vec_binop_vec(OP)                       \
-    vec & operator OP (const vec &rhs)                  \
-    {                                                   \
-        for (size_t index = 0; index < v_size; ++index) \
-        {                                               \
-            v_ptr[index] OP rhs[index];                 \
-        }                                               \
-        return *this;                                   \
+#define define_vec_binop_vec(OP)                                                                                       \
+    vec &operator OP(const vec &rhs)                                                                                   \
+    {                                                                                                                  \
+        for (size_t index = 0; index < v_size; ++index)                                                                \
+        {                                                                                                              \
+            v_ptr[index] OP rhs[index];                                                                                \
+        }                                                                                                              \
+        return *this;                                                                                                  \
     }
-# define define_vec_binop_scalar(OP)                    \
-    vec & operator OP (value_type scalar)               \
-    {                                                   \
-        for (size_t index = 0; index < v_size; ++index) \
-        {                                               \
-            v_ptr[index] OP scalar;                     \
-        }                                               \
-        return *this;                                   \
+#define define_vec_binop_scalar(OP)                                                                                    \
+    vec &operator OP(value_type scalar)                                                                                \
+    {                                                                                                                  \
+        for (size_t index = 0; index < v_size; ++index)                                                                \
+        {                                                                                                              \
+            v_ptr[index] OP scalar;                                                                                    \
+        }                                                                                                              \
+        return *this;                                                                                                  \
     }
 #endif
 
@@ -192,29 +191,40 @@ struct vec : object
 
 #undef define_vec_binop_vec
 #undef define_vec_binop_scalar
-
 };
 
-using vec32 =  vec<TC_VEC32, float>;
-using vec64 =  vec<TC_VEC64, double>;
+using vec32 = vec<TC_VEC32, float>;
+using vec64 = vec<TC_VEC64, double>;
 
-inline vec32 * vec32of(object *o) { return static_cast<vec32 *>(o); }
-inline bool    isvec32(object *o) { return o->hastype(vec32::type_code); }
+inline vec32 *vec32of(object *o)
+{
+    return static_cast<vec32 *>(o);
+}
+inline bool isvec32(object *o)
+{
+    return o->hastype(vec32::type_code);
+}
 
-vec32 *        new_vec32(size_t, size_t = 0, object * = nullptr);
-vec32 *        new_vec32(vec32 *);
-vec32 *        new_vec32(vec64 *);
-vec32 *        new_vec32(vec32 *, size_t, size_t);
+vec32 *new_vec32(size_t, size_t = 0, object * = nullptr);
+vec32 *new_vec32(vec32 *);
+vec32 *new_vec32(vec64 *);
+vec32 *new_vec32(vec32 *, size_t, size_t);
 
-inline vec64 * vec64of(object *o) { return static_cast<vec64 *>(o); }
-inline bool    isvec64(object *o) { return o->hastype(vec64::type_code); }
+inline vec64 *vec64of(object *o)
+{
+    return static_cast<vec64 *>(o);
+}
+inline bool isvec64(object *o)
+{
+    return o->hastype(vec64::type_code);
+}
 
-vec64 *        new_vec64(size_t, size_t = 0, object * = nullptr);
-vec64 *        new_vec64(vec64 *);
-vec64 *        new_vec64(vec32 *);
-vec64 *        new_vec64(vec64 *, size_t, size_t);
+vec64 *new_vec64(size_t, size_t = 0, object * = nullptr);
+vec64 *new_vec64(vec64 *);
+vec64 *new_vec64(vec32 *);
+vec64 *new_vec64(vec64 *, size_t, size_t);
 
-size_t         vec_size(object *);
+size_t vec_size(object *);
 
 /*
  * End of ici.h export. --ici.h-end--
@@ -224,32 +234,38 @@ size_t         vec_size(object *);
 
 struct vec32_type : type
 {
-    vec32_type() : type("vec32", sizeof (vec32)) {}
+    vec32_type()
+        : type("vec32", sizeof(vec32))
+    {
+    }
 
-    size_t mark(object *) override;
-    void free(object *) override;
+    size_t  mark(object *) override;
+    void    free(object *) override;
     int64_t len(object *o) override;
     object *copy(object *) override;
     object *fetch(object *o, object *k) override;
-    int assign(object *o, object *k, object *v) override;
-    int forall(object *) override;
-    int save(archiver *, object *) override;
-    object * restore(archiver *) override;
+    int     assign(object *o, object *k, object *v) override;
+    int     forall(object *) override;
+    int     save(archiver *, object *) override;
+    object *restore(archiver *) override;
 };
 
 struct vec64_type : type
 {
-    vec64_type() : type("vec64", sizeof (vec64)) {}
+    vec64_type()
+        : type("vec64", sizeof(vec64))
+    {
+    }
 
-    size_t mark(object *) override;
-    void free(object *) override;
+    size_t  mark(object *) override;
+    void    free(object *) override;
     int64_t len(object *o) override;
     object *copy(object *) override;
     object *fetch(object *o, object *k) override;
-    int assign(object *o, object *k, object *v) override;
-    int forall(object *) override;
-    int save(archiver *, object *) override;
-    object * restore(archiver *) override;
+    int     assign(object *o, object *k, object *v) override;
+    int     forall(object *) override;
+    int     save(archiver *, object *) override;
+    object *restore(archiver *) override;
 };
 
 } // namespace ici

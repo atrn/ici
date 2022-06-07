@@ -1,6 +1,6 @@
 /*************************************************
-*      Perl-Compatible Regular Expressions       *
-*************************************************/
+ *      Perl-Compatible Regular Expressions       *
+ *************************************************/
 
 /*
 This is a library of functions to support regular expressions whose syntax
@@ -32,17 +32,14 @@ restrictions:
 -----------------------------------------------------------------------------
 */
 
-
 /* Include the internals header, which itself includes Standard C headers plus
 the external pcre header. */
 
 #include "internal.h"
 
-
-
 /*************************************************
-*      Set a bit and maybe its alternate case    *
-*************************************************/
+ *      Set a bit and maybe its alternate case    *
+ *************************************************/
 
 /* Given a character, set its bit in the table, and also the bit for the other
 version of a letter if we are caseless.
@@ -56,19 +53,16 @@ Arguments:
 Returns:        nothing
 */
 
-static void
-set_bit(uschar *start_bits, int c, BOOL caseless, compile_data *cd)
+static void set_bit(uschar *start_bits, int c, BOOL caseless, compile_data *cd)
 {
-start_bits[c/8] |= (1 << (c&7));
-if (caseless && (cd->ctypes[c] & ctype_letter) != 0)
-  start_bits[cd->fcc[c]/8] |= (1 << (cd->fcc[c]&7));
+    start_bits[c / 8] |= (1 << (c & 7));
+    if (caseless && (cd->ctypes[c] & ctype_letter) != 0)
+        start_bits[cd->fcc[c] / 8] |= (1 << (cd->fcc[c] & 7));
 }
 
-
-
 /*************************************************
-*          Create bitmap of starting chars       *
-*************************************************/
+ *          Create bitmap of starting chars       *
+ *************************************************/
 
 /* This function scans a compiled unanchored expression and attempts to build a
 bitmap of the set of initial characters. If it can't, it returns FALSE. As time
@@ -83,248 +77,248 @@ Arguments:
 Returns:       TRUE if table built, FALSE otherwise
 */
 
-static BOOL
-set_start_bits(const uschar *code, uschar *start_bits, BOOL caseless,
-  compile_data *cd)
+static BOOL set_start_bits(const uschar *code, uschar *start_bits, BOOL caseless, compile_data *cd)
 {
-int c;
+    int c;
 
 #ifdef NOTDEF
-/* This next statement and the later reference to dummy are here in order to
-trick the optimizer of the IBM C compiler for OS/2 into generating correct
-code. Apparently IBM isn't going to fix the problem, and we would rather not
-disable optimization (in this module it actually makes a big difference, and
-the pcre module can use all the optimization it can get). */
+    /* This next statement and the later reference to dummy are here in order to
+    trick the optimizer of the IBM C compiler for OS/2 into generating correct
+    code. Apparently IBM isn't going to fix the problem, and we would rather not
+    disable optimization (in this module it actually makes a big difference, and
+    the pcre module can use all the optimization it can get). */
 
-volatile int dummy;
+    volatile int dummy;
 #endif
- 
-do
-  {
-  const uschar *tcode = code + 3;
-  BOOL try_next = TRUE;
 
-  while (try_next)
+    do
     {
-    try_next = FALSE;
+        const uschar *tcode = code + 3;
+        BOOL          try_next = TRUE;
 
-    /* If a branch starts with a bracket or a positive lookahead assertion,
-    recurse to set bits from within them. That's all for this branch. */
-
-    if ((int)*tcode >= OP_BRA || *tcode == OP_ASSERT)
-      {
-      if (!set_start_bits(tcode, start_bits, caseless, cd))
-        return FALSE;
-      }
-
-    else switch(*tcode)
-      {
-      default:
-      return FALSE;
-
-      /* Skip over lookbehind and negative lookahead assertions */
-
-      case OP_ASSERT_NOT:
-      case OP_ASSERTBACK:
-      case OP_ASSERTBACK_NOT:
-      try_next = TRUE;
-      do tcode += (tcode[1] << 8) + tcode[2]; while (*tcode == OP_ALT);
-      tcode += 3;
-      break;
-
-      /* Skip over an option setting, changing the caseless flag */
-
-      case OP_OPT:
-      caseless = (tcode[1] & PCRE_CASELESS) != 0;
-      tcode += 2;
-      try_next = TRUE;
-      break;
-
-      /* BRAZERO does the bracket, but carries on. */
-
-      case OP_BRAZERO:
-      case OP_BRAMINZERO:
-      if (!set_start_bits(++tcode, start_bits, caseless, cd))
-        return FALSE;
-#ifdef NOTDEF
-      dummy = 1;
-#endif
-      do tcode += (tcode[1] << 8) + tcode[2]; while (*tcode == OP_ALT);
-      tcode += 3;
-      try_next = TRUE;
-      break;
-
-      /* Single-char * or ? sets the bit and tries the next item */
-
-      case OP_STAR:
-      case OP_MINSTAR:
-      case OP_QUERY:
-      case OP_MINQUERY:
-      set_bit(start_bits, tcode[1], caseless, cd);
-      tcode += 2;
-      try_next = TRUE;
-      break;
-
-      /* Single-char upto sets the bit and tries the next */
-
-      case OP_UPTO:
-      case OP_MINUPTO:
-      set_bit(start_bits, tcode[3], caseless, cd);
-      tcode += 4;
-      try_next = TRUE;
-      break;
-
-      /* At least one single char sets the bit and stops */
-
-      case OP_EXACT:       /* Fall through */
-      tcode++;
-
-      case OP_CHARS:       /* Fall through */
-      tcode++;
-
-      case OP_PLUS:
-      case OP_MINPLUS:
-      set_bit(start_bits, tcode[1], caseless, cd);
-      break;
-
-      /* Single character type sets the bits and stops */
-
-      case OP_NOT_DIGIT:
-      for (c = 0; c < 32; c++)
-        start_bits[c] |= ~cd->cbits[c+cbit_digit];
-      break;
-
-      case OP_DIGIT:
-      for (c = 0; c < 32; c++)
-        start_bits[c] |= cd->cbits[c+cbit_digit];
-      break;
-
-      case OP_NOT_WHITESPACE:
-      for (c = 0; c < 32; c++)
-        start_bits[c] |= ~cd->cbits[c+cbit_space];
-      break;
-
-      case OP_WHITESPACE:
-      for (c = 0; c < 32; c++)
-        start_bits[c] |= cd->cbits[c+cbit_space];
-      break;
-
-      case OP_NOT_WORDCHAR:
-      for (c = 0; c < 32; c++)
-        start_bits[c] |= ~(cd->cbits[c] | cd->cbits[c+cbit_word]);
-      break;
-
-      case OP_WORDCHAR:
-      for (c = 0; c < 32; c++)
-        start_bits[c] |= (cd->cbits[c] | cd->cbits[c+cbit_word]);
-      break;
-
-      /* One or more character type fudges the pointer and restarts, knowing
-      it will hit a single character type and stop there. */
-
-      case OP_TYPEPLUS:
-      case OP_TYPEMINPLUS:
-      tcode++;
-      try_next = TRUE;
-      break;
-
-      case OP_TYPEEXACT:
-      tcode += 3;
-      try_next = TRUE;
-      break;
-
-      /* Zero or more repeats of character types set the bits and then
-      try again. */
-
-      case OP_TYPEUPTO:
-      case OP_TYPEMINUPTO:
-      tcode += 2;               /* Fall through */
-
-      case OP_TYPESTAR:
-      case OP_TYPEMINSTAR:
-      case OP_TYPEQUERY:
-      case OP_TYPEMINQUERY:
-      switch(tcode[1])
+        while (try_next)
         {
-        case OP_NOT_DIGIT:
-        for (c = 0; c < 32; c++)
-          start_bits[c] |= ~cd->cbits[c+cbit_digit];
-        break;
+            try_next = FALSE;
 
-        case OP_DIGIT:
-        for (c = 0; c < 32; c++)
-          start_bits[c] |= cd->cbits[c+cbit_digit];
-        break;
+            /* If a branch starts with a bracket or a positive lookahead assertion,
+            recurse to set bits from within them. That's all for this branch. */
 
-        case OP_NOT_WHITESPACE:
-        for (c = 0; c < 32; c++)
-          start_bits[c] |= ~cd->cbits[c+cbit_space];
-        break;
-
-        case OP_WHITESPACE:
-        for (c = 0; c < 32; c++)
-          start_bits[c] |= cd->cbits[c+cbit_space];
-        break;
-
-        case OP_NOT_WORDCHAR:
-        for (c = 0; c < 32; c++)
-          start_bits[c] |= ~(cd->cbits[c] | cd->cbits[c+cbit_word]);
-        break;
-
-        case OP_WORDCHAR:
-        for (c = 0; c < 32; c++)
-          start_bits[c] |= (cd->cbits[c] | cd->cbits[c+cbit_word]);
-        break;
-        }
-
-      tcode += 2;
-      try_next = TRUE;
-      break;
-
-      /* Character class: set the bits and either carry on or not,
-      according to the repeat count. */
-
-      case OP_CLASS:
-        {
-        tcode++;
-        for (c = 0; c < 32; c++) start_bits[c] |= tcode[c];
-        tcode += 32;
-        switch (*tcode)
-          {
-          case OP_CRSTAR:
-          case OP_CRMINSTAR:
-          case OP_CRQUERY:
-          case OP_CRMINQUERY:
-          tcode++;
-          try_next = TRUE;
-          break;
-
-          case OP_CRRANGE:
-          case OP_CRMINRANGE:
-          if (((tcode[1] << 8) + tcode[2]) == 0)
+            if ((int)*tcode >= OP_BRA || *tcode == OP_ASSERT)
             {
-            tcode += 5;
-            try_next = TRUE;
+                if (!set_start_bits(tcode, start_bits, caseless, cd))
+                    return FALSE;
             }
-          break;
-          }
-        }
-      break; /* End of class handling */
 
-      }      /* End of switch */
-    }        /* End of try_next loop */
+            else
+                switch (*tcode)
+                {
+                default:
+                    return FALSE;
 
-  code += (code[1] << 8) + code[2];   /* Advance to next branch */
-  }
-while (*code == OP_ALT);
-return TRUE;
+                    /* Skip over lookbehind and negative lookahead assertions */
+
+                case OP_ASSERT_NOT:
+                case OP_ASSERTBACK:
+                case OP_ASSERTBACK_NOT:
+                    try_next = TRUE;
+                    do
+                        tcode += (tcode[1] << 8) + tcode[2];
+                    while (*tcode == OP_ALT);
+                    tcode += 3;
+                    break;
+
+                    /* Skip over an option setting, changing the caseless flag */
+
+                case OP_OPT:
+                    caseless = (tcode[1] & PCRE_CASELESS) != 0;
+                    tcode += 2;
+                    try_next = TRUE;
+                    break;
+
+                    /* BRAZERO does the bracket, but carries on. */
+
+                case OP_BRAZERO:
+                case OP_BRAMINZERO:
+                    if (!set_start_bits(++tcode, start_bits, caseless, cd))
+                        return FALSE;
+#ifdef NOTDEF
+                    dummy = 1;
+#endif
+                    do
+                        tcode += (tcode[1] << 8) + tcode[2];
+                    while (*tcode == OP_ALT);
+                    tcode += 3;
+                    try_next = TRUE;
+                    break;
+
+                    /* Single-char * or ? sets the bit and tries the next item */
+
+                case OP_STAR:
+                case OP_MINSTAR:
+                case OP_QUERY:
+                case OP_MINQUERY:
+                    set_bit(start_bits, tcode[1], caseless, cd);
+                    tcode += 2;
+                    try_next = TRUE;
+                    break;
+
+                    /* Single-char upto sets the bit and tries the next */
+
+                case OP_UPTO:
+                case OP_MINUPTO:
+                    set_bit(start_bits, tcode[3], caseless, cd);
+                    tcode += 4;
+                    try_next = TRUE;
+                    break;
+
+                    /* At least one single char sets the bit and stops */
+
+                case OP_EXACT: /* Fall through */
+                    tcode++;
+
+                case OP_CHARS: /* Fall through */
+                    tcode++;
+
+                case OP_PLUS:
+                case OP_MINPLUS:
+                    set_bit(start_bits, tcode[1], caseless, cd);
+                    break;
+
+                    /* Single character type sets the bits and stops */
+
+                case OP_NOT_DIGIT:
+                    for (c = 0; c < 32; c++)
+                        start_bits[c] |= ~cd->cbits[c + cbit_digit];
+                    break;
+
+                case OP_DIGIT:
+                    for (c = 0; c < 32; c++)
+                        start_bits[c] |= cd->cbits[c + cbit_digit];
+                    break;
+
+                case OP_NOT_WHITESPACE:
+                    for (c = 0; c < 32; c++)
+                        start_bits[c] |= ~cd->cbits[c + cbit_space];
+                    break;
+
+                case OP_WHITESPACE:
+                    for (c = 0; c < 32; c++)
+                        start_bits[c] |= cd->cbits[c + cbit_space];
+                    break;
+
+                case OP_NOT_WORDCHAR:
+                    for (c = 0; c < 32; c++)
+                        start_bits[c] |= ~(cd->cbits[c] | cd->cbits[c + cbit_word]);
+                    break;
+
+                case OP_WORDCHAR:
+                    for (c = 0; c < 32; c++)
+                        start_bits[c] |= (cd->cbits[c] | cd->cbits[c + cbit_word]);
+                    break;
+
+                    /* One or more character type fudges the pointer and restarts, knowing
+                    it will hit a single character type and stop there. */
+
+                case OP_TYPEPLUS:
+                case OP_TYPEMINPLUS:
+                    tcode++;
+                    try_next = TRUE;
+                    break;
+
+                case OP_TYPEEXACT:
+                    tcode += 3;
+                    try_next = TRUE;
+                    break;
+
+                    /* Zero or more repeats of character types set the bits and then
+                    try again. */
+
+                case OP_TYPEUPTO:
+                case OP_TYPEMINUPTO:
+                    tcode += 2; /* Fall through */
+
+                case OP_TYPESTAR:
+                case OP_TYPEMINSTAR:
+                case OP_TYPEQUERY:
+                case OP_TYPEMINQUERY:
+                    switch (tcode[1])
+                    {
+                    case OP_NOT_DIGIT:
+                        for (c = 0; c < 32; c++)
+                            start_bits[c] |= ~cd->cbits[c + cbit_digit];
+                        break;
+
+                    case OP_DIGIT:
+                        for (c = 0; c < 32; c++)
+                            start_bits[c] |= cd->cbits[c + cbit_digit];
+                        break;
+
+                    case OP_NOT_WHITESPACE:
+                        for (c = 0; c < 32; c++)
+                            start_bits[c] |= ~cd->cbits[c + cbit_space];
+                        break;
+
+                    case OP_WHITESPACE:
+                        for (c = 0; c < 32; c++)
+                            start_bits[c] |= cd->cbits[c + cbit_space];
+                        break;
+
+                    case OP_NOT_WORDCHAR:
+                        for (c = 0; c < 32; c++)
+                            start_bits[c] |= ~(cd->cbits[c] | cd->cbits[c + cbit_word]);
+                        break;
+
+                    case OP_WORDCHAR:
+                        for (c = 0; c < 32; c++)
+                            start_bits[c] |= (cd->cbits[c] | cd->cbits[c + cbit_word]);
+                        break;
+                    }
+
+                    tcode += 2;
+                    try_next = TRUE;
+                    break;
+
+                    /* Character class: set the bits and either carry on or not,
+                    according to the repeat count. */
+
+                case OP_CLASS: {
+                    tcode++;
+                    for (c = 0; c < 32; c++)
+                        start_bits[c] |= tcode[c];
+                    tcode += 32;
+                    switch (*tcode)
+                    {
+                    case OP_CRSTAR:
+                    case OP_CRMINSTAR:
+                    case OP_CRQUERY:
+                    case OP_CRMINQUERY:
+                        tcode++;
+                        try_next = TRUE;
+                        break;
+
+                    case OP_CRRANGE:
+                    case OP_CRMINRANGE:
+                        if (((tcode[1] << 8) + tcode[2]) == 0)
+                        {
+                            tcode += 5;
+                            try_next = TRUE;
+                        }
+                        break;
+                    }
+                }
+                break; /* End of class handling */
+
+                } /* End of switch */
+        }         /* End of try_next loop */
+
+        code += (code[1] << 8) + code[2]; /* Advance to next branch */
+    } while (*code == OP_ALT);
+    return TRUE;
 }
 
-
-
 /*************************************************
-*          Study a compiled expression           *
-*************************************************/
+ *          Study a compiled expression           *
+ *************************************************/
 
 /* This function is handed a compiled expression that it must study to produce
 information that will speed up the matching. It returns a pcre_extra block
@@ -340,62 +334,61 @@ Returns:    pointer to a pcre_extra block,
             nullptr on error or if no optimization possible
 */
 
-pcre_extra *
-pcre_study(const pcre *external_re, int options, const char **errorptr)
+pcre_extra *pcre_study(const pcre *external_re, int options, const char **errorptr)
 {
-uschar start_bits[32];
-real_pcre_extra *extra;
-const real_pcre *re = (const real_pcre *)external_re;
-compile_data compile_block;
+    uschar           start_bits[32];
+    real_pcre_extra *extra;
+    const real_pcre *re = (const real_pcre *)external_re;
+    compile_data     compile_block;
 
-*errorptr = nullptr;
+    *errorptr = nullptr;
 
-if (re == nullptr || re->magic_number != MAGIC_NUMBER)
-  {
-  *errorptr = "argument is not a compiled regular expression";
-  return nullptr;
-  }
+    if (re == nullptr || re->magic_number != MAGIC_NUMBER)
+    {
+        *errorptr = "argument is not a compiled regular expression";
+        return nullptr;
+    }
 
-if ((options & ~PUBLIC_STUDY_OPTIONS) != 0)
-  {
-  *errorptr = "unknown or incorrect option bit(s) set";
-  return nullptr;
-  }
+    if ((options & ~PUBLIC_STUDY_OPTIONS) != 0)
+    {
+        *errorptr = "unknown or incorrect option bit(s) set";
+        return nullptr;
+    }
 
-/* For an anchored pattern, or an unchored pattern that has a first char, or a
-multiline pattern that matches only at "line starts", no further processing at
-present. */
+    /* For an anchored pattern, or an unchored pattern that has a first char, or a
+    multiline pattern that matches only at "line starts", no further processing at
+    present. */
 
-if ((re->options & (PCRE_ANCHORED|PCRE_FIRSTSET|PCRE_STARTLINE)) != 0)
-  return nullptr;
+    if ((re->options & (PCRE_ANCHORED | PCRE_FIRSTSET | PCRE_STARTLINE)) != 0)
+        return nullptr;
 
-/* Set the character tables in the block which is passed around */
+    /* Set the character tables in the block which is passed around */
 
-compile_block.lcc = re->tables + lcc_offset;
-compile_block.fcc = re->tables + fcc_offset;
-compile_block.cbits = re->tables + cbits_offset;
-compile_block.ctypes = re->tables + ctypes_offset;
+    compile_block.lcc = re->tables + lcc_offset;
+    compile_block.fcc = re->tables + fcc_offset;
+    compile_block.cbits = re->tables + cbits_offset;
+    compile_block.ctypes = re->tables + ctypes_offset;
 
-/* See if we can find a fixed set of initial characters for the pattern. */
+    /* See if we can find a fixed set of initial characters for the pattern. */
 
-memset(start_bits, 0, 32 * sizeof (uschar));
-if (!set_start_bits(re->code, start_bits, (re->options & PCRE_CASELESS) != 0,
-  &compile_block)) return nullptr;
+    memset(start_bits, 0, 32 * sizeof(uschar));
+    if (!set_start_bits(re->code, start_bits, (re->options & PCRE_CASELESS) != 0, &compile_block))
+        return nullptr;
 
-/* Get an "extra" block and put the information therein. */
+    /* Get an "extra" block and put the information therein. */
 
-extra = (real_pcre_extra *)(pcre_malloc)(sizeof (real_pcre_extra));
+    extra = (real_pcre_extra *)(pcre_malloc)(sizeof(real_pcre_extra));
 
-if (extra == nullptr)
-  {
-  *errorptr = "failed to get memory";
-  return nullptr;
-  }
+    if (extra == nullptr)
+    {
+        *errorptr = "failed to get memory";
+        return nullptr;
+    }
 
-extra->options = PCRE_STUDY_MAPPED;
-memcpy(extra->start_bits, start_bits, sizeof (start_bits));
+    extra->options = PCRE_STUDY_MAPPED;
+    memcpy(extra->start_bits, start_bits, sizeof(start_bits));
 
-return (pcre_extra *)extra;
+    return (pcre_extra *)extra;
 }
 
 /* End of study.c */

@@ -23,7 +23,10 @@ int growbuf(size_t);
  *
  * This --func-- forms part of the --ici-api--.
  */
-inline int chkbuf(size_t n) { return bufz > n ? 0 : growbuf(n); }
+inline int chkbuf(size_t n)
+{
+    return bufz > n ? 0 : growbuf(n);
+}
 
 /*
  * End of ici.h export. --ici.h-end--

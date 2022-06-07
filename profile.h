@@ -22,7 +22,7 @@ namespace ici
 struct profilecall : object
 {
     profilecall *pc_calledby;
-    map  *pc_calls;
+    map         *pc_calls;
     long         pc_total;
     long         pc_laststart;
     long         pc_call_count;
@@ -39,13 +39,19 @@ struct profilecall : object
  * pc_call_count    The number of times this function was called.
  */
 
-inline profilecall *profilecallof(object *o) { return o->as<profilecall>(); }
-inline bool isprofilecall(object *o) { return o->hastype(TC_PROFILECALL); }
+inline profilecall *profilecallof(object *o)
+{
+    return o->as<profilecall>();
+}
+inline bool isprofilecall(object *o)
+{
+    return o->hastype(TC_PROFILECALL);
+}
 
-extern int profile_active;
-void profile_call(func *f);
-void profile_return();
-void profile_set_done_callback(void (*)(profilecall *));
+extern int   profile_active;
+void         profile_call(func *f);
+void         profile_return();
+void         profile_set_done_callback(void (*)(profilecall *));
 profilecall *profilecall_new(profilecall *called_by);
 
 /*
@@ -53,11 +59,13 @@ profilecall *profilecall_new(profilecall *called_by);
  */
 class profilecall_type : public type
 {
-public:
-    profilecall_type() : type("profile call", sizeof (struct profilecall)) {}
+  public:
+    profilecall_type()
+        : type("profile call", sizeof(struct profilecall))
+    {
+    }
     size_t mark(object *o) override;
 };
-
 
 } // namespace ici
 

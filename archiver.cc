@@ -58,43 +58,42 @@
  * This --intro-- and --synopsis-- are part of --ici-serialisation-- documentation.
  */
 
-#include "fwd.h"
 #include "archiver.h"
-#include "int.h"
-#include "null.h"
 #include "cfunc.h"
 #include "file.h"
+#include "fwd.h"
+#include "int.h"
 #include "map.h"
+#include "null.h"
 #include "op.h"
 
 #include <netinet/in.h>
 
 namespace ici
 {
-static void swapout(void *ptr, int sz) {
+static void swapout(void *ptr, int sz)
+{
 #if defined(ICI_ARCHIVE_LITTLE_ENDIAN_HOST)
-    switch (sz) {
-    case 2:
-        {
-            int16_t *v = (int16_t *)ptr;
-            auto tmp = htons(*v);
-            *v = tmp;
-        }
-        break;
-    case 4:
-        {
-            int32_t *v = (int32_t *)ptr;
-            auto tmp = htonl(*v);
-            *v = tmp;
-        }
-        break;
-    case 8:
-        {
-            int64_t *v = (int64_t *)ptr;
-            auto tmp = htonll(*v);
-            *v = tmp;
-        }
-        break;
+    switch (sz)
+    {
+    case 2: {
+        int16_t *v = (int16_t *)ptr;
+        auto     tmp = htons(*v);
+        *v = tmp;
+    }
+    break;
+    case 4: {
+        int32_t *v = (int32_t *)ptr;
+        auto     tmp = htonl(*v);
+        *v = tmp;
+    }
+    break;
+    case 8: {
+        int64_t *v = (int64_t *)ptr;
+        auto     tmp = htonll(*v);
+        *v = tmp;
+    }
+    break;
     default:
         abort();
     }
@@ -104,30 +103,29 @@ static void swapout(void *ptr, int sz) {
 #endif
 }
 
-static void swapin(void *ptr, int sz) {
+static void swapin(void *ptr, int sz)
+{
 #if defined(ICI_ARCHIVE_LITTLE_ENDIAN_HOST)
-    switch (sz) {
-    case 2:
-        {
-            int16_t *v = (int16_t *)ptr;
-            auto tmp = ntohs(*v);
-            *v = tmp;
-        }
-        break;
-    case 4:
-        {
-            int32_t *v = (int32_t *)ptr;
-            auto tmp = ntohl(*v);
-            *v = tmp;
-        }
-        break;
-    case 8:
-        {
-            int64_t *v = (int64_t *)ptr;
-            auto tmp = ntohll(*v);
-            *v = tmp;
-        }
-        break;
+    switch (sz)
+    {
+    case 2: {
+        int16_t *v = (int16_t *)ptr;
+        auto     tmp = ntohs(*v);
+        *v = tmp;
+    }
+    break;
+    case 4: {
+        int32_t *v = (int32_t *)ptr;
+        auto     tmp = ntohl(*v);
+        *v = tmp;
+    }
+    break;
+    case 8: {
+        int64_t *v = (int64_t *)ptr;
+        auto     tmp = ntohll(*v);
+        *v = tmp;
+    }
+    break;
     default:
         abort();
     }
@@ -143,10 +141,11 @@ constexpr auto num_op_funcs = 13;
 constexpr auto num_op_funcs = 12;
 #endif
 
-typedef int int_func();
+typedef int      int_func();
 static int_func *op_funcs[num_op_funcs];
 
-int archive_init() {
+int archive_init()
+{
     op_funcs[0] = nullptr;
     op_funcs[1] = o_mklvalue.op_func;
     op_funcs[2] = o_onerror.op_func;
@@ -165,10 +164,12 @@ int archive_init() {
     return 0;
 }
 
-void archive_uninit() {
+void archive_uninit()
+{
 }
 
-inline ref<integer> make_key(object *obj) {
+inline ref<integer> make_key(object *obj)
+{
     return make_ref(new_int((int64_t)obj));
 }
 
@@ -180,79 +181,99 @@ archiver::archiver(file *f, objwsup *scope)
 {
 }
 
-archiver::operator bool() const {
+archiver::operator bool() const
+{
     return a_sent != nullptr && a_names != nullptr;
 }
 
-int archiver::push_name(str *name) {
+int archiver::push_name(str *name)
+{
     return a_names->push_back(name);
 }
 
-int archiver::pop_name() {
+int archiver::pop_name()
+{
     a_names->pop_back();
     return 0;
 }
 
-int archiver::record(object *obj, object *ref) {
-    if (auto key = make_key(obj)) {
+int archiver::record(object *obj, object *ref)
+{
+    if (auto key = make_key(obj))
+    {
         return a_sent->assign(key, ref);
     }
     return 1;
 }
 
-void archiver::remove(object *obj) {
-    if (auto k = make_key(obj)) {
+void archiver::remove(object *obj)
+{
+    if (auto k = make_key(obj))
+    {
         unassign(a_sent, k);
     }
 }
 
-int archiver::save_name(object *o) {
+int archiver::save_name(object *o)
+{
     const int64_t value = (int64_t)o;
-    if (record(o, o)) {
+    if (record(o, o))
+    {
         return 1;
     }
-    if (write(value)) {
+    if (write(value))
+    {
         return 1;
     }
     return 0;
 }
 
-int archiver::restore_name(object **name) {
+int archiver::restore_name(object **name)
+{
     int64_t value;
-    if (read(&value)) {
+    if (read(&value))
+    {
         return 1;
     }
     *name = (object *)value;
     return 0;
 }
 
-int archiver::save_ref(object *o) {
+int archiver::save_ref(object *o)
+{
     const uint8_t tcode = TC_REF;
     const int64_t ref = (int64_t)o;
-    if (write(tcode)) {
+    if (write(tcode))
+    {
         return 1;
     }
-    if (write(ref)) {
+    if (write(ref))
+    {
         return 1;
     }
     return 0;
 }
 
-object *archiver::restore_ref() {
+object *archiver::restore_ref()
+{
     object *name;
-    if (restore_name(&name)) {
+    if (restore_name(&name))
+    {
         return nullptr;
     }
-    if (auto o = lookup(name)) {
+    if (auto o = lookup(name))
+    {
         incref(o);
         return o;
     }
     return nullptr;
 }
 
-object *archiver::lookup(object *obj) {
+object *archiver::lookup(object *obj)
+{
     object *v = nullptr;
-    if (auto k = make_key(obj)) {
+    if (auto k = make_key(obj))
+    {
         v = a_sent->fetch(k);
     }
     return v == null ? nullptr : v;
@@ -260,114 +281,142 @@ object *archiver::lookup(object *obj) {
 
 int archiver::op_func_code(int_func *fn)
 {
-    for (size_t i = 0; i < num_op_funcs; ++i) {
-        if (fn == op_funcs[i]) {
+    for (size_t i = 0; i < num_op_funcs; ++i)
+    {
+        if (fn == op_funcs[i])
+        {
             return int(i);
         }
     }
     return -1;
 }
 
-int_func *archiver::op_func(int code) {
-    if (code < 0 || size_t(code) >= num_op_funcs) {
+int_func *archiver::op_func(int code)
+{
+    if (code < 0 || size_t(code) >= num_op_funcs)
+    {
         return nullptr;
     }
     return op_funcs[code];
 }
 
-int archiver::read(int16_t *hword) {
-    if (read(hword, sizeof *hword)) {
+int archiver::read(int16_t *hword)
+{
+    if (read(hword, sizeof *hword))
+    {
         return 1;
     }
     swapin(hword, sizeof *hword);
     return 0;
 }
 
-int archiver::read(int32_t *aword) {
-    if (read(aword, sizeof *aword)) {
+int archiver::read(int32_t *aword)
+{
+    if (read(aword, sizeof *aword))
+    {
         return 1;
     }
     swapin(aword, sizeof *aword);
     return 0;
 }
 
-int archiver::read(int64_t *dword) {
-    if (read(dword, sizeof *dword)) {
+int archiver::read(int64_t *dword)
+{
+    if (read(dword, sizeof *dword))
+    {
         return 1;
     }
     swapin(dword, sizeof *dword);
     return 0;
 }
 
-int archiver::read(float *flt) {
-    if (read(flt, sizeof *flt)) {
+int archiver::read(float *flt)
+{
+    if (read(flt, sizeof *flt))
+    {
         return 1;
     }
     swapin(flt, sizeof *flt);
     return 0;
 }
 
-int archiver::read(double *dbl) {
-    if (read(dbl, sizeof *dbl)) {
+int archiver::read(double *dbl)
+{
+    if (read(dbl, sizeof *dbl))
+    {
         return 1;
     }
     swapin(dbl, sizeof *dbl);
     return 0;
 }
 
-int archiver::write(int16_t hword) {
+int archiver::write(int16_t hword)
+{
     swapout(&hword, sizeof hword);
     return write(&hword, sizeof hword);
 }
 
-int archiver::write(int32_t aword) {
+int archiver::write(int32_t aword)
+{
     swapout(&aword, sizeof aword);
     return write(&aword, sizeof aword);
 }
 
-int archiver::write(int64_t dword) {
+int archiver::write(int64_t dword)
+{
     swapout(&dword, sizeof dword);
     return write(&dword, sizeof dword);
 }
 
-int archiver::write(float v) {
+int archiver::write(float v)
+{
     swapout(&v, sizeof v);
     return write(&v, sizeof v);
 }
 
-int archiver::write(double v) {
+int archiver::write(double v)
+{
     swapout(&v, sizeof v);
     return write(&v, sizeof v);
 }
 
-int archiver::save(object *o) {
-    if (auto p = lookup(o)) { // if already sent in this session
-        return save_ref(p);   // save a reference to the object
+int archiver::save(object *o)
+{
+    if (auto p = lookup(o))
+    {                       // if already sent in this session
+        return save_ref(p); // save a reference to the object
     }
     uint8_t tcode = o->o_tcode & object::O_ICIBITS; // mask out user-bits
-    if (o->isatom()) {
+    if (o->isatom())
+    {
         tcode |= O_ARCHIVE_ATOMIC;
     }
-    if (write(tcode)) {
+    if (write(tcode))
+    {
         return 1;
     }
-    if (o->icitype()->save(this, o)) {
+    if (o->icitype()->save(this, o))
+    {
         return 1;
     }
     return 0;
 }
 
-object *archiver::restore() {
+object *archiver::restore()
+{
     uint8_t tcode;
     uint8_t flags = 0;
 
-    if (read(&tcode)) {
+    if (read(&tcode))
+    {
         return nullptr;
     }
-    if (tcode == TC_REF) {
+    if (tcode == TC_REF)
+    {
         return restore_ref();
     }
-    if ((tcode & O_ARCHIVE_ATOMIC) != 0) {
+    if ((tcode & O_ARCHIVE_ATOMIC) != 0)
+    {
         flags |= object::O_ATOM;
         tcode &= ~O_ARCHIVE_ATOMIC;
     }
@@ -375,18 +424,22 @@ object *archiver::restore() {
         set_error("no type with code %02X", tcode);
         return nullptr;
     };
-    if (tcode >= num_types) {
+    if (tcode >= num_types)
+    {
         return no_type();
     }
     auto t = types[tcode];
-    if (!t) {
+    if (!t)
+    {
         return no_type();
     }
     auto o = t->restore(this);
-    if (!o) {
+    if (!o)
+    {
         return nullptr;
     }
-    if (flags & object::O_ATOM) {
+    if (flags & object::O_ATOM)
+    {
         o = atom(o, 1);
     }
     return o;
@@ -405,28 +458,38 @@ object *archiver::restore() {
  *
  * This --topic-- forms part of the --ici-serialisation-- documentation.
  */
-int f_archive_save(...) {
+int f_archive_save(...)
+{
     objwsup *scp = mapof(vs.a_top[-1])->o_super;
-    file *file;
-    object *obj;
-    int failed = 1;
+    file    *file;
+    object  *obj;
+    int      failed = 1;
 
-    switch (NARGS()) {
+    switch (NARGS())
+    {
     case 3:
         if (typecheck("oud", &obj, &file, &scp))
+        {
             return 1;
+        }
         break;
 
     case 2:
         if (typecheck("ou", &obj, &file))
+        {
             return 1;
+        }
         break;
 
     case 1:
         if (typecheck("o", &obj))
+        {
             return 1;
+        }
         if ((file = need_stdout()) == nullptr)
+        {
             return 1;
+        }
         break;
 
     default:
@@ -434,76 +497,86 @@ int f_archive_save(...) {
     }
 
     archiver ar(file, scp);
-    if (ar) {
+    if (ar)
+    {
         failed = ar.save(obj);
     }
     return failed ? failed : null_ret();
 }
 
-int f_archive_restore(...) {
-    file *file;
+int f_archive_restore(...)
+{
+    file    *file;
     objwsup *scp;
-    object *obj = nullptr;
+    object  *obj = nullptr;
 
     scp = mapof(vs.a_top[-1])->o_super;
-    switch (NARGS()) {
+    switch (NARGS())
+    {
     case 0:
-        if ((file = need_stdin()) == nullptr) {
+        if ((file = need_stdin()) == nullptr)
+        {
             return 1;
         }
         break;
 
     case 1:
-        if (typecheck("u", &file)) {
-            if (typecheck("d", &scp)) {
+        if (typecheck("u", &file))
+        {
+            if (typecheck("d", &scp))
+            {
                 return 1;
             }
-            if ((file = need_stdin()) == nullptr) {
+            if ((file = need_stdin()) == nullptr)
+            {
                 return 1;
             }
         }
         break;
 
     default:
-        if (typecheck("ud", &file, &scp)) {
+        if (typecheck("ud", &file, &scp))
+        {
             return 1;
         }
         break;
     }
 
     archiver ar(file, scp);
-    if (ar) {
+    if (ar)
+    {
         obj = ar.restore();
     }
 
     return obj == nullptr ? 1 : ret_with_decref(obj);
 }
 
-ICI_DEFINE_CFUNCS(save_restore)
+ICI_DEFINE_CFUNCS(save_restore){ICI_DEFINE_CFUNC(save, f_archive_save), ICI_DEFINE_CFUNC(restore, f_archive_restore),
+                                ICI_CFUNCS_END()};
+
+str *archiver::name_qualifier()
 {
-    ICI_DEFINE_CFUNC(save, f_archive_save),
-    ICI_DEFINE_CFUNC(restore, f_archive_restore),
-    ICI_CFUNCS_END()
-};
 
-str *archiver::name_qualifier() {
-
-    if (a_names->len() == 0) {
+    if (a_names->len() == 0)
+    {
         return stringof(SS(empty_string));
     }
 
     auto e = a_names->astart();
-    int len = stringof(*e)->s_nchars;
+    int  len = stringof(*e)->s_nchars;
 
-    for (e = a_names->anext(e); e != a_names->alimit(); e = a_names->anext(e)) {
+    for (e = a_names->anext(e); e != a_names->alimit(); e = a_names->anext(e))
+    {
         len = len + 1 /* '.' (dot) */ + stringof(*e)->s_nchars;
     }
     auto s = str_alloc(len);
-    if (!s) {
+    if (!s)
+    {
         return nullptr;
     }
     auto p = s->s_chars;
-    for (e = a_names->astart(); e != a_names->alimit(); e = a_names->anext(e)) {
+    for (e = a_names->astart(); e != a_names->alimit(); e = a_names->anext(e))
+    {
         auto s = stringof(*e);
         memcpy(p, s->s_chars, s->s_nchars);
         p += s->s_nchars;

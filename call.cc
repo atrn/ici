@@ -1,13 +1,13 @@
 #define ICI_CORE
-#include "op.h"
 #include "buf.h"
+#include "catcher.h"
 #include "exec.h"
+#include "float.h"
 #include "func.h"
 #include "int.h"
-#include "float.h"
-#include "str.h"
 #include "null.h"
-#include "catcher.h"
+#include "op.h"
+#include "str.h"
 
 namespace ici
 {
@@ -21,21 +21,21 @@ namespace ici
  *
  * If 'subject' is nullptr, then 'callable' is taken to be a callable object
  * (could be a function, a method, or something else) and is called directly.
- * If 'subject' is non-nullptr, it is taken to be an instance object and 
+ * If 'subject' is non-nullptr, it is taken to be an instance object and
  * 'callable' should be the name of one of its methods (i.e. an 'str *').
  *
  * This --func-- forms part of the --ici-api--.
  */
 int callv(object *subject, object *callable, const char *types, va_list va)
 {
-    ssize_t    nargs;
-    ssize_t    arg;
-    object    *member_obj;
-    object    *ret_obj;
-    char       ret_type;
-    char      *ret_ptr;
-    ptrdiff_t  os_depth;
-    op        *call_op;
+    ssize_t   nargs;
+    ssize_t   arg;
+    object   *member_obj;
+    object   *ret_obj;
+    char      ret_type;
+    char     *ret_ptr;
+    ptrdiff_t os_depth;
+    op       *call_op;
 
     if (types[0] != '\0' && types[1] == '@')
     {
@@ -125,7 +125,10 @@ int callv(object *subject, object *callable, const char *types, va_list va)
      */
     {
         auto no = new_int(nargs);
-        if (!no) goto fail;
+        if (!no)
+        {
+            goto fail;
+        }
         os.push(no, with_decref);
     }
     if (subject != nullptr)
@@ -179,7 +182,7 @@ int callv(object *subject, object *callable, const char *types, va_list va)
         break;
 
     default:
-    typeclash:
+typeclash:
         decref(ret_obj);
         set_error("incorrect return type");
         goto fail;
@@ -246,7 +249,7 @@ int callv(str *func_name, const char *types, va_list va)
  * s        The corresponding argument should be a nul terminated string (a
  *          pointer to a char * in the case of a return value).  It will be
  *          converted to an ICI 'string' and passed to the function.
- *                      
+ *
  *          When a string is returned it is a pointer to the character data of
  *          an internal ICI string object.  It will only remain valid until
  *          the next call to any ICI function.
@@ -266,8 +269,8 @@ int callv(str *func_name, const char *types, va_list va)
  */
 int call(object *callable, const char *types, ...)
 {
-    va_list     va;
-    int         result;
+    va_list va;
+    int     result;
 
     va_start(va, types);
     result = callv((object *)nullptr, callable, types, va);
@@ -286,8 +289,8 @@ int call(object *callable, const char *types, ...)
  */
 int call_method(object *inst, str *mname, const char *types, ...)
 {
-    va_list     va;
-    int         result;
+    va_list va;
+    int     result;
 
     va_start(va, types);
     result = callv(inst, mname, types, va);
@@ -310,10 +313,10 @@ int call_method(object *inst, str *mname, const char *types, ...)
  */
 int call(str *func_name, const char *types, ...)
 {
-    object  *func_obj;
-    object  *member_obj;
-    va_list  va;
-    int      result;
+    object *func_obj;
+    object *member_obj;
+    va_list va;
+    int     result;
 
     func_obj = nullptr;
     if (types[0] != '\0' && types[1] == '@')

@@ -8,41 +8,41 @@
  * This is public domain source. Please do not add any copyrighted material.
  */
 #define ICI_CORE
-#include "exec.h"
 #include "cfunc.h"
-#include "func.h"
-#include "str.h"
-#include "int.h"
-#include "float.h"
-#include "vec.h"
-#include "map.h"
-#include "set.h"
-#include "op.h"
-#include "ptr.h"
 #include "buf.h"
-#include "file.h"
-#include "ftype.h"
-#include "re.h"
-#include "null.h"
-#include "parse.h"
-#include "mem.h"
-#include "handle.h"
 #include "channel.h"
+#include "exec.h"
+#include "file.h"
+#include "float.h"
+#include "ftype.h"
+#include "func.h"
+#include "handle.h"
+#include "int.h"
+#include "map.h"
+#include "mem.h"
+#include "null.h"
+#include "op.h"
+#include "parse.h"
 #include "pcre.h"
+#include "ptr.h"
+#include "re.h"
+#include "set.h"
+#include "str.h"
+#include "vec.h"
 
-#include <stdio.h>
-#include <limits.h>
-#include <math.h>
 #include <ctype.h>
 #include <errno.h>
+#include <limits.h>
+#include <math.h>
 #include <stdarg.h>
-#include <time.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 #include <chrono>
 #include <thread>
 
-#ifdef  _WIN32
+#ifdef _WIN32
 #include <windows.h>
 #endif
 
@@ -52,20 +52,20 @@
 #include <sys/types.h>
 
 #if defined(__linux__) || defined(BSD) || defined(__sun)
+#include <dirent.h>
 #include <sys/param.h>
-#include <unistd.h>
+#include <sys/resource.h>
 #include <sys/stat.h>
 #include <sys/time.h>
-#include <sys/resource.h>
-#include <dirent.h>
+#include <unistd.h>
 #endif
 
 #ifndef environ
-    /*
-     * environ is sometimes mapped to be a function, so only extern it
-     * if it is not already defined.
-     */
-    extern char         **environ;
+/*
+ * environ is sometimes mapped to be a function, so only extern it
+ * if it is not already defined.
+ */
+extern char **environ;
 #endif
 
 #undef isset
@@ -156,13 +156,13 @@ namespace ici
  */
 int typecheck(const char *types, ...)
 {
-    va_list   va;
-    object  **ap;               /* Argument pointer. */
-    int       nargs;
-    int       i;
-    char     *aptr;              /* Subsequent things from va_alist. */
-    int       tcode;
-    object   *o;
+    va_list  va;
+    object **ap; /* Argument pointer. */
+    int      nargs;
+    int      i;
+    char    *aptr; /* Subsequent things from va_alist. */
+    int      tcode;
+    object  *o;
 
     va_start(va, types);
     nargs = NARGS();
@@ -182,15 +182,21 @@ int typecheck(const char *types, ...)
         }
 
         if ((tcode = types[i]) == '-')
+        {
             continue;
+        }
 
         aptr = va_arg(va, char *);
         if (tcode >= 'A' && tcode <= 'Z')
         {
             if (!isptr(*ap))
+            {
                 goto fail;
+            }
             if ((o = ici_fetch(*ap, o_zero)) == nullptr)
+            {
                 goto fail;
+            }
             tcode += 'a' - 'A';
         }
         else
@@ -206,77 +212,105 @@ int typecheck(const char *types, ...)
 
         case 'h': /* A handle with a particular name. */
             if (!ishandleof(o, (str *)aptr))
+            {
                 goto fail;
+            }
             aptr = va_arg(va, char *);
             *(handle **)aptr = handleof(o);
             break;
 
         case 'p': /* Any pointer. */
             if (!isptr(o))
+            {
                 goto fail;
+            }
             *(ptr **)aptr = ptrof(o);
             break;
 
         case 'i': /* An int -> long. */
             if (!isint(o))
+            {
                 goto fail;
+            }
             *(long *)aptr = intof(o)->i_value;
             break;
 
         case 'q': /* A string -> str */
             if (!isstring(o))
+            {
                 goto fail;
+            }
             *(str **)aptr = stringof(o);
             break;
 
         case 's': /* A string -> (char *). */
             if (!isstring(o))
+            {
                 goto fail;
+            }
             *(char **)aptr = stringof(o)->s_chars;
             break;
 
         case 'f': /* A float -> double. */
             if (!isfloat(o))
+            {
                 goto fail;
+            }
             *(double *)aptr = floatof(o)->f_value;
             break;
 
         case 'n': /* A number, int or float -> double. */
             if (isint(o))
+            {
                 *(double *)aptr = intof(o)->i_value;
+            }
             else if (isfloat(o))
+            {
                 *(double *)aptr = floatof(o)->f_value;
+            }
             else
+            {
                 goto fail;
+            }
             break;
 
         case 'd': /* A struct ("dict") -> (map *). */
             if (!ismap(o))
+            {
                 goto fail;
+            }
             *(map **)aptr = mapof(o);
             break;
 
         case 'a': /* An array -> (array *). */
             if (!isarray(o))
+            {
                 goto fail;
+            }
             *(array **)aptr = arrayof(o);
             break;
 
         case 'u': /* A file -> (file *). */
             if (!isfile(o))
+            {
                 goto fail;
+            }
             *(file **)aptr = fileof(o);
             break;
 
         case 'r': /* A regular expression -> (regexpr *). */
             if (!isregexp(o))
+            {
                 goto fail;
+            }
             *(regexp **)aptr = regexpof(o);
             break;
 
         case 'm': /* A mem -> (mem *). */
             if (!ismem(o))
+            {
                 goto fail;
+            }
             *(mem **)aptr = memof(o);
             break;
 
@@ -286,7 +320,9 @@ int typecheck(const char *types, ...)
     }
     va_end(va);
     if (i != nargs)
+    {
         return argcount(i);
+    }
     return 0;
 
 fail:
@@ -317,14 +353,14 @@ fail:
  */
 int retcheck(const char *types, ...)
 {
-    va_list   va;
-    int       i;
-    int       nargs;
-    object  **ap;
-    char     *aptr;
-    int       tcode;
-    object   *o;
-    object   *s;
+    va_list  va;
+    int      i;
+    int      nargs;
+    object **ap;
+    char    *aptr;
+    int      tcode;
+    object  *o;
+    object  *s;
 
     va_start(va, types);
     nargs = NARGS();
@@ -344,11 +380,15 @@ int retcheck(const char *types, ...)
         }
 
         if (tcode == '-')
+        {
             continue;
+        }
 
         o = *ap;
         if (!isptr(o))
+        {
             goto fail;
+        }
 
         aptr = va_arg(va, char *);
 
@@ -360,60 +400,81 @@ int retcheck(const char *types, ...)
 
         case 'p': /* Any pointer. */
             if (!isptr(o))
+            {
                 goto fail;
+            }
             *(ptr **)aptr = ptrof(o);
             break;
 
         case 'i':
             if ((s = new_int(*(long *)aptr)) == nullptr)
+            {
                 goto ret1;
+            }
             if (ici_assign(o, o_zero, s))
+            {
                 goto ret1;
+            }
             decref(s);
             break;
 
         case 's':
             if ((s = new_str_nul_term(*(char **)aptr)) == nullptr)
+            {
                 goto ret1;
+            }
             if (ici_assign(o, o_zero, s))
+            {
                 goto ret1;
+            }
             decref(s);
             break;
 
         case 'f':
             if ((s = new_float(*(double *)aptr)) == nullptr)
+            {
                 goto ret1;
+            }
             if (ici_assign(o, o_zero, s))
+            {
                 goto ret1;
+            }
             decref(s);
             break;
 
         case 'd':
             if (!ismap(o))
+            {
                 goto fail;
+            }
             *(map **)aptr = mapof(o);
             break;
 
         case 'a':
             if (!isarray(o))
+            {
                 goto fail;
+            }
             *(array **)aptr = arrayof(o);
             break;
 
         case 'u':
             if (!isfile(o))
+            {
                 goto fail;
+            }
             *(file **)aptr = fileof(o);
             break;
 
         case '*':
             return 0;
-
         }
     }
     va_end(va);
     if (i != nargs)
+    {
         return argcount(i);
+    }
     return 0;
 
 ret1:
@@ -456,17 +517,15 @@ fail:
  *          return argerror(0);
  *      . . .
  *
- * This --func-- forms part of ICI's exernal API --ici-api-- 
+ * This --func-- forms part of ICI's exernal API --ici-api--
  */
 int argerror(int i)
 {
-    char        n1[objnamez];
-    char        n2[objnamez];
+    char n1[objnamez];
+    char n2[objnamez];
 
-    return set_error("argument %d of %s incorrectly supplied as %s",
-        i + 1,
-        objname(n1, os.a_top[-1]),
-        objname(n2, ARG(i)));
+    return set_error("argument %d of %s incorrectly supplied as %s", i + 1, objname(n1, os.a_top[-1]),
+                     objname(n2, ARG(i)));
 }
 
 /*
@@ -502,10 +561,9 @@ int argerror(int i)
  */
 int argcount(int n)
 {
-    char        n1[objnamez];
+    char n1[objnamez];
 
-    return set_error("%d arguments given to %s, but it takes %d",
-        NARGS(), objname(n1, os.a_top[-1]), n);
+    return set_error("%d arguments given to %s, but it takes %d", NARGS(), objname(n1, os.a_top[-1]), n);
 }
 
 /*
@@ -526,10 +584,10 @@ int argcount(int n)
  */
 int argcount2(int m, int n)
 {
-    char        n1[objnamez];
+    char n1[objnamez];
 
-    return set_error("%d arguments given to %s, but it takes from %d to %d arguments",
-        NARGS(), objname(n1, os.a_top[-1]), m, n);
+    return set_error("%d arguments given to %s, but it takes from %d to %d arguments", NARGS(),
+                     objname(n1, os.a_top[-1]), m, n);
 }
 
 /*
@@ -548,9 +606,12 @@ int argcount2(int m, int n)
  *
  * This function forms part of ICI's exernal API --ici-api-- --func--
  */
-int ret_with_decref(object *o) {
+int ret_with_decref(object *o)
+{
     if (o == nullptr)
+    {
         return 1;
+    }
     os.a_top -= NARGS() + 1;
     os.a_top[-1] = o;
     decref(o);
@@ -558,7 +619,8 @@ int ret_with_decref(object *o) {
     return 0;
 }
 
-int null_ret() {
+int null_ret()
+{
     return ret_no_decref(null);
 }
 
@@ -577,9 +639,12 @@ int null_ret() {
  *
  * This function forms part of ICI's exernal API --ici-api-- --func--
  */
-int ret_no_decref(object *o) {
+int ret_no_decref(object *o)
+{
     if (o == nullptr)
+    {
         return 1;
+    }
     os.a_top -= NARGS() + 1;
     os.a_top[-1] = o;
     --xs.a_top;
@@ -592,7 +657,8 @@ int ret_no_decref(object *o) {
  *
  * This function forms part of ICI's exernal API --ici-api-- --func--
  */
-int int_ret(int64_t ret) {
+int int_ret(int64_t ret)
+{
     return ret_with_decref(new_int(ret));
 }
 
@@ -600,11 +666,12 @@ int int_ret(int64_t ret) {
  * Use 'return float_ret(ret);' to return a float (i.e. a C double)
  * from an intrinsic fuction. The double will be converted to an ICI
  * float.
- * 
+ *
  *
  * This function forms part of ICI's exernal API --ici-api-- --func--
  */
-int float_ret(double ret) {
+int float_ret(double ret)
+{
     return ret_with_decref(new_float(ret));
 }
 
@@ -614,11 +681,13 @@ int float_ret(double ret) {
  *
  * This function forms part of ICI's exernal API --ici-api-- --func--
  */
-int str_ret(const char *str) {
+int str_ret(const char *str)
+{
     return ret_with_decref(new_str_nul_term(str));
 }
 
-static object * not_a(const char *what, const char *typ) {
+static object *not_a(const char *what, const char *typ)
+{
     set_error("%s is not a %s", what, typ);
     return nullptr;
 }
@@ -628,20 +697,25 @@ static object * not_a(const char *what, const char *typ) {
  * current scope. The array is not increfed - it is assumed to be still
  * referenced from the scope until the caller has finished with it.
  */
-array * need_path() {
+array *need_path()
+{
 
     auto outermost = objwsupof(vs.a_top[-1]);
     assert(outermost);
-    while (outermost->o_super != nullptr) {
+    while (outermost->o_super != nullptr)
+    {
         outermost = outermost->o_super;
     }
     const auto m = ici_fetch(outermost, SS(_ici));
     if (ismap(m))
     {
         auto o = ici_fetch(m, SS(path));
-        if (isarray(o)) {
+        if (isarray(o))
+        {
             return arrayof(o);
-	} else {
+        }
+        else
+        {
             return arrayof(not_a("path", "array"));
         }
     }
@@ -656,11 +730,13 @@ array * need_path() {
  *
  * This --func-- forms part of the --ici-api--.
  */
-file *need_stdin() {
+file *need_stdin()
+{
     file *f;
 
     f = fileof(ici_fetch(vs.a_top[-1], SS(_stdin)));
-    if (!isfile(f)) {
+    if (!isfile(f))
+    {
         return fileof(not_a("stdin", "file"));
     }
     return f;
@@ -674,11 +750,13 @@ file *need_stdin() {
  *
  * This --func-- forms part of the --ici-api--.
  */
-file * need_stdout() {
+file *need_stdout()
+{
     file *f;
 
     f = fileof(ici_fetch(vs.a_top[-1], SS(_stdout)));
-    if (!isfile(f)) {
+    if (!isfile(f))
+    {
         return fileof(not_a("stdout", "file"));
     }
     return f;
@@ -692,11 +770,13 @@ file * need_stdout() {
  *
  * This --func-- forms part of the --ici-api--.
  */
-file * need_stderr() {
+file *need_stderr()
+{
     file *f;
 
     f = fileof(ici_fetch(vs.a_top[-1], SS(_stderr)));
-    if (!isfile(f)) {
+    if (!isfile(f))
+    {
         return fileof(not_a("stderr", "file"));
     }
     return f;
@@ -706,21 +786,26 @@ file * need_stderr() {
  * For any C functions that return a double and take 0, 1, or 2 doubles as
  * arguments.
  */
-static int f_math() {
-    double      av[2];
-    double      r;
-    char        n1[objnamez];
-    char        n2[80];
+static int f_math()
+{
+    double av[2];
+    double r;
+    char   n1[objnamez];
+    char   n2[80];
 
     av[0] = 0.0;
     av[1] = 0.0;
     if (typecheck((char *)ICI_CF_ARG2() + 2, &av[0], &av[1]))
+    {
         return 1;
+    }
     errno = 0;
     r = (*(double (*)(double, double))ICI_CF_ARG1())(av[0], av[1]);
-    if (errno != 0) {
+    if (errno != 0)
+    {
         sprintf(n2, "%g", av[0]);
-        if (NARGS() == 2) {
+        if (NARGS() == 2)
+        {
             sprintf(n2 + strlen(n2), ", %g", av[1]);
         }
         return get_last_errno(objname(n1, os.a_top[-1]), n2);
@@ -742,23 +827,27 @@ static int f_math() {
  *                      "ici-core.ici" is always parsed.  Others are
  *                      on-demand.)
  */
-int f_coreici(object *s) {
+int f_coreici(object *s)
+{
     /*
      * Use the execution engine to evaluate the name of the core module
      * this function is in. It will auto-load if necessary.
      */
     ref<> c;
-    if ((c = evaluate((object *)ICI_CF_ARG2(), 0)) == nullptr) {
+    if ((c = evaluate((object *)ICI_CF_ARG2(), 0)) == nullptr)
+    {
         return 1;
     }
     /*
      * Fetch the real function from that module and verify it is callable.
      */
     object *f = ici_fetch_base(c, (object *)ICI_CF_ARG1());
-    if (f == nullptr) {
+    if (f == nullptr)
+    {
         return 1;
     }
-    if (!f->can_call()) {
+    if (!f->can_call())
+    {
         char n1[objnamez];
         return set_error("attempt to call %s", objname(n1, f));
     }
@@ -766,7 +855,8 @@ int f_coreici(object *s) {
      * Over-write the definition of the function (which was us) with the
      * real function.
      */
-    if (ici_assign(vs.a_top[-1], (object *)ICI_CF_ARG1(), f)) {
+    if (ici_assign(vs.a_top[-1], (object *)ICI_CF_ARG1(), f))
+    {
         return 1;
     }
     /*
@@ -779,44 +869,54 @@ int f_coreici(object *s) {
 
 /*--------------------------------------------------------------------------------*/
 
-static int f_array() {
-    auto nargs = NARGS();
+static int f_array()
+{
+    auto   nargs = NARGS();
     array *a;
 
-    if ((a = new_array(nargs)) == nullptr) {
+    if ((a = new_array(nargs)) == nullptr)
+    {
         return 1;
     }
-    for (auto o = ARGS(); nargs > 0; --nargs) {
+    for (auto o = ARGS(); nargs > 0; --nargs)
+    {
         a->push(*o--);
     }
     return ret_with_decref(a);
 }
 
-static int f_map() {
-    object     **o;
-    int         nargs;
-    map         *s;
-    objwsup     *super;
+static int f_map()
+{
+    object **o;
+    int      nargs;
+    map     *s;
+    objwsup *super;
 
     nargs = NARGS();
     o = ARGS();
     super = nullptr;
-    if (nargs & 1) {
+    if (nargs & 1)
+    {
         super = objwsupof(*o);
-        if (!hassuper(super) && !isnull(super)) {
+        if (!hassuper(super) && !isnull(super))
+        {
             return argerror(0);
         }
-        if (isnull(super)) {
+        if (isnull(super))
+        {
             super = nullptr;
         }
         --nargs;
         --o;
     }
-    if ((s = new_map()) == nullptr) {
+    if ((s = new_map()) == nullptr)
+    {
         return 1;
     }
-    for (; nargs >= 2; nargs -= 2, o -= 2) {
-        if (ici_assign(s, o[0], o[-1])) {
+    for (; nargs >= 2; nargs -= 2, o -= 2)
+    {
+        if (ici_assign(s, o[0], o[-1]))
+        {
             decref(s);
             return 1;
         }
@@ -825,16 +925,20 @@ static int f_map() {
     return ret_with_decref(s);
 }
 
-static int f_set() {
+static int f_set()
+{
     int      nargs;
     set     *s;
     object **o;
 
-    if ((s = new_set()) == nullptr) {
+    if ((s = new_set()) == nullptr)
+    {
         return 1;
     }
-    for (nargs = NARGS(), o = ARGS(); nargs > 0; --nargs, --o) {
-        if (ici_assign(s, *o, o_one)) {
+    for (nargs = NARGS(), o = ARGS(); nargs > 0; --nargs, --o)
+    {
+        if (ici_assign(s, *o, o_one))
+        {
             decref(s);
             return 1;
         }
@@ -842,105 +946,138 @@ static int f_set() {
     return ret_with_decref(s);
 }
 
-static int f_keys() {
-    array    *k;
+static int f_keys()
+{
+    array *k;
 
-    if (NARGS() != 1) {
+    if (NARGS() != 1)
+    {
         return argcount(1);
     }
     int n = ARG(0)->icitype()->nkeys(ARG(0));
-    if ((k = new_array(n)) == nullptr) {
-	return 1;
+    if ((k = new_array(n)) == nullptr)
+    {
+        return 1;
     }
-    if (ARG(0)->icitype()->keys(ARG(0), k)) {
-	decref(k);
-	return 1;
+    if (ARG(0)->icitype()->keys(ARG(0), k))
+    {
+        decref(k);
+        return 1;
     }
     return ret_with_decref(k);
 }
 
-static int f_copy(object *o) {
-    if (o != nullptr) {
+static int f_copy(object *o)
+{
+    if (o != nullptr)
+    {
         return ret_with_decref(copyof(o));
     }
-    if (NARGS() != 1) {
+    if (NARGS() != 1)
+    {
         return argcount(1);
     }
     return ret_with_decref(copyof(ARG(0)));
 }
 
-static int f_typeof() {
-    if (NARGS() != 1) {
+static int f_typeof()
+{
+    if (NARGS() != 1)
+    {
         return argcount(1);
     }
-    if (ishandle(ARG(0))) {
+    if (ishandle(ARG(0)))
+    {
         return ret_no_decref(handleof(ARG(0))->h_name);
     }
     return ret_no_decref(ARG(0)->icitype()->ici_name());
 }
 
-static int f_len() {
-    if (NARGS() != 1) {
+static int f_len()
+{
+    if (NARGS() != 1)
+    {
         return argcount(1);
     }
     return int_ret(objlen(ARG(0)));
 }
 
-static int f_int() {
+static int f_int()
+{
     object *o;
     int64_t v;
 
-    if (NARGS() < 1) {
+    if (NARGS() < 1)
+    {
         return argcount(1);
     }
     o = ARG(0);
-    if (isint(o)) {
+    if (isint(o))
+    {
         return ret_no_decref(o);
     }
-    else if (isstring(o)) {
+    else if (isstring(o))
+    {
         int64_t base = 0;
 
-        if (NARGS() > 1) {
-            if (!isint(ARG(1))) {
+        if (NARGS() > 1)
+        {
+            if (!isint(ARG(1)))
+            {
                 return argerror(1);
             }
             base = intof(ARG(1))->i_value;
-            if (base != 0 && (base < 2 || base > 36)) {
+            if (base != 0 && (base < 2 || base > 36))
+            {
                 return argerror(1);
             }
         }
         v = xstrtol(stringof(o)->s_chars, nullptr, int(base));
         // fixme: check for errors in chars wrt. base
-    } else if (isfloat(o)) {
+    }
+    else if (isfloat(o))
+    {
         v = (int64_t)floatof(o)->f_value;
-    } else {
+    }
+    else
+    {
         v = 0;
     }
     return int_ret(v);
 }
 
-static int f_float() {
-    object  *o;
+static int f_float()
+{
+    object *o;
     double  v;
 
-    if (NARGS() != 1) {
+    if (NARGS() != 1)
+    {
         return argcount(1);
     }
     o = ARG(0);
-    if (isfloat(o)) {
+    if (isfloat(o))
+    {
         return ret_no_decref(o);
-    } else if (isstring(o)) {
+    }
+    else if (isstring(o))
+    {
         v = strtod(stringof(o)->s_chars, nullptr);
-    } else if (isint(o)) {
+    }
+    else if (isint(o))
+    {
         v = (double)intof(o)->i_value;
-    } else {
+    }
+    else
+    {
         v = 0;
     }
     return float_ret(v);
 }
 
-static int f_float32() {
-    object  *o;
+static int f_float32()
+{
+    object *o;
     double  v;
 
     if (NARGS() != 1)
@@ -968,145 +1105,182 @@ static int f_float32() {
     return float_ret((double)fv);
 }
 
-
-static int f_num() {
-    object  *o;
+static int f_num()
+{
+    object *o;
     double  f;
     long    i;
-    char    *s;
+    char   *s;
     char    n[objnamez];
 
-    if (NARGS() != 1) {
+    if (NARGS() != 1)
+    {
         return argcount(1);
     }
     o = ARG(0);
-    if (isfloat(o) || isint(o)) {
+    if (isfloat(o) || isint(o))
+    {
         return ret_no_decref(o);
     }
-    else if (isstring(o)) {
+    else if (isstring(o))
+    {
         int base = 0;
 
-        if (NARGS() > 1) {
-            if (!isint(ARG(1))) {
+        if (NARGS() > 1)
+        {
+            if (!isint(ARG(1)))
+            {
                 return argerror(1);
             }
             base = intof(ARG(1))->i_value;
-            if (base != 0 && (base < 2 || base > 36)) {
+            if (base != 0 && (base < 2 || base > 36))
+            {
                 return argerror(1);
             }
         }
         i = xstrtol(stringof(o)->s_chars, &s, base);
-        if (*s == '\0') {
+        if (*s == '\0')
+        {
             return int_ret(i);
         }
         f = strtod(stringof(o)->s_chars, &s);
-        if (*s == '\0') {
+        if (*s == '\0')
+        {
             return float_ret(f);
         }
     }
     return set_error("%s is not a number", objname(n, o));
 }
 
-static int f_string() {
-    object  *o;
+static int f_string()
+{
+    object *o;
 
-    if (NARGS() != 1) {
+    if (NARGS() != 1)
+    {
         return argcount(1);
     }
     o = ARG(0);
-    if (isstring(o)) {
+    if (isstring(o))
+    {
         return ret_no_decref(o);
     }
-    if (isint(o)) {
+    if (isint(o))
+    {
         sprintf(buf, "%lld", static_cast<long long int>(intof(o)->i_value));
-    } else if (isfloat(o)) {
+    }
+    else if (isfloat(o))
+    {
         sprintf(buf, "%g", floatof(o)->f_value);
-    } else if (isregexp(o)) {
+    }
+    else if (isregexp(o))
+    {
         return ret_no_decref(regexpof(o)->r_pat);
-    } else {
+    }
+    else
+    {
         sprintf(buf, "[%s]", o->type_name());
     }
     return str_ret(buf);
 }
 
-static int f_eq() {
-    object   *o1;
-    object   *o2;
+static int f_eq()
+{
+    object *o1;
+    object *o2;
 
-    if (typecheck("oo", &o1, &o2)) {
+    if (typecheck("oo", &o1, &o2))
+    {
         return 1;
     }
-    if (o1 == o2) {
+    if (o1 == o2)
+    {
         return ret_no_decref(o_one);
     }
     return ret_no_decref(o_zero);
 }
 
-static int f_push() {
+static int f_push()
+{
     array  *a;
     object *o;
 
-    if (typecheck("ao", &a, &o)) {
+    if (typecheck("ao", &a, &o))
+    {
         return 1;
     }
-    if (a->push_back(o)) {
+    if (a->push_back(o))
+    {
         return 1;
     }
     return ret_no_decref(o);
 }
 
-static int f_rpush() {
+static int f_rpush()
+{
     array  *a;
     object *o;
 
-    if (typecheck("ao", &a, &o)) {
+    if (typecheck("ao", &a, &o))
+    {
         return 1;
     }
-    if (a->push_front(o)) {
+    if (a->push_front(o))
+    {
         return 1;
     }
     return ret_no_decref(o);
 }
 
-static int f_pop() {
+static int f_pop()
+{
     array  *a;
     object *o;
 
-    if (typecheck("a", &a)) {
+    if (typecheck("a", &a))
+    {
         return 1;
     }
-    if ((o = a->pop_back()) == nullptr) {
+    if ((o = a->pop_back()) == nullptr)
+    {
         return 1;
     }
     return ret_no_decref(o);
 }
 
-static int f_rpop() {
+static int f_rpop()
+{
     array  *a;
     object *o;
 
-    if (typecheck("a", &a)) {
+    if (typecheck("a", &a))
+    {
         return 1;
     }
-    if ((o = a->pop_front()) == nullptr) {
+    if ((o = a->pop_front()) == nullptr)
+    {
         return 1;
     }
     return ret_no_decref(o);
 }
 
-static int f_top() {
+static int f_top()
+{
     array *a;
-    long  n = 0;
+    long   n = 0;
 
-    switch (NARGS()) {
+    switch (NARGS())
+    {
     case 1:
-        if (typecheck("a", &a)) {
+        if (typecheck("a", &a))
+        {
             return 1;
         }
         break;
 
     default:
-        if (typecheck("ai", &a, &n)) {
+        if (typecheck("ai", &a, &n))
+        {
             return 1;
         }
     }
@@ -1114,43 +1288,54 @@ static int f_top() {
     return ret_no_decref(a->get(n));
 }
 
-static int f_reserve() {
+static int f_reserve()
+{
     array *a;
-    long  n = 0;
+    long   n = 0;
 
-    if (typecheck("ai", &a, &n)) {
+    if (typecheck("ai", &a, &n))
+    {
         return 1;
     }
-    if (a->isatom()) {
+    if (a->isatom())
+    {
         return set_error("attempt to reserve atomic array");
     }
-    if (a->a_bot != a->a_base) {
+    if (a->a_bot != a->a_base)
+    {
         return set_error("attempt to reserve deque-like array");
     }
-    if (n < 0) {
+    if (n < 0)
+    {
         return argerror(1);
     }
-    if (a->push_check(n)) {
+    if (a->push_check(n))
+    {
         return 1;
     }
     return null_ret();
 }
 
-static int f_parse() {
+static int f_parse()
+{
     object *o;
     file   *f;
-    map    *s;              /* Statics. */
-    map    *a;              /* Autos. */
+    map    *s; /* Statics. */
+    map    *a; /* Autos. */
 
-    switch (NARGS()) {
+    switch (NARGS())
+    {
     case 1:
-        if (typecheck("o", &o)) {
+        if (typecheck("o", &o))
+        {
             return 1;
         }
-        if ((a = new_map()) == nullptr) {
+        if ((a = new_map()) == nullptr)
+        {
             return 1;
         }
-        if ((a->o_super = objwsupof(s = new_map())) == nullptr) {
+        if ((a->o_super = objwsupof(s = new_map())) == nullptr)
+        {
             decref(a);
             return 1;
         }
@@ -1159,67 +1344,87 @@ static int f_parse() {
         break;
 
     default:
-        if (typecheck("od", &o, &a)) {
+        if (typecheck("od", &o, &a))
+        {
             return 1;
         }
         incref(a);
         break;
     }
 
-    if (isstring(o)) {
-        if ((f = sopen(stringof(o)->s_chars, stringof(o)->s_nchars, o)) == nullptr) {
+    if (isstring(o))
+    {
+        if ((f = sopen(stringof(o)->s_chars, stringof(o)->s_nchars, o)) == nullptr)
+        {
             decref(a);
             return 1;
         }
         f->f_name = SS(empty_string);
-    } else if (isfile(o)) {
+    }
+    else if (isfile(o))
+    {
         f = fileof(o);
-    } else {
+    }
+    else
+    {
         decref(a);
         return argerror(0);
     }
 
-    if (parse_file(f, objwsupof(a)) < 0) {
+    if (parse_file(f, objwsupof(a)) < 0)
+    {
         goto fail;
     }
-    if (isstring(o)) {
+    if (isstring(o))
+    {
         decref(f);
     }
     return ret_with_decref(a);
 
 fail:
-    if (isstring(o)) {
+    if (isstring(o))
+    {
         decref(f);
     }
     decref(a);
     return 1;
 }
 
-static int f_call() {
-    array    *aa;               /* The array with extra arguments, or nullptr. */
-    int       nargs;            /* Number of args to target function. */
-    int       naargs;           /* Number of args comming from the array. */
-    object  **base;
-    object  **e;
-    int       i;
-    integer  *nargso;
-    object   *func;
+static int f_call()
+{
+    array   *aa;     /* The array with extra arguments, or nullptr. */
+    int      nargs;  /* Number of args to target function. */
+    int      naargs; /* Number of args comming from the array. */
+    object **base;
+    object **e;
+    int      i;
+    integer *nargso;
+    object  *func;
 
-    if (NARGS() < 2) {
+    if (NARGS() < 2)
+    {
         return argcount(2);
     }
     nargso = nullptr;
     base = &ARG(NARGS() - 1);
-    if (isarray(*base)) {
+    if (isarray(*base))
+    {
         aa = arrayof(*base);
-    } else if (isnull(*base)) {
+    }
+    else if (isnull(*base))
+    {
         aa = nullptr;
-    } else {
+    }
+    else
+    {
         return argerror(NARGS() - 1);
     }
-    if (aa == nullptr) {
+    if (aa == nullptr)
+    {
         naargs = 0;
-    } else {
+    }
+    else
+    {
         naargs = aa->len();
     }
     nargs = naargs + NARGS() - 2;
@@ -1242,25 +1447,30 @@ static int f_call() {
      * We include an extra 80 in our ici_push_check, see start of
      * evaluate().
      */
-    if (os.push_check(naargs + 80)) {
+    if (os.push_check(naargs + 80))
+    {
         goto fail;
     }
     base = &ARG(NARGS() - 1);
-    if (aa != nullptr) {
+    if (aa != nullptr)
+    {
         aa = arrayof(*base);
     }
-    if ((nargso = new_int(nargs)) == nullptr) {
+    if ((nargso = new_int(nargs)) == nullptr)
+    {
         goto fail;
     }
     /*
      * First move the arguments that we want to keep up to the stack
      * to their new position (all except the func and the array).
      */
-    memmove(base + naargs, base + 1, (NARGS() - 2) * sizeof (object *));
+    memmove(base + naargs, base + 1, (NARGS() - 2) * sizeof(object *));
     os.a_top += naargs - 2;
-    if (naargs > 0) {
+    if (naargs > 0)
+    {
         i = naargs;
-        for (e = aa->astart(); i > 0; e = aa->anext(e)) {
+        for (e = aa->astart(); i > 0; e = aa->anext(e))
+        {
             base[--i] = *e;
         }
     }
@@ -1280,34 +1490,41 @@ static int f_call() {
 
 fail:
     decref(func);
-    if (nargso != nullptr) {
+    if (nargso != nullptr)
+    {
         decref(nargso);
     }
     return 1;
 }
 
-static int f_fail() {
+static int f_fail()
+{
     const char *s = "failed";
 
-    if (NARGS() > 0) {
-        if (typecheck("s", &s)) {
+    if (NARGS() > 0)
+    {
+        if (typecheck("s", &s))
+        {
             return 1;
         }
     }
     return set_error("%s", s);
 }
 
-static int f_exit() {
-    object   *rc;
-    int64_t  status;
+static int f_exit()
+{
+    object *rc;
+    int64_t status;
 
-    switch (NARGS()) {
+    switch (NARGS())
+    {
     case 0:
         rc = null;
         break;
 
     case 1:
-        if (typecheck("o", &rc)) {
+        if (typecheck("o", &rc))
+        {
             return 1;
         }
         break;
@@ -1315,22 +1532,35 @@ static int f_exit() {
     default:
         return argcount(1);
     }
-    if (isint(rc)) {
+    if (isint(rc))
+    {
         status = (int)intof(rc)->i_value;
-    } else if (rc == null) {
+    }
+    else if (rc == null)
+    {
         status = 0;
-    } else if (isstring(rc)) {
-        if (stringof(rc)->s_nchars == 0) {
+    }
+    else if (isstring(rc))
+    {
+        if (stringof(rc)->s_nchars == 0)
+        {
             status = 0;
-        } else {
-            if (strchr(stringof(rc)->s_chars, ':') != nullptr) {
+        }
+        else
+        {
+            if (strchr(stringof(rc)->s_chars, ':') != nullptr)
+            {
                 fprintf(stderr, "%s\n", stringof(rc)->s_chars);
-            } else {
+            }
+            else
+            {
                 fprintf(stderr, "exit: %s\n", stringof(rc)->s_chars);
             }
             status = 1;
         }
-    } else {
+    }
+    else
+    {
         return argerror(0);
     }
     uninit();
@@ -1338,48 +1568,60 @@ static int f_exit() {
     /*NOTREACHED*/
 }
 
-static int f_vstack() {
+static int f_vstack()
+{
     int depth;
 
-    if (NARGS() == 0) {
+    if (NARGS() == 0)
+    {
         return ret_with_decref(copyof(&vs));
     }
-    if (!isint(ARG(0))) {
+    if (!isint(ARG(0)))
+    {
         return argerror(0);
     }
     depth = intof(ARG(0))->i_value;
-    if (depth < 0) {
+    if (depth < 0)
+    {
         return argerror(0);
     }
-    if (depth >= vs.a_top - vs.a_bot) {
+    if (depth >= vs.a_top - vs.a_bot)
+    {
         return null_ret();
     }
     return ret_no_decref(vs.a_top[-depth - 1]);
 }
 
-static int f_tochar() {
+static int f_tochar()
+{
     int64_t i;
 
-    if (typecheck("i", &i)) {
+    if (typecheck("i", &i))
+    {
         return 1;
     }
     buf[0] = (unsigned char)i;
     return ret_with_decref(new_str(buf, 1));
 }
 
-static int f_toint() {
+static int f_toint()
+{
     char *s;
-    if (typecheck("s", &s)) {
+    if (typecheck("s", &s))
+    {
         return 1;
     }
     return int_ret((long)(s[0]));
 }
 
-static int f_rand() {
-    static long seed    = 1;
+static int f_rand()
+{
+    static long seed = 1;
 
-    if (NARGS() >= 1) {
-        if (typecheck("i", &seed)) {
+    if (NARGS() >= 1)
+    {
+        if (typecheck("i", &seed))
+        {
             return 1;
         }
         srand(seed);
@@ -1392,69 +1634,94 @@ static int f_rand() {
 #endif
 }
 
-static int f_interval() {
-    object        *o;
-    int64_t       start;
-    int64_t       length;
-    size_t        nel;
-    str           *s = 0; /* init to shut up compiler */
-    array         *a = 0; /* init to shut up compiler */
-    array         *a1;
+static int f_interval()
+{
+    object *o;
+    int64_t start;
+    int64_t length;
+    size_t  nel;
+    str    *s = 0; /* init to shut up compiler */
+    array  *a = 0; /* init to shut up compiler */
+    array  *a1;
 
-
-    if (typecheck("oi*", &o, &start)) {
+    if (typecheck("oi*", &o, &start))
+    {
         return 1;
     }
-    if (isstring(o)) {
+    if (isstring(o))
+    {
         s = stringof(o);
         nel = s->s_nchars;
-    } else if (isarray(o)) {
+    }
+    else if (isarray(o))
+    {
         a = arrayof(o);
         nel = a->len();
-    } else if (isvec32(o)) {
+    }
+    else if (isvec32(o))
+    {
         nel = vec32of(o)->v_capacity;
-    } else if (isvec64(o)) {
+    }
+    else if (isvec64(o))
+    {
         nel = vec64of(o)->v_capacity;
-    } else {
+    }
+    else
+    {
         return argerror(0);
     }
     length = nel;
-    if (NARGS() > 2) {
-        if (!isint(ARG(2))) {
+    if (NARGS() > 2)
+    {
+        if (!isint(ARG(2)))
+        {
             return argerror(2);
         }
-        if ((length = intof(ARG(2))->i_value) < 0) {
+        if ((length = intof(ARG(2))->i_value) < 0)
+        {
             argerror(2);
         }
     }
-    if (length < 0) {
-        if ((length += nel) < 0) {
+    if (length < 0)
+    {
+        if ((length += nel) < 0)
+        {
             length = 0;
         }
     }
-    if (start < 0) {
-        if ((start += nel) < 0) {
-            if ((length += start) < 0) {
+    if (start < 0)
+    {
+        if ((start += nel) < 0)
+        {
+            if ((length += start) < 0)
+            {
                 length = 0;
             }
             start = 0;
         }
-    } else if (start > int64_t(nel)) {
+    }
+    else if (start > int64_t(nel))
+    {
         start = nel;
     }
-    if (start + length > int64_t(nel)) {
+    if (start + length > int64_t(nel))
+    {
         length = nel - start;
     }
-    if (isstring(o)) {
+    if (isstring(o))
+    {
         return ret_with_decref(new_str(s->s_chars + start, (int)length));
     }
-    if (isvec32(o)) {
+    if (isvec32(o))
+    {
         return ret_with_decref(new_vec32(vec32of(o), size_t(start), size_t(length)));
     }
-    if (isvec64(o)) {
+    if (isvec64(o))
+    {
         return ret_with_decref(new_vec64(vec64of(o), size_t(start), size_t(length)));
     }
-    if ((a1 = new_array(length)) == nullptr) {
+    if ((a1 = new_array(length)) == nullptr)
+    {
         return 1;
     }
     a->gather(a1->a_base, start, length);
@@ -1462,20 +1729,25 @@ static int f_interval() {
     return ret_with_decref(a1);
 }
 
-static int f_explode() {
-    int        i;
-    char       *s;
-    array      *x;
+static int f_explode()
+{
+    int    i;
+    char  *s;
+    array *x;
 
-    if (typecheck("s", &s)) {
+    if (typecheck("s", &s))
+    {
         return 1;
     }
     i = stringof(ARG(0))->s_nchars;
-    if ((x = new_array(i)) == nullptr) {
+    if ((x = new_array(i)) == nullptr)
+    {
         return 1;
     }
-    while (--i >= 0) {
-        if ((*x->a_top = new_int(*s++ & 0xFFL)) == nullptr) {
+    while (--i >= 0)
+    {
+        if ((*x->a_top = new_int(*s++ & 0xFFL)) == nullptr)
+        {
             decref(x);
             return 1;
         }
@@ -1492,7 +1764,8 @@ static int f_explode() {
  *
  * Another option would be the empty string.
  */
-static int f_join() {
+static int f_join()
+{
     array   *a;
     int      i;
     object **o;
@@ -1500,17 +1773,21 @@ static int f_join() {
     str     *sep = SS(_space_);
     char    *p;
 
-    switch (NARGS()) {
+    switch (NARGS())
+    {
     case 1:
-        if (typecheck("a", &a)) {
+        if (typecheck("a", &a))
+        {
             return 1;
         }
         break;
     case 2:
-        if (typecheck("ao", &a, &sep)) {
+        if (typecheck("ao", &a, &sep))
+        {
             return 1;
         }
-        if (!isstring(sep)) {
+        if (!isstring(sep))
+        {
             return argerror(1);
         }
         break;
@@ -1519,94 +1796,123 @@ static int f_join() {
     }
 
     i = 0;
-    for (o = a->astart(); o != a->alimit(); o = a->anext(o)) {
-        if (isint(*o)) {
+    for (o = a->astart(); o != a->alimit(); o = a->anext(o))
+    {
+        if (isint(*o))
+        {
             ++i;
-        } else if (isstring(*o)) {
+        }
+        else if (isstring(*o))
+        {
             i += stringof(*o)->s_nchars;
         }
         i += sep->s_nchars;
     }
-    if (i > 0) {
+    if (i > 0)
+    {
         i -= sep->s_nchars;
     }
-    if ((s = str_alloc(i)) == nullptr) {
+    if ((s = str_alloc(i)) == nullptr)
+    {
         return 1;
     }
     p = s->s_chars;
-    for (o = a->astart(); o != a->alimit(); ) {
-        if (isint(*o)) {
+    for (o = a->astart(); o != a->alimit();)
+    {
+        if (isint(*o))
+        {
             *p++ = (char)intof(*o)->i_value;
-        } else if (isstring(*o)) {
+        }
+        else if (isstring(*o))
+        {
             memcpy(p, stringof(*o)->s_chars, stringof(*o)->s_nchars);
             p += stringof(*o)->s_nchars;
         }
         o = a->anext(o);
-        if (o != a->alimit()) {
+        if (o != a->alimit())
+        {
             memcpy(p, sep->s_chars, sep->s_nchars);
             p += sep->s_nchars;
         }
     }
     *p = '\0';
-    if ((s = str_intern(s)) == nullptr) {
+    if ((s = str_intern(s)) == nullptr)
+    {
         return 1;
     }
     return ret_with_decref(s);
 }
 
-static int f_implode() {
+static int f_implode()
+{
     array   *a;
     int      i;
     object **o;
     str     *s;
     char    *p;
 
-    if (typecheck("a", &a)) {
+    if (typecheck("a", &a))
+    {
         return 1;
     }
     i = 0;
-    for (o = a->astart(); o != a->alimit(); o = a->anext(o)) {
-        if (isint(*o)) {
+    for (o = a->astart(); o != a->alimit(); o = a->anext(o))
+    {
+        if (isint(*o))
+        {
             ++i;
-        } else if (isstring(*o)) {
+        }
+        else if (isstring(*o))
+        {
             i += stringof(*o)->s_nchars;
         }
     }
-    if ((s = str_alloc(i)) == nullptr) {
+    if ((s = str_alloc(i)) == nullptr)
+    {
         return 1;
     }
     p = s->s_chars;
-    for (o = a->astart(); o != a->alimit(); o = a->anext(o)) {
-        if (isint(*o)) {
+    for (o = a->astart(); o != a->alimit(); o = a->anext(o))
+    {
+        if (isint(*o))
+        {
             *p++ = (char)intof(*o)->i_value;
-        } else if (isstring(*o)) {
+        }
+        else if (isstring(*o))
+        {
             memcpy(p, stringof(*o)->s_chars, stringof(*o)->s_nchars);
             p += stringof(*o)->s_nchars;
         }
     }
-    if ((s = str_intern(s)) == nullptr) {
+    if ((s = str_intern(s)) == nullptr)
+    {
         return 1;
     }
     return ret_with_decref(s);
 }
 
-static int f_sopen() {
-    file  *f;
-    char        *str;
-    const char  *mode;
+static int f_sopen()
+{
+    file       *f;
+    char       *str;
+    const char *mode;
     bool        readonly = true;
 
     mode = "r";
-    if (typecheck(NARGS() > 1 ? "ss" : "s", &str, &mode)) {
+    if (typecheck(NARGS() > 1 ? "ss" : "s", &str, &mode))
+    {
         return 1;
     }
-    if (strcmp(mode, "r") != 0 && strcmp(mode, "rb") != 0) {
-        if (strcmp(mode, "r+") != 0 && strcmp(mode, "r+b") != 0) {
+    if (strcmp(mode, "r") != 0 && strcmp(mode, "rb") != 0)
+    {
+        if (strcmp(mode, "r+") != 0 && strcmp(mode, "r+b") != 0)
+        {
             return set_error("attempt to use mode \"%s\" in sopen()", mode);
         }
         readonly = false;
     }
-    if ((f = open_charbuf(str, stringof(ARG(0))->s_nchars, ARG(0), readonly)) == nullptr) {
+    if ((f = open_charbuf(str, stringof(ARG(0))->s_nchars, ARG(0), readonly)) == nullptr)
+    {
         return 1;
     }
     f->f_name = SS(empty_string);
@@ -1621,61 +1927,70 @@ static int f_mopen()
     int         readonly = true;
 
     mode = "r";
-    if (typecheck(NARGS() > 1 ? "ms" : "m", &mem, &mode)) {
+    if (typecheck(NARGS() > 1 ? "ms" : "m", &mem, &mode))
+    {
         return 1;
     }
-    if (strcmp(mode, "r") && strcmp(mode, "rb")) {
-        if (strcmp(mode, "r+") && strcmp(mode, "r+b")) {
+    if (strcmp(mode, "r") && strcmp(mode, "rb"))
+    {
+        if (strcmp(mode, "r+") && strcmp(mode, "r+b"))
+        {
             return set_error("attempt to use mode \"%s\" in mopen()", mode);
         }
         readonly = false;
     }
-    if (mem->m_accessz != 1) {
+    if (mem->m_accessz != 1)
+    {
         return set_error("memory object must have access size of 1 to be opened");
     }
-    if ((f = open_charbuf((char *)mem->m_base, (int)mem->m_length, mem, readonly)) == nullptr) {
+    if ((f = open_charbuf((char *)mem->m_base, (int)mem->m_length, mem, readonly)) == nullptr)
+    {
         return 1;
     }
     f->f_name = SS(empty_string);
     return ret_with_decref(f);
 }
 
-int
-ici_f_sprintf()
+int ici_f_sprintf()
 {
-    char     *fmt;
-    char     *p;
-    int       i;                /* Where we are up to in buf. */
-    int       j;
-    long      which;
-    int       nargs;
-    char      subfmt[40];       /* %...? portion of string. */
-    int       stars[2];         /* Precision and field widths. */
-    int       nstars;
-    int       gotl;             /* Have a long int flag. */
-    int       gotdot;           /* Have a . in % format. */
-    int64_t   ivalue;
-    double    fvalue;
-    char     *svalue;
-    object  **o;                /* Argument pointer. */
-    file     *file;
-    char      oname[objnamez];
-#ifdef  BAD_PRINTF_RETVAL
+    char    *fmt;
+    char    *p;
+    int      i; /* Where we are up to in buf. */
+    int      j;
+    long     which;
+    int      nargs;
+    char     subfmt[40]; /* %...? portion of string. */
+    int      stars[2];   /* Precision and field widths. */
+    int      nstars;
+    int      gotl;   /* Have a long int flag. */
+    int      gotdot; /* Have a . in % format. */
+    int64_t  ivalue;
+    double   fvalue;
+    char    *svalue;
+    object **o; /* Argument pointer. */
+    file    *file;
+    char     oname[objnamez];
+#ifdef BAD_PRINTF_RETVAL
 #define IPLUSEQ
 #else
-#define IPLUSEQ         i +=
+#define IPLUSEQ i +=
 #endif
 
     which = (long)ICI_CF_ARG1(); /* sprintf, printf, fprintf */
-    if (which != 0 && NARGS() > 0 && isfile(ARG(0))) {
+    if (which != 0 && NARGS() > 0 && isfile(ARG(0)))
+    {
         which = 2;
-        if (typecheck("us*", &file, &fmt)) {
+        if (typecheck("us*", &file, &fmt))
+        {
             return 1;
         }
         o = ARGS() - 2;
         nargs = NARGS() - 2;
-    } else {
-        if (typecheck("s*", &fmt)) {
+    }
+    else
+    {
+        if (typecheck("s*", &fmt))
+        {
             return 1;
         }
         o = ARGS() - 1;
@@ -1684,9 +1999,12 @@ ici_f_sprintf()
 
     p = fmt;
     i = 0;
-    while (*p != '\0') {
-        if (*p != '%') {
-            if (chkbuf(i)) {
+    while (*p != '\0')
+    {
+        if (*p != '%')
+        {
+            if (chkbuf(i))
+            {
                 return 1;
             }
             buf[i++] = *p++;
@@ -1700,15 +2018,24 @@ ici_f_sprintf()
         gotdot = 0;
         subfmt[0] = *p++;
         j = 1;
-        while (*p != '\0' && strchr("adiouxXfeEgGcs%", *p) == nullptr) {
-            if (*p == '*') {
+        while (*p != '\0' && strchr("adiouxXfeEgGcs%", *p) == nullptr)
+        {
+            if (*p == '*')
+            {
                 ++nstars;
-            } else if (*p == 'l') {
+            }
+            else if (*p == 'l')
+            {
                 gotl++;
-            } else if (*p == '.') {
+            }
+            else if (*p == '.')
+            {
                 gotdot = 1;
-            } else if (*p >= '0' && *p <= '9') {
-                do {
+            }
+            else if (*p >= '0' && *p <= '9')
+            {
+                do
+                {
                     stars[gotdot] = stars[gotdot] * 10 + *p - '0';
                     subfmt[j++] = *p++;
 
@@ -1717,49 +2044,67 @@ ici_f_sprintf()
             }
             subfmt[j++] = *p++;
         }
-        if (strchr("diouxX", *p) != nullptr) {
-            if (gotl<1)
+        if (strchr("diouxX", *p) != nullptr)
+        {
+            if (gotl < 1)
+            {
                 subfmt[j++] = 'l';
-            if (gotl<2)
+            }
+            if (gotl < 2)
+            {
                 subfmt[j++] = 'l';
+            }
         }
         subfmt[j++] = *p;
         subfmt[j++] = '\0';
-        if (nstars > 2) {
+        if (nstars > 2)
+        {
             nstars = 2;
         }
-        for (j = 0; j < nstars; ++j) {
-            if (nargs <= 0) {
+        for (j = 0; j < nstars; ++j)
+        {
+            if (nargs <= 0)
+            {
                 goto lacking;
             }
-            if (!isint(*o)) {
+            if (!isint(*o))
+            {
                 goto type;
             }
             stars[j] = (int)intof(*o)->i_value;
             --o;
             --nargs;
         }
-        switch (*p++) {
+        switch (*p++)
+        {
         case 'd':
         case 'i':
         case 'o':
         case 'u':
         case 'x':
         case 'X':
-            if (nargs <= 0) {
+            if (nargs <= 0)
+            {
                 goto lacking;
             }
-            if (isint(*o)) {
+            if (isint(*o))
+            {
                 ivalue = intof(*o)->i_value;
-            } else if (isfloat(*o)) {
+            }
+            else if (isfloat(*o))
+            {
                 ivalue = (long)floatof(*o)->f_value;
-            } else {
+            }
+            else
+            {
                 goto type;
             }
-            if (chkbuf(i + 30 + stars[0] + stars[1])) { /* Pessimistic. */
+            if (chkbuf(i + 30 + stars[0] + stars[1]))
+            { /* Pessimistic. */
                 return 1;
             }
-            switch (nstars) {
+            switch (nstars)
+            {
             case 0:
                 IPLUSEQ sprintf(&buf[i], subfmt, ivalue);
                 break;
@@ -1777,20 +2122,28 @@ ici_f_sprintf()
             break;
 
         case 'c':
-            if (nargs <= 0) {
+            if (nargs <= 0)
+            {
                 goto lacking;
             }
-            if (isint(*o)) {
+            if (isint(*o))
+            {
                 ivalue = intof(*o)->i_value;
-            } else if (isfloat(*o)) {
+            }
+            else if (isfloat(*o))
+            {
                 ivalue = (long)floatof(*o)->f_value;
-            } else {
+            }
+            else
+            {
                 goto type;
             }
-            if (chkbuf(i + 30 + stars[0] + stars[1])) { /* Pessimistic. */
+            if (chkbuf(i + 30 + stars[0] + stars[1]))
+            { /* Pessimistic. */
                 return 1;
             }
-            switch (nstars) {
+            switch (nstars)
+            {
             case 0:
                 IPLUSEQ sprintf(&buf[i], subfmt, (int)ivalue);
                 break;
@@ -1808,17 +2161,21 @@ ici_f_sprintf()
             break;
 
         case 's':
-            if (nargs <= 0) {
+            if (nargs <= 0)
+            {
                 goto lacking;
             }
-            if (!isstring(*o)) {
+            if (!isstring(*o))
+            {
                 goto type;
             }
             svalue = stringof(*o)->s_chars;
-            if (chkbuf(i + stringof(*o)->s_nchars + stars[0] + stars[1])) {
+            if (chkbuf(i + stringof(*o)->s_nchars + stars[0] + stars[1]))
+            {
                 return 1;
             }
-            switch (nstars) {
+            switch (nstars)
+            {
             case 0:
                 IPLUSEQ sprintf(&buf[i], subfmt, svalue);
                 break;
@@ -1836,16 +2193,19 @@ ici_f_sprintf()
             break;
 
         case 'a':
-            if (nargs <= 0) {
+            if (nargs <= 0)
+            {
                 goto lacking;
             }
             objname(oname, *o);
             svalue = oname;
-            if (chkbuf(i + objnamez + stars[0] + stars[1])) {
+            if (chkbuf(i + objnamez + stars[0] + stars[1]))
+            {
                 return 1;
             }
             subfmt[strlen(subfmt) - 1] = 's';
-            switch (nstars) {
+            switch (nstars)
+            {
             case 0:
                 IPLUSEQ sprintf(&buf[i], subfmt, svalue);
                 break;
@@ -1867,20 +2227,28 @@ ici_f_sprintf()
         case 'E':
         case 'g':
         case 'G':
-            if (nargs <= 0) {
+            if (nargs <= 0)
+            {
                 goto lacking;
             }
-            if (isint(*o)) {
+            if (isint(*o))
+            {
                 fvalue = intof(*o)->i_value;
-            } else if (isfloat(*o)) {
+            }
+            else if (isfloat(*o))
+            {
                 fvalue = floatof(*o)->f_value;
-            } else {
+            }
+            else
+            {
                 goto type;
             }
-            if (chkbuf(i + 40 + stars[0] + stars[1])) { /* Pessimistic. */
+            if (chkbuf(i + 40 + stars[0] + stars[1]))
+            { /* Pessimistic. */
                 return 1;
             }
-            switch (nstars) {
+            switch (nstars)
+            {
             case 0:
                 IPLUSEQ sprintf(&buf[i], subfmt, fvalue);
                 break;
@@ -1898,47 +2266,58 @@ ici_f_sprintf()
             break;
 
         case '%':
-            if (chkbuf(i)) {
+            if (chkbuf(i))
+            {
                 return 1;
             }
             buf[i++] = '%';
             continue;
         }
-#ifdef  BAD_PRINTF_RETVAL
+#ifdef BAD_PRINTF_RETVAL
         i = strlen(buf); /* old BSD sprintf doesn't return usual value. */
 #endif
     }
     buf[i] = '\0';
-    switch (which) {
+    switch (which)
+    {
     case 1: /* printf */
-        if ((file = need_stdout()) == nullptr) {
+        if ((file = need_stdout()) == nullptr)
+        {
             return 1;
         }
     case 2: /* fprintf */
-        if (file->hasflag(file::closed)) {
+        if (file->hasflag(file::closed))
+        {
             return set_error("write to closed file");
         }
         {
-            char        small_buf[128];
-            char        *out_buf;
-            exec        *x = nullptr;
+            char  small_buf[128];
+            char *out_buf;
+            exec *x = nullptr;
 
-            if (i <= (int)(sizeof small_buf)) {
+            if (i <= (int)(sizeof small_buf))
+            {
                 out_buf = small_buf;
-            } else {
-                if ((out_buf = (char *)ici_nalloc(i)) == nullptr) {
+            }
+            else
+            {
+                if ((out_buf = (char *)ici_nalloc(i)) == nullptr)
+                {
                     return 1;
                 }
             }
             memcpy(out_buf, buf, i);
-            if (file->hasflag(ftype::nomutex)) {
+            if (file->hasflag(ftype::nomutex))
+            {
                 x = leave();
             }
             file->write(out_buf, i);
-            if (file->hasflag(ftype::nomutex)) {
+            if (file->hasflag(ftype::nomutex))
+            {
                 enter(x);
             }
-            if (out_buf != small_buf) {
+            if (out_buf != small_buf)
+            {
                 ici_nfree(out_buf, i);
             }
         }
@@ -1955,19 +2334,24 @@ lacking:
     return set_error("not enoughs args to sprintf");
 }
 
-static int f_currentfile() {
-    object   **o;
-    int         raw;
-    file  *f;
+static int f_currentfile()
+{
+    object **o;
+    int      raw;
+    file    *f;
 
     raw = NARGS() > 0 && ARG(0) == SS(raw);
-    for (o = xs.a_top - 1; o >= xs.a_base; --o) {
-        if (isparse(*o)) {
-            if (raw) {
+    for (o = xs.a_top - 1; o >= xs.a_base; --o)
+    {
+        if (isparse(*o))
+        {
+            if (raw)
+            {
                 return ret_no_decref(parseof(*o)->p_file);
             }
             f = new_file(*o, parse_ftype, parseof(*o)->p_file->f_name, *o);
-            if (f == nullptr) {
+            if (f == nullptr)
+            {
                 return 1;
             }
             return ret_with_decref(f);
@@ -1976,57 +2360,74 @@ static int f_currentfile() {
     return null_ret();
 }
 
-static int f_del() {
-    object   *s;
-    object   *o;
+static int f_del()
+{
+    object *s;
+    object *o;
 
-    if (typecheck("oo", &s, &o)) {
+    if (typecheck("oo", &s, &o))
+    {
         return 1;
     }
-    if (ismap(s)) {
+    if (ismap(s))
+    {
         unassign(mapof(s), o);
-    } else if (isset(s)) {
+    }
+    else if (isset(s))
+    {
         unassign(setof(s), o);
-    } else if (isarray(s)) {
-        array      *a;
-        object    **e;
-        long        i;
-        ptrdiff_t   n;
+    }
+    else if (isarray(s))
+    {
+        array    *a;
+        object  **e;
+        long      i;
+        ptrdiff_t n;
 
-        if (!isint(o)) {
+        if (!isint(o))
+        {
             return null_ret();
         }
         a = arrayof(s);
-        if (a->isatom()) {
+        if (a->isatom())
+        {
             return set_error("attempt to modify to an atomic array");
         }
         i = intof(o)->i_value;
         n = a->len();
-        if (i < 0 || i >= n) {
+        if (i < 0 || i >= n)
+        {
             return null_ret();
         }
-        if (i >= n / 2) {
-            object       **prev_e;
+        if (i >= n / 2)
+        {
+            object **prev_e;
 
             e = a->find_slot(i);
             prev_e = e;
-            for (e = a->anext(e); e != a->alimit(); e = a->anext(e)) {
+            for (e = a->anext(e); e != a->alimit(); e = a->anext(e))
+            {
                 *prev_e = *e;
                 prev_e = e;
             }
             a->pop_back();
-        } else {
-            object       *prev_o;
+        }
+        else
+        {
+            object *prev_o;
 
             prev_o = *(e = a->astart());
-            for (e = a->anext(e); --i >= 0; e = a->anext(e)) {
+            for (e = a->anext(e); --i >= 0; e = a->anext(e))
+            {
                 o = *e;
                 *e = prev_o;
                 prev_o = o;
             }
             a->pop_front();
         }
-    } else {
+    }
+    else
+    {
         return argerror(0);
     }
     return null_ret();
@@ -2050,12 +2451,15 @@ static int super_loop(objwsup *base)
      * times. The garbage collector assumes it is cleared on all objects
      * when it runs.
      */
-    for (s = base; s != nullptr; s = s->o_super) {
-        if (s->marked()) {
+    for (s = base; s != nullptr; s = s->o_super)
+    {
+        if (s->marked())
+        {
             /*
              * A loop. Clear all the mark flags we set and set error.
              */
-            for (s = base; s->marked(); s = s->o_super) {
+            for (s = base; s->marked(); s = s->o_super)
+            {
                 s->clrmark();
             }
             return set_error("cycle in struct super chain");
@@ -2065,100 +2469,114 @@ static int super_loop(objwsup *base)
     /*
      * No loop. Clear all the mark flags we set.
      */
-    for (s = base; s != nullptr; s = s->o_super) {
+    for (s = base; s != nullptr; s = s->o_super)
+    {
         s->clrmark();
     }
     return 0;
 }
 
-static int f_super() {
-    objwsup       *o;
-    objwsup       *newsuper;
-    objwsup       *oldsuper;
+static int f_super()
+{
+    objwsup *o;
+    objwsup *newsuper;
+    objwsup *oldsuper;
 
-    if (typecheck("o*", &o)) {
+    if (typecheck("o*", &o))
+    {
         return 1;
     }
-    if (!hassuper(o)) {
+    if (!hassuper(o))
+    {
         return argerror(0);
     }
     newsuper = oldsuper = o->o_super;
-    if (NARGS() >= 2) {
-        if (o->isatom()) {
+    if (NARGS() >= 2)
+    {
+        if (o->isatom())
+        {
             return set_error("attempt to set super of an atomic struct");
         }
-        if (isnull(ARG(1))) {
+        if (isnull(ARG(1)))
+        {
             newsuper = nullptr;
-        } else if (hassuper(ARG(1))) {
+        }
+        else if (hassuper(ARG(1)))
+        {
             newsuper = objwsupof(ARG(1));
-        } else {
+        }
+        else
+        {
             return argerror(1);
         }
         ++vsver;
     }
     o->o_super = newsuper;
-    if (super_loop(o)) {
+    if (super_loop(o))
+    {
         o->o_super = oldsuper;
         return 1;
     }
-    if (oldsuper == nullptr) {
+    if (oldsuper == nullptr)
+    {
         return null_ret();
     }
     return ret_no_decref(oldsuper);
 }
 
-static int f_scope() {
+static int f_scope()
+{
     map *s;
 
     s = mapof(vs.a_top[-1]);
-    if (NARGS() > 0) {
-        if (typecheck("d", &vs.a_top[-1])) {
+    if (NARGS() > 0)
+    {
+        if (typecheck("d", &vs.a_top[-1]))
+        {
             return 1;
         }
     }
     return ret_no_decref(s);
 }
 
-static int f_isatom() {
-    object   *o;
+static int f_isatom()
+{
+    object *o;
 
-    if (typecheck("o", &o)) {
+    if (typecheck("o", &o))
+    {
         return 1;
     }
     return ret_no_decref(o->isatom() ? o_one : o_zero);
 }
 
-static int f_alloc() {
-    long        length;
-    int         accessz;
-    char        *p;
+static int f_alloc()
+{
+    long  length;
+    int   accessz;
+    char *p;
 
-    if (typecheck("i*", &length)) {
+    if (typecheck("i*", &length))
+    {
         return 1;
     }
-    if (length < 0) {
+    if (length < 0)
+    {
         return set_error("attempt to allocate negative amount");
     }
-    if (NARGS() >= 2) {
-        if
-        (
-            !isint(ARG(1))
-            ||
-            (
-                (accessz = (int)intof(ARG(1))->i_value) != 1
-                &&
-                accessz != 2
-                &&
-                accessz != 4
-            )
-        ) {
+    if (NARGS() >= 2)
+    {
+        if (!isint(ARG(1)) || ((accessz = (int)intof(ARG(1))->i_value) != 1 && accessz != 2 && accessz != 4))
+        {
             return argerror(1);
         }
     }
-    else {
+    else
+    {
         accessz = 1;
     }
-    if ((p = (char *)ici_alloc((size_t)length * accessz)) == nullptr) {
+    if ((p = (char *)ici_alloc((size_t)length * accessz)) == nullptr)
+    {
         return 1;
     }
     memset(p, 0, (size_t)length * accessz);
@@ -2166,56 +2584,57 @@ static int f_alloc() {
 }
 
 #ifndef NOMEM
-static int f_mem() {
-    long        base;
-    long        length;
-    int         accessz;
+static int f_mem()
+{
+    long base;
+    long length;
+    int  accessz;
 
-    if (typecheck("ii*", &base, &length)) {
+    if (typecheck("ii*", &base, &length))
+    {
         return 1;
     }
-    if (NARGS() >= 3) {
-        if
-        (
-            !isint(ARG(2))
-            ||
-            (
-                (accessz = (int)intof(ARG(2))->i_value) != 1
-                &&
-                accessz != 2
-                &&
-                accessz != 4
-            )
-        ) {
+    if (NARGS() >= 3)
+    {
+        if (!isint(ARG(2)) || ((accessz = (int)intof(ARG(2))->i_value) != 1 && accessz != 2 && accessz != 4))
+        {
             return argerror(2);
         }
     }
-    else {
+    else
+    {
         accessz = 1;
     }
     return ret_with_decref(new_mem((char *)base, (unsigned long)length, accessz, nullptr));
 }
 #endif
 
-static int f_assign() {
-    object   *s;
-    object   *k;
-    object   *v;
+static int f_assign()
+{
+    object *s;
+    object *k;
+    object *v;
 
-    switch (NARGS()) {
+    switch (NARGS())
+    {
     case 2:
-        if (typecheck("oo", &s, &k)) {
+        if (typecheck("oo", &s, &k))
+        {
             return 1;
         }
-        if (isset(s)) {
+        if (isset(s))
+        {
             v = o_one;
-        } else {
+        }
+        else
+        {
             v = null;
         }
         break;
 
     case 3:
-        if (typecheck("ooo", &s, &k, &v)) {
+        if (typecheck("ooo", &s, &k, &v))
+        {
             return 1;
         }
         break;
@@ -2223,82 +2642,105 @@ static int f_assign() {
     default:
         return argcount(2);
     }
-    if (hassuper(s)) {
-        if (ici_assign_base(s, k, v)) {
+    if (hassuper(s))
+    {
+        if (ici_assign_base(s, k, v))
+        {
             return 1;
         }
-    } else {
-        if (ici_assign(s, k, v)) {
+    }
+    else
+    {
+        if (ici_assign(s, k, v))
+        {
             return 1;
         }
     }
     return ret_no_decref(v);
 }
 
-static int f_fetch() {
-    map *s;
-    object   *k;
+static int f_fetch()
+{
+    map    *s;
+    object *k;
 
-    if (typecheck("oo", &s, &k)) {
+    if (typecheck("oo", &s, &k))
+    {
         return 1;
     }
-    if (hassuper(s)) {
+    if (hassuper(s))
+    {
         return ret_no_decref(ici_fetch_base(s, k));
     }
     return ret_no_decref(ici_fetch(s, k));
 }
 
-static int f_waitfor() {
-    object  **e;
-    int                 nargs;
-    fd_set              readfds;
-    struct timeval      timeval;
-    struct timeval      *tv;
-    double              to;
-    int                 nfds;
+static int f_waitfor()
+{
+    object        **e;
+    int             nargs;
+    fd_set          readfds;
+    struct timeval  timeval;
+    struct timeval *tv;
+    double          to;
+    int             nfds;
 
-    if (NARGS() == 0) {
+    if (NARGS() == 0)
+    {
         return ret_no_decref(o_zero);
     }
     tv = nullptr;
     nfds = 0;
     FD_ZERO(&readfds);
     to = 0.0; /* Stops warnings, not required. */
-    for (nargs = NARGS(), e = ARGS(); nargs > 0; --nargs, --e) {
-        if (isfile(*e)) {
+    for (nargs = NARGS(), e = ARGS(); nargs > 0; --nargs, --e)
+    {
+        if (isfile(*e))
+        {
             int fd = fileof(*e)->fileno();
-            if (fd != -1) {
+            if (fd != -1)
+            {
                 fileof(*e)->setvbuf(nullptr, _IONBF, 0);
                 FD_SET(fd, &readfds);
-                if (fd >= nfds) {
+                if (fd >= nfds)
+                {
                     nfds = fd + 1;
                 }
             }
-            else {
+            else
+            {
                 return ret_no_decref(*e);
             }
         }
-        else if (isint(*e)) {
-            if (tv == nullptr || to > intof(*e)->i_value / 1000.0) {
+        else if (isint(*e))
+        {
+            if (tv == nullptr || to > intof(*e)->i_value / 1000.0)
+            {
                 to = intof(*e)->i_value / 1000.0;
                 tv = &timeval;
             }
-        } else if (isfloat(*e)) {
-            if (tv == nullptr || to > floatof(*e)->f_value) {
+        }
+        else if (isfloat(*e))
+        {
+            if (tv == nullptr || to > floatof(*e)->f_value)
+            {
                 to = floatof(*e)->f_value;
                 tv = &timeval;
             }
         }
-        else {
+        else
+        {
             return argerror(ARGS() - e);
         }
     }
-    if (tv != nullptr) {
+    if (tv != nullptr)
+    {
         tv->tv_sec = to;
         tv->tv_usec = (to - tv->tv_sec) * 1000000.0;
     }
     signals_invoke_immediately(1);
-    switch (select(nfds, &readfds, nullptr, nullptr, tv)) {
+    switch (select(nfds, &readfds, nullptr, nullptr, tv))
+    {
     case -1:
         signals_invoke_immediately(0);
         return set_error("could not select");
@@ -2308,13 +2750,17 @@ static int f_waitfor() {
         return ret_no_decref(o_zero);
     }
     signals_invoke_immediately(0);
-    for (nargs = NARGS(), e = ARGS(); nargs > 0; --nargs, --e) {
-        if (!isfile(*e)) {
+    for (nargs = NARGS(), e = ARGS(); nargs > 0; --nargs, --e)
+    {
+        if (!isfile(*e))
+        {
             continue;
         }
         auto fn = fileof(*e)->fileno();
-        if (fn != -1) {
-            if (FD_ISSET(fn, &readfds)) {
+        if (fn != -1)
+        {
+            if (FD_ISSET(fn, &readfds))
+            {
                 return ret_no_decref(*e);
             }
         }
@@ -2322,62 +2768,74 @@ static int f_waitfor() {
     return set_error("no file selected");
 }
 
-static int
-f_gettoken()
+static int f_gettoken()
 {
-    object              *fo;
-    file                *f;
-    str                 *s;
-    unsigned char       *seps;
-    int                 nseps;
-    int                 c;
-    int                 i;
-    int                 j;
+    object        *fo;
+    file          *f;
+    str           *s;
+    unsigned char *seps;
+    int            nseps;
+    int            c;
+    int            i;
+    int            j;
 
     seps = (unsigned char *)" \t\n";
     nseps = 3;
     switch (NARGS())
     {
     case 0:
-        if ((f = need_stdin()) == nullptr) {
+        if ((f = need_stdin()) == nullptr)
+        {
             return 1;
         }
         break;
 
     case 1:
-        if (typecheck("o", &fo)) {
+        if (typecheck("o", &fo))
+        {
             return 1;
         }
-        if (isstring(fo)) {
-            if ((f = sopen(stringof(fo)->s_chars, stringof(fo)->s_nchars, fo)) == nullptr) {
+        if (isstring(fo))
+        {
+            if ((f = sopen(stringof(fo)->s_chars, stringof(fo)->s_nchars, fo)) == nullptr)
+            {
                 return 1;
             }
             decref(f);
         }
-        else if (!isfile(fo)) {
+        else if (!isfile(fo))
+        {
             return argerror(0);
         }
-        else {
+        else
+        {
             f = fileof(fo);
         }
         break;
 
     default:
-        if (typecheck("oo", &fo, &s)) {
+        if (typecheck("oo", &fo, &s))
+        {
             return 1;
         }
-        if (isstring(fo)) {
-            if ((f = sopen(stringof(fo)->s_chars, stringof(fo)->s_nchars, fo)) == nullptr) {
+        if (isstring(fo))
+        {
+            if ((f = sopen(stringof(fo)->s_chars, stringof(fo)->s_nchars, fo)) == nullptr)
+            {
                 return 1;
             }
             decref(f);
         }
-        else if (!isfile(fo)) {
+        else if (!isfile(fo))
+        {
             return argerror(0);
-        } else {
+        }
+        else
+        {
             f = fileof(fo);
         }
-        if (!isstring(s)) {
+        if (!isstring(s))
+        {
             return argerror(1);
         }
         seps = (unsigned char *)s->s_chars;
@@ -2387,11 +2845,14 @@ f_gettoken()
     do
     {
         c = f->getch();
-        if (c == EOF) {
+        if (c == EOF)
+        {
             return null_ret();
         }
-        for (i = 0; i < nseps; ++i) {
-            if (c == seps[i]) {
+        for (i = 0; i < nseps; ++i)
+        {
+            if (c == seps[i])
+            {
                 break;
             }
         }
@@ -2399,15 +2860,19 @@ f_gettoken()
     } while (i != nseps);
 
     j = 0;
-    do {
+    do
+    {
         chkbuf(j);
         buf[j++] = c;
         c = f->getch();
-        if (c == EOF) {
+        if (c == EOF)
+        {
             break;
         }
-        for (i = 0; i < nseps; ++i) {
-            if (c == seps[i]) {
+        for (i = 0; i < nseps; ++i)
+        {
+            if (c == seps[i])
+            {
                 f->ungetch(c);
                 break;
             }
@@ -2415,7 +2880,8 @@ f_gettoken()
 
     } while (i == nseps);
 
-    if ((s = new_str(buf, j)) == nullptr) {
+    if ((s = new_str(buf, j)) == nullptr)
+    {
         return 1;
     }
     return ret_with_decref(s);
@@ -2424,62 +2890,66 @@ f_gettoken()
 /*
  * Fast (relatively) version for gettokens() if argument is not file.
  */
-static int fast_gettokens(const char *str, const char *delims) {
-    array *a;
-    int         k       = 0;
-    const char *cp     = str;
+static int fast_gettokens(const char *str, const char *delims)
+{
+    array      *a;
+    int         k = 0;
+    const char *cp = str;
 
-    if ((a = new_array()) == nullptr) {
+    if ((a = new_array()) == nullptr)
+    {
         return 1;
     }
-    while (*cp) {
-        while (*cp && strchr(delims, *cp)) {
+    while (*cp)
+    {
+        while (*cp && strchr(delims, *cp))
+        {
             cp++;
         }
-        if ((k = strcspn(cp, delims))) {
-            if
-            (
-                a->push_check()
-                ||
-                (*a->a_top = new_str(cp, k)) == nullptr
-            ) {
+        if ((k = strcspn(cp, delims)))
+        {
+            if (a->push_check() || (*a->a_top = new_str(cp, k)) == nullptr)
+            {
                 decref(a);
                 return 1;
             }
             decref((*a->a_top));
             ++a->a_top;
-            if (*(cp += k)) {
+            if (*(cp += k))
+            {
                 cp++;
             }
             continue;
         }
     }
-    if (a->a_top == a->a_base) {
+    if (a->a_top == a->a_base)
+    {
         decref(a);
         return null_ret();
     }
     return ret_with_decref(a);
 }
 
-static int f_gettokens() {
-    object              *fo;
-    file                *f;
-    str                 *s;
-    unsigned char       *terms;
-    int                 nterms;
-    unsigned char       *seps;
-    int                 nseps;
-    unsigned char       *delims = nullptr; /* init to shut up compiler */
-    int                 ndelims;
-    int                 hardsep;
-    unsigned char       sep;
-    array               *a;
-    int                 c;
-    int                 i;
-    int                 j = 0; /* init to shut up compiler */
-    int                 state;
-    int                 what;
-    int                 loose_it = 0;
+static int f_gettokens()
+{
+    object        *fo;
+    file          *f;
+    str           *s;
+    unsigned char *terms;
+    int            nterms;
+    unsigned char *seps;
+    int            nseps;
+    unsigned char *delims = nullptr; /* init to shut up compiler */
+    int            ndelims;
+    int            hardsep;
+    unsigned char  sep;
+    array         *a;
+    int            c;
+    int            i;
+    int            j = 0; /* init to shut up compiler */
+    int            state;
+    int            what;
+    int            loose_it = 0;
 
     seps = (unsigned char *)" \t";
     nseps = 2;
@@ -2487,23 +2957,30 @@ static int f_gettokens() {
     terms = (unsigned char *)"\n";
     nterms = 1;
     ndelims = 0;
-    switch (NARGS()) {
+    switch (NARGS())
+    {
     case 0:
-        if ((f = need_stdin()) == nullptr) {
+        if ((f = need_stdin()) == nullptr)
+        {
             return 1;
         }
         break;
 
     case 1:
-        if (typecheck("o", &fo)) {
+        if (typecheck("o", &fo))
+        {
             return 1;
         }
-        if (isstring(fo)) {
+        if (isstring(fo))
+        {
             return fast_gettokens(stringof(fo)->s_chars, " \t");
         }
-        else if (!isfile(fo)) {
+        else if (!isfile(fo))
+        {
             return argerror(0);
-        } else {
+        }
+        else
+        {
             f = fileof(fo);
         }
         break;
@@ -2511,49 +2988,69 @@ static int f_gettokens() {
     case 2:
     case 3:
     case 4:
-        if (typecheck("oo*", &fo, &s)) {
+        if (typecheck("oo*", &fo, &s))
+        {
             return 1;
         }
-        if (NARGS() == 2 && isstring(fo) && isstring(s)) {
+        if (NARGS() == 2 && isstring(fo) && isstring(s))
+        {
             return fast_gettokens(stringof(fo)->s_chars, stringof(s)->s_chars);
         }
-        if (isstring(fo)) {
-            if ((f = sopen(stringof(fo)->s_chars, stringof(fo)->s_nchars, fo)) == nullptr) {
+        if (isstring(fo))
+        {
+            if ((f = sopen(stringof(fo)->s_chars, stringof(fo)->s_nchars, fo)) == nullptr)
+            {
                 return 1;
             }
             loose_it = 1;
-        } else if (!isfile(fo)) {
+        }
+        else if (!isfile(fo))
+        {
             return argerror(0);
-        } else {
+        }
+        else
+        {
             f = fileof(fo);
         }
-        if (isint(s)) {
+        if (isint(s))
+        {
             object *so = s;
             sep = (unsigned char)intof(so)->i_value;
             hardsep = 1;
             seps = (unsigned char *)&sep;
             nseps = 1;
-        } else if (isstring(s)) {
+        }
+        else if (isstring(s))
+        {
             seps = (unsigned char *)s->s_chars;
             nseps = s->s_nchars;
-        } else {
-            if (loose_it) {
+        }
+        else
+        {
+            if (loose_it)
+            {
                 decref(f);
             }
             return argerror(1);
         }
-        if (NARGS() > 2) {
-            if (!isstring(ARG(2))) {
-                if (loose_it) {
+        if (NARGS() > 2)
+        {
+            if (!isstring(ARG(2)))
+            {
+                if (loose_it)
+                {
                     decref(f);
                 }
                 return argerror(2);
             }
             terms = (unsigned char *)stringof(ARG(2))->s_chars;
             nterms = stringof(ARG(2))->s_nchars;
-            if (NARGS() > 3) {
-                if (!isstring(ARG(3))) {
-                    if (loose_it) {
+            if (NARGS() > 3)
+            {
+                if (!isstring(ARG(3)))
+                {
+                    if (loose_it)
+                    {
                         decref(f);
                     }
                     return argerror(3);
@@ -2568,65 +3065,79 @@ static int f_gettokens() {
         return argcount(4);
     }
 
-#define S_IDLE  0
+#define S_IDLE 0
 #define S_INTOK 1
 
-#define W_EOF   0
-#define W_SEP   1
-#define W_TERM  2
-#define W_TOK   3
+#define W_EOF 0
+#define W_SEP 1
+#define W_TERM 2
+#define W_TOK 3
 #define W_DELIM 4
 
     state = S_IDLE;
-    if ((a = new_array()) == nullptr) {
+    if ((a = new_array()) == nullptr)
+    {
         goto fail;
     }
-    for (;;) {
+    for (;;)
+    {
         /*
          * Get the next character and classify it.
          */
-        if ((c = f->getch()) == EOF) {
+        if ((c = f->getch()) == EOF)
+        {
             what = W_EOF;
             goto got_what;
         }
-        for (i = 0; i < nseps; ++i) {
-            if (c == seps[i]) {
+        for (i = 0; i < nseps; ++i)
+        {
+            if (c == seps[i])
+            {
                 what = W_SEP;
                 goto got_what;
             }
         }
-        for (i = 0; i < nterms; ++i) {
-            if (c == terms[i]) {
+        for (i = 0; i < nterms; ++i)
+        {
+            if (c == terms[i])
+            {
                 what = W_TERM;
                 goto got_what;
             }
         }
-        for (i = 0; i < ndelims; ++i) {
-            if (c == delims[i]) {
+        for (i = 0; i < ndelims; ++i)
+        {
+            if (c == delims[i])
+            {
                 what = W_DELIM;
                 goto got_what;
             }
         }
         what = W_TOK;
-    got_what:
+got_what:
 
         /*
          * Act on state and current character classification.
          */
-        switch ((state << 8) + what) {
+        switch ((state << 8) + what)
+        {
         case (S_IDLE << 8) + W_EOF:
-            if (loose_it) {
+            if (loose_it)
+            {
                 decref(f);
             }
-            if (a->a_top == a->a_base) {
+            if (a->a_top == a->a_base)
+            {
                 decref(a);
                 return null_ret();
             }
             return ret_with_decref(a);
 
         case (S_IDLE << 8) + W_TERM:
-            if (!hardsep) {
-                if (loose_it) {
+            if (!hardsep)
+            {
+                if (loose_it)
+                {
                     decref(f);
                 }
                 return ret_with_decref(a);
@@ -2634,54 +3145,66 @@ static int f_gettokens() {
             j = 0;
         case (S_INTOK << 8) + W_EOF:
         case (S_INTOK << 8) + W_TERM:
-            if (a->push_check()) {
+            if (a->push_check())
+            {
                 goto fail;
             }
-            if ((s = new_str(buf, j)) == nullptr) {
+            if ((s = new_str(buf, j)) == nullptr)
+            {
                 goto fail;
             }
             a->push(s, with_decref);
-            if (loose_it) {
+            if (loose_it)
+            {
                 decref(f);
             }
             return ret_with_decref(a);
 
         case (S_IDLE << 8) + W_SEP:
-            if (!hardsep) {
+            if (!hardsep)
+            {
                 break;
             }
             j = 0;
         case (S_INTOK << 8) + W_SEP:
-            if (a->push_check()) {
+            if (a->push_check())
+            {
                 goto fail;
             }
-            if ((s = new_str(buf, j)) == nullptr) {
+            if ((s = new_str(buf, j)) == nullptr)
+            {
                 goto fail;
             }
             a->push(s, with_decref);
-            if (hardsep) {
+            if (hardsep)
+            {
                 j = 0;
                 state = S_INTOK;
             }
-            else {
+            else
+            {
                 state = S_IDLE;
             }
             break;
 
         case (S_INTOK << 8) + W_DELIM:
-            if (a->push_check()) {
+            if (a->push_check())
+            {
                 goto fail;
             }
-            if ((s = new_str(buf, j)) == nullptr) {
+            if ((s = new_str(buf, j)) == nullptr)
+            {
                 goto fail;
             }
             a->push(s, with_decref);
         case (S_IDLE << 8) + W_DELIM:
-            if (a->push_check()) {
+            if (a->push_check())
+            {
                 goto fail;
             }
             buf[0] = c;
-            if ((s = new_str(buf, 1)) == nullptr) {
+            if ((s = new_str(buf, 1)) == nullptr)
+            {
                 goto fail;
             }
             a->push(s, with_decref);
@@ -2693,7 +3216,8 @@ static int f_gettokens() {
             j = 0;
             state = S_INTOK;
         case (S_INTOK << 8) + W_TOK:
-            if (chkbuf(j)) {
+            if (chkbuf(j))
+            {
                 goto fail;
             }
             buf[j++] = c;
@@ -2701,71 +3225,85 @@ static int f_gettokens() {
     }
 
 fail:
-    if (loose_it) {
+    if (loose_it)
+    {
         decref(f);
     }
-    if (a != nullptr) {
+    if (a != nullptr)
+    {
         decref(a);
     }
     return 1;
 }
 
-
 /*
  * sort(array, cmp)
  */
-static int f_sort() {
-    array *a;
-    object   **base;
-    long        n;
-    object   *f;
-    long        cmp;
-    long        k;                              /* element added or removed */
-    long        p;                              /* place in heap */
-    long        q;                              /* place in heap */
-    long        l;                              /* left child */
-    long        r;                              /* right child */
-    object   *o;                             /* object used for swapping */
-    object   *uarg;                          /* user argument to cmp func */
+static int f_sort()
+{
+    array   *a;
+    object **base;
+    long     n;
+    object  *f;
+    long     cmp;
+    long     k;    /* element added or removed */
+    long     p;    /* place in heap */
+    long     q;    /* place in heap */
+    long     l;    /* left child */
+    long     r;    /* right child */
+    object  *o;    /* object used for swapping */
+    object  *uarg; /* user argument to cmp func */
 
 /*
  * Relations within heap.
  */
-#define PARENT(i)       (((i) - 1) >> 1)
-#define LEFT(i)         ((i) + (i) + 1)
-#define RIGHT(i)        ((i) + (i) + 2)
+#define PARENT(i) (((i)-1) >> 1)
+#define LEFT(i) ((i) + (i) + 1)
+#define RIGHT(i) ((i) + (i) + 2)
 /*
  * Macro for swapping elements.
  */
-#define SWAP(a, b)      {o = base[a]; base[a] = base[b]; base[b] = o;}
-#define CMP(rp, a, b)   call(f, "i=ooo", rp, base[a], base[b], uarg)
+#define SWAP(a, b)                                                                                                     \
+    {                                                                                                                  \
+        o = base[a];                                                                                                   \
+        base[a] = base[b];                                                                                             \
+        base[b] = o;                                                                                                   \
+    }
+#define CMP(rp, a, b) call(f, "i=ooo", rp, base[a], base[b], uarg)
 
     uarg = null;
-    switch (NARGS()) {
+    switch (NARGS())
+    {
     case 3:
-        if (typecheck("aoo", &a, &f, &uarg)) {
+        if (typecheck("aoo", &a, &f, &uarg))
+        {
             return 1;
         }
-        if (!f->can_call()) {
+        if (!f->can_call())
+        {
             return argerror(1);
         }
         break;
 
     case 2:
-        if (typecheck("ao", &a, &f)) {
+        if (typecheck("ao", &a, &f))
+        {
             return 1;
         }
-        if (!f->can_call()) {
+        if (!f->can_call())
+        {
             return argerror(1);
         }
         break;
 
     case 1:
-        if (typecheck("a", &a)) {
+        if (typecheck("a", &a))
+        {
             return 1;
         }
         f = ici_fetch(vs.a_top[-1], SS(cmp));
-        if (!f->can_call()) {
+        if (!f->can_call())
+        {
             return set_error("no suitable cmp function in scope");
         }
         break;
@@ -2773,14 +3311,16 @@ static int f_sort() {
     default:
         return argcount(2);
     }
-    if (a->isatom()) {
+    if (a->isatom())
+    {
         return set_error("attempt to sort an atomic array");
     }
 
     n = a->len();
-    if (a->a_bot > a->a_top) {
-        ptrdiff_t   m;
-        object    **e;
+    if (a->a_bot > a->a_top)
+    {
+        ptrdiff_t m;
+        object  **e;
 
         /*
          * Can't sort in-place because the array has wrapped. Force the
@@ -2788,11 +3328,12 @@ static int f_sort() {
          * in array.c.
          */
         m = a->a_limit - a->a_base;
-        if ((e = (object **)ici_nalloc(m * sizeof (object *))) == nullptr) {
+        if ((e = (object **)ici_nalloc(m * sizeof(object *))) == nullptr)
+        {
             goto fail;
         }
         a->gather(e, 0, n);
-        ici_nfree(a->a_base, m * sizeof (object *));
+        ici_nfree(a->a_base, m * sizeof(object *));
         a->a_base = e;
         a->a_bot = e;
         a->a_top = e + n;
@@ -2803,14 +3344,18 @@ static int f_sort() {
     /*
      * Shuffle heap.
      */
-    for (k = 1; k < n; ++k) {
+    for (k = 1; k < n; ++k)
+    {
         p = k;
-        while (p != 0) {
+        while (p != 0)
+        {
             q = PARENT(p);
-            if (CMP(&cmp, p, q)) {
+            if (CMP(&cmp, p, q))
+            {
                 goto fail;
             }
-            if (cmp <= 0) {
+            if (cmp <= 0)
+            {
                 break;
             }
             SWAP(p, q);
@@ -2821,45 +3366,63 @@ static int f_sort() {
     /*
      * Keep taking elements off heap and re-shuffling.
      */
-    for (k = n - 1; k > 0; --k) {
+    for (k = n - 1; k > 0; --k)
+    {
         SWAP(0, k);
         p = 0;
-        while (1) {
+        while (1)
+        {
             l = LEFT(p);
-            if (l >= k) {
+            if (l >= k)
+            {
                 break;
             }
             r = RIGHT(p);
-            if (r >= k) {
-                if (CMP(&cmp, l, p)) {
+            if (r >= k)
+            {
+                if (CMP(&cmp, l, p))
+                {
                     goto fail;
                 }
-                if (cmp <= 0) {
+                if (cmp <= 0)
+                {
                     break;
                 }
                 SWAP(l, p);
                 p = l;
-            } else {
-                if (CMP(&cmp, l, p)) {
+            }
+            else
+            {
+                if (CMP(&cmp, l, p))
+                {
                     goto fail;
                 }
-                if (cmp <= 0) {
-                    if (CMP(&cmp, r, p)) {
+                if (cmp <= 0)
+                {
+                    if (CMP(&cmp, r, p))
+                    {
                         goto fail;
                     }
-                    if (cmp <= 0) {
+                    if (cmp <= 0)
+                    {
                         break;
                     }
                     SWAP(r, p);
                     p = r;
-                } else {
-                    if (CMP(&cmp, r, l)) {
+                }
+                else
+                {
+                    if (CMP(&cmp, r, l))
+                    {
                         goto fail;
                     }
-                    if (cmp <= 0) {
+                    if (cmp <= 0)
+                    {
                         SWAP(l, p);
                         p = l;
-                    } else {
+                    }
+                    else
+                    {
                         SWAP(r, p);
                         p = r;
                     }
@@ -2872,36 +3435,44 @@ static int f_sort() {
 fail:
     return 1;
 
-#undef  PARENT
-#undef  LEFT
-#undef  RIGHT
-#undef  SWAP
+#undef PARENT
+#undef LEFT
+#undef RIGHT
+#undef SWAP
 }
 
-static int f_unique() {
-    set *s;
-    array *a;
-    array *r;
+static int f_unique()
+{
+    set     *s;
+    array   *a;
+    array   *r;
     object **o;
 
-    if (typecheck("a", &a)) {
+    if (typecheck("a", &a))
+    {
         return 1;
     }
-    if ((s = new_set()) == nullptr) {
+    if ((s = new_set()) == nullptr)
+    {
         return 1;
     }
-    for (o = a->astart(); o != a->alimit(); o = a->anext(o)) {
-        if (ici_assign(s, *o, o_one)) {
+    for (o = a->astart(); o != a->alimit(); o = a->anext(o))
+    {
+        if (ici_assign(s, *o, o_one))
+        {
             decref(s);
             return 1;
         }
     }
-    if ((r = new_array(s->s_nels)) == nullptr) {
+    if ((r = new_array(s->s_nels)) == nullptr)
+    {
         decref(s);
-	return 1;
+        return 1;
     }
-    for (auto sl = s->s_slots; size_t(sl - s->s_slots) < s->s_nslots; ++sl) {
-        if (*sl) {
+    for (auto sl = s->s_slots; size_t(sl - s->s_slots) < s->s_nslots; ++sl)
+    {
+        if (*sl)
+        {
             r->push(*sl);
         }
     }
@@ -2909,19 +3480,26 @@ static int f_unique() {
     return ret_with_decref(r);
 }
 
-static int f_reclaim() {
+static int f_reclaim()
+{
     reclaim();
     return null_ret();
 }
 
-static int f_abs() {
-    if (isint(ARG(0))) {
-        if (intof(ARG(0))->i_value >= 0) {
+static int f_abs()
+{
+    if (isint(ARG(0)))
+    {
+        if (intof(ARG(0))->i_value >= 0)
+        {
             return ret_no_decref(ARG(0));
         }
         return int_ret(-intof(ARG(0))->i_value);
-    } else if (isfloat(ARG(0))) {
-        if (floatof(ARG(0))->f_value >= 0) {
+    }
+    else if (isfloat(ARG(0)))
+    {
+        if (floatof(ARG(0))->f_value >= 0)
+        {
             return ret_no_decref(ARG(0));
         }
         return float_ret(-floatof(ARG(0))->f_value);
@@ -2929,20 +3507,22 @@ static int f_abs() {
     return argerror(0);
 }
 
-static int              got_epoch_time;
-static time_t           epoch_time;
+static int    got_epoch_time;
+static time_t epoch_time;
 
-static void get_epoch_time() {
-    struct tm   tm;
+static void get_epoch_time()
+{
+    struct tm tm;
 
     memset(&tm, 0, sizeof tm);
     tm.tm_year = 100; /* 2000 is 100 years since 1900. */
-    tm.tm_mday = 1;    /* First day of month is 1 */
+    tm.tm_mday = 1;   /* First day of month is 1 */
     epoch_time = mktime(&tm);
     got_epoch_time = 1;
 }
 
-static int f_now() {
+static int f_now()
+{
     const auto t = std::chrono::system_clock::now();
     const auto d = t.time_since_epoch();
     using S = std::chrono::duration<double>; // seconds
@@ -2950,22 +3530,26 @@ static int f_now() {
     return float_ret(s.count());
 }
 
-static int f_calendar() {
-    objwsup       *s;
-    double              d;
-    long                l;
+static int f_calendar()
+{
+    objwsup *s;
+    double   d;
+    long     l;
 
     s = nullptr;
-    if (!got_epoch_time) {
+    if (!got_epoch_time)
+    {
         get_epoch_time();
     }
-    if (NARGS() != 1) {
+    if (NARGS() != 1)
+    {
         return argcount(1);
     }
-    if (isfloat(ARG(0))) {
-        time_t          t;
-        double          ns;
-        struct tm       *tm;
+    if (isfloat(ARG(0)))
+    {
+        time_t     t;
+        double     ns;
+        struct tm *tm;
 
         /*
          * This is really bizarre. ANSI C doesn't define what the units
@@ -2979,68 +3563,76 @@ static int f_calendar() {
         t = epoch_time + (time_t)floatof(ARG(0))->f_value;
         ns = fmod(floatof(ARG(0))->f_value, 1);
         tm = localtime(&t);
-        if ((s = objwsupof(new_map())) == nullptr) {
+        if ((s = objwsupof(new_map())) == nullptr)
+        {
             return 1;
         }
-        if
-        (      set_val(s, SS(nanos), 'f', (d = ns, &d))
-            || set_val(s, SS(second), 'f', (d = tm->tm_sec, &d))
-            || set_val(s, SS(minute), 'i', (l = tm->tm_min, &l))
-            || set_val(s, SS(hour), 'i', (l = tm->tm_hour, &l))
-            || set_val(s, SS(day), 'i', (l = tm->tm_mday, &l))
-            || set_val(s, SS(month), 'i', (l = tm->tm_mon, &l))
-            || set_val(s, SS(year), 'i', (l = tm->tm_year + 1900, &l))
-            || set_val(s, SS(wday), 'i', (l = tm->tm_wday, &l))
-            || set_val(s, SS(yday), 'i', (l = tm->tm_yday, &l))
-            || set_val(s, SS(isdst), 'i', (l = tm->tm_isdst, &l))
+        if (set_val(s, SS(nanos), 'f', (d = ns, &d)) || set_val(s, SS(second), 'f', (d = tm->tm_sec, &d)) ||
+            set_val(s, SS(minute), 'i', (l = tm->tm_min, &l)) || set_val(s, SS(hour), 'i', (l = tm->tm_hour, &l)) ||
+            set_val(s, SS(day), 'i', (l = tm->tm_mday, &l)) || set_val(s, SS(month), 'i', (l = tm->tm_mon, &l)) ||
+            set_val(s, SS(year), 'i', (l = tm->tm_year + 1900, &l)) ||
+            set_val(s, SS(wday), 'i', (l = tm->tm_wday, &l)) || set_val(s, SS(yday), 'i', (l = tm->tm_yday, &l)) ||
+            set_val(s, SS(isdst), 'i', (l = tm->tm_isdst, &l))
 #ifdef ICI_HAS_BSD_STRUCT_TM
-            || set_val(s, SS(zone), 's', (char *)tm->tm_zone)
-            || set_val(s, SS(gmtoff), 'i', &tm->tm_gmtoff)
+            || set_val(s, SS(zone), 's', (char *)tm->tm_zone) || set_val(s, SS(gmtoff), 'i', &tm->tm_gmtoff)
 #else
             || set_timezone_vals(mapof(s))
 #endif
-        ) {
+        )
+        {
             decref(s);
             return 1;
         }
         return ret_with_decref(s);
-    } else if (ismap(ARG(0))) {
-        time_t          t;
-        struct tm       tm;
+    }
+    else if (ismap(ARG(0)))
+    {
+        time_t    t;
+        struct tm tm;
 
         memset(&tm, 0, sizeof tm);
         s = objwsupof(ARG(0));
-        if (fetch_num(s, SS(second), &d)) {
+        if (fetch_num(s, SS(second), &d))
+        {
             return 1;
         }
         tm.tm_sec = (int)d;
-        if (fetch_int(s, SS(minute), &l)) {
+        if (fetch_int(s, SS(minute), &l))
+        {
             return 1;
         }
         tm.tm_min = l;
-        if (fetch_int(s, SS(hour), &l)) {
+        if (fetch_int(s, SS(hour), &l))
+        {
             return 1;
         }
         tm.tm_hour = l;
-        if (fetch_int(s, SS(day), &l)) {
+        if (fetch_int(s, SS(day), &l))
+        {
             return 1;
         }
         tm.tm_mday = l;
-        if (fetch_int(s, SS(month), &l)) {
+        if (fetch_int(s, SS(month), &l))
+        {
             return 1;
         }
         tm.tm_mon = l;
-        if (fetch_int(s, SS(year), &l)) {
+        if (fetch_int(s, SS(year), &l))
+        {
             return 1;
         }
         tm.tm_year = l - 1900;
-        if (fetch_int(s, SS(isdst), &l)) {
+        if (fetch_int(s, SS(isdst), &l))
+        {
             tm.tm_isdst = -1;
-        } else {
+        }
+        else
+        {
             tm.tm_isdst = l;
         }
         t = mktime(&tm);
-        if (t == (time_t)-1) {
+        if (t == (time_t)-1)
+        {
             return set_error("unsuitable calendar time");
         }
         return float_ret(difftime(t, epoch_time));
@@ -3051,11 +3643,13 @@ static int f_calendar() {
 /*
  * ICI: sleep(num)
  */
-static int f_sleep() {
+static int f_sleep()
+{
     using S = std::chrono::duration<double>; // seconds
 
     double how_long;
-    if (typecheck("n", &how_long)) {
+    if (typecheck("n", &how_long))
+    {
         return 1;
     }
     auto x = leave();
@@ -3071,23 +3665,25 @@ static int f_sleep() {
  * if 0.0 is passed, future (but not this one) returns measure new CPU
  * time accumulated since this call.
  */
-static int f_cputime() {
-    static double       base;
-    double              t;
+static int f_cputime()
+{
+    static double base;
+    double        t;
 
-#ifdef  _WIN32
-    FILETIME            c;
-    FILETIME            e;
-    FILETIME            k;
-    FILETIME            user;
+#ifdef _WIN32
+    FILETIME c;
+    FILETIME e;
+    FILETIME k;
+    FILETIME user;
 
-    if (!GetProcessTimes(GetCurrentProcess(), &c, &e, &k, &user)) {
+    if (!GetProcessTimes(GetCurrentProcess(), &c, &e, &k, &user))
+    {
         return ici_get_last_win32_error();
     }
     t = (user.dwLowDateTime + user.dwHighDateTime * 4294967296.0) / 1e7;
 
 #else
-# if defined(__linux__) || defined(BSD) || defined(__sun)
+#if defined(__linux__) || defined(BSD) || defined(__sun)
     struct rusage rusage;
 
     getrusage(RUSAGE_SELF, &rusage);
@@ -3095,83 +3691,100 @@ static int f_cputime() {
 
 #else /* BSD */
     return set_error("cputime function not available on this platform");
-# endif
+#endif
 #endif
     t -= base;
-    if (NARGS() > 0 && isfloat(ARG(0))) {
+    if (NARGS() > 0 && isfloat(ARG(0)))
+    {
         base = floatof(ARG(0))->f_value + t;
     }
     return float_ret(t);
 }
 
-static int f_strbuf() {
+static int f_strbuf()
+{
     str *s;
     str *is;
     int  n;
 
     is = nullptr;
     n = 10;
-    if (NARGS() > 0) {
-        if (!isstring(ARG(0))) {
+    if (NARGS() > 0)
+    {
+        if (!isstring(ARG(0)))
+        {
             return argerror(0);
         }
         is = stringof(ARG(0));
         n = is->s_nchars;
     }
-    if ((s = new_str_buf(n)) == nullptr) {
+    if ((s = new_str_buf(n)) == nullptr)
+    {
         return 1;
     }
-    if (is != nullptr) {
+    if (is != nullptr)
+    {
         memcpy(s->s_chars, is->s_chars, n);
         s->s_nchars = n;
     }
     return ret_with_decref(s);
 }
 
-static int f_strcat() {
-    str           *s1;
-    str           *s2;
-    int           n;
-    int           i;
-    int           si;
-    int           z;
-    int64_t       sz;
+static int f_strcat()
+{
+    str    *s1;
+    str    *s2;
+    int     n;
+    int     i;
+    int     si;
+    int     z;
+    int64_t sz;
 
-
-    if (NARGS() < 2) {
+    if (NARGS() < 2)
+    {
         return argcount(2);
     }
-    if (!isstring(ARG(0))) {
+    if (!isstring(ARG(0)))
+    {
         return argerror(0);
     }
     s1 = stringof(ARG(0));
-    if (isint(ARG(1))) {
+    if (isint(ARG(1)))
+    {
         si = 2;
         sz = intof(ARG(1))->i_value;
-        if (sz < 0 || sz > int64_t(s1->s_nchars)) {
+        if (sz < 0 || sz > int64_t(s1->s_nchars))
+        {
             return argerror(1);
         }
-    } else {
+    }
+    else
+    {
         si = 1;
         sz = s1->s_nchars;
     }
     n = NARGS();
-    for (i = si, z = sz; i < n; ++i) {
+    for (i = si, z = sz; i < n; ++i)
+    {
         s2 = stringof(ARG(i));
-        if (!isstring(s2)) {
+        if (!isstring(s2))
+        {
             return argerror(i);
         }
         z += s2->s_nchars;
     }
-    if (str_need_size(s1, z)) {
+    if (str_need_size(s1, z))
+    {
         return 1;
     }
-    for (i = si, z = sz; i < n; ++i) {
+    for (i = si, z = sz; i < n; ++i)
+    {
         s2 = stringof(ARG(i));
         memcpy(&s1->s_chars[z], s2->s_chars, s2->s_nchars);
         z += s2->s_nchars;
     }
-    if (s1->s_nchars < size_t(z)) {
+    if (s1->s_nchars < size_t(z))
+    {
         s1->s_nchars = z;
     }
     s1->s_chars[s1->s_nchars] = '\0';
@@ -3180,24 +3793,33 @@ static int f_strcat() {
 
 static int f_which()
 {
-    objwsup       *s;
-    object        *k;
+    objwsup *s;
+    object  *k;
 
     s = nullptr;
-    if (typecheck(NARGS() < 2 ? "o" : "oo", &k, &s)) {
+    if (typecheck(NARGS() < 2 ? "o" : "oo", &k, &s))
+    {
         return 1;
     }
-    if (s == nullptr) {
+    if (s == nullptr)
+    {
         s = objwsupof(vs.a_top[-1]);
-    } else if (!hassuper(s)) {
+    }
+    else if (!hassuper(s))
+    {
         return argerror(0);
     }
-    while (s != nullptr) {
-        if (ismap(s)) {
-            if (find_raw_slot(mapof(s), k)->sl_key == k) {
+    while (s != nullptr)
+    {
+        if (ismap(s))
+        {
+            if (find_raw_slot(mapof(s), k)->sl_key == k)
+            {
                 return ret_no_decref(s);
             }
-        } else {
+        }
+        else
+        {
             objwsup *t;
             object  *v;
             int      r;
@@ -3206,9 +3828,12 @@ static int f_which()
             s->o_super = nullptr;
             r = ici_fetch_super(s, k, &v, nullptr);
             s->o_super = t;
-            switch (r) {
-            case -1: return 1;
-            case  1: return ret_no_decref(s);
+            switch (r)
+            {
+            case -1:
+                return 1;
+            case 1:
+                return ret_no_decref(s);
             }
         }
         s = s->o_super;
@@ -3216,7 +3841,8 @@ static int f_which()
     return null_ret();
 }
 
-static int f_ncollects() {
+static int f_ncollects()
+{
     return int_ret(ncollects);
 }
 
@@ -3224,34 +3850,45 @@ static int f_ncollects() {
  * Cleans up data structures allocated/referenced in this module.
  * Required for a clean shutdown.
  */
-void uninit_cfunc() {
+void uninit_cfunc()
+{
 }
 
-static int f_getchar() {
-    file          *f;
-    int           c;
-    exec          *x = nullptr;
+static int f_getchar()
+{
+    file *f;
+    int   c;
+    exec *x = nullptr;
 
-    if (NARGS() != 0) {
-        if (typecheck("u", &f)) {
+    if (NARGS() != 0)
+    {
+        if (typecheck("u", &f))
+        {
             return 1;
         }
-    } else {
-        if ((f = need_stdin()) == nullptr) {
+    }
+    else
+    {
+        if ((f = need_stdin()) == nullptr)
+        {
             return 1;
         }
     }
     signals_invoke_immediately(1);
-    if (f->hasflag(ftype::nomutex)) {
+    if (f->hasflag(ftype::nomutex))
+    {
         x = leave();
     }
     c = f->getch();
-    if (f->hasflag(ftype::nomutex)) {
+    if (f->hasflag(ftype::nomutex))
+    {
         enter(x);
     }
     signals_invoke_immediately(0);
-    if (c == EOF) {
-        if ((FILE *)f->f_file == stdin) {
+    if (c == EOF)
+    {
+        if ((FILE *)f->f_file == stdin)
+        {
             clearerr(stdin);
         }
         return null_ret();
@@ -3260,29 +3897,38 @@ static int f_getchar() {
     return ret_with_decref(new_str(buf, 1));
 }
 
-static int f_ungetchar() {
-    file  *f;
-    char  *ch;
+static int f_ungetchar()
+{
+    file *f;
+    char *ch;
 
-    if (NARGS() != 1) {
-        if (typecheck("su", &ch, &f)) {
-            return 1;
-        }
-    } else {
-        if ((f = need_stdin()) == nullptr) {
-            return 1;
-        }
-        if (typecheck("s", &ch)) {
+    if (NARGS() != 1)
+    {
+        if (typecheck("su", &ch, &f))
+        {
             return 1;
         }
     }
-    if (f->ungetch(*ch) == EOF) {
+    else
+    {
+        if ((f = need_stdin()) == nullptr)
+        {
+            return 1;
+        }
+        if (typecheck("s", &ch))
+        {
+            return 1;
+        }
+    }
+    if (f->ungetch(*ch) == EOF)
+    {
         return set_error("unable to unget character");
     }
     return str_ret(ch);
 }
 
-static int f_getline() {
+static int f_getline()
+{
     int   i;
     int   c;
     file *f;
@@ -3292,45 +3938,59 @@ static int f_getline() {
     str  *str;
 
     x = nullptr;
-    if (NARGS() != 0) {
-        if (typecheck("u", &f)) {
-            return 1;
-        }
-    } else {
-        if ((f = need_stdin()) == nullptr) {
+    if (NARGS() != 0)
+    {
+        if (typecheck("u", &f))
+        {
             return 1;
         }
     }
-    if ((b = (char *)malloc(buf_size = 4096)) == nullptr) {
+    else
+    {
+        if ((f = need_stdin()) == nullptr)
+        {
+            return 1;
+        }
+    }
+    if ((b = (char *)malloc(buf_size = 4096)) == nullptr)
+    {
         goto nomem;
     }
-    if (f->hasflag(ftype::nomutex)) {
+    if (f->hasflag(ftype::nomutex))
+    {
         signals_invoke_immediately(1);
         x = leave();
     }
-    for (i = 0; (c = f->getch()) != '\n' && c != EOF; ++i) {
-        if (i == buf_size && (b = (char *)realloc(b, buf_size *= 2)) == nullptr) {
+    for (i = 0; (c = f->getch()) != '\n' && c != EOF; ++i)
+    {
+        if (i == buf_size && (b = (char *)realloc(b, buf_size *= 2)) == nullptr)
+        {
             break;
         }
         b[i] = c;
     }
-    if (f->hasflag(ftype::nomutex)) {
+    if (f->hasflag(ftype::nomutex))
+    {
         enter(x);
         signals_invoke_immediately(0);
     }
-    if (b == nullptr) {
+    if (b == nullptr)
+    {
         goto nomem;
     }
-    if (i == 0 && c == EOF) {
+    if (i == 0 && c == EOF)
+    {
         free(b);
-        if ((FILE *)f->f_file == stdin) {
+        if ((FILE *)f->f_file == stdin)
+        {
             clearerr(stdin);
         }
         return null_ret();
     }
     str = new_str(b, i);
     free(b);
-    if (str == nullptr) {
+    if (str == nullptr)
+    {
         return 1;
     }
     return ret_with_decref(str);
@@ -3339,92 +3999,115 @@ nomem:
     return set_error("ran out of memory");
 }
 
-static int f_getfile() {
-    int           i;
-    int           c;
-    file          *f;
-    exec          *x = nullptr;
-    char          *b;
-    int           buf_size;
-    str           *str;
-    int           must_close;
-    
+static int f_getfile()
+{
+    int   i;
+    int   c;
+    file *f;
+    exec *x = nullptr;
+    char *b;
+    int   buf_size;
+    str  *str;
+    int   must_close;
+
     must_close = 0;
     str = nullptr; /* Pessimistic. */
-    if (NARGS() != 0) {
-        if (isstring(ARG(0))) {
-            if (call(SS(fopen), "o=o", &f, ARG(0))) {
+    if (NARGS() != 0)
+    {
+        if (isstring(ARG(0)))
+        {
+            if (call(SS(fopen), "o=o", &f, ARG(0)))
+            {
                 goto finish;
             }
             must_close = 1;
-        } else {
+        }
+        else
+        {
             f = fileof(ARG(0));
         }
-        if (!isfile(f)) {
-            char    n1[objnamez];
+        if (!isfile(f))
+        {
+            char n1[objnamez];
             set_error("getfile() given %s instead of a file", objname(n1, f));
             goto finish;
         }
 
         auto off = f->seek(0, 1);
-        if (off == -1) {
+        if (off == -1)
+        {
             set_error("getfile() failed to determine current file offset");
             goto finish;
         }
         auto size = f->seek(0, 2);
-        if (size == -1) {
+        if (size == -1)
+        {
             goto read_unsized;
         }
-        if (f->seek(off, 0) != off) {
+        if (f->seek(off, 0) != off)
+        {
             set_error("getfile() failed to restore file offset");
             goto finish;
         }
         buf_size = size - off;
-        if ((b = (char *)malloc(buf_size)) == nullptr) {
+        if ((b = (char *)malloc(buf_size)) == nullptr)
+        {
             goto nomem;
         }
-        if (f->hasflag(ftype::nomutex)) {
+        if (f->hasflag(ftype::nomutex))
+        {
             x = leave();
         }
         clear_error();
         auto nread = f->read(b, buf_size);
-        if (nread != buf_size) {
+        if (nread != buf_size)
+        {
             set_error("getfile() failed to read entire file (read %lu vs expected %lu)", nread, buf_size);
         }
-        if (f->hasflag(ftype::nomutex)) {
+        if (f->hasflag(ftype::nomutex))
+        {
             enter(x);
         }
-        if (ici_error) {
+        if (ici_error)
+        {
             goto finish;
         }
         i = buf_size;
         goto have_result;
-
-    } else {
-        if ((f = need_stdin()) == nullptr) {
+    }
+    else
+    {
+        if ((f = need_stdin()) == nullptr)
+        {
             goto finish;
         }
     }
 read_unsized:
     buf_size = 4096;
-    if ((b = (char *)malloc(buf_size)) == nullptr) {
+    if ((b = (char *)malloc(buf_size)) == nullptr)
+    {
         goto nomem;
     }
-    if (f->hasflag(ftype::nomutex)) {
+    if (f->hasflag(ftype::nomutex))
+    {
         signals_invoke_immediately(1);
         x = leave();
     }
-    for (i = 0; (c = f->getch()) != EOF; ++i) {
-        if (i == buf_size) {
+    for (i = 0; (c = f->getch()) != EOF; ++i)
+    {
+        if (i == buf_size)
+        {
             auto q = (char *)realloc(b, buf_size *= 2);
-            if (q == nullptr) {
+            if (q == nullptr)
+            {
                 goto nomem;
             }
             b = q;
         }
         b[i] = c;
     }
-    if (f->hasflag(ftype::nomutex)) {
+    if (f->hasflag(ftype::nomutex))
+    {
         enter(x);
         signals_invoke_immediately(0);
     }
@@ -3437,31 +4120,37 @@ nomem:
     set_error("ran out of memory");
 
 finish:
-    if (must_close) {
+    if (must_close)
+    {
         call(SS(close), "o", f);
         decref(f);
     }
     return ret_with_decref(str);
 }
 
-static int f_tmpname() {
+static int f_tmpname()
+{
     char nametemplate[] = "/tmp/ici.XXXXXX";
-    int fd = mkstemp(nametemplate);
-    if (fd == -1) {
+    int  fd = mkstemp(nametemplate);
+    if (fd == -1)
+    {
         return get_last_errno("mkstemp", nullptr);
     }
     close(fd);
     return str_ret(nametemplate);
 }
 
-static int f_puts() {
+static int f_puts()
+{
     str  *s;
     file *f;
     exec *x = nullptr;
 
     auto put = [&](const char *chars, int nchars) {
-        if (f->write(chars, nchars) != nchars) {
-            if (f->hasflag(ftype::nomutex)) {
+        if (f->write(chars, nchars) != nchars)
+        {
+            if (f->hasflag(ftype::nomutex))
+            {
                 enter(x);
             }
             return set_error("write failed");
@@ -3469,106 +4158,135 @@ static int f_puts() {
         return 0;
     };
 
-    if (NARGS() > 1) {
-        if (typecheck("ou", &s, &f)) {
-            return 1;
-        }
-    } else {
-        if (typecheck("o", &s)) {
-            return 1;
-        }
-        if ((f = need_stdout()) == nullptr) {
+    if (NARGS() > 1)
+    {
+        if (typecheck("ou", &s, &f))
+        {
             return 1;
         }
     }
-    if (!isstring(s)) {
+    else
+    {
+        if (typecheck("o", &s))
+        {
+            return 1;
+        }
+        if ((f = need_stdout()) == nullptr)
+        {
+            return 1;
+        }
+    }
+    if (!isstring(s))
+    {
         return argerror(0);
     }
-    if (f->hasflag(ftype::nomutex)) {
+    if (f->hasflag(ftype::nomutex))
+    {
         x = leave();
     }
-    if (put(s->s_chars, s->s_nchars)) {
+    if (put(s->s_chars, s->s_nchars))
+    {
         return 1;
     }
-    if (put("\n", 1)) {
+    if (put("\n", 1))
+    {
         return 1;
     }
-    if (f->hasflag(ftype::nomutex)) {
+    if (f->hasflag(ftype::nomutex))
+    {
         enter(x);
     }
     return null_ret();
 }
 
-static int f_fflush() {
-    file          *f;
-    exec          *x = nullptr;
+static int f_fflush()
+{
+    file *f;
+    exec *x = nullptr;
 
-    if (NARGS() > 0) {
-        if (typecheck("u", &f)) {
-            return 1;
-        }
-    } else {
-        if ((f = need_stdout()) == nullptr) {
+    if (NARGS() > 0)
+    {
+        if (typecheck("u", &f))
+        {
             return 1;
         }
     }
-    if (f->hasflag(ftype::nomutex)) {
+    else
+    {
+        if ((f = need_stdout()) == nullptr)
+        {
+            return 1;
+        }
+    }
+    if (f->hasflag(ftype::nomutex))
+    {
         x = leave();
     }
-    if (f->flush() == -1) {
-        if (f->hasflag(ftype::nomutex)) {
+    if (f->flush() == -1)
+    {
+        if (f->hasflag(ftype::nomutex))
+        {
             enter(x);
         }
         return set_error("flush failed");
     }
-    if (f->hasflag(ftype::nomutex)) {
+    if (f->hasflag(ftype::nomutex))
+    {
         enter(x);
     }
     return null_ret();
 }
 
-static int f_fopen() {
-    const char  *name;
-    const char  *mode;
-    file  *f;
-    FILE        *stream;
-    exec  *x = nullptr;
+static int f_fopen()
+{
+    const char *name;
+    const char *mode;
+    file       *f;
+    FILE       *stream;
+    exec       *x = nullptr;
     int         i;
 
     mode = "r";
-    if (typecheck(NARGS() > 1 ? "ss" : "s", &name, &mode)) {
+    if (typecheck(NARGS() > 1 ? "ss" : "s", &name, &mode))
+    {
         return 1;
     }
     x = leave();
     signals_invoke_immediately(1);
     stream = fopen(name, mode);
     signals_invoke_immediately(0);
-    if (stream == nullptr) {
+    if (stream == nullptr)
+    {
         i = errno;
         enter(x);
         errno = i;
         return get_last_errno("open", name);
     }
     enter(x);
-    if ((f = new_file((char *)stream, stdio_ftype, stringof(ARG(0)), nullptr)) == nullptr) {
+    if ((f = new_file((char *)stream, stdio_ftype, stringof(ARG(0)), nullptr)) == nullptr)
+    {
         fclose(stream);
         return 1;
     }
     return ret_with_decref(f);
 }
 
-static int f_fseek() {
-    file  *f;
-    long        offset;
-    long        whence;
+static int f_fseek()
+{
+    file *f;
+    long  offset;
+    long  whence;
 
-    if (typecheck("uii", &f, &offset, &whence)) {
-        if (typecheck("ui", &f, &offset)) {
+    if (typecheck("uii", &f, &offset, &whence))
+    {
+        if (typecheck("ui", &f, &offset))
+        {
             return 1;
         }
         whence = 0;
     }
-    switch (whence) {
+    switch (whence)
+    {
     case 0:
     case 1:
     case 2:
@@ -3576,45 +4294,52 @@ static int f_fseek() {
     default:
         return set_error("invalid whence value in seek()");
     }
-    if ((offset = f->seek(offset, (int)whence)) == -1) {
+    if ((offset = f->seek(offset, (int)whence)) == -1)
+    {
         return 1;
     }
     return int_ret(offset);
 }
 
-static int f_popen() {
-    const char  *name;
-    const char  *mode;
-    file  *f;
-    FILE        *stream;
-    exec  *x = nullptr;
+static int f_popen()
+{
+    const char *name;
+    const char *mode;
+    file       *f;
+    FILE       *stream;
+    exec       *x = nullptr;
     int         i;
 
     mode = "r";
-    if (typecheck(NARGS() > 1 ? "ss" : "s", &name, &mode)) {
+    if (typecheck(NARGS() > 1 ? "ss" : "s", &name, &mode))
+    {
         return 1;
     }
     x = leave();
-    if ((stream = popen(name, mode)) == nullptr) {
+    if ((stream = popen(name, mode)) == nullptr)
+    {
         i = errno;
         enter(x);
         errno = i;
         return get_last_errno("popen", name);
     }
     enter(x);
-    if ((f = new_file((char *)stream, popen_ftype, stringof(ARG(0)), nullptr)) == nullptr) {
+    if ((f = new_file((char *)stream, popen_ftype, stringof(ARG(0)), nullptr)) == nullptr)
+    {
         pclose(stream);
         return 1;
     }
     return ret_with_decref(f);
 }
 
-static int f_system() {
-    char        *cmd;
-    long        result;
-    exec  *x = nullptr;
+static int f_system()
+{
+    char *cmd;
+    long  result;
+    exec *x = nullptr;
 
-    if (typecheck("s", &cmd)) {
+    if (typecheck("s", &cmd))
+    {
         return 1;
     }
     x = leave();
@@ -3623,19 +4348,25 @@ static int f_system() {
     return int_ret(result);
 }
 
-static int f_close() {
+static int f_close()
+{
     object *o;
-    if (typecheck("o", &o)) {
+    if (typecheck("o", &o))
+    {
         return 1;
     }
-    if (isfile(o)) {
-        if (close_file(fileof(o))) {
+    if (isfile(o))
+    {
+        if (close_file(fileof(o)))
+        {
             return 1;
         }
         return null_ret();
     }
-    if (ischannel(o)) {
-        if (close_channel(channelof(o))) {
+    if (ischannel(o))
+    {
+        if (close_channel(channelof(o)))
+        {
             return 1;
         }
         return null_ret();
@@ -3643,37 +4374,48 @@ static int f_close() {
     return argerror(0);
 }
 
-static int f_eof() {
-    file          *f;
-    exec          *x = nullptr;
-    int           r;
+static int f_eof()
+{
+    file *f;
+    exec *x = nullptr;
+    int   r;
 
-    if (NARGS() != 0) {
-        if (typecheck("u", &f)) {
-            return 1;
-        }
-    } else {
-        if ((f = need_stdin()) == nullptr) {
+    if (NARGS() != 0)
+    {
+        if (typecheck("u", &f))
+        {
             return 1;
         }
     }
-    if (f->hasflag(ftype::nomutex)) {
+    else
+    {
+        if ((f = need_stdin()) == nullptr)
+        {
+            return 1;
+        }
+    }
+    if (f->hasflag(ftype::nomutex))
+    {
         x = leave();
     }
     r = f->eof();
-    if (f->hasflag(ftype::nomutex)) {
+    if (f->hasflag(ftype::nomutex))
+    {
         enter(x);
     }
     return int_ret((long)r);
 }
 
-static int f_remove() {
-    char        *s;
+static int f_remove()
+{
+    char *s;
 
-    if (typecheck("s", &s)) {
+    if (typecheck("s", &s))
+    {
         return 1;
     }
-    if (remove(s) != 0) {
+    if (remove(s) != 0)
+    {
         return get_last_errno("remove", s);
     }
     return null_ret();
@@ -3686,30 +4428,35 @@ static int f_remove() {
  * not much).
  */
 
-#define MAXPATHLEN      _MAX_PATH
+#define MAXPATHLEN _MAX_PATH
 
-struct dirent {
-    char        *d_name;
+struct dirent
+{
+    char *d_name;
 };
 
-typedef struct DIR {
-    long                handle;
-    struct _finddata_t  finddata;
-    int                 needfindnext;
-    struct dirent       dirent;
-}
-DIR;
+typedef struct DIR
+{
+    long               handle;
+    struct _finddata_t finddata;
+    int                needfindnext;
+    struct dirent      dirent;
+} DIR;
 
-static DIR *opendir(const char *path) {
-    DIR         *dir;
-    char        fspec[_MAX_PATH+1];
+static DIR *opendir(const char *path)
+{
+    DIR *dir;
+    char fspec[_MAX_PATH + 1];
 
-    if (strlen(path) > (_MAX_PATH - 4)) {
+    if (strlen(path) > (_MAX_PATH - 4))
+    {
         return nullptr;
     }
     sprintf(fspec, "%s/*.*", path);
-    if ((dir = ici_talloc(DIR)) != nullptr) {
-        if ((dir->handle = _findfirst(fspec, &dir->finddata)) == -1) {
+    if ((dir = ici_talloc(DIR)) != nullptr)
+    {
+        if ((dir->handle = _findfirst(fspec, &dir->finddata)) == -1)
+        {
             ici_tfree(dir, DIR);
             return nullptr;
         }
@@ -3718,9 +4465,11 @@ static DIR *opendir(const char *path) {
     return dir;
 }
 
-static struct dirent *readdir(DIR *dir) {
-    if (dir->needfindnext && _findnext(dir->handle, &dir->finddata) != 0) {
-            return nullptr;
+static struct dirent *readdir(DIR *dir)
+{
+    if (dir->needfindnext && _findnext(dir->handle, &dir->finddata) != 0)
+    {
+        return nullptr;
     }
     dir->dirent.d_name = dir->finddata.name;
     dir->needfindnext = 1;
@@ -3733,8 +4482,8 @@ static void closedir(DIR *dir)
     ici_tfree(dir, DIR);
 }
 
-#define S_ISREG(m)      (((m) & _S_IFMT) == _S_IFREG)
-#define S_ISDIR(m)      (((m) & _S_IFMT) == _S_IFDIR)
+#define S_ISREG(m) (((m)&_S_IFMT) == _S_IFREG)
+#define S_ISDIR(m) (((m)&_S_IFMT) == _S_IFDIR)
 
 #endif // WIN32
 
@@ -3756,75 +4505,103 @@ static void closedir(DIR *dir)
  *
  * The default format specifier is "f".
  */
-static int f_dir() {
-    const char    *path   = ".";
+static int f_dir()
+{
+    const char    *path = ".";
     const char    *format = "f";
     regexp        *pattern = nullptr;
     object        *o;
     array         *a;
     DIR           *dir;
     struct dirent *dirent;
-    int           fmt;
+    int            fmt;
     str           *s;
 
-    switch (NARGS()) {
+    switch (NARGS())
+    {
     case 0:
         break;
 
     case 1:
         o = ARG(0);
-        if (isstring(o)) {
+        if (isstring(o))
+        {
             path = stringof(o)->s_chars;
-        } else if (isnull(o)) {
-            ;   /* leave path as is */
-        } else if (isregexp(o)) {
+        }
+        else if (isnull(o))
+        {
+            ; /* leave path as is */
+        }
+        else if (isregexp(o))
+        {
             pattern = regexpof(o);
-        } else {
+        }
+        else
+        {
             return argerror(0);
         }
         break;
 
     case 2:
         o = ARG(0);
-        if (isstring(o)) {
+        if (isstring(o))
+        {
             path = stringof(o)->s_chars;
-        } else if (isnull(o)) {
-            ;   /* leave path as is */
-        } else if (isregexp(o)) {
+        }
+        else if (isnull(o))
+        {
+            ; /* leave path as is */
+        }
+        else if (isregexp(o))
+        {
             pattern = regexpof(o);
-        } else {
+        }
+        else
+        {
             return argerror(0);
         }
         o = ARG(1);
-        if (isregexp(o)) {
-            if (pattern != nullptr) {
+        if (isregexp(o))
+        {
+            if (pattern != nullptr)
+            {
                 return argerror(1);
             }
             pattern = regexpof(o);
         }
-        else if (isstring(o)) {
+        else if (isstring(o))
+        {
             format = stringof(o)->s_chars;
-        } else {
+        }
+        else
+        {
             return argerror(1);
         }
         break;
 
     case 3:
         o = ARG(0);
-        if (isstring(o)) {
+        if (isstring(o))
+        {
             path = stringof(o)->s_chars;
-        } else if (isnull(o)) {
-            ;   /* leave path as is */
-        } else {
+        }
+        else if (isnull(o))
+        {
+            ; /* leave path as is */
+        }
+        else
+        {
             return argerror(0);
         }
         o = ARG(1);
-        if (!isregexp(o)) {
+        if (!isregexp(o))
+        {
             return argerror(1);
         }
         pattern = regexpof(o);
         o = ARG(2);
-        if (!isstring(o)) {
+        if (!isstring(o))
+        {
             return argerror(2);
         }
         format = stringof(o)->s_chars;
@@ -3834,16 +4611,19 @@ static int f_dir() {
         return argcount(3);
     }
 
-    if (*path == '\0') {
+    if (*path == '\0')
+    {
         path = ".";
     }
 
-#define FILES   1
-#define DIRS    2
-#define OTHERS  4
+#define FILES 1
+#define DIRS 2
+#define OTHERS 4
 
-    for (fmt = 0; *format != '\0'; ++format) {
-        switch (*format) {
+    for (fmt = 0; *format != '\0'; ++format)
+    {
+        switch (*format)
+        {
         case 'f':
             fmt |= FILES;
             break;
@@ -3860,66 +4640,49 @@ static int f_dir() {
             return set_error("bad directory format specifier");
         }
     }
-    if ((a = new_array()) == nullptr) {
+    if ((a = new_array()) == nullptr)
+    {
         return 1;
     }
-    if ((dir = opendir(path)) == nullptr) {
+    if ((dir = opendir(path)) == nullptr)
+    {
         get_last_errno("open directory", path);
         goto fail;
     }
-    while ((dirent = readdir(dir)) != nullptr) {
-        struct stat     statbuf;
-        char            abspath[MAXPATHLEN+2]; // '/' + NUL
+    while ((dirent = readdir(dir)) != nullptr)
+    {
+        struct stat statbuf;
+        char        abspath[MAXPATHLEN + 2]; // '/' + NUL
 
-        if
-        (
-            pattern != nullptr
-            &&
-            pcre_exec
-            (
-                pattern->r_re,
-                pattern->r_rex,
-                dirent->d_name,
-                strlen(dirent->d_name),
-                0,
-                0,
-                re_bra,
-                nels(re_bra)
-            )
-            < 0
-        ) {
+        if (pattern != nullptr && pcre_exec(pattern->r_re, pattern->r_rex, dirent->d_name, strlen(dirent->d_name), 0, 0,
+                                            re_bra, nels(re_bra)) < 0)
+        {
             continue;
         }
         snprintf(abspath, sizeof abspath, "%s/%s", path, dirent->d_name);
 #ifndef _WIN32
-        if (lstat(abspath, &statbuf) == -1) {
+        if (lstat(abspath, &statbuf) == -1)
+        {
             get_last_errno("get stats on", abspath);
             closedir(dir);
             goto fail;
         }
-        if (S_ISLNK(statbuf.st_mode) && stat(abspath, &statbuf) == -1) {
+        if (S_ISLNK(statbuf.st_mode) && stat(abspath, &statbuf) == -1)
+        {
             continue;
         }
 #else
-        if (stat(abspath, &statbuf) == -1) {
+        if (stat(abspath, &statbuf) == -1)
+        {
             continue;
         }
 #endif
-        if
-        (
-            (S_ISREG(statbuf.st_mode) && fmt & FILES)
-            ||
-            (S_ISDIR(statbuf.st_mode) && fmt & DIRS)
-            ||
-            fmt & OTHERS
-        ) {
-            if
-            (
-                (s = new_str_nul_term(dirent->d_name)) == nullptr
-                ||
-                a->push_check()
-            ) {
-                if (s != nullptr) {
+        if ((S_ISREG(statbuf.st_mode) && fmt & FILES) || (S_ISDIR(statbuf.st_mode) && fmt & DIRS) || fmt & OTHERS)
+        {
+            if ((s = new_str_nul_term(dirent->d_name)) == nullptr || a->push_check())
+            {
+                if (s != nullptr)
+                {
                     decref(s);
                 }
                 closedir(dir);
@@ -3931,9 +4694,9 @@ static int f_dir() {
     closedir(dir);
     return ret_with_decref(a);
 
-#undef  FILES
-#undef  DIRS
-#undef  OTHERS
+#undef FILES
+#undef DIRS
+#undef OTHERS
 
 fail:
     decref(a);
@@ -3945,8 +4708,10 @@ fail:
  * global error string if the call fails otherwise returns the integer
  * result of the system call.
  */
-static int sys_ret(int ret) {
-    if (ret < 0) {
+static int sys_ret(int ret)
+{
+    if (ret < 0)
+    {
         return get_last_errno(nullptr, nullptr);
     }
     return int_ret((long)ret);
@@ -3955,11 +4720,13 @@ static int sys_ret(int ret) {
 /*
  * rename(oldpath, newpath)
  */
-static int f_rename() {
+static int f_rename()
+{
     char *o;
     char *n;
 
-    if (typecheck("ss", &o, &n)) {
+    if (typecheck("ss", &o, &n))
+    {
         return 1;
     }
     return sys_ret(rename(o, n));
@@ -3968,10 +4735,12 @@ static int f_rename() {
 /*
  * chdir(newdir)
  */
-static int f_chdir() {
+static int f_chdir()
+{
     char *n;
 
-    if (typecheck("s", &n)) {
+    if (typecheck("s", &n))
+    {
         return 1;
     }
     return sys_ret(chdir(n));
@@ -3980,10 +4749,12 @@ static int f_chdir() {
 /*
  * string = getcwd()
  */
-static int f_getcwd() {
-    char        buf[MAXPATHLEN+1];
+static int f_getcwd()
+{
+    char buf[MAXPATHLEN + 1];
 
-    if (getcwd(buf, sizeof buf) == nullptr) {
+    if (getcwd(buf, sizeof buf) == nullptr)
+    {
         return sys_ret(-1);
     }
     return str_ret(buf);
@@ -3992,34 +4763,36 @@ static int f_getcwd() {
 /*
  * Return the value of an environment variable.
  */
-static int f_getenv() {
-    str           *n;
-    char          **p;
+static int f_getenv()
+{
+    str   *n;
+    char **p;
 
-    if (NARGS() != 1) {
+    if (NARGS() != 1)
+    {
         return argcount(1);
     }
-    if (!isstring(ARG(0))) {
+    if (!isstring(ARG(0)))
+    {
         return argerror(0);
     }
     n = stringof(ARG(0));
-    for (p = environ; *p != nullptr; ++p) {
-        if
-        (
-#           if _WIN32
-                /*
-                 * Some versions of Windows (NT and 2000 at least)
-                 * gratuitously change to case of some environment variables
-                 * on boot.  So on Windows we do a case-insensitive
-                 * compations. strnicmp is non-ANSI, but exists on Windows.
-                 */
-                strnicmp(*p, n->s_chars, n->s_nchars) == 0
-#           else
-                strncmp(*p, n->s_chars, n->s_nchars) == 0
-#           endif
-            &&
-            (*p)[n->s_nchars] == '='
-        ) {
+    for (p = environ; *p != nullptr; ++p)
+    {
+        if (
+#if _WIN32
+            /*
+             * Some versions of Windows (NT and 2000 at least)
+             * gratuitously change to case of some environment variables
+             * on boot.  So on Windows we do a case-insensitive
+             * compations. strnicmp is non-ANSI, but exists on Windows.
+             */
+            strnicmp(*p, n->s_chars, n->s_nchars) == 0
+#else
+            strncmp(*p, n->s_chars, n->s_nchars) == 0
+#endif
+            && (*p)[n->s_nchars] == '=')
+        {
             return str_ret(&(*p)[n->s_nchars + 1]);
         }
     }
@@ -4029,17 +4802,20 @@ static int f_getenv() {
 /*
  * Set an environment variable.
  */
-static int f_putenv() {
-    char        *s;
-    char        *t;
-    char        *e;
-    char        *f;
-    int         i;
+static int f_putenv()
+{
+    char *s;
+    char *t;
+    char *e;
+    char *f;
+    int   i;
 
-    if (typecheck("s", &s)) {
+    if (typecheck("s", &s))
+    {
         return 1;
     }
-    if ((e = strchr(s, '=')) == nullptr) {
+    if ((e = strchr(s, '=')) == nullptr)
+    {
         return set_error("putenv argument not in form \"name=value\"");
     }
     i = strlen(s) + 1;
@@ -4051,15 +4827,19 @@ static int f_putenv() {
      * check to see if the value is already in the environment, and free the
      * memory if it is.
      */
-    if ((t = (char *)malloc(i)) == nullptr) {
+    if ((t = (char *)malloc(i)) == nullptr)
+    {
         return set_error("ran out of memmory");
     }
     strcpy(t, s);
     t[e - s] = '\0';
     f = getenv(t);
-    if (f != nullptr && strcmp(f, e + 1) == 0) {
+    if (f != nullptr && strcmp(f, e + 1) == 0)
+    {
         free(t);
-    } else {
+    }
+    else
+    {
         strcpy(t, s);
         putenv(t);
     }
@@ -4078,7 +4858,7 @@ static int f_vec32()
     if (NARGS() == 2)
     {
         int64_t size;
-        double filler;
+        double  filler;
         if (typecheck("in", &size, &filler))
         {
             return 1;
@@ -4123,7 +4903,7 @@ static int f_vec32()
         for (size_t i = 0; i < arrayof(ARG(0))->len(); ++i)
         {
             double value = 0.0;
-            auto o = arrayof(ARG(0))->get(i);
+            auto   o = arrayof(ARG(0))->get(i);
             if (isint(o))
             {
                 value = intof(o)->i_value;
@@ -4173,7 +4953,7 @@ static int f_vec64()
     if (NARGS() == 2)
     {
         int64_t size;
-        double filler;
+        double  filler;
         if (typecheck("in", &size, &filler))
         {
             return 1;
@@ -4218,7 +4998,7 @@ static int f_vec64()
         for (size_t i = 0; i < arrayof(ARG(0))->len(); ++i)
         {
             double value = 0.0;
-            auto o = arrayof(ARG(0))->get(i);
+            auto   o = arrayof(ARG(0))->get(i);
             if (isint(o))
             {
                 value = intof(o)->i_value;
@@ -4256,151 +5036,197 @@ static int f_vec64()
     }
 }
 
-namespace {
-    // non-overloaded trampolines to get an unambiguous function type
-    double xsin(double a) { return sin(a); }
-    double xcos(double a) { return cos(a); }
-    double xtan(double a) { return tan(a); }
-    double xasin(double a) { return asin(a); }
-    double xacos(double a) { return acos(a); }
-    double xatan(double a) { return atan(a); }
-    double xatan2(double a, double b) { return atan2(a, b); }
-    double xexp(double a) { return exp(a); }
-    double xlog(double a) { return log(a); }
-    double xlog10(double a) { return log10(a); }
-    double xpow(double a, double b) { return pow(a, b); }
-    double xround(double a) { return round(a); }
-    double xsqrt(double a) { return sqrt(a); }
-    double xfloor(double a) { return floor(a); }
-    double xceil(double a) { return ceil(a); }
-    double xfmod(double a, double b) { return fmod(a, b); }
-}
-
-ICI_DEFINE_CFUNCS(std)
+namespace
 {
-    ICI_DEFINE_CFUNC(array,        f_array),
-    ICI_DEFINE_CFUNC(copy,         f_copy),
-    ICI_DEFINE_CFUNC(exit,         f_exit),
-    ICI_DEFINE_CFUNC(fail,         f_fail),
-    ICI_DEFINE_CFUNC(float,        f_float),
-    ICI_DEFINE_CFUNC(float32,      f_float32),
-    ICI_DEFINE_CFUNC(int,          f_int),
-    ICI_DEFINE_CFUNC(eq,           f_eq),
-    ICI_DEFINE_CFUNC(parse,        f_parse),
-    ICI_DEFINE_CFUNC(string,       f_string),
-    ICI_DEFINE_CFUNC(map,          f_map),
-    ICI_DEFINE_CFUNC(set,          f_set),
-    ICI_DEFINE_CFUNC(typeof,       f_typeof),
-    ICI_DEFINE_CFUNC(push,         f_push),
-    ICI_DEFINE_CFUNC(pop,          f_pop),
-    ICI_DEFINE_CFUNC(rpush,        f_rpush),
-    ICI_DEFINE_CFUNC(rpop,         f_rpop),
-    ICI_DEFINE_CFUNC(reserve,      f_reserve),
-    ICI_DEFINE_CFUNC(call,         f_call),
-    ICI_DEFINE_CFUNC(keys,         f_keys),
-    ICI_DEFINE_CFUNC(vstack,       f_vstack),
-    ICI_DEFINE_CFUNC(tochar,       f_tochar),
-    ICI_DEFINE_CFUNC(toint,        f_toint),
-    ICI_DEFINE_CFUNC(rand,         f_rand),
-    ICI_DEFINE_CFUNC(interval,     f_interval),
-    ICI_DEFINE_CFUNC(slice,        f_interval),
-    ICI_DEFINE_CFUNC(explode,      f_explode),
-    ICI_DEFINE_CFUNC(implode,      f_implode),
-    ICI_DEFINE_CFUNC(join,         f_join),
-    ICI_DEFINE_CFUNC(sopen,        f_sopen),
-    ICI_DEFINE_CFUNC(mopen,        f_mopen),
-    ICI_DEFINE_CFUNC(sprintf,      ici_f_sprintf),
-    ICI_DEFINE_CFUNC(currentfile,  f_currentfile),
-    ICI_DEFINE_CFUNC(del,          f_del),
-    ICI_DEFINE_CFUNC(alloc,        f_alloc),
-    ICI_DEFINE_CFUNC(mem,          f_mem),
-    ICI_DEFINE_CFUNC(len,          f_len),
-    ICI_DEFINE_CFUNC(super,        f_super),
-    ICI_DEFINE_CFUNC(scope,        f_scope),
-    ICI_DEFINE_CFUNC(isatom,       f_isatom),
-    ICI_DEFINE_CFUNC(gettoken,     f_gettoken),
-    ICI_DEFINE_CFUNC(gettokens,    f_gettokens),
-    ICI_DEFINE_CFUNC(split,        f_gettokens),
-    ICI_DEFINE_CFUNC(num,          f_num),
-    ICI_DEFINE_CFUNC(assign,       f_assign),
-    ICI_DEFINE_CFUNC(fetch,        f_fetch),
-    ICI_DEFINE_CFUNC(unique,       f_unique),
-    ICI_DEFINE_CFUNC(abs,          f_abs),
-    ICI_DEFINE_CFUNC2(sin,         f_math, xsin,    "f=n"),
-    ICI_DEFINE_CFUNC2(cos,         f_math, xcos,    "f=n"),
-    ICI_DEFINE_CFUNC2(tan,         f_math, xtan,    "f=n"),
-    ICI_DEFINE_CFUNC2(asin,        f_math, xasin,   "f=n"),
-    ICI_DEFINE_CFUNC2(acos,        f_math, xacos,   "f=n"),
-    ICI_DEFINE_CFUNC2(atan,        f_math, xatan,   "f=n"),
-    ICI_DEFINE_CFUNC2(atan2,       f_math, xatan2,  "f=nn"),
-    ICI_DEFINE_CFUNC2(exp,         f_math, xexp,    "f=n"),
-    ICI_DEFINE_CFUNC2(log,         f_math, xlog,    "f=n"),
-    ICI_DEFINE_CFUNC2(log10,       f_math, xlog10,  "f=n"),
-    ICI_DEFINE_CFUNC2(pow,         f_math, xpow,    "f=nn"),
-    ICI_DEFINE_CFUNC2(round,       f_math, xround,  "f=n"),
-    ICI_DEFINE_CFUNC2(sqrt,        f_math, xsqrt,   "f=n"),
-    ICI_DEFINE_CFUNC2(floor,       f_math, xfloor,  "f=n"),
-    ICI_DEFINE_CFUNC2(ceil,        f_math, xceil,   "f=n"),
-    ICI_DEFINE_CFUNC2(fmod,        f_math, xfmod,   "f=nn"),
-    ICI_DEFINE_CFUNC(waitfor,      f_waitfor),
-    ICI_DEFINE_CFUNC(top,          f_top),
-    ICI_DEFINE_CFUNC(sort,         f_sort),
-    ICI_DEFINE_CFUNC(reclaim,      f_reclaim),
-    ICI_DEFINE_CFUNC(now,          f_now),
-    ICI_DEFINE_CFUNC(calendar,     f_calendar),
-    ICI_DEFINE_CFUNC(cputime,      f_cputime),
-    ICI_DEFINE_CFUNC(sleep,        f_sleep),
-    ICI_DEFINE_CFUNC(strbuf,       f_strbuf),
-    ICI_DEFINE_CFUNC(strcat,       f_strcat),
-    ICI_DEFINE_CFUNC(which,        f_which),
-    ICI_DEFINE_CFUNC(ncollects,    f_ncollects),
-    ICI_DEFINE_CFUNC2(cmp,         f_coreici, SS(cmp),       SS(core1)),
-    ICI_DEFINE_CFUNC2(pathjoin,    f_coreici, SS(pathjoin),  SS(core2)),
-    ICI_DEFINE_CFUNC2(basename,    f_coreici, SS(basename),  SS(core2)),
-    ICI_DEFINE_CFUNC2(dirname,     f_coreici, SS(dirname),   SS(core2)),
-    ICI_DEFINE_CFUNC2(pfopen,      f_coreici, SS(pfopen),    SS(core2)),
-    ICI_DEFINE_CFUNC2(include,     f_coreici, SS(include),   SS(core2)),
-    ICI_DEFINE_CFUNC2(walk,        f_coreici, SS(walk),      SS(core2)),
-    ICI_DEFINE_CFUNC2(min,         f_coreici, SS(min),       SS(core3)),
-    ICI_DEFINE_CFUNC2(max,         f_coreici, SS(max),       SS(core3)),
-    ICI_DEFINE_CFUNC2(argerror,    f_coreici, SS(argerror),  SS(core3)),
-    ICI_DEFINE_CFUNC2(argcount,    f_coreici, SS(argcount),  SS(core3)),
-    ICI_DEFINE_CFUNC2(typecheck,   f_coreici, SS(typecheck), SS(core3)),
-    ICI_DEFINE_CFUNC2(apply,       f_coreici, SS(apply),     SS(core4)),
-    ICI_DEFINE_CFUNC2(transform,   f_coreici, SS(transform), SS(core4)),
-    ICI_DEFINE_CFUNC2(deepatom,    f_coreici, SS(deepatom),  SS(core5)),
-    ICI_DEFINE_CFUNC2(deepcopy,    f_coreici, SS(deepcopy),  SS(core5)),
-    ICI_DEFINE_CFUNC2(memoize,     f_coreici, SS(memoize),   SS(core6)),
-    ICI_DEFINE_CFUNC2(memoized,    f_coreici, SS(memoized),  SS(core6)),
-    ICI_DEFINE_CFUNC2(print,       f_coreici, SS(print),     SS(core7)),
-    ICI_DEFINE_CFUNC2(sprint,      f_coreici, SS(sprint),    SS(core7)),
-    ICI_DEFINE_CFUNC2(println,     f_coreici, SS(println),   SS(core7)),
-    ICI_DEFINE_CFUNC2(closure,     f_coreici, SS(closure),   SS(core8)),
-    ICI_DEFINE_CFUNC2(format_time, f_coreici, SS(format_time), SS(core9)),
-    ICI_DEFINE_CFUNC1(printf,      ici_f_sprintf, 1),
-    ICI_DEFINE_CFUNC(getchar,   f_getchar),
-    ICI_DEFINE_CFUNC(ungetchar, f_ungetchar),
-    ICI_DEFINE_CFUNC(getfile,   f_getfile),
-    ICI_DEFINE_CFUNC(getline,   f_getline),
-    ICI_DEFINE_CFUNC(fopen,     f_fopen),
-    ICI_DEFINE_CFUNC(_popen,    f_popen),
-    ICI_DEFINE_CFUNC(tmpname,   f_tmpname),
-    ICI_DEFINE_CFUNC(puts,      f_puts),
-    ICI_DEFINE_CFUNC(flush,     f_fflush),
-    ICI_DEFINE_CFUNC(close,     f_close),
-    ICI_DEFINE_CFUNC(seek,      f_fseek),
-    ICI_DEFINE_CFUNC(system,    f_system),
-    ICI_DEFINE_CFUNC(eof,       f_eof),
-    ICI_DEFINE_CFUNC(remove,    f_remove),
-    ICI_DEFINE_CFUNC(dir,       f_dir),
-    ICI_DEFINE_CFUNC(getcwd,    f_getcwd),
-    ICI_DEFINE_CFUNC(chdir,     f_chdir),
-    ICI_DEFINE_CFUNC(rename,    f_rename),
-    ICI_DEFINE_CFUNC(getenv,    f_getenv),
-    ICI_DEFINE_CFUNC(putenv,    f_putenv),
-    ICI_DEFINE_CFUNC(vec32,     f_vec32),
-    ICI_DEFINE_CFUNC(vec64,     f_vec64),
-    ICI_CFUNCS_END()
-};
+// non-overloaded trampolines to get an unambiguous function type
+double xsin(double a)
+{
+    return sin(a);
+}
+double xcos(double a)
+{
+    return cos(a);
+}
+double xtan(double a)
+{
+    return tan(a);
+}
+double xasin(double a)
+{
+    return asin(a);
+}
+double xacos(double a)
+{
+    return acos(a);
+}
+double xatan(double a)
+{
+    return atan(a);
+}
+double xatan2(double a, double b)
+{
+    return atan2(a, b);
+}
+double xexp(double a)
+{
+    return exp(a);
+}
+double xlog(double a)
+{
+    return log(a);
+}
+double xlog10(double a)
+{
+    return log10(a);
+}
+double xpow(double a, double b)
+{
+    return pow(a, b);
+}
+double xround(double a)
+{
+    return round(a);
+}
+double xsqrt(double a)
+{
+    return sqrt(a);
+}
+double xfloor(double a)
+{
+    return floor(a);
+}
+double xceil(double a)
+{
+    return ceil(a);
+}
+double xfmod(double a, double b)
+{
+    return fmod(a, b);
+}
+} // namespace
+
+ICI_DEFINE_CFUNCS(std){ICI_DEFINE_CFUNC(array, f_array),
+                       ICI_DEFINE_CFUNC(copy, f_copy),
+                       ICI_DEFINE_CFUNC(exit, f_exit),
+                       ICI_DEFINE_CFUNC(fail, f_fail),
+                       ICI_DEFINE_CFUNC(float, f_float),
+                       ICI_DEFINE_CFUNC(float32, f_float32),
+                       ICI_DEFINE_CFUNC(int, f_int),
+                       ICI_DEFINE_CFUNC(eq, f_eq),
+                       ICI_DEFINE_CFUNC(parse, f_parse),
+                       ICI_DEFINE_CFUNC(string, f_string),
+                       ICI_DEFINE_CFUNC(map, f_map),
+                       ICI_DEFINE_CFUNC(set, f_set),
+                       ICI_DEFINE_CFUNC(typeof, f_typeof),
+                       ICI_DEFINE_CFUNC(push, f_push),
+                       ICI_DEFINE_CFUNC(pop, f_pop),
+                       ICI_DEFINE_CFUNC(rpush, f_rpush),
+                       ICI_DEFINE_CFUNC(rpop, f_rpop),
+                       ICI_DEFINE_CFUNC(reserve, f_reserve),
+                       ICI_DEFINE_CFUNC(call, f_call),
+                       ICI_DEFINE_CFUNC(keys, f_keys),
+                       ICI_DEFINE_CFUNC(vstack, f_vstack),
+                       ICI_DEFINE_CFUNC(tochar, f_tochar),
+                       ICI_DEFINE_CFUNC(toint, f_toint),
+                       ICI_DEFINE_CFUNC(rand, f_rand),
+                       ICI_DEFINE_CFUNC(interval, f_interval),
+                       ICI_DEFINE_CFUNC(slice, f_interval),
+                       ICI_DEFINE_CFUNC(explode, f_explode),
+                       ICI_DEFINE_CFUNC(implode, f_implode),
+                       ICI_DEFINE_CFUNC(join, f_join),
+                       ICI_DEFINE_CFUNC(sopen, f_sopen),
+                       ICI_DEFINE_CFUNC(mopen, f_mopen),
+                       ICI_DEFINE_CFUNC(sprintf, ici_f_sprintf),
+                       ICI_DEFINE_CFUNC(currentfile, f_currentfile),
+                       ICI_DEFINE_CFUNC(del, f_del),
+                       ICI_DEFINE_CFUNC(alloc, f_alloc),
+                       ICI_DEFINE_CFUNC(mem, f_mem),
+                       ICI_DEFINE_CFUNC(len, f_len),
+                       ICI_DEFINE_CFUNC(super, f_super),
+                       ICI_DEFINE_CFUNC(scope, f_scope),
+                       ICI_DEFINE_CFUNC(isatom, f_isatom),
+                       ICI_DEFINE_CFUNC(gettoken, f_gettoken),
+                       ICI_DEFINE_CFUNC(gettokens, f_gettokens),
+                       ICI_DEFINE_CFUNC(split, f_gettokens),
+                       ICI_DEFINE_CFUNC(num, f_num),
+                       ICI_DEFINE_CFUNC(assign, f_assign),
+                       ICI_DEFINE_CFUNC(fetch, f_fetch),
+                       ICI_DEFINE_CFUNC(unique, f_unique),
+                       ICI_DEFINE_CFUNC(abs, f_abs),
+                       ICI_DEFINE_CFUNC2(sin, f_math, xsin, "f=n"),
+                       ICI_DEFINE_CFUNC2(cos, f_math, xcos, "f=n"),
+                       ICI_DEFINE_CFUNC2(tan, f_math, xtan, "f=n"),
+                       ICI_DEFINE_CFUNC2(asin, f_math, xasin, "f=n"),
+                       ICI_DEFINE_CFUNC2(acos, f_math, xacos, "f=n"),
+                       ICI_DEFINE_CFUNC2(atan, f_math, xatan, "f=n"),
+                       ICI_DEFINE_CFUNC2(atan2, f_math, xatan2, "f=nn"),
+                       ICI_DEFINE_CFUNC2(exp, f_math, xexp, "f=n"),
+                       ICI_DEFINE_CFUNC2(log, f_math, xlog, "f=n"),
+                       ICI_DEFINE_CFUNC2(log10, f_math, xlog10, "f=n"),
+                       ICI_DEFINE_CFUNC2(pow, f_math, xpow, "f=nn"),
+                       ICI_DEFINE_CFUNC2(round, f_math, xround, "f=n"),
+                       ICI_DEFINE_CFUNC2(sqrt, f_math, xsqrt, "f=n"),
+                       ICI_DEFINE_CFUNC2(floor, f_math, xfloor, "f=n"),
+                       ICI_DEFINE_CFUNC2(ceil, f_math, xceil, "f=n"),
+                       ICI_DEFINE_CFUNC2(fmod, f_math, xfmod, "f=nn"),
+                       ICI_DEFINE_CFUNC(waitfor, f_waitfor),
+                       ICI_DEFINE_CFUNC(top, f_top),
+                       ICI_DEFINE_CFUNC(sort, f_sort),
+                       ICI_DEFINE_CFUNC(reclaim, f_reclaim),
+                       ICI_DEFINE_CFUNC(now, f_now),
+                       ICI_DEFINE_CFUNC(calendar, f_calendar),
+                       ICI_DEFINE_CFUNC(cputime, f_cputime),
+                       ICI_DEFINE_CFUNC(sleep, f_sleep),
+                       ICI_DEFINE_CFUNC(strbuf, f_strbuf),
+                       ICI_DEFINE_CFUNC(strcat, f_strcat),
+                       ICI_DEFINE_CFUNC(which, f_which),
+                       ICI_DEFINE_CFUNC(ncollects, f_ncollects),
+                       ICI_DEFINE_CFUNC2(cmp, f_coreici, SS(cmp), SS(core1)),
+                       ICI_DEFINE_CFUNC2(pathjoin, f_coreici, SS(pathjoin), SS(core2)),
+                       ICI_DEFINE_CFUNC2(basename, f_coreici, SS(basename), SS(core2)),
+                       ICI_DEFINE_CFUNC2(dirname, f_coreici, SS(dirname), SS(core2)),
+                       ICI_DEFINE_CFUNC2(pfopen, f_coreici, SS(pfopen), SS(core2)),
+                       ICI_DEFINE_CFUNC2(include, f_coreici, SS(include), SS(core2)),
+                       ICI_DEFINE_CFUNC2(walk, f_coreici, SS(walk), SS(core2)),
+                       ICI_DEFINE_CFUNC2(min, f_coreici, SS(min), SS(core3)),
+                       ICI_DEFINE_CFUNC2(max, f_coreici, SS(max), SS(core3)),
+                       ICI_DEFINE_CFUNC2(argerror, f_coreici, SS(argerror), SS(core3)),
+                       ICI_DEFINE_CFUNC2(argcount, f_coreici, SS(argcount), SS(core3)),
+                       ICI_DEFINE_CFUNC2(typecheck, f_coreici, SS(typecheck), SS(core3)),
+                       ICI_DEFINE_CFUNC2(apply, f_coreici, SS(apply), SS(core4)),
+                       ICI_DEFINE_CFUNC2(transform, f_coreici, SS(transform), SS(core4)),
+                       ICI_DEFINE_CFUNC2(deepatom, f_coreici, SS(deepatom), SS(core5)),
+                       ICI_DEFINE_CFUNC2(deepcopy, f_coreici, SS(deepcopy), SS(core5)),
+                       ICI_DEFINE_CFUNC2(memoize, f_coreici, SS(memoize), SS(core6)),
+                       ICI_DEFINE_CFUNC2(memoized, f_coreici, SS(memoized), SS(core6)),
+                       ICI_DEFINE_CFUNC2(print, f_coreici, SS(print), SS(core7)),
+                       ICI_DEFINE_CFUNC2(sprint, f_coreici, SS(sprint), SS(core7)),
+                       ICI_DEFINE_CFUNC2(println, f_coreici, SS(println), SS(core7)),
+                       ICI_DEFINE_CFUNC2(closure, f_coreici, SS(closure), SS(core8)),
+                       ICI_DEFINE_CFUNC2(format_time, f_coreici, SS(format_time), SS(core9)),
+                       ICI_DEFINE_CFUNC1(printf, ici_f_sprintf, 1),
+                       ICI_DEFINE_CFUNC(getchar, f_getchar),
+                       ICI_DEFINE_CFUNC(ungetchar, f_ungetchar),
+                       ICI_DEFINE_CFUNC(getfile, f_getfile),
+                       ICI_DEFINE_CFUNC(getline, f_getline),
+                       ICI_DEFINE_CFUNC(fopen, f_fopen),
+                       ICI_DEFINE_CFUNC(_popen, f_popen),
+                       ICI_DEFINE_CFUNC(tmpname, f_tmpname),
+                       ICI_DEFINE_CFUNC(puts, f_puts),
+                       ICI_DEFINE_CFUNC(flush, f_fflush),
+                       ICI_DEFINE_CFUNC(close, f_close),
+                       ICI_DEFINE_CFUNC(seek, f_fseek),
+                       ICI_DEFINE_CFUNC(system, f_system),
+                       ICI_DEFINE_CFUNC(eof, f_eof),
+                       ICI_DEFINE_CFUNC(remove, f_remove),
+                       ICI_DEFINE_CFUNC(dir, f_dir),
+                       ICI_DEFINE_CFUNC(getcwd, f_getcwd),
+                       ICI_DEFINE_CFUNC(chdir, f_chdir),
+                       ICI_DEFINE_CFUNC(rename, f_rename),
+                       ICI_DEFINE_CFUNC(getenv, f_getenv),
+                       ICI_DEFINE_CFUNC(putenv, f_putenv),
+                       ICI_DEFINE_CFUNC(vec32, f_vec32),
+                       ICI_DEFINE_CFUNC(vec64, f_vec64),
+                       ICI_CFUNCS_END()};
 
 } // namespace ici

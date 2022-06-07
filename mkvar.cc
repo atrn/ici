@@ -1,10 +1,10 @@
 #define ICI_CORE
-#include "exec.h"
-#include "map.h"
-#include "int.h"
-#include "float.h"
 #include "buf.h"
+#include "exec.h"
 #include "file.h"
+#include "float.h"
+#include "int.h"
+#include "map.h"
 #include "str.h"
 
 namespace ici
@@ -32,10 +32,12 @@ namespace ici
  *
  * Returns 0 on succcess, else non-zerro, usual conventions.
  */
-int set_val(objwsup *s, str *name, int type, void *vp) {
-    object   *o;
+int set_val(objwsup *s, str *name, int type, void *vp)
+{
+    object *o;
 
-    switch (type) {
+    switch (type)
+    {
     case 'i':
         o = new_int(*(long *)vp);
         break;
@@ -43,7 +45,7 @@ int set_val(objwsup *s, str *name, int type, void *vp) {
     case 'f':
         o = new_float(*(double *)vp);
         break;
-        
+
     case 's':
         o = new_str_nul_term((char *)vp);
         break;
@@ -62,7 +64,8 @@ int set_val(objwsup *s, str *name, int type, void *vp) {
         return set_error("illegal type key-letter given to set_val");
     }
 
-    if (o == nullptr) {
+    if (o == nullptr)
+    {
         return 1;
     }
     auto rc = ici_assign_base(s, name, o);
@@ -77,15 +80,12 @@ int set_val(objwsup *s, str *name, int type, void *vp) {
  */
 int ici_fetch_mismatch(object *o, object *k, object *v, const char *expected)
 {
-    char        n1[objnamez];
-    char        n2[objnamez];
-    char        n3[objnamez];
+    char n1[objnamez];
+    char n2[objnamez];
+    char n3[objnamez];
 
-    return set_error("read %s from %s keyed by %s, but expected %s",
-        objname(n1, v),
-        objname(n2, o),
-        objname(n3, k),
-        expected);
+    return set_error("read %s from %s keyed by %s, but expected %s", objname(n1, v), objname(n2, o), objname(n3, k),
+                     expected);
 }
 
 /*
@@ -95,16 +95,24 @@ int ici_fetch_mismatch(object *o, object *k, object *v, const char *expected)
  */
 int fetch_num(object *o, object *k, double *vp)
 {
-    object   *v;
+    object *v;
 
     if ((v = ici_fetch(o, k)) == nullptr)
+    {
         return 1;
+    }
     if (isint(v))
+    {
         *vp = intof(v)->i_value;
+    }
     else if (isfloat(v))
+    {
         *vp = floatof(v)->f_value;
+    }
     else
+    {
         return ici_fetch_mismatch(o, k, v, "a number");
+    }
     return 0;
 }
 
@@ -115,12 +123,16 @@ int fetch_num(object *o, object *k, double *vp)
  */
 int fetch_int(object *o, object *k, long *vp)
 {
-    object   *v;
+    object *v;
 
     if ((v = ici_fetch(o, k)) == nullptr)
+    {
         return 1;
+    }
     if (!isint(v))
+    {
         return ici_fetch_mismatch(o, k, v, "an int");
+    }
     *vp = intof(v)->i_value;
     return 0;
 }
@@ -146,11 +158,13 @@ int fetch_int(object *o, object *k, long *vp)
  */
 int cmkvar(objwsup *scope, const char *name, int type, void *vp)
 {
-    str   *s;
-    int         i;
+    str *s;
+    int  i;
 
     if ((s = new_str_nul_term(name)) == nullptr)
+    {
         return 1;
+    }
     i = set_val(scope, s, type, vp);
     decref(s);
     return i;

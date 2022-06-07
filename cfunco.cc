@@ -1,21 +1,21 @@
 #define ICI_CORE
-#include "fwd.h"
-#include "cfunc.h"
 #include "archiver.h"
+#include "buf.h"
+#include "catcher.h"
+#include "cfunc.h"
 #include "debugger.h"
 #include "exec.h"
-#include "ptr.h"
-#include "map.h"
 #include "func.h"
-#include "op.h"
-#include "pc.h"
+#include "fwd.h"
 #include "int.h"
-#include "str.h"
-#include "catcher.h"
-#include "buf.h"
+#include "map.h"
 #include "mark.h"
 #include "null.h"
+#include "op.h"
+#include "pc.h"
 #include "primes.h"
+#include "ptr.h"
+#include "str.h"
 #ifndef NOPROFILE
 #include "profile.h"
 #endif
@@ -44,8 +44,10 @@ cfunc *new_cfunc(str *name, int (*func)(...), void *arg1, void *arg2)
     cfunc *cf;
 
     if ((cf = ici_talloc(cfunc)) == nullptr)
+    {
         return nullptr;
-    set_tfnz(cf, TC_CFUNC, 0, 1, sizeof (cfunc));
+    }
+    set_tfnz(cf, TC_CFUNC, 0, 1, sizeof(cfunc));
     cf->cf_name = name;
     cf->cf_cfunc = func;
     cf->cf_arg1 = arg1;
@@ -99,7 +101,8 @@ int assign_cfuncs(objwsup *s, cfunc *cf)
  *
  * This --func-- forms part of the --ici-api--.
  */
-int define_cfuncs(cfunc *cf) {
+int define_cfuncs(cfunc *cf)
+{
     return assign_cfuncs(objwsupof(vs.a_top[-1])->o_super, cf);
 }
 
@@ -114,17 +117,21 @@ int define_cfuncs(cfunc *cf) {
  *
  * This --func-- forms part of the --ici-api--.
  */
-objwsup *new_class(cfunc *cf, objwsup *super) {
-    objwsup       *s;
+objwsup *new_class(cfunc *cf, objwsup *super)
+{
+    objwsup *s;
 
-    if ((s = objwsupof(new_map())) == nullptr) {
+    if ((s = objwsupof(new_map())) == nullptr)
+    {
         return nullptr;
     }
-    if (assign_cfuncs(s, cf)) {
+    if (assign_cfuncs(s, cf))
+    {
         decref(s);
         return nullptr;
     }
-    if (super == nullptr && (super = outermost_writeable()) == nullptr) {
+    if (super == nullptr && (super = outermost_writeable()) == nullptr)
+    {
         return nullptr;
     }
     s->o_super = super;
@@ -138,12 +145,14 @@ objwsup *new_class(cfunc *cf, objwsup *super) {
  *
  * This --func-- forms part of the --ici-api--.
  */
-objwsup *new_module(cfunc *cf) {
+objwsup *new_module(cfunc *cf)
+{
     return new_class(cf, nullptr);
 }
 
 #ifdef NOTDEF
-static int call_cfunc_nodebug(object *o, object *subject) {
+static int call_cfunc_nodebug(object *o, object *subject)
+{
     return cfuncof(o)->cf_cfunc(subject);
 }
 #endif
@@ -153,36 +162,42 @@ size_t cfunc_type::mark(object *o)
     return type::mark(o) + ici_mark(cfuncof(o)->cf_name);
 }
 
-object * cfunc_type::fetch(object *o, object *k)
+object *cfunc_type::fetch(object *o, object *k)
 {
     if (k == SS(name))
+    {
         return cfuncof(o)->cf_name;
+    }
     return null;
 }
 
 void cfunc_type::objname(object *o, char p[objnamez])
 {
-    const char    *n;
+    const char *n;
     n = cfuncof(o)->cf_name->s_chars;
     if (strlen(n) > objnamez - 2 - 1)
+    {
         sprintf(p, "%.*s...()", objnamez - 6, n);
+    }
     else
+    {
         sprintf(p, "%s()", n);
+    }
 }
 
 int cfunc_type::call(object *o, object *subject)
 {
     if (UNLIKELY(debug_active)
 #ifndef NOPROFILE
-        ||
-        UNLIKELY(profile_active)
-#endif  
+        || UNLIKELY(profile_active)
+#endif
     )
     {
-        object       **xt;
-        int          result;
+        object **xt;
+        int      result;
 
-        if (UNLIKELY(debug_active)) {
+        if (UNLIKELY(debug_active))
+        {
             debugger->cfunc_call(o);
         }
 
@@ -196,15 +211,18 @@ int cfunc_type::call(object *o, object *subject)
          */
         xt = xs.a_top - 1;
         result = (*cfuncof(o)->cf_cfunc)(subject);
-        if (xt != xs.a_top) {
+        if (xt != xs.a_top)
+        {
             return result;
         }
 #ifndef NOPROFILE
-        if (profile_active) {
+        if (profile_active)
+        {
             profile_return();
         }
 #endif
-        if (UNLIKELY(debug_active)) {
+        if (UNLIKELY(debug_active))
+        {
             debugger->cfunc_result(os.a_top[-1]);
         }
         return result;
@@ -212,42 +230,55 @@ int cfunc_type::call(object *o, object *subject)
     return (*cfuncof(o)->cf_cfunc)(subject);
 }
 
-static const char * const icicore_prefix = "icicore+";
-static int icicore_prefix_len = 8;
+static const char *const icicore_prefix = "icicore+";
+static int               icicore_prefix_len = 8;
 
-int cfunc_type::save(archiver *ar, object *o) {
+int cfunc_type::save(archiver *ar, object *o)
+{
     auto cf = cfuncof(o);
 
-    if (ar->save_name(o)) {
+    if (ar->save_name(o))
+    {
         return 1;
     }
 
     auto prefix = ar->name_qualifier();
 
-    auto func = reinterpret_cast<int (*)(object*)>(cf->cf_cfunc);
+    auto          func = reinterpret_cast<int (*)(object *)>(cf->cf_cfunc);
     const int16_t namelen = cf->cf_name->s_nchars;
-    int16_t len = namelen;
-    if (func == f_coreici) {
+    int16_t       len = namelen;
+    if (func == f_coreici)
+    {
         len += icicore_prefix_len;
-    } else if (prefix->s_nchars) {
+    }
+    else if (prefix->s_nchars)
+    {
         len += 1 + prefix->s_nchars;
     }
-    if (ar->write(len)) {
+    if (ar->write(len))
+    {
         return 1;
     }
-    if (func == f_coreici) {
-        if (ar->write(icicore_prefix, icicore_prefix_len)) {
-            return 1;
-        }
-    } else if (prefix->s_nchars > 0) {
-        if (ar->write(prefix->s_chars, prefix->s_nchars)) {
-            return 1;
-        }
-        if (ar->write(".", 1)) {
+    if (func == f_coreici)
+    {
+        if (ar->write(icicore_prefix, icicore_prefix_len))
+        {
             return 1;
         }
     }
-    if (ar->write(cf->cf_name->s_chars, namelen)) {
+    else if (prefix->s_nchars > 0)
+    {
+        if (ar->write(prefix->s_chars, prefix->s_nchars))
+        {
+            return 1;
+        }
+        if (ar->write(".", 1))
+        {
+            return 1;
+        }
+    }
+    if (ar->write(cf->cf_name->s_chars, namelen))
+    {
         return 1;
     }
     return 0;
@@ -255,12 +286,16 @@ int cfunc_type::save(archiver *ar, object *o) {
 
 extern cfunc ici_std_cfuncs[];
 
-namespace {
+namespace
+{
 
-object *restore_core(const char *fname) {
+object *restore_core(const char *fname)
+{
     auto len = strlen(fname);
-    for (cfunc *cf = &ici_std_cfuncs[0]; cf->cf_name != nullptr; ++cf) {
-        if (len == cf->cf_name->s_nchars && strncmp(fname, cf->cf_name->s_chars, len) == 0) {
+    for (cfunc *cf = &ici_std_cfuncs[0]; cf->cf_name != nullptr; ++cf)
+    {
+        if (len == cf->cf_name->s_nchars && strncmp(fname, cf->cf_name->s_chars, len) == 0)
+        {
             return copyof(cf);
         }
     }
@@ -268,51 +303,62 @@ object *restore_core(const char *fname) {
     return nullptr;
 }
 
-}
+} // namespace
 
-object *cfunc_type::restore(archiver *ar) {
+object *cfunc_type::restore(archiver *ar)
+{
     object *name;
-    if (ar->restore_name(&name)) {
+    if (ar->restore_name(&name))
+    {
         return nullptr;
     }
     int16_t len;
-    if (ar->read(&len)) {
+    if (ar->read(&len))
+    {
         return nullptr;
     }
     char buf[1024]; // fixme: make configurable somehow
-    if (size_t(len) >= sizeof buf) {
+    if (size_t(len) >= sizeof buf)
+    {
         set_error("attempt to restore a cfunc with a %d byte name", len);
         return nullptr;
     }
-    if (ar->read(buf, len)) {
+    if (ar->read(buf, len))
+    {
         return nullptr;
     }
     buf[len] = '\0';
-    if (strncmp(buf, icicore_prefix, icicore_prefix_len) == 0) {
-        return restore_core(buf+icicore_prefix_len);
+    if (strncmp(buf, icicore_prefix, icicore_prefix_len) == 0)
+    {
+        return restore_core(buf + icicore_prefix_len);
     }
     auto parts = smash(buf, '.');
-    if (!parts || !parts[0]) {
+    if (!parts || !parts[0])
+    {
         abort();
     }
     auto current_scope = mapof(vs.a_top[-1]);
     auto scope = current_scope;
     auto last_part = parts[0];
-    for (auto i = 0; parts[i]; ++i) {
+    for (auto i = 0; parts[i]; ++i)
+    {
         last_part = parts[i];
-        if (!parts[i+1]) {
+        if (!parts[i + 1])
+        {
             break;
         }
         auto k = ref<str>(new_str_nul_term(parts[i]));
         auto c = ici_fetch(scope, k);
-        if (!ismap(c)) {
+        if (!ismap(c))
+        {
             set_error("attempt to restore function qualified by \"%s\"", k->s_chars);
         }
         scope = mapof(c);
     }
 
     auto s = new_str(last_part, strlen(last_part));
-    if (!s) {
+    if (!s)
+    {
         ici_free(parts);
         return nullptr;
     }
@@ -321,11 +367,13 @@ object *cfunc_type::restore(archiver *ar) {
 
     auto cf = ici_fetch(scope, s);
     decref(s);
-    if (cf == nullptr || cf == null) {
+    if (cf == nullptr || cf == null)
+    {
         set_error("attempt to restore unknown C function \"%s\"", buf);
         return nullptr;
     }
-    if (!iscfunc(cf) && !isfunc(cf)) {
+    if (!iscfunc(cf) && !isfunc(cf))
+    {
         set_error("restoring C function \"%s\" as a %s object", buf, cf->icitype()->name);
     }
     return copyof(cf);

@@ -28,14 +28,13 @@
 #define ICI_CORE
 #include "fwd.h"
 
-#include "exec.h"
-#include "op.h"
 #include "cfunc.h"
+#include "exec.h"
 #include "func.h"
-#include "str.h"
-#include "method.h"
-#include "str.h"
 #include "int.h"
+#include "method.h"
+#include "op.h"
+#include "str.h"
 
 #include <errno.h>
 #include <signal.h>
@@ -62,8 +61,7 @@ namespace ici
  */
 
 volatile sigset_t signals_pending;
-volatile long   signal_count[NSIG];
-
+volatile long     signal_count[NSIG];
 
 /*
  * Internally we keep,
@@ -83,8 +81,7 @@ volatile long   signal_count[NSIG];
  *      loop.
  */
 static object *signal_handler[NSIG];
-static int  currently_blocked;
-
+static int     currently_blocked;
 
 /*
  * Call an ici signal handler function for the specified signal.
@@ -93,28 +90,32 @@ static int  currently_blocked;
  *
  * Returns non-zero on error, zero if okay.
  */
-static int
-call_signal_handler(object *func, int signo)
+static int call_signal_handler(object *func, int signo)
 {
-    integer           *isigno;
-    object           *ret_obj;
+    integer *isigno;
+    object  *ret_obj;
 
     if (os.push_check(3 + 80)) /* see comment in ici/call.c */
+    {
         return 1;
+    }
     if ((isigno = new_int(signo)) == nullptr)
+    {
         return 1;
+    }
     os.push(isigno, with_decref);
     os.push(o_one); /* One argument. */
     os.push(func);
     if ((ret_obj = evaluate(&o_call, 3)) == nullptr)
+    {
         goto fail;
+    }
     decref(ret_obj);
     return 0;
 
 fail:
     return 1;
 }
-
 
 /*
  * Macros/functions to convert between signal numbers and
@@ -124,9 +125,8 @@ fail:
  * used to convert between uses.
  */
 
-#define     index_to_signo(N)   ((N)+1)
-#define     signo_to_index(N)   ((N)-1)
-
+#define index_to_signo(N) ((N) + 1)
+#define signo_to_index(N) ((N)-1)
 
 /*
  * Names for signals. Taken from the macros in sys/signal.h,
@@ -134,43 +134,28 @@ fail:
  * course, needs to be in signal order.
  */
 #ifdef __sun
-static const char * const signal_names[NSIG] =
-{
-    "hup",  "int",      "quit",     "ill",      "trap",
-    "abrt", "emt",      "fpe",      "kill",     "bus",
-    "segv", "sys",      "pipe",     "alrm",     "term",
-    "usr1", "usr2",     "chld",     "pwr",      "winch",
-    "urg",  "poll",     "stop",     "tstp",     "cont",
-    "ttin", "ttou",     "vtalrm",   "prof",     "xcpu",
-    "xfsz", "waiting",  "lwp",      "freeze",   "thaw",
-    "cancel",   "",     "",     "",     "",
-    "",     "",     "",     "",     "",
-    ""
-};
+static const char *const signal_names[NSIG] = {
+    "hup",  "int",  "quit", "ill",    "trap", "abrt", "emt",  "fpe",     "kill", "bus",    "segv", "sys",
+    "pipe", "alrm", "term", "usr1",   "usr2", "chld", "pwr",  "winch",   "urg",  "poll",   "stop", "tstp",
+    "cont", "ttin", "ttou", "vtalrm", "prof", "xcpu", "xfsz", "waiting", "lwp",  "freeze", "thaw", "cancel",
+    "",     "",     "",     "",       "",     "",     "",     "",        "",     ""};
 #else
-# if ! defined(BSD) && !defined(__linux__)
-static char *signal_names[NSIG] =
-{
-    "hup",  "int",      "quit",     "ill",
-    "trap", "abrt",     "iot",      "emt",
-    "fpe",  "kill",     "bus",      "segv",
-    "sys",  "pipe",     "alrm",     "term",
-    "urg",  "stop",     "tstp",     "cont",
-    "chld", "ttin",     "ttou",     "io",
-    "xcpu", "xfsz",     "vtalrm",   "prof",
-    "winch",    "info",     "usr1",     "usr2"
-};
-# endif
+#if !defined(BSD) && !defined(__linux__)
+static char *signal_names[NSIG] = {"hup",  "int",  "quit",   "ill",  "trap",  "abrt", "iot",  "emt",
+                                   "fpe",  "kill", "bus",    "segv", "sys",   "pipe", "alrm", "term",
+                                   "urg",  "stop", "tstp",   "cont", "chld",  "ttin", "ttou", "io",
+                                   "xcpu", "xfsz", "vtalrm", "prof", "winch", "info", "usr1", "usr2"};
+#endif
 #endif
 
 /*
  * Modern BSD systems define the signal names in the sys_signame
- * table so we use that if possible. 
+ * table so we use that if possible.
  */
 #if defined(__linux__)
-# define signal_names sys_siglist
+#define signal_names sys_siglist
 #elif defined(BSD)
-# define signal_names sys_signame
+#define signal_names sys_signame
 #endif
 
 static const char *get_signal_name(int sig)
@@ -189,21 +174,23 @@ static const char *get_signal_name(int sig)
  *
  * Returns a signal number or zero on error (no such signal).
  */
-static int
-signam_to_signo(char *nam)
+static int signam_to_signo(char *nam)
 {
     int signo;
 
     if (strncasecmp(nam, "sig", 3) == 0)
+    {
         nam += 3;
+    }
     for (signo = 0; signo < NSIG; ++signo)
     {
         if (strcasecmp(nam, get_signal_name(signo)) == 0)
+        {
             return index_to_signo(signo);
+        }
     }
     return 0;
 }
-
 
 /*
  * Map a signal number to a name.
@@ -211,18 +198,18 @@ signam_to_signo(char *nam)
  * Returns a name for the given signal or nullptr if the signal number
  * is invalid.
  */
-static const char *
-signo_to_signam(int signo)
+static const char *signo_to_signam(int signo)
 {
 #ifdef __linux__
     return strsignal(signo);
 #else
     if (signo < 1 || signo >= NSIG)
+    {
         return nullptr;
+    }
     return get_signal_name(signo_to_index(signo));
 #endif
 }
-
 
 /*
  * This is the signal handler function invoked when a signal
@@ -232,10 +219,9 @@ signo_to_signam(int signo)
  * is invoked immediately otherwise note is taken of the signal
  * and it is handled via other means.
  */
-static void
-ici_signal_handler(int signo)
+static void ici_signal_handler(int signo)
 {
-    object   *func;
+    object *func;
 
     if (currently_blocked)
     {
@@ -259,16 +245,15 @@ ici_signal_handler(int signo)
     }
 }
 
-
 /*
  * Initialize ici's signal handling.
  */
 void init_signals()
 {
-    int     signo;
+    int signo;
 
 #if defined(__sun) || defined(__FreeBSD__) || defined(__linux__)
-    memset((void *)&signals_pending, 0, sizeof (sigset_t));
+    memset((void *)&signals_pending, 0, sizeof(sigset_t));
 #else
     signals_pending = 0;
 #endif
@@ -279,7 +264,6 @@ void init_signals()
         signal_count[signo] = 0;
     }
 }
-
 
 /*
  * Tell signals code to invoke handlers directly as
@@ -295,14 +279,13 @@ int signals_invoke_immediately(int state)
     return previous;
 }
 
-
 /*
  * Call handlers for any pending signals.
  */
 int invoke_signal_handlers()
 {
     int     signo;
-    object   *fn;
+    object *fn;
 
     for (signo = 1; signo <= NSIG; ++signo)
     {
@@ -311,8 +294,12 @@ int invoke_signal_handlers()
         {
             sigdelset((sigset_t *)&signals_pending, signo);
             if ((fn = signal_handler[signo_to_index(signo)]) != nullptr)
+            {
                 if (call_signal_handler(fn, signo))
+                {
                     return 1;
+                }
+            }
             signal_count[signo_to_index(signo)] = 0;
         }
 #else
@@ -321,8 +308,12 @@ int invoke_signal_handlers()
         {
             signals_pending &= ~mask;
             if ((fn = signal_handler[signo_to_index(signo)]) != nullptr)
+            {
                 if (call_signal_handler(fn, signo))
+                {
                     return 1;
+                }
+            }
             signal_count[signo_to_index(signo)] = 0;
         }
 #endif
@@ -341,16 +332,15 @@ int invoke_signal_handlers()
  * either one of the strings "default" or "ignore" or is a function
  * that is to handle the single.
  */
-static int
-f_signal(...)
+static int f_signal(...)
 {
-    object   *sigo;
-    object   *handlero;
-    int         signo;
-    void        (*handler)(int);
-    void        (*rc)(int);
-    object   *prev_handler;
-    object   *result;
+    object *sigo;
+    object *handlero;
+    int     signo;
+    void (*handler)(int);
+    void (*rc)(int);
+    object *prev_handler;
+    object *result;
 
     handlero = nullptr;
     switch (NARGS())
@@ -390,16 +380,22 @@ f_signal(...)
     if (handlero == nullptr)
     {
         if (prev_handler)
+        {
             return ret_no_decref(handlero);
+        }
         signal(signo, handler = signal(signo, SIG_IGN));
         if (handler == ici_signal_handler)
         {
             return set_error("signals messed up, unrecorded handler present");
         }
         if (handler == SIG_DFL)
+        {
             return ret_no_decref(SS(default));
+        }
         if (handler == SIG_IGN)
+        {
             return ret_no_decref(SS(ignore));
+        }
         return set_error("signal in indeterminate state");
     }
 
@@ -433,11 +429,17 @@ f_signal(...)
     }
 
     if (rc == ici_signal_handler)
+    {
         result = prev_handler;
+    }
     else if (rc == SIG_DFL)
+    {
         result = SS(default);
+    }
     else if (rc == SIG_IGN)
+    {
         result = SS(ignore);
+    }
     else
     {
         signal(signo, rc);
@@ -447,7 +449,6 @@ f_signal(...)
     return ret_no_decref(result);
 }
 
-
 /*
  * string = signam(int)
  *
@@ -455,14 +456,15 @@ f_signal(...)
  * number is out of bounds.  This is a relatively low-cost method
  * of checking signal numbers.
  */
-static int
-f_signam(...)
+static int f_signam(...)
 {
     long  signo;
-    char  *nam;
+    char *nam;
 
     if (typecheck("i", &signo))
+    {
         return 1;
+    }
     if ((nam = (char *)signo_to_signam(signo)) == nullptr)
     {
         return set_error("invalid signal number");
@@ -470,15 +472,9 @@ f_signam(...)
     return str_ret(nam);
 }
 
-
 /*
  * Our C-funcs
  */
-ICI_DEFINE_CFUNCS(signals)
-{
-    ICI_DEFINE_CFUNC(signal,   f_signal),
-    ICI_DEFINE_CFUNC(signam,   f_signam),
-    ICI_CFUNCS_END()
-};
+ICI_DEFINE_CFUNCS(signals){ICI_DEFINE_CFUNC(signal, f_signal), ICI_DEFINE_CFUNC(signam, f_signam), ICI_CFUNCS_END()};
 
 } // namespace ici

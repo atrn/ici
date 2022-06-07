@@ -3,9 +3,10 @@
 #ifndef ICI_HANDLE_H
 #define ICI_HANDLE_H
 
+#include "object.h"
+
 namespace ici
 {
-
 
 /*
  * The following portion of this file exports to ici.h. --ici.h-start--
@@ -93,72 +94,85 @@ namespace ici
  */
 struct handle : objwsup
 {
-    handle() : objwsup{TC_HANDLE, 0, 1, 0}
-             , h_ptr(nullptr)
-             , h_name(nullptr)
-             , h_pre_free(nullptr)
-             , h_member_map(nullptr)
-             , h_member_intf(nullptr)
-             , h_general_intf(nullptr)
-    {}
+    handle()
+        : objwsup{TC_HANDLE, 0, 1, 0}
+        , h_ptr(nullptr)
+        , h_name(nullptr)
+        , h_pre_free(nullptr)
+        , h_member_map(nullptr)
+        , h_member_intf(nullptr)
+        , h_general_intf(nullptr)
+    {
+    }
 
-    void    *h_ptr;
-    str     *h_name;
-    void    (*h_pre_free)(handle *h);
-    object   *h_member_map;
-    int     (*h_member_intf)(void *ptr, int id, object *setv, object **retv);
-    int     (*h_general_intf)(handle *h, object *k, object *setv, object **retv);
+    void *h_ptr;
+    str  *h_name;
+    void (*h_pre_free)(handle *h);
+    object *h_member_map;
+    int (*h_member_intf)(void *ptr, int id, object *setv, object **retv);
+    int (*h_general_intf)(handle *h, object *k, object *setv, object **retv);
 
-/*
- * Flags set in the upper nibble of o_flags, which is
- * allowed for type specific use.
- */
-static constexpr int CLOSED =  0x20;
-static constexpr int HAS_PRIV_MAP = 0x40;
-static constexpr int METHOD = 0x8000000;
-/*
- * CLOSED               If set, the thing h_ptr points to is no longer
- *                      valid (it has probably been freed). This flag
- *                      exists for the convenience of users, as the
- *                      core handle code doesn't touch this much.
- *                      Use of this latent feature depends on needs.
- *
- * HAS_PRIV_MAP         This handle has had a private map allocated
- *                      to hold ICI values that have been assigned to
- *                      it. This does not happen until required, as
- *                      not all handles will ever need one. The super
- *                      is the private struct (and it's super is the
- *                      super the creator originally supplied).
- */
-
+    /*
+     * Flags set in the upper nibble of o_flags, which is
+     * allowed for type specific use.
+     */
+    static constexpr int CLOSED = 0x20;
+    static constexpr int HAS_PRIV_MAP = 0x40;
+    static constexpr int METHOD = 0x8000000;
+    /*
+     * CLOSED               If set, the thing h_ptr points to is no longer
+     *                      valid (it has probably been freed). This flag
+     *                      exists for the convenience of users, as the
+     *                      core handle code doesn't touch this much.
+     *                      Use of this latent feature depends on needs.
+     *
+     * HAS_PRIV_MAP         This handle has had a private map allocated
+     *                      to hold ICI values that have been assigned to
+     *                      it. This does not happen until required, as
+     *                      not all handles will ever need one. The super
+     *                      is the private struct (and it's super is the
+     *                      super the creator originally supplied).
+     */
 };
 
-inline handle *handleof(object *o) { return o->as<handle>(); }
-inline bool ishandle(object *o) { return o->hastype(TC_HANDLE); }
-inline bool ishandleof(object *o, str *n) { return ishandle(o) && handleof(o)->h_name == n; }
+inline handle *handleof(object *o)
+{
+    return o->as<handle>();
+}
+inline bool ishandle(object *o)
+{
+    return o->hastype(TC_HANDLE);
+}
+inline bool ishandleof(object *o, str *n)
+{
+    return ishandle(o) && handleof(o)->h_name == n;
+}
 
 struct name_id
 {
-    const char  *ni_name;
+    const char *ni_name;
     long        ni_id;
 };
 
 class handle_type : public type
 {
-public:
-    handle_type() : type("handle", sizeof (struct handle), type::has_objname) {}
+  public:
+    handle_type()
+        : type("handle", sizeof(struct handle), type::has_objname)
+    {
+    }
 
-    size_t mark(object *o) override;
-    void free(object *o) override;
+    size_t        mark(object *o) override;
+    void          free(object *o) override;
     unsigned long hash(object *o) override;
-    int cmp(object *o1, object *o2) override;
-    object *fetch(object *o, object *k) override;
-    int fetch_super(object *o, object *k, object **v, map *b) override;
-    object *fetch_base(object *o, object *k) override;
-    int assign_base(object *o, object *k, object *v) override;
-    int assign(object *o, object *k, object *v) override;
-    int assign_super(object *o, object *k, object *v, map *b) override;
-    void objname(object *o, char p[objnamez]) override;
+    int           cmp(object *o1, object *o2) override;
+    object       *fetch(object *o, object *k) override;
+    int           fetch_super(object *o, object *k, object **v, map *b) override;
+    object       *fetch_base(object *o, object *k) override;
+    int           assign_base(object *o, object *k, object *v) override;
+    int           assign(object *o, object *k, object *v) override;
+    int           assign_super(object *o, object *k, object *v, map *b) override;
+    void          objname(object *o, char p[objnamez]) override;
 };
 
 /*

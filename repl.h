@@ -5,13 +5,14 @@
 
 #include "file.h"
 
-namespace ici {
+namespace ici
+{
 
 bool is_repl_file(file *);
 
 /* Inform the REPL a new statement is being parsed. */
 void repl_file_new_statement(void *, bool sol);
 
-}
+} // namespace ici
 
 #endif

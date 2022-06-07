@@ -3,9 +3,9 @@
 #ifndef ICI_CFUNC_H
 #define ICI_CFUNC_H
 
-#include "object.h"
 #include "array.h"
 #include "int.h"
+#include "object.h"
 #include "str.h"
 
 namespace ici
@@ -25,10 +25,10 @@ namespace ici
  */
 struct cfunc : object
 {
-    str         *cf_name;
-    int         (*cf_cfunc)(...);
-    const void  *cf_arg1;
-    const void  *cf_arg2;
+    str *cf_name;
+    int (*cf_cfunc)(...);
+    const void *cf_arg1;
+    const void *cf_arg2;
 
     cfunc();
 
@@ -51,7 +51,7 @@ struct cfunc : object
  *
  * The type has a well-known built-in type code of 'TC_CFUNC'.
  *
-  * cf_name              A name for the function. Calls to functions
+ * cf_name              A name for the function. Calls to functions
  *                      such as 'assign_cfuncs' will use this as
  *                      the name to use when assigning it into an ICI
  *                      struct. Apart from that, it is only used in
@@ -69,8 +69,14 @@ struct cfunc : object
  * This comment is also part of the --ici-api--.
  */
 
-inline cfunc *cfuncof(object *o) { return o->as<cfunc>(); }
-inline bool iscfunc(object *o) { return o->hastype(TC_CFUNC); }
+inline cfunc *cfuncof(object *o)
+{
+    return o->as<cfunc>();
+}
+inline bool iscfunc(object *o)
+{
+    return o->hastype(TC_CFUNC);
+}
 
 /*
  * The operand stack on entry to an intrinsic function:
@@ -90,7 +96,10 @@ inline bool iscfunc(object *o) { return o->hastype(TC_CFUNC); }
  *
  * This --func-- forms part of the --ici-api--.
  */
-inline object *& ARG(int n) { return os.a_top[-3 - (n)]; }
+inline object *&ARG(int n)
+{
+    return os.a_top[-3 - (n)];
+}
 
 /*
  * In a call from ICI to a function coded in C, this macro returns the
@@ -98,7 +107,10 @@ inline object *& ARG(int n) { return os.a_top[-3 - (n)]; }
  *
  * This --func-- forms part of the --ici-api--.
  */
-inline int NARGS() { return int(intof(os.a_top[-2])->i_value); }
+inline int NARGS()
+{
+    return int(intof(os.a_top[-2])->i_value);
+}
 
 /*
  * In a call from ICI to a function coded in C, this macro returns
@@ -107,7 +119,10 @@ inline int NARGS() { return int(intof(os.a_top[-2])->i_value); }
  *
  * This --func-- forms part of the --ici-api--.
  */
-inline object **ARGS() { return &os.a_top[-3]; }
+inline object **ARGS()
+{
+    return &os.a_top[-3];
+}
 
 /*
  * In a call from ICI to a function coded in C, this macro returns the
@@ -119,27 +134,33 @@ inline object **ARGS() { return &os.a_top[-3]; }
  *
  * This --func-- forms part of the --ici-api--.
  */
-inline const void *ICI_CF_ARG1() { return cfuncof(os.a_top[-1])->cf_arg1; }
-inline const void *ICI_CF_ARG2() { return cfuncof(os.a_top[-1])->cf_arg2; }
+inline const void *ICI_CF_ARG1()
+{
+    return cfuncof(os.a_top[-1])->cf_arg1;
+}
+inline const void *ICI_CF_ARG2()
+{
+    return cfuncof(os.a_top[-1])->cf_arg2;
+}
 
 /*
  * Helper macros to start the definution of a static cfuncs array.
  * This is a bit of shorthand used within the interpreter to
  * help consistency.
  */
-#define ICI_DEFINE_CFUNCS(NAME) ici::cfunc ici_ ## NAME ## _cfuncs[] =
+#define ICI_DEFINE_CFUNCS(NAME) ici::cfunc ici_##NAME##_cfuncs[] =
 
 /*
  * Mark the end of the initializers of a static cfuncs array.
- * This inserts the sentinel value into the array to mark
- * the end of valid cfunc entries.
  */
-#define ICI_CFUNCS_END() {}
+#define ICI_CFUNCS_END()                                                                                               \
+    {                                                                                                                  \
+    }
 
 /*
  *  Expand to the name of the given "cfuncs" table.
  */
-#define ICI_CFUNCS(NAME) ici_ ## NAME ## _cfuncs
+#define ICI_CFUNCS(NAME) ici_##NAME##_cfuncs
 
 /*
  * Macros to define cfuncs. Use the one appropriate for the number of
@@ -150,13 +171,31 @@ inline const void *ICI_CF_ARG2() { return cfuncof(os.a_top[-1])->cf_arg2; }
  * defined via icistr-setup.h and referenced via the ICIS macro.
  */
 #ifndef ICI_MODULE_NAME
-#define ICI_DEFINE_CFUNC(NAME, FUNC) {SS(NAME), (FUNC)}
-#define ICI_DEFINE_CFUNC1(NAME, FUNC, ARG) {SS(NAME), (FUNC), (void *)(ARG)}
-#define ICI_DEFINE_CFUNC2(NAME, FUNC, ARG1, ARG2) {SS(NAME), (FUNC), (void *)(ARG1), (void *)(ARG2)}
+#define ICI_DEFINE_CFUNC(NAME, FUNC)                                                                                   \
+    {                                                                                                                  \
+        SS(NAME), (FUNC)                                                                                               \
+    }
+#define ICI_DEFINE_CFUNC1(NAME, FUNC, ARG)                                                                             \
+    {                                                                                                                  \
+        SS(NAME), (FUNC), (void *)(ARG)                                                                                \
+    }
+#define ICI_DEFINE_CFUNC2(NAME, FUNC, ARG1, ARG2)                                                                      \
+    {                                                                                                                  \
+        SS(NAME), (FUNC), (void *)(ARG1), (void *)(ARG2)                                                               \
+    }
 #else
-#define ICI_DEFINE_CFUNC(NAME, FUNC) {ICIS(NAME), (FUNC)}
-#define ICI_DEFINE_CFUNC1(NAME, FUNC, ARG) {ICIS(NAME), (FUNC), (void *)(ARG)}
-#define ICI_DEFINE_CFUNC2(NAME, FUNC, ARG1, ARG2) {ICIS(NAME), (FUNC), (void *)(ARG1), (void *)(ARG2)}
+#define ICI_DEFINE_CFUNC(NAME, FUNC)                                                                                   \
+    {                                                                                                                  \
+        ICIS(NAME), (FUNC)                                                                                             \
+    }
+#define ICI_DEFINE_CFUNC1(NAME, FUNC, ARG)                                                                             \
+    {                                                                                                                  \
+        ICIS(NAME), (FUNC), (void *)(ARG)                                                                              \
+    }
+#define ICI_DEFINE_CFUNC2(NAME, FUNC, ARG1, ARG2)                                                                      \
+    {                                                                                                                  \
+        ICIS(NAME), (FUNC), (void *)(ARG1), (void *)(ARG2)                                                             \
+    }
 #endif
 
 /*
@@ -166,14 +205,17 @@ inline const void *ICI_CF_ARG2() { return cfuncof(os.a_top[-1])->cf_arg2; }
 
 class cfunc_type : public type
 {
-public:
-    cfunc_type() : type("func", sizeof (cfunc), type::has_objname | type::has_call) {}
+  public:
+    cfunc_type()
+        : type("func", sizeof(cfunc), type::has_objname | type::has_call)
+    {
+    }
 
-    size_t mark(object *o) override;
+    size_t  mark(object *o) override;
     object *fetch(object *o, object *k) override;
-    void objname(object *o, char p[objnamez]) override;
-    int call(object *o, object *subject) override;
-    int save(archiver *, object *) override;
+    void    objname(object *o, char p[objnamez]) override;
+    int     call(object *o, object *subject) override;
+    int     save(archiver *, object *) override;
     object *restore(archiver *) override;
 };
 

@@ -26,21 +26,21 @@
  */
 #ifndef NOPROFILE
 
-#include "fwd.h"
 #include "profile.h"
-#include "str.h"
-#include "func.h"
 #include "cfunc.h"
-#include "op.h"
 #include "exec.h"
-#include "null.h"
+#include "func.h"
+#include "fwd.h"
 #include "map.h"
+#include "null.h"
+#include "op.h"
+#include "str.h"
 #include <time.h>
 
 /* This is required for the high resolution timer. */
 #ifdef _WIN32
-#include <windows.h>
 #include <mmsystem.h>
+#include <windows.h>
 #endif
 
 namespace ici
@@ -51,19 +51,16 @@ namespace ici
  */
 int profile_active = 0;
 
-
 /*
  * The call currently being executed.
  */
 profilecall *ici_prof_cur_call = nullptr;
-
 
 /*
  * The function to call when profiling completes.  This might (for example)
  * display the call graph in a dialog box.
  */
 void (*ici_prof_done_callback)(profilecall *) = nullptr;
-
 
 /*
  * The file to write profile results to when complete.
@@ -76,7 +73,6 @@ void (*ici_prof_done_callback)(profilecall *) = nullptr;
  *                 ];
  */
 char ici_prof_outfile[512] = "";
-
 
 /*
  * time_in_ms
@@ -111,8 +107,7 @@ size_t profilecall_type::mark(object *o)
  * Returns:
  *  A new profilecall object.
  */
-profilecall *
-profilecall_new(profilecall *called_by)
+profilecall *profilecall_new(profilecall *called_by)
 {
     profilecall *pc;
 
@@ -128,7 +123,9 @@ profilecall_new(profilecall *called_by)
 
     /* Allocate storage for it. */
     if ((pc = ici_talloc(profilecall)) == nullptr)
+    {
         return nullptr;
+    }
 
     /* Fill in the bits common to all ICI objects. */
     set_tfnz(pc, TC_PROFILECALL, 0, 1, 0);
@@ -152,18 +149,15 @@ profilecall_new(profilecall *called_by)
     return pc;
 }
 
-
 /*
  * Parameters:
  *  done        A function to call when profiling completes.  Its only
  *              parameter is the root of the profiling call graph.
  */
-void
-profile_set_done_callback(void (*done)(profilecall *))
+void profile_set_done_callback(void (*done)(profilecall *))
 {
     ici_prof_done_callback = done;
 }
-
 
 /*
  * profile
@@ -179,20 +173,23 @@ profile_set_done_callback(void (*done)(profilecall *))
  *              profile_set_done_callback() for another mechanism to
  *              get at the data.
  */
-static int
-f_profile(...)
+static int f_profile(...)
 {
     char *outfile;
     assert(!profile_active);
 
     /* Check parameters. */
     if (NARGS() > 1)
+    {
         return argcount(1);
+    }
     if (NARGS() == 1)
     {
         /* Check and store the path that profiling info will be saved to. */
         if (typecheck("s", &outfile))
+        {
             return 1;
+        }
         strcpy(ici_prof_outfile, outfile);
     }
 
@@ -201,14 +198,13 @@ f_profile(...)
     return null_ret();
 }
 
-
 /*
  *  This is called whenever ICI calls a function.
  */
 void profile_call(func *f)
 {
     profilecall *pc;
-    time_t start;
+    time_t       start;
     start = time_in_ms();
 
     /* Has this function been called from the current function before? */
@@ -226,10 +222,9 @@ void profile_call(func *f)
 
     /* Switch context to the new function and remember when we entered it. */
     pc->pc_laststart = start;
-    ++ pc->pc_call_count;
+    ++pc->pc_call_count;
     ici_prof_cur_call = pc;
 }
-
 
 /*
  *  Dumps a profilecall to a file.  Warning: this is recursive.
@@ -242,22 +237,17 @@ void profile_call(func *f)
 static void write_outfile(FILE *of, profilecall *pc, int indent)
 {
     slot *sl;
-    char  *p;
+    char *p;
 
     fputs("[map\n", of);
     fprintf(of, "%*stotal = %ld,\n", indent + 1, "", pc->pc_total);
     fprintf(of, "%*scall_count = %ld,\n", indent + 1, "", pc->pc_call_count);
     fprintf(of, "%*scalls = [map\n", indent + 1, "");
-    for
-    (
-        sl = pc->pc_calls->s_slots + pc->pc_calls->s_nslots - 1;
-        sl >= pc->pc_calls->s_slots;
-        -- sl
-    )
+    for (sl = pc->pc_calls->s_slots + pc->pc_calls->s_nslots - 1; sl >= pc->pc_calls->s_slots; --sl)
     {
         if (sl->sl_key != nullptr)
         {
-            char    n1[objnamez];
+            char n1[objnamez];
 
             objname(n1, sl->sl_key);
             fprintf(of, "%*s(\"", indent + 2, "");
@@ -277,12 +267,10 @@ static void write_outfile(FILE *of, profilecall *pc, int indent)
     fprintf(of, "%*s]", indent, "");
 }
 
-
 /*
  *  Called whenever ICI returns from a function.
  */
-void
-profile_return()
+void profile_return()
 {
     /* Is this the return immediately after the call to profile()? */
     if (ici_prof_cur_call == nullptr)
@@ -290,9 +278,9 @@ profile_return()
         /* Yes, create the top-level profilecall object. */
         ici_prof_cur_call = profilecall_new(nullptr);
         ici_prof_cur_call->pc_laststart = time_in_ms();
-        #ifdef _WIN32
-            timeBeginPeriod(1);
-        #endif
+#ifdef _WIN32
+        timeBeginPeriod(1);
+#endif
     }
     else
     {
@@ -302,10 +290,10 @@ profile_return()
         /* Have we run out? */
         if (ici_prof_cur_call->pc_calledby == nullptr)
         {
-            /* Yeah we've run out, end of profile. */
-            #ifdef _WIN32
-                timeEndPeriod(1);
-            #endif
+/* Yeah we've run out, end of profile. */
+#ifdef _WIN32
+            timeEndPeriod(1);
+#endif
 
             if (ici_prof_done_callback != nullptr)
             {
@@ -340,15 +328,10 @@ profile_return()
     }
 }
 
-
 /*
  * ICI functions exported for profiling.
  */
-ICI_DEFINE_CFUNCS(profile)
-{
-    ICI_DEFINE_CFUNC(profile, f_profile),
-    ICI_CFUNCS_END()
-};
+ICI_DEFINE_CFUNCS(profile){ICI_DEFINE_CFUNC(profile, f_profile), ICI_CFUNCS_END()};
 
 #endif
 

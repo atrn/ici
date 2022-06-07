@@ -1,18 +1,22 @@
 #define ICI_CORE
-#include "fwd.h"
 #include "null.h"
+#include "fwd.h"
 
-namespace ici {
+namespace ici
+{
 
-void null_type::free(object *) {
+void null_type::free(object *)
+{
     // null is static and is never freed
 }
 
-int null_type::save(archiver *, object *) {
+int null_type::save(archiver *, object *)
+{
     return 0;
 }
 
-object *null_type::restore(archiver *) {
+object *null_type::restore(archiver *)
+{
     return copyof(null);
 }
 

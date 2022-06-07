@@ -37,11 +37,11 @@
 
 #ifndef ICI_SW_CRC
 
+#include <pthread.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdint.h>
 #include <unistd.h>
-#include <pthread.h>
 
 namespace ici
 {
@@ -51,14 +51,15 @@ namespace ici
 
 /* Table for a quadword-at-a-time software crc. */
 static pthread_once_t crc32c_once_sw = PTHREAD_ONCE_INIT;
-static uint32_t crc32c_table[8][256];
+static uint32_t       crc32c_table[8][256];
 
 /* Construct table for software CRC-32C calculation. */
 static void crc32c_init_sw()
 {
     uint32_t n, crc, k;
 
-    for (n = 0; n < 256; n++) {
+    for (n = 0; n < 256; n++)
+    {
         crc = n;
         crc = crc & 1 ? (crc >> 1) ^ POLY : crc >> 1;
         crc = crc & 1 ? (crc >> 1) ^ POLY : crc >> 1;
@@ -70,9 +71,11 @@ static void crc32c_init_sw()
         crc = crc & 1 ? (crc >> 1) ^ POLY : crc >> 1;
         crc32c_table[0][n] = crc;
     }
-    for (n = 0; n < 256; n++) {
+    for (n = 0; n < 256; n++)
+    {
         crc = crc32c_table[0][n];
-        for (k = 1; k < 8; k++) {
+        for (k = 1; k < 8; k++)
+        {
             crc = crc32c_table[0][crc & 0xff] ^ (crc >> 8);
             crc32c_table[k][n] = crc;
         }
@@ -85,28 +88,26 @@ static void crc32c_init_sw()
 static uint32_t crc32c_sw(uint32_t crci, const void *buf, size_t len)
 {
     const unsigned char *next = (const unsigned char *)buf;
-    uint64_t crc;
+    uint64_t             crc;
 
     pthread_once(&crc32c_once_sw, crc32c_init_sw);
     crc = crci ^ 0xffffffff;
-    while (len && ((uintptr_t)next & 7) != 0) {
+    while (len && ((uintptr_t)next & 7) != 0)
+    {
         crc = crc32c_table[0][(crc ^ *next++) & 0xff] ^ (crc >> 8);
         len--;
     }
-    while (len >= 8) {
+    while (len >= 8)
+    {
         crc ^= *(uint64_t *)next;
-        crc = crc32c_table[7][crc & 0xff] ^
-              crc32c_table[6][(crc >> 8) & 0xff] ^
-              crc32c_table[5][(crc >> 16) & 0xff] ^
-              crc32c_table[4][(crc >> 24) & 0xff] ^
-              crc32c_table[3][(crc >> 32) & 0xff] ^
-              crc32c_table[2][(crc >> 40) & 0xff] ^
-              crc32c_table[1][(crc >> 48) & 0xff] ^
-              crc32c_table[0][crc >> 56];
+        crc = crc32c_table[7][crc & 0xff] ^ crc32c_table[6][(crc >> 8) & 0xff] ^ crc32c_table[5][(crc >> 16) & 0xff] ^
+              crc32c_table[4][(crc >> 24) & 0xff] ^ crc32c_table[3][(crc >> 32) & 0xff] ^
+              crc32c_table[2][(crc >> 40) & 0xff] ^ crc32c_table[1][(crc >> 48) & 0xff] ^ crc32c_table[0][crc >> 56];
         next += 8;
         len -= 8;
     }
-    while (len) {
+    while (len)
+    {
         crc = crc32c_table[0][(crc ^ *next++) & 0xff] ^ (crc >> 8);
         len--;
     }
@@ -122,9 +123,12 @@ static inline uint32_t gf2_matrix_times(uint32_t *mat, uint32_t vec)
     uint32_t sum;
 
     sum = 0;
-    while (vec) {
+    while (vec)
+    {
         if (vec & 1)
+        {
             sum ^= *mat;
+        }
         vec >>= 1;
         mat++;
     }
@@ -148,14 +152,15 @@ static inline void gf2_matrix_square(uint32_t *square, uint32_t *mat)
    len, but that is not needed for this application. */
 static void crc32c_zeros_op(uint32_t *even, size_t len)
 {
-    int n;
+    int      n;
     uint32_t row;
-    uint32_t odd[32];       /* odd-power-of-two zeros operator */
+    uint32_t odd[32]; /* odd-power-of-two zeros operator */
 
     /* put operator for one zero bit in odd */
-    odd[0] = POLY;              /* CRC-32C polynomial */
+    odd[0] = POLY; /* CRC-32C polynomial */
     row = 1;
-    for (n = 1; n < 32; n++) {
+    for (n = 1; n < 32; n++)
+    {
         odd[n] = row;
         row <<= 1;
     }
@@ -169,18 +174,23 @@ static void crc32c_zeros_op(uint32_t *even, size_t len)
     /* first square will put the operator for one zero byte (eight zero bits),
        in even -- next square puts operator for two zero bytes in odd, and so
        on, until len has been rotated down to zero */
-    do {
+    do
+    {
         gf2_matrix_square(even, odd);
         len >>= 1;
         if (len == 0)
+        {
             return;
+        }
         gf2_matrix_square(odd, even);
         len >>= 1;
     } while (len);
 
     /* answer ended up in odd -- copy to even */
     for (n = 0; n < 32; n++)
+    {
         even[n] = odd[n];
+    }
 }
 
 /* Take a length and build four lookup tables for applying the zeros operator
@@ -191,7 +201,8 @@ static void crc32c_zeros(uint32_t zeros[][256], size_t len)
     uint32_t op[32];
 
     crc32c_zeros_op(op, len);
-    for (n = 0; n < 256; n++) {
+    for (n = 0; n < 256; n++)
+    {
         zeros[0][n] = gf2_matrix_times(op, n);
         zeros[1][n] = gf2_matrix_times(op, n << 8);
         zeros[2][n] = gf2_matrix_times(op, n << 16);
@@ -202,8 +213,7 @@ static void crc32c_zeros(uint32_t zeros[][256], size_t len)
 /* Apply the zeros operator table to crc. */
 static inline uint32_t crc32c_shift(uint32_t zeros[][256], uint32_t crc)
 {
-    return zeros[0][crc & 0xff] ^ zeros[1][(crc >> 8) & 0xff] ^
-           zeros[2][(crc >> 16) & 0xff] ^ zeros[3][crc >> 24];
+    return zeros[0][crc & 0xff] ^ zeros[1][(crc >> 8) & 0xff] ^ zeros[2][(crc >> 16) & 0xff] ^ zeros[3][crc >> 24];
 }
 
 /* Block sizes for three-way parallel crc computation.  LONG and SHORT must
@@ -218,8 +228,8 @@ static inline uint32_t crc32c_shift(uint32_t zeros[][256], uint32_t crc)
 
 /* Tables for hardware crc that shift a crc by LONG and SHORT zeros. */
 static pthread_once_t crc32c_once_hw = PTHREAD_ONCE_INIT;
-static uint32_t crc32c_long[4][256];
-static uint32_t crc32c_short[4][256];
+static uint32_t       crc32c_long[4][256];
+static uint32_t       crc32c_short[4][256];
 
 /* Initialize tables for shifting crcs. */
 static void crc32c_init_hw()
@@ -233,7 +243,7 @@ static uint32_t crc32c_hw(uint32_t crc, const void *buf, size_t len)
 {
     const unsigned char *next = (const unsigned char *)buf;
     const unsigned char *end;
-    uint64_t crc0, crc1, crc2;      /* need to be 64 bits for crc32q */
+    uint64_t             crc0, crc1, crc2; /* need to be 64 bits for crc32q */
 
     /* populate shift tables the first time through */
     pthread_once(&crc32c_once_hw, crc32c_init_hw);
@@ -243,8 +253,10 @@ static uint32_t crc32c_hw(uint32_t crc, const void *buf, size_t len)
 
     /* compute the crc for up to seven leading bytes to bring the data pointer
        to an eight-byte boundary */
-    while (len && ((uintptr_t)next & 7) != 0) {
-        __asm__("crc32b\t" "(%1), %0"
+    while (len && ((uintptr_t)next & 7) != 0)
+    {
+        __asm__("crc32b\t"
+                "(%1), %0"
                 : "=r"(crc0)
                 : "r"(next), "0"(crc0));
         next++;
@@ -255,12 +267,15 @@ static uint32_t crc32c_hw(uint32_t crc, const void *buf, size_t len)
        instructions, each on LONG bytes -- this is optimized for the Nehalem,
        Westmere, Sandy Bridge, and Ivy Bridge architectures, which have a
        throughput of one crc per cycle, but a latency of three cycles */
-    while (len >= LONG*3) {
+    while (len >= LONG * 3)
+    {
         crc1 = 0;
         crc2 = 0;
         end = next + LONG;
-        do {
-            __asm__("crc32q\t" "(%3), %0\n\t"
+        do
+        {
+            __asm__("crc32q\t"
+                    "(%3), %0\n\t"
                     "crc32q\t" LONGx1 "(%3), %1\n\t"
                     "crc32q\t" LONGx2 "(%3), %2"
                     : "=r"(crc0), "=r"(crc1), "=r"(crc2)
@@ -269,18 +284,21 @@ static uint32_t crc32c_hw(uint32_t crc, const void *buf, size_t len)
         } while (next < end);
         crc0 = crc32c_shift(crc32c_long, crc0) ^ crc1;
         crc0 = crc32c_shift(crc32c_long, crc0) ^ crc2;
-        next += LONG*2;
-        len -= LONG*3;
+        next += LONG * 2;
+        len -= LONG * 3;
     }
 
     /* do the same thing, but now on SHORT*3 blocks for the remaining data less
        than a LONG*3 block */
-    while (len >= SHORT*3) {
+    while (len >= SHORT * 3)
+    {
         crc1 = 0;
         crc2 = 0;
         end = next + SHORT;
-        do {
-            __asm__("crc32q\t" "(%3), %0\n\t"
+        do
+        {
+            __asm__("crc32q\t"
+                    "(%3), %0\n\t"
                     "crc32q\t" SHORTx1 "(%3), %1\n\t"
                     "crc32q\t" SHORTx2 "(%3), %2"
                     : "=r"(crc0), "=r"(crc1), "=r"(crc2)
@@ -289,15 +307,17 @@ static uint32_t crc32c_hw(uint32_t crc, const void *buf, size_t len)
         } while (next < end);
         crc0 = crc32c_shift(crc32c_short, crc0) ^ crc1;
         crc0 = crc32c_shift(crc32c_short, crc0) ^ crc2;
-        next += SHORT*2;
-        len -= SHORT*3;
+        next += SHORT * 2;
+        len -= SHORT * 3;
     }
 
     /* compute the crc on the remaining eight-byte units less than a SHORT*3
        block */
     end = next + (len - (len & 7));
-    while (next < end) {
-        __asm__("crc32q\t" "(%1), %0"
+    while (next < end)
+    {
+        __asm__("crc32q\t"
+                "(%1), %0"
                 : "=r"(crc0)
                 : "r"(next), "0"(crc0));
         next += 8;
@@ -305,8 +325,10 @@ static uint32_t crc32c_hw(uint32_t crc, const void *buf, size_t len)
     len &= 7;
 
     /* compute the crc for up to seven trailing bytes */
-    while (len) {
-        __asm__("crc32b\t" "(%1), %0"
+    while (len)
+    {
+        __asm__("crc32b\t"
+                "(%1), %0"
                 : "=r"(crc0)
                 : "r"(next), "0"(crc0));
         next++;
@@ -322,15 +344,13 @@ static uint32_t crc32c_hw(uint32_t crc, const void *buf, size_t len)
    cpuid instruction itself, which was introduced on the 486SL in 1992, so this
    will fail on earlier x86 processors.  cpuid works on all Pentium and later
    processors. */
-#define SSE42(have) \
-    do { \
-        uint32_t eax, ecx; \
-        eax = 1; \
-        __asm__("cpuid" \
-                : "=c"(ecx) \
-                : "a"(eax) \
-                : "%ebx", "%edx"); \
-        (have) = (ecx >> 20) & 1; \
+#define SSE42(have)                                                                                                    \
+    do                                                                                                                 \
+    {                                                                                                                  \
+        uint32_t eax, ecx;                                                                                             \
+        eax = 1;                                                                                                       \
+        __asm__("cpuid" : "=c"(ecx) : "a"(eax) : "%ebx", "%edx");                                                      \
+        (have) = (ecx >> 20) & 1;                                                                                      \
     } while (0)
 
 /* Compute a CRC-32C.  If the crc32 instruction is available, use the hardware
@@ -347,36 +367,41 @@ uint32_t crc32c(uint32_t crc, const void *buf, size_t len)
 
 #ifdef TEST
 
-#define SIZE (262144*3)
+#define SIZE (262144 * 3)
 #define CHUNK SIZE
 
 int xmain(int argc, char **argv)
 {
-    char *buf;
-    ssize_t got;
-    size_t off, n;
+    char    *buf;
+    ssize_t  got;
+    size_t   off, n;
     uint32_t crc;
 
     (void)argv;
     crc = 0;
     buf = malloc(SIZE);
-    if (buf == nullptr) {
+    if (buf == nullptr)
+    {
         fputs("out of memory", stderr);
         return 1;
     }
-    while ((got = read(0, buf, SIZE)) > 0) {
+    while ((got = read(0, buf, SIZE)) > 0)
+    {
         off = 0;
-        do {
+        do
+        {
             n = (size_t)got - off;
             if (n > CHUNK)
+            {
                 n = CHUNK;
-            crc = argc > 1 ? crc32c_sw(crc, buf + off, n) :
-                             crc32c(crc, buf + off, n);
+            }
+            crc = argc > 1 ? crc32c_sw(crc, buf + off, n) : crc32c(crc, buf + off, n);
             off += n;
         } while (off < (size_t)got);
     }
     free(buf);
-    if (got == -1) {
+    if (got == -1)
+    {
         fputs("read error\n", stderr);
         return 1;
     }

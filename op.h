@@ -13,29 +13,40 @@ namespace ici
  */
 struct op : object
 {
-    op() : object(TC_OP) {}
+    op()
+        : object(TC_OP)
+    {
+    }
 
     explicit op(int (*func)())
         : object(TC_OP)
         , op_func(func)
         , op_ecode(0)
         , op_code(0)
-    {}
+    {
+    }
 
     explicit op(int ecode, int code = 0)
         : object(TC_OP)
         , op_func(nullptr)
         , op_ecode(ecode)
         , op_code(code)
-    {}
+    {
+    }
 
-    int   (*op_func)() = 0;
+    int (*op_func)() = 0;
     int16_t op_ecode = 0; /* See OP_* below. */
     int16_t op_code = 0;
 };
 
-inline op *opof(object *o) { return o->as<op>(); }
-inline bool isop(object *o) { return o->hastype(TC_OP); }
+inline op *opof(object *o)
+{
+    return o->as<op>();
+}
+inline bool isop(object *o)
+{
+    return o->hastype(TC_OP);
+}
 
 /*
  * Operator codes. These are stored in the op_ecode field and
@@ -90,41 +101,41 @@ enum
  * Are defined in various source files. Generally where they are
  * implemented.
  */
-extern op         o_quote;
-extern op         o_looper;
-extern op         o_loop;
-extern op         o_rewind;
-extern op         o_end;
-extern op         o_break;
-extern op         o_continue;
-extern op         o_exec;
-extern op         o_return;
-extern op         o_call;
-extern op         o_method_call;
-extern op         o_super_call;
-extern op         o_if;
-extern op         o_ifnotbreak;
-extern op         o_ifbreak;
-extern op         o_ifelse;
-extern op         o_pop;
-extern op         o_colon;
-extern op         o_coloncaret;
-extern op         o_dot;
-extern op         o_dotkeep;
-extern op         o_dotrkeep;
-extern op         o_mkptr;
-extern op         o_openptr;
-extern op         o_fetch;
-extern op         o_for;
-extern op         o_mklvalue;
-extern op         o_onerror;
-extern op         o_andand;
-extern op         o_barbar;
-extern op         o_namelvalue;
-extern op         o_switch;
-extern op         o_switcher;
-extern op         o_critsect;
-extern op         o_waitfor;
+extern op o_quote;
+extern op o_looper;
+extern op o_loop;
+extern op o_rewind;
+extern op o_end;
+extern op o_break;
+extern op o_continue;
+extern op o_exec;
+extern op o_return;
+extern op o_call;
+extern op o_method_call;
+extern op o_super_call;
+extern op o_if;
+extern op o_ifnotbreak;
+extern op o_ifbreak;
+extern op o_ifelse;
+extern op o_pop;
+extern op o_colon;
+extern op o_coloncaret;
+extern op o_dot;
+extern op o_dotkeep;
+extern op o_dotrkeep;
+extern op o_mkptr;
+extern op o_openptr;
+extern op o_fetch;
+extern op o_for;
+extern op o_mklvalue;
+extern op o_onerror;
+extern op o_andand;
+extern op o_barbar;
+extern op o_namelvalue;
+extern op o_switch;
+extern op o_switcher;
+extern op o_critsect;
+extern op o_waitfor;
 
 /*
  * End of ici.h export. --ici.h-end--
@@ -132,12 +143,15 @@ extern op         o_waitfor;
 
 class op_type : public type
 {
-public:
-    op_type() : type("op", sizeof (struct op)) {}
-    int cmp(object *o1, object *o2) override;
+  public:
+    op_type()
+        : type("op", sizeof(struct op))
+    {
+    }
+    int           cmp(object *o1, object *o2) override;
     unsigned long hash(object *o) override;
-    int save(archiver *, object *) override;
-    object *restore(archiver *) override;
+    int           save(archiver *, object *) override;
+    object       *restore(archiver *) override;
 };
 
 } // namespace ici

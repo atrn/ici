@@ -32,22 +32,23 @@ namespace ici
  *
  * This --class-- forms part of the --ici-api--.
  */
-class type {
-public:
+class type
+{
+  public:
     /*
      * The 'name' member defines the name of this type and is used to
      * implement the 'typeof()' function and also in error messages.
      * Type names have no fundamental importance in the langauge and
      * need not even be unique.
      */
-    const char * const  name;
+    const char *const name;
 
-private:
-    const size_t        _size;  // the size of this type's associated object structure
-    const int           _flags; // type feature flags, see below.
-    mutable str *       _name;  // str version of name, created on demand (hence mutable).
+  private:
+    const size_t _size;  // the size of this type's associated object structure
+    const int    _flags; // type feature flags, see below.
+    mutable str *_name;  // str version of name, created on demand (hence mutable).
 
-protected:
+  protected:
     /*
      * Flags are used to indicate that a type class overrides a
      * similarly named member function. Type flags are used to
@@ -62,9 +63,9 @@ protected:
      * there should be ample opportunity for a smart-enough compiler
      * to optimize well.
      */
-    static constexpr int has_fetch_method = 1<<0;
-    static constexpr int has_objname      = 1<<1;
-    static constexpr int has_call         = 1<<2;
+    static constexpr int has_fetch_method = 1 << 0;
+    static constexpr int has_objname = 1 << 1;
+    static constexpr int has_call = 1 << 2;
 
     /*
      * The constructor sets the base type information and has protected
@@ -84,17 +85,29 @@ protected:
     /*
      * objectsize() returns the size of the type's associated object structure.
      */
-    inline size_t objectsize() const    { return _size; }
+    inline size_t objectsize() const
+    {
+        return _size;
+    }
 
-public:
+  public:
     virtual ~type();
 
     /*
      * Feature predicates.
      */
-    inline bool can_fetch_method() const { return _flags & has_fetch_method; }
-    inline bool can_objname() const      { return _flags & has_objname; }
-    inline bool can_call() const         { return _flags & has_call; }
+    inline bool can_fetch_method() const
+    {
+        return _flags & has_fetch_method;
+    }
+    inline bool can_objname() const
+    {
+        return _flags & has_objname;
+    }
+    inline bool can_call() const
+    {
+        return _flags & has_call;
+    }
 
     /*
      * mark(o)              Must set the O_MARK flag in o->o_flags of this object
@@ -116,7 +129,7 @@ public:
      *                      the O_MARK flag of the object they are being invoked
      *                      on is clear.
      */
-    virtual size_t          mark(object *);
+    virtual size_t mark(object *);
 
     /*
      * free(o)              Must free the object o and all associated data, but not
@@ -126,7 +139,7 @@ public:
      *                      creation and that the free function might be asked to
      *                      free a partially allocated object.
      */
-    virtual void             free(object *);
+    virtual void free(object *);
 
     /*
      * cmp(o1, o2)          Must compare o1 and o2 and return 0 if they are the
@@ -155,7 +168,7 @@ public:
      *                      they all regard the same data fields as significant in
      *                      performing their operation.
      */
-    virtual int             cmp(object *, object *);
+    virtual int cmp(object *, object *);
 
     /* copy(o)              Must return a copy of the given object.  This is the
      *                      basis for the implementation of the copy() function.
@@ -169,7 +182,7 @@ public:
      *
      *                      Return nullptr on failure, usual conventions.
      */
-    virtual object *         copy(object *);
+    virtual object *copy(object *);
     /*
      * hash(o)              Must return an unsigned long hash which is sensitive
      *                      to the value of the object.  Two objects which cmp()
@@ -188,7 +201,7 @@ public:
      *                      function should be used.
      *
      */
-    virtual unsigned long   hash(object *);
+    virtual unsigned long hash(object *);
 
     /*
      * assign(o, k, v)      Must assign to key 'k' of the object 'o' the value
@@ -210,12 +223,12 @@ public:
      *                      Return non-zero on failure, usual conventions.
      *
      */
-    virtual int                 assign(object *, object *, object *);
+    virtual int assign(object *, object *, object *);
 
     /*
      * fetch(o, k)          Fetch the value of key 'k' of the object 'o'.  Return
      *                      nullptr on error.
-     *              
+     *
      *                      Note that the returned object does not have any extra
      *                      reference count; however, in some circumstances it may
      *                      not have any garbage collector visible references to
@@ -233,7 +246,7 @@ public:
      *                      Return nullptr on failure, usual conventions.
      *
      */
-    virtual object *        fetch(object *, object *);
+    virtual object *fetch(object *, object *);
 
     /* call(o, s)           Must call the object 'o'.  If the object does not
      *                      support being called, this should be nullptr.  If 's' is
@@ -247,27 +260,27 @@ public:
      *                      to be on top of the operand stack
      *                      (i.e. os.a_top[-1])
      */
-    virtual int               call(object *, object *);
+    virtual int call(object *, object *);
 
     /*
      * Assign into the super of an objwsup.
      */
-    virtual int              assign_super(object *, object *, object *, map *);
+    virtual int assign_super(object *, object *, object *, map *);
 
     /*
      * Fetch from  the super of an objwsup.
      */
-    virtual int              fetch_super(object *, object *, object **, map *);
+    virtual int fetch_super(object *, object *, object **, map *);
 
     /*
      * Assign into the base of an objwsup.
      */
-    virtual int             assign_base(object *, object *, object *);
+    virtual int assign_base(object *, object *, object *);
 
     /*
      * Fetch from the base of an objwsup.
      */
-    virtual object   *      fetch_base(object *, object *);
+    virtual object *fetch_base(object *, object *);
 
     /* fetch_method         An optional alternative to the basic 't_fetch()' that
      *                      will be called (if supplied) when doing a fetch for
@@ -283,7 +296,7 @@ public:
      *
      *                      Return nullptr on failure, usual conventions.
      */
-    virtual object   *      fetch_method(object *, object *);
+    virtual object *fetch_method(object *, object *);
 
     /* forall               An optional alternative to the predefined type
      *                      support in the 'forall' statement
@@ -300,7 +313,7 @@ public:
      *                      iteration, -1 to indicate that iteration
      *                      should end and any other value upon error.
      */
-    virtual int             forall(object *);
+    virtual int forall(object *);
 
     /*
      * nkeys(o)		    Return the number of key objects this object
@@ -308,7 +321,7 @@ public:
      *			    function will return when applied to the object.
      *			    The default implementation returns 0.
      */
-    virtual int		    nkeys(object *);
+    virtual int nkeys(object *);
 
     /* keys(o, a)	    Append the key values of this object contains
      *			    to the given array. Usual error conventions,
@@ -317,7 +330,7 @@ public:
      *		    	    "attempt to obtains keys from a value of type xxx"
      *			    where "xxx" is replaced by the type's name.
      */
-    virtual int		    keys(object *, array *);
+    virtual int keys(object *, array *);
 
     /* objname(o, p)        Must place a short (less than 30 chars) human readable
      *                      representation of the object in the given buffer.
@@ -329,27 +342,27 @@ public:
      *                      messages after an error has occured, but before
      *                      cleanup has completed.
      */
-    virtual void            objname(object *, char [objnamez]);
+    virtual void objname(object *, char[objnamez]);
 
     /*
      * save(ar, o)          Writes an encoded representation of the object using
      *                      the supplied archiver object. Returns 0 on success,
      *                      non-zero on error, usual semantics.
      */
-    virtual int             save(archiver *, object *);
+    virtual int save(archiver *, object *);
 
     /*
      * restore(ar)          Reads an encoded representation of an object of this
      *                      type using the supplied archiver object. Returns a
      *                      object on success, nullptr on error.
      */
-    virtual object *        restore(archiver *);
+    virtual object *restore(archiver *);
 
     /*
      * len(o)               Returns the "length" of an object of this type.
      *                      The default implementation returns 1.
      */
-    virtual int64_t         len(object *);
+    virtual int64_t len(object *);
 
     /*
      * The ici_name function returns the type's name as an ICI string object,
@@ -358,7 +371,8 @@ public:
      */
     str *ici_name() const
     {
-        if (_name == nullptr) _name = new_str_nul_term(name);
+        if (_name == nullptr)
+            _name = new_str_nul_term(name);
         return _name;
     }
 

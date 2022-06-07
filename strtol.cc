@@ -21,19 +21,23 @@ namespace ici
  */
 int64_t xstrtol(char const *s, char **ptr, int base)
 {
-    uint64_t       v;
-    char const     *eptr;
-    char const     *start;
-    int            minus;
+    uint64_t    v;
+    char const *eptr;
+    char const *start;
+    int         minus;
 
     start = s;
     while (isspace((int)*s))
         s++;
     if ((minus = (*s == '-')) || (*s == '+'))
+    {
         s++;
+    }
     v = strtoull(s, (char **)&eptr, base);
     if (ptr != nullptr)
-       *ptr = (char *)((eptr == s) ? start : eptr);
+    {
+        *ptr = (char *)((eptr == s) ? start : eptr);
+    }
     return minus ? -(long)v : (long)v;
 }
 

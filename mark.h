@@ -23,8 +23,14 @@ struct mark : object
     mark();
 };
 
-inline mark *markof(object *o) { return o->as<mark>(); }
-inline bool ismark(object *o) { return o == &o_mark; }
+inline mark *markof(object *o)
+{
+    return o->as<mark>();
+}
+inline bool ismark(object *o)
+{
+    return o == &o_mark;
+}
 
 /*
  * End of ici.h export. --ici.h-end--
@@ -32,10 +38,13 @@ inline bool ismark(object *o) { return o == &o_mark; }
 
 class mark_type : public type
 {
-public:
-    mark_type() : type("mark", sizeof (struct mark)) {}
-    void free(object *) override;
-    int save(archiver *, object *) override;
+  public:
+    mark_type()
+        : type("mark", sizeof(struct mark))
+    {
+    }
+    void    free(object *) override;
+    int     save(archiver *, object *) override;
     object *restore(archiver *) override;
 };
 

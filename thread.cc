@@ -1,11 +1,11 @@
 #define ICI_CORE
-#include "fwd.h"
-#include "exec.h"
 #include "array.h"
-#include "null.h"
-#include "cfunc.h"
-#include "op.h"
 #include "catcher.h"
+#include "cfunc.h"
+#include "exec.h"
+#include "fwd.h"
+#include "null.h"
+#include "op.h"
 
 #include <atomic>
 #include <mutex>
@@ -14,8 +14,8 @@
 namespace ici
 {
 
-std::mutex              ici_mutex;
-std::atomic<int>        ici_n_active_threads;
+std::mutex       ici_mutex;
+std::atomic<int> ici_n_active_threads;
 
 /*
  * Leave code that uses ICI data. ICI data refers to *any* ICI objects
@@ -132,7 +132,7 @@ void enter(exec *x)
  */
 void yield()
 {
-    exec  *x;
+    exec *x;
 
     x = ex;
     if (ici_n_active_threads > 1 && x->x_critsect == 0)
@@ -233,7 +233,6 @@ int wakeup(object *o)
     return 0;
 }
 
-
 /*
  * Entry point for a new thread. The passed argument is the pointer
  * to the execution context (ex_t *). It has one ref count that is
@@ -244,7 +243,7 @@ int wakeup(object *o)
 static void ici_thread_base(void *arg)
 {
     exec *x = (exec *)arg;
-    int  n_ops;
+    int   n_ops;
 
     enter(x);
     n_ops = os.a_top - os.a_base;
@@ -267,17 +266,20 @@ static void ici_thread_base(void *arg)
 /*
  * From ICI: exec = go(callable, arg1, arg2, ...)
  */
-static int
-f_go(...)
+static int f_go(...)
 {
     exec *x;
-    int  i;
+    int   i;
 
     if (NARGS() < 1 || !ARG(0)->can_call())
+    {
         return argerror(0);
+    }
 
     if ((x = new_exec()) == nullptr)
+    {
         return 1;
+    }
     /*
      * Copy the most-recently-executed source marker to the new thread
      * to give a useful indication for any errors during startup.
@@ -287,16 +289,22 @@ f_go(...)
      * Copy all the arguments to the operand stack of the new thread.
      */
     if (x->x_os->push_check(NARGS() + 80))
+    {
         goto fail;
+    }
     for (i = 1; i < NARGS(); ++i)
+    {
         x->x_os->a_top[NARGS() - i - 1] = ARG(i);
+    }
     x->x_os->a_top += NARGS() - 1;
     /*
      * Now push the number of actuals and the object to call on the
      * new operand stack.
      */
     if ((*x->x_os->a_top = new_int(NARGS() - 1)) == nullptr)
+    {
         goto fail;
+    }
     decref((*x->x_os->a_top));
     ++x->x_os->a_top;
     x->x_os->push(ARG(0));
@@ -317,21 +325,19 @@ fail:
     return 1;
 }
 
-static int
-f_wakeup(...)
+static int f_wakeup(...)
 {
     if (NARGS() != 1)
+    {
         return argcount(1);
+    }
     if (wakeup(ARG(0)))
+    {
         return 1;
+    }
     return null_ret();
 }
 
-ICI_DEFINE_CFUNCS(thread)
-{
-    ICI_DEFINE_CFUNC(go,            f_go),
-    ICI_DEFINE_CFUNC(wakeup,        f_wakeup),
-    ICI_CFUNCS_END()
-};
+ICI_DEFINE_CFUNCS(thread){ICI_DEFINE_CFUNC(go, f_go), ICI_DEFINE_CFUNC(wakeup, f_wakeup), ICI_CFUNCS_END()};
 
 } // namespace ici

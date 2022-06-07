@@ -1,8 +1,8 @@
 #define ICI_CORE
-#include "fwd.h"
 #include "buf.h"
+#include "fwd.h"
 
-#ifdef  _WIN32
+#ifdef _WIN32
 #include <windows.h>
 
 namespace ici
@@ -16,19 +16,11 @@ namespace ici
  *
  * This --func-- forms part of the --ici-api--.
  */
-int
-ici_get_last_win32_error()
+int ici_get_last_win32_error()
 {
-    FormatMessage
-    (
-        FORMAT_MESSAGE_FROM_SYSTEM,
-        nullptr,
-        GetLastError(),
-        MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
-        buf,
-        bufz,
-        nullptr
-    );
+    FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, nullptr, GetLastError(),
+                  MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
+                  buf, bufz, nullptr);
     return set_error("%s", buf);
 }
 

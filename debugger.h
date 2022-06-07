@@ -59,8 +59,9 @@ namespace ici
  *
  * This --class-- forms part of the --ici-api--.
  */
-class debugger {
-public:
+class debugger
+{
+  public:
     virtual ~debugger();
     virtual void error_set(const char *, struct src *);
     virtual void error_uncaught(const char *, struct src *);
@@ -76,7 +77,6 @@ public:
 /*
  * End of ici.h export. --ici.h-end--
  */
-
 
 } // namespace ici
 

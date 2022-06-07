@@ -5,7 +5,8 @@
 
 #include "object.h"
 
-namespace ici {
+namespace ici
+{
 
 /*
  * The following portion of this file exports to ici.h. --ici.h-start--
@@ -18,14 +19,14 @@ namespace ici {
  *  released from the ref's control (like other smart-pointers).  The
  *  ref<T> implements other operations - copy, move, assign - to allow
  *  it to maintain a correct reference count.
- * 
+ *
  *  A ref<T> is typically used to hold object references in code that
  *  can fail and return errors. Using ref's to hold object references
  *  removes the most common form of resource leak.
  */
-template <typename T = object>
-class ref {
-public:
+template <typename T = object> class ref
+{
+  public:
     ref(T *obj = nullptr)
         : _obj(obj)
     {
@@ -34,7 +35,8 @@ public:
     ref(T *obj, struct tag_with_incref)
         : _obj(obj)
     {
-        if (_obj) {
+        if (_obj)
+        {
             _obj->incref();
         }
     }
@@ -42,33 +44,40 @@ public:
     ref(const ref &that)
         : _obj(that._obj)
     {
-        if (_obj) {
+        if (_obj)
+        {
             _obj->incref();
         }
     }
 
-    void reset(T *obj) {
+    void reset(T *obj)
+    {
         release();
         _obj = obj;
     }
 
-    void reset(T *obj, struct tag_with_incref &) {
+    void reset(T *obj, struct tag_with_incref &)
+    {
         release();
-        if ((_obj = obj)) {
+        if ((_obj = obj))
+        {
             _obj->incref();
         }
     }
 
-    T * release() {
+    T *release()
+    {
         auto obj = _obj;
         _obj = nullptr;
         return obj;
     }
 
-    T * release(struct tag_with_decref &) {
+    T *release(struct tag_with_decref &)
+    {
         auto obj = _obj;
         _obj = nullptr;
-        if (obj) {
+        if (obj)
+        {
             obj->decref();
         }
         return obj;
@@ -79,59 +88,72 @@ public:
     {
     }
 
-    ref &operator=(const ref &rhs) {
-        if ((_obj = rhs._obj)) {
+    ref &operator=(const ref &rhs)
+    {
+        if ((_obj = rhs._obj))
+        {
             _obj->incref();
         }
         return *this;
     }
 
-    ref &operator=(ref &&rhs) {
+    ref &operator=(ref &&rhs)
+    {
         _obj = rhs.release();
         return *this;
     }
 
-    ~ref() {
-        if (_obj) {
+    ~ref()
+    {
+        if (_obj)
+        {
             _obj->decref();
         }
     }
 
-    T *get() {
+    T *get()
+    {
         return _obj;
     }
 
-    const T *get() const {
+    const T *get() const
+    {
         return _obj;
     }
 
-    operator T *() {
+    operator T *()
+    {
         return get();
     }
 
-    T *operator->() {
+    T *operator->()
+    {
         return get();
     }
 
-    T &operator*() {
+    T &operator*()
+    {
         assert(_obj);
         return *get();
     }
 
-    operator const T *() const {
+    operator const T *() const
+    {
         return get();
     }
 
-    const T *operator->() const {
+    const T *operator->() const
+    {
         return get();
     }
 
-    const T &operator*() const {
+    const T &operator*() const
+    {
         assert(_obj);
         return *get();
     }
 
-private:
+  private:
     T *_obj;
 };
 
@@ -139,16 +161,16 @@ private:
  *  make_ref<> uses argument type deduction to return the ref<T> for
  *  the given T *.
  */
-template <typename T>
-ref<T> make_ref(T *obj) {
+template <typename T> ref<T> make_ref(T *obj)
+{
     return ref<T>(obj);
 }
 
 /**
  *  make_ref<> with an incref.
  */
-template <typename T>
-ref<T> make_ref(T *obj, struct tag_with_incref &) {
+template <typename T> ref<T> make_ref(T *obj, struct tag_with_incref &)
+{
     return ref<T>(obj, with_incref);
 }
 
