@@ -384,9 +384,9 @@ with-cmake:	configure-cmake
 
 configure-cmake:
 ifneq ($(cmakebuild),)
-	@cmake -B$(cmakedir) -H. -G'$(cmakegenerator)' -DCMAKE_BUILD_TYPE='$(cmakebuild)' $(cmakeargs)
+	@cmake -B$(cmakedir) -H. -G'$(cmakegenerator)' -DCMAKE_BUILD_TYPE='$(cmakebuild)' -DCMAKE_INSTALL_PREFIX=$(prefix) $(cmakeargs)
 else
-	@cmake -B$(cmakedir) -H. -G'$(cmakegenerator)' $(cmakeargs)
+	@cmake -B$(cmakedir) -H. -G'$(cmakegenerator)' -DCMAKE_INSTALL_PREFIX=$(prefix) $(cmakeargs)
 endif
 
 clean-cmake:
