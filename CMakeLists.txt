@@ -18,6 +18,7 @@ set(CMAKE_CXX_STANDARD 14)
 option(ICI_BUILD_DYNAMIC_LIB    "Build the ICI dynamic library"         ON)
 option(ICI_BUILD_STATIC_LIB     "Build the ICI static library"          OFF)
 option(ICI_VEC_USE_IPP          "Use Intel IPP for vec arithmetic"      ON)
+option(ICI_TUNE_NATIVE          "Tune optimization for the host CPU"    ON)
 
 # Use IPP_ROOT environment variable to find IPP
 cmake_policy(SET CMP0074 NEW)
@@ -151,6 +152,12 @@ endif()
 #
 set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g" CACHE STRING "" FORCE)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+if (ICI_TUNE_NATIVE)
+    if (${CMAKE_CXX_COMPILER_ID} MATCHES "Clang" OR ${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
+        add_compile_options("-mtune=native")
+    endif()
+endif()
 
 #  If we're using IPP we need to "find" it. To do that we have a
 #  custom cmake module, FindIPP.cmake. To locate FindIPP.cmake cmake
