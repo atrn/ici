@@ -1,0 +1,66 @@
+/*
+ * string = tolower(string)
+ */
+extern tolower(s) {
+    delta_lower := 'a'-'A';
+    r := array();
+    forall (ch in s) {
+        if (ch >= "A" && ch <= "Z") {
+            ch = toint(ch)+delta_lower;
+        }
+        push(r, ch);
+    }
+    return implode(r);
+}
+
+/*
+ * string = toupper(string)
+ */
+extern toupper(s) {
+    delta_upper := 'A'-'a';
+    r := array();
+    forall (ch in s) {
+        if (ch >= "a" && ch <= "z") {
+            ch = toint(ch)+delta_upper;
+        }
+        push(r, ch);
+    }
+    return implode(r);
+}
+
+/*
+ * string = join(array [, string])
+ */
+extern join(v, sep) {
+    var sep = " ";
+    r := array();
+    if (len(v) > 0) {
+        push(r, v[0]);
+        forall (e in slice(v, 1)) {
+            push(r, sep);
+            push(r, e);
+        }
+    }
+    return implode(r);
+}
+
+/*
+ * string = trim(string)
+ */
+extern trim( s) {
+    return s ~~ #^[ 	]*(.*)[ 	]*$#;
+}
+
+/*
+ * string = trimleft(string)
+ */
+extern trimleft(s) {
+    return s ~~ #^[ 	]*(.*)$#;
+}
+
+/*
+ * string = trimright(string)
+ */
+extern trimright(s) {
+    return s ~~ #^(.*)[ 	]*$#;
+}

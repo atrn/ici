@@ -12,6 +12,7 @@ ALL_MODULES=\
 	small\
 	sndfile\
 	sqlite\
+	str\
 	util\
 	vec
 
