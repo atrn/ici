@@ -43,7 +43,8 @@ all clean distclean install:
 	    [ -z "$$_doecho" ] || echo $@ $$_d; \
 	    cd $$_d; \
 	    $(_make) -$(MAKEFLAGS) \
-		sudo=$(sudo) prefix=$(prefix) \
+		sudo=$(sudo) \
+		prefix=$(prefix) \
 		ICI_DOT_H_DIR=$(ICI_DOT_H_DIR) \
 		ICI_LIB_DIR=$(ICI_LIB_DIR) \
 		ICI_MACOS_BUNDLE_HOST=$(ICI_MACOS_BUNDLE_HOST) \

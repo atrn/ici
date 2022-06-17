@@ -1,4 +1,4 @@
-#  Cmake "lists" for ICI.
+  Cmake "lists" for ICI.
 #
 #  By default this builds the ICI dynamic library and corresponding
 #  ici.h file, and a ici executable linked against the dynamic
@@ -209,7 +209,7 @@ endif()
 #  Required libraries:
 #
 #  - Linux and FreeBSD need -lpthread
-#  - And Linux glibc still has dlopen et al in libdl
+#  - Linux glibc still has dlopen et al in libdl
 #
 if("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "FreeBSD")
   target_link_libraries(ici_exe PUBLIC -lpthread)

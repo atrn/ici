@@ -422,12 +422,14 @@ endif
 ifeq ($(build),dll)
 _make_modules = $(_make) -C modules -$(MAKEFLAGS) \
 	ICI_DOT_H_DIR=$(PWD) \
-	ICI_MACOS_BUNDLE_HOST=$(dll) \
+	ICI_LIB_DIR=$(PWD) \
+	ICI_MACOS_BUNDLE_HOST=$(PWD)/$(dll) \
 	ICI_BUILD_TYPE_DLL=1
 else
 _make_modules = $(_make) -C modules -$(MAKEFLAGS) \
 	ICI_DOT_H_DIR=$(PWD) \
-	ICI_MACOS_BUNDLE_HOST=$(prog)
+	ICI_LIB_DIR=$(PWD) \
+	ICI_MACOS_BUNDLE_HOST=$(PWD)/$(prog)
 endif
 
 modules:
