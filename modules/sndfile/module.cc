@@ -103,7 +103,7 @@ int f_read()
     {
         z = sf->_info.frames;
     }
-    auto frames = ici::new_vec32(sf->_info.frames * sf->_info.channels);
+    auto frames = ici::new_vec32f(sf->_info.frames * sf->_info.channels);
     if (!frames)
     {
         return 1;
@@ -138,7 +138,7 @@ int f_read()
 int f_write()
 {
     sndfile *sf;
-    ici::vec32 * frames;
+    ici::vec32f * frames;
 
     if (ici::typecheck("oo", &sf, &frames))
     {
@@ -148,7 +148,7 @@ int f_write()
     {
         return ici::argerror(0);
     }
-    if (!ici::isvec32(frames))
+    if (!ici::isvec32f(frames))
     {
         return ici::argerror(1);
     }

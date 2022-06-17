@@ -1,3 +1,7 @@
+*     Rename vec32 -> vec32f and vec64 -> vec64f to
+      accomodate addition of integer vec types and
+      better match IPP's names.
+
 *     Added reserve() function to grow an array reserve
       space for future push calls.
 
@@ -12,7 +16,7 @@ Major Changes in Version 5
       function being the result of the operation. Note, existing
       operators CANNOT be redefined using this mechanism.
 
-*     slice() (aka interval) accepts vec32 and vec64 as
+*     slice() (aka interval) accepts vec32f and vec64f as
       the object to be "sliced". It returns a _slice_ of
       another vec, a vec of compatible type that shares
       another vec's data, itself possibly a slice.
@@ -38,7 +42,7 @@ Major Changes in Version 5
       around it. Mapping a code to string still works and is
       the more useful operation.
 
-*     Two new types have been added - vec32 and vec64.
+*     Two new types have been added - vec32f and vec64f.
 
       A _vec_ type is an array of a C++ scalar type - currently float
       or double are supported. Storage for the vec is allocated in a

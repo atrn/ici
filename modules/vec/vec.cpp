@@ -32,25 +32,25 @@ int f_channel()
     {
         return ici::argerror(2);
     }
-    if (ici::isvec32(vec))
+    if (ici::isvec32f(vec))
     {
-        const auto size = size_t(ceil(ici::vec32of(vec)->v_size / double(stride)));
-        out = ici::new_vec32(size);
+        const auto size = size_t(ceil(ici::vec32fof(vec)->v_size / double(stride)));
+        out = ici::new_vec32f(size);
         for (size_t i = 0, j = 0; i < size; i += stride, ++j)
         {
-            ici::vec32of(out)->v_ptr[j] = ici::vec32of(vec)->v_ptr[i+channel-1];
+            ici::vec32fof(out)->v_ptr[j] = ici::vec32fof(vec)->v_ptr[i+channel-1];
         }
-        ici::vec32of(out)->resize(size);
+        ici::vec32fof(out)->resize(size);
     }
-    else if (ici::isvec64(vec))
+    else if (ici::isvec64f(vec))
     {
-        const auto size = size_t(ceil(ici::vec64of(vec)->v_size / double(stride)));
-        out = ici::new_vec64(size);
+        const auto size = size_t(ceil(ici::vec64fof(vec)->v_size / double(stride)));
+        out = ici::new_vec64f(size);
         for (size_t i = 0, j = 0; i < size; i += stride, ++j)
         {
-            ici::vec64of(out)->v_ptr[j] = ici::vec64of(vec)->v_ptr[i+channel-1];
+            ici::vec64fof(out)->v_ptr[j] = ici::vec64fof(vec)->v_ptr[i+channel-1];
         }
-        ici::vec64of(out)->resize(size);
+        ici::vec64fof(out)->resize(size);
     }
     else
     {
@@ -94,7 +94,7 @@ int f_merge()
 {
     if (ici::NARGS() == 1)
     {
-        if (!ici::isvec32(ici::ARG(0)) && !ici::isvec64(ici::ARG(0)))
+        if (!ici::isvec32f(ici::ARG(0)) && !ici::isvec64f(ici::ARG(0)))
         {
             return ici::argerror(0);
         }
@@ -110,7 +110,7 @@ int f_merge()
     {
         if (ici::ARG(i)->o_tcode != tcode)
         {
-            if (!ici::isvec32(ici::ARG(i)) && !ici::isvec64(ici::ARG(i)))
+            if (!ici::isvec32f(ici::ARG(i)) && !ici::isvec64f(ici::ARG(i)))
             {
                 return ici::argerror(i);
             }
@@ -130,23 +130,23 @@ int f_merge()
     }
 
     ici::object *result;
-    if (tcode == ici::TC_VEC32)
+    if (tcode == ici::TC_VEC32F)
     {
-        result = ici::new_vec32(size);
+        result = ici::new_vec32f(size);
         if (!result)
         {
             return 1;
         }
-        merge<ici::vec32>(vec32of(result), maxsize, ici::ARGS(), ici::NARGS());
+        merge<ici::vec32f>(vec32fof(result), maxsize, ici::ARGS(), ici::NARGS());
     }
     else
     {
-        result = ici::new_vec64(size);
+        result = ici::new_vec64f(size);
         if (!result)
         {
             return 1;
         }
-        merge<ici::vec64>(vec64of(result), maxsize, ici::ARGS(), ici::NARGS());
+        merge<ici::vec64f>(vec64fof(result), maxsize, ici::ARGS(), ici::NARGS());
     }
 
     return ici::ret_with_decref(result);
@@ -163,13 +163,13 @@ int f_fill()
     {
         return 1;
     }
-    if (ici::isvec32(vec))
+    if (ici::isvec32f(vec))
     {
-        vec32of(vec)->fill(value);
+        vec32fof(vec)->fill(value);
     }
-    else if(ici::isvec64(vec))
+    else if(ici::isvec64f(vec))
     {
-        vec64of(vec)->fill(value);
+        vec64fof(vec)->fill(value);
     }
     else
     {
@@ -198,21 +198,21 @@ int f_randomize()
     {
         return 1;
     }
-    if (ici::isvec32(vec))
+    if (ici::isvec32f(vec))
     {
-        for (size_t i = 0; i < ici::vec32of(vec)->v_capacity; ++i)
+        for (size_t i = 0; i < ici::vec32fof(vec)->v_capacity; ++i)
         {
-            ici::vec32of(vec)->v_ptr[i] = noisef();
+            ici::vec32fof(vec)->v_ptr[i] = noisef();
         }
-        ici::vec32of(vec)->resize();
+        ici::vec32fof(vec)->resize();
     }
-    else if (isvec64(vec))
+    else if (isvec64f(vec))
     {
-        for (size_t i = 0; i < ici::vec64of(vec)->v_capacity; ++i)
+        for (size_t i = 0; i < ici::vec64fof(vec)->v_capacity; ++i)
         {
-            ici::vec64of(vec)->v_ptr[i] = noise();
+            ici::vec64fof(vec)->v_ptr[i] = noise();
         }
-        ici::vec64of(vec)->resize();
+        ici::vec64fof(vec)->resize();
     }
     else
     {
@@ -264,13 +264,13 @@ int f_normalize()
     {
         return 1;
     }
-    if (ici::isvec32(vec))
+    if (ici::isvec32f(vec))
     {
-        normalize<float>(vec32of(vec)->v_ptr, vec32of(vec)->v_size);
+        normalize<float>(vec32fof(vec)->v_ptr, vec32fof(vec)->v_size);
     }
-    else if(ici::isvec64(vec))
+    else if(ici::isvec64f(vec))
     {
-        normalize<double>(vec64of(vec)->v_ptr, vec64of(vec)->v_size);
+        normalize<double>(vec64fof(vec)->v_ptr, vec64fof(vec)->v_size);
     }
     else
     {

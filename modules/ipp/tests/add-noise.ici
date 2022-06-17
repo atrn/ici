@@ -22,7 +22,7 @@ sndfile.close(file);
 
 signal := vec.channel(audio, 1, audio.channels);
 
-noise := vec32(signal.size);
+noise := vec32f(signal.size);
 vec.randomize(noise);
 
 output := (signal * (1.0-level)) + (noise * level);

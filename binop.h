@@ -771,332 +771,332 @@
         }
         USE0();
 
-    case ICI_TRI(TC_VEC32, TC_VEC32, T_PLUSEQ):
-        MATCHVEC(vec32of);
+    case ICI_TRI(TC_VEC32F, TC_VEC32F, T_PLUSEQ):
+        MATCHVEC(vec32fof);
         o = o0;
-        (*vec32of(o)) += (*vec32of(o1));
+        (*vec32fof(o)) += (*vec32fof(o1));
         USEo();
 
-    case ICI_TRI(TC_VEC32, TC_VEC32, T_PLUS):
-        MATCHVEC(vec32of);
-        if ((o = new_vec32(vec32of(o0))) == nullptr)
+    case ICI_TRI(TC_VEC32F, TC_VEC32F, T_PLUS):
+        MATCHVEC(vec32fof);
+        if ((o = new_vec32f(vec32fof(o0))) == nullptr)
         {
             FAIL();
         }
-        (*vec32of(o)) += (*vec32of(o1));
+        (*vec32fof(o)) += (*vec32fof(o1));
         USEo();
 
-    case ICI_TRI(TC_VEC32, TC_VEC32, T_MINUSEQ):
-        MATCHVEC(vec32of);
+    case ICI_TRI(TC_VEC32F, TC_VEC32F, T_MINUSEQ):
+        MATCHVEC(vec32fof);
         o = o0;
-        (*vec32of(o)) -= (*vec32of(o1));
+        (*vec32fof(o)) -= (*vec32fof(o1));
         USEo();
 
-    case ICI_TRI(TC_VEC32, TC_VEC32, T_MINUS):
-        MATCHVEC(vec32of);
-        if ((o = new_vec32(vec32of(o0))) == nullptr)
+    case ICI_TRI(TC_VEC32F, TC_VEC32F, T_MINUS):
+        MATCHVEC(vec32fof);
+        if ((o = new_vec32f(vec32fof(o0))) == nullptr)
         {
             FAIL();
         }
-        (*vec32of(o)) -= (*vec32of(o1));
+        (*vec32fof(o)) -= (*vec32fof(o1));
         USEo();
 
-    case ICI_TRI(TC_VEC32, TC_VEC32, T_ASTERIXEQ):
-        MATCHVEC(vec32of);
+    case ICI_TRI(TC_VEC32F, TC_VEC32F, T_ASTERIXEQ):
+        MATCHVEC(vec32fof);
         o = o0;
-        (*vec32of(o)) *= (*vec32of(o1));
+        (*vec32fof(o)) *= (*vec32fof(o1));
         USEo();
 
-    case ICI_TRI(TC_VEC32, TC_VEC32, T_ASTERIX):
-        MATCHVEC(vec32of);
-        if ((o = new_vec32(vec32of(o0))) == nullptr)
+    case ICI_TRI(TC_VEC32F, TC_VEC32F, T_ASTERIX):
+        MATCHVEC(vec32fof);
+        if ((o = new_vec32f(vec32fof(o0))) == nullptr)
         {
             FAIL();
         }
-        (*vec32of(o)) *= (*vec32of(o1));
+        (*vec32fof(o)) *= (*vec32fof(o1));
         USEo();
 
-    case ICI_TRI(TC_VEC32, TC_VEC32, T_SLASHEQ):
-        MATCHVEC(vec32of);
+    case ICI_TRI(TC_VEC32F, TC_VEC32F, T_SLASHEQ):
+        MATCHVEC(vec32fof);
         o = o0;
-        (*vec32of(o)) /= (*vec32of(o1));
+        (*vec32fof(o)) /= (*vec32fof(o1));
         USEo();
 
-    case ICI_TRI(TC_VEC32, TC_VEC32, T_SLASH):
-        MATCHVEC(vec32of);
-        if ((o = new_vec32(vec32of(o0))) == nullptr)
+    case ICI_TRI(TC_VEC32F, TC_VEC32F, T_SLASH):
+        MATCHVEC(vec32fof);
+        if ((o = new_vec32f(vec32fof(o0))) == nullptr)
         {
             FAIL();
         }
-        (*vec32of(o)) /= (*vec32of(o1));
+        (*vec32fof(o)) /= (*vec32fof(o1));
         USEo();
 
-    case ICI_TRI(TC_VEC64, TC_VEC64, T_PLUSEQ):
-        MATCHVEC(vec64of);
+    case ICI_TRI(TC_VEC64F, TC_VEC64F, T_PLUSEQ):
+        MATCHVEC(vec64fof);
         o = o0;
-        (*vec64of(o)) += (*vec64of(o1));
+        (*vec64fof(o)) += (*vec64fof(o1));
         USEo();
 
-    case ICI_TRI(TC_VEC64, TC_VEC64, T_PLUS):
-        MATCHVEC(vec64of);
-        if ((o = new_vec32(vec32of(o0))) == nullptr)
+    case ICI_TRI(TC_VEC64F, TC_VEC64F, T_PLUS):
+        MATCHVEC(vec64fof);
+        if ((o = new_vec32f(vec32fof(o0))) == nullptr)
         {
             FAIL();
         }
-        (*vec64of(o)) += (*vec64of(o1));
+        (*vec64fof(o)) += (*vec64fof(o1));
         USEo();
 
-    case ICI_TRI(TC_VEC64, TC_VEC64, T_MINUSEQ):
-        MATCHVEC(vec64of);
+    case ICI_TRI(TC_VEC64F, TC_VEC64F, T_MINUSEQ):
+        MATCHVEC(vec64fof);
         o = o0;
-        (*vec64of(o)) -= (*vec64of(o1));
+        (*vec64fof(o)) -= (*vec64fof(o1));
         USEo();
 
-    case ICI_TRI(TC_VEC64, TC_VEC64, T_MINUS):
-        MATCHVEC(vec64of);
-        if ((o = new_vec32(vec32of(o0))) == nullptr)
+    case ICI_TRI(TC_VEC64F, TC_VEC64F, T_MINUS):
+        MATCHVEC(vec64fof);
+        if ((o = new_vec32f(vec32fof(o0))) == nullptr)
         {
             FAIL();
         }
-        (*vec64of(o)) -= (*vec64of(o1));
+        (*vec64fof(o)) -= (*vec64fof(o1));
         USEo();
 
-    case ICI_TRI(TC_VEC64, TC_VEC64, T_ASTERIXEQ):
-        MATCHVEC(vec64of);
+    case ICI_TRI(TC_VEC64F, TC_VEC64F, T_ASTERIXEQ):
+        MATCHVEC(vec64fof);
         o = o0;
-        (*vec64of(o)) *= (*vec64of(o1));
+        (*vec64fof(o)) *= (*vec64fof(o1));
         USEo();
 
-    case ICI_TRI(TC_VEC64, TC_VEC64, T_ASTERIX):
-        MATCHVEC(vec64of);
-        if ((o = new_vec32(vec32of(o0))) == nullptr)
+    case ICI_TRI(TC_VEC64F, TC_VEC64F, T_ASTERIX):
+        MATCHVEC(vec64fof);
+        if ((o = new_vec32f(vec32fof(o0))) == nullptr)
         {
             FAIL();
         }
-        (*vec64of(o)) *= (*vec64of(o1));
+        (*vec64fof(o)) *= (*vec64fof(o1));
         USEo();
 
-    case ICI_TRI(TC_VEC64, TC_VEC64, T_SLASHEQ):
-        MATCHVEC(vec64of);
+    case ICI_TRI(TC_VEC64F, TC_VEC64F, T_SLASHEQ):
+        MATCHVEC(vec64fof);
         o = o0;
-        (*vec64of(o)) /= (*vec64of(o1));
+        (*vec64fof(o)) /= (*vec64fof(o1));
         USEo();
 
-    case ICI_TRI(TC_VEC64, TC_VEC64, T_SLASH):
-        MATCHVEC(vec64of);
-        if ((o = new_vec32(vec32of(o0))) == nullptr)
+    case ICI_TRI(TC_VEC64F, TC_VEC64F, T_SLASH):
+        MATCHVEC(vec64fof);
+        if ((o = new_vec32f(vec32fof(o0))) == nullptr)
         {
             FAIL();
         }
-        (*vec64of(o)) /= (*vec64of(o1));
+        (*vec64fof(o)) /= (*vec64fof(o1));
         USEo();
 
-    case ICI_TRI(TC_VEC32, TC_INT, T_PLUSEQ):
+    case ICI_TRI(TC_VEC32F, TC_INT, T_PLUSEQ):
         o = o0;
-        (*vec32of(o)) += intof(o1)->i_value;
+        (*vec32fof(o)) += intof(o1)->i_value;
         USEo();
 
-    case ICI_TRI(TC_VEC32, TC_INT, T_PLUS):
-        if ((o = new_vec32(vec32of(o0))) == nullptr)
+    case ICI_TRI(TC_VEC32F, TC_INT, T_PLUS):
+        if ((o = new_vec32f(vec32fof(o0))) == nullptr)
         {
             FAIL();
         }
-        (*vec32of(o)) += intof(o1)->i_value;
+        (*vec32fof(o)) += intof(o1)->i_value;
         USEo();
 
-    case ICI_TRI(TC_VEC32, TC_INT, T_MINUSEQ):
+    case ICI_TRI(TC_VEC32F, TC_INT, T_MINUSEQ):
         o = o0;
-        (*vec32of(o)) -= intof(o1)->i_value;
+        (*vec32fof(o)) -= intof(o1)->i_value;
         USEo();
 
-    case ICI_TRI(TC_VEC32, TC_INT, T_MINUS):
-        if ((o = new_vec32(vec32of(o0))) == nullptr)
+    case ICI_TRI(TC_VEC32F, TC_INT, T_MINUS):
+        if ((o = new_vec32f(vec32fof(o0))) == nullptr)
         {
             FAIL();
         }
-        (*vec32of(o)) -= intof(o1)->i_value;
+        (*vec32fof(o)) -= intof(o1)->i_value;
         USEo();
 
-    case ICI_TRI(TC_VEC32, TC_INT, T_ASTERIXEQ):
+    case ICI_TRI(TC_VEC32F, TC_INT, T_ASTERIXEQ):
         o = o0;
-        (*vec32of(o)) *= intof(o1)->i_value;
+        (*vec32fof(o)) *= intof(o1)->i_value;
         USEo();
 
-    case ICI_TRI(TC_VEC32, TC_INT, T_ASTERIX):
-        if ((o = new_vec32(vec32of(o0))) == nullptr)
+    case ICI_TRI(TC_VEC32F, TC_INT, T_ASTERIX):
+        if ((o = new_vec32f(vec32fof(o0))) == nullptr)
         {
             FAIL();
         }
-        (*vec32of(o)) *= intof(o1)->i_value;
+        (*vec32fof(o)) *= intof(o1)->i_value;
         USEo();
 
-    case ICI_TRI(TC_VEC32, TC_INT, T_SLASHEQ):
+    case ICI_TRI(TC_VEC32F, TC_INT, T_SLASHEQ):
         o = o0;
-        (*vec32of(o)) /= intof(o1)->i_value;
+        (*vec32fof(o)) /= intof(o1)->i_value;
         USEo();
 
-    case ICI_TRI(TC_VEC32, TC_INT, T_SLASH):
-        if ((o = new_vec32(vec32of(o0))) == nullptr)
+    case ICI_TRI(TC_VEC32F, TC_INT, T_SLASH):
+        if ((o = new_vec32f(vec32fof(o0))) == nullptr)
         {
             FAIL();
         }
-        (*vec32of(o)) /= intof(o1)->i_value;
+        (*vec32fof(o)) /= intof(o1)->i_value;
         USEo();
 
-    case ICI_TRI(TC_VEC32, TC_FLOAT, T_PLUSEQ):
+    case ICI_TRI(TC_VEC32F, TC_FLOAT, T_PLUSEQ):
         o = o0;
-        (*vec32of(o)) += floatof(o1)->f_value;
+        (*vec32fof(o)) += floatof(o1)->f_value;
         USEo();
 
-    case ICI_TRI(TC_VEC32, TC_FLOAT, T_PLUS):
-        if ((o = new_vec32(vec32of(o0))) == nullptr)
+    case ICI_TRI(TC_VEC32F, TC_FLOAT, T_PLUS):
+        if ((o = new_vec32f(vec32fof(o0))) == nullptr)
         {
             FAIL();
         }
-        (*vec32of(o)) += floatof(o1)->f_value;
+        (*vec32fof(o)) += floatof(o1)->f_value;
         USEo();
 
-    case ICI_TRI(TC_VEC32, TC_FLOAT, T_MINUSEQ):
+    case ICI_TRI(TC_VEC32F, TC_FLOAT, T_MINUSEQ):
         o = o0;
-        (*vec32of(o)) -= floatof(o1)->f_value;
+        (*vec32fof(o)) -= floatof(o1)->f_value;
         USEo();
 
-    case ICI_TRI(TC_VEC32, TC_FLOAT, T_MINUS):
-        if ((o = new_vec32(vec32of(o0))) == nullptr)
+    case ICI_TRI(TC_VEC32F, TC_FLOAT, T_MINUS):
+        if ((o = new_vec32f(vec32fof(o0))) == nullptr)
         {
             FAIL();
         }
-        (*vec32of(o)) -= floatof(o1)->f_value;
+        (*vec32fof(o)) -= floatof(o1)->f_value;
         USEo();
 
-    case ICI_TRI(TC_VEC32, TC_FLOAT, T_ASTERIXEQ):
+    case ICI_TRI(TC_VEC32F, TC_FLOAT, T_ASTERIXEQ):
         o = o0;
-        (*vec32of(o)) *= floatof(o1)->f_value;
+        (*vec32fof(o)) *= floatof(o1)->f_value;
         USEo();
 
-    case ICI_TRI(TC_VEC32, TC_FLOAT, T_ASTERIX):
-        if ((o = new_vec32(vec32of(o0))) == nullptr)
+    case ICI_TRI(TC_VEC32F, TC_FLOAT, T_ASTERIX):
+        if ((o = new_vec32f(vec32fof(o0))) == nullptr)
         {
             FAIL();
         }
-        (*vec32of(o)) *= floatof(o1)->f_value;
+        (*vec32fof(o)) *= floatof(o1)->f_value;
         USEo();
 
-    case ICI_TRI(TC_VEC32, TC_FLOAT, T_SLASHEQ):
+    case ICI_TRI(TC_VEC32F, TC_FLOAT, T_SLASHEQ):
         o = o0;
-        (*vec32of(o)) /= floatof(o1)->f_value;
+        (*vec32fof(o)) /= floatof(o1)->f_value;
         USEo();
 
-    case ICI_TRI(TC_VEC32, TC_FLOAT, T_SLASH):
-        if ((o = new_vec32(vec32of(o0))) == nullptr)
+    case ICI_TRI(TC_VEC32F, TC_FLOAT, T_SLASH):
+        if ((o = new_vec32f(vec32fof(o0))) == nullptr)
         {
             FAIL();
         }
-        (*vec32of(o)) /= floatof(o1)->f_value;
+        (*vec32fof(o)) /= floatof(o1)->f_value;
         USEo();
 
-    case ICI_TRI(TC_VEC64, TC_INT, T_PLUSEQ):
+    case ICI_TRI(TC_VEC64F, TC_INT, T_PLUSEQ):
         o = o0;
-        (*vec64of(o)) += intof(o1)->i_value;
+        (*vec64fof(o)) += intof(o1)->i_value;
         USEo();
 
-    case ICI_TRI(TC_VEC64, TC_INT, T_PLUS):
-        if ((o = new_vec32(vec32of(o0))) == nullptr)
+    case ICI_TRI(TC_VEC64F, TC_INT, T_PLUS):
+        if ((o = new_vec32f(vec32fof(o0))) == nullptr)
         {
             FAIL();
         }
-        (*vec64of(o)) += intof(o1)->i_value;
+        (*vec64fof(o)) += intof(o1)->i_value;
         USEo();
 
-    case ICI_TRI(TC_VEC64, TC_INT, T_MINUSEQ):
+    case ICI_TRI(TC_VEC64F, TC_INT, T_MINUSEQ):
         o = o0;
-        (*vec64of(o)) -= intof(o1)->i_value;
+        (*vec64fof(o)) -= intof(o1)->i_value;
         USEo();
 
-    case ICI_TRI(TC_VEC64, TC_INT, T_MINUS):
-        if ((o = new_vec32(vec32of(o0))) == nullptr)
+    case ICI_TRI(TC_VEC64F, TC_INT, T_MINUS):
+        if ((o = new_vec32f(vec32fof(o0))) == nullptr)
         {
             FAIL();
         }
-        (*vec64of(o)) -= intof(o1)->i_value;
+        (*vec64fof(o)) -= intof(o1)->i_value;
         USEo();
 
-    case ICI_TRI(TC_VEC64, TC_INT, T_ASTERIXEQ):
+    case ICI_TRI(TC_VEC64F, TC_INT, T_ASTERIXEQ):
         o = o0;
-        (*vec64of(o)) *= intof(o1)->i_value;
+        (*vec64fof(o)) *= intof(o1)->i_value;
         USEo();
 
-    case ICI_TRI(TC_VEC64, TC_INT, T_ASTERIX):
-        if ((o = new_vec32(vec32of(o0))) == nullptr)
+    case ICI_TRI(TC_VEC64F, TC_INT, T_ASTERIX):
+        if ((o = new_vec32f(vec32fof(o0))) == nullptr)
         {
             FAIL();
         }
-        (*vec64of(o)) *= intof(o1)->i_value;
+        (*vec64fof(o)) *= intof(o1)->i_value;
         USEo();
 
-    case ICI_TRI(TC_VEC64, TC_INT, T_SLASHEQ):
+    case ICI_TRI(TC_VEC64F, TC_INT, T_SLASHEQ):
         o = o0;
-        (*vec64of(o)) /= intof(o1)->i_value;
+        (*vec64fof(o)) /= intof(o1)->i_value;
         USEo();
 
-    case ICI_TRI(TC_VEC64, TC_INT, T_SLASH):
-        if ((o = new_vec32(vec32of(o0))) == nullptr)
+    case ICI_TRI(TC_VEC64F, TC_INT, T_SLASH):
+        if ((o = new_vec32f(vec32fof(o0))) == nullptr)
         {
             FAIL();
         }
-        (*vec64of(o)) /= intof(o1)->i_value;
+        (*vec64fof(o)) /= intof(o1)->i_value;
         USEo();
 
-    case ICI_TRI(TC_VEC64, TC_FLOAT, T_PLUSEQ):
+    case ICI_TRI(TC_VEC64F, TC_FLOAT, T_PLUSEQ):
         o = o0;
-        (*vec64of(o)) += floatof(o1)->f_value;
+        (*vec64fof(o)) += floatof(o1)->f_value;
         USEo();
 
-    case ICI_TRI(TC_VEC64, TC_FLOAT, T_PLUS):
-        if ((o = new_vec32(vec32of(o0))) == nullptr)
+    case ICI_TRI(TC_VEC64F, TC_FLOAT, T_PLUS):
+        if ((o = new_vec32f(vec32fof(o0))) == nullptr)
         {
             FAIL();
         }
-        (*vec64of(o)) += floatof(o1)->f_value;
+        (*vec64fof(o)) += floatof(o1)->f_value;
         USEo();
 
-    case ICI_TRI(TC_VEC64, TC_FLOAT, T_MINUSEQ):
+    case ICI_TRI(TC_VEC64F, TC_FLOAT, T_MINUSEQ):
         o = o0;
-        (*vec64of(o)) -= floatof(o1)->f_value;
+        (*vec64fof(o)) -= floatof(o1)->f_value;
         USEo();
 
-    case ICI_TRI(TC_VEC64, TC_FLOAT, T_MINUS):
-        if ((o = new_vec32(vec32of(o0))) == nullptr)
+    case ICI_TRI(TC_VEC64F, TC_FLOAT, T_MINUS):
+        if ((o = new_vec32f(vec32fof(o0))) == nullptr)
         {
             FAIL();
         }
-        (*vec64of(o)) -= floatof(o1)->f_value;
+        (*vec64fof(o)) -= floatof(o1)->f_value;
         USEo();
 
-    case ICI_TRI(TC_VEC64, TC_FLOAT, T_ASTERIXEQ):
+    case ICI_TRI(TC_VEC64F, TC_FLOAT, T_ASTERIXEQ):
         o = o0;
-        (*vec64of(o)) *= floatof(o1)->f_value;
+        (*vec64fof(o)) *= floatof(o1)->f_value;
         USEo();
 
-    case ICI_TRI(TC_VEC64, TC_FLOAT, T_ASTERIX):
-        if ((o = new_vec32(vec32of(o0))) == nullptr)
+    case ICI_TRI(TC_VEC64F, TC_FLOAT, T_ASTERIX):
+        if ((o = new_vec32f(vec32fof(o0))) == nullptr)
         {
             FAIL();
         }
-        (*vec64of(o)) *= floatof(o1)->f_value;
+        (*vec64fof(o)) *= floatof(o1)->f_value;
         USEo();
 
-    case ICI_TRI(TC_VEC64, TC_FLOAT, T_SLASHEQ):
+    case ICI_TRI(TC_VEC64F, TC_FLOAT, T_SLASHEQ):
         o = o0;
-        (*vec64of(o)) /= floatof(o1)->f_value;
+        (*vec64fof(o)) /= floatof(o1)->f_value;
         USEo();
 
-    case ICI_TRI(TC_VEC64, TC_FLOAT, T_SLASH):
-        if ((o = new_vec32(vec32of(o0))) == nullptr)
+    case ICI_TRI(TC_VEC64F, TC_FLOAT, T_SLASH):
+        if ((o = new_vec32f(vec32fof(o0))) == nullptr)
         {
             FAIL();
         }
-        (*vec64of(o)) /= floatof(o1)->f_value;
+        (*vec64fof(o)) /= floatof(o1)->f_value;
         USEo();
 
     default:
@@ -1170,8 +1170,8 @@ mismatch : {
         FAIL();
 
 vecmismatch:
-        // nb. the cast works for vec64 too
-        set_error("vec size mis-match: %lu vs. %lu", vec32of(o0)->v_size, vec32of(o1)->v_size);
+        // nb. the cast works for vec64f too
+        set_error("vec size mis-match: %lu vs. %lu", vec32fof(o0)->v_size, vec32fof(o1)->v_size);
         FAIL();
     }
 

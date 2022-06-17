@@ -35,7 +35,7 @@ extern samplerate_relative_frequency(rate, freq)
 }
 
 /*
- * vec32 = ipp.generate_sine_wave(freq, duration, samplerate, mag)
+ * vec32f = ipp.generate_sine_wave(freq, duration, samplerate, mag)
  *
  * Utility using ipp.tone() to generate a sine wave of the given
  * frequency, duration and magnitude at a certain sample rate.
@@ -45,13 +45,13 @@ extern generate_sine_wave(freq, duration, samplerate)
     var samplerate = 44100.0;
     var mag = 1.0;
 
-    vec := vec32(int(ceil(duration * samplerate)));
+    vec := vec32f(int(ceil(duration * samplerate)));
     tone(vec, mag, samplerate_relative_frequency(samplerate, freq));
     return vec;
 }
 
 /*
- * vec32 = ipp.generate_sawtooth_wave(freq, duration, samplerate, mag)
+ * vec32f = ipp.generate_sawtooth_wave(freq, duration, samplerate, mag)
  *
  * Utility using ipp.triangle() to generate a sawtooth wave of the given
  * frequency and duration at a certain sample rate.
@@ -60,7 +60,7 @@ extern generate_sawtooth_wave(freq, duration, samplerate)
 {
     var samplerate = 44100.0;
     var mag = 1.0;
-    vec := vec32(int(ceil(duration * samplerate)));
+    vec := vec32f(int(ceil(duration * samplerate)));
     triangle(vec, mag, samplerate_relative_frequency(samplerate, freq));
     return vec;
 }

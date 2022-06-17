@@ -58,15 +58,19 @@ be made at all :))
 
 ### New types
 
-Two types, `vec32` and `vec64`, have been added to provide for more
-efficient numeric programming. A `vec32` is a, C, array of single-
-precision floating point values and a `vec64` an array of double
+Two types, `vec32f` and `vec64f`, have been added to provide for more
+efficient numeric programming. A `vec32f` is a, C, array of single-
+precision floating point values and a `vec64f` an array of double
 precision values. Vecs act as variable sized arrays of up to a defined
 _capacity_ and support the basic arithmetic operators and assignment
 operators - `+`, `-`, `*`, `/`, `+=`, `-=`, `*=`, `/` - with both vec
 and scalar operands. Assignment operators are optimised to avoid
 copying data while binary operators create new values of the
 appropriate vec type.
+
+On systems with Intel's IPP libraries the different operations can
+use the IPP functions for their implementation with a corresponding
+"ipp" module providing access to other functions provided by IPP.
 
 ### Standard modules
 

@@ -36,62 +36,43 @@ namespace ici
  * core. NB: The positions of these must exactly match the TC_* values
  * in object.h.
  */
-type *types[max_types] = {nullptr,
-                          instanceof
-                          <pc_type>(),
-                          instanceof
-                          <src_type>(),
-                          instanceof
-                          <parse_type>(),
-                          instanceof
-                          <op_type>(),
-                          instanceof
-                          <string_type>(),
-                          instanceof
-                          <catcher_type>(),
-                          instanceof
-                          <forall_type>(),
-                          instanceof
-                          <int_type>(),
-                          instanceof
-                          <float_type>(),
-                          instanceof
-                          <regexp_type>(),
-                          instanceof
-                          <ptr_type>(),
-                          instanceof
-                          <array_type>(),
-                          instanceof
-                          <map_type>(),
-                          instanceof
-                          <set_type>(),
-                          instanceof
-                          <exec_type>(),
-                          instanceof
-                          <file_type>(),
-                          instanceof
-                          <func_type>(),
-                          instanceof
-                          <cfunc_type>(),
-                          instanceof
-                          <method_type>(),
-                          instanceof
-                          <mark_type>(),
-                          instanceof
-                          <null_type>(),
-                          instanceof
-                          <handle_type>(),
-                          instanceof
-                          <mem_type>(),
+type *types[max_types] =
+{
+    nullptr,
+    instanceof<pc_type>(),
+    instanceof<src_type>(),
+    instanceof<parse_type>(),
+    instanceof<op_type>(),
+    instanceof<string_type>(),
+    instanceof<catcher_type>(),
+    instanceof<forall_type>(),
+    instanceof<int_type>(),
+    instanceof<float_type>(),
+    instanceof<regexp_type>(),
+    instanceof<ptr_type>(),
+    instanceof<array_type>(),
+    instanceof<map_type>(),
+    instanceof<set_type>(),
+    instanceof<exec_type>(),
+    instanceof<file_type>(),
+    instanceof<func_type>(),
+    instanceof<cfunc_type>(),
+    instanceof<method_type>(),
+    instanceof<mark_type>(),
+    instanceof<null_type>(),
+    instanceof<handle_type>(),
+    instanceof<mem_type>(),
 #ifndef NOPROFILE
-                          instanceof
-                          <profilecall_type>(),
+    instanceof<profilecall_type>(),
 #else
-                          nullptr,
+    nullptr,
 #endif
-                          nullptr, // TC_REF is special, a reserved type code with no actual type
-                          instanceof
-                          <channel_type>(), instanceof <vec32_type>(), instanceof <vec64_type>(), nullptr};
+    nullptr, // TC_REF is a reserved type code with no actual type
+    instanceof<channel_type>(),
+    instanceof <vec32f_type>(),
+    instanceof <vec64f_type>(),
+    nullptr
+};
 
 int num_types = TC_MAX_CORE + 1;
 

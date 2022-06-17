@@ -193,36 +193,36 @@ template <int TYPE_CODE, typename VALUE_TYPE> struct vec : object
 #undef define_vec_binop_scalar
 };
 
-using vec32 = vec<TC_VEC32, float>;
-using vec64 = vec<TC_VEC64, double>;
+using vec32f = vec<TC_VEC32F, float>;
+using vec64f = vec<TC_VEC64F, double>;
 
-inline vec32 *vec32of(object *o)
+inline vec32f *vec32fof(object *o)
 {
-    return static_cast<vec32 *>(o);
+    return static_cast<vec32f *>(o);
 }
-inline bool isvec32(object *o)
+inline bool isvec32f(object *o)
 {
-    return o->hastype(vec32::type_code);
-}
-
-vec32 *new_vec32(size_t, size_t = 0, object * = nullptr);
-vec32 *new_vec32(vec32 *);
-vec32 *new_vec32(vec64 *);
-vec32 *new_vec32(vec32 *, size_t, size_t);
-
-inline vec64 *vec64of(object *o)
-{
-    return static_cast<vec64 *>(o);
-}
-inline bool isvec64(object *o)
-{
-    return o->hastype(vec64::type_code);
+    return o->hastype(vec32f::type_code);
 }
 
-vec64 *new_vec64(size_t, size_t = 0, object * = nullptr);
-vec64 *new_vec64(vec64 *);
-vec64 *new_vec64(vec32 *);
-vec64 *new_vec64(vec64 *, size_t, size_t);
+vec32f *new_vec32f(size_t, size_t = 0, object * = nullptr);
+vec32f *new_vec32f(vec32f *);
+vec32f *new_vec32f(vec64f *);
+vec32f *new_vec32f(vec32f *, size_t, size_t);
+
+inline vec64f *vec64fof(object *o)
+{
+    return static_cast<vec64f *>(o);
+}
+inline bool isvec64f(object *o)
+{
+    return o->hastype(vec64f::type_code);
+}
+
+vec64f *new_vec64f(size_t, size_t = 0, object * = nullptr);
+vec64f *new_vec64f(vec64f *);
+vec64f *new_vec64f(vec32f *);
+vec64f *new_vec64f(vec64f *, size_t, size_t);
 
 size_t vec_size(object *);
 
@@ -232,41 +232,40 @@ size_t vec_size(object *);
 
 // ----------------------------------------------------------------
 
-struct vec32_type : type
-{
-    vec32_type()
-        : type("vec32", sizeof(vec32))
-    {
-    }
+// TODO:
+//
+// vec8s
+// vec8u
+// vec16s
+// vec16u
+// vec32s
+// vec32u
+// vec64s
 
-    size_t  mark(object *) override;
-    void    free(object *) override;
-    int64_t len(object *o) override;
-    object *copy(object *) override;
-    object *fetch(object *o, object *k) override;
-    int     assign(object *o, object *k, object *v) override;
-    int     forall(object *) override;
-    int     save(archiver *, object *) override;
-    object *restore(archiver *) override;
-};
+#define declare_vec_type_class(T)                               \
+struct T ## _type : type                                        \
+{                                                               \
+    T ## _type()                                                \
+        : type(#T, sizeof (T))                                  \
+    {                                                           \
+    }                                                           \
+                                                                \
+    size_t  mark(object *) override;                            \
+    void    free(object *) override;                            \
+    int64_t len(object *o) override;                            \
+    object *copy(object *) override;                            \
+    object *fetch(object *o, object *k) override;               \
+    int     assign(object *o, object *k, object *v) override;   \
+    int     forall(object *) override;                          \
+    int     save(archiver *, object *) override;                \
+    object *restore(archiver *) override;                       \
+}
 
-struct vec64_type : type
-{
-    vec64_type()
-        : type("vec64", sizeof(vec64))
-    {
-    }
 
-    size_t  mark(object *) override;
-    void    free(object *) override;
-    int64_t len(object *o) override;
-    object *copy(object *) override;
-    object *fetch(object *o, object *k) override;
-    int     assign(object *o, object *k, object *v) override;
-    int     forall(object *) override;
-    int     save(archiver *, object *) override;
-    object *restore(archiver *) override;
-};
+declare_vec_type_class(vec32f);
+declare_vec_type_class(vec64f);
+
+#undef declare_vec_type_class
 
 } // namespace ici
 

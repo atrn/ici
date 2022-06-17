@@ -1587,12 +1587,12 @@ printf("onerror...\n");
 printf("vec...\n");
 [module
     Z := 1000;
-    v0 := vec32(Z);
+    v0 := vec32f(Z);
     if (len(v0) != 0)
     {
         fail("v0 len != 0");
     }
-    v1 := vec32(Z, 0.0);
+    v1 := vec32f(Z, 0.0);
     if (len(v1) != Z)
     {
         fail("vec len != Z");

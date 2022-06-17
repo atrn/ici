@@ -18,7 +18,7 @@ up to date in many areas. Porting the implementation to C++ from its
 original C and revisiting a number of aspects of the language.
 
 One recent addition is the _vec_ type, which comes in two forms,
-`vec32` and `vec64`. A _vec_ is an array of some number of single or
+`vec32f` and `vec64f`. A _vec_ is an array of some number of single or
 double precision, C, floating point values. I.e. it is a numeric
 vector of up to N elements.
 

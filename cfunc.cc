@@ -1658,13 +1658,13 @@ static int f_interval()
         a = arrayof(o);
         nel = a->len();
     }
-    else if (isvec32(o))
+    else if (isvec32f(o))
     {
-        nel = vec32of(o)->v_capacity;
+        nel = vec32fof(o)->v_capacity;
     }
-    else if (isvec64(o))
+    else if (isvec64f(o))
     {
-        nel = vec64of(o)->v_capacity;
+        nel = vec64fof(o)->v_capacity;
     }
     else
     {
@@ -1712,13 +1712,13 @@ static int f_interval()
     {
         return ret_with_decref(new_str(s->s_chars + start, (int)length));
     }
-    if (isvec32(o))
+    if (isvec32f(o))
     {
-        return ret_with_decref(new_vec32(vec32of(o), size_t(start), size_t(length)));
+        return ret_with_decref(new_vec32f(vec32fof(o), size_t(start), size_t(length)));
     }
-    if (isvec64(o))
+    if (isvec64f(o))
     {
-        return ret_with_decref(new_vec64(vec64of(o), size_t(start), size_t(length)));
+        return ret_with_decref(new_vec64f(vec64fof(o), size_t(start), size_t(length)));
     }
     if ((a1 = new_array(length)) == nullptr)
     {
@@ -4847,13 +4847,13 @@ static int f_putenv()
 }
 
 /*
- * vec32 = vec32(size)
- * vec32 = vec32(size, fill)
- * vec32 = vec32(array)
- * vec32 = vec32(vec32)
- * vec32 = vec32(vec64)
+ * vec32f = vec32f(size)
+ * vec32f = vec32f(size, fill)
+ * vec32f = vec32f(array)
+ * vec32f = vec32f(vec32f)
+ * vec32f = vec32f(vec64f)
  */
-static int f_vec32()
+static int f_vec32f()
 {
     if (NARGS() == 2)
     {
@@ -4867,7 +4867,7 @@ static int f_vec32()
         {
             return set_error("%lld: invalid size", size);
         }
-        auto v = new_vec32(size);
+        auto v = new_vec32f(size);
         if (!v)
         {
             return 1;
@@ -4886,7 +4886,7 @@ static int f_vec32()
         {
             return set_error("%lld: invalid size", size);
         }
-        auto v = new_vec32(size);
+        auto v = new_vec32f(size);
         if (!v)
         {
             return 1;
@@ -4897,9 +4897,9 @@ static int f_vec32()
     {
         if (arrayof(ARG(0))->len() == 0)
         {
-            return set_error("attempt to initialize vec32 with an empty array");
+            return set_error("attempt to initialize vec32f with an empty array");
         }
-        auto v = new_vec32(arrayof(ARG(0))->len());
+        auto v = new_vec32f(arrayof(ARG(0))->len());
         for (size_t i = 0; i < arrayof(ARG(0))->len(); ++i)
         {
             double value = 0.0;
@@ -4917,18 +4917,18 @@ static int f_vec32()
         v->resize();
         return ret_with_decref(v);
     }
-    else if (isvec32(ARG(0)))
+    else if (isvec32f(ARG(0)))
     {
-        auto v = new_vec32(vec32of(ARG(0)));
+        auto v = new_vec32f(vec32fof(ARG(0)));
         if (!v)
         {
             return 1;
         }
         return ret_with_decref(v);
     }
-    else if (isvec64(ARG(0)))
+    else if (isvec64f(ARG(0)))
     {
-        auto v = new_vec32(vec64of(ARG(0)));
+        auto v = new_vec32f(vec64fof(ARG(0)));
         if (!v)
         {
             return 1;
@@ -4942,13 +4942,13 @@ static int f_vec32()
 }
 
 /*
- * vec64 = vec64(size)
- * vec64 = vec64(size, fill)
- * vec64 = vec64(array)
- * vec64 = vec64(vec32)
- * vec64 = vec64(vec64)
+ * vec64f = vec64f(size)
+ * vec64f = vec64f(size, fill)
+ * vec64f = vec64f(array)
+ * vec64f = vec64f(vec32f)
+ * vec64f = vec64f(vec64f)
  */
-static int f_vec64()
+static int f_vec64f()
 {
     if (NARGS() == 2)
     {
@@ -4962,7 +4962,7 @@ static int f_vec64()
         {
             return set_error("%lld: invalid size", size);
         }
-        auto v = new_vec64(size);
+        auto v = new_vec64f(size);
         if (!v)
         {
             return 1;
@@ -4981,7 +4981,7 @@ static int f_vec64()
         {
             return set_error("%lld: invalid size", size);
         }
-        auto v = new_vec64(size);
+        auto v = new_vec64f(size);
         if (!v)
         {
             return 1;
@@ -4992,9 +4992,9 @@ static int f_vec64()
     {
         if (arrayof(ARG(0))->len() == 0)
         {
-            return set_error("attempt to initialize vec64 with an empty array");
+            return set_error("attempt to initialize vec64f with an empty array");
         }
-        auto v = new_vec64(arrayof(ARG(0))->len());
+        auto v = new_vec64f(arrayof(ARG(0))->len());
         for (size_t i = 0; i < arrayof(ARG(0))->len(); ++i)
         {
             double value = 0.0;
@@ -5012,18 +5012,18 @@ static int f_vec64()
         v->resize();
         return ret_with_decref(v);
     }
-    else if (isvec32(ARG(0)))
+    else if (isvec32f(ARG(0)))
     {
-        auto v = new_vec64(vec32of(ARG(0)));
+        auto v = new_vec64f(vec32fof(ARG(0)));
         if (!v)
         {
             return 1;
         }
         return ret_with_decref(v);
     }
-    else if (isvec64(ARG(0)))
+    else if (isvec64f(ARG(0)))
     {
-        auto v = new_vec64(vec64of(ARG(0)));
+        auto v = new_vec64f(vec64fof(ARG(0)));
         if (!v)
         {
             return 1;
@@ -5105,128 +5105,131 @@ double xfmod(double a, double b)
 }
 } // namespace
 
-ICI_DEFINE_CFUNCS(std){ICI_DEFINE_CFUNC(array, f_array),
-                       ICI_DEFINE_CFUNC(copy, f_copy),
-                       ICI_DEFINE_CFUNC(exit, f_exit),
-                       ICI_DEFINE_CFUNC(fail, f_fail),
-                       ICI_DEFINE_CFUNC(float, f_float),
-                       ICI_DEFINE_CFUNC(float32, f_float32),
-                       ICI_DEFINE_CFUNC(int, f_int),
-                       ICI_DEFINE_CFUNC(eq, f_eq),
-                       ICI_DEFINE_CFUNC(parse, f_parse),
-                       ICI_DEFINE_CFUNC(string, f_string),
-                       ICI_DEFINE_CFUNC(map, f_map),
-                       ICI_DEFINE_CFUNC(set, f_set),
-                       ICI_DEFINE_CFUNC(typeof, f_typeof),
-                       ICI_DEFINE_CFUNC(push, f_push),
-                       ICI_DEFINE_CFUNC(pop, f_pop),
-                       ICI_DEFINE_CFUNC(rpush, f_rpush),
-                       ICI_DEFINE_CFUNC(rpop, f_rpop),
-                       ICI_DEFINE_CFUNC(reserve, f_reserve),
-                       ICI_DEFINE_CFUNC(call, f_call),
-                       ICI_DEFINE_CFUNC(keys, f_keys),
-                       ICI_DEFINE_CFUNC(vstack, f_vstack),
-                       ICI_DEFINE_CFUNC(tochar, f_tochar),
-                       ICI_DEFINE_CFUNC(toint, f_toint),
-                       ICI_DEFINE_CFUNC(rand, f_rand),
-                       ICI_DEFINE_CFUNC(interval, f_interval),
-                       ICI_DEFINE_CFUNC(slice, f_interval),
-                       ICI_DEFINE_CFUNC(explode, f_explode),
-                       ICI_DEFINE_CFUNC(implode, f_implode),
-                       ICI_DEFINE_CFUNC(join, f_join),
-                       ICI_DEFINE_CFUNC(sopen, f_sopen),
-                       ICI_DEFINE_CFUNC(mopen, f_mopen),
-                       ICI_DEFINE_CFUNC(sprintf, ici_f_sprintf),
-                       ICI_DEFINE_CFUNC(currentfile, f_currentfile),
-                       ICI_DEFINE_CFUNC(del, f_del),
-                       ICI_DEFINE_CFUNC(alloc, f_alloc),
-                       ICI_DEFINE_CFUNC(mem, f_mem),
-                       ICI_DEFINE_CFUNC(len, f_len),
-                       ICI_DEFINE_CFUNC(super, f_super),
-                       ICI_DEFINE_CFUNC(scope, f_scope),
-                       ICI_DEFINE_CFUNC(isatom, f_isatom),
-                       ICI_DEFINE_CFUNC(gettoken, f_gettoken),
-                       ICI_DEFINE_CFUNC(gettokens, f_gettokens),
-                       ICI_DEFINE_CFUNC(split, f_gettokens),
-                       ICI_DEFINE_CFUNC(num, f_num),
-                       ICI_DEFINE_CFUNC(assign, f_assign),
-                       ICI_DEFINE_CFUNC(fetch, f_fetch),
-                       ICI_DEFINE_CFUNC(unique, f_unique),
-                       ICI_DEFINE_CFUNC(abs, f_abs),
-                       ICI_DEFINE_CFUNC2(sin, f_math, xsin, "f=n"),
-                       ICI_DEFINE_CFUNC2(cos, f_math, xcos, "f=n"),
-                       ICI_DEFINE_CFUNC2(tan, f_math, xtan, "f=n"),
-                       ICI_DEFINE_CFUNC2(asin, f_math, xasin, "f=n"),
-                       ICI_DEFINE_CFUNC2(acos, f_math, xacos, "f=n"),
-                       ICI_DEFINE_CFUNC2(atan, f_math, xatan, "f=n"),
-                       ICI_DEFINE_CFUNC2(atan2, f_math, xatan2, "f=nn"),
-                       ICI_DEFINE_CFUNC2(exp, f_math, xexp, "f=n"),
-                       ICI_DEFINE_CFUNC2(log, f_math, xlog, "f=n"),
-                       ICI_DEFINE_CFUNC2(log10, f_math, xlog10, "f=n"),
-                       ICI_DEFINE_CFUNC2(pow, f_math, xpow, "f=nn"),
-                       ICI_DEFINE_CFUNC2(round, f_math, xround, "f=n"),
-                       ICI_DEFINE_CFUNC2(sqrt, f_math, xsqrt, "f=n"),
-                       ICI_DEFINE_CFUNC2(floor, f_math, xfloor, "f=n"),
-                       ICI_DEFINE_CFUNC2(ceil, f_math, xceil, "f=n"),
-                       ICI_DEFINE_CFUNC2(fmod, f_math, xfmod, "f=nn"),
-                       ICI_DEFINE_CFUNC(waitfor, f_waitfor),
-                       ICI_DEFINE_CFUNC(top, f_top),
-                       ICI_DEFINE_CFUNC(sort, f_sort),
-                       ICI_DEFINE_CFUNC(reclaim, f_reclaim),
-                       ICI_DEFINE_CFUNC(now, f_now),
-                       ICI_DEFINE_CFUNC(calendar, f_calendar),
-                       ICI_DEFINE_CFUNC(cputime, f_cputime),
-                       ICI_DEFINE_CFUNC(sleep, f_sleep),
-                       ICI_DEFINE_CFUNC(strbuf, f_strbuf),
-                       ICI_DEFINE_CFUNC(strcat, f_strcat),
-                       ICI_DEFINE_CFUNC(which, f_which),
-                       ICI_DEFINE_CFUNC(ncollects, f_ncollects),
-                       ICI_DEFINE_CFUNC2(cmp, f_coreici, SS(cmp), SS(core1)),
-                       ICI_DEFINE_CFUNC2(pathjoin, f_coreici, SS(pathjoin), SS(core2)),
-                       ICI_DEFINE_CFUNC2(basename, f_coreici, SS(basename), SS(core2)),
-                       ICI_DEFINE_CFUNC2(dirname, f_coreici, SS(dirname), SS(core2)),
-                       ICI_DEFINE_CFUNC2(pfopen, f_coreici, SS(pfopen), SS(core2)),
-                       ICI_DEFINE_CFUNC2(include, f_coreici, SS(include), SS(core2)),
-                       ICI_DEFINE_CFUNC2(walk, f_coreici, SS(walk), SS(core2)),
-                       ICI_DEFINE_CFUNC2(min, f_coreici, SS(min), SS(core3)),
-                       ICI_DEFINE_CFUNC2(max, f_coreici, SS(max), SS(core3)),
-                       ICI_DEFINE_CFUNC2(argerror, f_coreici, SS(argerror), SS(core3)),
-                       ICI_DEFINE_CFUNC2(argcount, f_coreici, SS(argcount), SS(core3)),
-                       ICI_DEFINE_CFUNC2(typecheck, f_coreici, SS(typecheck), SS(core3)),
-                       ICI_DEFINE_CFUNC2(apply, f_coreici, SS(apply), SS(core4)),
-                       ICI_DEFINE_CFUNC2(transform, f_coreici, SS(transform), SS(core4)),
-                       ICI_DEFINE_CFUNC2(deepatom, f_coreici, SS(deepatom), SS(core5)),
-                       ICI_DEFINE_CFUNC2(deepcopy, f_coreici, SS(deepcopy), SS(core5)),
-                       ICI_DEFINE_CFUNC2(memoize, f_coreici, SS(memoize), SS(core6)),
-                       ICI_DEFINE_CFUNC2(memoized, f_coreici, SS(memoized), SS(core6)),
-                       ICI_DEFINE_CFUNC2(print, f_coreici, SS(print), SS(core7)),
-                       ICI_DEFINE_CFUNC2(sprint, f_coreici, SS(sprint), SS(core7)),
-                       ICI_DEFINE_CFUNC2(println, f_coreici, SS(println), SS(core7)),
-                       ICI_DEFINE_CFUNC2(closure, f_coreici, SS(closure), SS(core8)),
-                       ICI_DEFINE_CFUNC2(format_time, f_coreici, SS(format_time), SS(core9)),
-                       ICI_DEFINE_CFUNC1(printf, ici_f_sprintf, 1),
-                       ICI_DEFINE_CFUNC(getchar, f_getchar),
-                       ICI_DEFINE_CFUNC(ungetchar, f_ungetchar),
-                       ICI_DEFINE_CFUNC(getfile, f_getfile),
-                       ICI_DEFINE_CFUNC(getline, f_getline),
-                       ICI_DEFINE_CFUNC(fopen, f_fopen),
-                       ICI_DEFINE_CFUNC(_popen, f_popen),
-                       ICI_DEFINE_CFUNC(tmpname, f_tmpname),
-                       ICI_DEFINE_CFUNC(puts, f_puts),
-                       ICI_DEFINE_CFUNC(flush, f_fflush),
-                       ICI_DEFINE_CFUNC(close, f_close),
-                       ICI_DEFINE_CFUNC(seek, f_fseek),
-                       ICI_DEFINE_CFUNC(system, f_system),
-                       ICI_DEFINE_CFUNC(eof, f_eof),
-                       ICI_DEFINE_CFUNC(remove, f_remove),
-                       ICI_DEFINE_CFUNC(dir, f_dir),
-                       ICI_DEFINE_CFUNC(getcwd, f_getcwd),
-                       ICI_DEFINE_CFUNC(chdir, f_chdir),
-                       ICI_DEFINE_CFUNC(rename, f_rename),
-                       ICI_DEFINE_CFUNC(getenv, f_getenv),
-                       ICI_DEFINE_CFUNC(putenv, f_putenv),
-                       ICI_DEFINE_CFUNC(vec32, f_vec32),
-                       ICI_DEFINE_CFUNC(vec64, f_vec64),
-                       ICI_CFUNCS_END()};
+ICI_DEFINE_CFUNCS(std)
+{
+    ICI_DEFINE_CFUNC(array, f_array),
+    ICI_DEFINE_CFUNC(copy, f_copy),
+    ICI_DEFINE_CFUNC(exit, f_exit),
+    ICI_DEFINE_CFUNC(fail, f_fail),
+    ICI_DEFINE_CFUNC(float, f_float),
+    ICI_DEFINE_CFUNC(float32, f_float32),
+    ICI_DEFINE_CFUNC(int, f_int),
+    ICI_DEFINE_CFUNC(eq, f_eq),
+    ICI_DEFINE_CFUNC(parse, f_parse),
+    ICI_DEFINE_CFUNC(string, f_string),
+    ICI_DEFINE_CFUNC(map, f_map),
+    ICI_DEFINE_CFUNC(set, f_set),
+    ICI_DEFINE_CFUNC(typeof, f_typeof),
+    ICI_DEFINE_CFUNC(push, f_push),
+    ICI_DEFINE_CFUNC(pop, f_pop),
+    ICI_DEFINE_CFUNC(rpush, f_rpush),
+    ICI_DEFINE_CFUNC(rpop, f_rpop),
+    ICI_DEFINE_CFUNC(reserve, f_reserve),
+    ICI_DEFINE_CFUNC(call, f_call),
+    ICI_DEFINE_CFUNC(keys, f_keys),
+    ICI_DEFINE_CFUNC(vstack, f_vstack),
+    ICI_DEFINE_CFUNC(tochar, f_tochar),
+    ICI_DEFINE_CFUNC(toint, f_toint),
+    ICI_DEFINE_CFUNC(rand, f_rand),
+    ICI_DEFINE_CFUNC(interval, f_interval),
+    ICI_DEFINE_CFUNC(slice, f_interval),
+    ICI_DEFINE_CFUNC(explode, f_explode),
+    ICI_DEFINE_CFUNC(implode, f_implode),
+    ICI_DEFINE_CFUNC(join, f_join),
+    ICI_DEFINE_CFUNC(sopen, f_sopen),
+    ICI_DEFINE_CFUNC(mopen, f_mopen),
+    ICI_DEFINE_CFUNC(sprintf, ici_f_sprintf),
+    ICI_DEFINE_CFUNC(currentfile, f_currentfile),
+    ICI_DEFINE_CFUNC(del, f_del),
+    ICI_DEFINE_CFUNC(alloc, f_alloc),
+    ICI_DEFINE_CFUNC(mem, f_mem),
+    ICI_DEFINE_CFUNC(len, f_len),
+    ICI_DEFINE_CFUNC(super, f_super),
+    ICI_DEFINE_CFUNC(scope, f_scope),
+    ICI_DEFINE_CFUNC(isatom, f_isatom),
+    ICI_DEFINE_CFUNC(gettoken, f_gettoken),
+    ICI_DEFINE_CFUNC(gettokens, f_gettokens),
+    ICI_DEFINE_CFUNC(split, f_gettokens),
+    ICI_DEFINE_CFUNC(num, f_num),
+    ICI_DEFINE_CFUNC(assign, f_assign),
+    ICI_DEFINE_CFUNC(fetch, f_fetch),
+    ICI_DEFINE_CFUNC(unique, f_unique),
+    ICI_DEFINE_CFUNC(abs, f_abs),
+    ICI_DEFINE_CFUNC2(sin, f_math, xsin, "f=n"),
+    ICI_DEFINE_CFUNC2(cos, f_math, xcos, "f=n"),
+    ICI_DEFINE_CFUNC2(tan, f_math, xtan, "f=n"),
+    ICI_DEFINE_CFUNC2(asin, f_math, xasin, "f=n"),
+    ICI_DEFINE_CFUNC2(acos, f_math, xacos, "f=n"),
+    ICI_DEFINE_CFUNC2(atan, f_math, xatan, "f=n"),
+    ICI_DEFINE_CFUNC2(atan2, f_math, xatan2, "f=nn"),
+    ICI_DEFINE_CFUNC2(exp, f_math, xexp, "f=n"),
+    ICI_DEFINE_CFUNC2(log, f_math, xlog, "f=n"),
+    ICI_DEFINE_CFUNC2(log10, f_math, xlog10, "f=n"),
+    ICI_DEFINE_CFUNC2(pow, f_math, xpow, "f=nn"),
+    ICI_DEFINE_CFUNC2(round, f_math, xround, "f=n"),
+    ICI_DEFINE_CFUNC2(sqrt, f_math, xsqrt, "f=n"),
+    ICI_DEFINE_CFUNC2(floor, f_math, xfloor, "f=n"),
+    ICI_DEFINE_CFUNC2(ceil, f_math, xceil, "f=n"),
+    ICI_DEFINE_CFUNC2(fmod, f_math, xfmod, "f=nn"),
+    ICI_DEFINE_CFUNC(waitfor, f_waitfor),
+    ICI_DEFINE_CFUNC(top, f_top),
+    ICI_DEFINE_CFUNC(sort, f_sort),
+    ICI_DEFINE_CFUNC(reclaim, f_reclaim),
+    ICI_DEFINE_CFUNC(now, f_now),
+    ICI_DEFINE_CFUNC(calendar, f_calendar),
+    ICI_DEFINE_CFUNC(cputime, f_cputime),
+    ICI_DEFINE_CFUNC(sleep, f_sleep),
+    ICI_DEFINE_CFUNC(strbuf, f_strbuf),
+    ICI_DEFINE_CFUNC(strcat, f_strcat),
+    ICI_DEFINE_CFUNC(which, f_which),
+    ICI_DEFINE_CFUNC(ncollects, f_ncollects),
+    ICI_DEFINE_CFUNC2(cmp, f_coreici, SS(cmp), SS(core1)),
+    ICI_DEFINE_CFUNC2(pathjoin, f_coreici, SS(pathjoin), SS(core2)),
+    ICI_DEFINE_CFUNC2(basename, f_coreici, SS(basename), SS(core2)),
+    ICI_DEFINE_CFUNC2(dirname, f_coreici, SS(dirname), SS(core2)),
+    ICI_DEFINE_CFUNC2(pfopen, f_coreici, SS(pfopen), SS(core2)),
+    ICI_DEFINE_CFUNC2(include, f_coreici, SS(include), SS(core2)),
+    ICI_DEFINE_CFUNC2(walk, f_coreici, SS(walk), SS(core2)),
+    ICI_DEFINE_CFUNC2(min, f_coreici, SS(min), SS(core3)),
+    ICI_DEFINE_CFUNC2(max, f_coreici, SS(max), SS(core3)),
+    ICI_DEFINE_CFUNC2(argerror, f_coreici, SS(argerror), SS(core3)),
+    ICI_DEFINE_CFUNC2(argcount, f_coreici, SS(argcount), SS(core3)),
+    ICI_DEFINE_CFUNC2(typecheck, f_coreici, SS(typecheck), SS(core3)),
+    ICI_DEFINE_CFUNC2(apply, f_coreici, SS(apply), SS(core4)),
+    ICI_DEFINE_CFUNC2(transform, f_coreici, SS(transform), SS(core4)),
+    ICI_DEFINE_CFUNC2(deepatom, f_coreici, SS(deepatom), SS(core5)),
+    ICI_DEFINE_CFUNC2(deepcopy, f_coreici, SS(deepcopy), SS(core5)),
+    ICI_DEFINE_CFUNC2(memoize, f_coreici, SS(memoize), SS(core6)),
+    ICI_DEFINE_CFUNC2(memoized, f_coreici, SS(memoized), SS(core6)),
+    ICI_DEFINE_CFUNC2(print, f_coreici, SS(print), SS(core7)),
+    ICI_DEFINE_CFUNC2(sprint, f_coreici, SS(sprint), SS(core7)),
+    ICI_DEFINE_CFUNC2(println, f_coreici, SS(println), SS(core7)),
+    ICI_DEFINE_CFUNC2(closure, f_coreici, SS(closure), SS(core8)),
+    ICI_DEFINE_CFUNC2(format_time, f_coreici, SS(format_time), SS(core9)),
+    ICI_DEFINE_CFUNC1(printf, ici_f_sprintf, 1),
+    ICI_DEFINE_CFUNC(getchar, f_getchar),
+    ICI_DEFINE_CFUNC(ungetchar, f_ungetchar),
+    ICI_DEFINE_CFUNC(getfile, f_getfile),
+    ICI_DEFINE_CFUNC(getline, f_getline),
+    ICI_DEFINE_CFUNC(fopen, f_fopen),
+    ICI_DEFINE_CFUNC(_popen, f_popen),
+    ICI_DEFINE_CFUNC(tmpname, f_tmpname),
+    ICI_DEFINE_CFUNC(puts, f_puts),
+    ICI_DEFINE_CFUNC(flush, f_fflush),
+    ICI_DEFINE_CFUNC(close, f_close),
+    ICI_DEFINE_CFUNC(seek, f_fseek),
+    ICI_DEFINE_CFUNC(system, f_system),
+    ICI_DEFINE_CFUNC(eof, f_eof),
+    ICI_DEFINE_CFUNC(remove, f_remove),
+    ICI_DEFINE_CFUNC(dir, f_dir),
+    ICI_DEFINE_CFUNC(getcwd, f_getcwd),
+    ICI_DEFINE_CFUNC(chdir, f_chdir),
+    ICI_DEFINE_CFUNC(rename, f_rename),
+    ICI_DEFINE_CFUNC(getenv, f_getenv),
+    ICI_DEFINE_CFUNC(putenv, f_putenv),
+    ICI_DEFINE_CFUNC(vec32f, f_vec32f),
+    ICI_DEFINE_CFUNC(vec64f, f_vec64f),
+    ICI_CFUNCS_END()
+};
 
 } // namespace ici

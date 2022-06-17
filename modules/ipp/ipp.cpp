@@ -18,8 +18,8 @@
  * where possible IPP-naming and argument orders are preserved
  * (allowing the C/C++ IPP documentation to be used). The general rule
  * is that when an IPP function takes a pointer to a vector and a
- * vector size the ici version uses a single _vec_ value, `vec32` for
- * single-precision or `vec64` for double-precision.
+ * vector size the ici version uses a single _vec_ value, `vec32f` for
+ * single-precision or `vec64f` for double-precision.
  *
  * Some operations are represented differently to better integrate
  * inplace and non-inplace operations. E.g. the `normalize` function
@@ -79,14 +79,14 @@ int f_init()
         {                                               \
             return 1;                                   \
         }                                               \
-        if (ici::isvec32(o))                            \
+        if (ici::isvec32f(o))                            \
         {                                               \
-            auto vec = ici::vec32of(o);                 \
+            auto vec = ici::vec32fof(o);                 \
             CODE32 ;                                    \
         }                                               \
-        else if(ici::isvec64(o))                        \
+        else if(ici::isvec64f(o))                        \
         {                                               \
-            auto vec = ici::vec64of(o);                 \
+            auto vec = ici::vec64fof(o);                 \
             CODE64 ;                                    \
         }                                               \
         else                                            \
@@ -106,14 +106,14 @@ int f_init()
         {                                               \
             return 1;                                   \
         }                                               \
-        if (ici::isvec32(o))                            \
+        if (ici::isvec32f(o))                            \
         {                                               \
-            auto vec = ici::vec32of(o);                 \
+            auto vec = ici::vec32fof(o);                 \
             CODE32 ;                                    \
         }                                               \
-        else if(ici::isvec64(o))                        \
+        else if(ici::isvec64f(o))                        \
         {                                               \
-            auto vec = ici::vec64of(o);                 \
+            auto vec = ici::vec64fof(o);                 \
             CODE64 ;                                    \
         }                                               \
         else                                            \
@@ -215,31 +215,31 @@ int f_tone()
         return ici::argcount(3);
     }
     int error = ippStsNoErr;
-    if (ici::isvec32(vec))
+    if (ici::isvec32f(vec))
     {
         float phase32 = float(phase);
         error = ippsTone_32f
         (
-            ici::vec32of(vec)->v_ptr, int(ici::vec32of(vec)->v_capacity),
+            ici::vec32fof(vec)->v_ptr, int(ici::vec32fof(vec)->v_capacity),
             float(magnitude),
             float(rfrequency),
             &phase32,
             IppHintAlgorithm(hint)
         );
-        ici::vec32of(vec)->resize();
+        ici::vec32fof(vec)->resize();
         phase = phase32;
     }
-    else if (ici::isvec64(vec))
+    else if (ici::isvec64f(vec))
     {
         error = ippsTone_64f
         (
-            ici::vec64of(vec)->v_ptr, int(ici::vec64of(vec)->v_capacity),
+            ici::vec64fof(vec)->v_ptr, int(ici::vec64fof(vec)->v_capacity),
             magnitude,
             rfrequency,
             &phase,
             IppHintAlgorithm(hint)
         );
-        ici::vec64of(vec)->resize();
+        ici::vec64fof(vec)->resize();
     }
     else
     {
@@ -292,31 +292,31 @@ int f_triangle()
     default:
         return ici::argcount(3);
     }
-    if (ici::isvec32(vec))
+    if (ici::isvec32f(vec))
     {
         float phase32 = float(phase);
         error = ippsTriangle_32f
         (
-            ici::vec32of(vec)->v_ptr, int(ici::vec32of(vec)->v_capacity),
+            ici::vec32fof(vec)->v_ptr, int(ici::vec32fof(vec)->v_capacity),
             float(magnitude),
             float(rfrequency),
             float(asym),
             &phase32
         );
-        ici::vec32of(vec)->resize();
+        ici::vec32fof(vec)->resize();
         phase = phase32;
     }
-    else if (ici::isvec64(vec))
+    else if (ici::isvec64f(vec))
     {
         error = ippsTriangle_64f
         (
-            ici::vec64of(vec)->v_ptr, int(ici::vec64of(vec)->v_capacity),
+            ici::vec64fof(vec)->v_ptr, int(ici::vec64fof(vec)->v_capacity),
             magnitude,
             rfrequency,
             asym,
             &phase
         );
-        ici::vec64of(vec)->resize();
+        ici::vec64fof(vec)->resize();
     }
     else
     {
@@ -336,13 +336,13 @@ int f_vector_slope()
     {
         return 1;
     }
-    if (ici::isvec32(vec))
+    if (ici::isvec32f(vec))
     {
-        error = ippsVectorSlope_32f(vec32of(vec)->v_ptr, int(vec32of(vec)->v_capacity), float(offset), float(slope));
+        error = ippsVectorSlope_32f(vec32fof(vec)->v_ptr, int(vec32fof(vec)->v_capacity), float(offset), float(slope));
     }
-    else if (ici::isvec64(vec))
+    else if (ici::isvec64f(vec))
     {
-        error = ippsVectorSlope_64f(vec64of(vec)->v_ptr, int(vec64of(vec)->v_capacity), offset, slope);
+        error = ippsVectorSlope_64f(vec64fof(vec)->v_ptr, int(vec64fof(vec)->v_capacity), offset, slope);
     }
     else
     {
@@ -361,15 +361,15 @@ int f_min()
     {
         return 1;
     }
-    if (ici::isvec32(vec))
+    if (ici::isvec32f(vec))
     {
         float min32;
-        error = ippsMin_32f(vec32of(vec)->v_ptr, int(vec32of(vec)->v_size), &min32);
+        error = ippsMin_32f(vec32fof(vec)->v_ptr, int(vec32fof(vec)->v_size), &min32);
         minval = min32;
     }
-    else if (ici::isvec64(vec))
+    else if (ici::isvec64f(vec))
     {
-        error = ippsMin_64f(vec64of(vec)->v_ptr, int(vec64of(vec)->v_size), &minval);
+        error = ippsMin_64f(vec64fof(vec)->v_ptr, int(vec64fof(vec)->v_size), &minval);
     }
     else
     {
@@ -388,15 +388,15 @@ int f_max()
     {
         return 1;
     }
-    if (ici::isvec32(vec))
+    if (ici::isvec32f(vec))
     {
         float max32;
-        error = ippsMax_32f(vec32of(vec)->v_ptr, int(vec32of(vec)->v_size), &max32);
+        error = ippsMax_32f(vec32fof(vec)->v_ptr, int(vec32fof(vec)->v_size), &max32);
         maxval = max32;
     }
-    else if (ici::isvec64(vec))
+    else if (ici::isvec64f(vec))
     {
-        error = ippsMax_64f(vec64of(vec)->v_ptr, int(vec64of(vec)->v_size), &maxval);
+        error = ippsMax_64f(vec64fof(vec)->v_ptr, int(vec64fof(vec)->v_size), &maxval);
     }
     else
     {
@@ -416,17 +416,17 @@ int f_minmax()
     {
         return 1;
     }
-    if (ici::isvec32(vec))
+    if (ici::isvec32f(vec))
     {
         float min32;
         float max32;
-        error = ippsMinMax_32f(vec32of(vec)->v_ptr, int(vec32of(vec)->v_size), &min32, &max32);
+        error = ippsMinMax_32f(vec32fof(vec)->v_ptr, int(vec32fof(vec)->v_size), &min32, &max32);
         minval = min32;
         maxval = max32;
     }
-    else if (ici::isvec64(vec))
+    else if (ici::isvec64f(vec))
     {
-        error = ippsMinMax_64f(vec64of(vec)->v_ptr, int(vec64of(vec)->v_size), &minval, &maxval);
+        error = ippsMinMax_64f(vec64fof(vec)->v_ptr, int(vec64fof(vec)->v_size), &minval, &maxval);
     }
     else
     {
@@ -478,13 +478,13 @@ int f_normalize()
     {
         return 1;
     }
-    if (ici::isvec32(vec))
+    if (ici::isvec32f(vec))
     {
-        error = ippsNormalize_32f_I(ici::vec32of(vec)->v_ptr, ici::vec32of(vec)->v_size, float(sub), float(div));
+        error = ippsNormalize_32f_I(ici::vec32fof(vec)->v_ptr, ici::vec32fof(vec)->v_size, float(sub), float(div));
     }
-    else if (ici::isvec64(vec))
+    else if (ici::isvec64f(vec))
     {
-        error = ippsNormalize_64f_I(ici::vec64of(vec)->v_ptr, ici::vec64of(vec)->v_size, sub, div);
+        error = ippsNormalize_64f_I(ici::vec64fof(vec)->v_ptr, ici::vec64fof(vec)->v_size, sub, div);
     }
     else
     {
@@ -511,23 +511,23 @@ int f_normalized()
     {
         return 1;
     }
-    if (ici::isvec32(vec))
+    if (ici::isvec32f(vec))
     {
-        auto v = ici::vec32of(vec);
-        if (!(result = ici::new_vec32(v->v_size, v->v_size)))
+        auto v = ici::vec32fof(vec);
+        if (!(result = ici::new_vec32f(v->v_size, v->v_size)))
         {
             return 1;
         }
-        error = ippsNormalize_32f(v->v_ptr, ici::vec32of(result)->v_ptr, v->v_size, float(sub), float(div));
+        error = ippsNormalize_32f(v->v_ptr, ici::vec32fof(result)->v_ptr, v->v_size, float(sub), float(div));
     }
-    else if (ici::isvec64(vec))
+    else if (ici::isvec64f(vec))
     {
-        auto v = ici::vec64of(vec);
-        if (!(result = ici::new_vec64(v->v_size, v->v_size)))
+        auto v = ici::vec64fof(vec);
+        if (!(result = ici::new_vec64f(v->v_size, v->v_size)))
         {
             return 1;
         }
-        error = ippsNormalize_64f(v->v_ptr, ici::vec64of(result)->v_ptr, v->v_size, sub, div);
+        error = ippsNormalize_64f(v->v_ptr, ici::vec64fof(result)->v_ptr, v->v_size, sub, div);
     }
     else
     {
@@ -556,13 +556,13 @@ int f_add()
 
     if (ici::typecheck("on", &vec, &constant) == 0)
     {
-        if (ici::isvec32(vec))
+        if (ici::isvec32f(vec))
         {
-            error = ippsAddC_32f_I(float(constant), vec32of(vec)->v_ptr, int(vec32of(vec)->v_size));
+            error = ippsAddC_32f_I(float(constant), vec32fof(vec)->v_ptr, int(vec32fof(vec)->v_size));
         }
-        else if (ici::isvec64(vec))
+        else if (ici::isvec64f(vec))
         {
-            error = ippsAddC_64f_I(constant, vec64of(vec)->v_ptr, int(vec64of(vec)->v_size));
+            error = ippsAddC_64f_I(constant, vec64fof(vec)->v_ptr, int(vec64fof(vec)->v_size));
         }
         else
         {
@@ -582,20 +582,20 @@ int f_add()
 
     ici::object *result;
 
-    if (ici::isvec32(vec))
+    if (ici::isvec32f(vec))
     {
-        if (ici::isvec32(rhs))
+        if (ici::isvec32f(rhs))
         {
-            if (size_mismatch(vec32of(vec)->v_size, vec32of(rhs)->v_size))
+            if (size_mismatch(vec32fof(vec)->v_size, vec32fof(rhs)->v_size))
             {
                 return 1;
             }
-            auto r = ici::make_ref(ici::new_vec32(ici::vec32of(vec)->v_size, ici::vec32of(vec)->v_size));
+            auto r = ici::make_ref(ici::new_vec32f(ici::vec32fof(vec)->v_size, ici::vec32fof(vec)->v_size));
             if (!r)
             {
                 return 1;
             }
-            error = ippsAdd_32f(ici::vec32of(vec)->v_ptr, ici::vec32of(rhs)->v_ptr, r->v_ptr, int(r->v_size));
+            error = ippsAdd_32f(ici::vec32fof(vec)->v_ptr, ici::vec32fof(rhs)->v_ptr, r->v_ptr, int(r->v_size));
             result = r;
         }
         else
@@ -603,20 +603,20 @@ int f_add()
             return ici::argerror(1);
         }
     }
-    else if (ici::isvec64(vec))
+    else if (ici::isvec64f(vec))
     {
-        if (ici::isvec64(rhs))
+        if (ici::isvec64f(rhs))
         {
-            if (size_mismatch(vec64of(vec)->v_size, vec64of(rhs)->v_size))
+            if (size_mismatch(vec64fof(vec)->v_size, vec64fof(rhs)->v_size))
             {
                 return 1;
             }
-            auto r = ici::make_ref(ici::new_vec64(ici::vec64of(vec)->v_size, ici::vec64of(vec)->v_size));
+            auto r = ici::make_ref(ici::new_vec64f(ici::vec64fof(vec)->v_size, ici::vec64fof(vec)->v_size));
             if (!r)
             {
                 return 1;
             }
-            error = ippsAdd_64f(ici::vec64of(vec)->v_ptr, ici::vec64of(rhs)->v_ptr, r->v_ptr, int(r->v_size));
+            error = ippsAdd_64f(ici::vec64fof(vec)->v_ptr, ici::vec64fof(rhs)->v_ptr, r->v_ptr, int(r->v_size));
             result = r;
         }
         else
@@ -659,7 +659,7 @@ struct fft : ici::object
         ippsFFTInit_R_32f(&_pspec, order, flag, hint, _spec, _specbuf);
     }
 
-    void fwd(ici::vec32 *src, ici::vec32 *dst)
+    void fwd(ici::vec32f *src, ici::vec32f *dst)
     {
         dst->resize(src->v_size);
         ippsFFTFwd_RToPerm_32f(src->v_ptr, dst->v_ptr, _pspec, _workbuf);
@@ -742,8 +742,8 @@ int f_fft()
 int f_fft_fwd()
 {
     fft *f;
-    ici::vec32 *src;
-    ici::vec32 *dst;
+    ici::vec32f *src;
+    ici::vec32f *dst;
     if (ici::typecheck("ooo", &f, &src, &dst))
     {
         return 1;
@@ -752,11 +752,11 @@ int f_fft_fwd()
     {
         return ici::argerror(0);
     }
-    if (!ici::isvec32(src))
+    if (!ici::isvec32f(src))
     {
         return ici::argerror(1);
     }
-    if (!ici::isvec32(dst))
+    if (!ici::isvec32f(dst))
     {
         return ici::argerror(2);
     }
