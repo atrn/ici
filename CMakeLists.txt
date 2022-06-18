@@ -1,4 +1,4 @@
-  Cmake "lists" for ICI.
+# CMakeLists.txt for ICI.
 #
 #  By default this builds the ICI dynamic library and corresponding
 #  ici.h file, and a ici executable linked against the dynamic

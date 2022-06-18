@@ -1496,8 +1496,7 @@ static net_username()
     }
     if ((pwent = getpwuid(uid)) == nullptr)
     {
-        sprintf(buf, "can't find name for uid %ld", uid);
-        set_error(buf);
+        set_error("can't determine user name for uid %ld", uid);
         return 1;
     }
     s = pwent->pw_name;

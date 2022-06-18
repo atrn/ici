@@ -61,7 +61,7 @@ void expand_error(int lineno, str *fname)
     }
     strcpy(buf, s);
     ici_nfree(s, z);
-    set_error(buf);
+    set_error("%s", buf);
 }
 
 } // namespace ici

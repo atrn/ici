@@ -275,8 +275,7 @@ static int sys_open()
  */
 static int not_on_win32(const char *s)
 {
-    sprintf(buf, "%s is not implemented on Win32 platforms", s);
-    set_error(buf);
+    set_error("%s is not implemented on Win32 platforms", s);
     return 1;
 }
 #endif
@@ -2472,7 +2471,7 @@ static int sys_mmap()
         return sys_raw_mmap();
     }
 
-    static auto error = []() { return set_error(strerror(errno)); };
+    static auto error = []() { return set_error("%s", strerror(errno)); };
 
     char   *path;
     int64_t prot = PROT_READ | PROT_WRITE;

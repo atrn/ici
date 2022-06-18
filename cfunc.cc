@@ -2328,7 +2328,10 @@ int ici_f_sprintf()
     }
 
 type:
-    return set_error("attempt to use a %s with a \"%s\" format in sprintf", (*o)->type_name(), subfmt);
+    {
+        const auto fname = which == 0 ? "sprintf" : "printf";
+        return set_error("attempt to use a %s with a \"%s\" format in %s", (*o)->type_name(), subfmt, fname);
+    }
 
 lacking:
     return set_error("not enoughs args to sprintf");
