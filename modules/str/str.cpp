@@ -52,10 +52,10 @@ extern "C" ici::object *ici_str_init()
     {
         return nullptr;
     }
-    static ICI_DEFINE_CFUNCS(arrayutil)
+    static ICI_DEFINE_CFUNCS(str)
     {
         ICI_DEFINE_CFUNC(pick, f_pick),
         ICI_CFUNCS_END()
     };
-    return ici::new_module(ICI_CFUNCS(arrayutil));
+    return ici::new_module(ICI_CFUNCS(str));
 }
