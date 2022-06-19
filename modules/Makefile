@@ -34,7 +34,10 @@ include $(ICI_MODULES_DIR)/Makefile.inc
 _make=	$(MAKE) --no-print-directory
 
 all clean distclean install:
-	@set -e;\
+	@case "$(MAKEFLAGS)" in \
+	*k*) ;; \
+	*) set -e;; \
+	esac; \
 	for _d in $(ALL_MODULES);\
 	do (\
 	    _doecho=YES; \
