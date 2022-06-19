@@ -38,7 +38,7 @@ static int statement(parse *, array *, map *, const char *, int);
 #define DISASSEMBLE 0
 
 #if defined(DISASSEMBLE) && DISASSEMBLE != 0
-static char *opname(op *op)
+static const char *opname(op *op)
 {
     switch (op->op_ecode)
     {
@@ -136,7 +136,14 @@ static void disassemble(int indent, array *a)
         }
         else if (isop(*e))
         {
-            printf("%s %d\n", opname(opof(*e)), opof(*e)->op_code);
+            if (opof(*e)->op_ecode == OP_BINOP)
+            {
+                printf("%s \"%s\"\n", opname(opof(*e)), binop_name(opof(*e)->op_code));
+            }
+            else
+            {
+                printf("%s (code %d)\n", opname(opof(*e)), opof(*e)->op_code);
+            }
         }
         else
         {

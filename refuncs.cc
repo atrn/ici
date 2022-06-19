@@ -142,7 +142,7 @@ static int do_repl(char *s, char *repl, int replz, char *d)
                 }
                 dz += 2;
             }
-            else // if (START_MATCH(c -= '0') != nullptr)
+            else if (START_MATCH(c -= '0') != s)
             {
                 if (d != nullptr)
                 {
@@ -323,7 +323,7 @@ static str *do_sub(str *thestr, regexp *re, char *repl, int *ofs)
             {
                 len += 2;
             }
-            else // if (START_MATCH(c -= '0') != nullptr)
+            else if (START_MATCH(c -= '0') != s)
             {
                 len += END_MATCH(c) - START_MATCH(c);
             }
@@ -381,7 +381,7 @@ static str *do_sub(str *thestr, regexp *re, char *repl, int *ofs)
                 *d++ = '\\';
                 *d++ = c;
             }
-            else // if (START_MATCH(c -= '0') != nullptr)
+            else if (START_MATCH(c -= '0') != s)
             {
                 memcpy(d, START_MATCH(c), END_MATCH(c) - START_MATCH(c));
                 d += END_MATCH(c) - START_MATCH(c);
