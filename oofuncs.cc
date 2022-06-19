@@ -124,8 +124,13 @@ static int m_unknown_method(object *o)
     return set_error("attempt to call unknown method");
 }
 
-ICI_DEFINE_CFUNCS(oo){ICI_DEFINE_METHOD(new, m_new), ICI_DEFINE_METHOD(isa, m_isa),
-                      ICI_DEFINE_METHOD(respondsto, m_respondsto), ICI_DEFINE_METHOD(unknown_method, m_unknown_method),
-                      ICI_CFUNCS_END()};
+ICI_DEFINE_CFUNCS(oo)
+{
+    ICI_DEFINE_METHOD(new, m_new),
+    ICI_DEFINE_METHOD(isa, m_isa),
+    ICI_DEFINE_METHOD(respondsto, m_respondsto),
+    ICI_DEFINE_METHOD(unknown_method, m_unknown_method),
+    ICI_CFUNCS_END()
+};
 
 } // namespace ici

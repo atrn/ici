@@ -86,6 +86,10 @@ int f_binop()
     return null_ret();
 }
 
-ICI_DEFINE_CFUNCS(userop){ICI_DEFINE_CFUNC(binop, f_binop), ICI_CFUNCS_END()};
+ICI_DEFINE_CFUNCS(userop)
+{
+    ICI_DEFINE_CFUNC(binop, f_binop),
+    ICI_CFUNCS_END()
+};
 
 } // namespace ici

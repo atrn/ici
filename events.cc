@@ -56,7 +56,11 @@ static int f_eventloop()
 
 #endif /* _WIN32 */
 
-ICI_DEFINE_CFUNCS(event){ICI_DEFINE_CFUNC(eventloop, f_eventloop), ICI_CFUNCS_END()};
+ICI_DEFINE_CFUNCS(event)
+{
+    ICI_DEFINE_CFUNC(eventloop, f_eventloop),
+    ICI_CFUNCS_END()
+};
 
 } // namespace ici
 

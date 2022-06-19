@@ -475,6 +475,11 @@ static int f_signam(...)
 /*
  * Our C-funcs
  */
-ICI_DEFINE_CFUNCS(signals){ICI_DEFINE_CFUNC(signal, f_signal), ICI_DEFINE_CFUNC(signam, f_signam), ICI_CFUNCS_END()};
+ICI_DEFINE_CFUNCS(signals)
+{
+    ICI_DEFINE_CFUNC(signal, f_signal),
+    ICI_DEFINE_CFUNC(signam, f_signam),
+    ICI_CFUNCS_END()
+};
 
 } // namespace ici

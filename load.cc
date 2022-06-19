@@ -283,6 +283,10 @@ fail:
     return 1;
 }
 
-ICI_DEFINE_CFUNCS(load){ICI_DEFINE_CFUNC(load, f_load), ICI_CFUNCS_END()};
+ICI_DEFINE_CFUNCS(load)
+{
+    ICI_DEFINE_CFUNC(load, f_load),
+    ICI_CFUNCS_END()
+};
 
 } // namespace ici

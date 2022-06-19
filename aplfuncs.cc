@@ -269,6 +269,10 @@ static int f_build()
     return ret_with_decref(r);
 }
 
-ICI_DEFINE_CFUNCS(apl){ICI_DEFINE_CFUNC(build, f_build), ICI_CFUNCS_END()};
+ICI_DEFINE_CFUNCS(apl)
+{
+    ICI_DEFINE_CFUNC(build, f_build),
+    ICI_CFUNCS_END()
+};
 
 } // namespace ici

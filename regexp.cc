@@ -17,7 +17,6 @@ namespace ici
 {
 
 /*
- * Called when the above regexp routines detect an error.
  * Space for the offsets to matched sub-expressions in regexps and a global
  * counter for the number of matches. PCRE says the number of offsets must be
  * a multiple of three. See pcre.3 for an explanation.

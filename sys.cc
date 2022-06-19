@@ -2536,302 +2536,321 @@ ICI_DEFINE_CFUNCS(sys)
 {
     ICI_DEFINE_CFUNC(_error, sys_error),
 
-        /* utime */
-        ICI_DEFINE_CFUNC(access, sys_access), ICI_DEFINE_CFUNC(_close, sys_close), ICI_DEFINE_CFUNC(creat, sys_creat),
-        ICI_DEFINE_CFUNC(ctime, sys_ctime), ICI_DEFINE_CFUNC(dup, sys_dup), ICI_DEFINE_CFUNC1(exec, sys_exec, execv),
-        ICI_DEFINE_CFUNC1(execp, sys_exec, execvp),
-        /*
-         * _exit(int)
-         *
-         * Exit the current process returning an integer exit status to the
-         * parent.  Supported on Win32 platforms.
-         *
-         * This --topic-- forms part of the --ici-sys-- documentation.
-         */
-        ICI_DEFINE_CFUNC2(_exit, sys_simple, _exit, "i"), ICI_DEFINE_CFUNC(fcntl, sys_fcntl),
-        ICI_DEFINE_CFUNC(fdopen, sys_fdopen), ICI_DEFINE_CFUNC(fileno, sys_fileno), ICI_DEFINE_CFUNC(lseek, sys_lseek),
-        ICI_DEFINE_CFUNC(mkdir, sys_mkdir), ICI_DEFINE_CFUNC(mkfifo, sys_mkfifo), ICI_DEFINE_CFUNC(open, sys_open),
-        ICI_DEFINE_CFUNC(pipe, sys_pipe), ICI_DEFINE_CFUNC(read, sys_read), ICI_DEFINE_CFUNC(readlink, sys_readlink),
-        /*
-         * rmdir(pathname)
-         *
-         * Remove a directory. Supported on Win32 platforms.
-         *
-         * This --topic-- forms part of the --ici-sys-- documentation.
-         */
-        ICI_DEFINE_CFUNC2(rmdir, sys_simple, rmdir, "s"), ICI_DEFINE_CFUNC(stat, sys_stat),
-        ICI_DEFINE_CFUNC(symlink, sys_symlink), ICI_DEFINE_CFUNC(time, sys_time),
-        /*
-         * unlink(pathname)
-         *
-         * Unlink a file. Supported on WIN32 platforms.
-         *
-         * This --topic-- forms part of the --ici-sys-- documentation.
-         */
-        /* should go as remove(}, is more portable */
-        ICI_DEFINE_CFUNC2(unlink, sys_simple, unlink, "s"), ICI_DEFINE_CFUNC(wait, sys_wait),
-        ICI_DEFINE_CFUNC(write, sys_write),
+    /* utime */
+    ICI_DEFINE_CFUNC(access, sys_access),
+    ICI_DEFINE_CFUNC(_close, sys_close),
+    ICI_DEFINE_CFUNC(creat, sys_creat),
+    ICI_DEFINE_CFUNC(ctime, sys_ctime),
+    ICI_DEFINE_CFUNC(dup, sys_dup),
+    ICI_DEFINE_CFUNC1(exec, sys_exec, execv),
+    ICI_DEFINE_CFUNC1(execp, sys_exec, execvp),
+    /*
+     * _exit(int)
+     *
+     * Exit the current process returning an integer exit status to the
+     * parent.  Supported on Win32 platforms.
+     *
+     * This --topic-- forms part of the --ici-sys-- documentation.
+     */
+    ICI_DEFINE_CFUNC2(_exit, sys_simple, _exit, "i"),
+    ICI_DEFINE_CFUNC(fcntl, sys_fcntl),
+    ICI_DEFINE_CFUNC(fdopen, sys_fdopen),
+    ICI_DEFINE_CFUNC(fileno, sys_fileno),
+    ICI_DEFINE_CFUNC(lseek, sys_lseek),
+    ICI_DEFINE_CFUNC(mkdir, sys_mkdir),
+    ICI_DEFINE_CFUNC(mkfifo, sys_mkfifo),
+    ICI_DEFINE_CFUNC(open, sys_open),
+    ICI_DEFINE_CFUNC(pipe, sys_pipe),
+    ICI_DEFINE_CFUNC(read, sys_read),
+    ICI_DEFINE_CFUNC(readlink, sys_readlink),
+    /*
+     * rmdir(pathname)
+     *
+     * Remove a directory. Supported on Win32 platforms.
+     *
+     * This --topic-- forms part of the --ici-sys-- documentation.
+     */
+    ICI_DEFINE_CFUNC2(rmdir, sys_simple, rmdir, "s"),
+    ICI_DEFINE_CFUNC(stat, sys_stat),
+    ICI_DEFINE_CFUNC(symlink, sys_symlink),
+    ICI_DEFINE_CFUNC(time, sys_time),
+    /*
+     * unlink(pathname)
+     *
+     * Unlink a file. Supported on WIN32 platforms.
+     *
+     * This --topic-- forms part of the --ici-sys-- documentation.
+     */
+    /* should go as remove(}, is more portable */
+    ICI_DEFINE_CFUNC2(unlink, sys_simple, unlink, "s"),
+    ICI_DEFINE_CFUNC(wait, sys_wait),
+    ICI_DEFINE_CFUNC(write, sys_write),
 #ifdef _WIN32
-        ICI_DEFINE_CFUNC1(spawn, sys_spawn, spawnv), ICI_DEFINE_CFUNC1(spawnp, sys_spawn, spawnvp),
+    ICI_DEFINE_CFUNC1(spawn, sys_spawn, spawnv),
+    ICI_DEFINE_CFUNC1(spawnp, sys_spawn, spawnvp),
 #endif
 #ifndef _WIN32
-        /* poll */
-        /* times */
-        /* uname */
-        /*
-         * alarm(int)
-         *
-         * Schedule a SIGALRM signal to be posted to the current process in
-         * the specified number of seconds.  If the parameter is zero any
-         * alarm is cancelled. Not supported on Win32.
-         *
-         * This --topic-- forms part of the --ici-sys-- documentation.
-         */
-        ICI_DEFINE_CFUNC2(alarm, sys_simple, alarm, "i"),
-        /*
-         * chmod(pathname, int)
-         *
-         * Change the mode of a file system object. Not supported on Win32.
-         *
-         * This --topic-- forms part of the --ici-sys-- documentation.
-         */
-        ICI_DEFINE_CFUNC2(chmod, sys_simple, chmod, "si"),
-        /*
-         * chown(pathname, uid, gid)
-         *
-         * Use 'chown(2)' to change the ownership of a file to new integer
-         * user and group indentifies. Not supported on Win32.
-         *
-         * This --topic-- forms part of the --ici-sys-- documentation.
-         */
-        ICI_DEFINE_CFUNC2(chown, sys_simple, chown, "sii"),
-        /*
-         * chroot(pathname)
-         *
-         * Change root directory for process. Not supported on Win32.
-         *
-         * This --topic-- forms part of the --ici-sys-- documentation.
-         */
-        ICI_DEFINE_CFUNC2(chroot, sys_simple, chroot, "s"),
-        /*
-         * int = clock()
-         *
-         * Return the value of 'clock(2)'.  Not supported on Win32.
-         *
-         * This --topic-- forms part of the --ici-sys-- documentation.
-         */
-        ICI_DEFINE_CFUNC2(clock, sys_simple, clock, ""),
-        /*
-         * int = fork()
-         *
-         * Create a new process.  In the parent this returns the process
-         * identifier for the newly created process.  In the newly created
-         * process it returns zero. Not supported on Win32.
-         *
-         * This --topic-- forms part of the --ici-sys-- documentation.
-         */
-        ICI_DEFINE_CFUNC2(fork, sys_simple, fork, ""),
-        /*
-         * int = getegid()
-         *
-         * Get the effective group identifier of the owner of the current process.
-         * Not supported on Win32.
-         *
-         * This --topic-- forms part of the --ici-sys-- documentation.
-         */
-        ICI_DEFINE_CFUNC2(getegid, sys_simple, getegid, ""),
-        /*
-         * int = geteuid()
-         *
-         * Get the effective user identifier of the owner of the current process.
-         * Not supported on Win32.
-         *
-         * This --topic-- forms part of the --ici-sys-- documentation.
-         */
-        ICI_DEFINE_CFUNC2(geteuid, sys_simple, geteuid, ""),
-        /*
-         * int = getgid()
-         *
-         * Get the real group identifier of the owner of the current process.
-         * Not supported on Win32.
-         *
-         * This --topic-- forms part of the --ici-sys-- documentation.
-         */
-        ICI_DEFINE_CFUNC2(getgid, sys_simple, getgid, ""), ICI_DEFINE_CFUNC(getitimer, sys_getitimer),
-        ICI_DEFINE_CFUNC(getpass, sys_getpass),
-        /*
-         * int = getpgrp()
-         *
-         * Get the current process group identifier.  Not supported on Win32.
-         *
-         * This --topic-- forms part of the --ici-sys-- documentation.
-         */
-        ICI_DEFINE_CFUNC2(getpgrp, sys_simple, getpgrp, ""),
-        /*
-         * int = getpid()
-         *
-         * Get the process identifier for the current process.  Not supported
-         * on Win32.
-         *
-         * This --topic-- forms part of the --ici-sys-- documentation.
-         */
-        ICI_DEFINE_CFUNC2(getpid, sys_simple, getpid, ""),
-        /*
-         * int = getppid()
-         *
-         * Get the process identifier for the parent process.  Not supported
-         * on Win32.
-         *
-         * This --topic-- forms part of the --ici-sys-- documentation.
-         */
-        ICI_DEFINE_CFUNC2(getppid, sys_simple, getppid, ""), ICI_DEFINE_CFUNC(getrlimit, sys_getrlimit),
-        ICI_DEFINE_CFUNC(gettimeofday, sys_gettimeofday),
-        /*
-         * int = getuid()
-         *
-         * Get the real user identifier of the owner of the current process.
-         * Not supported on Win32.
-         *
-         * This --topic-- forms part of the --ici-sys-- documentation.
-         */
-        ICI_DEFINE_CFUNC2(getuid, sys_simple, getuid, ""),
-        /*
-         * int = isatty(fd)
-         *
-         * Returns 1 if the int 'fd' is the open file descriptor of a "tty".
-         * Not supported on Win32.
-         *
-         * This --topic-- forms part of the --ici-sys-- documentation.
-         */
-        ICI_DEFINE_CFUNC2(isatty, sys_simple, isatty, "i"),
-        /*
-         * kill(int, int)
-         *
-         * Post the signal specified by the second argument to the process
-         * with process ID given by the first argument.  Not supported on
-         * Win32.
-         *
-         * This --topic-- forms part of the --ici-sys-- documentation.
-         */
-        ICI_DEFINE_CFUNC2(kill, sys_simple, kill, "ii"),
-        /*
-         * link(oldpath, newpath)
-         *
-         * Create a link to an existing file.  Not supported on Win32.
-         *
-         * This --topic-- forms part of the --ici-sys-- documentation.
-         */
-        ICI_DEFINE_CFUNC2(link, sys_simple, link, "ss"), ICI_DEFINE_CFUNC(lstat, sys_lstat),
-        /*
-         * mknod(pathname, int, int)
-         *
-         * Create a special file with mode given by the second argument and
-         * device type given by the third.  Not supported on Win32.
-         *
-         * This --topic-- forms part of the --ici-sys-- documentation.
-         */
-        ICI_DEFINE_CFUNC2(mknod, sys_simple, mknod, "sii"),
-        /*
-         * nice(int)
-         *
-         * Change the nice value of a process.
-         * Not supported on Win32.
-         *
-         * This --topic-- forms part of the --ici-sys-- documentation.
-         */
-        ICI_DEFINE_CFUNC2(nice, sys_simple, nice, "i"), ICI_DEFINE_CFUNC(passwd, sys_passwd),
-        /*
-         * pause()
-         *
-         * Wait until a signal is delivered to the process.
-         * Not supported on Win32.
-         *
-         * This --topic-- forms part of the --ici-sys-- documentation.
-         */
-        ICI_DEFINE_CFUNC2(pause, sys_simple, pause, ""),
-        /*
-         * setgid(int)
-         *
-         * Set the real and effective group identifier for the current process.
-         * Not supported on Win32.
-         *
-         * This --topic-- forms part of the --ici-sys-- documentation.
-         */
-        ICI_DEFINE_CFUNC2(setgid, sys_simple, setgid, "i"), ICI_DEFINE_CFUNC(setitimer, sys_setitimer),
-        ICI_DEFINE_CFUNC(setpgrp, sys_setpgrp), ICI_DEFINE_CFUNC(setrlimit, sys_setrlimit),
-        /*
-         * setuid(int)
-         *
-         * Set the real and effective user identifier for the current process.
-         * Not supported on Win32.
-         *
-         * This --topic-- forms part of the --ici-sys-- documentation.
-         */
-        ICI_DEFINE_CFUNC2(setuid, sys_simple, setuid, "i"),
-        /*
-         * sync()
-         *
-         * Schedule in-memory file data to be written to disk.
-         * Not supported on Win32.
-         *
-         * This --topic-- forms part of the --ici-sys-- documentation.
-         */
-        ICI_DEFINE_CFUNC2(sync, sys_simple, sync, ""),
+    /* poll */
+    /* times */
+    /* uname */
+    /*
+     * alarm(int)
+     *
+     * Schedule a SIGALRM signal to be posted to the current process in
+     * the specified number of seconds.  If the parameter is zero any
+     * alarm is cancelled. Not supported on Win32.
+     *
+     * This --topic-- forms part of the --ici-sys-- documentation.
+     */
+    ICI_DEFINE_CFUNC2(alarm, sys_simple, alarm, "i"),
+    /*
+     * chmod(pathname, int)
+     *
+     * Change the mode of a file system object. Not supported on Win32.
+     *
+     * This --topic-- forms part of the --ici-sys-- documentation.
+     */
+    ICI_DEFINE_CFUNC2(chmod, sys_simple, chmod, "si"),
+    /*
+     * chown(pathname, uid, gid)
+     *
+     * Use 'chown(2)' to change the ownership of a file to new integer
+     * user and group indentifies. Not supported on Win32.
+     *
+     * This --topic-- forms part of the --ici-sys-- documentation.
+     */
+    ICI_DEFINE_CFUNC2(chown, sys_simple, chown, "sii"),
+    /*
+     * chroot(pathname)
+     *
+     * Change root directory for process. Not supported on Win32.
+     *
+     * This --topic-- forms part of the --ici-sys-- documentation.
+     */
+    ICI_DEFINE_CFUNC2(chroot, sys_simple, chroot, "s"),
+    /*
+     * int = clock()
+     *
+     * Return the value of 'clock(2)'.  Not supported on Win32.
+     *
+     * This --topic-- forms part of the --ici-sys-- documentation.
+     */
+    ICI_DEFINE_CFUNC2(clock, sys_simple, clock, ""),
+    /*
+     * int = fork()
+     *
+     * Create a new process.  In the parent this returns the process
+     * identifier for the newly created process.  In the newly created
+     * process it returns zero. Not supported on Win32.
+     *
+     * This --topic-- forms part of the --ici-sys-- documentation.
+     */
+    ICI_DEFINE_CFUNC2(fork, sys_simple, fork, ""),
+    /*
+     * int = getegid()
+     *
+     * Get the effective group identifier of the owner of the current process.
+     * Not supported on Win32.
+     *
+     * This --topic-- forms part of the --ici-sys-- documentation.
+     */
+    ICI_DEFINE_CFUNC2(getegid, sys_simple, getegid, ""),
+    /*
+     * int = geteuid()
+     *
+     * Get the effective user identifier of the owner of the current process.
+     * Not supported on Win32.
+     *
+     * This --topic-- forms part of the --ici-sys-- documentation.
+     */
+    ICI_DEFINE_CFUNC2(geteuid, sys_simple, geteuid, ""),
+    /*
+     * int = getgid()
+     *
+     * Get the real group identifier of the owner of the current process.
+     * Not supported on Win32.
+     *
+     * This --topic-- forms part of the --ici-sys-- documentation.
+     */
+    ICI_DEFINE_CFUNC2(getgid, sys_simple, getgid, ""),
+    ICI_DEFINE_CFUNC(getitimer, sys_getitimer),
+    ICI_DEFINE_CFUNC(getpass, sys_getpass),
+    /*
+     * int = getpgrp()
+     *
+     * Get the current process group identifier.  Not supported on Win32.
+     *
+     * This --topic-- forms part of the --ici-sys-- documentation.
+     */
+    ICI_DEFINE_CFUNC2(getpgrp, sys_simple, getpgrp, ""),
+    /*
+     * int = getpid()
+     *
+     * Get the process identifier for the current process.  Not supported
+     * on Win32.
+     *
+     * This --topic-- forms part of the --ici-sys-- documentation.
+     */
+    ICI_DEFINE_CFUNC2(getpid, sys_simple, getpid, ""),
+    /*
+     * int = getppid()
+     *
+     * Get the process identifier for the parent process.  Not supported
+     * on Win32.
+     *
+     * This --topic-- forms part of the --ici-sys-- documentation.
+     */
+    ICI_DEFINE_CFUNC2(getppid, sys_simple, getppid, ""),
+    ICI_DEFINE_CFUNC(getrlimit, sys_getrlimit),
+    ICI_DEFINE_CFUNC(gettimeofday, sys_gettimeofday),
+    /*
+     * int = getuid()
+     *
+     * Get the real user identifier of the owner of the current process.
+     * Not supported on Win32.
+     *
+     * This --topic-- forms part of the --ici-sys-- documentation.
+     */
+    ICI_DEFINE_CFUNC2(getuid, sys_simple, getuid, ""),
+    /*
+     * int = isatty(fd)
+     *
+     * Returns 1 if the int 'fd' is the open file descriptor of a "tty".
+     * Not supported on Win32.
+     *
+     * This --topic-- forms part of the --ici-sys-- documentation.
+     */
+    ICI_DEFINE_CFUNC2(isatty, sys_simple, isatty, "i"),
+    /*
+     * kill(int, int)
+     *
+     * Post the signal specified by the second argument to the process
+     * with process ID given by the first argument.  Not supported on
+     * Win32.
+     *
+     * This --topic-- forms part of the --ici-sys-- documentation.
+     */
+    ICI_DEFINE_CFUNC2(kill, sys_simple, kill, "ii"),
+    /*
+     * link(oldpath, newpath)
+     *
+     * Create a link to an existing file.  Not supported on Win32.
+     *
+     * This --topic-- forms part of the --ici-sys-- documentation.
+     */
+    ICI_DEFINE_CFUNC2(link, sys_simple, link, "ss"), ICI_DEFINE_CFUNC(lstat, sys_lstat),
+    /*
+     * mknod(pathname, int, int)
+     *
+     * Create a special file with mode given by the second argument and
+     * device type given by the third.  Not supported on Win32.
+     *
+     * This --topic-- forms part of the --ici-sys-- documentation.
+     */
+    ICI_DEFINE_CFUNC2(mknod, sys_simple, mknod, "sii"),
+    /*
+     * nice(int)
+     *
+     * Change the nice value of a process.
+     * Not supported on Win32.
+     *
+     * This --topic-- forms part of the --ici-sys-- documentation.
+     */
+    ICI_DEFINE_CFUNC2(nice, sys_simple, nice, "i"), ICI_DEFINE_CFUNC(passwd, sys_passwd),
+    /*
+     * pause()
+     *
+     * Wait until a signal is delivered to the process.
+     * Not supported on Win32.
+     *
+     * This --topic-- forms part of the --ici-sys-- documentation.
+     */
+    ICI_DEFINE_CFUNC2(pause, sys_simple, pause, ""),
+    /*
+     * setgid(int)
+     *
+     * Set the real and effective group identifier for the current process.
+     * Not supported on Win32.
+     *
+     * This --topic-- forms part of the --ici-sys-- documentation.
+     */
+    ICI_DEFINE_CFUNC2(setgid, sys_simple, setgid, "i"),
+    ICI_DEFINE_CFUNC(setitimer, sys_setitimer),
+    ICI_DEFINE_CFUNC(setpgrp, sys_setpgrp),
+    ICI_DEFINE_CFUNC(setrlimit, sys_setrlimit),
+    /*
+     * setuid(int)
+     *
+     * Set the real and effective user identifier for the current process.
+     * Not supported on Win32.
+     *
+     * This --topic-- forms part of the --ici-sys-- documentation.
+     */
+    ICI_DEFINE_CFUNC2(setuid, sys_simple, setuid, "i"),
+    /*
+     * sync()
+     *
+     * Schedule in-memory file data to be written to disk.
+     * Not supported on Win32.
+     *
+     * This --topic-- forms part of the --ici-sys-- documentation.
+     */
+    ICI_DEFINE_CFUNC2(sync, sys_simple, sync, ""),
 #endif
-        ICI_DEFINE_CFUNC(truncate, sys_truncate),
+    ICI_DEFINE_CFUNC(truncate, sys_truncate),
 #ifndef _WIN32
-        /*
-         * umask(int)
-         *
-         * Set file creation mask.
-         * Not supported on Win32.
-         *
-         * This --topic-- forms part of the --ici-sys-- documentation.
-         */
-        ICI_DEFINE_CFUNC2(umask, sys_simple, umask, "i"), ICI_DEFINE_CFUNC(usleep, sys_usleep),
+    /*
+     * umask(int)
+     *
+     * Set file creation mask.
+     * Not supported on Win32.
+     *
+     * This --topic-- forms part of the --ici-sys-- documentation.
+     */
+    ICI_DEFINE_CFUNC2(umask, sys_simple, umask, "i"), ICI_DEFINE_CFUNC(usleep, sys_usleep),
 #ifndef NO_ACCT
-        /*
-         * acct(pathname)
-         *
-         * Enable accounting on the specified file.  Not suppored on
-         * cygwin or Win32.
-         *
-         * This --topic-- forms part of the --ici-sys-- documentation.
-         */
-        ICI_DEFINE_CFUNC2(acct, sys_simple, acct, "s"),
+    /*
+     * acct(pathname)
+     *
+     * Enable accounting on the specified file.  Not suppored on
+     * cygwin or Win32.
+     *
+     * This --topic-- forms part of the --ici-sys-- documentation.
+     */
+    ICI_DEFINE_CFUNC2(acct, sys_simple, acct, "s"),
 #endif
 #ifndef ICI_SYS_NOFLOCK
-        ICI_DEFINE_CFUNC(flock, sys_flock),
+    ICI_DEFINE_CFUNC(flock, sys_flock),
 #endif
 #if !defined(__linux__) && !defined(BSD) && !defined(__CYGWIN__)
-        /*
-         * int = lockf(fd, cmd, len)
-         *
-         * Invoked 'lockf(3)' on a file.
-         *
-         * Not supported on Linux, Cygwin, Win32.
-         *
-         * This --topic-- forms part of the --ici-sys-- documentation.
-         */
-        ICI_DEFINE_CFUNC2(lockf, sys_simple, lockf, "iii"),
+    /*
+     * int = lockf(fd, cmd, len)
+     *
+     * Invoked 'lockf(3)' on a file.
+     *
+     * Not supported on Linux, Cygwin, Win32.
+     *
+     * This --topic-- forms part of the --ici-sys-- documentation.
+     */
+    ICI_DEFINE_CFUNC2(lockf, sys_simple, lockf, "iii"),
 #endif /* __linux__ */
 #if !defined(__FreeBSD__) && !defined(__CYGWIN__) && !defined(__APPLE__)
-        /*
-         * ulimit(int, int)
-         *
-         * Get and set user limits.
-         * Not supported on Win32, NeXT, some BSD, or Cygwin.
-         *
-         * This --topic-- forms part of the --ici-sys-- documentation.
-         */
-        ICI_DEFINE_CFUNC2(ulimit, sys_simple, ulimit, "ii"),
+    /*
+     * ulimit(int, int)
+     *
+     * Get and set user limits.
+     * Not supported on Win32, NeXT, some BSD, or Cygwin.
+     *
+     * This --topic-- forms part of the --ici-sys-- documentation.
+     */
+    ICI_DEFINE_CFUNC2(ulimit, sys_simple, ulimit, "ii"),
 #endif
 #endif
 #ifndef _WIN32
-        ICI_DEFINE_CFUNC(mmap, sys_mmap), ICI_DEFINE_CFUNC(munmap, sys_munmap),
+    ICI_DEFINE_CFUNC(mmap, sys_mmap), ICI_DEFINE_CFUNC(munmap, sys_munmap),
 #endif
-        ICI_CFUNCS_END()
-};
+    ICI_CFUNCS_END()
+    };
 
 /*
  * Create pre-defined variables to replace C's #define's.

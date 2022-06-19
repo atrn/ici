@@ -73,6 +73,10 @@ static int f_debug(...)
     return int_ret(result);
 }
 
-ICI_DEFINE_CFUNCS(debug){ICI_DEFINE_CFUNC(debug, f_debug), ICI_CFUNCS_END()};
+ICI_DEFINE_CFUNCS(debug)
+{
+    ICI_DEFINE_CFUNC(debug, f_debug),
+    ICI_CFUNCS_END()
+};
 
 } // namespace ici

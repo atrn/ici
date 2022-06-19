@@ -2060,32 +2060,35 @@ static int net_shutdown()
     return ret_no_decref(skt);
 }
 
-ICI_DEFINE_CFUNCS(net){ICI_DEFINE_CFUNC(socket, net_socket),
-                       ICI_DEFINE_CFUNC(closesocket, net_close),
-                       ICI_DEFINE_CFUNC(listen, net_listen),
-                       ICI_DEFINE_CFUNC(accept, net_accept),
-                       ICI_DEFINE_CFUNC(connect, net_connect),
-                       ICI_DEFINE_CFUNC(bind, net_bind),
-                       ICI_DEFINE_CFUNC(select, net_select),
-                       ICI_DEFINE_CFUNC(sendto, net_sendto),
-                       ICI_DEFINE_CFUNC(recvfrom, net_recvfrom),
-                       ICI_DEFINE_CFUNC(send, net_send),
-                       ICI_DEFINE_CFUNC(recv, net_recv),
-                       ICI_DEFINE_CFUNC(getsockopt, net_getsockopt),
-                       ICI_DEFINE_CFUNC(setsockopt, net_setsockopt),
-                       ICI_DEFINE_CFUNC(hostname, net_hostname),
-                       ICI_DEFINE_CFUNC(getpeername, net_getpeername),
-                       ICI_DEFINE_CFUNC(getsockname, net_getsockname),
-                       ICI_DEFINE_CFUNC(getportno, net_getportno),
-                       ICI_DEFINE_CFUNC(gethostbyname, net_gethostbyname),
-                       ICI_DEFINE_CFUNC(gethostbyaddr, net_gethostbyaddr),
-                       ICI_DEFINE_CFUNC(sktno, net_sktno),
-                       ICI_DEFINE_CFUNC(sktopen, net_sktopen),
-                       ICI_DEFINE_CFUNC(shutdown, net_shutdown),
+ICI_DEFINE_CFUNCS(net)
+{
+    ICI_DEFINE_CFUNC(socket, net_socket),
+    ICI_DEFINE_CFUNC(closesocket, net_close),
+    ICI_DEFINE_CFUNC(listen, net_listen),
+    ICI_DEFINE_CFUNC(accept, net_accept),
+    ICI_DEFINE_CFUNC(connect, net_connect),
+    ICI_DEFINE_CFUNC(bind, net_bind),
+    ICI_DEFINE_CFUNC(select, net_select),
+    ICI_DEFINE_CFUNC(sendto, net_sendto),
+    ICI_DEFINE_CFUNC(recvfrom, net_recvfrom),
+    ICI_DEFINE_CFUNC(send, net_send),
+    ICI_DEFINE_CFUNC(recv, net_recv),
+    ICI_DEFINE_CFUNC(getsockopt, net_getsockopt),
+    ICI_DEFINE_CFUNC(setsockopt, net_setsockopt),
+    ICI_DEFINE_CFUNC(hostname, net_hostname),
+    ICI_DEFINE_CFUNC(getpeername, net_getpeername),
+    ICI_DEFINE_CFUNC(getsockname, net_getsockname),
+    ICI_DEFINE_CFUNC(getportno, net_getportno),
+    ICI_DEFINE_CFUNC(gethostbyname, net_gethostbyname),
+    ICI_DEFINE_CFUNC(gethostbyaddr, net_gethostbyaddr),
+    ICI_DEFINE_CFUNC(sktno, net_sktno),
+    ICI_DEFINE_CFUNC(sktopen, net_sktopen),
+    ICI_DEFINE_CFUNC(shutdown, net_shutdown),
 #ifndef USE_WINSOCK
-                       ICI_DEFINE_CFUNC(socketpair, net_socketpair),
+    ICI_DEFINE_CFUNC(socketpair, net_socketpair),
 #endif
-                       ICI_CFUNCS_END()};
+    ICI_CFUNCS_END()
+};
 
 int net_init(objwsup *scp)
 {

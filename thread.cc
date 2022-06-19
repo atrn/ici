@@ -338,6 +338,11 @@ static int f_wakeup(...)
     return null_ret();
 }
 
-ICI_DEFINE_CFUNCS(thread){ICI_DEFINE_CFUNC(go, f_go), ICI_DEFINE_CFUNC(wakeup, f_wakeup), ICI_CFUNCS_END()};
+ICI_DEFINE_CFUNCS(thread)
+{
+    ICI_DEFINE_CFUNC(go, f_go),
+    ICI_DEFINE_CFUNC(wakeup, f_wakeup),
+    ICI_CFUNCS_END()
+};
 
 } // namespace ici

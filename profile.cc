@@ -331,7 +331,11 @@ void profile_return()
 /*
  * ICI functions exported for profiling.
  */
-ICI_DEFINE_CFUNCS(profile){ICI_DEFINE_CFUNC(profile, f_profile), ICI_CFUNCS_END()};
+ICI_DEFINE_CFUNCS(profile)
+{
+    ICI_DEFINE_CFUNC(profile, f_profile),
+    ICI_CFUNCS_END()
+};
 
 #endif
 

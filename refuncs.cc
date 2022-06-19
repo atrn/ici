@@ -54,8 +54,19 @@ static int f_regexp(...)
  * assumed. Return the start (end) address of the n'th matched sub-pattern,
  * or the whole match for n == 0.
  */
-#define START(n) (s + re_bra[(n)*2])
-#define END(n) (s + re_bra[(n)*2 + 1])
+
+inline char *match_start(char *s, int index)
+{
+    return s + re_bra[index*2];
+}
+
+inline char *match_end(char *s, int index)
+{
+    return s + re_bra[index*2 + 1];
+}
+
+#define START_MATCH(n) match_start((s), (n))
+#define END_MATCH(n)   match_end((s), (n))
 
 /*
  * do_repl()
@@ -102,17 +113,17 @@ static int do_repl(char *s, char *repl, int replz, char *d)
                 assert(s);
                 if (d != nullptr)
                 {
-                    memcpy(&d[dz], s, START(0) - s);
+                    memcpy(&d[dz], s, START_MATCH(0) - s);
                 }
-                dz += START(0) - s;
+                dz += START_MATCH(0) - s;
             }
             else if (c == '&')
             {
                 if (d != nullptr)
                 {
-                    memcpy(&d[dz], START(0), END(0) - START(0));
+                    memcpy(&d[dz], START_MATCH(0), END_MATCH(0) - START_MATCH(0));
                 }
-                dz += END(0) - START(0);
+                dz += END_MATCH(0) - START_MATCH(0);
             }
             else if (c == '\\')
             {
@@ -131,13 +142,13 @@ static int do_repl(char *s, char *repl, int replz, char *d)
                 }
                 dz += 2;
             }
-            else if (START(c -= '0') != nullptr)
+            else // if (START_MATCH(c -= '0') != nullptr)
             {
                 if (d != nullptr)
                 {
-                    memcpy(&d[dz], START(c), END(c) - START(c));
+                    memcpy(&d[dz], START_MATCH(c), END_MATCH(c) - START_MATCH(c));
                 }
-                dz += END(c) - START(c);
+                dz += END_MATCH(c) - START_MATCH(c);
             }
         }
     }
@@ -169,14 +180,14 @@ static array *do_smash(str *thestr, regexp *re, str **repls, int n_repls, int in
     {
         goto fail;
     }
-    for (s = thestr->s_chars, se = s + thestr->s_nchars;; s = END(0))
+    for (s = thestr->s_chars, se = s + thestr->s_nchars;; s = END_MATCH(0))
     {
         /*
          * Match the regexp against the input string.
          */
         if (!pcre_exec(re->r_re, re->r_rex, s, se - s, 0, s > thestr->s_chars ? PCRE_NOTBOL : 0, re_bra,
                        nels(re_bra)) ||
-            END(0) == START(0) /* Match, but no progress. */
+            END_MATCH(0) == START_MATCH(0) /* Match, but no progress. */
         )
         {
             break;
@@ -263,7 +274,7 @@ static str *do_sub(str *thestr, regexp *re, char *repl, int *ofs)
      *          gsub("x", "q*$", "")
      * for which the correct behaviour is to loop infinitely.  Don't.
      */
-    if (END(0) == START(0))
+    if (END_MATCH(0) == START_MATCH(0))
     {
         return nullptr;
     }
@@ -275,7 +286,7 @@ static str *do_sub(str *thestr, regexp *re, char *repl, int *ofs)
      * some space for it. Initially we know the size of the areas that
      * aren't within the match.
      */
-    len = thestr->s_nchars - (END(0) - START(0)) + 1;
+    len = thestr->s_nchars - (END_MATCH(0) - START_MATCH(0)) + 1;
 
     /*
      * Determine size of matched area. This depends on the replacement
@@ -302,7 +313,7 @@ static str *do_sub(str *thestr, regexp *re, char *repl, int *ofs)
             normal = 1;
             if (c == '&')
             {
-                len += END(0) - START(0);
+                len += END_MATCH(0) - START_MATCH(0);
             }
             else if (c == '\\')
             {
@@ -312,9 +323,9 @@ static str *do_sub(str *thestr, regexp *re, char *repl, int *ofs)
             {
                 len += 2;
             }
-            else if (START(c -= '0') != nullptr)
+            else // if (START_MATCH(c -= '0') != nullptr)
             {
-                len += END(c) - START(c);
+                len += END_MATCH(c) - START_MATCH(c);
             }
         }
     }
@@ -332,8 +343,8 @@ static str *do_sub(str *thestr, regexp *re, char *repl, int *ofs)
      * Copy across the part of the source as far as the start of the match.
      */
     assert(thestr->s_chars);
-    memcpy(dst, thestr->s_chars, START(0) - thestr->s_chars);
-    d = &dst[START(0) - thestr->s_chars];
+    memcpy(dst, thestr->s_chars, START_MATCH(0) - thestr->s_chars);
+    d = &dst[START_MATCH(0) - thestr->s_chars];
 
     /*
      * Copy across the replacement expression.
@@ -357,8 +368,8 @@ static str *do_sub(str *thestr, regexp *re, char *repl, int *ofs)
             normal = 1;
             if (c == '&')
             {
-                memcpy(d, START(0), END(0) - START(0));
-                d += END(0) - START(0);
+                memcpy(d, START_MATCH(0), END_MATCH(0) - START_MATCH(0));
+                d += END_MATCH(0) - START_MATCH(0);
                 *d = '\0';
             }
             else if (c == '\\')
@@ -370,10 +381,10 @@ static str *do_sub(str *thestr, regexp *re, char *repl, int *ofs)
                 *d++ = '\\';
                 *d++ = c;
             }
-            else if (START(c -= '0') != nullptr)
+            else // if (START_MATCH(c -= '0') != nullptr)
             {
-                memcpy(d, START(c), END(c) - START(c));
-                d += END(c) - START(c);
+                memcpy(d, START_MATCH(c), END_MATCH(c) - START_MATCH(c));
+                d += END_MATCH(c) - START_MATCH(c);
                 *d = '\0';
             }
         }
@@ -390,8 +401,8 @@ static str *do_sub(str *thestr, regexp *re, char *repl, int *ofs)
      * So far, `dst' is just the replaced string.  Now copy across
      * the remainder of the source (from the end of the match onwards).
      */
-    len = (thestr->s_chars + thestr->s_nchars) - END(0) + 1;
-    memcpy(d, END(0), len);
+    len = (thestr->s_chars + thestr->s_nchars) - END_MATCH(0) + 1;
+    memcpy(d, END_MATCH(0), len);
     d[len] = '\0';
     rc = new_str_nul_term(dst);
     ici_free(dst);
@@ -552,11 +563,9 @@ fail:
 /*
  * Return the number of pointers in a nullptr terminated array of pointers.
  */
-static int nptrs(char **p)
+inline int nptrs(char **p)
 {
-    int i;
-
-    i = 0;
+    int i = 0;
     while (*p++ != nullptr)
     {
         ++i;
@@ -708,8 +717,14 @@ static int f_smash(...)
     return ret_with_decref(a);
 }
 
-ICI_DEFINE_CFUNCS(re){ICI_DEFINE_CFUNC(regexp, f_regexp), ICI_DEFINE_CFUNC2(regexpi, f_regexp, nullptr, (void *)""),
-                      ICI_DEFINE_CFUNC(sub, f_sub),       ICI_DEFINE_CFUNC(gsub, f_gsub),
-                      ICI_DEFINE_CFUNC(smash, f_smash),   ICI_CFUNCS_END()};
+ICI_DEFINE_CFUNCS(re)
+{
+    ICI_DEFINE_CFUNC(regexp, f_regexp),
+    ICI_DEFINE_CFUNC2(regexpi, f_regexp, nullptr, (void *)""),
+    ICI_DEFINE_CFUNC(sub, f_sub),
+    ICI_DEFINE_CFUNC(gsub, f_gsub),
+    ICI_DEFINE_CFUNC(smash, f_smash),
+    ICI_CFUNCS_END()
+};
 
 } // namespace ici
