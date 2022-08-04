@@ -7,4 +7,4 @@
 -Wl,-rpath -Wl,${IPPROOT}/lib/intel64
 !endif
 
--Wl,-rpath -Wl,${PREFIX}/lib
+-Wl,-rpath -Wl,${PREFIX}/lib,--enable-new-dtags
