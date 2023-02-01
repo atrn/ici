@@ -1,3 +1,6 @@
+*     Add vm module to expose vm internals to ICI code.
+      This is an old idea but needs re-vamping.
+
 *     Rename vec32 -> vec32f and vec64 -> vec64f to
       accomodate addition of integer vec types and
       better match IPP's names.
