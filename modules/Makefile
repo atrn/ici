@@ -14,7 +14,8 @@ ALL_MODULES=\
 	sqlite\
 	str\
 	util\
-	vec
+	vec\
+	vm
 
 # If IPPROOT is defined (via the environment) assume it
 # points to Intel's IPP and we can build the IPP module.

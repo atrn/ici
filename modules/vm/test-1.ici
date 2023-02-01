@@ -1,0 +1,9 @@
+l := array(1, 2, 3);
+print(l);
+print(" -> ");
+println(vm.hash(l));
+
+push(l, 4);
+print(l);
+print(" -> ");
+println(vm.hash(l));
