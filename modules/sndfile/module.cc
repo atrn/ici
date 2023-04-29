@@ -11,7 +11,6 @@ namespace
 /**
  *  file = sndfile.open(path)
  */
-
 int f_open()
 {
     char *path;
@@ -36,7 +35,6 @@ int f_open()
 /**
  *  file = sndfile.create(path, format, samplerate, channels)
  */
-
 int f_create()
 {
     char *  path;
@@ -74,11 +72,10 @@ int f_create()
 /**
  *  frames = sndfile.read(file [, count])
  */
-
 int f_read()
 {
     sndfile *sf;
-    int64_t z = -1;
+    int64_t numframes = -1;
     
     if (ici::NARGS() == 1)
     {
@@ -87,7 +84,7 @@ int f_read()
             return 1;
         }
     }
-    else if (ici::typecheck("oi", &sf, &z))
+    else if (ici::typecheck("oi", &sf, &numframes))
     {
         return 1;
     }
@@ -99,56 +96,75 @@ int f_read()
     {
         return ici::set_error("attempt to used closed file");
     }
-    if (z < 0)
+    if (numframes < 0)
     {
-        z = sf->_info.frames;
+        numframes = sf->_info.frames;
     }
-    auto frames = ici::new_vec32f(sf->_info.frames * sf->_info.channels);
-    if (!frames)
-    {
-        return 1;
-    }
-    auto samplerate = ici::make_ref<>(ici::new_int(sf->_info.samplerate));
-    if (!samplerate)
+    auto data = ici::new_vec32f(numframes * sf->_info.channels);
+    if (!data)
     {
         return 1;
     }
-    if (frames->assign(ICIS(samplerate), samplerate))
+
+    numframes = sf_readf_float(sf->_file, data->v_ptr, numframes);
+    if (numframes < 0)
+    {
+        return sndfile::error();
+    }
+
+    auto set_int = [&data](ici::object *k, int64_t value)
+    {
+        if (auto v = ici::make_ref<>(ici::new_int(value)))
+        {
+            return data->assign(k, v);
+        }
+        return 1;
+    };
+
+    if (set_int(ICIS(samplerate), sf->_info.samplerate))
     {
         return 1;
     }
-    auto channels = ici::make_ref<>(ici::new_int(sf->_info.channels));
-    if (!channels)
+    if (set_int(ICIS(channels), sf->_info.channels))
     {
         return 1;
     }
-    if (frames->assign(ICIS(channels), channels))
+    if (set_int(ICIS(frames), numframes))
     {
         return 1;
     }
-    frames->v_size = sf_readf_float(sf->_file, frames->v_ptr, z) * sf->_info.channels;
-    return ici::ret_with_decref(frames);
+    data->resize(numframes * sf->_info.channels);
+    return ici::ret_with_decref(data);
 }
 
 
 /**
- * int = sndfile.write(file, frames)
+ * int = sndfile.write(file, data)
+ * int = sndfile.write(file, data, numframes)
  */
-
 int f_write()
 {
     sndfile *sf;
-    ici::vec32f * frames;
+    ici::vec32f *data;
+    int64_t numframes = -1;
 
-    if (ici::typecheck("oo", &sf, &frames))
+    if (ici::NARGS() == 2)
     {
-        return 1;
+        if (ici::typecheck("oo", &sf, &data))
+        {
+            return 1;
+        }
     }
+    else if (ici::typecheck("oo", &sf, &data, &numframes))
+    {
+            return 1;
+    }
+
     if (!issndfile(sf))
     {
         return ici::argerror(0);
     }
-    if (!ici::isvec32f(frames))
+    if (!ici::isvec32f(data))
     {
         return ici::argerror(1);
     }
@@ -156,7 +172,18 @@ int f_write()
     {
         return ici::set_error("attempt to used closed file");
     }
-    const auto r = sf_writef_float(sf->_file, frames->v_ptr, frames->v_size);
+
+    const auto numchannels = sf->_info.channels;
+    if (numframes < 0)
+    {
+        numframes = data->v_size / numchannels;
+    }
+    else if (numframes * numchannels > int64_t(data->v_size))
+    {
+        return ici::set_error("frame count exceeds data size");
+    }
+
+    const auto r = sf_writef_float(sf->_file, data->v_ptr, numframes);
     return ici::int_ret(r);
 }
 
@@ -164,7 +191,6 @@ int f_write()
 /*
  * int = sndfile.close(file)
  */
-
 int f_close()
 {
     sndfile *sf;
