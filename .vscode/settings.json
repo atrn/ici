@@ -1,9 +1,0 @@
-// Place your settings in this file to overwrite default and user settings.
-{
-        "editor.tabSize": 8,
-        "files.associations": {
-                "__functional_base": "cpp"
-        },
-        "C_Cpp.configurationWarnings": "Disabled",
-        "cmake.configureOnOpen": false,
-}

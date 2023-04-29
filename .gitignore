@@ -3,6 +3,7 @@
 *.so
 *.bundle
 *.a
+/.vscode/
 .objs/
 /test/serialization/*.dat
 /ici
@@ -22,3 +23,4 @@
 .DS_Store
 /modules/ipp/tests/test-*-output.wav
 /debugger/
+*.trace/
