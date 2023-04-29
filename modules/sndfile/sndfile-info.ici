@@ -11,7 +11,7 @@ local sndfile_info(path)
         exit(error);
     }
     file := sndfile.open(path);
-    duration := file.frames / float(file.samplerate) / file.channels;
+    duration := file.frames / float(file.samplerate);
     printf("%s, ", sndfile.describe_format(file.format));
     printf("%d channel%s @ %dHz, ", file.channels, file.channels == 1 ? "" : "s", file.samplerate);
     printf("%d frames, %s, ", file.frames, pretty.time(duration, 2));
