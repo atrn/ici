@@ -36,7 +36,11 @@ int f_channel()
     {
         const auto size = size_t(ceil(ici::vec32fof(vec)->v_size / double(stride)));
         out = ici::new_vec32f(size);
-        for (size_t i = 0, j = 0; i < size; i += stride, ++j)
+        if (!out)
+        {
+            return 1;
+        }
+        for (size_t i = 0, j = 0; j < size; i += stride, ++j)
         {
             ici::vec32fof(out)->v_ptr[j] = ici::vec32fof(vec)->v_ptr[i+channel-1];
         }
@@ -46,7 +50,11 @@ int f_channel()
     {
         const auto size = size_t(ceil(ici::vec64fof(vec)->v_size / double(stride)));
         out = ici::new_vec64f(size);
-        for (size_t i = 0, j = 0; i < size; i += stride, ++j)
+        if (!out)
+        {
+            return 1;
+        }
+        for (size_t i = 0, j = 0; j < size; i += stride, ++j)
         {
             ici::vec64fof(out)->v_ptr[j] = ici::vec64fof(vec)->v_ptr[i+channel-1];
         }
