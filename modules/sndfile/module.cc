@@ -126,7 +126,7 @@ int f_read()
     {
         return 1;
     }
-    frames->v_size = sf_readf_float(sf->_file, frames->v_ptr, z);
+    frames->v_size = sf_readf_float(sf->_file, frames->v_ptr, z) * sf->_info.channels;
     return ici::ret_with_decref(frames);
 }
 
