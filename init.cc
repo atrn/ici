@@ -84,6 +84,8 @@ int init()
     }
 #endif
 
+    init_types();
+
     if (chkbuf(1024))
     {
         return 1;

@@ -372,7 +372,9 @@ class type
     str *ici_name() const
     {
         if (_name == nullptr)
+        {
             _name = new_str_nul_term(name);
+        }
         return _name;
     }
 

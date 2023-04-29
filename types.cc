@@ -98,6 +98,11 @@ int register_type(type *t)
     return num_types++;
 }
 
+void init_types()
+{
+    num_types = TC_MAX_CORE + 1;
+}
+
 void uninit_types()
 {
     for (type **t = types; t - types < num_types; ++t)
