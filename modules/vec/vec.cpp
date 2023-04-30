@@ -90,6 +90,7 @@ void merge(VEC *result, size_t maxsize, ici::object **vec, size_t nvec)
             ++j;
         }
     }
+    result->resize(j);
 }
 
 /*
@@ -132,7 +133,7 @@ int f_merge()
         const auto newsize = size + z;
         if (newsize < size)
         {
-            return ici::set_errorc("merged vector is too large");
+            return ici::set_errorc("merged vector too large");
         }
         size = newsize;
     }
