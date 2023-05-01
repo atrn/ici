@@ -38,6 +38,7 @@
 
 #include <ippcore.h>
 #include <ipps.h>
+#include <ippvm.h>
 
 namespace
 {
@@ -172,12 +173,63 @@ DEFINE_INPLACE_NULLARY_OP
     error = ippsZero_64f(vec->v_ptr, int(vec->v_size))
 )
 
+#define DEFINE_UNARY_OP(FUNC, OP32, OP64)                               \
+    int FUNC ()                                                         \
+    {                                                                   \
+        ici::object *       vec;                                        \
+        ici::object *       result;                                     \
+                                                                        \
+        int error = ippStsNoErr;                                        \
+                                                                        \
+        if (ici::typecheck("o", &vec))                                  \
+        {                                                               \
+            return 1;                                                   \
+        }                                                               \
+        if (ici::isvec32f(vec))                                         \
+        {                                                               \
+            auto v = ici::vec32fof(vec);                                \
+            if (!(result = ici::new_vec32f(v->v_size, v->v_size)))      \
+            {                                                           \
+                return 1;                                               \
+            }                                                           \
+            error = OP32(v->v_ptr, ici::vec32fof(result)->v_ptr, v->v_size); \
+        }                                                               \
+        else if (ici::isvec64f(vec))                                    \
+        {                                                               \
+            auto v = ici::vec64fof(vec);                                \
+            if (!(result = ici::new_vec64f(v->v_size, v->v_size)))      \
+            {                                                           \
+                return 1;                                               \
+            }                                                           \
+            error = OP64(v->v_ptr, ici::vec64fof(result)->v_ptr, v->v_size); \
+        }                                                               \
+        else                                                            \
+        {                                                               \
+            return ici::argerror(0);                                    \
+        }                                                               \
+        return check_error(error, [result]() { return ici::ret_with_decref(result); }); \
+    }
+
+/*
+ * vec = ipp.cosh(vec)
+ */
+DEFINE_UNARY_OP(f_cosh, ippsCosh_32f_A21, ippsCosh_64f_A50)
+
+/*
+ * vec = ipp.sinh(vec)
+ */
+DEFINE_UNARY_OP(f_sinh, ippsSinh_32f_A21, ippsSinh_64f_A50)
+
+/*
+ * vec = ipp.tanh(vec)
+ */
+DEFINE_UNARY_OP(f_tanh, ippsTanh_32f_A21, ippsTanh_64f_A50)
+
 /*
  * float = ipp.tone(vec, mag, rfreq [, phase [, alg]])
  *
- * Fills vec to capacity with a (co)sine wave of the
- * given magnitude and frequency starting with the
- * supplied initial phase, or 0.0. The optional
+ * Fills vec to capacity with a (co)sine wave of the given magnitude and
+ * frequency starting with the supplied initial phase, or 0.0. The optional
  * 'alg' argument specifies the algorithm to use.
  *
  * Returns the next initial phase value.
@@ -351,6 +403,9 @@ int f_vector_slope()
     return check_error(error, ici::null_ret);
 }
 
+/**
+ * float = ipp.min(vec)
+ */
 int f_min()
 {
     ici::object *vec;
@@ -378,6 +433,9 @@ int f_min()
     return check_error(error, [minval]() { return ici::float_ret(minval); });
 }
 
+/**
+ * float = ipp.max(vec)
+ */
 int f_max()
 {
     ici::object *vec;
@@ -405,6 +463,12 @@ int f_max()
     return check_error(error, [maxval]() { return ici::float_ret(maxval); });
 }
 
+/**
+ * map = ipp.minmax(vec)
+ *
+ * map.min
+ * map.max
+ */
 int f_minmax()
 {
     ici::object *vec;
@@ -462,11 +526,13 @@ int f_minmax()
     return ici::ret_with_decref(r);
 }
 
-// vec = ipp.normalize(vec, sub, div)
-//      Inplace normalization of vector data via ippsNormalize.
-//
-// Returns its 1st argument to permit function call chaining.
-//
+/**
+ * vec = ipp.normalize(vec, sub, div)
+ *
+ * Inplace normalization of vector data via ippsNormalize.
+ *
+ * Returns its 1st argument to permit function call chaining.
+*/
 int f_normalize()
 {
     ici::object *vec;
@@ -493,12 +559,14 @@ int f_normalize()
     return check_error(error, [vec]() { return ici::ret_no_decref(vec); });
 }
 
-// vec = ipp.normalized(vec, sub, div)
-//      Non-inplace normalization of vector data via ippsNormalize.
-//
-// Returns a new vec containing the result of normalizing the
-// input vec with the given sub and div parameters.
-//
+/**
+ * vec = ipp.normalized(vec, sub, div)
+ *
+ * Non-inplace normalization of vector data via ippsNormalize.
+ *
+ * Returns a new vec containing the result of normalizing the
+ * input vec with the given sub and div parameters.
+ */
 int f_normalized()
 {
     ici::object *result;
@@ -536,12 +604,14 @@ int f_normalized()
     return check_error(error, [result]() { return ici::ret_with_decref(result); });
 }
 
-// vec = ipp.add(vec, vec)
-//      Non-inplace addition of equal size vectors. Returns a new vector.
-//
-// vec = ipp.add(vec, int|float)
-//      Inplace addition of constant to vector. Returns its input vector.
-//
+/**
+ * vec = ipp.add(vec, vec)
+ * vec = ipp.add(vec, int|float)
+ *
+ * Non-inplace addition of equal size vectors. Returns a new vector.
+ *
+ * Inplace addition of constant to vector. Returns the input vector.
+ */
 int f_add()
 {
     ici::object *vec;
@@ -632,8 +702,10 @@ int f_add()
 }
 
 // ----------------------------------------------------------------
+
 //
 // FFT
+//
 
 int fft_tcode;
 
@@ -701,10 +773,9 @@ fft *new_fft(int order, int flag = 0, IppHintAlgorithm hint = ippAlgHintAccurate
     return f;
 }
 
-//
-// fft = ipp.fft(order, flag, hint)
-//
-//
+/**
+ * fft = ipp.fft(order, flag, hint)
+ */
 int f_fft()
 {
     int64_t order;
@@ -737,8 +808,9 @@ int f_fft()
     return ici::ret_with_decref(f);
 }
 
-// ipp.fwd(fft, src, dst)
-//
+/**
+ * ipp.fwd(fft, src, dst)
+ */
 int f_fft_fwd()
 {
     fft *f;
@@ -800,6 +872,9 @@ extern "C" ici::object *ici_ipp_init()
         ICI_DEFINE_CFUNC(set,           f_set),
         ICI_DEFINE_CFUNC(sqr,           f_sqr),
         ICI_DEFINE_CFUNC(sqrt,          f_sqrt),
+        ICI_DEFINE_CFUNC(cosh,          f_cosh),
+        ICI_DEFINE_CFUNC(sinh,          f_sinh),
+        ICI_DEFINE_CFUNC(tanh,          f_tanh),
         ICI_DEFINE_CFUNC(tone,          f_tone),
         ICI_DEFINE_CFUNC(triangle,      f_triangle),
         ICI_DEFINE_CFUNC(vector_slope,  f_vector_slope),

@@ -1,5 +1,6 @@
 -L${IPPROOT}/lib
 -lippcore
 -lipps
+-lippvm
 
 !inherit
