@@ -6,7 +6,7 @@ local eq(a, b)
     return abs(a - b) < epsilon;
 }
 
-f1 := vec32(Z);
+f1 := vec32f(Z);
 if (f1.capacity != Z)
     fail("f1.capacity");
 if (len(f1) != 0)
@@ -18,7 +18,7 @@ for (i := 0; i < f1.capacity; ++i)
 if (len(f1) != Z)
     fail("len != Z");
 
-f2 := vec32(Z, pi);
+f2 := vec32f(Z, pi);
 if (len(f2) != f2.capacity)
     fail("len(f2) != f2.capacity");
 if (!eq(f2[Z/2], pi))
@@ -39,8 +39,8 @@ forall (v in f2)
 }
 
 
-sig := vec32(192000);
-mod := vec32(192000);
+sig := vec32f(192000, 0.5);
+mod := vec32f(192000, 1.0);
 vec.fill(sig, 0.5);
 vec.randomize(mod);
 mod := sig * mod;

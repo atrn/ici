@@ -140,6 +140,7 @@ set(ICI_SOURCES
   type.h
   types.h
   vec.h
+  vecops.h
   wrap.h
   userop.h)
 
