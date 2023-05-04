@@ -1,5 +1,7 @@
+ICI_STR(channel, "channel")
 ICI_STR(channels, "channels")
 ICI_STR(close, "close")
+ICI_STR(combine, "combine")
 ICI_STR(count, "count")
 ICI_STR(create, "create")
 ICI_STR(file, "file")
