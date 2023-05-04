@@ -387,6 +387,11 @@ template <typename vec_type> object *fetch_vec(vec_type *f, object *k)
         return o;
     }
 
+    if (k == SS(properties))
+    {
+        return f->v_props->copy();
+    }
+
     return f->v_props->fetch(k);
 }
 

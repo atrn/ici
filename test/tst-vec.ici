@@ -8,29 +8,44 @@ local eq(a, b)
 
 f1 := vec32f(Z);
 if (f1.capacity != Z)
+{
     fail("f1.capacity");
+}
 if (len(f1) != 0)
+{
     fail("len(f1) != 0");
+}
 if (f1.size != len(f1))
+{
     fail("f1.size");
+}
 for (i := 0; i < f1.capacity; ++i)
+{
     f1[i] = 1.0;
+}
 if (len(f1) != Z)
+{
     fail("len != Z");
+}
 
 f2 := vec32f(Z, pi);
 if (len(f2) != f2.capacity)
+{
     fail("len(f2) != f2.capacity");
+}
 if (!eq(f2[Z/2], pi))
+{
     fail(sprintf("f2[Z/2] != pi - %.18g vs %.18g", f2[15], pi));
+}
 
 f1 -= 1.2; // offset f1
 f2 *= 2.0; // apply gain
-// f1 + f2; // sum
 
 f1.myprop = 28;
 if (f1.myprop != 28)
+{
     fail("f1.myprop != 28");
+}
 
 two_pi := 2 * pi;
 forall (v in f2)
@@ -38,11 +53,17 @@ forall (v in f2)
     if (!eq(v, two_pi)) fail("not 2 pi");
 }
 
-
-sig := vec32f(192000, 0.5);
-mod := vec32f(192000, 1.0);
-vec.fill(sig, 0.5);
-vec.randomize(mod);
-mod := sig * mod;
-
-// printf("%d, %d, %d\n", mod.capacity, sig.capacity, noise.capacity);
+m := f1.properties;
+if (!m)
+{
+    fail("failed to retrieve properties map from vec");
+}
+if (m.myprop != 28)
+{
+    fail("properties map retrived from vec not correct");
+}
+m.myprop = 30;
+if (f1.myprop != 28)
+{
+    fail("properties map retrived from vec not a copy");
+}
