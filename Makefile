@@ -25,7 +25,7 @@
 # Dcc is on github, http://github.com/atrn/dcc, and is written in the
 # Go programming language. If you have Go, dcc is installed via,
 #
-#	$ go get github.com/atrn/dcc
+#	$ go install github.com/atrn/dcc@latest
 #
 # **** environment variables for dcc builds
 #
