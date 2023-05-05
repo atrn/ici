@@ -9,28 +9,38 @@ namespace
 
 bool get_int(ici::vec32f *vec, ici::object *k, int64_t &value)
 {
-    auto v = vec->fetch(k);
-    if (!v)
+    if (const auto v = vec->fetch(k))
     {
-        ici::set_error("input vector has no '%s' attribute", ici::stringof(k)->s_chars);
-        return false;
-    }
-    if (!ici::isint(v))
-    {
+        if (ici::isint(v))
+        {
+            value = intof(v)->i_value;
+            return true;
+        }
         ici::set_error("input vector '%s' attribute is not an integer", ici::stringof(k)->s_chars);
         return false;
     }
-    value = intof(v)->i_value;
-    return true;
+    ici::set_error("input vector has no '%s' attribute", ici::stringof(k)->s_chars);
+    return false;
 }
 
-int set_int(ici::vec32f *vec, ici::object *k, int64_t value)
+bool set_int(ici::vec32f *vec, ici::object *k, int64_t value)
 {
     if (auto v = ici::make_ref<>(ici::new_int(value)))
     {
-        return vec->assign(k, v);
+        return vec->assign(k, v) == 0;
     }
-    return 1;
+    return false;
+}
+
+bool set_properties(ici::vec32f *vec, int64_t samplerate, int64_t channels, int64_t frames)
+{
+    return
+        set_int(vec, ICIS(samplerate), samplerate)
+        &&
+        set_int(vec, ICIS(channels), channels)
+        &&
+        set_int(vec, ICIS(frames), frames)
+        ;
 }
 
 /**
@@ -44,7 +54,7 @@ int f_open()
     {
         return 1;
     }
-    auto sf = new_sndfile();
+    auto sf = ici::make_ref(new_sndfile());
     if (!sf)
     {
         return 1;
@@ -53,7 +63,7 @@ int f_open()
     {
         return 1;
     }
-    return ici::ret_with_decref(sf);
+    return ici::ret_no_decref(sf);
 }
 
 
@@ -72,7 +82,7 @@ int f_create()
         return 1;
     }
 
-    auto sf = ici::ref<sndfile>(new_sndfile());
+    auto sf = ici::make_ref(new_sndfile());
     if (!sf)
     {
         return 1;
@@ -125,7 +135,7 @@ int f_read()
     {
         numframes = sf->_info.frames;
     }
-    auto data = ici::new_vec32f(numframes * sf->_info.channels);
+    auto data = ici::make_ref(ici::new_vec32f(numframes * sf->_info.channels));
     if (!data)
     {
         return 1;
@@ -136,21 +146,12 @@ int f_read()
     {
         return sndfile::error();
     }
-
-    if (set_int(data, ICIS(samplerate), sf->_info.samplerate))
-    {
-        return 1;
-    }
-    if (set_int(data, ICIS(channels), sf->_info.channels))
-    {
-        return 1;
-    }
-    if (set_int(data, ICIS(frames), numframes))
+    if (!set_properties(data, sf->_info.samplerate, sf->_info.channels, numframes))
     {
         return 1;
     }
     data->resize(numframes * sf->_info.channels);
-    return ici::ret_with_decref(data);
+    return ici::ret_no_decref(data);
 }
 
 
@@ -238,13 +239,13 @@ int f_channel()
     {
         return 1;
     }
-    if (channel <= 0)
-    {
-        return ici::argerror(1);
-    }
     if (!ici::isvec32f(vec))
     {
         return ici::argerror(0);
+    }
+    if (channel <= 0)
+    {
+        return ici::argerror(1);
     }
 
     int64_t channels;
@@ -265,7 +266,7 @@ int f_channel()
     }
 
     const auto size = size_t(ceil(ici::vec32fof(vec)->v_size / double(channels)));
-    auto result = ici::new_vec32f(size);
+    auto result = ici::make_ref(ici::new_vec32f(size));
     if (!result)
     {
         return 1;
@@ -275,21 +276,14 @@ int f_channel()
     {
         ici::vec32fof(result)->v_ptr[j] = ici::vec32fof(vec)->v_ptr[i+channel-1];
     }
+
     ici::vec32fof(result)->resize(size);
 
-    if (!set_int(result, ICIS(channels), 1))
+    if (!set_properties(result, samplerate, 1, frames))
     {
         return 1;
     }
-    if (!set_int(result, ICIS(samplerate), samplerate))
-    {
-        return 1;
-    }
-    if (!set_int(result, ICIS(frames), frames))
-    {
-        return 1;
-    }
-    return ici::ret_with_decref(result);
+    return ici::ret_no_decref(result);
 }
 
 /*
@@ -380,12 +374,12 @@ int f_combine()
         const auto newsize = size + z;
         if (newsize < size) // wrapped
         {
-            return ici::set_errorc("merged vec object too large");
+            return ici::set_errorc("combined vec object too large");
         }
         size = newsize;
     }
 
-    auto result = ici::new_vec32f(size);
+    auto result = ici::make_ref(ici::new_vec32f(size));
     if (!result)
     {
         return 1;
@@ -410,22 +404,12 @@ int f_combine()
     }
     result->resize(j);
 
-    if (!set_int(result, ICIS(samplerate), samplerate))
+    if (!set_properties(result, samplerate, ici::NARGS(), maxsize))
     {
-        result->decref();
         return 1;
     }
-    if (!set_int(result, ICIS(channels), ici::NARGS()))
-    {
-        result->decref();
-        return 1;
-    }
-    if (!set_int(result, ICIS(frames), j))
-    {
-        result->decref();
-        return 1;
-    }
-    return ici::ret_with_decref(result);
+
+    return ici::ret_no_decref(result);
 }
 
 } // anon

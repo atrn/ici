@@ -1,22 +1,74 @@
 filename := argv[1] || "test-data.wav";
-f := sndfile.open(filename);
-printf("%s (format code 0x%08X)\n", sndfile.describe_format(f.format), f.format);
-printf("%d frames\n", f.frames);
-printf("%d samples per second\n", f.samplerate);
-printf("%d channels\n", f.channels);
-// printf("%d sections\n", f.sections);
-// printf("%d seekable\n", f.seekable);
-printf("duration %.2f seconds\n", sndfile.duration(f));
-sndfile.close(f);
 
-f := sndfile.open(filename);
+file := sndfile.open(filename);
+input := sndfile.read(file);
+sndfile.close(file);
 
-frames := sndfile.read(f);
-sndfile.close(f);
-frames.source = filename;
+format := file.format;
 
-printf("read %d frames of %d channels from %s", frames.size/frames.channels, frames.channels, frames.source);
-printf(" (%s)\n", pretty.size(frames.size * 4));
+forall (v, k in input.properties)
+{
+    printf("%s -> %s\n", k, string(v));
+}
+printf("\n");
 
-frames = NULL;
-reclaim();
+if (input.frames != file.frames)
+{
+    fail("input.frames != file.frames");
+}
+if (input.channels != file.channels)
+{
+    fail("input.channels != file.channels");
+}
+if (input.samplerate != file.samplerate)
+{
+    fail("input.samplerate != file.samplerate");
+}
+
+left := sndfile.channel(input, 1);
+right := sndfile.channel(input, 2);
+
+if (left.channels != 1)
+{
+    fail("left.channels != 1");
+}
+if (right.channels != 1)
+{
+    fail("right.channels != 1");
+}
+
+if (left.frames != input.frames)
+{
+    fail("left.frames != input.frames");
+}
+if (left.frames != right.frames)
+{
+    fail("left.frames != right.frames");
+}
+
+if (left.samplerate != input.samplerate)
+{
+    fail("left.samplerate != input.samplerate");
+}
+if (left.samplerate != right.samplerate)
+{
+    fail("left.samplerate != right.samplerate");
+}
+
+output := sndfile.combine(left, right);
+if (output.channels != 2)
+{
+    fail("output.channels != 2");
+}
+if (output.frames != input.frames)
+{
+    fail(sprintf("output.frames %d != input.frames %d", output.frames, input.frames));
+}
+if (output.samplerate != input.samplerate)
+{
+    fail("output.samplerate != input.samplerate");
+}
+
+file := sndfile.create("output.wav", format, output.samplerate, output.channels);
+sndfile.write(file, output);
+sndfile.close(file);
