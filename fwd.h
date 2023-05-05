@@ -59,6 +59,7 @@
 /*
  * The following portion of this file exports to ici.h. --ici.h-start--
  */
+#include <cassert>
 #include <cerrno>
 #include <cmath>
 #include <csignal>
