@@ -15,6 +15,8 @@ sudo?=
 ICI_DOT_H_DIR?=$(prefix)/include
 ICI_LIB_DIR?=$(prefix)/lib
 ICI_PLUGIN_DIR?=$(prefix)/lib/ici
+ICI_DLL?=$(ICI_LIB_DIR)/libici.dylib
+ICI_EXE?=$(prefix)/bin/ici
 
 _UNAME=$(shell uname)
 
@@ -26,9 +28,9 @@ _UNAME=$(shell uname)
 
 ifeq ($(_UNAME),Darwin)
 ifdef ICI_BUILD_TYPE_DLL
-ICI_MACOS_BUNDLE_HOST?=$(ICI_LIB_DIR)/libici.dylib
+ICI_MACOS_BUNDLE_HOST?=$(ICI_DLL)
 else
-ICI_MACOS_BUNDLE_HOST=$(prefix)/bin/ici
+ICI_MACOS_BUNDLE_HOST=$(ICI_EXE)
 endif
 endif
 
