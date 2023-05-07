@@ -32,6 +32,17 @@ bool set_int(ici::vec32f *vec, ici::object *k, int64_t value)
     return false;
 }
 
+bool get_properties(ici::vec32f *vec, int64_t &samplerate, int64_t &channels, int64_t &frames)
+{
+    return
+        get_int(vec, ICIS(samplerate), samplerate)
+        &&
+        get_int(vec, ICIS(channels), channels)
+        &&
+        get_int(vec, ICIS(frames), frames)
+        ;
+}
+
 bool set_properties(ici::vec32f *vec, int64_t samplerate, int64_t channels, int64_t frames)
 {
     return
@@ -110,14 +121,15 @@ int f_create()
 int f_read()
 {
     sndfile *sf;
-    int64_t numframes = -1;
-    
+    int64_t numframes;
+
     if (ici::NARGS() == 1)
     {
         if (ici::typecheck("o", &sf))
         {
             return 1;
         }
+        numframes = sf->_info.frames;
     }
     else if (ici::typecheck("oi", &sf, &numframes))
     {
@@ -131,16 +143,11 @@ int f_read()
     {
         return ici::set_error("attempt to used closed file");
     }
-    if (numframes < 0)
-    {
-        numframes = sf->_info.frames;
-    }
     auto data = ici::make_ref(ici::new_vec32f(numframes * sf->_info.channels));
     if (!data)
     {
         return 1;
     }
-
     numframes = sf_readf_float(sf->_file, data->v_ptr, numframes);
     if (numframes < 0)
     {
@@ -223,12 +230,31 @@ int f_close()
     return ici::int_ret(sf->close());
 }
 
+ici::ref<ici::vec32f> get_channel(ici::vec32f *vec, int64_t channel, int64_t samplerate, int64_t channels, int64_t frames)
+{
+    auto result = ici::make_ref(ici::new_vec32f(frames));
+    if (!result)
+    {
+        return nullptr;
+    }
+    int64_t j = 0;
+    for (int64_t i = 0; j < frames; i += channels, ++j)
+    {
+        ici::vec32fof(result)->v_ptr[j] = ici::vec32fof(vec)->v_ptr[i+channel-1];
+    }
+    ici::vec32fof(result)->resize(j);
+    if (!set_properties(result, samplerate, 1, frames))
+    {
+        return nullptr;
+    }
+    return result;
+}
 
 /**
  * vec = sndfile.channel(vec, index)
  *
  * Return a new vec comprising the samples of the given channel.
- * Channels are numered from 1 on.
+ * Channels are numbered from 1 on.
  */
 int f_channel()
 {
@@ -247,43 +273,59 @@ int f_channel()
     {
         return ici::argerror(1);
     }
-
-    int64_t channels;
-    int64_t samplerate;
-    int64_t frames;
-
-    if (!get_int(ici::vec32fof(vec), ICIS(channels), channels))
+    int64_t samplerate, channels, frames;
+    if (!get_properties(ici::vec32fof(vec), samplerate, channels, frames))
     {
         return 1;
     }
-    if (!get_int(ici::vec32fof(vec), ICIS(samplerate), samplerate))
-    {
-        return 1;
-    }
-    if (!get_int(ici::vec32fof(vec), ICIS(frames), frames))
-    {
-        return 1;
-    }
-
-    const auto size = size_t(ceil(ici::vec32fof(vec)->v_size / double(channels)));
-    auto result = ici::make_ref(ici::new_vec32f(size));
+    auto result = get_channel(ici::vec32fof(vec), channel, samplerate, channels, frames);
     if (!result)
     {
         return 1;
     }
+    return ici::ret_no_decref(result);
+}
 
-    for (size_t i = 0, j = 0; j < size; i += channels, ++j)
-    {
-        ici::vec32fof(result)->v_ptr[j] = ici::vec32fof(vec)->v_ptr[i+channel-1];
-    }
+/**
+ * array - sndfile.split(vec)
+ *
+ * Return an array of vec objects for each channel of input data.
+ */
+int f_split()
+{
+    ici::object *o;
 
-    ici::vec32fof(result)->resize(size);
-
-    if (!set_properties(result, samplerate, 1, frames))
+    if (ici::typecheck("o", &o))
     {
         return 1;
     }
-    return ici::ret_no_decref(result);
+    if (!ici::isvec32f(o))
+    {
+        return ici::argerror(0);
+    }
+    int64_t samplerate, channels, frames;
+    if (!get_properties(ici::vec32fof(o), samplerate, channels, frames))
+    {
+        return 1;
+    }
+    auto a = ici::make_ref(ici::new_array(channels));
+    if (!a)
+    {
+        return 1;
+    }
+    for (int64_t i = 0; i < channels; ++i)
+    {
+        auto c = get_channel(ici::vec32fof(o), i, samplerate, channels, frames);
+        if (!c)
+        {
+            return 1;
+        }
+        if (a->push_back(c))
+        {
+            return 1;
+        }
+    }
+    return ici::ret_no_decref(a);
 }
 
 /*
@@ -300,7 +342,7 @@ int f_channel()
  *
  * The returned vector has a "channels" properties equal to the
  * number of input vectors.
- * 
+ *
  */
 int f_combine()
 {
@@ -314,7 +356,7 @@ int f_combine()
         int64_t channels;
         if (!get_int(vec, ICIS(channels), channels))
         {
-            channels = 0;
+            channels = -1;
         }
         return channels;
     };
@@ -324,7 +366,7 @@ int f_combine()
         int64_t samplerate;
         if (!get_int(vec, ICIS(samplerate), samplerate))
         {
-            samplerate = 0;
+            samplerate = -1;
         }
         return samplerate;
     };
@@ -339,7 +381,7 @@ int f_combine()
         {
             return not_one_channel(0);
         }
-	return ici::ret_with_decref(ici::ARG(0));
+        return ici::ret_no_decref(ici::ARG(0));
     }
 
     int64_t samplerate;
@@ -448,6 +490,7 @@ extern "C" ici::object *ici_sndfile_init()
         ICI_DEFINE_CFUNC(read, f_read),
         ICI_DEFINE_CFUNC(write, f_write),
         ICI_DEFINE_CFUNC(channel, f_channel),
+        ICI_DEFINE_CFUNC(split, f_split),
         ICI_CFUNCS_END()
     };
     return ici::new_module(ICI_CFUNCS(sndfile));
