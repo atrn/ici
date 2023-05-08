@@ -14,7 +14,7 @@
  * This --topic-- forms part of the --ici-pathname-- documentation.
  */
 extern separator = "/";
-if (version() ~ #Win32#) {
+if (ici.version ~ #Win32#) {
     separator = "\\";
 }
 
@@ -143,6 +143,21 @@ extern extension(path) {
 extern ext = extension;
 
 /**
+ * string = path.trim_extension(string)
+ *
+ * Return a pathname with any extension removed.
+ *
+ * This --topic-- forms part of the --ici-pathname-- documentation.
+ */
+extern trim_extension(path) {
+    e := extension(path);
+    if (e != "") {
+        return slice(path, 0, len(path) - len(e));
+    }
+    return path;
+}
+
+/**
  * int = path.is_absolute(string)
  *
  */
@@ -150,7 +165,7 @@ extern is_absolute(path) {
     return len(path) > 0 && path[0] == "/";
 }
 
-if (version() ~ #Win32#) {
+if (ici.version ~ #Win32#) {
     is_absolute = [func (path) {
         return path ~ #^[a-zA-Z]:\\\\#;
     }];
