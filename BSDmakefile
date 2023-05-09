@@ -1,9 +1,12 @@
-# This file is read by BSD make (aka pmake) and is used to redirect
-# things to GNU make which is typically called 'gmake' on systems
-# where BSD makefile is 'make'.
+# This file is read by BSD make in preference to the Makefile and is used on
+# systems who's make(1) is not GNU make.
+#
+# The default values for buildtype and prefix should be kept in sync
+# with those defined in Makefile.
 #
 
-build?=exe
+gmake?=gmake
+buildtype?=dll
 prefix?=/usr/local
 sudo?=
 
@@ -28,4 +31,4 @@ targets=all \
 	clean-cmake \
 
 
-$(targets) !; @gmake --no-print-directory $@ build=$(build) prefix=$(prefix) sudo=$(sudo)
+$(targets) !; @$(gmake) --no-print-directory $@ buildtype=$(buildtype) prefix=$(prefix) sudo=$(sudo)

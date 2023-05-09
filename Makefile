@@ -37,6 +37,12 @@
 #				Assumes IPPROOT is defined (via
 #				the Intel set up scripts).
 #
+#				ICI_WITH_IPP is automatically set
+#				if IPPROOT is defined.
+#
+# ICI_NO_IPP			Do NOT use IPP even if IPPROOT
+#				is defined.
+#
 # ICI_BUILD_TYPE_DLL		Set when compiling the shared
 #				object/DLL - used to enable
 #				position independent code.
@@ -96,12 +102,7 @@
 #
 # ** Build Types
 #
-# The 'build' macro controls how ICI it built. It can be one of,
-#
-#   	lib			Builds ICI as a static library, libici.a,
-#				and uses it to create an ici executable.
-#				Installs the executable, static library
-#				and its associated ici.h file.
+# The 'buildtype' macro controls how ICI is built. It can be one of,
 #
 #	dll			Builds ICI as a dynamic library and uses
 #				it to create the ici executable. Installs
@@ -112,8 +113,13 @@
 #				object files with no library. Installs the
 #				executable and an ici.h file.
 #
+#   	lib			Builds ICI as a static library, libici.a,
+#				and uses it to create an ici executable.
+#				Installs the executable, static library
+#				and its associated ici.h file.
 #
-# The default build type is 'lib'.
+#
+# The default build type is 'dll'.
 #
 #
 # ** Other Macros
@@ -146,6 +152,10 @@
 #
 #	xcodedir		Directory where cmake writes the Xcode project.
 #
+#	inplace			Build modules against this directory's ici.h,
+#				executable and dynamic library.  Otherwise
+#				build against the installed versions of these
+#				files.
 #
 # All the above combine allowing for commands such as,
 #
@@ -164,9 +174,9 @@ else
 dll=			libici.so
 endif
 
-build?=			dll
-#build?=		lib
-#build?=		exe
+buildtype?=		dll
+#buildtype?=		lib
+#buildtype?=		exe
 
 prefix?= 		/usr/local
 sudo?=
@@ -181,6 +191,16 @@ cmakegenerator?=	Ninja
 cmakedir?=		build
 xcodedir?=		.xcode
 
+
+# ###############################################################
+#
+# IPP
+#
+ifdef IPPROOT
+ifndef ICI_NO_IPP
+export ICI_WITH_IPP=YES
+endif
+endif
 
 # ###############################################################
 #
@@ -206,11 +226,11 @@ _make=			$(MAKE) --no-print-directory
 
 all:			$(prog) ici.h
 
-ifeq ($(build),dll)
+ifeq ($(buildtype),dll)
 #
 # Build ICI dynamic library
 #
-$(prog):		lib
+$(prog): lib
 	@[ -d $(objdir) ] || mkdir $(objdir)
 	@$(_dcc) --append-compile-commands etc/main.cc -fPIC -o $@ -L. -lici
 
@@ -219,7 +239,7 @@ lib:
 	@$(_dcc) --dll $(dll) -fPIC $(_srcs)
 
 
-else ifeq ($(build),exe)
+else ifeq ($(buildtype),exe)
 
 #
 # The ici target builds an executable containing the complete
@@ -230,8 +250,7 @@ $(prog):
 	@$(_dcc) etc/main.cc $(_srcs) -o $@
 
 
-else ifeq ($(build),lib)
-
+else ifeq ($(buildtype),lib)
 
 #
 # The 'lib' build creates a static library and an executable that is
@@ -246,9 +265,9 @@ lib:
 	@$(_dcc) --lib $(lib) $(_srcs)
 
 else
-# Unknown $(build)
+# Unknown $(buildtype)
 #
-$(error "$(build) is not a supported build type")
+$(error "buildtype=$(buildtype) is not a supported build type")
 endif
 
 
@@ -266,7 +285,7 @@ ici.h:		$(prog) mk-ici-h.ici $(_hdrs)
 # variable which dcc uses to select compilation options.
 #
 debug:
-	@$(_make) $(prog) ICI_DEBUG_BUILD=1 dccflags=$(dccflags) build=$(build)
+	@$(_make) $(prog) ICI_DEBUG_BUILD=1 dccflags=$(dccflags) buildtype=$(buildtype)
 
 
 #
@@ -290,13 +309,13 @@ test:		$(prog)
 
 # The library file we rm depends on the build type...
 #
-ifeq ($(build),dll)
+ifeq ($(buildtype),dll)
 rmlib=$(dll)
 endif
-ifeq ($(build),lib)
+ifeq ($(buildtype),lib)
 rmlib=$(lib)
 endif
-ifeq ($(build),exe)
+ifeq ($(buildtype),exe)
 rmlib=
 endif
 
@@ -318,18 +337,18 @@ distclean:	clean
 # Installing
 #
 
-ifeq ($(build),exe)
+ifeq ($(buildtype),exe)
 install:	install-ici-exe
 else
 install:	install-ici-exe install-libici
 endif
 
 install-libici: install-ici-dot-h
-ifeq ($(build),lib)
+ifeq ($(buildtype),lib)
 	$(sudo) mkdir -p $(prefix)/lib
 	$(sudo) install -c -m 444 $(lib) $(prefix)/lib
 	$(_make) sudo=$(sudo) install-core-ici
-else ifeq ($(build),dll)
+else ifeq ($(buildtype),dll)
 	$(sudo) mkdir -p $(prefix)/lib
 	$(sudo) install -c -m 444 $(dll) $(prefix)/lib
 	$(_make) sudo=$(sudo) install-core-ici
@@ -343,7 +362,7 @@ install-ici-dot-h: ici.h
 install-ici-exe:
 	$(sudo) mkdir -p $(prefix)/bin
 	$(sudo) install -c -m 555 $(prog) $(prefix)/bin
-ifeq ($(build),exe)
+ifeq ($(buildtype),exe)
 	$(_make) sudo=$(sudo) install-ici-dot-h
 	$(_make) sudo=$(sudo) install-core-ici
 endif
@@ -419,20 +438,39 @@ endif
 # Modules
 #
 
-ifeq ($(build),dll)
+ifeq ($(inplace),)
+  ifeq ($(buildtype),dll)
+_modules_depends = $(prefix)/lib/$(dll)
+_make_modules = $(_make) -C modules -$(MAKEFLAGS) \
+	ICI_DOT_H_DIR=$(prefix)/include \
+	ICI_LIB_DIR=$(prefix)/lib \
+	ICI_MACOS_BUNDLE_HOST=$(prefix)/lib/$(dll) \
+	ICI_BUILD_TYPE_DLL=1
+  else
+_modules_depends = $(prefix)/bin/$(prog)
+_make_modules = $(_make) -C modules -$(MAKEFLAGS) \
+	ICI_DOT_H_DIR=$(prefix)/include \
+	ICI_LIB_DIR=$(prefix)/lib \
+	ICI_MACOS_BUNDLE_HOST=$(prefix)/bin/$(prog)
+  endif
+else
+  ifeq ($(buildtype),dll)
+  _modules_depends = $(dll)
 _make_modules = $(_make) -C modules -$(MAKEFLAGS) \
 	ICI_DOT_H_DIR=$(PWD) \
 	ICI_LIB_DIR=$(PWD) \
 	ICI_MACOS_BUNDLE_HOST=$(PWD)/$(dll) \
 	ICI_BUILD_TYPE_DLL=1
-else
+  else
+_modules_depends = $(prog)
 _make_modules = $(_make) -C modules -$(MAKEFLAGS) \
 	ICI_DOT_H_DIR=$(PWD) \
 	ICI_LIB_DIR=$(PWD) \
 	ICI_MACOS_BUNDLE_HOST=$(PWD)/$(prog)
+  endif
 endif
 
-modules:
+modules: $(_modules_depends)
 	@$(_make_modules)
 
 clean-modules:
