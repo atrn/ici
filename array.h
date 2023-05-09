@@ -213,9 +213,8 @@ inline bool isarray(object *o)
 
 class array_type : public type
 {
-  public:
-    array_type()
-        : type("array", sizeof(struct array))
+public:
+    array_type() : type("array", sizeof(struct array))
     {
     }
 

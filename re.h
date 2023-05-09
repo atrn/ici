@@ -46,9 +46,8 @@ int ici_pcre(regexp *r, const char *subject, int length, int start_offset, int o
 
 class regexp_type : public type
 {
-  public:
-    regexp_type()
-        : type("regexp", sizeof(struct regexp))
+public:
+    regexp_type() : type("regexp", sizeof(struct regexp))
     {
     }
 

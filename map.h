@@ -36,9 +36,8 @@ inline bool ismap(object *o)
 
 class map_type : public type
 {
-  public:
-    map_type()
-        : type("map", sizeof(map))
+public:
+    map_type() : type("map", sizeof(map))
     {
     }
 

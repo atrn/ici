@@ -26,7 +26,7 @@ namespace ici
  */
 class ftype
 {
-  public:
+public:
     /*
      * The flags that may appear in flags.  NOTE: If any flag greater than 0x80
      * is specified, file creation with new_file() will fail.  See that
@@ -42,13 +42,13 @@ class ftype
      */
     static constexpr int nomutex = 0x01;
 
-  protected:
+protected:
     ftype(int flags = 0)
         : flags(flags)
     {
     }
 
-  public:
+public:
     virtual ~ftype()
     {
     }
@@ -71,7 +71,7 @@ class ftype
 
 class stdio_ftype : public ftype
 {
-  public:
+public:
     stdio_ftype();
     virtual int  getch(void *) override;
     virtual int  ungetch(int, void *) override;
@@ -91,7 +91,7 @@ class stdio_ftype : public ftype
  */
 class popen_ftype : public stdio_ftype
 {
-  public:
+public:
     virtual int close(void *) override;
 };
 

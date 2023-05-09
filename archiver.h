@@ -40,7 +40,7 @@ constexpr int O_ARCHIVE_ATOMIC = 0x80;
  */
 class archiver
 {
-  public:
+public:
     static int op_func_code(int (*fn)());
     static int (*op_func(int))();
 
@@ -125,7 +125,7 @@ class archiver
     int     pop_name();
     str    *name_qualifier();
 
-  private:
+private:
     file      *a_file;
     objwsup   *a_scope;
     ref<map>   a_sent; // object -> 'name' (int)

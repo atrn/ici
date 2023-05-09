@@ -1709,7 +1709,7 @@ struct skt_file
 
 class skt_ftype : public ftype
 {
-  public:
+public:
     skt_ftype()
         : ftype(ftype::nomutex)
     {

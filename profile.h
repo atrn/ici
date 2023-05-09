@@ -59,11 +59,11 @@ profilecall *profilecall_new(profilecall *called_by);
  */
 class profilecall_type : public type
 {
-  public:
-    profilecall_type()
-        : type("profile call", sizeof(struct profilecall))
+public:
+    profilecall_type() : type("profile call", sizeof(struct profilecall))
     {
     }
+
     size_t mark(object *o) override;
 };
 

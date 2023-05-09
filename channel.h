@@ -31,11 +31,11 @@ constexpr int ICI_CHANNEL_CLOSED = 0x20;
 
 class channel_type : public type
 {
-  public:
-    channel_type()
-        : type("channel", sizeof(struct channel))
+public:
+    channel_type() : type("channel", sizeof(struct channel))
     {
     }
+
     size_t  mark(object *o) override;
     int     forall(object *o) override;
     int     save(archiver *, object *) override;

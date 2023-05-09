@@ -25,6 +25,7 @@ inline integer *intof(object *o)
 {
     return o->as<integer>();
 }
+
 inline bool isint(object *o)
 {
     return o->hastype(TC_INT);
@@ -32,9 +33,8 @@ inline bool isint(object *o)
 
 class int_type : public type
 {
-  public:
-    int_type()
-        : type("int", sizeof(struct integer))
+public:
+    int_type() : type("int", sizeof(struct integer))
     {
     }
     int           cmp(object *, object *) override;

@@ -87,9 +87,8 @@ inline bool isfile(object *o)
 
 class file_type : public type
 {
-  public:
-    file_type()
-        : type("file", sizeof(struct file))
+public:
+    file_type() : type("file", sizeof(struct file))
     {
     }
 

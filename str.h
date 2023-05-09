@@ -123,9 +123,8 @@ constexpr int ICI_S_SEP_ALLOC = 0x40;
 
 class string_type : public type
 {
-  public:
-    string_type()
-        : type("string", sizeof(struct str))
+public:
+    string_type() : type("string", sizeof(struct str))
     {
     }
 

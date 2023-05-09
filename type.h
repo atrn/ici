@@ -34,7 +34,7 @@ namespace ici
  */
 class type
 {
-  public:
+public:
     /*
      * The 'name' member defines the name of this type and is used to
      * implement the 'typeof()' function and also in error messages.
@@ -43,12 +43,12 @@ class type
      */
     const char *const name;
 
-  private:
+private:
     const size_t _size;  // the size of this type's associated object structure
     const int    _flags; // type feature flags, see below.
     mutable str *_name;  // str version of name, created on demand (hence mutable).
 
-  protected:
+protected:
     /*
      * Flags are used to indicate that a type class overrides a
      * similarly named member function. Type flags are used to
@@ -90,7 +90,7 @@ class type
         return _size;
     }
 
-  public:
+public:
     virtual ~type();
 
     /*

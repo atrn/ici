@@ -32,7 +32,7 @@ struct charbuf
 
 class charbuf_ftype : public ftype
 {
-  public:
+public:
     int getch(void *file) override
     {
         charbuf *cb = (charbuf *)file;
@@ -177,7 +177,7 @@ static void reattach_string_buffer(charbuf *sb)
 
 class stringbuf_ftype : public charbuf_ftype
 {
-  public:
+public:
     int getch(void *file) override
     {
         charbuf *sb = (charbuf *)file;

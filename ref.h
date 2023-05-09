@@ -26,7 +26,7 @@ namespace ici
  */
 template <typename T = object> class ref
 {
-  public:
+public:
     ref(T *obj = nullptr)
         : _obj(obj)
     {
@@ -153,7 +153,7 @@ template <typename T = object> class ref
         return *get();
     }
 
-  private:
+private:
     T *_obj;
 };
 

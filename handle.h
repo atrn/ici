@@ -156,9 +156,8 @@ struct name_id
 
 class handle_type : public type
 {
-  public:
-    handle_type()
-        : type("handle", sizeof(struct handle), type::has_objname)
+public:
+    handle_type() : type("handle", sizeof(struct handle), type::has_objname)
     {
     }
 

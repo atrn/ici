@@ -28,11 +28,11 @@ inline bool ismethod(object *o)
 
 class method_type : public type
 {
-  public:
-    method_type()
-        : type("method", sizeof(struct method), type::has_objname | type::has_call)
+public:
+    method_type() : type("method", sizeof(struct method), type::has_objname | type::has_call)
     {
     }
+
     size_t  mark(object *o) override;
     object *fetch(object *o, object *k) override;
     int     call(object *o, object *subject) override;

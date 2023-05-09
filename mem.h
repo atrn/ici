@@ -30,11 +30,11 @@ inline bool ismem(object *o)
 
 class mem_type : public type
 {
-  public:
-    mem_type()
-        : type("mem", sizeof(struct mem))
+public:
+    mem_type() : type("mem", sizeof(struct mem))
     {
     }
+
     void          free(object *o) override;
     int           cmp(object *o1, object *o2) override;
     unsigned long hash(object *o) override;

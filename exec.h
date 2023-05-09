@@ -158,11 +158,11 @@ inline bool isfalse(object *o)
 
 class exec_type : public type
 {
-  public:
-    exec_type()
-        : type("exec", sizeof(struct exec))
+public:
+    exec_type() : type("exec", sizeof(struct exec))
     {
     }
+
     size_t  mark(object *o) override;
     void    free(object *o) override;
     object *fetch(object *o, object *k) override;

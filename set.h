@@ -31,9 +31,8 @@ inline bool isset(object *o)
 
 class set_type : public type
 {
-  public:
-    set_type()
-        : type("set", sizeof(struct set))
+public:
+    set_type() : type("set", sizeof(struct set))
     {
     }
 

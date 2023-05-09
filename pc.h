@@ -32,11 +32,11 @@ inline bool ispc(object *o)
 
 class pc_type : public type
 {
-  public:
-    pc_type()
-        : type("pc", sizeof(struct pc))
+public:
+    pc_type() : type("pc", sizeof(struct pc))
     {
     }
+
     size_t mark(object *o) override;
 };
 

@@ -34,11 +34,11 @@ inline bool isnull(object *o)
 
 class null_type : public type
 {
-  public:
-    null_type()
-        : type("NULL", sizeof(struct null))
+public:
+    null_type() : type("NULL", sizeof(struct null))
     {
     }
+
     void    free(object *) override;
     int     save(archiver *, object *) override;
     object *restore(archiver *) override;

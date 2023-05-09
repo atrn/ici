@@ -205,9 +205,8 @@ inline const void *ICI_CF_ARG2()
 
 class cfunc_type : public type
 {
-  public:
-    cfunc_type()
-        : type("func", sizeof(cfunc), type::has_objname | type::has_call)
+public:
+    cfunc_type() : type("func", sizeof(cfunc), type::has_objname | type::has_call)
     {
     }
 

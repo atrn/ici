@@ -189,9 +189,8 @@ struct expr
 
 class parse_type : public type
 {
-  public:
-    parse_type()
-        : type("parse", sizeof(struct parse))
+public:
+    parse_type() : type("parse", sizeof(struct parse))
     {
     }
 

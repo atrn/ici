@@ -31,9 +31,8 @@ inline bool isfunc(object *o)
 
 class func_type : public type
 {
-  public:
-    func_type()
-        : type("func", sizeof(struct func), type::has_objname | type::has_call)
+public:
+    func_type() : type("func", sizeof(struct func), type::has_objname | type::has_call)
     {
     }
 

@@ -55,11 +55,11 @@ inline bool issrc(object *o)
 
 class src_type : public type
 {
-  public:
-    src_type()
-        : type("src", sizeof(src))
+public:
+    src_type() : type("src", sizeof(src))
     {
     }
+
     size_t  mark(object *o) override;
     int     save(archiver *, object *) override;
     object *restore(archiver *) override;

@@ -28,9 +28,8 @@ inline bool isptr(object *o)
 
 class ptr_type : public type
 {
-  public:
-    ptr_type()
-        : type("ptr", sizeof(struct ptr), type::has_call)
+public:
+    ptr_type() : type("ptr", sizeof(struct ptr), type::has_call)
     {
     }
 

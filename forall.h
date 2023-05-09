@@ -37,11 +37,11 @@ inline bool isforall(object *o)
 
 class forall_type : public type
 {
-  public:
-    forall_type()
-        : type("forall", sizeof(struct forall))
+public:
+    forall_type() : type("forall", sizeof(struct forall))
     {
     }
+
     size_t mark(object *o) override;
 };
 
