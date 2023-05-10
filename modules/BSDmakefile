@@ -2,7 +2,7 @@
 # things to GNU make which is typically called 'gmake' on systems
 # where BSD make is 'make'.
 
-build?=exe
+buildtype?=exe
 dest?=/usr/local
 sudo?=
 
@@ -11,4 +11,4 @@ targets=all \
 	distclean \
 	install \
 
-$(targets) !; @gmake --no-print-directory $@ build=$(build) dest=$(dest) sudo=$(sudo)
+$(targets) !; @gmake --no-print-directory $@ buildtype=$(buildtype) dest=$(dest) sudo=$(sudo)

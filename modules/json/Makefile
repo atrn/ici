@@ -1,9 +1,9 @@
-.PHONY: all clean distclean install
+.PHONY: build clean distclean install
 
 sudo?=
 prefix=/usr/local
 
-all:; @:
+build:; @:
 
 clean:; @:
 

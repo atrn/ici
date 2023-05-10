@@ -91,6 +91,10 @@
 #	distclean-modules	Distclean them modules.
 #	install-modules		Install the modules.
 #
+#	modules-clean		Same as clean-modules
+#	modules-distclean	Same as distclean-modules
+#	modules-install		Same as install-modules
+#
 #	with-cmake		Run cmake to build ici.
 #	configure-cmake		Run cmake to generate build files.
 #	clean-cmake		Clean up th cmake build directory.
@@ -152,14 +156,20 @@
 #
 #	xcodedir		Directory where cmake writes the Xcode project.
 #
-#	inplace			Build modules against this directory's ici.h,
-#				executable and dynamic library.  Otherwise
+#	inplace			If defined, build modules against this directory's
+#				ici.h, executable and dynamic library.  Otherwise
 #				build against the installed versions of these
 #				files.
 #
+#	silent			Normally defined as @ and used as a prefix to
+#				commands to stop make not echoing the command.
+#				Define it to be empty to observe the commands.
+#				Other values will have undefined, and probably
+#				unwanted, results.
+#
 # All the above combine allowing for commands such as,
 #
-#	$ make sudo=sudo prefix=/opt/ici build=dll install
+#	$ make sudo=sudo prefix=/opt/ici buildtype=dll install
 #
 
 
@@ -190,7 +200,8 @@ cmakebuild?=		Release
 cmakegenerator?=	Ninja
 cmakedir?=		build
 xcodedir?=		.xcode
-
+inplace?=		YES
+silent?=		@
 
 # ###############################################################
 #
@@ -221,71 +232,83 @@ _make=			$(MAKE) --no-print-directory
 .PHONY:			install full-install install-ici-exe
 .PHONY:			install-libici install-ici-dot-h install-core-ici
 .PHONY:			modules clean-modules distclean-modules install-modules
+.PHONY:			modules-clean modules-distclean modules-install
 .PHONY:			with-cmake configure-cmake clean-cmake
 
 
-all:			$(prog) ici.h
+# ###############################################################
+#
+# Default target builds the executable, ici.h header file and
+# the modules.
+#
+
+all:			$(prog) ici.h modules
+
 
 ifeq ($(buildtype),dll)
 #
-# Build ICI dynamic library
+# The ici target builds an executable linked against the ICI dynamic library.
+#
+# The lib target builds the dynamic library.
 #
 $(prog): lib
-	@[ -d $(objdir) ] || mkdir $(objdir)
-	@$(_dcc) --append-compile-commands etc/main.cc -fPIC -o $@ -L. -lici
+	$(silent) [ -d $(objdir) ] || mkdir $(objdir)
+	$(silent) $(_dcc) --append-compile-commands etc/main.cc -fPIC -o $@ -L. -lici
 
 lib:
-	@[ -d $(objdir) ] || mkdir $(objdir)
-	@$(_dcc) --dll $(dll) -fPIC $(_srcs)
+	$(silent) [ -d $(objdir) ] || mkdir $(objdir)
+	$(silent) $(_dcc) --dll $(dll) -fPIC $(_srcs)
 
 
 else ifeq ($(buildtype),exe)
-
 #
-# The ici target builds an executable containing the complete
-# interpreter and does not create any library.
+# The ici target builds an executable not linked against a library.
+#
+# There is no lib target.
 #
 $(prog):
-	@[ -d $(objdir) ] || mkdir $(objdir)
-	@$(_dcc) etc/main.cc $(_srcs) -o $@
+	$(silent) [ -d $(objdir) ] || mkdir $(objdir)
+	$(silent) $(_dcc) etc/main.cc $(_srcs) -o $@
 
 
 else ifeq ($(buildtype),lib)
-
 #
-# The 'lib' build creates a static library and an executable that is
-# linked against that library.
+# The ici target builds an executable linked against the ICI static library.
+#
+# The lib target builds the static library.
 #
 $(prog):		lib
-	@[ -d $(objdir) ] || mkdir $(objdir)
-	@$(_dcc) --append-compile-commands etc/main.cc -o $@ -L. -lici
+	$(silent) [ -d $(objdir) ] || mkdir $(objdir)
+	$(silent) $(_dcc) --append-compile-commands etc/main.cc -o $@ -L. -lici
 
 lib:
-	@[ -d $(objdir) ] || mkdir $(objdir)
-	@$(_dcc) --lib $(lib) $(_srcs)
+	$(silent) [ -d $(objdir) ] || mkdir $(objdir)
+	$(silent) $(_dcc) --lib $(lib) $(_srcs)
 
 else
 # Unknown $(buildtype)
 #
-$(error "buildtype=$(buildtype) is not a supported build type")
+$(error "'$(buildtype)' is not a supported build type")
 endif
 
 
 #
-# The ici.h file is built using the current interpreter executable to
-# run a program that reads the ICI header files to extract the public
-# parts. So ici.h depends on all these.
+# The ici.h file is created using the current interpreter executable
+# running a program that reads the ICI header files and extracts the
+# public definitions. So ici.h depends on the executable, program
+# and header files.
 #
 ici.h:		$(prog) mk-ici-h.ici $(_hdrs)
-	@ICIPATH=`pwd` LD_LIBRARY_PATH=`pwd` DYLD_LIBRARY_PATH=`pwd` ./$(prog) mk-ici-h.ici $(conf)
+	$(silent) ICIPATH=`pwd` LD_LIBRARY_PATH=`pwd` DYLD_LIBRARY_PATH=`pwd` ./$(prog) mk-ici-h.ici $(conf)
 
 
 #
-# The 'debug' target builds in debug mode by settng the ICI_DEBUG_BUILD environment
-# variable which dcc uses to select compilation options.
+# The 'debug' target builds in debug mode by settng the ICI_DEBUG_BUILD
+# environment variable used by the dcc configuration files to select
+# compilation options.
 #
 debug:
-	@$(_make) $(prog) ICI_DEBUG_BUILD=1 dccflags=$(dccflags) buildtype=$(buildtype)
+	$(silent) $(_make) $(prog) ICI_DEBUG_BUILD=1 dccflags=$(dccflags) buildtype=$(buildtype)
 
 
 #
@@ -293,11 +316,11 @@ debug:
 # 'core' test.
 #
 test:		$(prog)
-	@echo; echo '* CORE ----------------------------------------------------------------'; echo;\
+	$(silent) echo; echo '* CORE ----------------------------------------------------------------'; echo;\
 	ICIPATH=`pwd` LD_LIBRARY_PATH=`pwd` DYLD_LIBRARY_PATH=`pwd` ./$(prog) test-core.ici
-	-@echo; echo ' * TESTS ----------------------------------------------------------------'; echo;\
+	-$(silent) echo; echo ' * TESTS ----------------------------------------------------------------'; echo;\
 	ICIPATH=`pwd` LD_LIBRARY_PATH=`pwd` DYLD_LIBRARY_PATH=`pwd` $(_make) -C test ici=`pwd`/$(prog) test
-	-@echo;echo '* SERIALIZATION ----------------------------------------------------------------'; echo;\
+	-$(silent) echo;echo '* SERIALIZATION ----------------------------------------------------------------'; echo;\
 	ICIPATH=`pwd` LD_LIBRARY_PATH=`pwd` DYLD_LIBRARY_PATH=`pwd` $(_make) -C test/serialization ici=`pwd`/$(prog) test
 
 
@@ -319,16 +342,14 @@ ifeq ($(buildtype),exe)
 rmlib=
 endif
 
-clean:	; @case "$(MAKEFLAGS)" in \
-	*s*);; *) echo rm -rf $(objdir) $(prog) $(rmlib) ici.h;\
-	esac;\
-	rm -rf $(objdir) $(prog) $(rmlib) ici.h
-	@$(_make) -Ctest clean
-	@$(_make) -Ctest/serialization clean
+clean:	clean-modules
+	$(silent) rm -rf $(objdir) $(prog) $(rmlib) ici.h
+	$(silent) $(_make) -Ctest clean
+	$(silent) $(_make) -Ctest/serialization clean
 
-distclean:	clean
-	rm -f *.a *.so *.dylib
-	rm -rf $(cmakedir) $(xcodedir) build
+distclean: clean distclean-modules
+	$(silent) rm -f *.a *.so *.dylib
+	$(silent) rm -rf $(cmakedir) $(xcodedir) build
 
 
 
@@ -377,19 +398,19 @@ install-core-ici:
 # Install everything - static and dynamic libs, exe.
 #
 full-install:
-	@echo '1  - make clean'; $(_make) -s clean
-	@echo '2  - make (lib)'; $(_make) -s lib ici.h build=lib conf=$(conf) dccflags="$(dccflags) --quiet"
-	@echo '3  - make install (lib)'; $(_make) -s build=lib install-libici prefix=$(prefix) dccflags="$(dccflags) --quiet"
-	@echo '4  - make clean'; $(_make) -s clean
-	@echo '5  - make (dll)'; $(_make) -s build=dll conf=$(conf) dccflags="$(dccflags) --quiet"
-	@echo '6  - make install (dll)'; $(_make) -s build=dll install-libici install-ici-exe prefix=$(prefix) dccflags="$(dccflag) --quiet"
-	@echo '7  - make clean'; $(_make) -s clean
+	$(silent) echo '1  - make clean'; $(_make) -s clean
+	$(silent) echo '2  - make (lib)'; $(_make) -s lib ici.h builtype=lib conf=$(conf) dccflags="$(dccflags) --quiet"
+	$(silent) echo '3  - make install (lib)'; $(_make) -s builtype=lib install-libici prefix=$(prefix) dccflags="$(dccflags) --quiet"
+	$(silent) echo '4  - make clean'; $(_make) -s clean
+	$(silent) echo '5  - make (dll)'; $(_make) -s builtype=dll conf=$(conf) dccflags="$(dccflags) --quiet"
+	$(silent) echo '6  - make install (dll)'; $(_make) -s builtype=dll install-libici install-ici-exe prefix=$(prefix) dccflags="$(dccflag) --quiet"
+	$(silent) echo '7  - make clean'; $(_make) -s clean
 
 # And when the modules are more stable, re-enable the following...
 #
-#	@echo '8  - make modules'; $(_make) -s clean-modules; $(_make) -s modules
-#	@echo '9  - make install modules'; $(_make) -s install-modules
-#	@echo '10 - make clean modules'; $(_make) -s clean-modules
+#	$(silent) echo '8  - make modules'; $(_make) -s clean-modules; $(_make) -s modules
+#	$(silent) echo '9  - make install modules'; $(_make) -s install-modules
+#	$(silent) echo '10 - make clean modules'; $(_make) -s clean-modules
 #
 
 
@@ -399,17 +420,17 @@ full-install:
 #
 
 with-cmake:	configure-cmake
-	@cmake --build $(cmakedir)
+	$(silent) cmake --build $(cmakedir)
 
 configure-cmake:
 ifneq ($(cmakebuild),)
-	@cmake -B$(cmakedir) -H. -G'$(cmakegenerator)' -DCMAKE_BUILD_TYPE='$(cmakebuild)' -DCMAKE_INSTALL_PREFIX=$(prefix) $(cmakeargs)
+	$(silent) cmake -B$(cmakedir) -H. -G'$(cmakegenerator)' -DCMAKE_BUILD_TYPE='$(cmakebuild)' -DCMAKE_INSTALL_PREFIX=$(prefix) $(cmakeargs)
 else
-	@cmake -B$(cmakedir) -H. -G'$(cmakegenerator)' -DCMAKE_INSTALL_PREFIX=$(prefix) $(cmakeargs)
+	$(silent) cmake -B$(cmakedir) -H. -G'$(cmakegenerator)' -DCMAKE_INSTALL_PREFIX=$(prefix) $(cmakeargs)
 endif
 
 clean-cmake:
-	@[ -d $(cmakedir) ] && cmake --build $(cmakedir) --target clean
+	$(silent) [ -d $(cmakedir) ] && cmake --build $(cmakedir) --target clean
 
 
 ifeq ($(os),darwin)
@@ -423,13 +444,13 @@ ifeq ($(os),darwin)
 .PHONY:		with-xcode configure-xcode clean-xcode
 
 configure-xcode:
-	@$(MAKE) configure-cmake cmakedir=$(xcodedir) cmakegenerator=Xcode cmakebuild=
+	$(silent) $(MAKE) configure-cmake cmakedir=$(xcodedir) cmakegenerator=Xcode cmakebuild=
 
 with-xcode:
-	@$(MAKE) with-cmake cmakedir=$(xcodedir) cmakegenerator=Xcode cmakebuild=
+	$(silent) $(MAKE) with-cmake cmakedir=$(xcodedir) cmakegenerator=Xcode cmakebuild=
 
 clean-xcode:
-	@[ -d .build.xcode ] && cmake --build .build.xcode --target clean
+	$(silent) [ -d .build.xcode ] && cmake --build .build.xcode --target clean
 endif
 
 
@@ -441,14 +462,14 @@ endif
 ifeq ($(inplace),)
   ifeq ($(buildtype),dll)
 _modules_depends = $(prefix)/lib/$(dll)
-_make_modules = $(_make) -C modules -$(MAKEFLAGS) \
+_make_modules = $(_make) -C modules \
 	ICI_DOT_H_DIR=$(prefix)/include \
 	ICI_LIB_DIR=$(prefix)/lib \
 	ICI_MACOS_BUNDLE_HOST=$(prefix)/lib/$(dll) \
 	ICI_BUILD_TYPE_DLL=1
   else
 _modules_depends = $(prefix)/bin/$(prog)
-_make_modules = $(_make) -C modules -$(MAKEFLAGS) \
+_make_modules = $(_make) -C modules \
 	ICI_DOT_H_DIR=$(prefix)/include \
 	ICI_LIB_DIR=$(prefix)/lib \
 	ICI_MACOS_BUNDLE_HOST=$(prefix)/bin/$(prog)
@@ -456,14 +477,14 @@ _make_modules = $(_make) -C modules -$(MAKEFLAGS) \
 else
   ifeq ($(buildtype),dll)
   _modules_depends = $(dll)
-_make_modules = $(_make) -C modules -$(MAKEFLAGS) \
+_make_modules = $(_make) -C modules \
 	ICI_DOT_H_DIR=$(PWD) \
 	ICI_LIB_DIR=$(PWD) \
 	ICI_MACOS_BUNDLE_HOST=$(PWD)/$(dll) \
 	ICI_BUILD_TYPE_DLL=1
   else
 _modules_depends = $(prog)
-_make_modules = $(_make) -C modules -$(MAKEFLAGS) \
+_make_modules = $(_make) -C modules \
 	ICI_DOT_H_DIR=$(PWD) \
 	ICI_LIB_DIR=$(PWD) \
 	ICI_MACOS_BUNDLE_HOST=$(PWD)/$(prog)
@@ -471,16 +492,15 @@ _make_modules = $(_make) -C modules -$(MAKEFLAGS) \
 endif
 
 modules: $(_modules_depends)
-	@$(_make_modules)
+	$(silent) $(_make_modules)
 
-clean-modules:
-	@$(_make_modules) clean
+clean-modules modules-clean:
+	$(silent) $(_make_modules) clean
 
-distclean-modules:
-	@$(_make_modules) distclean
+distclean-modules modules-distclean:
+	$(silent) $(_make_modules) distclean
 
-install-modules:
-	@$(_make_modules) sudo=$(sudo) prefix=$(prefix) install
-
+install-modules modules-install:
+	$(silent) $(_make_modules) sudo=$(sudo) prefix=$(prefix) install
 
 # EOF

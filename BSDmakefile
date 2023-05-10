@@ -25,7 +25,11 @@ targets=all \
 	full-install \
 	modules \
 	clean-modules \
+	distclean-modules \
 	install-modules \
+	modules-clean \
+	modules-distclean \
+	modules-install \
 	with-cmake \
 	configure-cmake \
 	clean-cmake \
