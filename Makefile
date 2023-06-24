@@ -106,7 +106,7 @@
 #
 # ** Build Types
 #
-# The 'buildtype' macro controls how ICI is built. It can be one of,
+# The 'build' macro controls how ICI is built. It can be one of,
 #
 #	dll			Builds ICI as a dynamic library and uses
 #				it to create the ici executable. Installs
@@ -169,7 +169,7 @@
 #
 # All the above combine allowing for commands such as,
 #
-#	$ make sudo=sudo prefix=/opt/ici buildtype=dll install
+#	$ make sudo=sudo prefix=/opt/ici build=dll install
 #
 
 
@@ -184,9 +184,9 @@ else
 dll=			libici.so
 endif
 
-buildtype?=		dll
-#buildtype?=		lib
-#buildtype?=		exe
+build?=			dll
+#build?=		lib
+#build?=		exe
 
 prefix?= 		/usr/local
 sudo?=
@@ -221,7 +221,12 @@ endif
 _srcs=			$(shell ls *.cc | fgrep -v win32)
 _hdrs=			$(shell ls *.h | fgrep -v ici.h)
 _dcc=			PREFIX=$(prefix) dcc $(dccflags) --objdir $(objdir)
+
+ifeq ($(silent),)
 _make=			$(MAKE) --no-print-directory
+else
+_make=			$(MAKE) --no-print-directory -s
+endif
 
 # ###############################################################
 #
@@ -242,10 +247,13 @@ _make=			$(MAKE) --no-print-directory
 # the modules.
 #
 
-all:			$(prog) ici.h modules
+all:			$(prog) ici.h
 
+ifneq ($(build),exe)
+all:			 modules
+endif
 
-ifeq ($(buildtype),dll)
+ifeq ($(build),dll)
 #
 # The ici target builds an executable linked against the ICI dynamic library.
 #
@@ -260,7 +268,7 @@ lib:
 	$(silent) $(_dcc) --dll $(dll) -fPIC $(_srcs)
 
 
-else ifeq ($(buildtype),exe)
+else ifeq ($(build),exe)
 #
 # The ici target builds an executable not linked against a library.
 #
@@ -271,7 +279,7 @@ $(prog):
 	$(silent) $(_dcc) etc/main.cc $(_srcs) -o $@
 
 
-else ifeq ($(buildtype),lib)
+else ifeq ($(build),lib)
 #
 # The ici target builds an executable linked against the ICI static library.
 #
@@ -286,9 +294,9 @@ lib:
 	$(silent) $(_dcc) --lib $(lib) $(_srcs)
 
 else
-# Unknown $(buildtype)
+# Unknown $(build)
 #
-$(error "'$(buildtype)' is not a supported build type")
+$(error "'$(build)' is not a supported build type")
 endif
 
 
@@ -308,7 +316,7 @@ ici.h:		$(prog) mk-ici-h.ici $(_hdrs)
 # compilation options.
 #
 debug:
-	$(silent) $(_make) $(prog) ICI_DEBUG_BUILD=1 dccflags=$(dccflags) buildtype=$(buildtype)
+	$(silent) $(_make) $(prog) ICI_DEBUG_BUILD=1 dccflags=$(dccflags) build=$(build)
 
 
 #
@@ -332,13 +340,13 @@ test:		$(prog)
 
 # The library file we rm depends on the build type...
 #
-ifeq ($(buildtype),dll)
+ifeq ($(build),dll)
 rmlib=$(dll)
 endif
-ifeq ($(buildtype),lib)
+ifeq ($(build),lib)
 rmlib=$(lib)
 endif
-ifeq ($(buildtype),exe)
+ifeq ($(build),exe)
 rmlib=
 endif
 
@@ -347,9 +355,9 @@ clean:	clean-modules
 	$(silent) $(_make) -Ctest clean
 	$(silent) $(_make) -Ctest/serialization clean
 
-distclean: clean distclean-modules
+distclean: distclean-modules
 	$(silent) rm -f *.a *.so *.dylib
-	$(silent) rm -rf $(cmakedir) $(xcodedir) build
+	$(silent) rm -rf $(cmakedir) $(xcodedir) build .objs
 
 
 
@@ -358,18 +366,18 @@ distclean: clean distclean-modules
 # Installing
 #
 
-ifeq ($(buildtype),exe)
+ifeq ($(build),exe)
 install:	install-ici-exe
 else
 install:	install-ici-exe install-libici
 endif
 
 install-libici: install-ici-dot-h
-ifeq ($(buildtype),lib)
+ifeq ($(build),lib)
 	$(sudo) mkdir -p $(prefix)/lib
 	$(sudo) install -c -m 444 $(lib) $(prefix)/lib
 	$(_make) sudo=$(sudo) install-core-ici
-else ifeq ($(buildtype),dll)
+else ifeq ($(build),dll)
 	$(sudo) mkdir -p $(prefix)/lib
 	$(sudo) install -c -m 444 $(dll) $(prefix)/lib
 	$(_make) sudo=$(sudo) install-core-ici
@@ -383,7 +391,7 @@ install-ici-dot-h: ici.h
 install-ici-exe:
 	$(sudo) mkdir -p $(prefix)/bin
 	$(sudo) install -c -m 555 $(prog) $(prefix)/bin
-ifeq ($(buildtype),exe)
+ifeq ($(build),exe)
 	$(_make) sudo=$(sudo) install-ici-dot-h
 	$(_make) sudo=$(sudo) install-core-ici
 endif
@@ -398,19 +406,19 @@ install-core-ici:
 # Install everything - static and dynamic libs, exe.
 #
 full-install:
-	$(silent) echo '1  - make clean'; $(_make) -s clean
-	$(silent) echo '2  - make (lib)'; $(_make) -s lib ici.h builtype=lib conf=$(conf) dccflags="$(dccflags) --quiet"
-	$(silent) echo '3  - make install (lib)'; $(_make) -s builtype=lib install-libici prefix=$(prefix) dccflags="$(dccflags) --quiet"
-	$(silent) echo '4  - make clean'; $(_make) -s clean
-	$(silent) echo '5  - make (dll)'; $(_make) -s builtype=dll conf=$(conf) dccflags="$(dccflags) --quiet"
-	$(silent) echo '6  - make install (dll)'; $(_make) -s builtype=dll install-libici install-ici-exe prefix=$(prefix) dccflags="$(dccflag) --quiet"
-	$(silent) echo '7  - make clean'; $(_make) -s clean
+	$(silent) echo '1  - make clean';	  $(_make) clean
+	$(silent) echo '2  - make (lib)';	  $(_make) lib ici.h build=lib conf=$(conf) dccflags="$(dccflags) --quiet"
+	$(silent) echo '3  - make install (lib)'; $(_make) build=lib install-libici prefix=$(prefix) dccflags="$(dccflags) --quiet"
+	$(silent) echo '4  - make clean';	  $(_make) clean
+	$(silent) echo '5  - make (dll)';	  $(_make) lib ici.h build=dll conf=$(conf) dccflags="$(dccflags) --quiet"
+	$(silent) echo '6  - make install (dll)'; $(_make) build=dll install-libici install-ici-exe prefix=$(prefix) dccflags="$(dccflag) --quiet"
+	$(silent) echo '7  - make clean';	  $(_make) clean
 
 # And when the modules are more stable, re-enable the following...
 #
-#	$(silent) echo '8  - make modules'; $(_make) -s clean-modules; $(_make) -s modules
-#	$(silent) echo '9  - make install modules'; $(_make) -s install-modules
-#	$(silent) echo '10 - make clean modules'; $(_make) -s clean-modules
+#	$(silent) echo '8  - make modules'; $(_make) clean-modules; $(_make) modules
+#	$(silent) echo '9  - make install modules'; $(_make) install-modules
+#	$(silent) echo '10 - make clean modules'; $(_make) clean-modules
 #
 
 
@@ -460,34 +468,38 @@ endif
 #
 
 ifeq ($(inplace),)
-  ifeq ($(buildtype),dll)
+  ifeq ($(build),dll)
 _modules_depends = $(prefix)/lib/$(dll)
 _make_modules = $(_make) -C modules \
 	ICI_DOT_H_DIR=$(prefix)/include \
 	ICI_LIB_DIR=$(prefix)/lib \
 	ICI_MACOS_BUNDLE_HOST=$(prefix)/lib/$(dll) \
-	ICI_BUILD_TYPE_DLL=1
+	ICI_BUILD_TYPE_DLL=1 \
+	silent=$(slient)
   else
 _modules_depends = $(prefix)/bin/$(prog)
 _make_modules = $(_make) -C modules \
 	ICI_DOT_H_DIR=$(prefix)/include \
 	ICI_LIB_DIR=$(prefix)/lib \
-	ICI_MACOS_BUNDLE_HOST=$(prefix)/bin/$(prog)
+	ICI_MACOS_BUNDLE_HOST=$(prefix)/bin/$(prog) \
+	silent=$(slient)
   endif
 else
-  ifeq ($(buildtype),dll)
+  ifeq ($(build),dll)
   _modules_depends = $(dll)
 _make_modules = $(_make) -C modules \
 	ICI_DOT_H_DIR=$(PWD) \
 	ICI_LIB_DIR=$(PWD) \
 	ICI_MACOS_BUNDLE_HOST=$(PWD)/$(dll) \
-	ICI_BUILD_TYPE_DLL=1
+	ICI_BUILD_TYPE_DLL=1 \
+	silent=$(slient)
   else
 _modules_depends = $(prog)
 _make_modules = $(_make) -C modules \
 	ICI_DOT_H_DIR=$(PWD) \
 	ICI_LIB_DIR=$(PWD) \
-	ICI_MACOS_BUNDLE_HOST=$(PWD)/$(prog)
+	ICI_MACOS_BUNDLE_HOST=$(PWD)/$(prog) \
+	silent=$(slient)
   endif
 endif
 

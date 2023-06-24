@@ -1,14 +1,15 @@
 # This file is read by BSD make in preference to the Makefile and is used on
 # systems who's make(1) is not GNU make.
 #
-# The default values for buildtype and prefix should be kept in sync
+# The default values for build and prefix should be kept in sync
 # with those defined in Makefile.
 #
 
 gmake?=gmake
-buildtype?=dll
+build?=dll
 prefix?=/usr/local
 sudo?=
+silent?=@
 
 targets=all \
 	ici \
@@ -35,4 +36,4 @@ targets=all \
 	clean-cmake \
 
 
-$(targets) !; @$(gmake) --no-print-directory $@ buildtype=$(buildtype) prefix=$(prefix) sudo=$(sudo)
+$(targets) !; $(silent) $(gmake) --no-print-directory $@ build=$(build) prefix=$(prefix) sudo=$(sudo) silent=$(silent)

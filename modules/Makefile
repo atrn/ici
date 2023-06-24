@@ -19,6 +19,12 @@ ALL_MODULES=\
 
 silent?=	@
 
+ifeq ($(silent),)
+dash_s=
+else
+dash_s=-s
+endif
+
 # If IPPROOT is defined (via the environment) assume it
 # points to Intel's IPP and we can build the IPP module.
 
@@ -39,7 +45,7 @@ _make=	$(MAKE) --no-print-directory
 build clean distclean install:
 	$(silent) for _d in $(ALL_MODULES);\
 	do (\
-	    $(_make) -C "$$_d" \
+	    $(_make) $(dash_s) -C "$$_d" \
 		sudo=$(sudo) \
 		prefix=$(prefix) \
 		ICI_DOT_H_DIR=$(ICI_DOT_H_DIR) \
