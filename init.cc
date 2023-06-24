@@ -2,7 +2,6 @@
 #include "archiver.h"
 #include "buf.h"
 #include "exec.h"
-#include "func.h"
 #include "fwd.h"
 #include "map.h"
 #include "pcre.h"

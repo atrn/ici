@@ -1,12 +1,10 @@
 #define ICI_CORE
 #include "buf.h"
 #include "exec.h"
+#include "array.h"
 #include "file.h"
-#include "func.h"
 #include "fwd.h"
-#include "map.h"
 #include "null.h"
-#include "ptr.h"
 #include "str.h"
 #ifndef NOPROFILE
 #include "profile.h"

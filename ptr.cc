@@ -1,11 +1,8 @@
 #define ICI_CORE
 #include "ptr.h"
 #include "archiver.h"
-#include "buf.h"
 #include "cfunc.h"
-#include "exec.h"
 #include "int.h"
-#include "map.h"
 #include "op.h"
 #include "primes.h"
 

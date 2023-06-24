@@ -1,6 +1,5 @@
 #define ICI_CORE
 #include "object.h"
-#include "array.h"
 #include "float.h"
 #include "int.h"
 #include "primes.h"

@@ -1,7 +1,6 @@
 #define ICI_CORE
 #include "src.h"
 #include "archiver.h"
-#include "exec.h"
 #include "str.h"
 
 namespace ici

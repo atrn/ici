@@ -1,17 +1,12 @@
 #define ICI_CORE
 #include "map.h"
+#include "array.h"
 #include "archiver.h"
-#include "buf.h"
-#include "exec.h"
 #include "forall.h"
-#include "func.h"
 #include "fwd.h"
-#include "int.h"
 #include "null.h"
 #include "op.h"
-#include "pc.h"
 #include "primes.h"
-#include "ptr.h"
 #include "str.h"
 
 namespace ici

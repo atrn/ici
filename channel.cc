@@ -4,7 +4,6 @@
 #include "cfunc.h"
 #include "forall.h"
 #include "fwd.h"
-#include "int.h"
 #include "null.h"
 #include "str.h"
 

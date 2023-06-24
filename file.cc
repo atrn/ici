@@ -1,7 +1,6 @@
 #define ICI_CORE
 #include "file.h"
 #include "archiver.h"
-#include "buf.h"
 #include "fwd.h"
 #include "int.h"
 #include "null.h"

@@ -1,11 +1,5 @@
 #define ICI_CORE
-#include "buf.h"
-#include "catcher.h"
 #include "exec.h"
-#include "forall.h"
-#include "int.h"
-#include "map.h"
-#include "null.h"
 #include "op.h"
 #include "pc.h"
 

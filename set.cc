@@ -1,13 +1,11 @@
 #define ICI_CORE
 #include "set.h"
 #include "archiver.h"
-#include "buf.h"
 #include "exec.h"
 #include "forall.h"
 #include "int.h"
 #include "null.h"
 #include "object.h"
-#include "op.h"
 #include "primes.h"
 
 namespace ici

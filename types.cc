@@ -1,7 +1,6 @@
 #define ICI_CORE
 #include "types.h"
 #include "array.h"
-#include "buf.h"
 #include "catcher.h"
 #include "cfunc.h"
 #include "channel.h"

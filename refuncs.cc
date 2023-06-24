@@ -1,14 +1,7 @@
 #define ICI_CORE
 #include "array.h"
-#include "buf.h"
 #include "cfunc.h"
-#include "exec.h"
-#include "float.h"
-#include "func.h"
 #include "int.h"
-#include "map.h"
-#include "null.h"
-#include "op.h"
 #include "re.h"
 #include "str.h"
 

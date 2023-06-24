@@ -15,7 +15,6 @@
 #include "file.h"
 #include "float.h"
 #include "ftype.h"
-#include "func.h"
 #include "handle.h"
 #include "int.h"
 #include "map.h"

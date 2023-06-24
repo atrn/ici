@@ -1,7 +1,6 @@
 #define ICI_CORE
 #include "handle.h"
 #include "array.h"
-#include "buf.h"
 #include "cfunc.h"
 #include "fwd.h"
 #include "int.h"
@@ -9,7 +8,6 @@
 #include "null.h"
 #include "object.h"
 #include "str.h"
-#include "string.h"
 
 namespace ici
 {

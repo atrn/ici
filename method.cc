@@ -1,7 +1,5 @@
 #define ICI_CORE
 #include "method.h"
-#include "buf.h"
-#include "exec.h"
 #include "fwd.h"
 #include "null.h"
 #include "primes.h"

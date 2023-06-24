@@ -1,10 +1,8 @@
 #define ICI_CORE
 #include "archiver.h"
-#include "buf.h"
 #include "exec.h"
 #include "fwd.h"
 #include "re.h"
-#include "str.h"
 #include "wrap.h"
 
 namespace ici

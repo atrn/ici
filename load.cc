@@ -1,9 +1,7 @@
 #define ICI_CORE
 #include "buf.h"
 #include "cfunc.h"
-#include "exec.h"
 #include "file.h"
-#include "func.h"
 #include "map.h"
 #include "str.h"
 

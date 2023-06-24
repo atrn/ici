@@ -6,7 +6,6 @@
 #include "op.h"
 #include "parse.h"
 #include "str.h"
-#include "userop.h"
 
 namespace ici
 {

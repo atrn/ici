@@ -1,16 +1,19 @@
 #define ICI_CORE
+#include "parse.h"
+#include "primes.h"
+
+#ifdef BINOP_FUNC
 #include "buf.h"
 #include "exec.h"
 #include "float.h"
 #include "int.h"
 #include "map.h"
 #include "op.h"
-#include "parse.h"
-#include "primes.h"
 #include "ptr.h"
 #include "re.h"
 #include "set.h"
 #include "str.h"
+#endif
 
 namespace ici
 {

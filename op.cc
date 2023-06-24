@@ -1,7 +1,6 @@
 #define ICI_CORE
 #include "op.h"
 #include "archiver.h"
-#include "exec.h"
 #include "fwd.h"
 #include "primes.h"
 

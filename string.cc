@@ -1,7 +1,6 @@
 #define ICI_CORE
 
 #include "archiver.h"
-#include "exec.h"
 #include "forall.h"
 #include "fwd.h"
 #include "int.h"

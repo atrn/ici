@@ -29,7 +29,6 @@
 #include "fwd.h"
 
 #include "cfunc.h"
-#include "exec.h"
 #include "func.h"
 #include "int.h"
 #include "method.h"

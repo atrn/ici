@@ -1,9 +1,6 @@
 #define ICI_CORE
-#include "buf.h"
-#include "catcher.h"
-#include "exec.h"
+#include "array.h"
 #include "float.h"
-#include "func.h"
 #include "int.h"
 #include "null.h"
 #include "op.h"

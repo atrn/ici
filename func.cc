@@ -1,6 +1,5 @@
 #define ICI_CORE
 #include "func.h"
-#include "buf.h"
 #include "catcher.h"
 #include "cfunc.h"
 #include "debugger.h"
@@ -10,9 +9,7 @@
 #include "mark.h"
 #include "null.h"
 #include "op.h"
-#include "pc.h"
 #include "primes.h"
-#include "ptr.h"
 #include "src.h"
 #include "str.h"
 #ifndef NOPROFILE

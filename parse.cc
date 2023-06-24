@@ -10,7 +10,6 @@
 #include "mark.h"
 #include "null.h"
 #include "op.h"
-#include "pc.h"
 #include "re.h"
 #include "repl.h"
 #include "set.h"

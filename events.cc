@@ -3,7 +3,6 @@
 
 #ifndef NOEVENTS
 #include "cfunc.h"
-#include "exec.h"
 #include "str.h"
 
 #ifdef _WIN32

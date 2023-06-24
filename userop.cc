@@ -3,7 +3,6 @@
 #include "cfunc.h"
 #include "func.h"
 #include "fwd.h"
-#include "int.h"
 #include "map.h"
 #include "null.h"
 #include "str.h"

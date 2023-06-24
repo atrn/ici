@@ -1,10 +1,7 @@
 #define ICI_CORE
-#include "buf.h"
-#include "exec.h"
 #include "file.h"
 #include "float.h"
 #include "int.h"
-#include "map.h"
 #include "str.h"
 
 namespace ici
