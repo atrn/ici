@@ -48,10 +48,7 @@ static char copyright[]="@(#)KerN.c: copyright Digital Equipment Corporation & I
 	/******* non arithmetic access to digits ********/
 
 
-void BnnSetToZero (nn, nl) 
-
-register BigNum 	nn; 
-register int 		nl;
+void (BnnSetToZero)(BigNum nn, int nl) 
 
 /*
  * Sets all the specified digits of the BigNum to 0
@@ -69,10 +66,7 @@ register int 		nl;
 		/***************************************/
 
 
-void BnnAssign (mm, nn, nl) 
-
-register BigNum	mm, nn;
-register int 	nl;
+void (BnnAssign)(BigNum mm, BigNum nn, int nl) 
 
 /* 
  * Copies N => M
@@ -101,10 +95,7 @@ register int 	nl;
 /**/
 
 
-void BnnSetDigit (nn, d) 
-
-BigNum 	nn; 
-int 	d;
+void (BnnSetDigit)(BigNum nn, int d) 
 
 /*
  * Sets a single digit of N to the passed value
@@ -117,9 +108,7 @@ int 	d;
 		/***************************************/
 
 
-BigNumDigit BnnGetDigit (nn)
-
-BigNum 	nn;
+BigNumDigit (BnnGetDigit)(BigNum nn)
 
 /* 
  * Returns the single digit pointed by N
@@ -133,10 +122,7 @@ BigNum 	nn;
 /**/
 
 
-BigNumLength BnnNumDigits (nn, nl) 
-
-register BigNum nn;
-register int 	nl;
+BigNumLength (BnnNumDigits)(BigNum nn, int nl) 
 
 /* 
  * Returns the number of digits of N, not counting leading zeros
@@ -154,9 +140,7 @@ register int 	nl;
 		/***************************************/
 
 
-BigNumDigit BnnNumLeadingZeroBitsInDigit (d) 
-
-BigNumDigit d;
+BigNumDigit (BnnNumLeadingZeroBitsInDigit) (BigNumDigit d) 
 
 /*
  * Returns the number of leading zero bits in a digit 
@@ -185,9 +169,7 @@ BigNumDigit d;
 	/************** Predicates on one digit ***************/
 
 
-Boolean BnnDoesDigitFitInWord (d)
-
-BigNumDigit d;
+Boolean (BnnDoesDigitFitInWord)(BigNumDigit d)
 
 /*
  * Returns TRUE iff the digit can be represented in just BN_WORD_SIZE bits
@@ -203,9 +185,7 @@ BigNumDigit d;
 		/***************************************/
 
 
-Boolean BnnIsDigitZero (d)
-
-BigNumDigit d;
+Boolean (BnnIsDigitZero) (BigNumDigit d)
 
 /* Returns TRUE iff digit = 0 */
 
@@ -216,9 +196,7 @@ BigNumDigit d;
 		/***************************************/
 
 
-Boolean BnnIsDigitNormalized (d)
-
-BigNumDigit d;
+Boolean (BnnIsDigitNormalized) (BigNumDigit d)
 
 /*
  * Returns TRUE iff Base/2 <= digit < Base
@@ -232,9 +210,7 @@ BigNumDigit d;
 		/***************************************/
 
 
-Boolean BnnIsDigitOdd (d) 
-
-BigNumDigit d;
+Boolean (BnnIsDigitOdd)(BigNumDigit d)
 
 /*
  * Returns TRUE iff digit is odd 
@@ -247,9 +223,7 @@ BigNumDigit d;
 		/***************************************/
 
 
-BigNumCmp BnnCompareDigits (d1, d2)
-
-BigNumDigit d1, d2;
+BigNumCmp (BnnCompareDigits)(BigNumDigit d1, BigNumDigit d2)
 
 /*
  * Returns 	BN_GREATER 	if digit1 > digit2
@@ -264,10 +238,7 @@ BigNumDigit d1, d2;
 	/***************** Logical operations ********************/
 
 
-void BnnComplement (nn, nl) 
-
-register BigNum nn;
-register int 	nl;
+void (BnnComplement) (BigNum nn, int nl)
 
 /*
  * Performs the computation BBase(N) - N - 1 => N
@@ -282,10 +253,7 @@ register int 	nl;
 /**/
 
 
-void BnnAndDigits (n, d)
-
-BigNum		n;
-BigNumDigit 	d;
+void (BnnAndDigits) (BigNum n, BigNumDigit d)
 
 /* 
  * Returns the logical computation n[0] AND d in n[0]
@@ -298,10 +266,7 @@ BigNumDigit 	d;
 		/***************************************/
 
 
-void BnnOrDigits (n, d)
-
-BigNum		n;
-BigNumDigit 	d;
+void (BnnOrDigits) (BigNum n, BigNumDigit d)
 
 /*
  * Returns the logical computation n[0] OR d2 in n[0].
@@ -314,10 +279,7 @@ BigNumDigit 	d;
 		/***************************************/
 
 
-void BnnXorDigits (n, d)
-
-BigNum		n;
-BigNumDigit 	d;
+void (BnnXorDigits) (BigNum n, BigNumDigit d)
 
 /*
  * Returns the logical computation n[0] XOR d in n[0].
@@ -333,11 +295,7 @@ BigNumDigit 	d;
 	/****************** Shift operations *******************/
 
 
-BigNumDigit BnnShiftLeft (mm, ml, nbits)
-
-register BigNum mm;
-register int 	ml;
-	 int	nbits;
+BigNumDigit (BnnShiftLeft) (BigNum mm, int ml, int nbits)
 
 /* 
  * Shifts M left by "nbits", filling with 0s.  
@@ -369,11 +327,7 @@ register int 	ml;
 /**/
 
 
-BigNumDigit BnnShiftRight (mm, ml, nbits)
-
-register BigNum mm;
-register int 	ml;
-	 int	nbits;
+BigNumDigit (BnnShiftRight) (BigNum mm, int ml, int nbits)
 
 /*
  * Shifts M right by "nbits", filling with 0s.  
@@ -409,11 +363,7 @@ register int 	ml;
 	/******************* Additions **************************/
 
 
-BigNumCarry BnnAddCarry (nn, nl, carryin)
-
-register BigNum 	nn;
-register int 		nl;
-	 BigNumCarry 	carryin;
+BigNumCarry (BnnAddCarry) (BigNum nn, int nl,  BigNumCarry carryin)
 
 /*
  * Performs the sum N + CarryIn => N.  
@@ -437,12 +387,7 @@ register int 		nl;
 /**/
 
 
-BigNumCarry BnnAdd (mm, ml, nn, nl, carryin)
-
-register BigNum 	mm, nn;
-	 int 		ml;
-register int 		nl;
-	 BigNumCarry 	carryin; 
+BigNumCarry (BnnAdd) (BigNum mm, int ml, BigNum nn, int nl, BigNumCarry carryin)
 
 /* 
  * Performs the sum M + N + CarryIn => M.
@@ -498,11 +443,7 @@ register int 		nl;
 
 
 
-BigNumCarry BnnSubtractBorrow (nn, nl, carryin)
-
-register BigNum 	nn;
-register int 		nl;
-	 BigNumCarry 	carryin;
+BigNumCarry (BnnSubtractBorrow) (BigNum nn, int nl, BigNumCarry carryin)
 
 /*
  * Performs the difference N + CarryIn - 1 => N.
@@ -529,12 +470,7 @@ register int 		nl;
 /**/
 
 
-BigNumCarry BnnSubtract (mm, ml, nn, nl, carryin)
-
-register BigNum 	mm, nn;
-	 int 		ml;
-register int 		nl;
-	 BigNumCarry 	carryin;
+BigNumCarry (BnnSubtract) (BigNum mm, int ml, BigNum nn, int nl, BigNumCarry carryin)
 
 /* 
  * Performs the difference M - N + CarryIn - 1 => M.
@@ -592,11 +528,7 @@ register int 		nl;
 	/***************** Multiplication ************************/
 
 
-BigNumCarry BnnMultiplyDigit (pp, pl, mm, ml, d)
-
-register BigNum 	pp, mm;
-         int 		pl, ml; 
-	 BigNumDigit	d;
+BigNumCarry (BnnMultiplyDigit) (BigNum pp, int pl, BigNum mm, int ml, BigNumDigit d)
 
 /*
  * Performs the product:
@@ -691,11 +623,7 @@ register BigNum 	pp, mm;
 }
 
 #ifdef mips
-BigNumCarry BnnMultiply2Digit (pp, pl, mm, ml, d0, d1)
-
-register BigNum 	pp, mm;
-register int 		pl, ml; 
-	 BigNumDigit 	d0, d1;
+BigNumCarry (BnnMultiply2Digit) (BigNum pp, int pl, BigNum mm, int ml, BigNumDigit d0, BigNumDigit d1)
 
 /*
  * Provided for compatibility with mips assembler implementation.
@@ -730,11 +658,7 @@ register int 		pl, ml;
 #define L2H(x) 			(x << (BN_DIGIT_SIZE / 2)) 
 
 
-BigNumDigit BnnDivideDigit (qq, nn, nl, d)
-
-register BigNum 	qq, nn;
-register int 		nl;
-	 BigNumDigit 	d;
+BigNumDigit (BnnDivideDigit) (BigNum qq, BigNum nn, int nl, BigNumDigit d)
 
 /* Performs the quotient: N div d => Q
  * Returns R = N mod d

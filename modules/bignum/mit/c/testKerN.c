@@ -42,13 +42,13 @@ static BigNum 		NumbProto, Ntmp2, NtmpBig;
 /* Nombre de test. */
 int TestCount;
 
-void ResetTest(n) int n; {
+void ResetTest(int n) {
 	/* Remet le nieme nombre a` la valeur prototype. */
 	BnAssign(RN(n), 0, NumbProto, 0, TESTLENGTH);
 	BnAssign(SN(n), 0, NumbProto, 0, TESTLENGTH);
 }
 
-int CheckSubRange(x, nd, nl) int x, nd, nl; {
+int CheckSubRange(int x, int nd, int nl) {
 	/* Verifie l'e'galite' des sous-nombres
            (RN(x), nd, nl) et (SN(x), nd, nl) */
 	while(nl) {
@@ -59,7 +59,7 @@ int CheckSubRange(x, nd, nl) int x, nd, nl; {
 	return(FALSE);
 }
 
-int Check(n) int n; {
+int Check(int n) {
 	int i;
 	/* Verifie que les n nombres calcules correspondent aux simule's. */
 	for(i = 0; i < n; i++)
@@ -67,12 +67,12 @@ int Check(n) int n; {
 	return(FALSE);
 }
 
-void ErrorPrint(e) struct testenv *e; {
+void ErrorPrint(struct testenv *e) {
 	printf("*** Error in compute : %s\n", e->hist);
 	printf("  Depends on %s\n", e->depend);
 }
 
-int ShowDiff0(e, r1, r2) struct testenv *e; int r1,r2; {
+int ShowDiff0(struct testenv *e, int r1, int r2) {
 	ErrorPrint(e);
 	if(r1 != r2)
 		printf("---- Result is %d and should be %d----\n", r1, r2);
@@ -80,7 +80,7 @@ int ShowDiff0(e, r1, r2) struct testenv *e; int r1,r2; {
 }
 
 char *msg = "---- Modification Out of Range of number ";
-void ShowOutRange(x, n, nd, nl) char *n; int x, nd, nl; {
+void ShowOutRange(int x, char *n, int nd, int nl) {
 	int i = 0, bol = 0;
 
 	while((i = CheckSubRange(x, i, TESTLENGTH - i))) {
@@ -94,7 +94,7 @@ void ShowOutRange(x, n, nd, nl) char *n; int x, nd, nl; {
 	if(bol) printf(").\n");
 }		
 
-void RangeNumberPrint(s, n, nd, nl) char *s; BigNum n; int nd, nl; {
+void RangeNumberPrint(char *s, BigNum n, int nd, int nl) {
 	int first = 1;
 
 	/* Ne marche que si BnGetDigit est garanti!!! */
@@ -109,7 +109,7 @@ void RangeNumberPrint(s, n, nd, nl) char *s; BigNum n; int nd, nl; {
 	printf("}\n");
 }
 
-void ShowSubNumber(x, n, nd, nl) char *n; int x, nd, nl; {
+void ShowSubNumber(int x, char *n, int nd, int nl) {
 	printf("[%s, %d, %d] =	", n, nd, nl);
 	RangeNumberPrint("", RN(x), nd, nl);
 	if(CheckSubRange(x, nd, nl)) {
@@ -117,8 +117,7 @@ void ShowSubNumber(x, n, nd, nl) char *n; int x, nd, nl; {
 		RangeNumberPrint(" Simulated:	", SN(x), nd, nl);
 }	}
 
-int ShowDiff1(e, r1, r2, n, nd, nl)
-		struct testenv *e; char *n; int r1, r2, nd, nl; {
+int ShowDiff1(struct testenv *e, int r1, int r2, char *n, int nd, int nl) {
 	ErrorPrint(e);
 	if(r1 != r2)
 		printf("---- Result is %d and should be %d----\n", r1, r2);
@@ -127,8 +126,7 @@ int ShowDiff1(e, r1, r2, n, nd, nl)
 	return(e->flag);
 }
 
-int ShowDiff2(e, r1, r2, n, nd, nl, m, md, ml)
-		struct testenv *e; char *n, *m; int r1, r2, nd, nl, md, ml; {
+int ShowDiff2(struct testenv *e, int r1, int r2, char *n, int nd, int nl, char *m, int md, int ml) {
 	ErrorPrint(e);
 	if(r1 != r2)
 		printf("---- Result is %d and should be %d----\n", r1, r2);
@@ -139,9 +137,7 @@ int ShowDiff2(e, r1, r2, n, nd, nl, m, md, ml)
 	return(e->flag);
 }
 
-int ShowDiff3(e, r1, r2, n, nd, nl, m, md, ml, o, od, ol)
-		struct testenv *e; char *n, *m, *o;
-		int r1, r2, nd, nl, md, ml, od, ol; {
+int ShowDiff3(struct testenv *e, int r1, int r2, char *n, int nd, int nl, char *m, int md, int ml, char *o, int od, int ol) {
 	ErrorPrint(e);
 	if(r1 != r2)
 		printf("---- Result is %d and should be %d----\n", r1, r2);
@@ -154,9 +150,7 @@ int ShowDiff3(e, r1, r2, n, nd, nl, m, md, ml, o, od, ol)
 	return(e->flag);
 }
 
-int ShowDiff4(e, r1, r2, n, nd, nl, m, md, ml, o, od, ol, p, pd, pl)
-		struct testenv *e; char *n, *m, *o, *p;
-		int r1, r2, nd, nl, md, ml, od, ol, pd, pl; {
+int ShowDiff4(struct testenv *e, int r1, int r2, char *n, int nd, int nl, char *m, int md, int ml, char *o, int od, int ol, char *p, int pd, int pl) {
 	ErrorPrint(e);
 	if(r1 != r2)
 		printf("---- Result is %d and should be %d----\n", r1, r2);
@@ -178,7 +172,7 @@ int ShowDiff4(e, r1, r2, n, nd, nl, m, md, ml, o, od, ol, p, pd, pl)
 int genlengthvec[] = {9, 8, 1, 0, 2000, 32000,};
 BigNumType gentypevec[] = {0, 1, 2, 3, 4, 5,};
 
-int Generique(e) struct testenv *e; {
+int Generique(struct testenv *e) {
 	int i;
 	int length, length2;
 	BigNumType type, type2;
@@ -222,13 +216,13 @@ int Generique(e) struct testenv *e; {
 /*
  *	BnSetToZero
  */
-void ___BnSetToZero___(n, nd, nl) register BigNum n; register int nd, nl; {
+void ___BnSetToZero___(BigNum n, int nd, int nl) {
 	register int i;
 	for(i=0; i<nl; i++)
 		BnSetDigit(n, nd + i, 0);
 }
 
-int TestBnSetToZero(e) struct testenv *e; {
+int TestBnSetToZero(struct testenv *e) {
 	int nd, nl;
 
 	e->depend = "()";
@@ -248,14 +242,14 @@ int TestBnSetToZero(e) struct testenv *e; {
 /*
  *	BnAssign
  */
-void ___BnAssign___(m, md, n, nd, nl) BigNum m, n; int md, nd, nl; {
+void ___BnAssign___(BigNum m, int md, BigNum n, int nd, int nl) {
 	BnSetToZero(NtmpBig, 0, nl);
 	BnAdd(NtmpBig, 0, nl, n, nd, nl, 0);
 	BnSetToZero(m, md, nl);
 	BnAdd(m, md, nl, NtmpBig, 0, nl, 0);
 }
 
-int TestBnAssign(e) struct testenv *e; {
+int TestBnAssign(struct testenv *e) {
 	int md, nd, nl;
 
 	e->depend = "(BnSetToZero, BnAdd)";
@@ -278,7 +272,7 @@ int TestBnAssign(e) struct testenv *e; {
 /*
  *	BnNumDigits
  */
-int ___BnNumDigits___(n, nd, nl) register BigNum n; register int nd, nl; {
+int ___BnNumDigits___(BigNum n, int nd, int nl) {
 
 	while(nl != 0) {
 		nl--;
@@ -287,7 +281,7 @@ int ___BnNumDigits___(n, nd, nl) register BigNum n; register int nd, nl; {
 	return(nl + 1);
 }
 
-int TestBnNumDigits(e) struct testenv *e; {
+int TestBnNumDigits(struct testenv *e) {
 	int nd0, nl0, nd, nl, l1, l2;
 
 	e->depend = "(BnIsDigitZero)";
@@ -311,7 +305,7 @@ int TestBnNumDigits(e) struct testenv *e; {
 /*
  *	BnNumLeadingZeroBitsInDigit
  */
-int __BnNumLeadingZeroBitsInDigit__(n, nd) BigNum n; int nd; {
+int __BnNumLeadingZeroBitsInDigit__(BigNum n, int nd) {
 	int p = 0;
 
 	if(BnIsDigitZero(n, nd)) return(BN_DIGIT_SIZE);
@@ -324,7 +318,7 @@ int __BnNumLeadingZeroBitsInDigit__(n, nd) BigNum n; int nd; {
 	return(p);
 }
 
-int TestBnNumLeadingZeroBitsInDigit(e) struct testenv *e; {
+int TestBnNumLeadingZeroBitsInDigit(struct testenv *e) {
 	int nd; int l1, l2;
 
 
@@ -344,12 +338,12 @@ int TestBnNumLeadingZeroBitsInDigit(e) struct testenv *e; {
 /*
  *	BnIsDigitZero
  */
-int ___BnIsDigitZero___(n, nd) BigNum n; int nd; {
+int ___BnIsDigitZero___(BigNum n, int nd) {
 	if(BnGetDigit(n, nd) == 0) return(1);
 	return(0);
 }
 
-int TestBnIsDigitZero(e) struct testenv *e; {
+int TestBnIsDigitZero(struct testenv *e) {
 	int nd; int l1, l2;
 
 	e->depend = "()";
@@ -369,14 +363,14 @@ int TestBnIsDigitZero(e) struct testenv *e; {
 /*
  *	BnIsDigitNormalized
  */
-int ___BnIsDigitNormalized___(n, nd) BigNum n; int nd; {
+int ___BnIsDigitNormalized___(BigNum n, int nd) {
 	BnAssign(Ntmp2, 0, n, nd, 1);
 	BnShiftLeft(Ntmp2, 0, 1, Ntmp2, 1, 1);
 	if(BnIsDigitZero(Ntmp2, 1)) return(0);
 	return(1);
 }
 
-int TestBnIsDigitNormalized(e) struct testenv *e; {
+int TestBnIsDigitNormalized(struct testenv *e) {
 	int nd; int l1, l2;
 
 	e->depend = "(BnShiftLeft, BnIsDigitZero)";
@@ -396,14 +390,14 @@ int TestBnIsDigitNormalized(e) struct testenv *e; {
 /*
  *	BnIsDigitOdd
  */
-int ___BnIsDigitOdd___(n, nd) BigNum n; int nd; {
+int ___BnIsDigitOdd___(BigNum n, int nd) {
 	BnAssign(Ntmp2, 0, n, nd, 1);
 	BnShiftRight(Ntmp2, 0, 1, Ntmp2, 1, 1);
 	if(BnIsDigitZero(Ntmp2, 1)) return(0);
 	return(1);
 }
 
-int TestBnIsDigitOdd(e) struct testenv *e; {
+int TestBnIsDigitOdd(struct testenv *e) {
 	int nd; int l1, l2;
 
 	e->depend = "(BnShiftRight, BnIsDigitZero)";
@@ -423,7 +417,7 @@ int TestBnIsDigitOdd(e) struct testenv *e; {
 /*
  *	BnCompareDigits
  */
-int ___BnCompareDigits___(n, nd, m, md) BigNum n, m; int nd, md; {
+int ___BnCompareDigits___(BigNum n, int nd, BigNum m, int md) {
 	BnAssign(Ntmp2, 0, n, nd, 1);
 	BnComplement(Ntmp2, 0, 1);
 	if(BnAdd(Ntmp2, 0, 1, m, md, 1, 0)) return(-1);
@@ -432,7 +426,7 @@ int ___BnCompareDigits___(n, nd, m, md) BigNum n, m; int nd, md; {
 	return(1);
 }
 
-int TestBnCompareDigits(e) struct testenv *e; {
+int TestBnCompareDigits(struct testenv *e) {
 	int nd, md; int l1, l2;
 
 	e->depend = "(BnComplement, BnAdd, BnIsDigitZero)";
@@ -454,7 +448,7 @@ int TestBnCompareDigits(e) struct testenv *e; {
 /*
  *	BnComplement
  */
-void ___BnComplement___(n, nd, nl) BigNum n; int nd, nl; {
+void ___BnComplement___(BigNum n, int nd, int nl) {
 	int i;
 
 	BnSetDigit(Ntmp2, 0, 0);
@@ -463,7 +457,7 @@ void ___BnComplement___(n, nd, nl) BigNum n; int nd, nl; {
 		BnXorDigits(n, nd + i, Ntmp2, 0);
 }
 
-int TestBnComplement(e) struct testenv *e; {
+int TestBnComplement(struct testenv *e) {
 	int nd, nl;
 
 	e->depend = "(BnSubtractBorrow, BnXorDigits)";
@@ -483,14 +477,14 @@ int TestBnComplement(e) struct testenv *e; {
 /*
  *	BnAndDigits
  */
-void ___BnAndDigits___(n, nd, m, md) BigNum n, m; int nd, md; {
+void ___BnAndDigits___(BigNum n, int nd, BigNum m, int md) {
 	BnAssign(Ntmp2, 0, n, nd, 1);
 	BnOrDigits(Ntmp2, 0, m, md);
 	BnXorDigits(Ntmp2, 0, m, md);
 	BnXorDigits(n, nd, Ntmp2, 0);
 }
 
-int TestBnAndDigits(e) struct testenv *e; {
+int TestBnAndDigits(struct testenv *e) {
 	int nd, md;
 
 	e->depend = "(BnOrDigits, BnXorDigits)";
@@ -512,14 +506,14 @@ int TestBnAndDigits(e) struct testenv *e; {
 /*
  *	BnOrDigits
  */
-void ___BnOrDigits___(n, nd, m, md) BigNum n, m; int nd, md; {
+void ___BnOrDigits___(BigNum n, int nd, BigNum m, int md) {
 	BnAssign(Ntmp2, 0, n, nd, 1);
 	BnAndDigits(Ntmp2, 0, m, md);
 	BnXorDigits(Ntmp2, 0, m, md);
 	BnXorDigits(n, nd, Ntmp2, 0);
 }
 
-int TestBnOrDigits(e) struct testenv *e; {
+int TestBnOrDigits(struct testenv *e) {
 	int nd, md;
 
 	e->depend = "(BnAndDigits, BnXorDigits)";
@@ -541,7 +535,7 @@ int TestBnOrDigits(e) struct testenv *e; {
 /*
  *	BnXorDigits
  */
-void ___BnXorDigits___(n, nd, m, md) BigNum n, m; int nd, md; {
+void ___BnXorDigits___(BigNum n, int nd, BigNum m, int md) {
 	BnAssign(Ntmp2, 0, n, nd, 1);
 	BnAndDigits(Ntmp2, 0, m, md);
 	BnComplement(Ntmp2, 0, 1);
@@ -549,7 +543,7 @@ void ___BnXorDigits___(n, nd, m, md) BigNum n, m; int nd, md; {
 	BnAndDigits(n, nd, Ntmp2, 0);
 }
 
-int TestBnXorDigits(e) struct testenv *e; {
+int TestBnXorDigits(struct testenv *e) {
 	int nd, md;
 
 	e->depend = "(BnAndDigits, BnComplement, BnOrDigits)";
@@ -571,7 +565,7 @@ int TestBnXorDigits(e) struct testenv *e; {
 /*
  *	BnShiftLeft
  */
-void ___BnShiftLeft___(n, nd, nl, m, md, s) BigNum n, m; int nd, nl, md; int s; {
+void ___BnShiftLeft___(BigNum n, int nd, int nl, BigNum m, int md, int s) {
 	BnSetDigit(m, md, 2);
 	BnSetDigit(Ntmp2, 0, 1);
 	while(s--) {
@@ -585,7 +579,7 @@ void ___BnShiftLeft___(n, nd, nl, m, md, s) BigNum n, m; int nd, nl, md; int s; 
 	BnAssign(m, md, NtmpBig, nl, 1);
 }
 
-int TestBnShiftLeft(e) struct testenv *e; {
+int TestBnShiftLeft(struct testenv *e) {
 	int nd, nl, md; int s;
 
 	e->depend = "(BnSetToZero, BnMultiplyDigit)";
@@ -610,7 +604,7 @@ int TestBnShiftLeft(e) struct testenv *e; {
 /*
  *	BnShiftRight
  */
-void ___BnShiftRight___(n, nd, nl, m, md, s) BigNum n, m; int nd, nl, md; int s; {
+void ___BnShiftRight___(BigNum n, int nd, int nl, BigNum m, int md, int s) {
 	if((nl == 0) || (s == 0)) {
 		BnSetDigit(m, md, 0);
 		return;
@@ -621,7 +615,7 @@ void ___BnShiftRight___(n, nd, nl, m, md, s) BigNum n, m; int nd, nl, md; int s;
 	BnAssign(m, md, NtmpBig, 0, 1);
 }
 
-int TestBnShiftRight(e) struct testenv *e; {
+int TestBnShiftRight(struct testenv *e) {
 	int nd, nl, md; int s;
 
 	e->depend = "(BnShiftLeft)";
@@ -646,7 +640,7 @@ int TestBnShiftRight(e) struct testenv *e; {
 /*
  *	BnAddCarry
  */
-int ___BnAddCarry___(n, nd, nl, r) BigNum n; int nd, nl; int r;{
+int ___BnAddCarry___(BigNum n, int nd, int nl, int r){
 	if(r == 0) return(0);
 	BnComplement(n, nd, nl);
 	r = BnSubtractBorrow(n, nd, nl, 0);
@@ -655,7 +649,7 @@ int ___BnAddCarry___(n, nd, nl, r) BigNum n; int nd, nl; int r;{
 	return(0);
 }
 
-int TestBnAddCarry(e) struct testenv *e; {
+int TestBnAddCarry(struct testenv *e) {
 	int nd, nl; int r, l1, l2;
 
 	e->depend = "(BnComplement, BnSubtractBorrow)";
@@ -677,14 +671,14 @@ int TestBnAddCarry(e) struct testenv *e; {
 /*
  *	BnAdd
  */
-int ___BnAdd___(n, nd, nl, m, md, ml, r) BigNum n, m; int nd, nl, md, ml; int r;{
+int ___BnAdd___(BigNum n, int nd, int nl, BigNum m, int md, int ml, int r) {
 	BnComplement(m, md, ml);
 	r = BnSubtract(n, nd, ml, m, md, ml, r);
 	BnComplement(m, md, ml);
 	return(BnAddCarry(n, nd + ml, nl - ml, r));
 }
 
-int TestBnAdd(e) struct testenv *e; {
+int TestBnAdd(struct testenv *e) {
 	int nd, nl, md, ml; int r, l1, l2;
 
 	e->depend = "(BnComplement, BnSubtract, BnAddCarry)";
@@ -710,7 +704,7 @@ int TestBnAdd(e) struct testenv *e; {
 /*
  *	BnSubtractBorrow
  */
-int ___BnSubtractBorrow___(n, nd, nl, r) BigNum n; int nd, nl; int r;{
+int ___BnSubtractBorrow___(BigNum n, int nd, int nl, int r) {
 	if(r == 1) return(1);
 	BnComplement(n, nd, nl);
 	r = BnAddCarry(n, nd, nl, 1);
@@ -719,7 +713,7 @@ int ___BnSubtractBorrow___(n, nd, nl, r) BigNum n; int nd, nl; int r;{
 	return(0);
 }
 
-int TestBnSubtractBorrow(e) struct testenv *e; {
+int TestBnSubtractBorrow(struct testenv *e) {
 	int nd, nl; int r, l1, l2;
 
 	e->depend = "(BnComplement, BnAddCarry)";
@@ -741,14 +735,14 @@ int TestBnSubtractBorrow(e) struct testenv *e; {
 /*
  *	BnSubtract
  */
-int ___BnSubtract___(n, nd, nl, m, md, ml, r) BigNum n, m; int nd, nl, md, ml; int r;{
+int ___BnSubtract___(BigNum n, int nd, int nl, BigNum m, int md, int ml, int r) {
 	BnComplement(m, md, ml);
 	r = BnAdd(n, nd, ml, m, md, ml, r);
 	BnComplement(m, md, ml);
 	return(BnSubtractBorrow(n, nd + ml, nl - ml, r));
 }
 
-int TestBnSubtract(e) struct testenv *e; {
+int TestBnSubtract(struct testenv *e) {
 	int nd, nl, md, ml; int r, l1, l2;
 
 	e->depend = "(BnComplement, BnAdd, BnSubtractBorrow)";
@@ -774,7 +768,7 @@ int TestBnSubtract(e) struct testenv *e; {
 /*
  *	BnMultiplyDigit
  */
-int ___BnMultiplyDigit___(p, pd, pl, n, nd, nl, m, md) BigNum p, n, m; int pd, pl, nd, nl, md; {
+int ___BnMultiplyDigit___(BigNum p, int pd, int pl, BigNum n, int nd, int nl, BigNum m, int md) {
 	int r = 0, ret = 0;
 
 	BnAssign(Ntmp2, 0, m, md, 1);
@@ -793,7 +787,7 @@ int ___BnMultiplyDigit___(p, pd, pl, n, nd, nl, m, md) BigNum p, n, m; int pd, p
 	return(ret);
 }
 
-int TestBnMultiplyDigit(e) struct testenv *e; {
+int TestBnMultiplyDigit(struct testenv *e) {
 	int pd, pl, nd, nl, md; int l1, l2;
 
 	e->depend = "(BnSetToZero, BnIsDigitZero, BnIsDigitOdd, BnAdd, BnShiftRight, BnShiftLeft)";
@@ -821,7 +815,7 @@ int TestBnMultiplyDigit(e) struct testenv *e; {
 /*
  *	BnDivideDigit
  */
-int TestBnDivideDigit(e) struct testenv *e; {
+int TestBnDivideDigit(struct testenv *e) {
 	int nd, nl, md, qd, rd, l2;
 
 	e->depend = "(BnSetToZero, BnMultiplyDigit, BnCompareDigits)";
@@ -857,7 +851,7 @@ int TestBnDivideDigit(e) struct testenv *e; {
 /*
  *	BnMultiply
  */
-int ___BnMultiply___(p, pd, pl, m, md, ml, n, nd, nl) BigNum p, m, n; int pd, pl, md, ml, nd, nl; {
+int ___BnMultiply___(BigNum p, int pd, int pl, BigNum m, int md, int ml, BigNum n, int nd, int nl) {
 	int ret;
 
         for (ret = 0; nl-- > 0; pd++, nd++, pl--)
@@ -865,7 +859,7 @@ int ___BnMultiply___(p, pd, pl, m, md, ml, n, nd, nl) BigNum p, m, n; int pd, pl
 	return(ret);
 }
 
-int TestBnMultiply(e) struct testenv *e; {
+int TestBnMultiply(struct testenv *e) {
 	int pd, pl, nd, nl, md, ml; int l1, l2;
 
 	e->depend = "(BnSetToZero, BnMultiplyDigit)";
@@ -912,7 +906,7 @@ int TestBnMultiply(e) struct testenv *e; {
  *	Main
  */
 typedef struct {
-	int	(*TestFnt)();
+	int	(*TestFnt)(struct testenv *);
 	char	*NameFnt;
 } TESTONE;
 TESTONE AllTest[] = {
@@ -941,11 +935,11 @@ TESTONE AllTest[] = {
 };
 
 
-void seetest(n) int n; {
+void seetest(int n) {
 	printf("%d.	Testing %s\n", n, AllTest[n].NameFnt);
 }
 
-void dotest(e, n) struct testenv *e; int n; {
+void dotest(struct testenv *e, int n) {
 	seetest(n);
 	TestCount = 0;
 	e->name = AllTest[n].NameFnt;
@@ -953,7 +947,7 @@ void dotest(e, n) struct testenv *e; int n; {
 	printf("%d tests were performed\n", TestCount);
 }
 
-int main(n, s) int n; char **s; {
+int main(int n, char **s) {
 	struct testenv realenv, *e = &realenv;
 	int i, j, nbtest, SizeAllTest;
 

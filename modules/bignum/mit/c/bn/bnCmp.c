@@ -16,10 +16,7 @@
 static char copyright[]="@(#)bnCmp.c: copyright Digital Equipment Corporation & INRIA 1988, 1989, 1990\n";
 
 
-Boolean BnnIsZero (nn, nl)
-
-BigNum 		nn;
-BigNumLength 	nl;
+Boolean (BnnIsZero) (BigNum nn, BigNumLength nl)
 
 /* 
  * Returns TRUE iff N = 0
@@ -33,10 +30,7 @@ BigNumLength 	nl;
 /**/
 
 
-BigNumCmp BnnCompare (mm, ml, nn, nl)
-
-	 BigNum	 	mm, nn;
-register BigNumLength 	ml, nl;
+BigNumCmp (BnnCompare) (BigNum mm, BigNumLength ml, BigNum nn, BigNumLength nl)
 
 /*
  * return

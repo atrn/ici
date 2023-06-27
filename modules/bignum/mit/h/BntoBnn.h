@@ -65,7 +65,7 @@ struct BigNumHeader  			/* The header of a BigNum */
  */
 /* extern char *malloc(); */
 /* Allocates a BigNum structure and returns a pointer to it */
-BigNum BnAlloc(size) int size; {
+BigNum (BnAlloc)(int size) {
 	register BigNum n;
  
 	n = (BigNum) (malloc(sizeof(struct BigNumHeader) +
@@ -76,7 +76,7 @@ BigNum BnAlloc(size) int size; {
 }
  
 /* Allocates a BigNum, inserts its Type, and returns a pointer to it */
-BigNum BnCreate(type, size) BigNumType type; int size; {
+BigNum BnCreate(BigNumType type, int size) {
 	register BigNum n;
  
 	n = BnAlloc(size);
@@ -86,23 +86,23 @@ BigNum BnCreate(type, size) BigNumType type; int size; {
 }
  
 /* Frees a BigNum structure */
-int BnFree(n) BigNum n; {
+int BnFree(BigNum n) {
 	free(((struct BigNumHeader *) n) - 1);
         return 1; 
 }
  
 /* Returns the BigNum's Type */
-BigNumType BnGetType(n) BigNum n; {
+BigNumType BnGetType(BigNum n) {
         return(BN_TYPE(n));
 }
  
 /* Sets the BigNum's Type */
-void BnSetType(n, type) BigNum n; BigNumType type; {
+void BnSetType(BigNum n, BigNumType type) {
         BN_TYPE(n) = type;
 }
  
 /* Returns the number of digits allocated for the BigNum */
-int BnGetSize(n) BigNum n; {
+int BnGetSize(BigNum n) {
 	return(BN_LENGTH(n));
 }
  

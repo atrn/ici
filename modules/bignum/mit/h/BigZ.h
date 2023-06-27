@@ -63,35 +63,35 @@ typedef struct BigZStruct * 		BigZ;
 		/*********** functions of bz.c **********/
 
 extern void             BzInit                  ();
-extern void             BzClose                  ();
+extern void             BzClose                 ();
 
 extern BigZ 		BzCreate		(int);
 extern void 		BzFree			(BigZ);
 extern void 		BzFreeString		(char *);
 
-extern unsigned		BzNumDigits		();
+extern unsigned		BzNumDigits		(BigZ);
 
-extern BigZ 		BzCopy			();
-extern BigZ 		BzNegate		();
-extern BigZ 		BzAbs			();
+extern BigZ 		BzCopy			(BigZ);
+extern BigZ 		BzNegate		(BigZ);
+extern BigZ 		BzAbs			(BigZ);
 extern BzCmp 		BzCompare		(BigZ, BigZ);
 
-extern BigZ 		BzAdd			();
-extern BigZ 		BzSubtract		();
-extern BigZ 		BzMultiply		();
-extern BigZ 		BzDivide		();
+extern BigZ 		BzAdd			(BigZ, BigZ);
+extern BigZ 		BzSubtract		(BigZ, BigZ);
+extern BigZ 		BzMultiply		(BigZ, BigZ);
+extern BigZ 		BzDivide		(BigZ, BigZ, BigZ *);
 extern BigZ 		BzDiv			(BigZ, BigZ);
-extern BigZ 		BzMod			();
+extern BigZ 		BzMod			(BigZ, BigZ);
 
 extern BigZ 		BzFromString		(char *, BigNumDigit);
 extern char *		BzToString		(BigZ, BigNumDigit);
 
 extern BigZ             BzFromInteger           (int);
-extern int		BzToInteger             ();
+extern int		BzToInteger             (BigZ);
 
-extern BigZ		BzFromBigNum		();
-extern BigNum		BzToBigNum		();
+extern BigZ		BzFromBigNum		(BigNum, BigNumLength);
+extern BigNum		BzToBigNum		(BigZ, BigNumLength *);
 
 		/*********** functions of bzf.c **********/
 
-extern BigZ 		BzFactorial		();
+extern BigZ 		BzFactorial		(BigZ);

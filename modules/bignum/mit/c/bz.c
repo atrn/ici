@@ -3,11 +3,11 @@
 /*      modified_on Thu Mar 22 20:45:38 GMT+1:00 1990 by shand */
 
 
-/* bz.c: provides an implementation of "unlimited-precision" 
- * arithmetic for signed integers. 
+/* bz.c: provides an implementation of "unlimited-precision"
+ * arithmetic for signed integers.
  *
- * Several conventions are used in the commentary:  
- *    A "BigZ" is the name for an arbitrary-precision signed integer.  
+ * Several conventions are used in the commentary:
+ *    A "BigZ" is the name for an arbitrary-precision signed integer.
  *    Capital letters (e.g., "Z") are used to refer to the value of BigZs.
  */
 
@@ -18,7 +18,7 @@
 #include <stdlib.h>
 
 
-		/***************************************/
+                /***************************************/
 /*
 #include <stdio.h>
 #include <macros.h>
@@ -27,16 +27,16 @@
 #include <values.h>
 */
 
-#define max(a,b) 		(a<b ? b : a)
+#define max(a,b)                (a<b ? b : a)
 #define abs(x)			(x>=0 ? x : -(x))
-#define M_LN2	                0.69314718055994530942
-#define M_LN10	                2.30258509299404568402
-#define BITSPERBYTE	        8
-#define BITS(type)	        (BITSPERBYTE * (int)sizeof(type))
-#define HIBITI	                ((1 << (BITS(int) - 1)))
-#define MAXINT	                (~HIBITI)
+#define M_LN2                   0.69314718055994530942
+#define M_LN10                  2.30258509299404568402
+#define BITSPERBYTE             8
+#define BITS(type)              (BITSPERBYTE * (int)sizeof(type))
+#define HIBITI                  ((1 << (BITS(int) - 1)))
+#define MAXINT                  (~HIBITI)
 
-		/***************************************/
+                /***************************************/
 
 #define BzToBn(z)               ((z)->Digits)
 #define CTOI(c)			(c >= '0' && c <= '9' ? c - '0' :\
@@ -49,34 +49,34 @@
 static char copyright[]="@(#)bz.c: copyright Digital Equipment Corporation & INRIA 1988, 1989\n";
 
 
-		/***************************************/
+                /***************************************/
 
 static int Initialized = FALSE;
 
 /* constants used by BzToString() and BzFromString() */
-static double BzLog [] = 
+static double BzLog [] =
 {
-    0, 
-    0, 			/* log (1) */
-    M_LN2,  		/* log (2) */
-    1.098612, 		/* log (3) */
-    1.386294, 		/* log (4) */
-    1.609438, 		/* log (5) */
-    1.791759, 		/* log (6) */
-    1.945910, 		/* log (7) */
-    2.079442, 		/* log (8) */
-    2.197225, 		/* log (9) */
-    M_LN10, 		/* log (10) */
-    2.397895, 		/* log (11) */
-    2.484907, 		/* log (12) */
-    2.564949, 		/* log (13) */
-    2.639057, 		/* log (14) */
-    2.708050, 		/* log (15) */
-    2.772588, 		/* log (16) */
-};    
+    0,
+    0,                  /* log (1) */
+    M_LN2,              /* log (2) */
+    1.098612,           /* log (3) */
+    1.386294,           /* log (4) */
+    1.609438,           /* log (5) */
+    1.791759,           /* log (6) */
+    1.945910,           /* log (7) */
+    2.079442,           /* log (8) */
+    2.197225,           /* log (9) */
+    M_LN10,             /* log (10) */
+    2.397895,           /* log (11) */
+    2.484907,           /* log (12) */
+    2.564949,           /* log (13) */
+    2.639057,           /* log (14) */
+    2.708050,           /* log (15) */
+    2.772588,           /* log (16) */
+};
 
 /**/
-    
+
 
 void BzInit ()
 {
@@ -87,14 +87,12 @@ void BzInit ()
     }
 }
 
-		/***************************************/
+                /***************************************/
 
 
-BigZ BzCreate (Size)
+BigZ BzCreate (int Size)
 
-int Size;
-
-/* 
+/*
  * Allocates a BigZ of the desired size.
  * Sets it to 0.
  */
@@ -105,12 +103,12 @@ int Size;
 
     if ((z = (BigZ) (malloc (sizeof (struct BigZHeader) + Size * sizeof (BigNumDigit)))) != NULL)
     {
-	/* reset digits */
-	BnnSetToZero (BzToBn (z), Size);
+        /* reset digits */
+        BnnSetToZero (BzToBn (z), Size);
 
-	/* init header */
-	BzSetSize (z, Size);
-	BzSetSign (z, BZ_ZERO);
+        /* init header */
+        BzSetSize (z, Size);
+        BzSetSign (z, BZ_ZERO);
     }
 
     return (z);
@@ -118,9 +116,7 @@ int Size;
 
 
 
-void BzFree (z)	
-
-BigZ z;
+void BzFree (BigZ z)
 
 /*
  * Frees an existing BigZ.
@@ -130,13 +126,11 @@ BigZ z;
     free (z);
 }
 
-		/***************************************/
-		/***************************************/
+                /***************************************/
+                /***************************************/
 
 
-void BzFreeString (s)	
-
-char *s;
+void BzFreeString (char *s)
 
 /*
  * Frees an existing BigZ allocated string.
@@ -146,14 +140,12 @@ char *s;
     free (s);
 }
 
-		/***************************************/
+                /***************************************/
 /**/
 
-unsigned BzNumDigits (z)
+unsigned BzNumDigits (BigZ z)
 
-BigZ z;
-
-/* 
+/*
  * Returns the number of digits used by z.
  */
 
@@ -162,14 +154,12 @@ BigZ z;
 }
 
 
-		/***************************************/
+                /***************************************/
 
 
-BigZ BzCopy (z)	
+BigZ BzCopy (BigZ z)
 
-BigZ z;
-
-/* 
+/*
  * Creates a copy of the passed BigZ.
  */
 
@@ -177,29 +167,27 @@ BigZ z;
     BigZ y;
     int zl;
 
-   
+
     zl = BzNumDigits (z);
     if ((y = BzCreate (zl)) != NULL)
     {
-	/* copy the digits */
+        /* copy the digits */
         BnnAssign (BzToBn (y), BzToBn (z), zl);
 
-	/* copy the header WITHOUT the size !! */
-	BzSetSign (y, BzGetSign (z));
+        /* copy the header WITHOUT the size !! */
+        BzSetSign (y, BzGetSign (z));
     }
 
     return (y);
 }
 
-		/***************************************/
+                /***************************************/
 /**/
 
 
-BigZ BzNegate (z)	
+BigZ BzNegate (BigZ z)
 
-BigZ z;
-
-/* 
+/*
  * Negates the passed BigZ.
  */
 
@@ -212,14 +200,12 @@ BigZ z;
     return (y);
 }
 
-		/***************************************/
+                /***************************************/
 
 
-BigZ BzAbs (z)	
+BigZ BzAbs (BigZ z)
 
-BigZ z;
-
-/* 
+/*
  * Takes the absolute value of the passed BigZ.
  */
 
@@ -232,38 +218,34 @@ BigZ z;
     return (y);
 }
 
-		/***************************************/
+                /***************************************/
 
 
-BzCmp BzCompare (y, z)
+BzCmp BzCompare (BigZ y, BigZ z)
 
-BigZ y, z;
-
-/* 
+/*
  * Returns BZ_GT	if Y > Z,
- *         BZ_LT	if Y < Z, 
+ *         BZ_LT	if Y < Z,
  *         BZ_EQ	otherwise.
  */
 
 {
     return (BzGetSign (y) > BzGetSign (z) ? BZ_GT :
-	    BzGetSign (y) < BzGetSign (z) ? BZ_LT :
-	    BzGetSign (y) > 0 ? BnnCompare (BzToBn (y), BzGetSize (y),
-					    BzToBn (z), BzGetSize (z)) :
-	    BzGetSign (y) < 0 ? BnnCompare (BzToBn (z), BzGetSize (z),
-					    BzToBn (y), BzGetSize (y)) :
-	    BZ_EQ);
+            BzGetSign (y) < BzGetSign (z) ? BZ_LT :
+            BzGetSign (y) > 0 ? BnnCompare (BzToBn (y), BzGetSize (y),
+                                            BzToBn (z), BzGetSize (z)) :
+            BzGetSign (y) < 0 ? BnnCompare (BzToBn (z), BzGetSize (z),
+                                            BzToBn (y), BzGetSize (y)) :
+            BZ_EQ);
 }
 
-		/***************************************/
+                /***************************************/
 /**/
 
 
-BigZ BzAdd (y, z)
+BigZ BzAdd (BigZ y, BigZ z)
 
-BigZ y, z;
-
-/* 
+/*
  * Returns Y + Z.
  */
 
@@ -278,78 +260,76 @@ BigZ y, z;
 
     if (BzGetSign (y) == BzGetSign (z))
     {
-	/* Add magnitudes if signs are the same */
+        /* Add magnitudes if signs are the same */
         switch (BnnCompare (BzToBn (y), yl, BzToBn (z), zl))
-	{
-	    case BZ_EQ:
-	    case BZ_GT:	/* |Y| >= |Z| */
+        {
+            case BZ_EQ:
+            case BZ_GT:	/* |Y| >= |Z| */
 
-	        if ((n = BzCreate (yl+1)) != NULL)
-		{
-		    BnnAssign (BzToBn (n), BzToBn (y), yl);
-		    BnnAdd (BzToBn (n), yl+1, BzToBn (z), zl, 0);
-		    BzSetSign (n, BzGetSign (y));
-		}
-	    break;
+                if ((n = BzCreate (yl+1)) != NULL)
+                {
+                    BnnAssign (BzToBn (n), BzToBn (y), yl);
+                    BnnAdd (BzToBn (n), yl+1, BzToBn (z), zl, 0);
+                    BzSetSign (n, BzGetSign (y));
+                }
+            break;
 
-	    default:		/* BZ_LT: |Y| < |Z| */
+            default:		/* BZ_LT: |Y| < |Z| */
 
-		if ((n = BzCreate (zl+1)) != NULL)
-		{
-		    BnnAssign (BzToBn (n), BzToBn (z), zl);
-		    BnnAdd (BzToBn (n), zl+1, BzToBn (y), yl, 0);
-		    BzSetSign (n, BzGetSign (z));
-		}
-	    break;
-	}
+                if ((n = BzCreate (zl+1)) != NULL)
+                {
+                    BnnAssign (BzToBn (n), BzToBn (z), zl);
+                    BnnAdd (BzToBn (n), zl+1, BzToBn (y), yl, 0);
+                    BzSetSign (n, BzGetSign (z));
+                }
+            break;
+        }
     }
 /**/
 
 
     else
     {
-	/* Subtract magnitudes if signs are different */
-	switch (BnnCompare (BzToBn (y), yl, BzToBn (z), zl))
-	{
-	    case BZ_EQ:	/* Y = -Z */
+        /* Subtract magnitudes if signs are different */
+        switch (BnnCompare (BzToBn (y), yl, BzToBn (z), zl))
+        {
+            case BZ_EQ:	/* Y = -Z */
 
-	        n = BzCreate (1);
-	    break;
+                n = BzCreate (1);
+            break;
 
-	    case BZ_GT:	/* |Y| > |Z| */
+            case BZ_GT:	/* |Y| > |Z| */
 
-		if ((n = BzCreate (yl)) != NULL)
-		{
-		    BnnAssign (BzToBn (n), BzToBn (y), yl);
-		    BnnSubtract (BzToBn (n), yl, BzToBn (z), zl, 1);
-		    BzSetSign (n, BzGetSign (y));
-		}
-	    break;
+                if ((n = BzCreate (yl)) != NULL)
+                {
+                    BnnAssign (BzToBn (n), BzToBn (y), yl);
+                    BnnSubtract (BzToBn (n), yl, BzToBn (z), zl, 1);
+                    BzSetSign (n, BzGetSign (y));
+                }
+            break;
 
-	    default:		/* BZ_LT: |Y| < |Z| */
+            default:		/* BZ_LT: |Y| < |Z| */
 
-		if ((n = BzCreate (zl)) != NULL)
-		{
-		    BnnAssign (BzToBn (n), BzToBn (z), zl);
-		    BnnSubtract (BzToBn (n), zl, BzToBn (y), yl, 1);
-		    BzSetSign (n, BzGetSign (z));
-		}
-	    break;
-	}
+                if ((n = BzCreate (zl)) != NULL)
+                {
+                    BnnAssign (BzToBn (n), BzToBn (z), zl);
+                    BnnSubtract (BzToBn (n), zl, BzToBn (y), yl, 1);
+                    BzSetSign (n, BzGetSign (z));
+                }
+            break;
+        }
     }
 
     return (n);
 }
 
-		/***************************************/
+                /***************************************/
 /**/
 
 
-BigZ BzSubtract (y, z)	
+BigZ BzSubtract (BigZ y, BigZ z)
 
-BigZ y, z;
-
-/* 
+/*
  * Returns Y - Z.
  */
 
@@ -364,15 +344,13 @@ BigZ y, z;
     return diff;
 }
 
-		/***************************************/
+                /***************************************/
 /**/
 
 
-BigZ BzMultiply (y, z)	
+BigZ BzMultiply (BigZ y, BigZ z)
 
-BigZ y, z;
-
-/* 
+/*
  * Returns Y * Z.
  */
 
@@ -386,32 +364,30 @@ BigZ y, z;
 
     if ((n = BzCreate (yl+zl)) != NULL)
     {
-	BnnMultiply (BzToBn (n), yl+zl, BzToBn (y), yl, BzToBn (z), zl);
-	BzSetSign (n, BzGetSign (y) * BzGetSign (z));
+        BnnMultiply (BzToBn (n), yl+zl, BzToBn (y), yl, BzToBn (z), zl);
+        BzSetSign (n, BzGetSign (y) * BzGetSign (z));
     }
 
     return (n);
 }
 
-		/***************************************/
+                /***************************************/
 /**/
 
 
-BigZ BzDivide (y, z, r)	
+BigZ BzDivide (BigZ y, BigZ z, BigZ *r)
 
-BigZ y, z, *r;
-
-/* 
- * Sets Y mod Z => R, 
+/*
+ * Sets Y mod Z => R,
  * Returns Y div Z => Q
- * 
- * such that Y = ZQ + R 
+ *
+ * such that Y = ZQ + R
  * and 0 <= R < |Z|.
  */
 
 {
-    BigZ 	q;
-    int 	yl, zl, ql, rl;
+    BigZ        q;
+    int         yl, zl, ql, rl;
     Boolean     rnotnul;
 
 
@@ -426,14 +402,14 @@ BigZ y, z, *r;
     rl = max (zl,yl) + 1;
 
     /* Set up quotient, remainder */
-    q = BzCreate (ql); 
+    q = BzCreate (ql);
     *r = BzCreate (rl);
-    
-    if (!*r || !q) 
+
+    if (!*r || !q)
         return (NULL);
 
     BnnAssign (BzToBn (*r), BzToBn (y), yl);
-    
+
     /* Do the division */
     BnnDivide (BzToBn (*r), rl, BzToBn (z), zl);
     BnnAssign (BzToBn (q), BzToBn (*r) + zl, rl-zl);
@@ -461,15 +437,13 @@ BigZ y, z, *r;
     return (q);
 }
 
-		/***************************************/
+                /***************************************/
 /**/
 
 
-BigZ BzDiv (y, z)		
+BigZ BzDiv (BigZ y, BigZ z)
 
-BigZ y, z;
-
-/* 
+/*
  * Returns Y div Z.
  */
 
@@ -483,14 +457,12 @@ BigZ y, z;
     return (q);
 }
 
-		/***************************************/
+                /***************************************/
 
 
-BigZ BzMod (y, z)		
+BigZ BzMod (BigZ y, BigZ z)
 
-BigZ y, z;
-
-/* 
+/*
  * Returns Y mod Z.
  */
 
@@ -503,14 +475,11 @@ BigZ y, z;
     return (r);
 }
 
-		/***************************************/
+                /***************************************/
 /**/
 
 
-char * BzToString (z, base)
-
-BigZ 		z;
-BigNumDigit 	base;
+char * BzToString (BigZ z, BigNumDigit base)
 
 /*
  * Returns a pointer to a string that represents Z in the specified base.
@@ -519,12 +488,12 @@ BigNumDigit 	base;
 
 {
     char *	string;
-    BigZ 	y, q, t;
+    BigZ        y, q, t;
     BigNumDigit r;
 
     static char Digit[] = "0123456789ABCDEF";
     char *	s;
-    int 	sd, zl, sl;
+    int         sd, zl, sl;
 
 
     if (base < 2 || base > 16)
@@ -547,29 +516,29 @@ BigNumDigit 	base;
 
     /* Divide Z by base repeatedly; successive digits given by remainders */
     *--s = '\0';
-    if (BzGetSign (z) == BZ_ZERO) 
+    if (BzGetSign (z) == BZ_ZERO)
         *--s = '0';
     else
     do
     {
-	r = BnnDivideDigit (BzToBn (q), BzToBn (y), zl, base);
-	*--s = Digit[r];
+        r = BnnDivideDigit (BzToBn (q), BzToBn (y), zl, base);
+        *--s = Digit[r];
 
-	/* exchange y and q (to avoid BzMove (y, q) */
-	t = q,  q = y,  y = t;
+        /* exchange y and q (to avoid BzMove (y, q) */
+        t = q,  q = y,  y = t;
     } while (!BnnIsZero (BzToBn (y), zl));
-    
+
     /* Set sign if negative */
-    if (BzGetSign (z) < 0) 
+    if (BzGetSign (z) < 0)
         *--s = '-';
 
     /* and move string into position */
-    if ((sd = s-string) > 0) 
+    if ((sd = s-string) > 0)
         while (s < string + sl)
-	{
-	    *(s-sd) = *s;
-	    s++;
-	}
+        {
+            *(s-sd) = *s;
+            s++;
+        }
 
     /* Free temporary BigNums and return the string */
     BzFree(y);
@@ -578,14 +547,11 @@ BigNumDigit 	base;
     return string;
 }
 
-		/***************************************/
+                /***************************************/
 /**/
 
 
-BigZ BzFromString (s, base)
-
-char 		*s;
-BigNumDigit 	base;
+BigZ BzFromString (char *s, BigNumDigit base)
 
 /*
  * Creates a BigZ whose value is represented by "string" in the
@@ -596,52 +562,50 @@ BigNumDigit 	base;
  */
 
 {
-    BigZ 	z, p, t;
-    BzSign 	sign;
-    int 	zl;
+    BigZ        z, p, t;
+    BzSign      sign;
+    int         zl;
 
-    
+
     /* Throw away any initial space */
-    while (*s == ' ') 
+    while (*s == ' ')
         s++;
-    
+
     /* Allocate BigNums */
     zl = strlen (s) * BzLog[base] / (BzLog[2] * BN_DIGIT_SIZE) + 1;
 
     z = BzCreate (zl);
     p = BzCreate (zl);
 
-    if (!z || !p) 
+    if (!z || !p)
         return (NULL);
-    
+
     /* Set up sign, base, initialize result */
     sign = (*s == '-' ? (s++, BZ_MINUS) : *s == '+' ? (s++, BZ_PLUS) : BZ_PLUS);
-    
+
     /* Multiply in the digits of the string, one at a time */
     for (;  *s != '\0';  s++)
     {
-	BnnSetToZero (BzToBn (p), zl);
-	BnnSetDigit (BzToBn (p), CTOI (*s));
-	BnnMultiplyDigit (BzToBn (p), zl, BzToBn (z), zl, base);  
+        BnnSetToZero (BzToBn (p), zl);
+        BnnSetDigit (BzToBn (p), CTOI (*s));
+        BnnMultiplyDigit (BzToBn (p), zl, BzToBn (z), zl, base);
 
-	/* exchange z and p (to avoid BzMove (z, p) */
-	t = p,  p = z,  z = t;
+        /* exchange z and p (to avoid BzMove (z, p) */
+        t = p,  p = z,  z = t;
     }
-    
+
     /* Set sign of result */
     BzSetSign (z, BnnIsZero (BzToBn (z), zl) ? BZ_ZERO : sign);
-    
+
     /* Free temporary BigNums */
     BzFree (p);
 
     return (z);
 }
 
-		/***************************************/
+                /***************************************/
 
-BigZ BzFromInteger (i)
-
-int i;
+BigZ BzFromInteger (int i)
 
 {
     BigZ z;
@@ -651,10 +615,10 @@ int i;
 
     z->Digits[0] = abs (i);
 
-    if (i > 0) 
+    if (i > 0)
         BzSetSign (z, BZ_PLUS);
     else
-    if (i < 0) 
+    if (i < 0)
         BzSetSign (z, BZ_MINUS);
     else
         BzSetSign (z, BZ_ZERO);
@@ -662,13 +626,10 @@ int i;
     return z;
 }
 
-		/***************************************/
+                /***************************************/
 
 
-int BzToInteger (z)
-
-BigZ z;
-
+int BzToInteger (BigZ z)
 {
     if (BzNumDigits (z) > 1)
         return (MAXINT);
@@ -679,14 +640,10 @@ BigZ z;
         return (z->Digits[0]);
 }
 
-		/***************************************/
+                /***************************************/
 
 
-BigZ BzFromBigNum (n, nl)
-
-BigNum          n;
-BigNumLength    nl;
-
+BigZ BzFromBigNum (BigNum n, BigNumLength nl)
 {
     BigZ z;
     int  i;
@@ -706,13 +663,9 @@ BigNumLength    nl;
     return z;
 }
 
-		/***************************************/
+                /***************************************/
 
-BigNum BzToBigNum (z, nl)
-
-BigZ         z;
-BigNumLength *nl;
-
+BigNum BzToBigNum (BigZ z, BigNumLength *nl)
 {
     BigNum n, m;
     int i;
@@ -734,7 +687,7 @@ BigNumLength *nl;
     return n;
 }
 
-		/***************************************/
+                /***************************************/
 
 
 void BzClose ()
@@ -746,4 +699,4 @@ void BzClose ()
     }
 }
 
-		/***************************************/
+                /***************************************/

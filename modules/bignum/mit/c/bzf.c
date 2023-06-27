@@ -16,9 +16,7 @@
 		/***************************************/
 
 
-BigZ BzFactorial (z)
-
-BigZ z;
+BigZ (BzFactorial) (BigZ z)
 
 /*
  * Returns Z!

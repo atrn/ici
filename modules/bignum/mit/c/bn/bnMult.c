@@ -15,12 +15,7 @@
 
 static char copyright[]="@(#)bnMult.c: copyright Digital Equipment Corporation & INRIA 1988, 1989, 1990\n";
 
-BigNumCarry BnnMultiply (pp, pl, mm, ml, nn, nl)
-
-register BigNum		pp, nn;
-	 BigNum 	mm;
-register BigNumLength	pl, nl;
-	 BigNumLength	ml;
+BigNumCarry (BnnMultiply) (BigNum pp, BigNumLength pl, BigNum mm, BigNumLength ml, BigNum nn, BigNumLength nl)
 
 /*
  * Performs the product:

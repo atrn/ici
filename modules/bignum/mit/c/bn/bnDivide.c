@@ -16,10 +16,7 @@
 static char copyright[]="@(#)bnDivide.c: copyright Digital Equipment Corporation & INRIA 1988, 1989, 1990\n";
 
 
-static void divide (nn, nl, dd, dl)
-
-	 BigNum		nn, dd;
-register BigNumLength 	nl, dl;
+static void divide (BigNum nn, BigNumLength nl, BigNum dd, BigNumLength dl)
 
 /*
  * In-place division.
@@ -98,10 +95,7 @@ register BigNumLength 	nl, dl;
 /**/
 
 
-void BnnDivide (nn, nl, dd, dl)
-
-	 BigNum		nn, dd;
-register BigNumLength 	nl, dl;
+void BnnDivide (BigNum nn, BigNumLength nl, BigNum dd, BigNumLength dl)
 
 /*
  * Performs the quotient:
