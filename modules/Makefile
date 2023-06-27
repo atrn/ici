@@ -48,6 +48,7 @@ build clean distclean install:
 	    $(_make) $(dash_s) -C "$$_d" \
 		sudo=$(sudo) \
 		prefix=$(prefix) \
+		silent=$(silent) \
 		ICI_DOT_H_DIR=$(ICI_DOT_H_DIR) \
 		ICI_LIB_DIR=$(ICI_LIB_DIR) \
 		ICI_MACOS_BUNDLE_HOST=$(ICI_MACOS_BUNDLE_HOST) \

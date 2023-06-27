@@ -18,12 +18,18 @@ include $(ICI_MODULES_DIR)/Makefile.inc
 
 # Shorthands for running dmake and install
 
+ifeq ($(silent),)
+_quiet=
+else
+_quiet=--quiet
+endif
+
 _dmake = \
 	ICI_MODULE_NAME=$(ICI_MODULE_NAME) \
 	ICI_DOT_H_DIR=$(ICI_DOT_H_DIR) \
 	ICI_LIB_DIR=$(ICI_LIB_DIR) \
 	ICI_MACOS_BUNDLE_HOST=$(ICI_MACOS_BUNDLE_HOST) \
-	dmake -o $(ICI_PLUGIN_FILE) plugin
+	dmake $(_quiet) -o $(ICI_PLUGIN_FILE) plugin
 
 _install = $(sudo) install -c -m 444
 

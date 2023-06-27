@@ -402,24 +402,21 @@ install-core-ici:
 
 
 
+# ###############################################################
 #
 # Install everything - static and dynamic libs, exe.
 #
 full-install:
-	$(silent) echo '1  - make clean';	  $(_make) clean
-	$(silent) echo '2  - make (lib)';	  $(_make) lib ici.h build=lib conf=$(conf) dccflags="$(dccflags) --quiet"
-	$(silent) echo '3  - make install (lib)'; $(_make) build=lib install-libici prefix=$(prefix) dccflags="$(dccflags) --quiet"
-	$(silent) echo '4  - make clean';	  $(_make) clean
-	$(silent) echo '5  - make (dll)';	  $(_make) lib ici.h build=dll conf=$(conf) dccflags="$(dccflags) --quiet"
-	$(silent) echo '6  - make install (dll)'; $(_make) build=dll install-libici install-ici-exe prefix=$(prefix) dccflags="$(dccflag) --quiet"
-	$(silent) echo '7  - make clean';	  $(_make) clean
-
-# And when the modules are more stable, re-enable the following...
-#
-#	$(silent) echo '8  - make modules'; $(_make) clean-modules; $(_make) modules
-#	$(silent) echo '9  - make install modules'; $(_make) install-modules
-#	$(silent) echo '10 - make clean modules'; $(_make) clean-modules
-#
+	$(silent) echo '1  - make clean';	    $(_make) clean
+	$(silent) echo '2  - make (lib)';	    $(_make) lib ici.h build=lib conf=$(conf) dccflags="$(dccflags) --quiet"
+	$(silent) echo '3  - make install (lib)';   $(_make) build=lib install-libici prefix=$(prefix) dccflags="$(dccflags) --quiet"
+	$(silent) echo '4  - make clean';	    $(_make) clean
+	$(silent) echo '5  - make (dll)';	    $(_make) lib ici.h build=dll conf=$(conf) dccflags="$(dccflags) --quiet"
+	$(silent) echo '6  - make install (dll)';   $(_make) build=dll install-libici install-ici-exe prefix=$(prefix) dccflags="$(dccflag) --quiet"
+	$(silent) echo '7  - make modules';	    $(_make) build=dll modules dccflags="$(dccflag) --quiet"
+	$(silent) echo '8  - make install-modules'; $(_make) build=dll install-modules
+	$(silent) echo '9  - make clean';	    $(_make) clean
+	$(silent) echo '10 - make clean-modules';   $(_make) clean-modules
 
 
 # ###############################################################
@@ -475,14 +472,14 @@ _make_modules = $(_make) -C modules \
 	ICI_LIB_DIR=$(prefix)/lib \
 	ICI_MACOS_BUNDLE_HOST=$(prefix)/lib/$(dll) \
 	ICI_BUILD_TYPE_DLL=1 \
-	silent=$(slient)
+	silent=$(silent)
   else
 _modules_depends = $(prefix)/bin/$(prog)
 _make_modules = $(_make) -C modules \
 	ICI_DOT_H_DIR=$(prefix)/include \
 	ICI_LIB_DIR=$(prefix)/lib \
 	ICI_MACOS_BUNDLE_HOST=$(prefix)/bin/$(prog) \
-	silent=$(slient)
+	silent=$(silent)
   endif
 else
   ifeq ($(build),dll)
@@ -492,14 +489,14 @@ _make_modules = $(_make) -C modules \
 	ICI_LIB_DIR=$(PWD) \
 	ICI_MACOS_BUNDLE_HOST=$(PWD)/$(dll) \
 	ICI_BUILD_TYPE_DLL=1 \
-	silent=$(slient)
+	silent=$(silent)
   else
 _modules_depends = $(prog)
 _make_modules = $(_make) -C modules \
 	ICI_DOT_H_DIR=$(PWD) \
 	ICI_LIB_DIR=$(PWD) \
 	ICI_MACOS_BUNDLE_HOST=$(PWD)/$(prog) \
-	silent=$(slient)
+	silent=$(silent)
   endif
 endif
 
