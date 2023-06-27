@@ -6,7 +6,7 @@ buildtype?=exe
 dest?=/usr/local
 sudo?=
 
-targets=all \
+targets=build \
 	clean \
 	distclean \
 	install \
