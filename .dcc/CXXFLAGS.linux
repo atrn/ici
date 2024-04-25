@@ -20,4 +20,5 @@
 !endif
 -DICI_VEC_USE_IPP
 -I${IPPROOT}/include
+-I${IPPROOT}/include/ipp
 !endif

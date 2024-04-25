@@ -1,3 +1,4 @@
 -DICI_MODULE_NAME=ipp
 -I${IPPROOT}/include
+-I${IPPROOT}/include/ipp
 !inherit
