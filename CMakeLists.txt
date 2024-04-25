@@ -10,7 +10,7 @@
 #  There is no 'install' support as yet.
 #
 
-cmake_minimum_required(VERSION 3.0 FATAL_ERROR) # A guess
+cmake_minimum_required(VERSION 3.20 FATAL_ERROR)
 
 project(ici LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 14)
