@@ -218,8 +218,8 @@ endif
 # Helper macros and setup
 #
 
-_srcs=			$(shell ls *.cc | fgrep -v win32)
-_hdrs=			$(shell ls *.h | fgrep -v ici.h)
+_srcs=			$(shell ls *.cc | grep -v win32)
+_hdrs=			$(shell ls *.h | grep -v ici\\.h)
 _dcc=			PREFIX=$(prefix) dcc $(dccflags) --objdir $(objdir)
 
 ifeq ($(silent),)
